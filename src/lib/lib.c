@@ -20,6 +20,10 @@
 #include <HTS_engine.h>
 #include "russian.h"
 
+/* We will need these internal functions of hts_engine API */
+char *HTS_calloc(const size_t num, const size_t size);
+char *HTS_strdup(const char *string);
+
 static const char *sep=path_sep;
 
 typedef struct _RHVoice_callback_info {

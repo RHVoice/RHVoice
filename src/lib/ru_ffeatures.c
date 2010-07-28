@@ -14,6 +14,7 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "russian.h"
+#include <cst_ffeatures.h>
 
 extern const cst_regex * const ru_punc_minor_break;
 extern const cst_regex * const ru_punc_major_break;
