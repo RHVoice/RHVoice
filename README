@@ -1,0 +1,59 @@
+                         RHVoice version 0.1
+
+RHVoice is a Russian speech synthesizer.
+It uses the following free software components:
+* Russian speech database and Russian language description for
+  Festival by Nickolay V. Shmyrev (https://developer.berlios.de/projects/festlang)
+  The phoneset and almost all of the main lts rules are used as is,
+  but I've made changes in other parts, either to simplify conversion
+  to the flite format, or to add new features, or just to understand
+  how it all works.
+* The voice has been trained with The HMM-based Speech Synthesis
+  System (HTS) (http://hts.sp.nitech.ac.jp)
+* The hts_engine API is used for runtime speech generation
+  (http://hts-engine.sourceforge.net/)
+  Since the library does not support streaming synthesis, the original
+  version has been modified to implement this functionality, and the
+  synthesizer distribution includes this patched version.
+* The C implementation of the Russian text analyzer uses Flite
+  (http://www.speech.cs.cmu.edu/flite)
+  I used the flite's implementation of English language support as an
+  example, some functions were used as a starting point.
+* the stress information for the stress dictionary has been extracted
+  from the test dictionary in the RuLex package by Igor B. Poretsky
+  (http://poretsky.homelinux.net/packages/)
+* GNU libunistring is used for working with unicode text
+  (http://www.gnu.org/software/libunistring/)
+
+                               Building
+Requirements:
+* A C compiler
+* SCons build system (http://www.scons.org/)
+* Python (http://www.python.org/)
+* Flite 1.4 or later
+* GNU libunistring
+To compile the package type 'scons'. Then type 'scons install'. If you
+want to change the installation prefix, then the first command should
+be 'scons prefix=<path>'. Type 'scons -h' for help.
+
+                              How to use
+Run 'RHVoice --help' to see the supported command line options.
+If you want to configure Voiceman tu use RHVoice for Russian output,
+you should add a new output section in voiceman.conf. Here's an
+example:
+
+[output]
+name = RHVoice
+type = command
+lang = rus
+synth command = "RHVoice -r %r -p %p"
+alsa player command = "play -"
+pitch num digits after dot = 2
+pitch min = "0.1"
+pitch aver = 1
+pitch max = "1.9"
+rate num digits after dot = 2
+rate min = "0.5"
+rate aver = 1
+rate max = 3
+
