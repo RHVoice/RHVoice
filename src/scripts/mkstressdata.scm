@@ -1,0 +1,62 @@
+(require 'russian)
+(ru::init)
+
+(define (make_word_utt text stress)
+  (let
+      ((utt) (word) (phones))
+    (set! utt (eval (list 'Utterance 'Words (list text))))
+    (Initialize utt)
+    (utt.relation.create utt 'Syllable)
+    (utt.relation.create utt 'Segment)
+    (utt.relation.create utt 'SylStructure)
+    (utt.relation.create utt 'Transcription)
+    (utt.relation.create utt 'SylVowel)
+    (set! word (utt.relation.first utt 'Word))
+    (set! phones (lts.apply (utf8explode text) 'msu_ru))
+    (utt.relation.append utt 'SylStructure word)
+    (utt.relation.append utt 'Transcription word)
+    (russian_syllabify utt word phones t)
+    (item.set_feat word 'stressed_syl_num stress)
+    utt))
+
+(define (mkstressdata dict feats ofile)
+  (set! fnames (load feats t))
+  (set! f1 (fopen dict "r"))
+  (set! f2 (fopen ofile "w"))
+  (readfp f1)
+  (while
+   (not (equal? (set! e (readfp f1)) (eof-val)))
+   (set! w (car e))
+   (set! s (cadr e))
+   (if (< s 0)
+       (begin
+         (set! utt (make_word_utt w s))
+         (set! feats (utt.features utt 'Word fnames))
+         (mapcar
+          (lambda (x)
+            (mapcar
+             (lambda (y)
+               (format f2 "%s " y))
+             x)
+            (format f2 "\n"))
+          feats))))
+  (fclose f1)
+  (fclose f2))
+
+(define (reduce_dict ifile ofile)
+  (set! f_in (fopen ifile "r"))
+  (set! f_out (fopen ofile "w"))
+  (readfp f_in)
+  (while
+   (not (equal? (set! e (readfp f_in)) (eof-val)))
+   (cond
+    ((> (cadr e) 0)
+     (format f_out "%l\n" e))
+    (t
+     (set! utt (make_word_utt (car e) 0))
+     (set! w (utt.relation.first utt 'Word))
+     (set! n (wagon_predict w ru_stress_tree))
+     (if (not (equal? n (cadr e)))
+         (format f_out "%l\n" e)))))
+  (fclose f_out)
+  (fclose f_in))

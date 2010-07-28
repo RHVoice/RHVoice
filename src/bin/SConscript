@@ -1,0 +1,10 @@
+import os.path
+Import("env")
+local_env=env.Clone()
+local_env.Append(CPPDEFINES=("VOXDIR",(r'\"%s\"' % os.path.join(env["datadir"],"voice"))))
+local_env.Prepend(LIBS="RHVoice")
+local_env.Prepend(LIBPATH=os.path.join("..","lib"))
+program=local_env.Program("RHVoice",["main.c"])
+inst=Install(env["bindir"],program)
+Alias("install",inst)
+AddPostAction(inst,Chmod("$TARGET",0755))

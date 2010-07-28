@@ -1,0 +1,44 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import sys
+import codecs
+import os
+import os.path
+import tempfile
+import subprocess
+if __name__=="__main__":
+    estdir=os.environ.get("ESTDIR")
+    if not estdir:
+        sys.exit("ESTDIR variable is not set")
+    festival=os.path.join(estdir,"..","festival","bin","festival")
+    if not os.path.isfile(festival):
+        sys.exit("Cannot find Festival")
+    V=set(u"аоуыиэеёюя")
+    f_in=codecs.open(sys.argv[1],"r","KOI8-R")
+    f_out=tempfile.NamedTemporaryFile()
+    for str in f_in:
+        str=str.strip(" \n")
+        w,p=str.split()
+        i=p.rfind("+")
+        if i==-1:
+            continue
+        v1=[x for x in w if x in V]
+        v2=[x for x in p if x in V]
+        if len(v1)!=len(v2):
+            continue
+        numsyls=len(v1)
+        stress=-len([x for x in p[i:] if x in V])-1
+        if v2[stress]==u"ё" and v1[stress]==u"е":
+            j=0
+            for l in v1[:numsyls+stress+1]:
+                j=w.find(l,j)
+                j+=1
+            stress=j
+        elif numsyls==1:
+            continue
+        elif v1[stress]==u"ё":
+            continue
+        f_out.write((u'("%s" %d)\n' % (w,stress)).encode("UTF-8"))
+    f_out.flush()
+    subprocess.call([festival,"-b",'(lex.compile "%s" "%s")' % (f_out.name,sys.argv[2])])
+    f_out.close()
