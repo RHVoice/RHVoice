@@ -13,9 +13,12 @@ env["CPPPATH"]=["."]
 env["LIBPATH"]=[]
 env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"')),("VERSION",env.subst(r'\"$package_version\"'))]
 var_cache=os.path.join("build","user.conf")
-vars=Variables(var_cache,ARGUMENTS)
+args={"DESTDIR":""}
+args.update(ARGUMENTS)
+vars=Variables(var_cache,args)
 if env["PLATFORM"]!="win32":
     vars.Add("prefix","Installation prefix","/usr/local")
+    vars.Add("DESTDIR","Support for staged installation","")
 vars.Add("CC","C compiler",env.get("CC"))
 vars.Add("FLAGS","Additional compiler/linker flags")
 vars.Add("CCFLAGS","C compiler flags")
@@ -36,7 +39,7 @@ if env["PLATFORM"]!="win32":
     env["bindir"]=os.path.join(env["prefix"],"bin")
     env["datadir"]=os.path.join(env["prefix"],"share",env["package_name"])
     env["voxdir"]=os.path.join(env["datadir"],"voice")
-    inst=Install(env["voxdir"],Glob(os.path.join("data","voice","*.*[f123]")))
+    inst=Install(env["DESTDIR"]+env["voxdir"],Glob(os.path.join("data","voice","*.*[f123]")))
     Alias("install",inst)
     AddPostAction(inst,Chmod("$TARGET",0644))
     Clean("install",env["datadir"])

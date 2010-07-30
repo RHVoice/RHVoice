@@ -5,6 +5,6 @@ local_env.Append(CPPDEFINES=("VOXDIR",(r'\"%s\"' % os.path.join(env["datadir"],"
 local_env.Prepend(LIBS="RHVoice")
 local_env.Prepend(LIBPATH=os.path.join("..","lib"))
 program=local_env.Program("RHVoice",["main.c"])
-inst=Install(env["bindir"],program)
+inst=Install(env["DESTDIR"]+env["bindir"],program)
 Alias("install",inst)
 AddPostAction(inst,Chmod("$TARGET",0755))
