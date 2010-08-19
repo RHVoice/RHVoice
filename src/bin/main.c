@@ -77,7 +77,8 @@ static struct option program_options[]=
     {"version",no_argument,0,'V'},
     {"rate",required_argument,0,'r'},
     {"pitch",required_argument,0,'p'},
-    {"voice",required_argument,0,'v'},
+    {"volume",required_argument,0,'v'},
+    {"voice-directory",required_argument,0,'d'},
     {0,0,0,0}
   };
 
@@ -93,11 +94,12 @@ static void show_help()
   printf("usage: RHVoice [options]\n"
          "reads text from stdin (expects UTF-8 encoding)\n"
          "writes speech output to stdout\n"
-         "-h, --help              print this help message and exit\n"
-         "-V, --version           print the program version and exit\n"
-         "-r, --rate=<number>     speech rate, default is 1.0\n"
-         "-p, --pitch=<number>    speech pitch, default is 1.0\n"
-         "-v, --voice=<directory> path to voice files\n");
+         "-h, --help                   print this help message and exit\n"
+         "-V, --version                print the program version and exit\n"
+         "-r, --rate=<number>          speech rate, default is 1.0\n"
+         "-p, --pitch=<number>         speech pitch, default is 1.0\n"
+         "-v, --volume=<number>        speech volume, default is 1.0\n"
+         "-d, --voice-directory=<path> path to voice files\n");
 }
 
 int main(int argc,char **argv)
@@ -106,12 +108,13 @@ int main(int argc,char **argv)
   cst_voice *vox;
   float rate=1.0;
   float pitch=1.0;
+  float volume=1.0;
   cst_audio_streaming_info *streaming_info=new_audio_streaming_info();
   char *text;
   int size=1000;
   int c;
   int i;
-  while((c=getopt_long(argc,argv,"hVr:p:v:",program_options,&i))!=-1)
+  while((c=getopt_long(argc,argv,"d:hVr:p:v:",program_options,&i))!=-1)
     {
       switch(c)
         {
@@ -132,6 +135,11 @@ int main(int argc,char **argv)
             pitch=1.0;
           break;
         case 'v':
+          volume=strtof(optarg,NULL);
+          if(volume<=0.0)
+            volume=1.0;
+          break;
+        case 'd':
           voxdir=optarg;
           break;
         case 0:
@@ -166,6 +174,7 @@ int main(int argc,char **argv)
     return 1;
   flite_feat_set_float(vox->features,"duration_stretch",1.0/rate);
   flite_feat_set_float(vox->features,"f0_shift",pitch);
+  flite_feat_set_float(vox->features,"volume",volume);
   streaming_info->asc=callback;
   streaming_info->min_buffsize=800;
   streaming_info->userdata=NULL;
