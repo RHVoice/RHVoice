@@ -33,18 +33,34 @@ typedef struct _RHVoice_callback_info {
   cst_wave *wav;
   int start;
   int total_nsamples;
+  float volume;
   int result;
 } RHVoice_callback_info;
 
 static int synth_callback(const short *samples,int nsamples,void *user_data)
 {
   RHVoice_callback_info *info;
-  int size;
-  int end_of_audio;
+  int i,size,end_of_audio;
+  float s;
   if(user_data==NULL)
     return 0;
   info=(RHVoice_callback_info*)user_data;
-  memcpy(&info->wav->samples[info->wav->num_samples],samples,nsamples*sizeof(short));
+  for(i=0;i<nsamples;i++)
+    {
+      if(info->volume==1.0)
+        info->wav->samples[info->wav->num_samples+i]=samples[i];
+      else
+        {
+          s=(float)samples[i]*info->volume;
+          if(s<-32766)
+            info->wav->samples[info->wav->num_samples+i]=-32766;
+          else
+            if(s>32766)
+              info->wav->samples[info->wav->num_samples+i]=32766;
+            else
+              info->wav->samples[info->wav->num_samples+i]=(short)(s+0.5);
+        }
+    }
   info->wav->num_samples+=nsamples;
   size=info->wav->num_samples-info->start;
   if(info->asc&&(size>=info->min_buff_size))
@@ -307,7 +323,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
   int size,i,fperiod,hts_nsamples,total_nsamples,end_of_audio,orig_total_nframes;
   cst_item *s;
   cst_wave *w;
-  float f0,f,dur_stretch;
+  float f0,f,dur_stretch,volume;
   const char *last_punc=NULL;
   float final_pause_len=0.0;
   orig_total_nframes=0;
@@ -410,6 +426,10 @@ static cst_utterance *hts_synth(cst_utterance *u)
   memset(w->samples,0,total_nsamples*sizeof(short));
   callback_info->total_nsamples=total_nsamples;
   callback_info->wav=w;
+  volume=get_param_float(u->features,"volume",1.0);
+  if(volume<0)
+    volume=1;
+  callback_info->volume=volume;
   callback_info->result=1;
   HTS_Engine_set_user_data(engine,callback_info);
   HTS_Engine_create_gstream(engine);
