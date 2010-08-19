@@ -276,8 +276,10 @@ cst_utterance *russian_lexical_insertion(cst_utterance *u)
       for(s=item_name(word);*s!='\0';s++)
         {
           if((*s>='a')&&(*s<='z'))
-            is_english=TRUE;
-          break;
+            {
+              is_english=TRUE;
+              break;
+            }
         }
       if(is_english)
         {
