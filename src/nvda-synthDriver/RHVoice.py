@@ -62,6 +62,7 @@ lib_path=os.path.join(module_dir,"RHVoice.dll")
 
 native_rate_min,native_rate_max=1.9,0.1
 native_pitch_min,native_pitch_max=0.5,1.5
+native_volume_min,native_volume_max=0.1,1.9
 
 class Voice(object):
     def __init__(self,lib):
@@ -128,6 +129,7 @@ class UttCallback(object):
             self.__lib.feat_set(utt.contents.features,"streaming_info",self.__lib.audio_streaming_info_val(asi))
             self.__lib.feat_set_float(utt.contents.features,"duration_stretch",c_float(self.rate))
             self.__lib.feat_set_float(utt.contents.features,"f0_shift",c_float(self.pitch))
+            self.__lib.feat_set_float(utt.contents.features,"volume",c_float(self.volume))
             return cast(utt,c_void_p).value
         except:
             log.error("RHVoice UttCallback",exc_info=True)
@@ -156,10 +158,11 @@ class TTSThread(threading.Thread):
                 elif self.__silence_flag.is_set():
                     pass
                 else:
-                    text,index,rate,pitch=msg
+                    text,index,rate,pitch,volume=msg
                     self.__utt_callback.index=index
                     self.__utt_callback.rate=rate
                     self.__utt_callback.pitch=pitch
+                    self.__utt_callback.volume=volume
                     self.__lib.RHVoice_synth_text(text.encode("utf-8"),self.__voice)
             except:
                 log.error("RHVoice: error while processing a message",exc_info=True)
@@ -168,7 +171,7 @@ class SynthDriver(SynthDriver):
     name="RHVoice"
     description="RHVoice"
 
-    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting())
+    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting())
 
     @classmethod
     def check(cls):
@@ -197,6 +200,7 @@ class SynthDriver(SynthDriver):
         self.__tts_thread=TTSThread(self.__lib,self.__tts_queue,self.__voice,self.__audio_callback,self.__silence_flag)
         self.__native_rate=1.0
         self.__native_pitch=1.0
+        self.__native_volume=1.0
         self.__tts_thread.start()
 
     def terminate(self):
@@ -206,7 +210,7 @@ class SynthDriver(SynthDriver):
         self.__player.close()
 
     def speakText(self,text,index=None):
-        self.__tts_queue.put((text,index,self.__native_rate,self.__native_pitch))
+        self.__tts_queue.put((text,index,self.__native_rate,self.__native_pitch,self.__native_volume))
 
     def pause(self,switch):
         self.__player.pause(switch)
@@ -234,6 +238,12 @@ class SynthDriver(SynthDriver):
 
     def _set_pitch(self,pitch):
         self.__native_pitch=native_pitch_min+float(pitch)/100.0*(native_pitch_max -native_pitch_min)
+
+    def _get_volume(self):
+        return int(round((self.__native_volume -native_volume_min)/(native_volume_max -native_volume_min)*100.0))
+
+    def _set_volume(self,volume):
+        self.__native_volume=native_volume_min+float(volume)/100.0*(native_volume_max -native_volume_min)
 
     def loadSettings(self):
         c=config.conf["speech"][self.name]
