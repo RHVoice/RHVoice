@@ -194,7 +194,7 @@ cst_val *ru_tokentowords(const cst_item *t)
       if((current>word)&&(is_single_char||is_digit(c)||(nc=='\0')))
         {
           *current='\0';
-          if(!contains_russian_letters(word))
+          if(get_param_int(item_utt(t)->features,"pseudo_english",1)&&!contains_russian_letters(word))
             words=cons_val(string_val((const char*)word),words);
           else
             if(u8_strcmp(word,(const char*)"й")==0)
