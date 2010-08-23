@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (C) 2010 Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -23,7 +24,7 @@ from ctypes import c_void_p,c_char_p,c_char,c_short,c_int,c_float,POINTER,Struct
 import config
 import nvwave
 from logHandler import log
-from synthDriverHandler import SynthDriver
+from synthDriverHandler import SynthDriver,VoiceInfo
 
 class cst_utterance(Structure):
     _fields_=[("features",c_void_p),
@@ -130,6 +131,7 @@ class UttCallback(object):
             self.__lib.feat_set_float(utt.contents.features,"duration_stretch",c_float(self.rate))
             self.__lib.feat_set_float(utt.contents.features,"f0_shift",c_float(self.pitch))
             self.__lib.feat_set_float(utt.contents.features,"volume",c_float(self.volume))
+            self.__lib.feat_set_int(utt.contents.features,"pseudo_english",1 if self.variant=="pseudo-english" else 0)
             return cast(utt,c_void_p).value
         except:
             log.error("RHVoice UttCallback",exc_info=True)
@@ -158,11 +160,12 @@ class TTSThread(threading.Thread):
                 elif self.__silence_flag.is_set():
                     pass
                 else:
-                    text,index,rate,pitch,volume=msg
+                    text,index,rate,pitch,volume,variant=msg
                     self.__utt_callback.index=index
                     self.__utt_callback.rate=rate
                     self.__utt_callback.pitch=pitch
                     self.__utt_callback.volume=volume
+                    self.__utt_callback.variant=variant
                     self.__lib.RHVoice_synth_text(text.encode("utf-8"),self.__voice)
             except:
                 log.error("RHVoice: error while processing a message",exc_info=True)
@@ -171,7 +174,7 @@ class SynthDriver(SynthDriver):
     name="RHVoice"
     description="RHVoice"
 
-    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting())
+    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting(),SynthDriver.VariantSetting())
 
     @classmethod
     def check(cls):
@@ -201,6 +204,8 @@ class SynthDriver(SynthDriver):
         self.__native_rate=1.0
         self.__native_pitch=1.0
         self.__native_volume=1.0
+        self._availableVariants=[VoiceInfo("pseudo-english",u"псевдо-английский"),VoiceInfo("russian",u"русский")]
+        self.__variant="pseudo-english"
         self.__tts_thread.start()
 
     def terminate(self):
@@ -210,7 +215,7 @@ class SynthDriver(SynthDriver):
         self.__player.close()
 
     def speakText(self,text,index=None):
-        self.__tts_queue.put((text,index,self.__native_rate,self.__native_pitch,self.__native_volume))
+        self.__tts_queue.put((text,index,self.__native_rate,self.__native_pitch,self.__native_volume,self.__variant))
 
     def pause(self,switch):
         self.__player.pause(switch)
@@ -244,6 +249,12 @@ class SynthDriver(SynthDriver):
 
     def _set_volume(self,volume):
         self.__native_volume=native_volume_min+float(volume)/100.0*(native_volume_max -native_volume_min)
+
+    def _get_variant(self):
+        return self.__variant
+
+    def _set_variant(self,variant):
+        self.__variant=variant
 
     def loadSettings(self):
         c=config.conf["speech"][self.name]
