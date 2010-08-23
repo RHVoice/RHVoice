@@ -81,21 +81,33 @@ static int is_digit(ucs4_t c)
   return ((c>='0')&&(c<='9'));
 }
 
-static int is_known_char(ucs4_t c)
+static int is_part_of_word(ucs4_t c,ucs4_t pc,ucs4_t nc)
 {
   if(is_ru_letter(c))
     return TRUE;
   if(is_en_letter(c))
     return TRUE;
-  if(is_digit(c))
+  if((c=='-')&&is_ru_letter(pc)&&is_ru_letter(nc))
     return TRUE;
-  if(c=='-')
-    return TRUE;
-  if(c=='\'')
+  if((c=='\'')&&is_en_letter(pc)&&is_en_letter(nc))
     return true;
-  if(c=='+')
-    return TRUE;
-  return FALSE; //ignore everything else (at least for now)
+  return FALSE;
+}
+
+static int contains_russian_letters(const uint8_t *word)
+{
+  int result=FALSE;
+  ucs4_t c;
+  const uint8_t *str;
+  for(str=u8_next(&c,word);str;str=u8_next(&c,str))
+    {
+      if(is_ru_letter(c))
+        {
+          result=TRUE;
+          break;
+        }
+    }
+  return result;
 }
 
 static int is_ru_cap(ucs4_t c)
@@ -107,183 +119,144 @@ static int is_ru_cap(ucs4_t c)
   return FALSE;
 }
 
-static cst_val *ru_tokentowords2(const char *name)
+static cst_val *ru_digits_to_words(const uint8_t *word)
 {
-  int l,i;
-  char d[]={'\0','\0'};
-  cst_val *words=NULL;
-  cst_val *lts_output=NULL;
-  cst_val *lts_input=NULL;
-  const cst_val *v=NULL;
-  uint8_t *buff=(uint8_t*)strdup(name);
-  const uint8_t *ptr1=(uint8_t*)name;
-  uint8_t *ptr2=buff;
-  const uint8_t *ptr3=NULL;
   ucs4_t c;
-  ptr1=u8_next(&c,ptr1);
-  while(ptr1)
+  char d[]={'\0','\0'};
+  const uint8_t *str;
+  const uint8_t *end=word+u8_strlen(word);
+  int i;
+  cst_val *words=NULL;
+  cst_val *lts_in=NULL;
+  if((end-word>15)||*word=='0')
     {
-      if(!is_known_char(c))
+      for(str=u8_prev(&c,end,word);str;str=u8_prev(&c,str,word))
         {
-          if(ptr2!=buff)
-            {
-              *ptr2='\0';
-              words=cons_val(string_val((char*)buff),words);
-              ptr2=buff;
-            }
-          ptr1=u8_next(&c,ptr1);
-          continue;
+          words=cons_val(digit_to_word(c),words);
         }
-      if(is_digit(c))
-        {
-          if(ptr2!=buff)
-            {
-              *ptr2='\0';
-              words=cons_val(string_val((char*)buff),words);
-              ptr2=buff;
-            }
-          l=u8_strspn(ptr1,(const uint8_t*)"0123456789");
-          if((l>14)||(c==48))
-            {
-              ptr3=ptr1-1;
-              ptr1+=l;
-              do
-                {
-                  ptr3=u8_next(&c,ptr3);
-                  words=cons_val(digit_to_word(c),words);
-                }
-              while(ptr3!=ptr1);
-            }
-          else
-            {
-              ptr3=ptr1+l;
-              i=1;
-              for(;ptr3>=ptr1;ptr3--,i++)
-                {
-                  switch(i)
-                    {
-                    case 4:
-                      lts_input=cons_val(&thousand_symbol,lts_input);
-                      break;
-                    case 7:
-                      lts_input=cons_val(&million_symbol,lts_input);
-                      break;
-                    case 10:
-                      lts_input=cons_val(&billion_symbol,lts_input);
-                      break;
-                    case 13:
-                      lts_input=cons_val(&trillion_symbol,lts_input);
-                      break;
-                    default:
-                      break;
-                    }
-                  d[0]=(char)*(ptr3-1);
-                  lts_input=cons_val(string_val(d),lts_input);
-                }
-              lts_output=ru_lts_apply(lts_input,&ru_number_lts);
-              for(v=lts_output;v;v=val_cdr(v))
-                {
-                  words=cons_val(val_car(v),words);
-                }
-              if(lts_input)
-                {
-                  delete_val(lts_input);
-                  lts_input=NULL;
-                }
-              if(lts_output)
-                {
-                  delete_val(lts_output);
-                  lts_output=NULL;
-                }
-              ptr1+=l;
-            }
-          ptr1=u8_next(&c,ptr1);
-          continue;
-        }
-      c=uc_tolower(c);
-      ptr2+=u8_uctomb(ptr2,c,2);
-      ptr1=u8_next(&c,ptr1);
     }
-  if(ptr2!=buff)
+  else
     {
-      *ptr2='\0';
-      words=cons_val(string_val((char*)buff),words);
+      for(i=1,str=u8_prev(&c,end,word);str;str=u8_prev(&c,str,word),i++)
+        {
+          switch(i)
+            {
+            case 4:
+              lts_in=cons_val(&thousand_symbol,lts_in);
+              break;
+            case 7:
+              lts_in=cons_val(&million_symbol,lts_in);
+              break;
+            case 10:
+              lts_in=cons_val(&billion_symbol,lts_in);
+              break;
+            case 13:
+              lts_in=cons_val(&trillion_symbol,lts_in);
+              break;
+            default:
+              break;
+            }
+          d[0]=c;
+          lts_in=cons_val(string_val(d),lts_in);
+        }
+      words=ru_lts_apply(lts_in,&ru_number_lts);
+      delete_val(lts_in);
     }
-  if(buff)
-    free(buff);
-  words=val_reverse(words);
   return words;
 }
 
 cst_val *ru_tokentowords(const cst_item *t)
 {
-  cst_val *words1=ru_tokentowords2(item_name(t));
-  char *word;
-  char *p1,*p2;
-  cst_val *words2=NULL;
+  ucs4_t pc,c,nc;
+  const uint8_t *str=(uint8_t*)item_name(t);
+  const uint8_t *nstr,*nnstr;
+  uint8_t *word=u8_strdup(str);
+  uint8_t *current=word;
+  uint8_t *end=word+u8_strlen(word);
+  cst_val *words=NULL;
+  cst_val *nwords;
   const cst_val *v;
   cst_val *lts_in,*lts_out;
-  ucs4_t c;
-  const uint8_t *ustr;
-  int has_en_letters,has_ru_letters;
-  for(v=words1;v;v=val_cdr(v))
+  char *tmp,*tmp1,*tmp2;
+  int is_single_char;
+  pc='\0';
+  nstr=u8_next(&c,str);
+  while(nstr)
     {
-      ustr=(uint8_t*)val_string(val_car(v));
-      has_en_letters=FALSE;
-      has_ru_letters=FALSE;
-      for(ustr=u8_next(&c,ustr);ustr;ustr=u8_next(&c,ustr))
+      nnstr=u8_next(&nc,nstr);
+      if(nnstr==NULL)
+        nc='\0';
+      is_single_char=!is_part_of_word(c,pc,nc)&&!is_digit(c);
+      if(!is_single_char&&!is_digit(c))
         {
-          if(is_en_letter(c))
-            has_en_letters=TRUE;
-          if(is_ru_letter(c))
-            has_ru_letters=TRUE;
+          current+=u8_uctomb(current,uc_tolower(c),end-current);
         }
-      if(has_en_letters&&!has_ru_letters)
+      if((current>word)&&(is_single_char||is_digit(c)||(nc=='\0')))
         {
-          words2=cons_val(val_car(v),words2);
-          continue;
+          *current='\0';
+          if(!contains_russian_letters(word))
+            words=cons_val(string_val((const char*)word),words);
+          else
+            if(u8_strcmp(word,(const char*)"й")==0)
+              words=cons_val(string_val("краткое"),cons_val(string_val("и"),words));
+            else
+              if(u8_strcmp(word,(const char*)"ь")==0)
+                words=cons_val(string_val("знак"),cons_val(string_val("мягкий"),words));
+              else
+                if(u8_strcmp(word,(const char*)"ъ")==0)
+                  words=cons_val(string_val("знак"),cons_val(string_val("твёрдый"),words));
+                else
+                  {
+                    lts_in=cst_utf8_explode((const char*)word);
+                    lts_out=ru_lts_apply(lts_in,&ru_downcase_lts);
+                    delete_val(lts_in);
+                    lts_in=lts_out;
+                    lts_out=ru_lts_apply(lts_in,&ru_hyphen_lts);
+                    delete_val(lts_in);
+                    tmp=cst_implode(lts_out);
+                    delete_val(lts_out);
+                    tmp1=tmp;
+                    while(tmp1)
+                      {
+                        tmp2=strchr(tmp1,'|');
+                        if(tmp2)
+                          *tmp2='\0';
+                        words=cons_val(string_val(tmp1),words);
+                        tmp1=tmp2?(tmp2+1):NULL;
+                      }
+                    cst_free(tmp);
+                  }
+          current=word;
         }
-      if(cst_streq(val_string(val_car(v)),"й"))
+      if(is_digit(c))
         {
-          words2=cons_val(string_val("краткое"),cons_val(string_val("и"),words2));
-          continue;
+          nstr=str+u8_strspn(str,(const uint8_t*)"0123456789");
+          nnstr=u8_next(&nc,nstr);
+          if(nnstr==NULL)
+            nc='\0';
+          u8_cpy(word,str,(nstr-str));
+          *(word+(nstr-str))='\0';
+          for(nwords=ru_digits_to_words(word),v=nwords;v;v=val_cdr(v))
+            {
+              words=cons_val(val_car(v),words);
+            }
+          delete_val(nwords);
+          u8_prev(&pc,nstr,str);
+          c=nc;
+          str=nstr;
+          nstr=nnstr;
         }
-      if(cst_streq(val_string(val_car(v)),"ь"))
+      else
         {
-          words2=cons_val(string_val("знак"),cons_val(string_val("мягкий"),words2));
-          continue;
+          pc=c;
+          c=nc;
+          str=nstr;
+          nstr=nnstr;
         }
-      if(cst_streq(val_string(val_car(v)),"ъ"))
-        {
-          words2=cons_val(string_val("знак"),cons_val(string_val("твёрдый"),words2));
-          continue;
-        }
-      lts_in=cst_utf8_explode(val_string(val_car(v)));
-      lts_out=ru_lts_apply(lts_in,&ru_downcase_lts);
-      delete_val(lts_in);
-      if(lts_out==NULL)
-        continue;
-      lts_in=lts_out;
-      lts_out=ru_lts_apply(lts_in,&ru_hyphen_lts);
-      delete_val(lts_in);
-      if(lts_out==NULL)
-        continue;
-      word=cst_implode(lts_out);
-      delete_val(lts_out);
-      p1=word;
-      while(p1)
-        {
-          p2=strchr(p1,'|');
-          if(p2)
-            *p2='\0';
-          words2=cons_val(string_val(p1),words2);
-          p1=p2?(p2+1):NULL;
-        }
-      cst_free(word);
     }
-  delete_val(words1);
-  words2=val_reverse(words2);
-  return words2;
+  free(word);
+  words=val_reverse(words);
+  return words;
 }
 
 int ru_utt_break(cst_tokenstream *ts, const char *token, cst_relation *tokens)
