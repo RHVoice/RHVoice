@@ -79,6 +79,7 @@ static struct option program_options[]=
     {"pitch",required_argument,0,'p'},
     {"volume",required_argument,0,'v'},
     {"voice-directory",required_argument,0,'d'},
+    {"no-pseudo-english",no_argument,0,'R'},
     {0,0,0,0}
   };
 
@@ -99,7 +100,8 @@ static void show_help()
          "-r, --rate=<number>          speech rate, default is 1.0\n"
          "-p, --pitch=<number>         speech pitch, default is 1.0\n"
          "-v, --volume=<number>        speech volume, default is 1.0\n"
-         "-d, --voice-directory=<path> path to voice files\n");
+         "-d, --voice-directory=<path> path to voice files\n"
+         "-R, --no-pseudo-english      do not use pseudo-English pronunciation\n");
 }
 
 int main(int argc,char **argv)
@@ -109,12 +111,13 @@ int main(int argc,char **argv)
   float rate=1.0;
   float pitch=1.0;
   float volume=1.0;
+  int pseudo_english=1;
   cst_audio_streaming_info *streaming_info=new_audio_streaming_info();
   char *text;
   int size=1000;
   int c;
   int i;
-  while((c=getopt_long(argc,argv,"d:hVr:p:v:",program_options,&i))!=-1)
+  while((c=getopt_long(argc,argv,"d:hVr:p:v:R",program_options,&i))!=-1)
     {
       switch(c)
         {
@@ -138,6 +141,9 @@ int main(int argc,char **argv)
           volume=strtof(optarg,NULL);
           if(volume<=0.0)
             volume=1.0;
+          break;
+        case 'R':
+          pseudo_english=0;
           break;
         case 'd':
           voxdir=optarg;
@@ -175,6 +181,7 @@ int main(int argc,char **argv)
   flite_feat_set_float(vox->features,"duration_stretch",1.0/rate);
   flite_feat_set_float(vox->features,"f0_shift",pitch);
   flite_feat_set_float(vox->features,"volume",volume);
+  flite_feat_set_int(vox->features,"pseudo_english",pseudo_english);
   streaming_info->asc=callback;
   streaming_info->min_buffsize=800;
   streaming_info->userdata=NULL;
