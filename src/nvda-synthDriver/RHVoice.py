@@ -60,6 +60,7 @@ class cst_audio_streaming_info(Structure):
 
 module_dir=os.path.dirname(unicode(__file__,sys.getfilesystemencoding()))
 lib_path=os.path.join(module_dir,"RHVoice.dll")
+userdict_path=os.path.join(module_dir,"RHVoice-userdict.txt")
 
 native_rate_min,native_rate_max=1.9,0.1
 native_pitch_min,native_pitch_max=0.5,1.5
@@ -186,6 +187,7 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_create_voice.restype=POINTER(cst_voice)
         self.__lib.RHVoice_delete_voice.argtypes=(POINTER(cst_voice),)
         self.__lib.RHVoice_synth_text.argtypes=(c_char_p,POINTER(cst_voice))
+        self.__lib.RHVoice_load_user_dict.argtypes=(POINTER(cst_voice),c_char_p)
         self.__lib.new_audio_streaming_info.restype=POINTER(cst_audio_streaming_info)
         self.__lib.audio_streaming_info_val.argtypes=(POINTER(cst_audio_streaming_info),)
         self.__lib.audio_streaming_info_val.restype=c_void_p
@@ -196,6 +198,8 @@ class SynthDriver(SynthDriver):
         self.__lib.feat_set_string.argtypes=(c_void_p,c_char_p,c_char_p)
         self.__lib.feat_set.argtypes=(c_void_p,c_char_p,c_void_p)
         self.__voice=Voice(self.__lib)
+        if os.path.isfile(userdict_path):
+            self.__lib.RHVoice_load_user_dict(self.__voice,userdict_path.encode(sys.getfilesystemencoding()))
         self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=16000,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
         self.__silence_flag=threading.Event()
         self.__audio_callback=AudioCallback(self.__lib,self.__player,self.__silence_flag)
