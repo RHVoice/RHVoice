@@ -302,15 +302,45 @@ cst_voice *RHVoice_create_voice(const char *voxdir)
 
 void RHVoice_delete_voice(cst_voice *vox)
 {
+  HTS_Engine *engine;
+  ru_user_dict *dict;
   if(vox==NULL)
     return;
-  HTS_Engine *engine=(HTS_Engine*)val_userdata(feat_val(vox->features,"engine"));
+  engine=(HTS_Engine*)val_userdata(feat_val(vox->features,"engine"));
   if(engine!=NULL)
     {
       HTS_Engine_clear(engine);
       free(engine);
     }
+  if(feat_present(vox->features,"user_dict"))
+    {
+      dict=(ru_user_dict*)val_userdata(feat_val(vox->features,"user_dict"));
+      ru_user_dict_free(dict);
+    }
   delete_voice(vox);
+}
+
+int RHVoice_load_user_dict(cst_voice *vox,const char *path)
+{
+  ru_user_dict *old_dict=NULL;
+  ru_user_dict *new_dict=NULL;
+  if(vox==NULL)
+    return FALSE;
+  if(path!=NULL)
+    {
+      new_dict=ru_user_dict_load(path);
+      if(new_dict==NULL)
+        return FALSE;
+    }
+  if(feat_present(vox->features,"user_dict"))
+    {
+      old_dict=(ru_user_dict*)val_userdata(feat_val(vox->features,"user_dict"));
+      feat_remove(vox->features,"user_dict");
+      ru_user_dict_free(old_dict);
+    }
+  if(new_dict!=NULL)
+    feat_set(vox->features,"user_dict",userdata_val(new_dict));
+  return TRUE;
 }
 
 static cst_utterance *hts_synth(cst_utterance *u)

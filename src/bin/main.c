@@ -21,6 +21,7 @@
 cst_voice *RHVoice_create_voice(const char *voxdir);
 void RHVoice_delete_voice(cst_voice *vox);
 void RHVoice_synth_text(const char *text,cst_voice *voice);
+int RHVoice_load_user_dict(cst_voice *vox,const char *path);
 
 static void write_wave_header(int sample_rate)
 {
@@ -79,6 +80,7 @@ static struct option program_options[]=
     {"pitch",required_argument,0,'p'},
     {"volume",required_argument,0,'v'},
     {"voice-directory",required_argument,0,'d'},
+    {"user-dict",required_argument,0,'u'},
     {"no-pseudo-english",no_argument,0,'R'},
     {0,0,0,0}
   };
@@ -101,12 +103,14 @@ static void show_help()
          "-p, --pitch=<number>         speech pitch, default is 1.0\n"
          "-v, --volume=<number>        speech volume, default is 1.0\n"
          "-d, --voice-directory=<path> path to voice files\n"
+         "-u, --user-dict=<path>       path to the user dictionary\n"
          "-R, --no-pseudo-english      do not use pseudo-English pronunciation\n");
 }
 
 int main(int argc,char **argv)
 {
   const char *voxdir=VOXDIR;
+  const char *dictpath=NULL;
   cst_voice *vox;
   float rate=1.0;
   float pitch=1.0;
@@ -117,7 +121,7 @@ int main(int argc,char **argv)
   int size=1000;
   int c;
   int i;
-  while((c=getopt_long(argc,argv,"d:hVr:p:v:R",program_options,&i))!=-1)
+  while((c=getopt_long(argc,argv,"d:u:hVr:p:v:R",program_options,&i))!=-1)
     {
       switch(c)
         {
@@ -147,6 +151,9 @@ int main(int argc,char **argv)
           break;
         case 'd':
           voxdir=optarg;
+          break;
+        case 'u':
+          dictpath=optarg;
           break;
         case 0:
           break;
@@ -178,6 +185,10 @@ int main(int argc,char **argv)
   vox=RHVoice_create_voice(voxdir);
   if(vox==NULL)
     return 1;
+  if(dictpath)
+    {
+      RHVoice_load_user_dict(vox,dictpath);
+    }
   flite_feat_set_float(vox->features,"duration_stretch",1.0/rate);
   flite_feat_set_float(vox->features,"f0_shift",pitch);
   flite_feat_set_float(vox->features,"volume",volume);

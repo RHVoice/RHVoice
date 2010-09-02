@@ -37,6 +37,15 @@ extern "C" {
   cst_val* ru_lts_apply(const cst_val *input, const cst_lts_rewrites *rule);
   const char *russian_vpair(const char *ph);
 
+  typedef struct ru_user_dict_struct {
+    int size;
+    char*** entries;
+  } ru_user_dict;
+
+  ru_user_dict* ru_user_dict_load(const char*path);
+  void ru_user_dict_free(ru_user_dict* dict);
+  const char** ru_user_dict_lookup(const ru_user_dict* dict,const char* word);
+
 #ifdef __cplusplus
 }
 #endif
