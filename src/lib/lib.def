@@ -3,6 +3,7 @@ EXPORTS
 RHVoice_create_voice
 RHVoice_delete_voice
 RHVoice_synth_text
+RHVoice_load_user_dict
 new_audio_streaming_info
 audio_streaming_info_val
 uttfunc_val

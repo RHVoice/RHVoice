@@ -8,7 +8,7 @@ if sys.platform=="win32":
     toolset=["mingw"]
 else:
     toolset=["default"]
-env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.1")
+env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.2")
 env["CPPPATH"]=["."]
 env["LIBPATH"]=[]
 env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"')),("VERSION",env.subst(r'\"$package_version\"'))]
