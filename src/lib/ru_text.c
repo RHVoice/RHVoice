@@ -179,6 +179,7 @@ cst_val *ru_tokentowords(const cst_item *t)
   cst_val *lts_in,*lts_out;
   char *tmp,*tmp1,*tmp2;
   int is_single_char;
+  const char **e;
   pc='\0';
   nstr=u8_next(&c,str);
   while(nstr)
@@ -194,38 +195,49 @@ cst_val *ru_tokentowords(const cst_item *t)
       if((current>word)&&(is_single_char||is_digit(c)||(nc=='\0')))
         {
           *current='\0';
-          if(get_param_int(item_utt(t)->features,"pseudo_english",1)&&!contains_russian_letters(word))
-            words=cons_val(string_val((const char*)word),words);
+          e=NULL;
+          if(feat_present(item_utt(t)->features,"user_dict"))
+            e=ru_user_dict_lookup((const ru_user_dict*)val_userdata(feat_val(item_utt(t)->features,"user_dict")),word);
+          if(e)
+            {
+              for(e++;*e!=NULL;e++)
+                {
+                  words=cons_val(string_val(*e),words);
+                }
+            }
           else
-            if(u8_strcmp(word,(const char*)"й")==0)
-              words=cons_val(string_val("краткое"),cons_val(string_val("и"),words));
+            if(get_param_int(item_utt(t)->features,"pseudo_english",1)&&!contains_russian_letters(word))
+              words=cons_val(string_val((const char*)word),words);
             else
-              if(u8_strcmp(word,(const char*)"ь")==0)
-                words=cons_val(string_val("знак"),cons_val(string_val("мягкий"),words));
+              if(u8_strcmp(word,(const char*)"й")==0)
+                words=cons_val(string_val("краткое"),cons_val(string_val("и"),words));
               else
-                if(u8_strcmp(word,(const char*)"ъ")==0)
-                  words=cons_val(string_val("знак"),cons_val(string_val("твёрдый"),words));
+                if(u8_strcmp(word,(const char*)"ь")==0)
+                  words=cons_val(string_val("знак"),cons_val(string_val("мягкий"),words));
                 else
-                  {
-                    lts_in=cst_utf8_explode((const char*)word);
-                    lts_out=ru_lts_apply(lts_in,&ru_downcase_lts);
-                    delete_val(lts_in);
-                    lts_in=lts_out;
-                    lts_out=ru_lts_apply(lts_in,&ru_hyphen_lts);
-                    delete_val(lts_in);
-                    tmp=cst_implode(lts_out);
-                    delete_val(lts_out);
-                    tmp1=tmp;
-                    while(tmp1)
-                      {
-                        tmp2=strchr(tmp1,'|');
-                        if(tmp2)
-                          *tmp2='\0';
-                        words=cons_val(string_val(tmp1),words);
-                        tmp1=tmp2?(tmp2+1):NULL;
-                      }
-                    cst_free(tmp);
-                  }
+                  if(u8_strcmp(word,(const char*)"ъ")==0)
+                    words=cons_val(string_val("знак"),cons_val(string_val("твёрдый"),words));
+                  else
+                    {
+                      lts_in=cst_utf8_explode((const char*)word);
+                      lts_out=ru_lts_apply(lts_in,&ru_downcase_lts);
+                      delete_val(lts_in);
+                      lts_in=lts_out;
+                      lts_out=ru_lts_apply(lts_in,&ru_hyphen_lts);
+                      delete_val(lts_in);
+                      tmp=cst_implode(lts_out);
+                      delete_val(lts_out);
+                      tmp1=tmp;
+                      while(tmp1)
+                        {
+                          tmp2=strchr(tmp1,'|');
+                          if(tmp2)
+                            *tmp2='\0';
+                          words=cons_val(string_val(tmp1),words);
+                          tmp1=tmp2?(tmp2+1):NULL;
+                        }
+                      cst_free(tmp);
+                    }
           current=word;
         }
       if(is_digit(c))

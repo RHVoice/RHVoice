@@ -27,7 +27,8 @@ const_lib_src=[
 "ru_phrasing.c",
 "ru_postlex.c",
 "russian.c",
-"ru_text.c"]
+"ru_text.c",
+"ru_user_dict.c"]
 
 gen_lib_src=dict([(f,File(f).srcnode()) for f in Split("ru_cst_regexes.c ru_phoneset.c ru_gpos.c ru_dict.c ru_dict.h")])
 for x in lts_list.keys():
