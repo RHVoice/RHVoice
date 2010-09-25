@@ -6,10 +6,13 @@ Execute(Mkdir("build"))
 SConsignFile(os.path.join("build","scons"))
 if sys.platform=="win32":
     toolset=["mingw"]
+    sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",builddir="#build",enabled=False)
+    sapi_env["CPPPATH"]=[".",os.path.join("..","include")]
+    sapi_env["CPPDEFINES"]=[("UNICODE","1")]
 else:
     toolset=["default"]
 env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.2")
-env["CPPPATH"]=["."]
+env["CPPPATH"]=[".",os.path.join("#src","include")]
 env["LIBPATH"]=[]
 env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"')),("VERSION",env.subst(r'\"$package_version\"'))]
 var_cache=os.path.join("build","user.conf")
@@ -23,6 +26,8 @@ vars.Add("CC","C compiler",env.get("CC"))
 vars.Add("FLAGS","Additional compiler/linker flags")
 vars.Add("CCFLAGS","C compiler flags")
 vars.Add("LINKFLAGS","Linker flags")
+if env["PLATFORM"]=="win32":
+    vars.Add("MSVC_FLAGS","MSVC flags")
 vars.Add(EnumVariable("enable_source_generation","Enable regeneration of C sources from Scheme sources","no",["yes","no"],ignorecase=1))
 vars.Update(env)
 vars.Save(var_cache,env)
@@ -35,6 +40,10 @@ Help(vars.GenerateHelpText(env))
 flags=env.get("FLAGS")
 if flags:
     env.MergeFlags(flags)
+if env["PLATFORM"]=="win32":
+    flags=env.get("MSVC_FLAGS")
+    if flags:
+        sapi_env.MergeFlags(flags)
 if env["PLATFORM"]!="win32":
     env["bindir"]=os.path.join(env["prefix"],"bin")
     env["datadir"]=os.path.join(env["prefix"],"share",env["package_name"])
@@ -98,7 +107,29 @@ if enable_config:
         exit(1)
     env.PrependUnique(LIBS="unistring")
     env=conf.Finish()
+    if env["PLATFORM"]=="win32":
+        sapi_conf=sapi_env.Configure(conf_dir=os.path.join("build","sapi_configure_tests"),
+                                     log_file=os.path.join("build","sapi_configure.log"))
+        if sapi_conf.CheckCXX():
+            found=False
+            for header in ["windows.h","sapi.h","sapiddk.h","string","stdexcept","new","eh.h","comdef.h","flite.h"]:
+                found=sapi_conf.CheckCXXHeader(header)
+                if not found:
+                    break
+            if found:
+                for lib in ["kernel32","advapi32","ole32","sapi","comsuppw"]:
+                    found=sapi_conf.CheckLib(lib,language="C++",autoadd=0)
+                    if not found:
+                        break
+                    sapi_env.PrependUnique(LIBS=lib)    
+                if found:
+                    sapi_env["enabled"]=True
+                if not GetOption("silent") and not sapi_env["enabled"]:
+                        print "Sapi 5 support cannot be compiled"
+        sapi_env=sapi_conf.Finish()
 
 Export("env")
+if env["PLATFORM"]=="win32":
+    Export("sapi_env")
 SConscript(dirs="src")
 

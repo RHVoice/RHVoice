@@ -2,5 +2,9 @@ import os.path
 Import("env")
 SConscript(dirs=["hts_engine_api"],variant_dir=os.path.join(env["builddir"],"hts_engine_api"),duplicate=0)
 SConscript(dirs=["lib"],variant_dir=os.path.join(env["builddir"],"lib"),duplicate=0)
-if env["PLATFORM"]!="win32":
+if env["PLATFORM"]=="win32":
+    Import("sapi_env")
+    if sapi_env["enabled"]:
+        SConscript(dirs=["sapi"],variant_dir=os.path.join(env["builddir"],"sapi"),duplicate=0)
+else:
     SConscript(dirs=["bin"],variant_dir=os.path.join(env["builddir"],"bin"),duplicate=0)
