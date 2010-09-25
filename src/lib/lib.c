@@ -19,6 +19,7 @@
 #include <math.h>
 #include <HTS_engine.h>
 #include "russian.h"
+#include "lib.h"
 
 /* We will need these internal functions of hts_engine API */
 char *HTS_calloc(const size_t num, const size_t size);
@@ -74,8 +75,6 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
 
 static cst_utterance *hts_synth(cst_utterance *utt);
 static cst_utterance *create_hts_labels(cst_utterance *u);
-cst_voice *RHVoice_create_voice(const char *voxdir);
-void RHVoice_delete_voice(cst_voice *vox);
 
 cst_voice *RHVoice_create_voice(const char *voxdir)
 {

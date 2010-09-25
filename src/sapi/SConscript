@@ -1,0 +1,7 @@
+Import(["sapi_env"])
+
+dll_name="RHVoiceSvr"
+sapi_env.Append(CCFLAGS="/MT")
+sapi_env.Append(CCFLAGS="/EHa")
+dll_src=["dll.cpp","ClassFactoryImpl.cpp","SpTTSEngineImpl.cpp","dll.def"]
+sapi_env.SharedLibrary(dll_name,dll_src)

@@ -116,7 +116,11 @@ for f in gen_lib_src.values():
         gen_lib_obj.append(obj)
 lib_src=const_lib_src+gen_lib_obj+env["hts_engine_obj"]
 if env["PLATFORM"]=="win32":
-    lib_src.append("lib.def")
-    local_env.SharedLibrary(lib_name,lib_src)
+    dll=local_env.SharedLibrary(lib_name,lib_src+["lib.def"],no_import_lib=True)
+    Import("sapi_env")
+    if sapi_env["enabled"]:
+        sapi_env.Command(lib_name+".lib",["lib.def",dll],"lib /machine:x86 /def:${SOURCES[0]} /out:$TARGET")
+        sapi_env.Prepend(LIBS=lib_name)
+        sapi_env.Prepend(LIBPATH=os.path.join("..","lib"))
 else:
     local_env.StaticLibrary(lib_name,lib_src)

@@ -16,12 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <flite.h>
-
-cst_voice *RHVoice_create_voice(const char *voxdir);
-void RHVoice_delete_voice(cst_voice *vox);
-void RHVoice_synth_text(const char *text,cst_voice *voice);
-int RHVoice_load_user_dict(cst_voice *vox,const char *path);
+#include "lib.h"
 
 static void write_wave_header(int sample_rate)
 {
