@@ -56,15 +56,17 @@ static void write_wave_header(int sample_rate)
 
 static int wave_header_written=0;
 
-int static callback(const cst_wave *w,int start,int size,int last,void *user_data)
+int static callback(const short *samples,int nsamples,cst_item *seg,int pos_in_seg)
 {
+  if(!samples)
+    return 1;
   if(!wave_header_written)
     {
-      write_wave_header(w->sample_rate);
+      write_wave_header(get_param_int(item_utt(seg)->features,"sample_rate",16000));
       wave_header_written=1;
     }
-  fwrite(&w->samples[start],sizeof(short)*size,1,stdout);
-  return CST_AUDIO_STREAM_CONT;
+  fwrite(samples,sizeof(short)*nsamples,1,stdout);
+  return 1;
 }
 
 static struct option program_options[]=
@@ -111,7 +113,6 @@ int main(int argc,char **argv)
   float pitch=1.0;
   float volume=1.0;
   int pseudo_english=1;
-  cst_audio_streaming_info *streaming_info=new_audio_streaming_info();
   char *text;
   int size=1000;
   int c;
@@ -177,7 +178,7 @@ int main(int argc,char **argv)
     }
   text[i]='\0';
   flite_init();
-  vox=RHVoice_create_voice(voxdir);
+  vox=RHVoice_create_voice(voxdir,callback);
   if(vox==NULL)
     return 1;
   if(dictpath)
@@ -188,10 +189,6 @@ int main(int argc,char **argv)
   flite_feat_set_float(vox->features,"f0_shift",pitch);
   flite_feat_set_float(vox->features,"volume",volume);
   flite_feat_set_int(vox->features,"pseudo_english",pseudo_english);
-  streaming_info->asc=callback;
-  streaming_info->min_buffsize=800;
-  streaming_info->userdata=NULL;
-  flite_feat_set(vox->features,"streaming_info",audio_streaming_info_val(streaming_info));
   RHVoice_synth_text(text,vox);
   free(text);
   RHVoice_delete_voice(vox);

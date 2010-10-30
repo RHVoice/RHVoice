@@ -22,8 +22,10 @@ extern "C" {
 
 #include <flite.h>
 
-cst_voice *RHVoice_create_voice(const char *voxdir);
-void RHVoice_delete_voice(cst_voice *vox);
+  typedef int (*RHVoice_callback)(const short *samples,int nsamples,cst_item *seg,int pos_in_seg);
+
+  cst_voice *RHVoice_create_voice(const char *voxdir,RHVoice_callback callback);
+  void RHVoice_delete_voice(cst_voice *vox);
   void RHVoice_synth_text(const char *text,cst_voice *vox);
   int RHVoice_load_user_dict(cst_voice *vox,const char *path);
 
