@@ -57,7 +57,7 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
   volume=get_param_float(item_utt(info->cur_seg)->features,"volume",1.0);
   t=path_to_item(info->cur_seg,"R:Transcription.parent.R:Token.parent");
   if(t&&item_feat_present(t,"volume"))
-    volume*=item_feat_float(t,"volume");
+    volume=item_feat_float(t,"volume");
   if(volume<=0)
     volume=1.0;
   for(i=0;i<nsamples;i++)
@@ -430,7 +430,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
       local_dur_stretch=dur_stretch;
       t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
       if(t&&item_feat_present(t,"duration_stretch"))
-        local_dur_stretch*=item_feat_float(t,"duration_stretch");
+        local_dur_stretch=item_feat_float(t,"duration_stretch");
       if(local_dur_stretch<=0)
         local_dur_stretch=1.0;
       for(i=0;i<engine->ms.nstate;i++)
@@ -451,7 +451,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
       local_f0_shift=f0_shift;
       t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
       if(t&&item_feat_present(t,"f0_shift"))
-        local_f0_shift*=item_feat_float(t,"f0_shift");
+        local_f0_shift=item_feat_float(t,"f0_shift");
       if(local_f0_shift<0.1)
         local_f0_shift=0.1;
       if(local_f0_shift>1.9)
