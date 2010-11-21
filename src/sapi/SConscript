@@ -1,7 +1,13 @@
-Import(["sapi_env"])
+import os.path
 
+Import(["env","sapi_env"])
+if env.get("debug")=="yes":
+    pdb=os.path.join("#build","symbols.pdb")
+else:
+    pdb=None
 dll_name="RHVoiceSvr"
-sapi_env.Append(CCFLAGS="/MT")
-sapi_env.Append(CCFLAGS="/EHa")
-dll_src=["dll.cpp","ClassFactoryImpl.cpp","SpTTSEngineImpl.cpp","dll.def"]
-sapi_env.SharedLibrary(dll_name,dll_src)
+sapi_env.Prepend(CCFLAGS="/MT")
+sapi_env.Prepend(CCFLAGS="/EHa")
+dll_src=["dll.cpp","ClassFactoryImpl.cpp","SpTTSEngineImpl.cpp",
+         "util.cpp","SpeakImpl.cpp","dll.def"]
+sapi_env.SharedLibrary(dll_name,dll_src,PDB=pdb)

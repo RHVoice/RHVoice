@@ -20,6 +20,8 @@
 #include <comdef.h>
 #include <sapi.h>
 #include <sapiddk.h>
+#include <flite.h>
+#include <boost/smart_ptr.hpp>
 
 class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImpl: public ISpTTSEngine,public ISpObjectWithToken
 {
@@ -39,6 +41,7 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
 
   ULONG ref_count;
   ISpObjectTokenPtr object_token;
+  boost::shared_ptr<cst_voice> voice;
 };
 
 #endif
