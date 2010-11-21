@@ -95,6 +95,10 @@ class SpeakImpl
   std::vector<event_ptr> events;
   std::vector<short> audio;
   ULONGLONG audio_bytes_written;
+  static float rate_table[];
+  static float pitch_table[];
+  long default_rate;
+  ULONG default_volume;
 
   boost::optional<token> get_token();
   void add_token(const token& t);
@@ -117,6 +121,9 @@ class SpeakImpl
   bool is_interrupted();
   int real_callback(const short *samples,int nsamples,cst_item *seg,int pos_in_seg);
   ULONGLONG calculate_event_audio_offset();
+  static float sapi_rate_to_native_rate(long r);
+  static float sapi_pitch_to_native_pitch(long p);
+  static float sapi_volume_to_native_volume(float v);
 };
 
 #endif

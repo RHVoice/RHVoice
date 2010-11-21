@@ -22,6 +22,7 @@
 using std::wstring;
 using std::pair;
 using std::min;
+using std::max;
 using std::runtime_error;
 using std::vector;
 using std::fill_n;
@@ -43,7 +44,9 @@ SpeakImpl::SpeakImpl(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputS
   postpunc_chars(string_to_wstring(feat_string(Voice->features,"text_postpunctuation"))),
   audio_bytes_written(0),
   actions(output->GetActions()),
-  stopped(false)
+  stopped(false),
+  default_rate(0),
+  default_volume(100)
 {
 }
 
@@ -168,6 +171,15 @@ void SpeakImpl::add_token(const token& t)
   item_set(t_item,"text_frag",userdata_val(t.text_start.first));
   item_set_int(t_item,"pos_in_text_frag",numeric_cast<int>(t.text_start.second));
   item_set_int(t_item,"length_w",numeric_cast<int>(t.text.length()));
+  item_set_float(t_item,
+                 "duration_stretch",
+                 sapi_rate_to_native_rate(default_rate+t.text_start.first->State.RateAdj));
+  item_set_float(t_item,
+                 "f0_shift",
+                 sapi_pitch_to_native_pitch(t.text_start.first->State.PitchAdj.MiddleAdj));
+  item_set_float(t_item,
+                 "volume",
+                 sapi_volume_to_native_volume(t.text_start.first->State.Volume*(default_volume/100.0)));
 }
 
 bool SpeakImpl::is_end_of_sentence(const token& next_token)
@@ -226,6 +238,12 @@ bool SpeakImpl::next_sentence()
   feat_set(cur_utt->features,"this",userdata_val(this));
   utt_init(cur_utt.get(),voice);
   utt_relation_create(cur_utt.get(),"Token");
+  output->GetRate(&default_rate);
+  USHORT v;
+  output->GetVolume(&v);
+  default_volume=v;
+  feat_set_float(cur_utt->features,"duration_stretch",sapi_rate_to_native_rate(default_rate));
+  feat_set_float(cur_utt->features,"volume",sapi_volume_to_native_volume(default_volume));
   sentence_start=sentence_end;
   if(cur_token)
     {
@@ -398,4 +416,65 @@ void SpeakImpl::synth_sentence()
   else
     process_bookmarks_and_silences(first_token,NULL);
   write_queued_data();
+}
+
+float SpeakImpl::rate_table[]={
+  3.000000,
+  2.687875,
+  2.408225,
+  2.157669,
+  1.933182,
+  1.732051,
+  1.551846,
+  1.390389,
+  1.245731,
+  1.116123,
+  1.000000,
+  0.895958,
+  0.802742,
+  0.719223,
+  0.644394,
+  0.577350,
+  0.517282,
+  0.463463,
+  0.415244,
+  0.372041,
+  0.333333};
+
+float SpeakImpl::pitch_table[]={
+  0.749154,
+  0.771105,
+  0.793701,
+  0.816958,
+  0.840896,
+  0.865537,
+  0.890899,
+  0.917004,
+  0.943874,
+  0.971532,
+  1.000000,
+  1.029302,
+  1.059463,
+  1.090508,
+  1.122462,
+  1.155353,
+  1.189207,
+  1.224054,
+  1.259921,
+  1.296840,
+  1.334840};
+
+float SpeakImpl::sapi_rate_to_native_rate(long r)
+{
+  return rate_table[max(-10,min(10,r))+10];
+}
+
+float SpeakImpl::sapi_pitch_to_native_pitch(long p)
+{
+  return pitch_table[max(-10,min(10,p))+10];
+}
+
+float SpeakImpl::sapi_volume_to_native_volume(float v)
+{
+  return (0.1+min(100,v)/100.0*1.8);
 }
