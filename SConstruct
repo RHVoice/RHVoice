@@ -7,7 +7,7 @@ SConsignFile(os.path.join("build","scons"))
 if sys.platform=="win32":
     toolset=["mingw"]
     sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",builddir="#build",enabled=False)
-    sapi_env["CPPPATH"]=[".",os.path.join("..","include")]
+    sapi_env["CPPPATH"]=[".",os.path.join("#src","include")]
     sapi_env["CPPDEFINES"]=[("UNICODE","1")]
 else:
     toolset=["default"]
@@ -29,6 +29,7 @@ vars.Add("LINKFLAGS","Linker flags")
 if env["PLATFORM"]=="win32":
     vars.Add("MSVC_FLAGS","MSVC flags")
 vars.Add(EnumVariable("enable_source_generation","Enable regeneration of C sources from Scheme sources","no",["yes","no"],ignorecase=1))
+vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
 vars.Update(env)
 vars.Save(var_cache,env)
 Help("Type 'scons' to build the package.\n")
@@ -40,6 +41,8 @@ Help(vars.GenerateHelpText(env))
 flags=env.get("FLAGS")
 if flags:
     env.MergeFlags(flags)
+if env.get("debug")=="yes":
+    env.Prepend(CCFLAGS="-g")
 if env["PLATFORM"]=="win32":
     flags=env.get("MSVC_FLAGS")
     if flags:
@@ -112,7 +115,12 @@ if enable_config:
                                      log_file=os.path.join("build","sapi_configure.log"))
         if sapi_conf.CheckCXX():
             found=False
-            for header in ["windows.h","sapi.h","sapiddk.h","string","stdexcept","new","eh.h","comdef.h","flite.h"]:
+            headers=["windows.h","sapi.h","sapiddk.h",
+                     "string","stdexcept","new","vector","algorithm",
+                     "eh.h","comdef.h","flite.h",
+                     "boost/smart_ptr.hpp","boost/optional.hpp",
+                     "boost/numeric/conversion/cast.hpp","boost/lexical_cast.hpp"]
+            for header in headers:
                 found=sapi_conf.CheckCXXHeader(header)
                 if not found:
                     break
