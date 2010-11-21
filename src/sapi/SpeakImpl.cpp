@@ -387,6 +387,7 @@ void SpeakImpl::synth_sentence()
       write_queued_data();
       return;
     }
+  process_bookmarks_and_silences(NULL,first_token);
   events.push_back(event_ptr(new sentence_event(cur_utt.get(),calculate_event_audio_offset())));
   utt_synth_tokens(cur_utt.get());
   if(is_interrupted())
