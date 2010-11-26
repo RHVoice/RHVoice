@@ -189,7 +189,7 @@ int main(int argc,char **argv)
   flite_feat_set_float(vox->features,"f0_shift",pitch);
   flite_feat_set_float(vox->features,"volume",volume);
   flite_feat_set_int(vox->features,"pseudo_english",pseudo_english);
-  RHVoice_synth_text(text,vox);
+  RHVoice_synth_text(text,vox,NULL);
   free(text);
   RHVoice_delete_voice(vox);
   return 0;

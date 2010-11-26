@@ -488,15 +488,15 @@ static cst_utterance *hts_synth(cst_utterance *u)
   HTS_Engine_set_user_data(engine,NULL);
   if(callback_info.result&&(callback_info.start<callback_info.total_nsamples))
     {
-      callback_info.user_callback(&callback_info.wav->samples[callback_info.start],
-                                  callback_info.total_nsamples-callback_info.start,
-                                  callback_info.first_seg,
-                                  callback_info.start-callback_info.first_seg_start);
+      callback_info.result=callback_info.user_callback(&callback_info.wav->samples[callback_info.start],
+                                                       callback_info.total_nsamples-callback_info.start,
+                                                       callback_info.first_seg,
+                                                       callback_info.start-callback_info.first_seg_start);
       callback_info.wav->num_samples=callback_info.total_nsamples;
     }
   utt_set_wave(u,callback_info.wav);
   HTS_Engine_refresh(engine);
-  callback_info.user_callback(NULL,0,NULL,0);
+  feat_set_int(u->features,"last_audio_callback_result",callback_info.result);
   return u;
 }
 
@@ -744,7 +744,7 @@ static cst_utterance *create_hts_labels(cst_utterance *u)
   return u;
 }
 
-void RHVoice_synth_text(const char *text,cst_voice *voice)
+void RHVoice_synth_text(const char *text,cst_voice *voice,const cst_features *params)
 {
   cst_tokenstream *ts=ts_open_string(text,
                                      get_param_string(voice->features,"text_whitespace",NULL),
@@ -756,7 +756,6 @@ void RHVoice_synth_text(const char *text,cst_voice *voice)
   const char *token;
   cst_item *t;
   cst_breakfunc breakfunc=feat_present(voice->features,"utt_break")?val_breakfunc(feat_val(voice->features,"utt_break")):default_utt_break;
-  cst_uttfunc utt_user_callback=feat_present(voice->features,"utt_user_callback")?val_uttfunc(feat_val(voice->features,"utt_user_callback")):NULL;
   while(TRUE)
     {
       if(ts_eof(ts))
@@ -764,8 +763,8 @@ void RHVoice_synth_text(const char *text,cst_voice *voice)
           if(relation_head(rel))
             {
               utt_init(utt,voice);
-              if(utt_user_callback&&(!utt_user_callback(utt)))
-                break;
+              if(params)
+                feat_copy_into(params,utt->features);
               utt=utt_synth_tokens(utt);
             }
           break;
@@ -774,9 +773,11 @@ void RHVoice_synth_text(const char *text,cst_voice *voice)
       if(relation_head(rel)&&breakfunc(ts,token,rel))
         {
           utt_init(utt,voice);
-          if(utt_user_callback&&(!utt_user_callback(utt)))
-            break;
+          if(params)
+            feat_copy_into(params,utt->features);
           utt=utt_synth_tokens(utt);
+          if(get_param_int(utt->features,"last_audio_callback_result",1)==0)
+            break;
           delete_utterance(utt);
           utt=new_utterance();
           rel=utt_relation_create(utt,"Token");
