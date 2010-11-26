@@ -4,6 +4,8 @@ RHVoice_create_voice
 RHVoice_delete_voice
 RHVoice_synth_text
 RHVoice_load_user_dict
+new_features
+delete_features
 feat_int
 feat_float
 feat_string
@@ -16,6 +18,7 @@ feat_set_int
 feat_set_float
 feat_set_string
 feat_set
+feat_remove
 item_feat_present
 item_feat
 item_feat_int
