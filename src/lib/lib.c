@@ -765,7 +765,7 @@ void RHVoice_synth_text(const char *text,cst_voice *voice,const cst_features *pa
               utt_init(utt,voice);
               if(params)
                 feat_copy_into(params,utt->features);
-              utt=utt_synth_tokens(utt);
+              utt_synth_tokens(utt);
             }
           break;
         }
@@ -775,7 +775,7 @@ void RHVoice_synth_text(const char *text,cst_voice *voice,const cst_features *pa
           utt_init(utt,voice);
           if(params)
             feat_copy_into(params,utt->features);
-          utt=utt_synth_tokens(utt);
+          utt_synth_tokens(utt);
           if(get_param_int(utt->features,"last_audio_callback_result",1)==0)
             break;
           delete_utterance(utt);
