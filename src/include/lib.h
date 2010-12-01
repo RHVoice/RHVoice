@@ -28,6 +28,7 @@ extern "C" {
   void RHVoice_delete_voice(cst_voice *vox);
   void RHVoice_synth_text(const char *text,cst_voice *vox,const cst_features *params);
   int RHVoice_load_user_dict(cst_voice *vox,const char *path);
+  const char *RHVoice_get_version();
 
 #ifdef __cplusplus
 }
