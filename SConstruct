@@ -9,6 +9,8 @@ if sys.platform=="win32":
     sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",builddir="#build",enabled=False)
     sapi_env["CPPPATH"]=[".",os.path.join("#src","include")]
     sapi_env["CPPDEFINES"]=[("UNICODE","1")]
+    sapi_env.Prepend(CCFLAGS="/MT")
+    sapi_env.Prepend(CCFLAGS="/EHa")
 else:
     toolset=["default"]
 env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.3")
@@ -44,7 +46,11 @@ if flags:
     env.MergeFlags(flags)
 if env.get("debug")=="yes":
     env.Prepend(CCFLAGS="-g")
+else:
+    env.Prepend(CCFLAGS="-O2")
 if env["PLATFORM"]=="win32":
+    if env.get("debug")!="yes":
+        sapi_env.Prepend(CCFLAGS="/O2")
     flags=env.get("MSVC_FLAGS")
     if flags:
         sapi_env.MergeFlags(flags)

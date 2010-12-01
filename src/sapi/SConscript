@@ -6,8 +6,6 @@ if env.get("debug")=="yes":
 else:
     pdb=None
 dll_name="RHVoiceSvr"
-sapi_env.Prepend(CCFLAGS="/MT")
-sapi_env.Prepend(CCFLAGS="/EHa")
 dll_src=["dll.cpp","ClassFactoryImpl.cpp","SpTTSEngineImpl.cpp",
          "util.cpp","SpeakImpl.cpp","dll.def"]
 sapi_env.SharedLibrary(dll_name,dll_src,PDB=pdb)
