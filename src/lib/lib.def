@@ -4,6 +4,7 @@ RHVoice_create_voice
 RHVoice_delete_voice
 RHVoice_synth_text
 RHVoice_load_user_dict
+RHVoice_get_version
 new_features
 delete_features
 feat_int

@@ -158,6 +158,7 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_delete_voice.argtypes=(POINTER(cst_voice),)
         self.__lib.RHVoice_synth_text.argtypes=(c_char_p,POINTER(cst_voice),POINTER(cst_features))
         self.__lib.RHVoice_load_user_dict.argtypes=(POINTER(cst_voice),c_char_p)
+        self.__lib.RHVoice_get_version.restype=c_char_p
         self.__lib.feat_set_int.argtypes=(POINTER(cst_features),c_char_p,c_int)
         self.__lib.feat_set_float.argtypes=(POINTER(cst_features),c_char_p,c_float)
         self.__lib.feat_set_string.argtypes=(POINTER(cst_features),c_char_p,c_char_p)
@@ -186,6 +187,7 @@ class SynthDriver(SynthDriver):
         self._availableVariants=[VoiceInfo("pseudo-english",u"псевдо-английский"),VoiceInfo("russian",u"русский")]
         self.__variant="pseudo-english"
         self.__tts_thread.start()
+        log.info("Using RHVoice version %s" % self.__lib.RHVoice_get_version())
 
     def terminate(self):
         self.cancel()

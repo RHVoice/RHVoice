@@ -84,7 +84,7 @@ static struct option program_options[]=
 
 static void show_version()
 {
-  printf("%s %s\n",PACKAGE,VERSION);
+  printf("%s %s\n",PACKAGE,RHVoice_get_version());
 }
 
 static void show_help()

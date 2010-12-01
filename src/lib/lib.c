@@ -26,6 +26,7 @@ char *HTS_calloc(const size_t num, const size_t size);
 char *HTS_strdup(const char *string);
 
 static const char *sep=path_sep;
+static const char *lib_version=VERSION;
 
 typedef struct _RHVoice_callback_info {
   int min_buff_size;
@@ -362,6 +363,11 @@ int RHVoice_load_user_dict(cst_voice *vox,const char *path)
   if(new_dict!=NULL)
     feat_set(vox->features,"user_dict",userdata_val(new_dict));
   return TRUE;
+}
+
+const char *RHVoice_get_version()
+{
+  return lib_version;
 }
 
 static cst_utterance *hts_synth(cst_utterance *u)
