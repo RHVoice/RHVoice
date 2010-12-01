@@ -1,4 +1,6 @@
-!define VERSION "0.2"
+!ifndef VERSION
+!define VERSION "0.3"
+!endif
 
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"
