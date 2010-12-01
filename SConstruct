@@ -11,10 +11,10 @@ if sys.platform=="win32":
     sapi_env["CPPDEFINES"]=[("UNICODE","1")]
 else:
     toolset=["default"]
-env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.2")
+env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.3")
 env["CPPPATH"]=[".",os.path.join("#src","include")]
 env["LIBPATH"]=[]
-env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"')),("VERSION",env.subst(r'\"$package_version\"'))]
+env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"'))]
 var_cache=os.path.join("build","user.conf")
 args={"DESTDIR":""}
 args.update(ARGUMENTS)
@@ -30,6 +30,7 @@ if env["PLATFORM"]=="win32":
     vars.Add("MSVC_FLAGS","MSVC flags")
 vars.Add(EnumVariable("enable_source_generation","Enable regeneration of C sources from Scheme sources","no",["yes","no"],ignorecase=1))
 vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
+vars.Add("package_version","Package version",env["package_version"])
 vars.Update(env)
 vars.Save(var_cache,env)
 Help("Type 'scons' to build the package.\n")
@@ -47,6 +48,7 @@ if env["PLATFORM"]=="win32":
     flags=env.get("MSVC_FLAGS")
     if flags:
         sapi_env.MergeFlags(flags)
+env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
 if env["PLATFORM"]!="win32":
     env["bindir"]=os.path.join(env["prefix"],"bin")
     env["datadir"]=os.path.join(env["prefix"],"share",env["package_name"])

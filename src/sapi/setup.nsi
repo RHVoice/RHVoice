@@ -1,5 +1,7 @@
 !define PRODUCT RHVoice
-!define VERSION "0.2"
+!ifndef VERSION
+!define VERSION "0.3"
+!endif
 !define UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT}"
 !define SPTOKEN_REG_KEY "SOFTWARE\Microsoft\Speech\Voices\Tokens\RHVoice-M1"
 !define SPTOKEN_ATTR_REG_KEY "${SPTOKEN_REG_KEY}\Attributes"
