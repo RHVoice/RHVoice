@@ -13,7 +13,7 @@ if sys.platform=="win32":
     sapi_env.Prepend(CCFLAGS="/MT")
     sapi_env.Prepend(CCFLAGS="/EHa")
 else:
-    toolset=["default"]
+    toolset=["default","installer"]
 env=Environment(tools=toolset,package_name="RHVoice",package_version="0.3")
 env["CPPPATH"]=[".",os.path.join("#src","include")]
 env["LIBPATH"]=[]
@@ -24,6 +24,8 @@ args.update(ARGUMENTS)
 vars=Variables(var_cache,args)
 if env["PLATFORM"]!="win32":
     vars.Add("prefix","Installation prefix","/usr/local")
+    vars.Add("bindir","Program installation directory","$prefix/bin")
+    vars.Add("datadir","Data installation directory","$prefix/share")
     vars.Add("DESTDIR","Support for staged installation","")
 vars.Add("CC","C compiler",env.get("CC"))
 vars.Add("FLAGS","Additional compiler/linker flags")
@@ -56,14 +58,6 @@ if env["PLATFORM"]=="win32":
     if flags:
         sapi_env.MergeFlags(flags)
 env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
-if env["PLATFORM"]!="win32":
-    env["bindir"]=os.path.join(env["prefix"],"bin")
-    env["datadir"]=os.path.join(env["prefix"],"share",env["package_name"])
-    env["voxdir"]=os.path.join(env["datadir"],"voice")
-    inst=Install(env["DESTDIR"]+env["voxdir"],Glob(os.path.join("data","voice","*.*[f123]")))
-    Alias("install",inst)
-    AddPostAction(inst,Chmod("$TARGET",0644))
-    Clean("install",env["datadir"])
 if GetOption("clean"):
     enable_config=False
 elif GetOption("help"):
@@ -158,3 +152,5 @@ for subdir in src_subdirs:
     SConscript(os.path.join("src",subdir,"SConscript"),
                variant_dir=os.path.join(BUILDDIR,subdir),
                duplicate=0)
+if env["PLATFORM"]!="win32":
+    SConscript(os.path.join("data","SConscript"))

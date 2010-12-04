@@ -1,0 +1,4 @@
+import os.path
+Import("env")
+
+env.InstallData(Glob(os.path.join("voice","[!.]*")),"voice")
