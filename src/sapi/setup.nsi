@@ -19,7 +19,7 @@ CRCCheck on
 InstallDir "$PROGRAMFILES\${PRODUCT}"
 InstallDirRegKey HKLM UNINSTALL_REG_KEY "INSTDIR"
 Name "${PRODUCT} v${VERSION}"
-OutFile "../../build/${PRODUCT}-v${VERSION}-setup.exe"
+OutFile "..\..\build\win32\${PRODUCT}-v${VERSION}-setup.exe"
 RequestExecutionLevel admin
 ShowInstDetails show
 ShowUninstDetails show
@@ -48,8 +48,8 @@ Section
   File /oname=COPYING.txt ..\..\COPYING
   File /oname=hts_engine_API-COPYING.txt ..\hts_engine_api\COPYING
   SetOutPath "$INSTDIR\lib"
-  File ..\..\build\lib\RHVoice.dll
-  File ..\..\build\sapi\RHVoiceSvr.dll
+  File ..\..\build\win32\lib\RHVoice.dll
+  File ..\..\build\win32\sapi\RHVoiceSvr.dll
   try_RegDLL:
   ClearErrors
   RegDLL "$INSTDIR\lib\RHVoiceSvr.dll"

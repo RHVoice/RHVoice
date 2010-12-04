@@ -1,8 +1,8 @@
 import os.path
 
-Import(["env","sapi_env"])
+Import(["env","sapi_env","BUILDDIR"])
 if env.get("debug")=="yes":
-    pdb=os.path.join("#build","symbols.pdb")
+    pdb=os.path.join("#"+BUILDDIR,"symbols.pdb")
 else:
     pdb=None
 dll_name="RHVoiceSvr"
