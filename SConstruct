@@ -2,22 +2,23 @@ import sys
 import os
 import os.path
 
-Execute(Mkdir("build"))
-SConsignFile(os.path.join("build","scons"))
+BUILDDIR=os.path.join("build",sys.platform)
+Execute(Mkdir(BUILDDIR))
+SConsignFile(os.path.join(BUILDDIR,"scons"))
 if sys.platform=="win32":
     toolset=["mingw"]
-    sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",builddir="#build",enabled=False)
+    sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",enabled=False)
     sapi_env["CPPPATH"]=[".",os.path.join("#src","include")]
     sapi_env["CPPDEFINES"]=[("UNICODE","1")]
     sapi_env.Prepend(CCFLAGS="/MT")
     sapi_env.Prepend(CCFLAGS="/EHa")
 else:
     toolset=["default"]
-env=Environment(tools=toolset,builddir="#build",package_name="RHVoice",package_version="0.3")
+env=Environment(tools=toolset,package_name="RHVoice",package_version="0.3")
 env["CPPPATH"]=[".",os.path.join("#src","include")]
 env["LIBPATH"]=[]
 env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"'))]
-var_cache=os.path.join("build","user.conf")
+var_cache=os.path.join(BUILDDIR,"user.conf")
 args={"DESTDIR":""}
 args.update(ARGUMENTS)
 vars=Variables(var_cache,args)
@@ -70,7 +71,7 @@ elif GetOption("help"):
 else:
     enable_config=True
 if enable_config:
-    conf=env.Configure(conf_dir=os.path.join("build","configure_tests"),log_file=os.path.join("build","configure.log"))
+    conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),log_file=os.path.join(BUILDDIR,"configure.log"))
     if not conf.CheckCC():
         print "The C compiler is not working"
         exit(1)
@@ -119,8 +120,8 @@ if enable_config:
     env.PrependUnique(LIBS="unistring")
     env=conf.Finish()
     if env["PLATFORM"]=="win32":
-        sapi_conf=sapi_env.Configure(conf_dir=os.path.join("build","sapi_configure_tests"),
-                                     log_file=os.path.join("build","sapi_configure.log"))
+        sapi_conf=sapi_env.Configure(conf_dir=os.path.join(BUILDDIR,"sapi_configure_tests"),
+                                     log_file=os.path.join(BUILDDIR,"sapi_configure.log"))
         if sapi_conf.CheckCXX():
             found=False
             headers=["windows.h","sapi.h","sapiddk.h",
@@ -144,8 +145,16 @@ if enable_config:
                         print "Sapi 5 support cannot be compiled"
         sapi_env=sapi_conf.Finish()
 
-Export("env")
+Export(["env","BUILDDIR"])
 if env["PLATFORM"]=="win32":
     Export("sapi_env")
-SConscript(dirs="src")
-
+src_subdirs=["hts_engine_api","lib"]
+if env["PLATFORM"]=="win32":
+    if sapi_env["enabled"]:
+        src_subdirs.append("sapi")
+else:
+    src_subdirs.append("bin")
+for subdir in src_subdirs:
+    SConscript(os.path.join("src",subdir,"SConscript"),
+               variant_dir=os.path.join(BUILDDIR,subdir),
+               duplicate=0)

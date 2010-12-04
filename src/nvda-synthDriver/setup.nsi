@@ -13,7 +13,7 @@ AutoCloseWindow false
 CRCCheck on
 InstallDir "$APPDATA\nvda\synthDrivers\"
 Name "RHVoice v${VERSION} for NVDA"
-OutFile "../../build/RHVoice-v${VERSION}-synthDriver-setup.exe"
+OutFile "..\..\build\win32\RHVoice-v${VERSION}-synthDriver-setup.exe"
 RequestExecutionLevel user
 ShowInstDetails show
 ShowUninstDetails show
@@ -36,7 +36,7 @@ Section
   File ..\..\data\voice\tree-lf0.inf
   File ..\..\data\voice\tree-mgc.inf
   SetOutPath $INSTDIR
-  File ..\..\build\lib\RHVoice.dll
+  File ..\..\build\win32\lib\RHVoice.dll
   File RHVoice.py
   File /oname=RHVoice-README.txt ..\..\README
   File /oname=RHVoice-COPYING.txt ..\..\COPYING
