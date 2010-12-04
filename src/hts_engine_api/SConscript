@@ -11,3 +11,5 @@ if sys.byteorder=="big":
     local_env.Append(CPPDEFINES=("WORDS_BIGENDIAN","1"))
 src=Glob(os.path.join("lib","*.c"))
 env["hts_engine_obj"]=local_env.StaticObject(src)
+if local_env["PLATFORM"]=="win32":
+    local_env.ConvertNewlines("COPYING")
