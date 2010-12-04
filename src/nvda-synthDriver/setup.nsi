@@ -38,7 +38,7 @@ Section
   SetOutPath $INSTDIR
   File ..\..\build\win32\lib\RHVoice.dll
   File RHVoice.py
-  File /oname=RHVoice-README.txt ..\..\README
-  File /oname=RHVoice-COPYING.txt ..\..\COPYING
-  File /oname=hts_engine_API-COPYING.txt ..\hts_engine_api\COPYING
+  File /oname=RHVoice-README.txt ..\..\build\win32\README.txt
+  File /oname=RHVoice-COPYING.txt ..\..\build\win32\COPYING.txt
+  File /oname=hts_engine_API-COPYING.txt ..\..\build\win32\hts_engine_api\COPYING.txt
 SectionEnd

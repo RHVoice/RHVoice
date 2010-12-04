@@ -44,9 +44,9 @@ Section
   File ..\..\data\voice\tree-lf0.inf
   File ..\..\data\voice\tree-mgc.inf
   SetOutPath "$INSTDIR\documentation"
-  File /oname=README.txt ..\..\README
-  File /oname=COPYING.txt ..\..\COPYING
-  File /oname=hts_engine_API-COPYING.txt ..\hts_engine_api\COPYING
+  File ..\..\build\win32\README.txt
+  File ..\..\build\win32\COPYING.txt
+  File /oname=hts_engine_API-COPYING.txt ..\..\build\win32\hts_engine_api\COPYING.txt
   SetOutPath "$INSTDIR\lib"
   File ..\..\build\win32\lib\RHVoice.dll
   File ..\..\build\win32\sapi\RHVoiceSvr.dll

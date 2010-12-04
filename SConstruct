@@ -6,7 +6,7 @@ BUILDDIR=os.path.join("build",sys.platform)
 Execute(Mkdir(BUILDDIR))
 SConsignFile(os.path.join(BUILDDIR,"scons"))
 if sys.platform=="win32":
-    toolset=["mingw"]
+    toolset=["mingw","newlines"]
     sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",enabled=False)
     sapi_env["CPPPATH"]=[".",os.path.join("#src","include")]
     sapi_env["CPPDEFINES"]=[("UNICODE","1")]
@@ -154,3 +154,6 @@ for subdir in src_subdirs:
                duplicate=0)
 if env["PLATFORM"]!="win32":
     SConscript(os.path.join("data","SConscript"))
+if env["PLATFORM"]=="win32":
+    for f in ["README","COPYING"]:
+        env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
