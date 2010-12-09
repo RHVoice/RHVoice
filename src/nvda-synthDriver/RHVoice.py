@@ -17,6 +17,7 @@
 import sys
 import os.path
 import Queue
+from collections import OrderedDict
 import threading
 import ctypes
 from ctypes import c_void_p,c_char_p,c_short,c_int,c_float,POINTER,Structure,sizeof,string_at,CFUNCTYPE
@@ -184,7 +185,7 @@ class SynthDriver(SynthDriver):
         self.__native_rate=1.0
         self.__native_pitch=1.0
         self.__native_volume=1.0
-        self._availableVariants=[VoiceInfo("pseudo-english",u"псевдо-английский"),VoiceInfo("russian",u"русский")]
+        self._availableVariants=OrderedDict((("pseudo-english",VoiceInfo("pseudo-english",u"псевдо-английский")),("russian",VoiceInfo("russian",u"русский"))))
         self.__variant="pseudo-english"
         self.__tts_thread.start()
         log.info("Using RHVoice version %s" % self.__lib.RHVoice_get_version())
@@ -212,6 +213,9 @@ class SynthDriver(SynthDriver):
 
     def _get_lastIndex(self):
         return self.__audio_callback.index
+
+    def _get_language(self):
+        return "ru"
 
     def _get_rate(self):
         return int(round((self.__native_rate -native_rate_min)/(native_rate_max -native_rate_min)*100.0))
