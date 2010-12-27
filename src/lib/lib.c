@@ -18,42 +18,54 @@
 #include <string.h>
 #include <math.h>
 #include <HTS_engine.h>
+#include "sonic.h"
 #include "russian.h"
 #include "lib.h"
-
-/* We will need these internal functions of hts_engine API */
-char *HTS_calloc(const size_t num, const size_t size);
-char *HTS_strdup(const char *string);
 
 static const char *sep=path_sep;
 static const char *lib_version=VERSION;
 
 typedef struct _RHVoice_callback_info {
-  int min_buff_size;
   RHVoice_callback user_callback;
-  cst_wave *wav;
-  int start;
-  int total_nsamples;
-  cst_item *first_seg;
-  int first_seg_start;
+  short *buff;
+  int user_buff_size;
+  int max_buff_size;
+  int cur_buff_size;
+  sonicStream stream;
   cst_item *cur_seg;
-  int cur_seg_start;
+  int cur_seg_nsamples;
   int result;
 } RHVoice_callback_info;
 
 static int synth_callback(const short *samples,int nsamples,void *user_data)
 {
   RHVoice_callback_info *info;
-  int i,size;
+  int i,sonic_nsamples;
   float volume,s;
   cst_item *t;
   if(user_data==NULL)
     return 0;
   info=(RHVoice_callback_info*)user_data;
-  if(info->wav->num_samples-info->cur_seg_start==item_feat_int(info->cur_seg,"nsamples"))
+  if(info->cur_seg_nsamples==item_feat_int(info->cur_seg,"nsamples"))
     {
-      info->cur_seg_start=info->wav->num_samples;
       info->cur_seg=item_next(info->cur_seg);
+      info->cur_seg_nsamples=nsamples;
+    }
+  else
+    info->cur_seg_nsamples+=nsamples;
+  if(cst_streq(item_name(info->cur_seg),"pau")&&item_feat_present(info->cur_seg,"max_nsamples"))
+    {
+      if(!item_prev(info->cur_seg))
+        {
+          if((item_feat_int(info->cur_seg,"nsamples")-info->cur_seg_nsamples)>=item_feat_int(info->cur_seg,"max_nsamples"))
+            return 1;
+        }
+      else
+        if(!item_next(info->cur_seg))
+          {
+            if(info->cur_seg_nsamples>item_feat_int(info->cur_seg,"max_nsamples"))
+              return 0;
+          }
     }
   volume=get_param_float(item_utt(info->cur_seg)->features,"volume",1.0);
   t=path_to_item(info->cur_seg,"R:Transcription.parent.R:Token.parent");
@@ -64,32 +76,44 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
   for(i=0;i<nsamples;i++)
     {
       if(volume==1.0)
-        info->wav->samples[info->wav->num_samples+i]=samples[i];
+        s=samples[i];
       else
         {
           s=(float)samples[i]*volume;
           if(s<-32766)
-            info->wav->samples[info->wav->num_samples+i]=-32766;
+            s=-32766;
           else
             if(s>32766)
-              info->wav->samples[info->wav->num_samples+i]=32766;
+              s=32766;
             else
-              info->wav->samples[info->wav->num_samples+i]=(short)(s+0.5);
+              s=(short)(s+0.5);
         }
+      info->buff[info->cur_buff_size+i]=s;
     }
-  info->wav->num_samples+=nsamples;
-  size=info->wav->num_samples-info->start;
-  if(info->user_callback&&(size>=info->min_buff_size))
+  info->cur_buff_size+=nsamples;
+  if(info->cur_buff_size>=info->user_buff_size)
     {
-      info->result=info->user_callback(&info->wav->samples[info->start],size,info->first_seg,info->start-info->first_seg_start);
-      info->start=info->wav->num_samples;
-      if(info->start-info->cur_seg_start==item_feat_int(info->cur_seg,"nsamples"))
+      if(info->stream==NULL)
         {
-          info->cur_seg_start=info->start;
-          info->cur_seg=item_next(info->cur_seg);
+          info->result=info->user_callback(info->buff,info->cur_buff_size,NULL,0);
+          info->cur_buff_size=0;
         }
-      info->first_seg=info->cur_seg;
-      info->first_seg_start=info->cur_seg_start;
+      else
+        {
+          sonicWriteShortToStream(info->stream,info->buff,info->cur_buff_size);
+          info->cur_buff_size=0;
+          sonic_nsamples=sonicSamplesAvailable(info->stream);
+          if(sonic_nsamples>0)
+            {
+              if(sonic_nsamples>info->max_buff_size)
+                {
+                  info->buff=realloc(info->buff,sonic_nsamples*sizeof(short));
+                  info->max_buff_size=sonic_nsamples;
+                }
+              sonicReadShortFromStream(info->stream,info->buff,sonic_nsamples);
+              info->result=info->user_callback(info->buff,sonic_nsamples,NULL,0);
+            }
+        }
     }
   return info->result;
 }
@@ -374,86 +398,94 @@ static cst_utterance *hts_synth(cst_utterance *u)
 {
   HTS_Engine *engine;
   HTS_LabelString *lstring=NULL;
-  double *dur_mean,*dur_vari;
-  double end=0.0;
-  int i,j,nsamples_in_seg,orig_total_nframes;
-  cst_item *s,*s1,*s2,*t;
+  double *dur_mean,*dur_vari,local_dur;
+  const char **labels=NULL;
+  int i,j,nsamples,nlabels;
+  cst_item *s,*t;
   float f0_shift,dur_stretch,local_f0_shift,local_dur_stretch,hts_local_f0;
   const char *last_punc=NULL;
-  float final_pause_len=0.0;
-  orig_total_nframes=0;
-  RHVoice_callback_info callback_info;
+  float final_pause_max_len=0.0;
+  RHVoice_callback_info ci;
   if(!feat_present(u->features,"audio_callback"))
     return NULL;
-  callback_info.user_callback=(RHVoice_callback)val_userdata(feat_val(u->features,"audio_callback"));
-  callback_info.min_buff_size=(int)(get_param_int(u->features,"audio_buff_len",150)*(get_param_int(u->features,"sample_rate",16000)/1000.0));
   engine=(HTS_Engine*)val_userdata(feat_val(u->features,"engine"));
   dur_stretch=get_param_float(u->features,"duration_stretch",1.0);
   f0_shift=get_param_float(u->features,"f0_shift",1.0);
-  s=relation_head(utt_relation(u,"Segment"));
-  if(!s)
-    return NULL;
-  s1=item_next(s);
-  if(!s1)
-    return NULL;
-  s2=relation_tail(utt_relation(u,"Segment"));
-  if(s1==s2)
-    return NULL;
-  create_hts_labels(u);
-  last_punc=item_feat_string(relation_tail(utt_relation(u,"Token")),"punc");
+  t=relation_tail(utt_relation(u,"Token"));
+  last_punc=item_feat_string(t,"punc");
+  if(dur_stretch>=0.5)
+    {
+      if(item_feat_present(t,"duration_stretch"))
+        {
+          local_dur_stretch=item_feat_float(t,"duration_stretch");
+          if(local_dur_stretch<0)
+            local_dur_stretch=1;
+        }
+      else
+        local_dur_stretch=dur_stretch;
+    }
+  else
+    local_dur_stretch=1.0;
   if(last_punc)
     {
       if(strchr(last_punc,'.')||
          strchr(last_punc,'?')||
          strchr(last_punc,'!'))
-        final_pause_len=0.25;
+        final_pause_max_len=0.25*local_dur_stretch;
       else
         if(strchr(last_punc,':')||
            strchr(last_punc,';'))
-          final_pause_len=0.175;
+          final_pause_max_len=0.175*local_dur_stretch;
         else
           if(strchr(last_punc,',')||
              strchr(last_punc,'-'))
-            final_pause_len=0.01;
+            final_pause_max_len=0.1*local_dur_stretch;
     }
-  dur_mean=(double*)calloc(engine->ms.nstate,sizeof(double));
-  dur_vari=(double*)calloc(engine->ms.nstate,sizeof(double));
-  for(s=s1;s!=s2;s=item_next(s),engine->label.size++)
+  for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
+  if(nlabels<=2)
+    return NULL;
+  create_hts_labels(u);
+  labels=(const char**)calloc(nlabels,sizeof(char*));
+  for(i=0,s=relation_head(utt_relation(u,"Segment"));s;s=item_next(s),i++)
     {
-      if(lstring)
-        {
-          lstring->next=(HTS_LabelString*)HTS_calloc(1,sizeof(HTS_LabelString));
-          lstring=lstring->next;
-        }
-      else
-        {
-          lstring=(HTS_LabelString*)HTS_calloc(1,sizeof(HTS_LabelString));
-          engine->label.head=lstring;
-        }
-      lstring->name=HTS_strdup(item_feat_string(s,"hts_label"));
-      lstring->start=end;
-      HTS_ModelSet_get_duration(&engine->ms,lstring->name,dur_mean,dur_vari,engine->global.duration_iw);
-      local_dur_stretch=dur_stretch;
-      t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
-      if(t&&item_feat_present(t,"duration_stretch"))
-        local_dur_stretch=item_feat_float(t,"duration_stretch");
-      if(local_dur_stretch<=0)
-        local_dur_stretch=1.0;
-      for(i=0;i<engine->ms.nstate;i++)
-        {
-          end+=dur_mean[i]*local_dur_stretch;
-          orig_total_nframes+=dur_mean[i];
-        }
-      lstring->end=end;
-      lstring->next=NULL;
+      labels[i]=item_feat_string(s,"hts_label");
     }
-  free(dur_vari);
-  free(dur_mean);
-  HTS_Label_set_frame_specified_flag(&engine->label,TRUE);
+  HTS_Engine_load_label_from_string_list(engine,labels,nlabels);
+  free(labels);
+  if(dur_stretch>=0.5)
+    {
+      dur_mean=(double*)calloc(engine->ms.nstate,sizeof(double));
+      dur_vari=(double*)calloc(engine->ms.nstate,sizeof(double));
+      engine->label.head->start=0;
+      for(s=relation_head(utt_relation(u,"Segment")),lstring=engine->label.head;s;s=item_next(s),lstring=lstring->next)
+        {
+          HTS_ModelSet_get_duration(&engine->ms,lstring->name,dur_mean,dur_vari,engine->global.duration_iw);
+          local_dur_stretch=dur_stretch;
+          if(cst_streq(item_name(s),"pau"))
+            t=path_to_item(s,"p.R:Transcription.parent.R:Token.parent");
+          else
+            t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
+          if(t&&item_feat_present(t,"duration_stretch"))
+            local_dur_stretch=item_feat_float(t,"duration_stretch");
+          if(local_dur_stretch<=0)
+            local_dur_stretch=1.0;
+          local_dur=0;
+          for(i=0;i<engine->ms.nstate;i++)
+            {
+              local_dur+=dur_mean[i];
+            }
+          lstring->end=lstring->start+local_dur*local_dur_stretch;
+          if(lstring->next)
+            lstring->next->start=lstring->end;
+        }
+      free(dur_vari);
+      free(dur_mean);
+      HTS_Label_set_frame_specified_flag(&engine->label,TRUE);
+    }
   HTS_Engine_create_sstream(engine);
-  for(s=s1,i=0;s!=s2;s=item_next(s),i++)
+  for(s=relation_head(utt_relation(u,"Segment")),i=0;s;s=item_next(s),i++)
     {
-      nsamples_in_seg=0;
+      nsamples=0;
       local_f0_shift=f0_shift;
       t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
       if(t&&item_feat_present(t,"f0_shift"))
@@ -464,45 +496,69 @@ static cst_utterance *hts_synth(cst_utterance *u)
         local_f0_shift=1.9;
       for(j=0;j<engine->sss.nstate;j++)
         {
-          nsamples_in_seg+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j)*engine->global.fperiod;
+          nsamples+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j)*engine->global.fperiod;
           hts_local_f0=exp(HTS_SStreamSet_get_mean(&engine->sss,1,i*engine->sss.nstate+j,0));
           hts_local_f0*=local_f0_shift;
           if(hts_local_f0<10.0)
             hts_local_f0=10.0;
           HTS_SStreamSet_set_mean(&engine->sss,1,i*engine->sss.nstate+j,0,log(hts_local_f0));
         }
-        item_set_int(s,"nsamples",nsamples_in_seg);
+        item_set_int(s,"nsamples",nsamples);
     }
-  item_set_int(item_prev(s1),"nsamples",0);
-  item_set_int(s2,"nsamples",
-               (int)(engine->global.sampling_rate*final_pause_len*(HTS_SStreamSet_get_total_frame(&engine->sss)/orig_total_nframes)));
+  item_set_int(relation_head(utt_relation(u,"Segment")),"max_nsamples",0);
+  item_set_int(relation_tail(utt_relation(u,"Segment")),
+               "max_nsamples",
+               (int)(engine->global.sampling_rate*final_pause_max_len));
   HTS_Engine_create_pstream(engine);
-  callback_info.wav=new_wave();
-  callback_info.wav->sample_rate=engine->global.sampling_rate;
-  callback_info.total_nsamples=HTS_SStreamSet_get_total_frame(&engine->sss)*engine->global.fperiod+item_feat_int(s2,"nsamples");
-  cst_wave_resize(callback_info.wav,callback_info.total_nsamples,1);
-  callback_info.wav->num_samples=0;
-  memset(callback_info.wav->samples,0,callback_info.total_nsamples*sizeof(short));
-  callback_info.first_seg=s1;
-  callback_info.cur_seg=s1;
-  callback_info.first_seg_start=0;
-  callback_info.cur_seg_start=0;
-  callback_info.start=0;
-  callback_info.result=1;
-  HTS_Engine_set_user_data(engine,&callback_info);
-  HTS_Engine_create_gstream(engine);
-  HTS_Engine_set_user_data(engine,NULL);
-  if(callback_info.result&&(callback_info.start<callback_info.total_nsamples))
+  ci.user_callback=(RHVoice_callback)val_userdata(feat_val(u->features,"audio_callback"));
+  ci.user_buff_size=(int)(get_param_int(u->features,"audio_buff_len",150)*(get_param_int(u->features,"sample_rate",16000)/1000.0));
+  if(ci.user_buff_size<engine->global.fperiod)
+    ci.user_buff_size=engine->global.fperiod;
+  ci.user_buff_size-=(ci.user_buff_size % engine->global.fperiod);
+  ci.buff=(short*)calloc(ci.user_buff_size,sizeof(short));
+  ci.max_buff_size=ci.user_buff_size;
+  ci.cur_buff_size=0;
+  if(dur_stretch>=0.5)
+    ci.stream=NULL;
+  else
     {
-      callback_info.result=callback_info.user_callback(&callback_info.wav->samples[callback_info.start],
-                                                       callback_info.total_nsamples-callback_info.start,
-                                                       callback_info.first_seg,
-                                                       callback_info.start-callback_info.first_seg_start);
-      callback_info.wav->num_samples=callback_info.total_nsamples;
+      ci.stream=sonicCreateStream(engine->global.sampling_rate,1);
+      if(ci.stream!=NULL)
+        {
+        sonicSetSpeed(ci.stream,1.0/dur_stretch);
+        }
     }
-  utt_set_wave(u,callback_info.wav);
+  ci.cur_seg=relation_head(utt_relation(u,"Segment"));;
+  ci.cur_seg_nsamples=0;
+  ci.result=1;
+  HTS_Engine_set_user_data(engine,&ci);
+  HTS_Engine_create_gstream(engine);
+  if(ci.result)
+    {
+      if(ci.stream==NULL)
+        {
+          if(ci.cur_buff_size!=0)
+            ci.result=ci.user_callback(ci.buff,ci.cur_buff_size,NULL,0);
+        }
+      else
+        {
+          sonicFlushStream(ci.stream);
+          nsamples=sonicSamplesAvailable(ci.stream);
+          if(nsamples>0)
+            {
+              if(nsamples>ci.max_buff_size)
+                ci.buff=realloc(ci.buff,nsamples*sizeof(short));
+              sonicReadShortFromStream(ci.stream,ci.buff,nsamples);
+              ci.result=ci.user_callback(ci.buff,nsamples,NULL,0);
+            }
+        }
+    }
+  HTS_Engine_set_user_data(engine,NULL);
   HTS_Engine_refresh(engine);
-  feat_set_int(u->features,"last_audio_callback_result",callback_info.result);
+  feat_set_int(u->features,"last_audio_callback_result",ci.result);
+  if(ci.stream!=NULL)
+    sonicDestroyStream(ci.stream);
+  free(ci.buff);
   return u;
 }
 

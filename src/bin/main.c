@@ -18,7 +18,9 @@
 #include <getopt.h>
 #include "lib.h"
 
-static void write_wave_header(int sample_rate)
+static int sample_rate;
+
+static void write_wave_header()
 {
   int byte_rate=2*sample_rate;
   unsigned char header[]={
@@ -62,7 +64,7 @@ int static callback(const short *samples,int nsamples,cst_item *seg,int pos_in_s
     return 1;
   if(!wave_header_written)
     {
-      write_wave_header(get_param_int(item_utt(seg)->features,"sample_rate",16000));
+      write_wave_header();
       wave_header_written=1;
     }
   fwrite(samples,sizeof(short)*nsamples,1,stdout);
@@ -181,6 +183,7 @@ int main(int argc,char **argv)
   vox=RHVoice_create_voice(voxdir,callback);
   if(vox==NULL)
     return 1;
+  sample_rate=flite_get_param_int(vox->features,"sample_rate",16000);
   if(dictpath)
     {
       RHVoice_load_user_dict(vox,dictpath);
