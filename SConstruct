@@ -18,6 +18,8 @@ env=Environment(tools=toolset,package_name="RHVoice",package_version="0.3")
 env["CPPPATH"]=[".",os.path.join("#src","include")]
 env["LIBPATH"]=[]
 env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"'))]
+if env["PLATFORM"]=="win32":
+    env.Append(CPPDEFINES=("WIN32",1))
 var_cache=os.path.join(BUILDDIR,"user.conf")
 args={"DESTDIR":""}
 args.update(ARGUMENTS)
