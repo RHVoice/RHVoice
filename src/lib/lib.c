@@ -22,7 +22,11 @@
 #include "russian.h"
 #include "lib.h"
 
-static const char *sep=path_sep;
+#ifdef WIN32
+static const char *sep="\\";
+#else
+static const char *sep="/";
+#endif
 static const char *lib_version=VERSION;
 
 typedef struct _RHVoice_callback_info {
