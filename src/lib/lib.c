@@ -22,11 +22,6 @@
 #include "russian.h"
 #include "lib.h"
 
-#ifdef WIN32
-static const char *sep="\\";
-#else
-static const char *sep="/";
-#endif
 static const char *lib_version=VERSION;
 
 typedef struct _RHVoice_callback_info {
@@ -122,29 +117,105 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
   return info->result;
 }
 
+#define num_hts_data_files 17
+
+static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_files]);
+static void close_hts_data_files(FILE *file_list[num_hts_data_files]);
 static cst_utterance *hts_synth(cst_utterance *utt);
 static cst_utterance *create_hts_labels(cst_utterance *u);
+
+typedef struct
+{
+  const char *name;
+  const char *open_mode;
+  int is_optional;
+} hts_data_file_info;
+
+static const hts_data_file_info hts_data_list[num_hts_data_files]={
+  {"dur.pdf","rb",0},
+  {"tree-dur.inf","r",0},
+  {"mgc.pdf","rb",0},
+  {"tree-mgc.inf","r",0},
+  {"mgc.win1","r",0},
+  {"mgc.win2","r",0},
+  {"mgc.win3","r",0},
+  {"lf0.pdf","rb",0},
+  {"tree-lf0.inf","r",0},
+  {"lf0.win1","r",0},
+  {"lf0.win2","r",0},
+  {"lf0.win3","r",0},
+  {"gv-mgc.pdf","rb",1},
+  {"tree-gv-mgc.inf","r",1},
+  {"gv-lf0.pdf","rb",1},
+  {"tree-gv-lf0.inf","r",1},
+  {"gv-switch.inf","r",1}};
+
+static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_files])
+{
+  int result=1;
+  int i,l;
+  char sep='/';
+  char *full_path;
+  char *name;
+  memset(file_list,0,num_hts_data_files*sizeof(FILE*));
+  l=strlen(path);
+  if(l==0)
+    return 0;
+  full_path=calloc(l+20,sizeof(char));
+  if(full_path==NULL)
+    return 0;
+  memcpy(full_path,path,l);
+  if(full_path[l-1]!=sep)
+    {
+      full_path[l]=sep;
+      name=full_path+l+1;
+    }
+  else
+    name=full_path+l;
+  for(i=0;i<num_hts_data_files;i++)
+    {
+      strcpy(name,hts_data_list[i].name);
+      file_list[i]=fopen(full_path,hts_data_list[i].open_mode);
+      if((file_list[i]==NULL)&&(!hts_data_list[i].is_optional))
+        {
+          result=0;
+          break;
+        }
+    }
+  free(full_path);
+  if(!result)
+    close_hts_data_files(file_list);
+  return result;
+}
+
+static void close_hts_data_files(FILE *file_list[num_hts_data_files])
+{
+  int i;
+  for(i=0;i<num_hts_data_files;i++)
+    {
+      if(file_list[i]!=NULL)
+        {
+          fclose(file_list[i]);
+          file_list[i]=NULL;
+        }
+    }
+}
 
 cst_voice *RHVoice_create_voice(const char *voxdir,RHVoice_callback callback)
 {
   const cst_val *engine_val;
   HTS_Engine *engine=NULL;
-  char *buff=NULL;
-  int size=0;
-  const int n=5;
   int i,j;
-  char *fn[n];
-  FILE *fp[n];
+  FILE *fp[num_hts_data_files];
+  int use_gv=1;
   int sampling_rate=16000;
   int fperiod=80;
   float alpha=0.42;
   float stage=0.0;
   float beta=0.4;
   float uv_threshold=0.5;
-#ifdef USE_GV
   float gv_weight_lf0=0.7;
   float gv_weight_mcp=1.0;
-#endif
   HTS_Boolean use_log_gain=TRUE;
   cst_voice *vox;
   if((voxdir==NULL)||(callback==NULL))
@@ -152,21 +223,9 @@ cst_voice *RHVoice_create_voice(const char *voxdir,RHVoice_callback callback)
   vox = new_voice();
   if(vox==NULL)
     return NULL;
-  size=strlen(voxdir)+20;
-  buff=calloc(n,size);
-  if(buff==NULL)
-    {
-      delete_voice(vox);
-      return NULL;
-    }
-  for(i=0;i<n;i++)
-    {
-      fn[i]=buff+i*size;
-    }
   engine=malloc(sizeof(HTS_Engine));
   if(engine==NULL)
     {
-      free(buff);
       delete_voice(vox);
       return NULL;
     }
@@ -182,152 +241,32 @@ cst_voice *RHVoice_create_voice(const char *voxdir,RHVoice_callback callback)
   feat_set(vox->features,"engine",engine_val);
   feat_set_int(vox->features,"sample_rate",sampling_rate);
   feat_set(vox->features,"audio_callback",userdata_val(callback));
-  sprintf(fn[0],"%s%sdur.pdf",voxdir,sep);
-  sprintf(fn[1],"%s%stree-dur.inf",voxdir,sep);
-  fp[1]=NULL;
-  fp[0]=fopen(fn[0],"rb");
-  if(fp[0])
+  if(!open_hts_data_files(voxdir,fp))
     {
-      fp[1]=fopen(fn[1],"r");
-      if(fp[1]==NULL)
-        fclose(fp[0]);
-    }
-  if(fp[1]==NULL)
-    {
-      free(buff);
       RHVoice_delete_voice(vox);
       return NULL;
     }
-  HTS_Engine_load_duration_from_fp(engine,&fp[0],&fp[1],1);
-  fclose(fp[1]);
-  fclose(fp[0]);
-  fp[4]=NULL;
-  sprintf(fn[0],"%s%smgc.pdf",voxdir,sep);
-  sprintf(fn[1],"%s%stree-mgc.inf",voxdir,sep);
-  for(i=1;i<=3;i++)
+  i=0;
+  HTS_Engine_load_duration_from_fp(engine,&fp[i],&fp[i+1],1);
+  i+=2;
+  HTS_Engine_load_parameter_from_fp(engine,&fp[i],&fp[i+1],&fp[i+2],0,FALSE,3,1);
+  i+=5;
+  HTS_Engine_load_parameter_from_fp(engine,&fp[i],&fp[i+1],&fp[i+2],1,TRUE,3,1);
+  i+=5;
+  for(j=i;j<num_hts_data_files;j++)
     {
-      sprintf(fn[i+1],"%s%smgc.win%d",voxdir,sep,i);
+      if(fp[j]==NULL)
+        use_gv=0;
     }
-  fp[0]=fopen(fn[0],"rb");
-  if(fp[0])
+  if(use_gv)
     {
-      fp[1]=fopen(fn[1],"r");
-      if(fp[1]==NULL)
-        fclose(fp[0]);
-      else
-        {
-          for(i=2;i<=4;i++)
-            {
-              fp[i]=fopen(fn[i],"r");
-              if(fp[i]==NULL)
-                {
-                  for(j=0;j<i;j++)
-                    {
-                      fclose(fp[j]);
-                    }
-                  break;
-                }
-            }
-        }
+      beta=0;
+      HTS_Engine_load_gv_from_fp(engine,&fp[i],&fp[i+1],0,1);
+      i+=2;
+      HTS_Engine_load_gv_from_fp(engine,&fp[i],&fp[i+1],1,1);
+      HTS_Engine_load_gv_switch_from_fp(engine,fp[i]);
     }
-  if(fp[4]==NULL)
-    {
-      free(buff);
-      RHVoice_delete_voice(vox);
-      return NULL;
-    }
-  HTS_Engine_load_parameter_from_fp(engine,&fp[0],&fp[1],&fp[2],0,FALSE,3,1);
-  for(i=0;i<=4;i++)
-    {
-      fclose(fp[i]);
-    }
-  fp[4]=NULL;
-  sprintf(fn[0],"%s%slf0.pdf",voxdir,sep);
-  sprintf(fn[1],"%s%stree-lf0.inf",voxdir,sep);
-  for(i=1;i<=3;i++)
-    {
-      sprintf(fn[i+1],"%s%slf0.win%d",voxdir,sep,i);
-    }
-  fp[0]=fopen(fn[0],"rb");
-  if(fp[0])
-    {
-      fp[1]=fopen(fn[1],"r");
-      if(fp[1]==NULL)
-        fclose(fp[0]);
-      else
-        {
-          for(i=2;i<=4;i++)
-            {
-              fp[i]=fopen(fn[i],"r");
-              if(fp[i]==NULL)
-                {
-                  for(j=0;j<i;j++)
-                    {
-                      fclose(fp[j]);
-                    }
-                  break;
-                }
-            }
-        }
-    }
-  if(fp[4]==NULL)
-    {
-      free(buff);
-      RHVoice_delete_voice(vox);
-      return NULL;
-    }
-  HTS_Engine_load_parameter_from_fp(engine,&fp[0],&fp[1],&fp[2],1,TRUE,3,1);
-#ifdef USE_GV
-  beta=0;
-  fp[1]=NULL;
-  sprintf(fn[0],"%s%sgv-mgc.pdf",voxdir,sep);
-  sprintf(fn[1],"%s%stree-gv-mgc.inf",voxdir,sep);
-  fp[0]=fopen(fn[0],"rb");
-  if(fp[0])
-    {
-      fp[1]=fopen(fn[1],"r");
-      if(fp[1]==NULL)
-        fclose(fp[0]);
-    }
-  if(fp[1]==NULL)
-    {
-      free(buff);
-      RHVoice_delete_voice(vox);
-      return NULL;
-    }
-  HTS_Engine_load_gv_from_fp(engine,&fp[0],&fp[1],0,1);
-  fclose(fp[1]);
-  fclose(fp[0]);
-  fp[1]=NULL;
-  sprintf(fn[0],"%s%sgv-lf0.pdf",voxdir,sep);
-  sprintf(fn[1],"%s%stree-gv-lf0.inf",voxdir,sep);
-  fp[0]=fopen(fn[0],"rb");
-  if(fp[0])
-    {
-      fp[1]=fopen(fn[1],"r");
-      if(fp[1]==NULL)
-        fclose(fp[0]);
-    }
-  if(fp[1]==NULL)
-    {
-      free(buff);
-      RHVoice_delete_voice(vox);
-      return NULL;
-    }
-  HTS_Engine_load_gv_from_fp(engine,&fp[0],&fp[1],1,1);
-  fclose(fp[1]);
-  fclose(fp[0]);
-  sprintf(fn[0],"%s%sgv-switch.inf",voxdir,sep);
-  fp[0]=fopen(fn[0],"r");
-  if(fp[0]==NULL)
-    {
-      free(buff);
-      RHVoice_delete_voice(vox);
-      return NULL;
-    }
-  HTS_Engine_load_gv_switch_from_fp(engine,fp[0]);
-  fclose(fp[0]);
-#endif
+  close_hts_data_files(fp);
   HTS_Engine_set_sampling_rate(engine,sampling_rate);
   HTS_Engine_set_fperiod(engine,fperiod);
   HTS_Engine_set_alpha(engine,alpha);
@@ -335,18 +274,19 @@ cst_voice *RHVoice_create_voice(const char *voxdir,RHVoice_callback callback)
   HTS_Engine_set_log_gain(engine,use_log_gain);
   HTS_Engine_set_beta(engine,beta);
   HTS_Engine_set_msd_threshold(engine,1,uv_threshold);
-#ifdef USE_GV
-  HTS_Engine_set_gv_weight(engine,0,gv_weight_mcp);
-  HTS_Engine_set_gv_weight(engine,1,gv_weight_lf0);
-#endif
+  if(use_gv)
+    {
+      HTS_Engine_set_gv_weight(engine,0,gv_weight_mcp);
+      HTS_Engine_set_gv_weight(engine,1,gv_weight_lf0);
+    }
   HTS_Engine_set_duration_interpolation_weight(engine,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,0,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,1,0,1.0);
-#ifdef USE_GV
-  HTS_Engine_set_gv_interpolation_weight(engine,0,0,1.0);
-  HTS_Engine_set_gv_interpolation_weight(engine,1,0,1.0);
-#endif
-  free(buff);
+  if(use_gv)
+    {
+      HTS_Engine_set_gv_interpolation_weight(engine,0,0,1.0);
+      HTS_Engine_set_gv_interpolation_weight(engine,1,0,1.0);
+    }
   return vox;
 }
 
