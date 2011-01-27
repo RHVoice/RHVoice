@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -27,7 +27,7 @@ extern "C" {
 
   cst_utterance* russian_phrasify(cst_utterance* u);
   int ru_utt_break(cst_tokenstream *ts, const char *token, cst_relation *tokens);
-  cst_val *ru_tokentowords(const cst_item *t);
+  cst_val *ru_tokentowords(cst_item *t);
   cst_utterance* russian_lexical_insertion(cst_utterance* u);
   cst_utterance *russian_postlex_function(cst_utterance *u);
 

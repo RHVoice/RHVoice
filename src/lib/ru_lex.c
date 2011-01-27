@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -26,9 +26,9 @@ extern const cst_cart ru_stress_cart;
 
 static const uint8_t *ru_consonant_letters=(const uint8_t*)"бвгджзклмнпрстфхцчшщ";
 
-static int compare_entries(const char *w,const ru_dict_entry *e)
+static int compare_entries(const void *key,const void *element)
 {
-  return strcmp(w,e->word);
+  return strcmp((const char*)key,((const ru_dict_entry*)element)->word);
 }
 
 static int is_silence(const char *p)
@@ -157,7 +157,7 @@ static cst_val* ru_word_to_phones(const cst_item *word)
           if(e->stress > 0)
             {
               v=letters;
-              for(n=e->stress;v&&(--n);v=val_cdr(v)) {};
+              for(n=e->stress;v&&(--n);v=(cst_val*)val_cdr(v)) {};
               if(v)
                 {
                   set_car(v,val_inc_refcount(string_val("ё")));
