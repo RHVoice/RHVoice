@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010,2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -153,7 +153,7 @@ cst_voice *RHVoice_create_voice(const char *voxdir,RHVoice_callback callback)
   engine_val=userdata_val(engine);
   feat_set(vox->features,"engine",engine_val);
   feat_set_int(vox->features,"sample_rate",sampling_rate);
-  feat_set(vox->features,"audio_callback",userdata_val(callback));
+  feat_set(vox->features,"audio_callback",uttfunc_val((cst_uttfunc)callback));
   sprintf(fn[0],"%s%sdur.pdf",voxdir,sep);
   sprintf(fn[1],"%s%stree-dur.inf",voxdir,sep);
   fp[1]=NULL;
@@ -385,7 +385,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
   RHVoice_callback_info callback_info;
   if(!feat_present(u->features,"audio_callback"))
     return NULL;
-  callback_info.user_callback=(RHVoice_callback)val_userdata(feat_val(u->features,"audio_callback"));
+  callback_info.user_callback=(RHVoice_callback)val_uttfunc(feat_val(u->features,"audio_callback"));
   callback_info.min_buff_size=(int)(get_param_int(u->features,"audio_buff_len",150)*(get_param_int(u->features,"sample_rate",16000)/1000.0));
   engine=(HTS_Engine*)val_userdata(feat_val(u->features,"engine"));
   dur_stretch=get_param_float(u->features,"duration_stretch",1.0);
@@ -638,6 +638,11 @@ static cst_utterance *create_hts_labels(cst_utterance *u)
           syl=item_as(ssyl,"Syllable");
           sw=item_parent(ssyl);
           phr=item_parent(item_as(sw,"Phrase"));
+        }
+      else
+        {
+          sw=NULL;
+          syl=NULL;
         }
       ns=item_next(s);
       ps=item_prev(s);
