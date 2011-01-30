@@ -35,6 +35,7 @@ extern "C" {
   extern const cst_cart ru_phrasing_cart;
 
   cst_val* ru_lts_apply(const cst_val *input, const cst_lts_rewrites *rule);
+  char *ru_implode(const cst_val *l);
   const char *russian_vpair(const char *ph);
 
   typedef struct ru_user_dict_struct {

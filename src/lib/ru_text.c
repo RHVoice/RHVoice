@@ -225,7 +225,7 @@ cst_val *ru_tokentowords(cst_item *t)
                       lts_in=lts_out;
                       lts_out=ru_lts_apply(lts_in,&ru_hyphen_lts);
                       delete_val(lts_in);
-                      tmp=cst_implode(lts_out);
+                      tmp=ru_implode(lts_out);
                       delete_val(lts_out);
                       tmp1=tmp;
                       while(tmp1)
