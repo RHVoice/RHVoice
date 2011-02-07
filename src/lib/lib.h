@@ -29,13 +29,13 @@ extern "C" {
 
   cst_utterance* russian_phrasify(cst_utterance* u);
   int ru_utt_break(cst_tokenstream *ts, const char *token, cst_relation *tokens);
-  cst_val *ru_tokentowords(const cst_item *t);
+  cst_val *ru_tokentowords(cst_item *t);
   cst_utterance* russian_lexical_insertion(cst_utterance* u);
   cst_utterance *russian_postlex_function(cst_utterance *u);
   cst_utterance *create_hts_labels(cst_utterance *u);
   extern const cst_phoneset ru_phoneset;
   extern const cst_cart ru_phrasing_cart;
-
+  char *ru_implode(const cst_val *l);
   cst_val* ru_lts_apply(const cst_val *input, const cst_lts_rewrites *rule);
   const char *russian_vpair(const char *ph);
 

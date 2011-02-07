@@ -44,6 +44,31 @@ cst_val* ru_lts_apply(const cst_val *input, const cst_lts_rewrites *rule)
   return output;
 }
 
+char *ru_implode(const cst_val *l)
+{
+  const cst_val *v;
+  size_t n=1;
+  char *s,*p;
+  for(v=l;(v!=NULL);v=val_cdr(v))
+    {
+      if(val_stringp(val_car(v)))
+        n+=strlen(val_string(val_car(v)));
+    }
+  s=cst_alloc(char,n);
+  p=s;
+  for(v=l;(v!=NULL);v=val_cdr(v))
+    {
+      if(val_stringp(val_car(v)))
+        {
+          n=strlen(val_string(val_car(v)));
+          memcpy(p,val_string(val_car(v)),n);
+          p+=n;
+        }
+    }
+  *p='\0';
+  return s;
+}
+
 static const char* vpairs[][2]=
   {
     {"b","p"},

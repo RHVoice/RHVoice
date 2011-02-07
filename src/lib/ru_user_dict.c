@@ -1,4 +1,4 @@
-/* Copyright (C) 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -14,7 +14,6 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 #include <unistr.h>
 #include <unicase.h>
@@ -50,7 +49,7 @@ static cst_val *load_entries(const char *path)
   while(!ts_eof(ts_lines))
     {
       line=ts_get(ts_lines);
-      len=strlen(line);
+      len=u8_strlen((const uint8_t*)line);
       if(len==0)
         break;
       lcline=u8_tolower((const uint8_t*)line,len,"ru",NULL,NULL,&len);
@@ -129,7 +128,7 @@ ru_user_dict *ru_user_dict_load(const char *path)
         }
       for(l2=val_car(l1),p2=*p1;l2;l2=val_cdr(l2),p2++)
         {
-          *p2=strdup(val_string(val_car(l2)));
+          *p2=(char*)u8_strdup((const uint8_t*)val_string(val_car(l2)));
           if(*p2==NULL)
             {
               delete_val(entries);
