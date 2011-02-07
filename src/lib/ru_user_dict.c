@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <unistr.h>
 #include <unicase.h>
-#include "russian.h"
+#include "lib.h"
 
 static int ru_user_dict_cmp(const void *p1,const void *p2)
 {

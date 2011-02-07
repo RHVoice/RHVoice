@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include "lib.h"
+#include "RHVoice.h"
 
 static int sample_rate;
 
@@ -58,7 +58,7 @@ static void write_wave_header()
 
 static int wave_header_written=0;
 
-int static callback(const short *samples,int nsamples,cst_item *seg,int pos_in_seg)
+int static callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
 {
   if(!samples)
     return 1;
@@ -67,7 +67,7 @@ int static callback(const short *samples,int nsamples,cst_item *seg,int pos_in_s
       write_wave_header();
       wave_header_written=1;
     }
-  fwrite(samples,sizeof(short)*nsamples,1,stdout);
+  fwrite(samples,sizeof(short)*num_samples,1,stdout);
   return 1;
 }
 
@@ -81,6 +81,7 @@ static struct option program_options[]=
     {"voice-directory",required_argument,0,'d'},
     {"user-dict",required_argument,0,'u'},
     {"no-pseudo-english",no_argument,0,'R'},
+    {"ssml",no_argument,0,'s'},
     {0,0,0,0}
   };
 
@@ -103,23 +104,25 @@ static void show_help()
          "-v, --volume=<number>        speech volume, default is 1.0\n"
          "-d, --voice-directory=<path> path to voice files\n"
          "-u, --user-dict=<path>       path to the user dictionary\n"
-         "-R, --no-pseudo-english      do not use pseudo-English pronunciation\n");
+         "-R, --no-pseudo-english      do not use pseudo-English pronunciation\n"
+         "-s, --ssml                   ssml input\n");
 }
 
 int main(int argc,char **argv)
 {
   const char *voxdir=VOXDIR;
+  RHVoice_message msg;
   const char *dictpath=NULL;
-  cst_voice *vox;
   float rate=1.0;
   float pitch=1.0;
   float volume=1.0;
   int pseudo_english=1;
+  int is_ssml=0;
   char *text;
   int size=1000;
   int c;
   int i;
-  while((c=getopt_long(argc,argv,"d:u:hVr:p:v:R",program_options,&i))!=-1)
+  while((c=getopt_long(argc,argv,"d:u:hVr:p:v:Rs",program_options,&i))!=-1)
     {
       switch(c)
         {
@@ -146,6 +149,9 @@ int main(int argc,char **argv)
           break;
         case 'R':
           pseudo_english=0;
+          break;
+        case 's':
+          is_ssml=1;
           break;
         case 'd':
           voxdir=optarg;
@@ -179,21 +185,21 @@ int main(int argc,char **argv)
       return 0;
     }
   text[i]='\0';
-  flite_init();
-  vox=RHVoice_create_voice(voxdir,callback);
-  if(vox==NULL)
-    return 1;
-  sample_rate=flite_get_param_int(vox->features,"sample_rate",16000);
-  if(dictpath)
+  sample_rate=RHVoice_initialize(voxdir,callback);
+  if(sample_rate==0)
     {
-      RHVoice_load_user_dict(vox,dictpath);
+      free(text);
+      return 1;
     }
-  flite_feat_set_float(vox->features,"duration_stretch",1.0/rate);
-  flite_feat_set_float(vox->features,"f0_shift",pitch);
-  flite_feat_set_float(vox->features,"volume",volume);
-  flite_feat_set_int(vox->features,"pseudo_english",pseudo_english);
-  RHVoice_synth_text(text,vox,NULL);
+  msg=RHVoice_new_message_utf8((const uint8_t*)text,i,is_ssml);
   free(text);
-  RHVoice_delete_voice(vox);
+  if(msg==NULL)
+    {
+      RHVoice_terminate();
+      return 1;
+    }
+  RHVoice_speak(msg);
+  RHVoice_delete_message(msg);
+  RHVoice_terminate();
   return 0;
 }

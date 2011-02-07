@@ -13,7 +13,7 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include "russian.h"
+#include "lib.h"
 
 extern const cst_cart ru_vowel_reduction_cart;
 extern const cst_cart ru_vpair_cart;

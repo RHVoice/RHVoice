@@ -28,7 +28,11 @@ const_lib_src=[
 "russian.c",
 "ru_text.c",
 "ru_user_dict.c",
-"sonic.c"]
+"sonic.c",
+"ustring.c",
+"cls_chr.c",
+"message.c",
+"labels.c"]
 
 gen_lib_src=dict([(f,File(f).srcnode()) for f in Split("ru_cst_regexes.c ru_phoneset.c ru_gpos.c ru_dict.c ru_dict.h")])
 for x in lts_list.keys():
