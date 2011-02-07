@@ -320,7 +320,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
 {
   HTS_LabelString *lstring=NULL;
   double *dur_mean,*dur_vari,local_dur;
-  const char **labels=NULL;
+  char **labels=NULL;
   int i,j,nsamples,nlabels;
   cst_item *s,*t;
   float f0_shift,dur_stretch,local_f0_shift,local_dur_stretch,hts_local_f0;
@@ -362,10 +362,10 @@ static cst_utterance *hts_synth(cst_utterance *u)
   for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
   if(nlabels<=2) return NULL;
   create_hts_labels(u);
-  labels=(const char**)calloc(nlabels,sizeof(char*));
+  labels=(char**)calloc(nlabels,sizeof(char*));
   for(i=0,s=relation_head(utt_relation(u,"Segment"));s;s=item_next(s),i++)
     {
-      labels[i]=item_feat_string(s,"hts_label");
+      labels[i]=(char*)item_feat_string(s,"hts_label");
     }
   HTS_Engine_load_label_from_string_list(&ru_engine,labels,nlabels);
   free(labels);

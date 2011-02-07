@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -165,7 +165,7 @@ static cst_val *ru_digits_to_words(const uint8_t *word)
   return words;
 }
 
-cst_val *ru_tokentowords(const cst_item *t)
+cst_val *ru_tokentowords(cst_item *t)
 {
   ucs4_t pc,c,nc;
   const uint8_t *str=(uint8_t*)item_name(t);
@@ -197,7 +197,7 @@ cst_val *ru_tokentowords(const cst_item *t)
           *current='\0';
           e=NULL;
           if(feat_present(item_utt(t)->features,"user_dict"))
-            e=ru_user_dict_lookup((const ru_user_dict*)val_userdata(feat_val(item_utt(t)->features,"user_dict")),word);
+            e=ru_user_dict_lookup((const ru_user_dict*)val_userdata(feat_val(item_utt(t)->features,"user_dict")),(const char*)word);
           if(e)
             {
               for(e++;*e!=NULL;e++)
@@ -209,13 +209,13 @@ cst_val *ru_tokentowords(const cst_item *t)
             if(get_param_int(item_utt(t)->features,"pseudo_english",1)&&!contains_russian_letters(word))
               words=cons_val(string_val((const char*)word),words);
             else
-              if(u8_strcmp(word,(const char*)"й")==0)
+              if(u8_strcmp(word,(const uint8_t*)"й")==0)
                 words=cons_val(string_val("краткое"),cons_val(string_val("и"),words));
               else
-                if(u8_strcmp(word,(const char*)"ь")==0)
+                if(u8_strcmp(word,(const uint8_t*)"ь")==0)
                   words=cons_val(string_val("знак"),cons_val(string_val("мягкий"),words));
                 else
-                  if(u8_strcmp(word,(const char*)"ъ")==0)
+                  if(u8_strcmp(word,(const uint8_t*)"ъ")==0)
                     words=cons_val(string_val("знак"),cons_val(string_val("твёрдый"),words));
                   else
                     {
@@ -225,7 +225,7 @@ cst_val *ru_tokentowords(const cst_item *t)
                       lts_in=lts_out;
                       lts_out=ru_lts_apply(lts_in,&ru_hyphen_lts);
                       delete_val(lts_in);
-                      tmp=cst_implode(lts_out);
+                      tmp=ru_implode(lts_out);
                       delete_val(lts_out);
                       tmp1=tmp;
                       while(tmp1)
