@@ -114,6 +114,11 @@ if enable_config:
         print "Error: cannot link with libunistring"
         exit(1)
     env.PrependUnique(LIBS="unistring")
+    has_expat=conf.CheckLibWithHeader("expat","expat.h","C",call='XML_ParserCreate("UTF-8");',autoadd=0)
+    if not has_expat:
+        print "Error: cannot link with expat"
+        exit(1)
+    env.PrependUnique(LIBS="expat")
     env=conf.Finish()
     if env["PLATFORM"]=="win32":
         sapi_conf=sapi_env.Configure(conf_dir=os.path.join(BUILDDIR,"sapi_configure_tests"),

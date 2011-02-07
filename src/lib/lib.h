@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -13,15 +13,17 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef _RUSSIAN_H_
-#define _RUSSIAN_H_
+#ifndef _LIB_H_
+#define _LIB_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include "RHVoice.h"
 #include <flite.h>
 #include <cst_lts_rewrites.h>
+#include <unitypes.h>
 
   void russian_init(cst_voice *v);
 
@@ -30,7 +32,7 @@ extern "C" {
   cst_val *ru_tokentowords(const cst_item *t);
   cst_utterance* russian_lexical_insertion(cst_utterance* u);
   cst_utterance *russian_postlex_function(cst_utterance *u);
-
+  cst_utterance *create_hts_labels(cst_utterance *u);
   extern const cst_phoneset ru_phoneset;
   extern const cst_cart ru_phrasing_cart;
 
@@ -45,6 +47,31 @@ extern "C" {
   ru_user_dict* ru_user_dict_load(const char*path);
   void ru_user_dict_free(ru_user_dict* dict);
   const char** ru_user_dict_lookup(const ru_user_dict* dict,const char* word);
+
+  typedef enum {
+    cs_sp=1 << 0,               /* space */
+    cs_nl=1 << 1,               /* newline */
+    cs_pr=1 << 2,               /* paragraph */
+    cs_ws=cs_sp|cs_nl|cs_pr,    /* whitespace */
+    cs_ll=1 << 3,               /* lowercase */
+    cs_lu=1 << 4,               /* uppercase */
+    cs_l=cs_ll|cs_lu,           /* letter */
+    cs_d=1 << 5,                /* digit */
+    cs_pd=1 << 6,               /* dash */
+    cs_pq=1 << 7,               /* quote */
+    cs_po=1 << 8,               /* other punctuation */
+    cs_p=cs_pd|cs_pq|cs_po,     /* punctuation */
+    cs_pi=1 << 9,               /* word-initial punctuation */
+    cs_pf=1 << 10,              /* word-final punctuation */
+    cs_lv=1 << 11,              /* vowel */
+    cs_lc=1 << 12,              /* consonant */
+    cs_ru=1 << 13,              /* Russian */
+    cs_en=1 << 14               /* English */
+  } character_subset;
+
+  unsigned int classify_character(ucs4_t c);
+
+  cst_utterance *next_utt_from_message(RHVoice_message msg);
 
 #ifdef __cplusplus
 }
