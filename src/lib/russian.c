@@ -87,11 +87,6 @@ static const char* vpairs[][2]=
 
 void ru_ff_register(cst_features *ffunctions);
 
-static const char * const ru_punctuation = "\"'`.,:;!?-(){}[]";
-static const char * const ru_prepunctuation = "-\"'`({[";
-static const char * const ru_singlecharsymbols = "";
-static const char * const ru_whitespace = " \t\n\r";
-
 const char *russian_vpair(const char *ph)
 {
   int i;
@@ -107,13 +102,8 @@ const char *russian_vpair(const char *ph)
 
 void russian_init(cst_voice *v)
 {
-    feat_set(v->features,"utt_break",breakfunc_val(&ru_utt_break));
     feat_set(v->features,"phoneset",phoneset_val(&ru_phoneset));
     feat_set_string(v->features,"silence",ru_phoneset.silence);
-    feat_set_string(v->features,"text_whitespace",ru_whitespace);
-    feat_set_string(v->features,"text_postpunctuation",ru_punctuation);
-    feat_set_string(v->features,"text_prepunctuation", ru_prepunctuation);
-    feat_set_string(v->features,"text_singlecharsymbols", ru_singlecharsymbols);
     feat_set(v->features,"tokentowords_func",itemfunc_val(&ru_tokentowords));
     feat_set(v->features,"phrasing_cart",cart_val(&ru_phrasing_cart));
     feat_set(v->features,"lexical_insertion_func",uttfunc_val(&russian_lexical_insertion));
