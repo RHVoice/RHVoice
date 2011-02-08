@@ -28,7 +28,6 @@ extern "C" {
   void russian_init(cst_voice *v);
 
   cst_utterance* russian_phrasify(cst_utterance* u);
-  int ru_utt_break(cst_tokenstream *ts, const char *token, cst_relation *tokens);
   cst_val *ru_tokentowords(cst_item *t);
   cst_utterance* russian_lexical_insertion(cst_utterance* u);
   cst_utterance *russian_postlex_function(cst_utterance *u);
