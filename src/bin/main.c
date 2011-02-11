@@ -97,15 +97,15 @@ static void show_help()
   printf("usage: RHVoice [options]\n"
          "reads text from stdin (expects UTF-8 encoding)\n"
          "writes speech output to stdout\n"
-         "-h, --help                   print this help message and exit\n"
-         "-V, --version                print the program version and exit\n"
-         "-r, --rate=<number>          speech rate, default is 1.0\n"
-         "-p, --pitch=<number>         speech pitch, default is 1.0\n"
-         "-v, --volume=<number>        speech volume, default is 1.0\n"
-         "-d, --voice-directory=<path> path to voice files\n"
-         "-u, --user-dict=<path>       path to the user dictionary\n"
-         "-R, --no-pseudo-english      do not use pseudo-English pronunciation\n"
-         "-s, --ssml                   ssml input\n");
+         "-h, --help                          print this help message and exit\n"
+         "-V, --version                       print the program version and exit\n"
+         "-r, --rate=<number from 0 to 100>   speech rate, default is 20\n"
+         "-p, --pitch=<number from 0 to 100>  speech pitch, default is 50\n"
+         "-v, --volume=<number from 0 to 100> speech volume, default is 50\n"
+         "-d, --voice-directory=<path>        path to voice files\n"
+         "-u, --user-dict=<path>              path to the user dictionary\n"
+         "-R, --no-pseudo-english             do not use pseudo-English pronunciation\n"
+         "-s, --ssml                          ssml input\n");
 }
 
 int main(int argc,char **argv)
@@ -113,9 +113,10 @@ int main(int argc,char **argv)
   const char *voxdir=VOXDIR;
   RHVoice_message msg;
   const char *dictpath=NULL;
-  float rate=1.0;
-  float pitch=1.0;
-  float volume=1.0;
+  char *suffix;
+  long rate=20;
+  long pitch=50;
+  long volume=50;
   int pseudo_english=1;
   int is_ssml=0;
   char *text;
@@ -133,19 +134,34 @@ int main(int argc,char **argv)
           show_help();
           return 0;
         case 'r':
-          rate=strtof(optarg,NULL);
-          if(rate<=0.0)
-            rate=1.0;
+          rate=strtol(optarg,&suffix,10);
+          if(suffix==optarg)
+            rate=20;
+          else
+            {
+              if(rate<0) rate=0;
+              else if(rate>100) rate=100;
+            }
           break;
         case 'p':
-          pitch=strtof(optarg,NULL);
-          if(pitch<=0.0)
-            pitch=1.0;
+          pitch=strtol(optarg,&suffix,10);
+          if(suffix==optarg)
+            pitch=50;
+          else
+            {
+              if(pitch<0) pitch=0;
+              else if(pitch>100) pitch=100;
+            }
           break;
         case 'v':
-          volume=strtof(optarg,NULL);
-          if(volume<=0.0)
-            volume=1.0;
+          volume=strtol(optarg,&suffix,10);
+          if(suffix==optarg)
+            volume=50;
+          else
+            {
+              if(volume<0) volume=0;
+              else if(volume>100) volume=100;
+            }
           break;
         case 'R':
           pseudo_english=0;
@@ -191,6 +207,9 @@ int main(int argc,char **argv)
       free(text);
       return 1;
     }
+  RHVoice_set_rate(rate);
+  RHVoice_set_pitch(pitch);
+  RHVoice_set_volume(volume);
   msg=RHVoice_new_message_utf8((const uint8_t*)text,i,is_ssml);
   free(text);
   if(msg==NULL)

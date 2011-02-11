@@ -23,11 +23,37 @@
 
 #define ssml_error(s) {s->error_flag=1;XML_StopParser(s->parser,XML_FALSE);return;}
 
+#define rate_min 0.2
+#define rate_max 5.0
+#define ext_rate_default 20.0
+#define pitch_min 0.2
+#define pitch_max 2.0
+#define ext_pitch_default 50.0
+#define volume_min 0.0
+#define volume_max 2.0
+#define ext_volume_default 50.0
+
+static float ext_rate=ext_rate_default;
+static float ext_pitch=ext_pitch_default;
+static float ext_volume=ext_volume_default;
+
+static float prosody_check_range(float val,float min,float max)
+{
+  if(val<min) return min;
+  else if(val>max) return max;
+  else return val;
+}
+
 typedef struct {
-  unsigned char rate,pitch,volume;
+  float value;
+  int is_absolute;
+} prosody_param;
+
+typedef struct {
+  prosody_param rate,pitch,volume;
 } prosody_params;
 
-static prosody_params default_prosody_params={50,50,50};
+static prosody_params default_prosody_params={{1.0,0},{1.0,0},{1.0,0}};
 
 typedef enum {
   token_word=1 << 0,
@@ -220,7 +246,7 @@ static ssml_attr_list ssml_copy_attributes(const char **atts)
       ssml_attr_list_free(alist);
       return NULL;
     }
-  for(i=0;atts[i]!=NULL;i++)
+  for(i=0;atts[i]!=NULL;i+=2)
     {
       a.name=u8_strdup((const uint8_t*)atts[i]);
       a.value=u8_strdup((const uint8_t*)atts[i+1]);
@@ -320,6 +346,100 @@ static void RHVoice_message_free(RHVoice_message msg)
   free(msg);
 }
 
+static int prosody_parse_as_number(const char *value,float *number,int *sign,char **suffix)
+{
+  float res;
+  const char *str=value;
+  int s=0;
+  char *end;
+  if(str[0]=='+')
+    {
+      s=1;
+      str++;
+    }
+  else if(str[0]=='-')
+    {
+      s=-1;
+      str++;
+    }
+  if(!(((str[0]>='0')&&(str[0]<='9'))||(str[0]=='.'))) return 0;
+  res=strtof(str,&end);
+  if(end==str) return 0;
+  if(res<0) return 0;
+  *number=res;
+  *sign=s;
+  *suffix=end;
+  return 1;
+}
+
+static prosody_stack prosody_stack_update(prosody_stack stack,const ssml_tag *tag)
+{
+  prosody_params p=*prosody_stack_back(stack);
+  float fval=1.0;
+  const char *strval=NULL;
+  int sign=0;
+  char *suffix=NULL;
+  strval=(const char*)ssml_get_attribute_value(tag,"rate");
+  if(strval)
+    {
+      if(strcmp(strval,"default")==0)
+        p.rate=default_prosody_params.rate;
+      else if(prosody_parse_as_number(strval,&fval,&sign,&suffix))
+        {
+          if((sign==0)&&(strlen(suffix)==0))
+            {
+              p.rate.value*=fval;
+            }
+          else if(strcmp(suffix,"%")==0)
+            {
+              if(sign!=0) fval=100+sign*fval;
+              if(fval<0) fval=0;
+              fval/=100.0;
+              p.rate.value*=fval;
+            }
+        }
+    }
+  strval=(const char*)ssml_get_attribute_value(tag,"pitch");
+  if(strval)
+    {
+      if(strcmp(strval,"default")==0)
+        p.pitch=default_prosody_params.pitch;
+      else if(prosody_parse_as_number(strval,&fval,&sign,&suffix))
+        {
+          if(strcmp(suffix,"%")==0)
+            {
+              if(sign!=0) fval=100+sign*fval;
+              if(fval<0) fval=0;
+              fval/=100.0;
+              p.pitch.value*=fval;
+            }
+        }
+    }
+  strval=(const char*)ssml_get_attribute_value(tag,"volume");
+  if(strval)
+    {
+      if(strcmp(strval,"default")==0)
+        p.volume=default_prosody_params.volume;
+      else if(prosody_parse_as_number(strval,&fval,&sign,&suffix))
+        {
+          if((sign==0)&&(strlen(suffix)==0))
+            {
+              if(fval>100) fval=100;
+              p.volume.is_absolute=1;
+              p.volume.value=fval/50.0;
+            }
+          else if(strcmp(suffix,"%")==0)
+            {
+              if(sign!=0) fval=100+sign*fval;
+              if(fval<0) fval=0;
+              fval/=100.0;
+              p.volume.value*=fval;
+            }
+        }
+    }
+  return prosody_stack_push(stack,&p);
+}
+
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
@@ -332,12 +452,30 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
   tag.attributes=ssml_copy_attributes(atts);
   if(tag.attributes==NULL) ssml_error(state);
   if(!ssml_tag_stack_push(state->tags,&tag)) ssml_error(state);
+  ssml_tag *top=ssml_tag_stack_back(state->tags);
+  switch(top->id)
+    {
+    case ssml_prosody:
+      if(!prosody_stack_update(state->prosody,top)) ssml_error(state);
+      break;
+    default:
+      break;
+    }
 }
 
 static void XMLCALL ssml_element_end(void *user_data,const char *name)
 {
   ssml_state *state=(ssml_state*)user_data;
   if(state->skip) {state->skip--;return;}
+  ssml_tag *top=ssml_tag_stack_back(state->tags);
+  switch(top->id)
+    {
+    case ssml_prosody:
+      prosody_stack_pop(state->prosody);
+      break;
+    default:
+      break;
+    }
   ssml_tag_stack_pop(state->tags);
 }
 
@@ -357,10 +495,17 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
   const uint8_t *str=(const uint8_t*)text;
   int n;
   ucs4_t c;
+  token *tok=toklist_back(state->msg->tokens);
   while(r>0)
     {
       n=u8_mbtoucr(&c,str,r);
       if(!tstream_putc(&state->ts,c,p,no_refs?1:src_len_in_chars)) ssml_error(state);
+      if(tok!=toklist_back(state->msg->tokens))
+        {
+          tok=toklist_back(state->msg->tokens);
+          if(tok->flags&token_word)
+            tok->contents.word.prosody=*prosody_stack_back(state->prosody);
+        }
       r-=n;
       str+=n;
       if(no_refs) p++;
@@ -400,6 +545,7 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   if(s->tags==NULL) goto err2;
   s->prosody=prosody_stack_alloc(10,NULL);
   if(s->prosody==NULL) goto err3;
+  prosody_stack_push(s->prosody,&default_prosody_params);
   switch(s->src.encoding)
     {
     case 16:
@@ -679,6 +825,12 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   cst_item *i;
   size_t len,pre_len,post_len,name_len;
   const token *next;
+  float rate=prosody_check_range((ext_rate/ext_rate_default)*first->contents.word.prosody.rate.value,rate_min,rate_max);
+  feat_set_float(u->features,"rate",rate);
+  float pitch;
+  float def_pitch=ext_pitch/ext_pitch_default;
+  float volume;
+  float def_volume=ext_volume/ext_volume_default;
   for(next=first;next<=last;next++)
     {
       i=relation_append(tr,NULL);
@@ -711,37 +863,43 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
           ustring32_substr8(str8,str32,pre_len+name_len,post_len);
           item_set_string(i,"punc",(const char*)ustring8_str(str8));
         }
+      pitch=prosody_check_range(next->contents.word.prosody.pitch.value*def_pitch,pitch_min,pitch_max);
+      item_set_float(i,"pitch",pitch);
+      volume=prosody_check_range(next->contents.word.prosody.volume.value*(next->contents.word.prosody.volume.is_absolute?1.0:def_volume),volume_min,volume_max);
+      item_set_float(i,"volume",volume);
     }
+  if(last==back)
+    feat_set_int(u->features,"last",1);
   msg->pos=last-front+1;
   return u;
 }
 
 void RHVoice_set_rate(unsigned int rate)
 {
-  default_prosody_params.rate=(rate>100)?100:rate;
+  ext_rate=(rate>100)?100:rate;
 }
 
 unsigned int RHVoice_get_rate()
 {
-  return default_prosody_params.rate;
+  return ext_rate;
 }
 
 void RHVoice_set_pitch(unsigned int pitch)
 {
-  default_prosody_params.pitch=(pitch>100)?100:pitch;
+  ext_pitch=(pitch>100)?100:pitch;
 }
 
 unsigned int RHVoice_get_pitch()
 {
-  return default_prosody_params.pitch;
+  return ext_pitch;
 }
 
 void RHVoice_set_volume(unsigned int volume)
 {
-  default_prosody_params.volume=(volume>100)?100:volume;
+  ext_volume=(volume>100)?100:volume;
 }
 
 unsigned int RHVoice_get_volume()
 {
-  return default_prosody_params.volume;
+  return ext_volume;
 }
