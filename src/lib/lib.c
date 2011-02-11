@@ -20,6 +20,7 @@
 #include <HTS_engine.h>
 #include "sonic.h"
 #include "lib.h"
+#include "vector.h"
 
 static const char *lib_version=VERSION;
 
@@ -27,97 +28,75 @@ static cst_voice *voice=NULL;
 static HTS_Engine ru_engine;
 static RHVoice_callback user_callback=NULL;
 
-typedef struct _RHVoice_callback_info {
-  RHVoice_callback user_callback;
-  short *buff;
-  int user_buff_size;
-  int max_buff_size;
-  int cur_buff_size;
+#define min_buff_size 3600
+
+vector_t(short,svector)
+
+typedef struct {
+  svector samples;
   sonicStream stream;
   cst_item *cur_seg;
   int cur_seg_nsamples;
-  int result;
-} RHVoice_callback_info;
+  int last_result;
+} synth_state;
+
+#define synth_error(s) {s->last_result=0;return 0;}
 
 static int synth_callback(const short *samples,int nsamples,void *user_data)
 {
-  RHVoice_callback_info *info;
-  int i,sonic_nsamples;
-  float volume,s;
+  synth_state *state=(synth_state*)user_data;
+  float volume,fs;
+  short s;
+  int i;
   cst_item *t;
-  if(user_data==NULL)
-    return 0;
-  info=(RHVoice_callback_info*)user_data;
-  if(info->cur_seg_nsamples==item_feat_int(info->cur_seg,"nsamples"))
+  int end_of_audio=0;
+  if(state->cur_seg_nsamples==item_feat_int(state->cur_seg,"nsamples"))
     {
-      info->cur_seg=item_next(info->cur_seg);
-      info->cur_seg_nsamples=nsamples;
+      state->cur_seg=item_next(state->cur_seg);
+      state->cur_seg_nsamples=nsamples;
     }
-  else
-    info->cur_seg_nsamples+=nsamples;
-  if(cst_streq(item_name(info->cur_seg),"pau")&&item_feat_present(info->cur_seg,"max_nsamples"))
+  else{
+    state->cur_seg_nsamples+=nsamples;
+    end_of_audio=((!item_next(state->cur_seg))&&
+                  (state->cur_seg_nsamples>=item_feat_int(state->cur_seg,"nsamples")));
+  }
+  if(!item_prev(state->cur_seg)) return 1;
+  if(!svector_reserve(state->samples,svector_size(state->samples)+nsamples)) synth_error(state);
+  t=path_to_item(state->cur_seg,"R:Transcription.parent.R:Token.parent");
+  if(t)
     {
-      if(!item_prev(info->cur_seg))
+      volume=item_feat_float(t,"volume");
+      for(i=0;i<nsamples;i++)
         {
-          if((item_feat_int(info->cur_seg,"nsamples")-info->cur_seg_nsamples)>=item_feat_int(info->cur_seg,"max_nsamples"))
-            return 1;
+          fs=(float)samples[i]*volume;
+          if(fs<-32766) s=-32766;
+          else if(fs>32766) s=32766;
+          else s=(short)(fs+0.5);
+          svector_push(state->samples,&s);
         }
-      else
-        if(!item_next(info->cur_seg))
-          {
-            if(info->cur_seg_nsamples>item_feat_int(info->cur_seg,"max_nsamples"))
-              return 0;
-          }
     }
-  volume=get_param_float(item_utt(info->cur_seg)->features,"volume",1.0);
-  t=path_to_item(info->cur_seg,"R:Transcription.parent.R:Token.parent");
-  if(t&&item_feat_present(t,"volume"))
-    volume=item_feat_float(t,"volume");
-  if(volume<=0)
-    volume=1.0;
-  for(i=0;i<nsamples;i++)
+  else svector_append(state->samples,samples,nsamples);
+  if((svector_size(state->samples)>=min_buff_size)||end_of_audio)
     {
-      if(volume==1.0)
-        s=samples[i];
-      else
+      if(state->stream)
         {
-          s=(float)samples[i]*volume;
-          if(s<-32766)
-            s=-32766;
-          else
-            if(s>32766)
-              s=32766;
-            else
-              s=(short)(s+0.5);
-        }
-      info->buff[info->cur_buff_size+i]=s;
-    }
-  info->cur_buff_size+=nsamples;
-  if(info->cur_buff_size>=info->user_buff_size)
-    {
-      if(info->stream==NULL)
-        {
-          info->result=info->user_callback(info->buff,info->cur_buff_size,NULL,0);
-          info->cur_buff_size=0;
-        }
-      else
-        {
-          sonicWriteShortToStream(info->stream,info->buff,info->cur_buff_size);
-          info->cur_buff_size=0;
-          sonic_nsamples=sonicSamplesAvailable(info->stream);
-          if(sonic_nsamples>0)
+          if(svector_size(state->samples)>0)
             {
-              if(sonic_nsamples>info->max_buff_size)
-                {
-                  info->buff=realloc(info->buff,sonic_nsamples*sizeof(short));
-                  info->max_buff_size=sonic_nsamples;
-                }
-              sonicReadShortFromStream(info->stream,info->buff,sonic_nsamples);
-              info->result=info->user_callback(info->buff,sonic_nsamples,NULL,0);
+              if(!sonicWriteShortToStream(state->stream,svector_data(state->samples),svector_size(state->samples)))
+                synth_error(state);
             }
+          s=0;
+          if(!svector_resize(state->samples,sonicSamplesAvailable(state->stream),&s)) synth_error(state);
+          if(svector_size(state->samples)>0)
+            sonicReadShortFromStream(state->stream,svector_data(state->samples),svector_size(state->samples));
+        }
+      if(svector_size(state->samples)>0)
+        {
+          state->last_result=user_callback(svector_data(state->samples),svector_size(state->samples),NULL,0);
+          svector_clear(state->samples);
         }
     }
-  return info->result;
+  return end_of_audio?0:(state->last_result);
 }
 
 #define num_hts_data_files 17
@@ -322,43 +301,13 @@ static cst_utterance *hts_synth(cst_utterance *u)
   double *dur_mean,*dur_vari,local_dur;
   char **labels=NULL;
   int i,j,nsamples,nlabels;
+  float final_pause_limit=0.25;
   cst_item *s,*t;
-  float f0_shift,dur_stretch,local_f0_shift,local_dur_stretch,hts_local_f0;
-  const char *last_punc=NULL;
-  float final_pause_max_len=0.0;
-  RHVoice_callback_info ci;
-  dur_stretch=get_param_float(u->features,"duration_stretch",1.0);
-  f0_shift=get_param_float(u->features,"f0_shift",1.0);
-  t=relation_tail(utt_relation(u,"Token"));
-  last_punc=item_feat_string(t,"punc");
-  if(dur_stretch>=0.5)
-    {
-      if(item_feat_present(t,"duration_stretch"))
-        {
-          local_dur_stretch=item_feat_float(t,"duration_stretch");
-          if(local_dur_stretch<0)
-            local_dur_stretch=1;
-        }
-      else
-        local_dur_stretch=dur_stretch;
-    }
-  else
-    local_dur_stretch=1.0;
-  if(last_punc)
-    {
-      if(strchr(last_punc,'.')||
-         strchr(last_punc,'?')||
-         strchr(last_punc,'!'))
-        final_pause_max_len=0.25*local_dur_stretch;
-      else
-        if(strchr(last_punc,':')||
-           strchr(last_punc,';'))
-          final_pause_max_len=0.175*local_dur_stretch;
-        else
-          if(strchr(last_punc,',')||
-             strchr(last_punc,'-'))
-            final_pause_max_len=0.1*local_dur_stretch;
-    }
+  float pitch,rate,f0;
+  synth_state state;
+  state.samples=svector_alloc(min_buff_size,NULL);
+  if(state.samples==NULL) return NULL;
+  rate=feat_float(u->features,"rate");
   for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
   if(nlabels<=2) return NULL;
   create_hts_labels(u);
@@ -369,7 +318,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
     }
   HTS_Engine_load_label_from_string_list(&ru_engine,labels,nlabels);
   free(labels);
-  if(dur_stretch>=0.5)
+  if(rate<=2)
     {
       dur_mean=(double*)calloc(ru_engine.ms.nstate,sizeof(double));
       dur_vari=(double*)calloc(ru_engine.ms.nstate,sizeof(double));
@@ -377,21 +326,12 @@ static cst_utterance *hts_synth(cst_utterance *u)
       for(s=relation_head(utt_relation(u,"Segment")),lstring=ru_engine.label.head;s;s=item_next(s),lstring=lstring->next)
         {
           HTS_ModelSet_get_duration(&ru_engine.ms,lstring->name,dur_mean,dur_vari,ru_engine.global.duration_iw);
-          local_dur_stretch=dur_stretch;
-          if(cst_streq(item_name(s),"pau"))
-            t=path_to_item(s,"p.R:Transcription.parent.R:Token.parent");
-          else
-            t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
-          if(t&&item_feat_present(t,"duration_stretch"))
-            local_dur_stretch=item_feat_float(t,"duration_stretch");
-          if(local_dur_stretch<=0)
-            local_dur_stretch=1.0;
           local_dur=0;
           for(i=0;i<ru_engine.ms.nstate;i++)
             {
               local_dur+=dur_mean[i];
             }
-          lstring->end=lstring->start+local_dur*local_dur_stretch;
+          lstring->end=lstring->start+local_dur*(1/rate);
           if(lstring->next)
             lstring->next->start=lstring->end;
         }
@@ -402,77 +342,56 @@ static cst_utterance *hts_synth(cst_utterance *u)
   HTS_Engine_create_sstream(&ru_engine);
   for(s=relation_head(utt_relation(u,"Segment")),i=0;s;s=item_next(s),i++)
     {
-      nsamples=0;
-      local_f0_shift=f0_shift;
       t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
-      if(t&&item_feat_present(t,"f0_shift"))
-        local_f0_shift=item_feat_float(t,"f0_shift");
-      if(local_f0_shift<0.1)
-        local_f0_shift=0.1;
-      if(local_f0_shift>1.9)
-        local_f0_shift=1.9;
+      if(t)
+        {
+          pitch=item_feat_float(t,"pitch");
+          for(j=0;j<ru_engine.sss.nstate;j++)
+            {
+              f0=exp(HTS_SStreamSet_get_mean(&ru_engine.sss,1,i*ru_engine.sss.nstate+j,0))*pitch;
+              if(f0<10.0) f0=10.0;
+              HTS_SStreamSet_set_mean(&ru_engine.sss,1,i*ru_engine.sss.nstate+j,0,log(f0));
+            }
+        }
+      nsamples=0;
       for(j=0;j<ru_engine.sss.nstate;j++)
         {
           nsamples+=HTS_SStreamSet_get_duration(&ru_engine.sss,i*ru_engine.sss.nstate+j)*ru_engine.global.fperiod;
-          hts_local_f0=exp(HTS_SStreamSet_get_mean(&ru_engine.sss,1,i*ru_engine.sss.nstate+j,0));
-          hts_local_f0*=local_f0_shift;
-          if(hts_local_f0<10.0)
-            hts_local_f0=10.0;
-          HTS_SStreamSet_set_mean(&ru_engine.sss,1,i*ru_engine.sss.nstate+j,0,log(hts_local_f0));
         }
-        item_set_int(s,"nsamples",nsamples);
+      item_set_int(s,"nsamples",nsamples);
     }
-  item_set_int(relation_head(utt_relation(u,"Segment")),"max_nsamples",0);
-  item_set_int(relation_tail(utt_relation(u,"Segment")),
-               "max_nsamples",
-               (int)(ru_engine.global.sampling_rate*final_pause_max_len));
   HTS_Engine_create_pstream(&ru_engine);
-  ci.user_callback=user_callback;
-  ci.user_buff_size=3600;
-  ci.buff=(short*)calloc(ci.user_buff_size,sizeof(short));
-  ci.max_buff_size=ci.user_buff_size;
-  ci.cur_buff_size=0;
-  if(dur_stretch>=0.5)
-    ci.stream=NULL;
+  if(get_param_int(u->features,"last",0))
+    {
+      const char *p=item_feat_string(relation_tail(utt_relation(u,"Token")),"punc");
+      if(strlen(p)==0) final_pause_limit=0.001;
+      else if(strchr(p,'.')||strchr(p,'?')||strchr(p,'!')||strchr(p,':')) final_pause_limit=0.25;
+      else final_pause_limit=0.1;
+    }
+  final_pause_limit*=ru_engine.global.sampling_rate;
+  if(rate<=2) final_pause_limit/=rate;
+  nsamples=(int)(final_pause_limit+0.5);
+  s=relation_tail(utt_relation(u,"Segment"));
+  if(item_feat_int(s,"nsamples")>nsamples)
+    item_set_int(s,"nsamples",nsamples);
+  if(rate<=2)
+    state.stream=NULL;
   else
     {
-      ci.stream=sonicCreateStream(ru_engine.global.sampling_rate,1);
-      if(ci.stream!=NULL)
-        {
-        sonicSetSpeed(ci.stream,1.0/dur_stretch);
-        }
+      state.stream=sonicCreateStream(ru_engine.global.sampling_rate,1);
+      if(state.stream!=NULL)
+        sonicSetSpeed(state.stream,rate);
     }
-  ci.cur_seg=relation_head(utt_relation(u,"Segment"));;
-  ci.cur_seg_nsamples=0;
-  ci.result=1;
-  HTS_Engine_set_user_data(&ru_engine,&ci);
+  state.cur_seg=relation_head(utt_relation(u,"Segment"));
+  state.cur_seg_nsamples=0;
+  state.last_result=1;
+  HTS_Engine_set_user_data(&ru_engine,&state);
   HTS_Engine_create_gstream(&ru_engine);
-  if(ci.result)
-    {
-      if(ci.stream==NULL)
-        {
-          if(ci.cur_buff_size!=0)
-            ci.result=ci.user_callback(ci.buff,ci.cur_buff_size,NULL,0);
-        }
-      else
-        {
-          sonicFlushStream(ci.stream);
-          nsamples=sonicSamplesAvailable(ci.stream);
-          if(nsamples>0)
-            {
-              if(nsamples>ci.max_buff_size)
-                ci.buff=realloc(ci.buff,nsamples*sizeof(short));
-              sonicReadShortFromStream(ci.stream,ci.buff,nsamples);
-              ci.result=ci.user_callback(ci.buff,nsamples,NULL,0);
-            }
-        }
-    }
   HTS_Engine_set_user_data(&ru_engine,NULL);
   HTS_Engine_refresh(&ru_engine);
-  feat_set_int(u->features,"last_user_callback_result",ci.result);
-  if(ci.stream!=NULL)
-    sonicDestroyStream(ci.stream);
-  free(ci.buff);
+  feat_set_int(u->features,"last_user_callback_result",state.last_result);
+  if(state.stream!=NULL) sonicDestroyStream(state.stream);
+  svector_free(state.samples);
   return u;
 }
 
