@@ -123,8 +123,6 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
   tok.contents.word.text=NULL;
   tok.contents.word.prosody=default_prosody_params;
   token *prev_tok=toklist_back(ts->l);
-  size_t prev_pos=prev_tok?(prev_tok->src_pos):0;
-  size_t prev_len=prev_tok?(prev_tok->src_len):0;
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
     {
@@ -134,7 +132,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
     }
   if(!(cs&cs_ws))
     {
-      if((ts->cs&cs_ws)||(prev_pos+prev_len<src_pos))
+      if(ts->cs&cs_ws)
         {
           tok.contents.word.text=ustring32_alloc(1);
           if(tok.contents.word.text==NULL) return 0;
@@ -456,6 +454,7 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
 {
   ssml_state *state=(ssml_state*)user_data;
   if(state->skip) {state->skip++;return;}
+  if(!tstream_putc(&state->ts,' ',0,0)) ssml_error(state);
   ssml_tag tag;
   tag.id=ssml_get_tag_id(name);
   int accept=(ssml_tag_stack_size(state->tags)==0)?(tag.id==ssml_speak):ssml_element_table[ssml_tag_stack_back(state->tags)->id][tag.id];
@@ -482,6 +481,7 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
 {
   ssml_state *state=(ssml_state*)user_data;
   if(state->skip) {state->skip--;return;}
+  if(!tstream_putc(&state->ts,' ',0,0)) ssml_error(state);
   ssml_tag *top=ssml_tag_stack_back(state->tags);
   token *tok=toklist_back(state->msg->tokens);
   switch(top->id)
