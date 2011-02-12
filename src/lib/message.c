@@ -472,6 +472,9 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
     case ssml_s:
       state->start_sentence=1;
       break;
+    case ssml_p:
+      tstream_putc(&state->ts,8233,0,0);
+      break;
     default:
       break;
     }
@@ -492,6 +495,9 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
     case ssml_s:
       if(state->start_sentence) state->start_sentence=0;
       else tok->flags|=token_sentence_end;
+      break;
+    case ssml_p:
+      tstream_putc(&state->ts,8233,0,0);
       break;
     default:
       break;
