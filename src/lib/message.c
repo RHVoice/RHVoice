@@ -88,6 +88,17 @@ static void token_free(token *t)
   return;
 }
 
+token *token_find_by_flags(token *first,token *last,unsigned int flags)
+{
+  token *next;
+  if((first==NULL)||(last==NULL)) return NULL;
+  for(next=first;next<=last;next++)
+    {
+      if(next->flags&flags) return next;
+    }
+  return NULL;
+}
+
 vector_t(token,toklist)
 
 typedef struct {
@@ -312,6 +323,7 @@ typedef struct {
   ssml_tag_stack tags;
   prosody_stack prosody;
   int in_cdata_section;
+  int start_sentence;
   unsigned int skip;
   tstream ts;
   size_t text_start;
@@ -458,6 +470,9 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
     case ssml_prosody:
       if(!prosody_stack_update(state->prosody,top)) ssml_error(state);
       break;
+    case ssml_s:
+      state->start_sentence=1;
+      break;
     default:
       break;
     }
@@ -468,10 +483,15 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
   ssml_state *state=(ssml_state*)user_data;
   if(state->skip) {state->skip--;return;}
   ssml_tag *top=ssml_tag_stack_back(state->tags);
+  token *tok=toklist_back(state->msg->tokens);
   switch(top->id)
     {
     case ssml_prosody:
       prosody_stack_pop(state->prosody);
+      break;
+    case ssml_s:
+      if(state->start_sentence) state->start_sentence=0;
+      else tok->flags|=token_sentence_end;
       break;
     default:
       break;
@@ -505,6 +525,11 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
           tok=toklist_back(state->msg->tokens);
           if(tok->flags&token_word)
             tok->contents.word.prosody=*prosody_stack_back(state->prosody);
+          if(state->start_sentence)
+            {
+              tok->flags|=token_sentence_start;
+              state->start_sentence=0;
+            }
         }
       r-=n;
       str+=n;
@@ -537,6 +562,7 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->error_flag=0;
   s->skip=0;
   s->in_cdata_section=0;
+  s->start_sentence=0;
   s->text_start=0;
   s->text_start_in_chars=0;
   s->parser=XML_ParserCreate("UTF-8");
@@ -739,18 +765,22 @@ static void mark_sentence_boundaries(RHVoice_message msg)
   last->flags|=token_sentence_end;
   if(next==last) return;
   token *prev=next;
-  do
+  next++;
+  int skip=0;
+  while(next<=last)
     {
-      next++;
-      if((prev->flags&token_eop)||
+      skip=(next->flags&token_sentence_start);
+      if(skip||
+         (prev->flags&(token_eop|token_sentence_end))||
          is_sentence_boundary(prev->contents.word.text,next->contents.word.text,prev->flags&token_eol))
         {
           prev->flags|=token_sentence_end;
           next->flags|=token_sentence_start;
         }
+      if(skip) next=token_find_by_flags(next,last,token_sentence_end);
       prev=next;
+      next++;
     }
-  while(next!=last);
 }
 
 static RHVoice_message new_message(const source_info *i)
