@@ -105,9 +105,9 @@ void russian_init(cst_voice *v)
     feat_set(v->features,"phoneset",phoneset_val(&ru_phoneset));
     feat_set_string(v->features,"silence",ru_phoneset.silence);
     feat_set(v->features,"tokentowords_func",itemfunc_val(&ru_tokentowords));
-    feat_set(v->features,"phrasing_cart",cart_val(&ru_phrasing_cart));
     feat_set(v->features,"lexical_insertion_func",uttfunc_val(&russian_lexical_insertion));
     feat_set(v->features,"phrasing_func",uttfunc_val(&russian_phrasify));
+    feat_set(v->features,"pause_insertion_func",uttfunc_val(&russian_pause_insertion));
     feat_set(v->features,"intonation_func",uttfunc_val(&do_nothing));
     feat_set(v->features,"postlex_func",uttfunc_val(russian_postlex_function));
     feat_set(v->features,"duration_model_func",uttfunc_val(do_nothing));

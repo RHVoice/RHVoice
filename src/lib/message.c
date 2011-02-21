@@ -55,48 +55,48 @@ typedef struct {
 
 static prosody_params default_prosody_params={{1.0,0},{1.0,0},{1.0,0}};
 
+struct token_struct;
+
+typedef struct {
+  int pos;
+  uint8_t *name;
+  int next_token_index;
+  float silence;
+} mark;
+
+void mark_free(mark *m)
+{
+  if(m==NULL) return;
+  free(m->name);
+}
+
+vector_t(mark,marklist)
+
 typedef enum {
-  token_word=1 << 0,
-  token_sentence_start=1 << 1,
-  token_sentence_end=1 << 2,
-  token_mark=1 << 3,
-  token_break=1 << 4,
-  token_eol=1 << 5,
-  token_eop=1 << 6
+  token_sentence_start=1 << 0,
+  token_sentence_end=1 << 1,
+  token_eol=1 << 2,
+  token_eop=1 << 3
 } token_flags;
 
 typedef struct {
   unsigned int flags;
-  int src_pos,src_len;
-  union {
-    struct {
-      ustring32_t text;
-      prosody_params prosody;
-    } word;
-    uint8_t *mark;
-    int duration;
-  } contents;
+  int pos;
+  int len;
+  ustring32_t text;
+  prosody_params prosody;
+  int break_strength;
+  float break_time;
+  float silence;
+  int sentence_number;
+  int mark_index;
 } token;
 
 static void token_free(token *t)
 {
   if(t==NULL) return;
-  if(t->flags&token_word)
-    ustring32_free(t->contents.word.text);
-  else if(t->flags&token_mark)
-    free(t->contents.mark);
+  ustring32_free(t->text);
   return;
-}
-
-token *token_find_by_flags(token *first,token *last,unsigned int flags)
-{
-  token *next;
-  if((first==NULL)||(last==NULL)) return NULL;
-  for(next=first;next<=last;next++)
-    {
-      if(next->flags&flags) return next;
-    }
-  return NULL;
 }
 
 vector_t(token,toklist)
@@ -117,11 +117,16 @@ static void tstream_init(tstream *ts,toklist tl)
 static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
 {
   token tok;
-  tok.flags=token_word;
-  tok.src_pos=src_pos;
-  tok.src_len=src_len;
-  tok.contents.word.text=NULL;
-  tok.contents.word.prosody=default_prosody_params;
+  tok.flags=0;
+  tok.pos=src_pos;
+  tok.len=src_len;
+  tok.text=NULL;
+  tok.prosody=default_prosody_params;
+  tok.break_strength='u';
+  tok.break_time=0;
+  tok.silence=0;
+  tok.sentence_number=0;
+  tok.mark_index=-1;
   token *prev_tok=toklist_back(ts->l);
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
@@ -134,17 +139,17 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
     {
       if(ts->cs&cs_ws)
         {
-          tok.contents.word.text=ustring32_alloc(1);
-          if(tok.contents.word.text==NULL) return 0;
+          tok.text=ustring32_alloc(1);
+          if(tok.text==NULL) return 0;
           if(!toklist_push(ts->l,&tok))
             {
-              ustring32_free(tok.contents.word.text);
+              ustring32_free(tok.text);
               return 0;
             }
         }
       prev_tok=toklist_back(ts->l);
-      if(!ustring32_push(prev_tok->contents.word.text,c)) return 0;
-      if(src_len>0) prev_tok->src_len=src_pos-prev_tok->src_pos+src_len;
+      if(!ustring32_push(prev_tok->text,c)) return 0;
+      if(src_len>0) prev_tok->len=src_pos-prev_tok->pos+src_len;
     }
   ts->c=c;
   ts->cs=cs;
@@ -326,33 +331,39 @@ typedef struct {
   tstream ts;
   size_t text_start;
   size_t text_start_in_chars;
+  ssml_tag_id last_closed_element;
   int error_flag;
 } ssml_state;
 
 struct RHVoice_message_s
 {
   toklist tokens;
+  marklist marks;
   size_t pos;
+  float silence;
 };
 
 static RHVoice_message RHVoice_message_alloc(void)
 {
   RHVoice_message msg=(RHVoice_message)malloc(sizeof(struct RHVoice_message_s));
-  if(msg==NULL) return NULL;
+  if(msg==NULL) goto err0;
   msg->pos=0;
+  msg->silence=0;
   msg->tokens=toklist_alloc(16,token_free);
-  if(msg->tokens==NULL)
-    {
-      free(msg);
-      return NULL;
-    }
+  if(msg->tokens==NULL) goto err1;
+  msg->marks=marklist_alloc(0,mark_free);
+  if(msg->marks==NULL) goto err2;
   return msg;
+  err2: toklist_free(msg->tokens);
+  err1: free(msg);
+  err0: return NULL;
 }
 
 static void RHVoice_message_free(RHVoice_message msg)
 {
   if(msg==NULL) return;
   toklist_free(msg->tokens);
+  marklist_free(msg->marks);
   free(msg);
 }
 
@@ -450,6 +461,68 @@ static prosody_stack prosody_stack_update(prosody_stack stack,const ssml_tag *ta
   return prosody_stack_push(stack,&p);
 }
 
+static int ssml_add_mark(ssml_state *state)
+{
+  ssml_tag *top=ssml_tag_stack_back(state->tags);
+  const uint8_t *name=ssml_get_attribute_value(top,"name");
+  if(name==NULL) return 0;
+  size_t pos=XML_GetCurrentByteIndex(state->parser);
+  mark m;
+  m.pos=state->text_start_in_chars+u8_mbsnlen(state->text+state->text_start,pos-state->text_start);
+  m.name=u8_strdup(name);
+  if(m.name==NULL) return 0;
+  m.next_token_index=toklist_size(state->msg->tokens);
+  m.silence=state->msg->silence;
+  if(!marklist_push(state->msg->marks,&m))
+    {
+      free(m.name);
+      return 0;
+    }
+  return 1;
+}
+
+#define max_pause 60
+
+static int ssml_add_break(ssml_state *state)
+{
+  int strength='u';
+  int time=0;
+  ssml_tag *top=ssml_tag_stack_back(state->tags);
+  const char *strstrength=(const char*)ssml_get_attribute_value(top,"strength");
+  if(strstrength!=NULL)
+    {
+      if(strcmp(strstrength,"none")==0) strength='n';
+      else if(strcmp(strstrength,"x-weak")==0) strength='x';
+      else if(strcmp(strstrength,"weak")==0) strength='w';
+      else if(strcmp(strstrength,"medium")==0) strength='m';
+      else if(strcmp(strstrength,"strong")==0) strength='s';
+      else if(strcmp(strstrength,"x-strong")==0) strength='X';
+      else return 0;
+    }
+  const char *strtime=(const char*)ssml_get_attribute_value(top,"time");
+  if(strtime!=NULL)
+    {
+      char *suffix=NULL;
+      time=strtol(strtime,&suffix,10);
+      if(suffix==strtime) return 0;
+      if(time<0) return 0;
+      if(strcmp(suffix,"s")==0) ;
+      else if(strcmp(suffix,"ms")==0) time/=1000.0;
+      else if((time==0)&&(suffix[0]!='\0')) return 0;
+      else return 0;
+      if(time>max_pause) time=max_pause;
+    }
+  else if(strength=='u') strength='b';
+  token *tok=toklist_back(state->msg->tokens);
+  if((tok!=NULL)&&(tok->break_strength=='u')&&(tok->break_time==0))
+    {
+      tok->break_strength=strength;
+      tok->break_time=time;
+    }
+  state->msg->silence+=time;
+  return 1;
+}
+
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
@@ -475,6 +548,12 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
     case ssml_p:
       tstream_putc(&state->ts,8233,0,0);
       break;
+    case ssml_mark:
+      if(!ssml_add_mark(state)) ssml_error(state);
+      break;
+    case ssml_break:
+      if(!ssml_add_break(state)) ssml_error(state);
+      break;
     default:
       break;
     }
@@ -483,10 +562,14 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
 static void XMLCALL ssml_element_end(void *user_data,const char *name)
 {
   ssml_state *state=(ssml_state*)user_data;
-  if(state->skip) {state->skip--;return;}
+  if(state->skip)
+    {
+      state->skip--;
+      if(state->skip==0) state->last_closed_element=ssml_metadata;
+      return;
+    }
   if(!tstream_putc(&state->ts,' ',0,0)) ssml_error(state);
   ssml_tag *top=ssml_tag_stack_back(state->tags);
-  token *tok=toklist_back(state->msg->tokens);
   switch(top->id)
     {
     case ssml_prosody:
@@ -494,14 +577,15 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
       break;
     case ssml_s:
       if(state->start_sentence) state->start_sentence=0;
-      else tok->flags|=token_sentence_end;
+      else toklist_back(state->msg->tokens)->flags|=token_sentence_end;
       break;
     case ssml_p:
-      tstream_putc(&state->ts,8233,0,0);
+      if(!tstream_putc(&state->ts,8233,0,0)) ssml_error(state);
       break;
     default:
       break;
     }
+  state->last_closed_element=top->id;
   ssml_tag_stack_pop(state->tags);
 }
 
@@ -529,13 +613,17 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
       if(tok!=toklist_back(state->msg->tokens))
         {
           tok=toklist_back(state->msg->tokens);
-          if(tok->flags&token_word)
-            tok->contents.word.prosody=*prosody_stack_back(state->prosody);
+          tok->prosody=*prosody_stack_back(state->prosody);
+          tok->silence=state->msg->silence;
           if(state->start_sentence)
             {
               tok->flags|=token_sentence_start;
               state->start_sentence=0;
             }
+          if((marklist_size(state->msg->marks)>0)&&
+             (state->last_closed_element!=ssml_break)&&
+             (marklist_back(state->msg->marks)->next_token_index==(toklist_size(state->msg->tokens)-1)))
+                tok->mark_index=marklist_size(state->msg->marks)-1;
         }
       r-=n;
       str+=n;
@@ -571,6 +659,7 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->start_sentence=0;
   s->text_start=0;
   s->text_start_in_chars=0;
+  s->last_closed_element=ssml_unknown;
   s->parser=XML_ParserCreate("UTF-8");
   if(s->parser==NULL) goto err1;
   s->tags=ssml_tag_stack_alloc(10,ssml_tag_free);
@@ -723,16 +812,22 @@ static size_t postpunctuation_length(const ustring32_t t)
   return (end-s);
 }
 
-static int is_sentence_boundary(const ustring32_t t1,const ustring32_t t2,int same_line)
+static int is_sentence_boundary(const token *t1,const token *t2)
 {
-  const uint32_t *str1=ustring32_str(t1);
-  size_t len1=ustring32_length(t1);
-  size_t pre1_len=prepunctuation_length(t1);
-  size_t post1_len=postpunctuation_length(t1);
+  if(t1->break_strength!='u')
+    {
+      if(t1->break_strength=='X') return 1;
+      else return 0;
+    }
+  if(t1->flags&token_eop) return 1;
+  const uint32_t *str1=ustring32_str(t1->text);
+  size_t len1=ustring32_length(t1->text);
+  size_t pre1_len=prepunctuation_length(t1->text);
+  size_t post1_len=postpunctuation_length(t1->text);
   if((post1_len==0)||(pre1_len+post1_len>=len1)) return 0;
   const uint32_t *post1=str1+len1-post1_len;
-  const uint32_t *str2=ustring32_str(t2);
-  size_t pre2_len=prepunctuation_length(t2);
+  const uint32_t *str2=ustring32_str(t2->text);
+  size_t pre2_len=prepunctuation_length(t2->text);
   int starts_with_cap=(classify_character(str2[pre2_len])&cs_lu);
   if(u32_strchr(post1,'.'))
     {
@@ -755,7 +850,7 @@ static int is_sentence_boundary(const ustring32_t t1,const ustring32_t t2,int sa
     else if ((post1[post1_len-1]==':')&&(pre2_len!=0))
       {
         unsigned int cs=classify_character(str2[0]);
-        if((cs&(cs_pq|cs_pi))||(!same_line&&(cs&cs_pd)))
+        if((cs&(cs_pq|cs_pi))||((t1->flags&&token_eol)&&(cs&cs_pd)))
           return 1;
         else return 0;
       }
@@ -765,29 +860,36 @@ static int is_sentence_boundary(const ustring32_t t1,const ustring32_t t2,int sa
 static void mark_sentence_boundaries(RHVoice_message msg)
 {
   if(toklist_size(msg->tokens)==0) return;
-  token *next=toklist_front(msg->tokens);
-  next->flags|=token_sentence_start;
+  token *first=toklist_front(msg->tokens);
+  first->flags|=token_sentence_start;
   token *last=toklist_back(msg->tokens);
   last->flags|=token_sentence_end;
-  if(next==last) return;
+  if(first==last) return;
+  token *next=first;
   token *prev=next;
   next++;
   int skip=0;
   while(next<=last)
     {
       skip=(next->flags&token_sentence_start);
-      if(skip||
-         (prev->flags&(token_eop|token_sentence_end))||
-         is_sentence_boundary(prev->contents.word.text,next->contents.word.text,prev->flags&token_eol))
+      if(skip||is_sentence_boundary(prev,next))
         {
           prev->flags|=token_sentence_end;
           next->flags|=token_sentence_start;
         }
-      if(skip) next=token_find_by_flags(next,last,token_sentence_end);
+      if(skip)
+        for(;!(next->flags&token_sentence_end);next++) {};
       prev=next;
       next++;
     }
+      int number=0;
+      for(next=first;next<=last;next++)
+        {
+          if(next->flags&token_sentence_start) number++;
+          next->sentence_number=number;
+        }
 }
+
 
 static RHVoice_message new_message(const source_info *i)
 {
@@ -845,8 +947,6 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
 {
   if(msg==NULL) return NULL;
   if(msg->pos>=toklist_size(msg->tokens)) return NULL;
-  ustring8_t str8=ustring8_alloc(64);
-  if(str8==NULL) return NULL;
   ustring32_t str32;
   const token *front=toklist_front(msg->tokens);
   const token *back=toklist_back(msg->tokens);
@@ -856,21 +956,30 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
     {
       if(last->flags&token_sentence_end) break;
     }
+  ustring8_t str8=ustring8_alloc(64);
+  if(str8==NULL) return NULL;
   cst_utterance *u=new_utterance();
   cst_relation *tr=utt_relation_create(u,"Token");
   cst_item *i;
   size_t len,pre_len,post_len,name_len;
-  const token *next;
-  float rate=prosody_check_range((ext_rate/ext_rate_default)*first->contents.word.prosody.rate.value,rate_min,rate_max);
+  const token *tok;
+  const mark *m;
+  feat_set_int(u->features,"length",last->pos-first->pos+last->len);
+  feat_set_int(u->features,"number",first->sentence_number);
+  feat_set(u->features,"message",userdata_val(msg));
+  float rate=prosody_check_range((ext_rate/ext_rate_default)*first->prosody.rate.value,rate_min,rate_max);
   feat_set_float(u->features,"rate",rate);
   float pitch;
   float def_pitch=ext_pitch/ext_pitch_default;
   float volume;
   float def_volume=ext_volume/ext_volume_default;
-  for(next=first;next<=last;next++)
+  float initial_silence=(first==front)?0:first->silence;
+  float final_silence=((last==back)?msg->silence:toklist_at(msg->tokens,(last-front)+1)->silence)-initial_silence;
+  feat_set_float(u->features,"silence_time",final_silence);
+  for(tok=first;tok<=last;tok++)
     {
       i=relation_append(tr,NULL);
-      str32=next->contents.word.text;
+      str32=tok->text;
       ustring32_substr8(str8,str32,0,0);
       item_set_string(i,"text",(const char*)ustring8_str(str8));
       len=ustring32_length(str32);
@@ -899,13 +1008,24 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
           ustring32_substr8(str8,str32,pre_len+name_len,post_len);
           item_set_string(i,"punc",(const char*)ustring8_str(str8));
         }
-      pitch=prosody_check_range(next->contents.word.prosody.pitch.value*def_pitch,pitch_min,pitch_max);
+      pitch=prosody_check_range(tok->prosody.pitch.value*def_pitch,pitch_min,pitch_max);
       item_set_float(i,"pitch",pitch);
-      volume=prosody_check_range(next->contents.word.prosody.volume.value*(next->contents.word.prosody.volume.is_absolute?1.0:def_volume),volume_min,volume_max);
+      volume=prosody_check_range(tok->prosody.volume.value*(tok->prosody.volume.is_absolute?1.0:def_volume),volume_min,volume_max);
       item_set_float(i,"volume",volume);
+      item_set_int(i,"position",tok->pos+1);
+      item_set_int(i,"length",tok->len);
+      item_set_int(i,"number",tok-front+1);
+      item_set_float(i,"silence_time",tok->silence-initial_silence);
+      item_set_int(i,"break_strength",tok->break_strength);
+      item_set_float(i,"break_time",tok->break_time);
+      if(tok->mark_index>=0)
+        {
+          m=marklist_at(msg->marks,tok->mark_index);
+          item_set_string(i,"mark_name",(const char*)m->name);
+          item_set_int(i,"mark_position",m->pos);
+        }
     }
-  if(last==back)
-    feat_set_int(u->features,"last",1);
+  if(last==back) feat_set_int(u->features,"last",1);
   msg->pos=last-front+1;
   return u;
 }
