@@ -1,4 +1,4 @@
-/* Copyright (C) 2009, 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -16,32 +16,9 @@
 #include "lib.h"
 #include <cst_ffeatures.h>
 
-extern const cst_regex * const ru_punc_minor_break;
-extern const cst_regex * const ru_punc_major_break;
-
 static const cst_val *ph_csoft(const cst_item *p)
 {
   return phone_feature(item_phoneset(p),item_name(p),"csoft");
-}
-
-static const cst_val* token_punc_minor_break(const cst_item* token)
-{
-  const char* punc=item_feat_string(token,"punc");
-  if(punc==NULL)
-    return VAL_STRING_0;
-  if(cst_regex_match(ru_punc_minor_break,punc))
-    return VAL_STRING_1;
-  return VAL_STRING_0;
-}
-
-static const cst_val* token_punc_major_break(const cst_item* token)
-{
-  const char* punc=item_feat_string(token,"punc");
-  if(punc==NULL)
-    return VAL_STRING_0;
-  if(cst_regex_match(ru_punc_major_break,punc))
-    return VAL_STRING_1;
-  return VAL_STRING_0;
 }
 
 extern cst_val *ru_gpos;
@@ -74,8 +51,6 @@ void ru_ff_register(cst_features *ffunctions)
 {
   basic_ff_register(ffunctions);
   ff_register(ffunctions, "ph_csoft",ph_csoft);
-  ff_register(ffunctions,"lisp_ru_token_punc_minor_break",token_punc_minor_break);
-  ff_register(ffunctions,"lisp_ru_token_punc_major_break",token_punc_major_break);
   ff_register(ffunctions, "gpos",gpos);
   ff_register(ffunctions, "lisp_ru_has_vpair",has_vpair);
 }

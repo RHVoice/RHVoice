@@ -1,6 +1,5 @@
 ru_phoneset.c binary
 ru_gpos.c binary
-ru_cst_regexes.c binary
 ru_dict.[ch] binary
 *_cart.[ch] binary
 *_lts.[ch] binary

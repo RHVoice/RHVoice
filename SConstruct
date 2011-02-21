@@ -149,6 +149,8 @@ if enable_config:
 Export(["env","BUILDDIR"])
 if env["PLATFORM"]=="win32":
     Export("sapi_env")
+lib_objects=[]
+Export("lib_objects")
 src_subdirs=["hts_engine_api","lib"]
 if env["PLATFORM"]=="win32":
     if sapi_env["enabled"]:
