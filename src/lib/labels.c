@@ -22,6 +22,8 @@ cst_utterance *create_hts_labels(cst_utterance *u)
   char label[size];
   char *ptr=label;
   cst_item *s,*ps,*pps,*ns,*nns,*ss,*tmp,*ssyl,*sw,*syl,*w,*phr;
+  sw=NULL;
+  syl=NULL;
   int total_phrases=0;
   int total_words=0;
   int total_syls=0;
