@@ -29,7 +29,7 @@ struct name##_s\
 };\
 typedef struct name##_s *name;\
 \
-static name name##_reserve(name v,size_t r)\
+static inline name name##_reserve(name v,size_t r)\
 {\
   if(v==NULL) {return NULL;}\
   if(v->m>=r) {return v;}\
@@ -43,7 +43,7 @@ static name name##_reserve(name v,size_t r)\
   return v;\
 }\
 \
-static name name##_alloc(size_t min_elements,name##_free_func free_func)\
+static inline name name##_alloc(size_t min_elements,name##_free_func free_func)\
 {\
   name v=(name)malloc(sizeof(struct name##_s));\
   if(v==NULL) {return NULL;}\
@@ -59,7 +59,7 @@ static name name##_alloc(size_t min_elements,name##_free_func free_func)\
   return v;\
 }\
 \
-static void name##_erase(name v,size_t p,size_t c)\
+static inline void name##_erase(name v,size_t p,size_t c)\
 {\
   size_t i;\
   if(v==NULL) {return;}\
@@ -78,12 +78,12 @@ static void name##_erase(name v,size_t p,size_t c)\
   v->n=p+r;\
 }\
 \
-static void name##_clear(name v)\
+static inline void name##_clear(name v)\
 {\
   name##_erase(v,0,0);\
 }\
 \
-static void name##_free(name v)\
+static inline void name##_free(name v)\
 {\
   if(v==NULL) {return;}\
   if(v->n>0) {name##_clear(v);}\
@@ -91,22 +91,22 @@ static void name##_free(name v)\
   free(v);\
 }\
 \
-static size_t name##_size(name v)\
+static inline size_t name##_size(name v)\
 {\
   return (v?v->n:0);\
 }\
 \
-static type* name##_data(name v)\
+static inline type* name##_data(name v)\
 {\
   return (v?v->d:NULL);\
 }\
 \
-static size_t name##_element_size(name v)\
+static inline size_t name##_element_size(name v)\
 {\
   return sizeof(type);\
 }\
 \
-static name name##_append(name v,type* p,size_t c)\
+static inline name name##_append(name v,type* p,size_t c)\
 {\
   if((v==NULL)||(p==NULL)||(c==0)) {return NULL;}\
   if(!name##_reserve(v,v->n+c)) {return NULL;}\
@@ -118,12 +118,12 @@ static name name##_append(name v,type* p,size_t c)\
   return v;\
 }\
 \
-static name name##_push(name v,type* p)\
+static inline name name##_push(name v,type* p)\
 {\
   return name##_append(v,p,1);\
 }\
 \
-static void name##_pop(name v)\
+static inline void name##_pop(name v)\
 {\
   if(v==NULL) {return;}\
   if(v->n==0) {return;}\
@@ -131,28 +131,28 @@ static void name##_pop(name v)\
   v->n--;\
 }\
 \
-static type* name##_back(name v)\
+static inline type* name##_back(name v)\
 {\
   if(v==NULL) {return NULL;}\
   if(v->n==0) {return NULL;}\
   return &v->d[v->n-1];\
 }\
 \
-static type* name##_front(name v)\
+static inline type* name##_front(name v)\
 {\
   if(v==NULL) {return NULL;}\
   if(v->n==0) {return NULL;}\
   return &v->d[0];\
 }\
 \
-static type* name##_at(name v,size_t i)                \
+static inline type* name##_at(name v,size_t i)                \
 {\
   if(v==NULL) {return NULL;}\
   if(i>=v->n) {return NULL;}\
   return &v->d[i];\
 }\
 \
-static name name##_resize(name v,size_t s,type *dv)\
+static inline name name##_resize(name v,size_t s,type *dv)\
 {\
   if(v==NULL) {return NULL;}\
   if(s==v->n) {return v;}\
