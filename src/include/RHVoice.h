@@ -30,13 +30,11 @@ extern "C" {
     RHVoice_event_word_end,
     RHVoice_event_sentence_start,
     RHVoice_event_sentence_end,
-    RHVoice_event_mark,
-    RHVoice_event_message_start,
-    RHVoice_event_message_end
+    RHVoice_event_mark
   } RHVoice_event_type;
 
   typedef struct {
-    const RHVoice_message message;
+    RHVoice_message message;
     RHVoice_event_type type;
     int text_position;          /* in unicode characters */
     int text_length;            /* in unicode characters */
