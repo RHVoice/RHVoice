@@ -1,6 +1,6 @@
 import sys
 import os.path
-Import(["env"])
+Import(["env","lib_objects"])
 local_env=env.Clone()
 local_env.Append(CPPPATH="include")
 local_env.Append(CPPDEFINES=("AUDIO_PLAY_NONE","1"))
@@ -10,6 +10,10 @@ local_env.Append(CPPDEFINES=("AUDIO_PLAY_NONE","1"))
 if sys.byteorder=="big":
     local_env.Append(CPPDEFINES=("WORDS_BIGENDIAN","1"))
 src=Glob(os.path.join("lib","*.c"))
-env["hts_engine_obj"]=local_env.StaticObject(src)
+if env["PLATFORM"]=="win32":
+    objects=local_env.SharedObject(src)
+else:
+    objects=local_env.StaticObject(src)
+lib_objects.extend(objects)
 if local_env["PLATFORM"]=="win32":
     local_env.ConvertNewlines("COPYING")

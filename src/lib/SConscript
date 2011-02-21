@@ -1,5 +1,5 @@
 import os.path
-Import(["env"])
+Import(["env","lib_objects"])
 local_env=env.Clone()
 local_env.Append(CPPPATH=os.path.join("..","hts_engine_api","include"))
 if "gcc" in local_env["TOOLS"] or "mingw" in local_env["TOOLS"]:
@@ -10,126 +10,18 @@ if "gcc" in local_env["TOOLS"] or "mingw" in local_env["TOOLS"]:
     else:
         local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
 lib_name="RHVoice"
-
-lts_list={
-"ru_consonants_lts":"ru_consonants_lts.scm",
-"ru_downcase_lts":"ru_downcase_lts.scm",
-"ru_en_lts":"ru_en_lts.scm",
-"ru_hyphen_lts":"ru_hyphen_lts.scm",
-"ru_lts":"ru_lts.scm",
-"ru_number_lts":"ru_number_lts.scm"}
-cart_list={
-"ru_phrasing":("ru_phrasing.scm","ru_phrase_cart_tree"),
-"ru_stress":("ru_stress_tree.scm","ru_stress_tree"),
-"ru_vowel_reduction":("ru_vowel_reduction.scm","ru_vowel_reduction_tree"),
-"ru_vpair":("ru_consonant_vpairs.scm","ru_vpair_tree")}
-
-const_lib_src=[
-"lib.c",
-"ru_ffeatures.c",
-"ru_lex.c",
-"ru_phrasing.c",
-"ru_postlex.c",
-"russian.c",
-"ru_text.c",
-"ru_user_dict.c",
-"sonic.c",
-"ustring.c",
-"cls_chr.c",
-"message.c",
-"labels.c"]
-
-gen_lib_src=dict([(f,File(f).srcnode()) for f in Split("ru_cst_regexes.c ru_phoneset.c ru_gpos.c ru_dict.c ru_dict.h")])
-for x in lts_list.keys():
-    c=x+".c"
-    h=x+".h"
-    gen_lib_src[c]=File(c).srcnode()
-    gen_lib_src[h]=File(h).srcnode()
-for x in cart_list.keys():
-    c=x+"_cart.c"
-    h=x+"_cart.h"
-    gen_lib_src[c]=File(c).srcnode()
-    gen_lib_src[h]=File(h).srcnode()
-
-if env["enable_source_generation"]=="yes":
-    if os.environ.has_key("ESTDIR"):
-        festival=os.path.join(os.environ["ESTDIR"],"..","festival","bin","festival")
-        if not os.path.isfile(festival):
-            festival=None
-    else:
-        festival=WhereIs("festival")
-    if festival and os.environ.has_key("FLITEDIR"):
-        local_env["FESTIVAL"]=festival
-        flite_tools_dir=os.path.join(os.environ["FLITEDIR"],"tools")
-        compile_regexes=os.path.join(os.environ["FLITEDIR"],"bin","compile_regexes")
-        if os.path.isdir(flite_tools_dir) and os.path.isfile(compile_regexes):
-            local_env["MKCART"]=os.path.join(flite_tools_dir,"make_cart.scm")
-            local_env["MKLTSREWRITE"]=os.path.join(flite_tools_dir,"make_lts_rewrite.scm")
-            local_env["MKPHONESET"]=os.path.join(flite_tools_dir,"make_phoneset.scm")
-            local_env["MKVALLIST"]=os.path.join(flite_tools_dir,"make_vallist.scm")
-            local_env["COMPREGEXES"]=compile_regexes
-            scm_dir=Dir(".").srcnode().Dir("..").Dir("festival").Dir("lib")
-            regex_commands=[
-            'echo "#include <cst_regex.h>">$TARGET',
-            "$COMPREGEXES ru_punc_minor_break '.*[-,:;]\\\"?'>>$TARGET",
-            "$COMPREGEXES ru_punc_major_break '.*[.?!]\\\"?'>>$TARGET"]
-            NoClean(local_env.Command(gen_lib_src["ru_cst_regexes.c"],[],regex_commands))
-            phoneset_command='$FESTIVAL -b $MKPHONESET \'(phonesettoC "ru" (car (load "$SOURCE" t)) "pau" "${TARGET.dir}")\''
-            NoClean(local_env.Command(gen_lib_src["ru_phoneset.c"],scm_dir.File("ru_phoneset.scm"),phoneset_command))
-            for k,v in cart_list.items():
-                c=gen_lib_src[k+"_cart.c"]
-                h=gen_lib_src[k+"_cart.h"]
-                cart_command='$FESTIVAL -b $MKCART $SOURCE \'(carttoC "%s" %s "${TARGET.dir}")\'' % (k,v[1])
-                NoClean(local_env.Command([c,h],scm_dir.File(v[0]),cart_command))
-            for k,v in lts_list.items():
-                c=gen_lib_src[k+".c"]
-                h=gen_lib_src[k+".h"]
-                lts_command='$FESTIVAL -b $MKVALLIST $MKLTSREWRITE \'(ltsrewritestoC "${TARGET.filebase}" "$SOURCE" "${TARGET.dir}")\''
-                NoClean(local_env.Command([c,h],scm_dir.File(v),lts_command))
-            gpos_command='$FESTIVAL -b $SOURCE $MKVALLIST \'(listtocstval "${TARGET.filebase}" ru_guess_pos "$TARGET")\''
-            NoClean(local_env.Command(gen_lib_src["ru_gpos.c"],scm_dir.File("ru_tagger.scm"),gpos_command))
-
-            import codecs
-            def convert_dict(target=None,source=None,env=None):
-                f_in=codecs.open(str(source[0]),"r","UTF-8")
-                f_in.readline()
-                entries=[tuple(line.strip("\n() ").split()[:2]) for line in f_in if not line.isspace()]
-                f_in.close()
-                f_out=open(str(target[1]),"w")
-                f_out.write("#ifndef RU_DICT_H\n")
-                f_out.write("#define RU_DICT_H\n")
-                f_out.write("typedef struct ru_dict_entry_struct {const char *word; signed char stress;} ru_dict_entry;\n")
-                f_out.write("extern const ru_dict_entry ru_dict[];\n")
-                f_out.write("#define ru_dict_size %d\n" % len(entries))
-                f_out.write("#endif\n")
-                f_out.close()
-                f_out=codecs.open(str(target[0]),"w","UTF-8")
-                f_out.write('#include "ru_dict.h"\n\n')
-                f_out.write("const ru_dict_entry ru_dict[]={\n")
-                f_out.write(u",\n".join([u"{%s,%s}" % e for e in entries]))
-                f_out.write("};\n")
-                f_out.close()
-                return 0
-
-            dict_action=Action(convert_dict,"Converting the dictionary")
-            NoClean(local_env.Command([gen_lib_src["ru_dict.c"],gen_lib_src["ru_dict.h"]],scm_dir.File("ru_dict"),dict_action))
-
-gen_lib_obj=[]
-for f in gen_lib_src.values():
-    if os.path.splitext(str(f))[1]==".c":
-        oname=os.path.splitext(os.path.split(str(f))[1])[0]
-        if env["PLATFORM"]=="win32":
-            obj=local_env.SharedObject(oname,f)
-        else:
-            obj=local_env.StaticObject(oname,f)
-        gen_lib_obj.append(obj)
-lib_src=const_lib_src+gen_lib_obj+env["hts_engine_obj"]
+src=Glob("*.c")
 if env["PLATFORM"]=="win32":
-    dll=local_env.SharedLibrary(lib_name,lib_src+["lib.def"],no_import_lib=True)
+    objects=local_env.SharedObject(src)
+else:
+    objects=local_env.StaticObject(src)
+lib_objects.extend(objects)
+if env["PLATFORM"]=="win32":
+    dll=local_env.SharedLibrary(lib_name,lib_objects+["lib.def"],no_import_lib=True)
     Import("sapi_env")
     if sapi_env["enabled"]:
         sapi_env.Command(lib_name+".lib",["lib.def",dll],"lib /machine:x86 /def:${SOURCES[0]} /out:$TARGET")
         sapi_env.Prepend(LIBS=lib_name)
         sapi_env.Prepend(LIBPATH=os.path.join("..","lib"))
 else:
-    local_env.StaticLibrary(lib_name,lib_src)
+    local_env.StaticLibrary(lib_name,lib_objects)
