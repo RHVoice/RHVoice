@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010 Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,66 +20,59 @@ import Queue
 from collections import OrderedDict
 import threading
 import ctypes
-from ctypes import c_void_p,c_char_p,c_short,c_int,c_float,POINTER,Structure,sizeof,string_at,CFUNCTYPE
+from ctypes import c_char_p,c_wchar_p,c_short,c_int,c_uint,POINTER,Structure,Union,sizeof,string_at,CFUNCTYPE
 
 import config
 import nvwave
 from logHandler import log
 from synthDriverHandler import SynthDriver,VoiceInfo
 
-class cst_features(Structure):
-    pass
-
-class cst_utterance(Structure):
-    _fields_=[("features",POINTER(cst_features)),
-              ("ffunctions",c_void_p),
-              ("relations",c_void_p),
-              ("ctx",c_void_p)]
-
-class cst_voice(Structure):
-    pass
-
-class cst_item(Structure):
-    pass
-
-class cst_val(Structure):
-    pass
-
-RHVoice_callback=CFUNCTYPE(c_int,POINTER(c_short),c_int,POINTER(cst_item),c_int)
-
-module_dir=os.path.dirname(unicode(__file__,sys.getfilesystemencoding()))
+module_dir=os.path.join(config.getUserDefaultConfigPath(),"synthDrivers")
 lib_path=os.path.join(module_dir,"RHVoice.dll")
+data_path=os.path.join(module_dir,"RHVoice-data","voice")
 userdict_path=os.path.join(module_dir,"RHVoice-userdict.txt")
 
-native_rate_min,native_rate_max=1.9,0.1
-native_pitch_min,native_pitch_max=0.5,1.5
-native_volume_min,native_volume_max=0.1,1.9
+class RHVoice_message_s(Structure):
+    pass
 
-class Voice(object):
-    def __init__(self,lib,callback):
+RHVoice_message=POINTER(RHVoice_message_s)
+
+RHVoice_event_word_start=0
+RHVoice_event_word_end=1
+RHVoice_event_sentence_start=2
+RHVoice_event_sentence_end=3
+RHVoice_event_mark=4
+
+class RHVoice_event_id(Union):
+    _fields_=[("number",c_int),("name",c_char_p)]
+
+class RHVoice_event(Structure):
+    _fields_=[("message",RHVoice_message),
+              ("type",c_int),
+              ("text_position",c_int),
+              ("text_length",c_int),
+              ("audio_position",c_int),
+              ("id",RHVoice_event_id)]
+
+RHVoice_callback=CFUNCTYPE(c_int,POINTER(c_short),c_int,POINTER(RHVoice_event),c_int)
+
+class Message(object):
+    def __init__(self,lib,text):
         self.__lib=lib
-        self.__callback=RHVoice_callback(callback)
-        self._as_parameter_=self.__lib.RHVoice_create_voice(os.path.join(module_dir,"RHVoice-data","voice").encode(sys.getfilesystemencoding()),self.__callback)
+        self._as_parameter_=self.__lib.RHVoice_new_message_utf16(text,len(text),1)
         if not self._as_parameter_:
-            raise RuntimeError("RHVoice initialization error")
+            raise RuntimeError("RHVoice: message creation error")
 
     def __del__(self):
-        self.__lib.RHVoice_delete_voice(self._as_parameter_)
+        self.__lib.RHVoice_delete_message(self._as_parameter_)
 
-class Features(object):
-    def __init__(self,lib):
-        self.__lib=lib
-        self._as_parameter_=self.__lib.new_features()
-        if not self._as_parameter_:
-            raise RuntimeError("RHVoice initialization error")
-
-    def __del__(self):
-        self.__lib.delete_features(self._as_parameter_)
+    def speak(self):
+        self.__lib.RHVoice_speak(self._as_parameter_)
 
 class AudioCallback(object):
-    def __init__(self,lib,player,silence_flag):
+    def __init__(self,lib,silence_flag):
         self.__lib=lib
-        self.__player=player
+        self.__player=None
         self.__silence_flag=silence_flag
         self.__lock=threading.Lock()
         self.__index=None
@@ -94,14 +87,20 @@ class AudioCallback(object):
         with self.__lock:
             self.__index=value
 
-    def __call__(self,samples,nsamples,seg,pos_in_seg):
+    def set_player(self,player):
+        self.__player=player
+
+    def __call__(self,samples,num_samples,events,num_events):
         try:
-            feats=self.__lib.item_utt(seg).contents.features
-            self.index=self.__lib.val_userdata(self.__lib.feat_val(feats,"index"))
+            if num_events > 0:
+                for i in xrange(num_events):
+                    if events[i].type==RHVoice_event_mark:
+                        self.index=int(events[i].id.name)
+                        break
             if self.__silence_flag.is_set():
                 return 0
             try:
-                self.__player.feed(string_at(samples,nsamples*sizeof(c_short)))
+                self.__player.feed(string_at(samples,num_samples*sizeof(c_short)))
             except:
                 log.debugWarning("Error feeding audio to nvWave",exc_info=True)
             return 1
@@ -110,34 +109,27 @@ class AudioCallback(object):
             return 0
 
 class TTSThread(threading.Thread):
-    def __init__(self,lib,tts_queue,voice,player,silence_flag):
+    def __init__(self,lib,tts_queue,player,silence_flag):
         self.__lib=lib
         self.__queue=tts_queue
-        self.__voice=voice
         self.__player=player
         self.__silence_flag=silence_flag
-        self.__features=Features(self.__lib)
         threading.Thread.__init__(self)
         self.daemon=True
 
     def run(self):
         while True:
             try:
-                msg=self.__queue.get()
-                if msg is None:
+                text=self.__queue.get()
+                if text is None:
                     break
-                elif not msg:
+                elif text is ():
                     self.__silence_flag.clear()
                 elif self.__silence_flag.is_set():
                     pass
                 else:
-                    text,index,rate,pitch,volume,variant=msg
-                    self.__lib.feat_set_float(self.__features,"duration_stretch",c_float(rate))
-                    self.__lib.feat_set_float(self.__features,"f0_shift",c_float(pitch))
-                    self.__lib.feat_set_float(self.__features,"volume",c_float(volume))
-                    self.__lib.feat_set_int(self.__features,"pseudo_english",1 if variant=="pseudo-english" else 0)
-                    self.__lib.feat_set(self.__features,"index",self.__lib.userdata_val(index))
-                    self.__lib.RHVoice_synth_text(text.encode("utf-8"),self.__voice,self.__features)
+                    msg=Message(self.__lib,text)
+                    msg.speak()
                     self.__player.idle()
             except:
                 log.error("RHVoice: error while processing a message",exc_info=True)
@@ -154,39 +146,34 @@ class SynthDriver(SynthDriver):
 
     def __init__(self):
         self.__lib=ctypes.CDLL(lib_path.encode(sys.getfilesystemencoding()))
-        self.__lib.RHVoice_create_voice.argtypes=(c_char_p,RHVoice_callback)
-        self.__lib.RHVoice_create_voice.restype=POINTER(cst_voice)
-        self.__lib.RHVoice_delete_voice.argtypes=(POINTER(cst_voice),)
-        self.__lib.RHVoice_synth_text.argtypes=(c_char_p,POINTER(cst_voice),POINTER(cst_features))
-        self.__lib.RHVoice_load_user_dict.argtypes=(POINTER(cst_voice),c_char_p)
+        self.__lib.RHVoice_initialize.argtypes=(c_char_p,RHVoice_callback)
+        self.__lib.RHVoice_initialize.restype=c_int
+        self.__lib.RHVoice_new_message_utf16.argtypes=(c_wchar_p,c_int,c_int)
+        self.__lib.RHVoice_new_message_utf16.restype=RHVoice_message
+        self.__lib.RHVoice_delete_message.argtypes=(RHVoice_message,)
+        self.__lib.RHVoice_speak.argtypes=(RHVoice_message,)
+        self.__lib.RHVoice_set_rate.argtypes=(c_uint,)
+        self.__lib.RHVoice_set_pitch.argtypes=(c_uint,)
+        self.__lib.RHVoice_set_volume.argtypes=(c_uint,)
         self.__lib.RHVoice_get_version.restype=c_char_p
-        self.__lib.feat_set_int.argtypes=(POINTER(cst_features),c_char_p,c_int)
-        self.__lib.feat_set_float.argtypes=(POINTER(cst_features),c_char_p,c_float)
-        self.__lib.feat_set_string.argtypes=(POINTER(cst_features),c_char_p,c_char_p)
-        self.__lib.feat_set.argtypes=(POINTER(cst_features),c_char_p,POINTER(cst_val))
-        self.__lib.feat_val.argtypes=(POINTER(cst_features),c_char_p)
-        self.__lib.feat_val.restype=POINTER(cst_val)
-        self.__lib.new_features.restype=POINTER(cst_features)
-        self.__lib.delete_features.argtypes=(POINTER(cst_features),)
-        self.__lib.userdata_val.argtypes=(c_void_p,)
-        self.__lib.userdata_val.restype=POINTER(cst_val)
-        self.__lib.val_userdata.argtypes=(POINTER(cst_val),)
-        self.__lib.val_userdata.restype=c_void_p
-        self.__lib.item_utt.argtypes=(POINTER(cst_item),)
-        self.__lib.item_utt.restype=POINTER(cst_utterance)
-        self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=16000,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
         self.__silence_flag=threading.Event()
-        self.__audio_callback=AudioCallback(self.__lib,self.__player,self.__silence_flag)
-        self.__voice=Voice(self.__lib,self.__audio_callback)
-        if os.path.isfile(userdict_path):
-            self.__lib.RHVoice_load_user_dict(self.__voice,userdict_path.encode(sys.getfilesystemencoding()))
+        self.__audio_callback=AudioCallback(self.__lib,self.__silence_flag)
+        self.__audio_callback_wrapper=RHVoice_callback(self.__audio_callback)
+        sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper)
+        if sample_rate==0:
+            raise RuntimeError("RHVoice: initialization error")
+        self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=sample_rate,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
+        self.__audio_callback.set_player(self.__player)
         self.__tts_queue=Queue.Queue()
-        self.__tts_thread=TTSThread(self.__lib,self.__tts_queue,self.__voice,self.__player,self.__silence_flag)
-        self.__native_rate=1.0
-        self.__native_pitch=1.0
-        self.__native_volume=1.0
-        self._availableVariants=OrderedDict((("pseudo-english",VoiceInfo("pseudo-english",u"псевдо-английский")),("russian",VoiceInfo("russian",u"русский"))))
-        self.__variant="pseudo-english"
+        self.__tts_thread=TTSThread(self.__lib,self.__tts_queue,self.__player,self.__silence_flag)
+        self._availableVariants=OrderedDict((("1",VoiceInfo("1",u"псевдо-английский")),("2",VoiceInfo("2",u"русский"))))
+        self.__variant="1"
+        self.__rate=20
+        self.__pitch=50
+        self.__volume=50
+        self.__lib.RHVoice_set_rate(100)
+        self.__lib.RHVoice_set_pitch(100)
+        self.__lib.RHVoice_set_volume(100)
         self.__tts_thread.start()
         log.info("Using RHVoice version %s" % self.__lib.RHVoice_get_version())
 
@@ -195,9 +182,17 @@ class SynthDriver(SynthDriver):
         self.__tts_queue.put(None)
         self.__tts_thread.join()
         self.__player.close()
+        self.__lib.RHVoice_terminate()
 
     def speakText(self,text,index=None):
-        self.__tts_queue.put((text,index,self.__native_rate,self.__native_pitch,self.__native_volume,self.__variant))
+        fmt_str=u'<speak><prosody rate="%d%%" pitch="%d%%" volume="%d%%">%s%s</prosody></speak>'
+        if isinstance(index,int):
+            mark=u'<mark name="%d"/>' % index
+        else:
+            mark=u""
+        escaped_text=text.replace("<","&lt;").replace("&","&amp;")
+        ssml=fmt_str % (self.__rate,self.__pitch,self.__volume,mark,escaped_text)
+        self.__tts_queue.put(ssml)
 
     def pause(self,switch):
         self.__player.pause(switch)
@@ -218,22 +213,22 @@ class SynthDriver(SynthDriver):
         return "ru"
 
     def _get_rate(self):
-        return int(round((self.__native_rate -native_rate_min)/(native_rate_max -native_rate_min)*100.0))
+        return self.__rate
 
     def _set_rate(self,rate):
-        self.__native_rate=native_rate_min+float(rate)/100.0*(native_rate_max -native_rate_min)
+        self.__rate=max(0,min(100,rate))
 
     def _get_pitch(self):
-        return int(round((self.__native_pitch -native_pitch_min)/(native_pitch_max -native_pitch_min)*100.0))
+        return self.__pitch
 
     def _set_pitch(self,pitch):
-        self.__native_pitch=native_pitch_min+float(pitch)/100.0*(native_pitch_max -native_pitch_min)
+        self.__pitch=max(0,min(100,pitch))
 
     def _get_volume(self):
-        return int(round((self.__native_volume -native_volume_min)/(native_volume_max -native_volume_min)*100.0))
+        return self.__volume
 
     def _set_volume(self,volume):
-        self.__native_volume=native_volume_min+float(volume)/100.0*(native_volume_max -native_volume_min)
+        self.__volume=max(0,min(100,volume))
 
     def _get_variant(self):
         return self.__variant
