@@ -21,6 +21,7 @@
 #include "sonic.h"
 #include "lib.h"
 #include "vector.h"
+#include "io_utils.h"
 
 static const char *lib_version=VERSION;
 
@@ -168,7 +169,7 @@ static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_fil
   for(i=0;i<num_hts_data_files;i++)
     {
       strcpy(name,hts_data_list[i].name);
-      file_list[i]=fopen(full_path,hts_data_list[i].open_mode);
+      file_list[i]=my_fopen(full_path,hts_data_list[i].open_mode);
       if((file_list[i]==NULL)&&(!hts_data_list[i].is_optional))
         {
           result=0;

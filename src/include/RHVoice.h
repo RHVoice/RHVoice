@@ -47,6 +47,7 @@ extern "C" {
 
   typedef int (*RHVoice_callback)(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
 
+  /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
   int RHVoice_initialize(const char *path,RHVoice_callback callback);
   void RHVoice_terminate();
