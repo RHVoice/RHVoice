@@ -1,4 +1,4 @@
-/* Copyright (C) 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -20,8 +20,10 @@
 #include <comdef.h>
 #include <sapi.h>
 #include <sapiddk.h>
-#include <flite.h>
-#include <boost/smart_ptr.hpp>
+#include <string>
+#include <sstream>
+#include <map>
+#include "RHVoice.h"
 
 class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImpl: public ISpTTSEngine,public ISpObjectWithToken
 {
@@ -41,7 +43,29 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
 
   ULONG ref_count;
   ISpObjectTokenPtr object_token;
-  boost::shared_ptr<cst_voice> voice;
+  int sample_rate;
+  static std::wstring ssml;
+  static std::map<size_t,const SPVTEXTFRAG*> frag_map;
+  static ISpTTSEngineSite *out;
+  static unsigned long long audio_bytes;
+  static float pitch_table[];
+  static float rate_table[];
+
+  static void write_text_to_stream(std::wostringstream& s,const wchar_t *text,size_t len);
+
+static   std::wstring::const_iterator skip_unichar(std::wstring::const_iterator it)
+    {
+      return ((*it<0xd800)||(*it>=0xe000))?(it+1):(it+2);
+    }
+
+  static std::wstring::const_iterator skip_unichars(std::wstring::const_iterator first,size_t n);
+  static void generate_ssml(const SPVTEXTFRAG *frags);
+  static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
+  static float get_pitch_factor(int value);
+  static float get_rate_factor(int value);
+  static float convert_volume(unsigned int value);
+  static void set_rate();
+  static void set_volume();
 };
 
 #endif
