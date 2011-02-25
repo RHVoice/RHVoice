@@ -19,9 +19,10 @@
 static int should_be_final_in_phrase(cst_item *w)
 {
   if(item_next(item_as(w,"Token"))!=NULL) return 0;
-  cst_item *t=item_parent(item_as(w,"Token"));
-  cst_item *nt=item_next(t);
-  if(nt==NULL) return 1;
+  cst_item *n=item_next(item_as(w,"Word"));
+  if(n==NULL) return 1;
+  cst_item *nt=item_parent(item_as(n,"Token"));
+  cst_item *t=item_prev(nt);
   int bs=item_feat_int(t,"break_strength");
   if(bs!='u')
     {
@@ -51,7 +52,7 @@ static int should_be_final_in_phrase(cst_item *w)
 cst_utterance *russian_phrasify(cst_utterance *u)
 {
   cst_relation *r;
-  cst_item *w, *p=NULL;
+  cst_item *w,*n,*p=NULL;
   r = utt_relation_create(u,"Phrase");
   for (p=NULL,w=relation_head(utt_relation(u,"Word")); w; w=item_next(w))
     {
@@ -63,10 +64,15 @@ cst_utterance *russian_phrasify(cst_utterance *u)
       item_add_daughter(p,w);
       if(should_be_final_in_phrase(w))
         {
-          item_set_float(p,"break_time",item_feat_float(item_parent(item_as(w,"Token")),"break_time"));
+          n=item_next(w);
+          if(n)
+            item_set_float(p,"break_time",item_feat_float(item_prev(item_parent(item_as(n,"Token"))),"break_time"));
           p = NULL;
         }
     }
+  p=relation_tail(r);
+  if(p)
+    item_set_float(p,"break_time",item_feat_float(relation_tail(utt_relation(u,"Token")),"break_time"));
   return u;
 }
 
