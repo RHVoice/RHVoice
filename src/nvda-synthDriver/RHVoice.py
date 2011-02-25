@@ -20,7 +20,7 @@ import Queue
 from collections import OrderedDict
 import threading
 import ctypes
-from ctypes import c_char_p,c_wchar_p,c_short,c_int,c_uint,POINTER,Structure,Union,sizeof,string_at,CFUNCTYPE
+from ctypes import c_char_p,c_wchar_p,c_short,c_int,c_float,POINTER,Structure,Union,sizeof,string_at,CFUNCTYPE
 
 import config
 import nvwave
@@ -152,9 +152,9 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_new_message_utf16.restype=RHVoice_message
         self.__lib.RHVoice_delete_message.argtypes=(RHVoice_message,)
         self.__lib.RHVoice_speak.argtypes=(RHVoice_message,)
-        self.__lib.RHVoice_set_rate.argtypes=(c_uint,)
-        self.__lib.RHVoice_set_pitch.argtypes=(c_uint,)
-        self.__lib.RHVoice_set_volume.argtypes=(c_uint,)
+        self.__lib.RHVoice_set_rate.argtypes=(c_float,)
+        self.__lib.RHVoice_set_pitch.argtypes=(c_float,)
+        self.__lib.RHVoice_set_volume.argtypes=(c_float,)
         self.__lib.RHVoice_get_version.restype=c_char_p
         self.__silence_flag=threading.Event()
         self.__audio_callback=AudioCallback(self.__lib,self.__silence_flag)
