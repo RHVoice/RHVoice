@@ -63,12 +63,12 @@ extern "C" {
   void RHVoice_delete_message(RHVoice_message message);
   int RHVoice_speak(RHVoice_message message);
   /* int RHVoice_load_user_dict(const char *path); */
-  void RHVoice_set_rate(unsigned int rate);
-  unsigned int RHVoice_get_rate();
-  void RHVoice_set_pitch(unsigned int pitch);
-  unsigned int RHVoice_get_pitch();
-  void RHVoice_set_volume(unsigned int volume);
-  unsigned int RHVoice_get_volume();
+  void RHVoice_set_rate(float rate);
+  float RHVoice_get_rate();
+  void RHVoice_set_pitch(float pitch);
+  float RHVoice_get_pitch();
+  void RHVoice_set_volume(float volume);
+  float RHVoice_get_volume();
   const char *RHVoice_get_version();
 
 #ifdef __cplusplus

@@ -114,9 +114,9 @@ int main(int argc,char **argv)
   RHVoice_message msg;
   const char *dictpath=NULL;
   char *suffix;
-  long rate=20;
-  long pitch=50;
-  long volume=50;
+  float rate=20;
+  float pitch=50;
+  float volume=50;
   int pseudo_english=1;
   int is_ssml=0;
   char *text;
@@ -134,7 +134,7 @@ int main(int argc,char **argv)
           show_help();
           return 0;
         case 'r':
-          rate=strtol(optarg,&suffix,10);
+          rate=strtof(optarg,&suffix);
           if(suffix==optarg)
             rate=20;
           else
@@ -144,7 +144,7 @@ int main(int argc,char **argv)
             }
           break;
         case 'p':
-          pitch=strtol(optarg,&suffix,10);
+          pitch=strtof(optarg,&suffix);
           if(suffix==optarg)
             pitch=50;
           else
@@ -154,7 +154,7 @@ int main(int argc,char **argv)
             }
           break;
         case 'v':
-          volume=strtol(optarg,&suffix,10);
+          volume=strtof(optarg,&suffix);
           if(suffix==optarg)
             volume=50;
           else

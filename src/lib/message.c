@@ -1030,32 +1030,32 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   return u;
 }
 
-void RHVoice_set_rate(unsigned int rate)
+void RHVoice_set_rate(float rate)
 {
-  ext_rate=(rate>100)?100:rate;
+  ext_rate=(rate>100)?100:((rate<0)?0:rate);
 }
 
-unsigned int RHVoice_get_rate()
+float RHVoice_get_rate()
 {
   return ext_rate;
 }
 
-void RHVoice_set_pitch(unsigned int pitch)
+void RHVoice_set_pitch(float pitch)
 {
-  ext_pitch=(pitch>100)?100:pitch;
+  ext_pitch=(pitch>100)?100:((pitch<0)?0:pitch);
 }
 
-unsigned int RHVoice_get_pitch()
+float RHVoice_get_pitch()
 {
   return ext_pitch;
 }
 
-void RHVoice_set_volume(unsigned int volume)
+void RHVoice_set_volume(float volume)
 {
-  ext_volume=(volume>100)?100:volume;
+  ext_volume=(volume>100)?100:((volume<0)?0:volume);
 }
 
-unsigned int RHVoice_get_volume()
+float RHVoice_get_volume()
 {
   return ext_volume;
 }
