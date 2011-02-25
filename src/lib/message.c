@@ -939,8 +939,7 @@ RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int len,int is_ss
 void RHVoice_delete_message(RHVoice_message msg)
 {
   if(msg==NULL) return;
-  toklist_free(msg->tokens);
-  free(msg);
+  RHVoice_message_free(msg);
 }
 
 cst_utterance *next_utt_from_message(RHVoice_message msg)
@@ -1027,6 +1026,7 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
     }
   if(last==back) feat_set_int(u->features,"last",1);
   msg->pos=last-front+1;
+  ustring8_free(str8);
   return u;
 }
 
