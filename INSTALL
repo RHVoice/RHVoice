@@ -4,7 +4,8 @@ Requirements:
 * SCons build system (http://www.scons.org/)
 * Python (http://www.python.org/)
 * Flite 1.4 or later
-* GNU libunistring
+* GNU libunistring 0.9.3 or later
+* expat
 To compile the package type 'scons'. Then type 'scons install'. If you
 want to change the installation prefix, then the first command should
 be 'scons prefix=<path>'. Type 'scons -h' for help.
@@ -19,14 +20,17 @@ example:
 name = RHVoice
 type = command
 lang = rus
-synth command = "RHVoice -r %r -p %p"
+synth command = "RHVoice -r %r -p %p -v %v"
 alsa player command = "play -"
 pitch num digits after dot = 2
-pitch min = "0.1"
-pitch aver = 1
-pitch max = "1.9"
+pitch min = 0
+pitch aver = 50
+pitch max = 100
 rate num digits after dot = 2
-rate min = "0.5"
-rate aver = 1
-rate max = 3
-
+rate min = 0
+rate aver = 20
+rate max = 100
+volume num digits after dot = 2
+volume min = 0
+volume aver = 50
+volume max = 100

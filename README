@@ -25,6 +25,8 @@ RHVoice uses the following free software components:
   (http://www.gnu.org/software/libunistring/)
 * The sonic library by Bill Cox is used for generation of fast speech
   (git://vinuxproject.org/sonic)
+* The expat XML parser is used to implement SSML support
+  (http://expat.sourceforge.net)
 
                       Getting the latest sources
 The latest release can be found at http://github.com/Olga-Yakovleva/RHVoice/downloads
