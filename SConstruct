@@ -50,12 +50,15 @@ flags=env.get("FLAGS")
 if flags:
     env.MergeFlags(flags)
 if env.get("debug")=="yes":
-    env.Prepend(CCFLAGS="-g")
+    env.AppendUnique(CCFLAGS="-O0",delete_existing=1)
+    env.AppendUnique(CCFLAGS="-g",delete_existing=1)
 else:
-    env.Prepend(CCFLAGS="-O2")
+    env.PrependUnique(CCFLAGS="-O2")
 if env["PLATFORM"]=="win32":
-    if env.get("debug")!="yes":
-        sapi_env.Prepend(CCFLAGS="/O2")
+    if env.get("debug")=="yes":
+        sapi_env.AppendUnique(CCFLAGS="/Od",delete_existing=1)
+    else:
+        sapi_env.PrependUnique(CCFLAGS="/O2")
     flags=env.get("MSVC_FLAGS")
     if flags:
         sapi_env.MergeFlags(flags)
@@ -126,10 +129,8 @@ if enable_config:
         if sapi_conf.CheckCXX():
             found=False
             headers=["windows.h","sapi.h","sapiddk.h",
-                     "string","stdexcept","new","vector","algorithm",
-                     "eh.h","comdef.h","flite.h",
-                     "boost/smart_ptr.hpp","boost/optional.hpp",
-                     "boost/numeric/conversion/cast.hpp","boost/lexical_cast.hpp"]
+                     "string","stdexcept","new","map","algorithm",
+                     "sstream","eh.h","comdef.h"]
             for header in headers:
                 found=sapi_conf.CheckCXXHeader(header)
                 if not found:

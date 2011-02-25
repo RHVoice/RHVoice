@@ -1,4 +1,4 @@
-/* Copyright (C) 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -15,10 +15,8 @@
 
 #include <windows.h>
 #include <stdexcept>
-#include <boost/smart_ptr.hpp>
 #include "util.h"
 
-using boost::scoped_array;
 using std::string;
 using std::wstring;
 using std::runtime_error;
@@ -32,10 +30,12 @@ string wstring_to_string(const wstring& src,bool utf8)
   int size=WideCharToMultiByte(cp,flags,src.c_str(),-1,NULL,0,NULL,NULL);
   if(size==0)
     throw runtime_error("Unable to convert a string");
-  scoped_array<char> buff(new char[size]);
-  if(WideCharToMultiByte(cp,flags,src.c_str(),-1,buff.get(),size,NULL,NULL)==0)
-    throw runtime_error("Unable to convert a string");
-  return string(buff.get());
+  string s(size,'\0');
+  char *buff=new char[size];
+  WideCharToMultiByte(cp,flags,src.c_str(),-1,buff,size,NULL,NULL);
+  s.assign(buff);
+  delete[] buff;
+  return s;
 }
 
 wstring string_to_wstring(const string& src,bool utf8)
@@ -46,8 +46,10 @@ wstring string_to_wstring(const string& src,bool utf8)
   int size=MultiByteToWideChar(cp,0,src.c_str(),-1,NULL,0);
   if(size==0)
     throw runtime_error("Unable to convert a string");
-  scoped_array<wchar_t> buff(new wchar_t[size]);
-  if(MultiByteToWideChar(cp,0,src.c_str(),-1,buff.get(),size)==0)
-    throw runtime_error("Unable to convert a string");
-  return wstring(buff.get());
+  wstring s(size,'\0');
+  wchar_t *buff=new wchar_t[size];
+  MultiByteToWideChar(cp,0,src.c_str(),-1,buff,size);
+  s.assign(buff);
+  delete[] buff;
+  return s;
 }
