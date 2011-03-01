@@ -25,7 +25,7 @@ cst_utterance *russian_postlex_function(cst_utterance *u)
   const char *answer,*name,*pair;
   for(word=relation_head(utt_relation(u,"Transcription"));word;word=item_next(word))
     {
-      if(item_feat_present(word,"is_english")||item_feat_present(word,"no_vr"))
+      if(item_feat_present(word,"no_pl")||item_feat_present(word,"no_vr"))
         continue;
       for(seg=item_daughter(word);seg;seg=item_next(seg))
         {
@@ -50,7 +50,7 @@ cst_utterance *russian_postlex_function(cst_utterance *u)
     }
   for(word=relation_tail(utt_relation(u,"Transcription"));word;word=item_prev(word))
     {
-      if(item_feat_present(word,"is_english"))
+      if(item_feat_present(word,"no_pl"))
         continue;
       for(seg=item_last_daughter(word);seg;seg=item_prev(seg))
         {

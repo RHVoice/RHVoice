@@ -80,7 +80,7 @@ static struct option program_options[]=
     {"volume",required_argument,0,'v'},
     {"voice-directory",required_argument,0,'d'},
     {"user-dict",required_argument,0,'u'},
-    {"no-pseudo-english",no_argument,0,'R'},
+    {"variant",required_argument,0,'n'},
     {"ssml",no_argument,0,'s'},
     {0,0,0,0}
   };
@@ -104,7 +104,7 @@ static void show_help()
          "-v, --volume=<number from 0 to 100> speech volume, default is 50\n"
          "-d, --voice-directory=<path>        path to voice files\n"
          "-u, --user-dict=<path>              path to the user dictionary\n"
-         "-R, --no-pseudo-english             do not use pseudo-English pronunciation\n"
+         "-n, --variant=<number from 1 to 2>  variant\n"
          "-s, --ssml                          ssml input\n");
 }
 
@@ -117,13 +117,13 @@ int main(int argc,char **argv)
   float rate=20;
   float pitch=50;
   float volume=50;
-  int pseudo_english=1;
+  int variant=RHVoice_variant_pseudo_english;
   int is_ssml=0;
   char *text;
   int size=1000;
   int c;
   int i;
-  while((c=getopt_long(argc,argv,"d:u:hVr:p:v:Rs",program_options,&i))!=-1)
+  while((c=getopt_long(argc,argv,"d:u:hVr:p:v:n:s",program_options,&i))!=-1)
     {
       switch(c)
         {
@@ -163,9 +163,6 @@ int main(int argc,char **argv)
               else if(volume>100) volume=100;
             }
           break;
-        case 'R':
-          pseudo_english=0;
-          break;
         case 's':
           is_ssml=1;
           break;
@@ -174,6 +171,11 @@ int main(int argc,char **argv)
           break;
         case 'u':
           dictpath=optarg;
+          break;
+        case 'n':
+          variant=strtol(optarg,&suffix,10);
+          if((variant<1)||(variant>2))
+            variant=RHVoice_variant_pseudo_english;
           break;
         case 0:
           break;
@@ -210,6 +212,7 @@ int main(int argc,char **argv)
   RHVoice_set_rate(rate);
   RHVoice_set_pitch(pitch);
   RHVoice_set_volume(volume);
+  RHVoice_set_variant(variant);
   msg=RHVoice_new_message_utf8((const uint8_t*)text,i,is_ssml);
   free(text);
   if(msg==NULL)
