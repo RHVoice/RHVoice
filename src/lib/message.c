@@ -90,12 +90,15 @@ typedef struct {
   float silence;
   int sentence_number;
   int mark_index;
+  int say_as;
+  uint8_t *say_as_format;
 } token;
 
 static void token_free(token *t)
 {
   if(t==NULL) return;
   ustring32_free(t->text);
+  if(t->say_as_format!=NULL) free(t->say_as_format);
   return;
 }
 
@@ -114,7 +117,7 @@ static void tstream_init(tstream *ts,toklist tl)
   ts->cs=cs_sp;
 }
 
-static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
+static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int say_as)
 {
   token tok;
   tok.flags=0;
@@ -127,6 +130,8 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
   tok.silence=0;
   tok.sentence_number=0;
   tok.mark_index=-1;
+  tok.say_as=say_as;
+  tok.say_as_format=NULL;
   token *prev_tok=toklist_back(ts->l);
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
@@ -135,9 +140,9 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len)
       if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n'))))
         prev_tok->flags|=token_eop;
     }
-  if(!(cs&cs_ws))
+  if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
     {
-      if(ts->cs&cs_ws)
+      if((ts->cs&cs_ws)||(prev_tok&&(prev_tok->say_as=='c')))
         {
           tok.text=ustring32_alloc(1);
           if(tok.text==NULL) return 0;
@@ -332,6 +337,8 @@ typedef struct {
   size_t text_start;
   size_t text_start_in_chars;
   ssml_tag_id last_closed_element;
+  int say_as;
+  const uint8_t *say_as_format;
   int error_flag;
 } ssml_state;
 
@@ -523,11 +530,20 @@ static int ssml_add_break(ssml_state *state)
   return 1;
 }
 
+static int ssml_translate_say_as_content_type(ssml_tag *t)
+{
+  const char *strtype=(const char*)ssml_get_attribute_value(t,"interpret-as");
+  if(strtype==NULL) return -1;
+  if(strcmp(strtype,"characters")==0) return 's';
+  else if(strcmp(strtype,"tts:char")==0) return 'c';
+  else return 0;
+}
+
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
   if(state->skip) {state->skip++;return;}
-  if(!tstream_putc(&state->ts,' ',0,0)) ssml_error(state);
+  if(!tstream_putc(&state->ts,' ',0,0,0)) ssml_error(state);
   ssml_tag tag;
   tag.id=ssml_get_tag_id(name);
   int accept=(ssml_tag_stack_size(state->tags)==0)?(tag.id==ssml_speak):ssml_element_table[ssml_tag_stack_back(state->tags)->id][tag.id];
@@ -546,13 +562,18 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
       state->start_sentence=1;
       break;
     case ssml_p:
-      tstream_putc(&state->ts,8233,0,0);
+      tstream_putc(&state->ts,8233,0,0,0);
       break;
     case ssml_mark:
       if(!ssml_add_mark(state)) ssml_error(state);
       break;
     case ssml_break:
       if(!ssml_add_break(state)) ssml_error(state);
+      break;
+    case ssml_say_as:
+      state->say_as=ssml_translate_say_as_content_type(top);
+      if(state->say_as==-1) ssml_error(state);
+      state->say_as_format=ssml_get_attribute_value(top,"format");
       break;
     default:
       break;
@@ -568,7 +589,7 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
       if(state->skip==0) state->last_closed_element=ssml_metadata;
       return;
     }
-  if(!tstream_putc(&state->ts,' ',0,0)) ssml_error(state);
+  if(!tstream_putc(&state->ts,' ',0,0,0)) ssml_error(state);
   ssml_tag *top=ssml_tag_stack_back(state->tags);
   switch(top->id)
     {
@@ -580,7 +601,11 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
       else toklist_back(state->msg->tokens)->flags|=token_sentence_end;
       break;
     case ssml_p:
-      if(!tstream_putc(&state->ts,8233,0,0)) ssml_error(state);
+      if(!tstream_putc(&state->ts,8233,0,0,0)) ssml_error(state);
+      break;
+    case ssml_say_as:
+      state->say_as=0;
+      state->say_as_format=NULL;
       break;
     default:
       break;
@@ -609,7 +634,7 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
   while(r>0)
     {
       n=u8_mbtoucr(&c,str,r);
-      if(!tstream_putc(&state->ts,c,p,no_refs?1:src_len_in_chars)) ssml_error(state);
+      if(!tstream_putc(&state->ts,c,p,no_refs?1:src_len_in_chars,state->say_as)) ssml_error(state);
       if(tok!=toklist_back(state->msg->tokens))
         {
           tok=toklist_back(state->msg->tokens);
@@ -624,6 +649,15 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
              (state->last_closed_element!=ssml_break)&&
              (marklist_back(state->msg->marks)->next_token_index==(toklist_size(state->msg->tokens)-1)))
                 tok->mark_index=marklist_size(state->msg->marks)-1;
+          if(state->say_as)
+            {
+              if(state->say_as_format!=NULL)
+                {
+                  tok->say_as_format=u8_strdup(state->say_as_format);
+                  if(tok->say_as_format==NULL) ssml_error(state);
+                }
+              if(state->say_as!='s') state->say_as=0;
+            }
         }
       r-=n;
       str+=n;
@@ -660,6 +694,8 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->text_start=0;
   s->text_start_in_chars=0;
   s->last_closed_element=ssml_unknown;
+  s->say_as=0;
+  s->say_as_format=NULL;
   s->parser=XML_ParserCreate("UTF-8");
   if(s->parser==NULL) goto err1;
   s->tags=ssml_tag_stack_alloc(10,ssml_tag_free);
@@ -760,7 +796,7 @@ static RHVoice_message parse_text(const source_info *i)
           n=u32_mbtoucr(&c,s.u32,r);
           break;
         }
-      if(!tstream_putc(&ts,c,p,1))
+      if(!tstream_putc(&ts,c,p,1,0))
         {
           RHVoice_message_free(msg);
           return NULL;
@@ -1022,6 +1058,12 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
           m=marklist_at(msg->marks,tok->mark_index);
           item_set_string(i,"mark_name",(const char*)m->name);
           item_set_int(i,"mark_position",m->pos);
+        }
+      if(tok->say_as!=0)
+        {
+          item_set_int(i,"say_as",tok->say_as);
+          if(tok->say_as_format!=NULL)
+            item_set_string(i,"say_as_format",(const char*)tok->say_as_format);
         }
     }
   if(last==back) feat_set_int(u->features,"last",1);
