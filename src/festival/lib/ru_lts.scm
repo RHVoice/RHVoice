@@ -96,6 +96,7 @@
   ( STARTSYL [ ю ] = j u )
   ( STARTSYL [ я ] = j a )
   ( STARTSYL [ е ] = j e )
+  ( STARTSYL [ e ] = j e )
   ( STARTSYL [ ё ] = j oo )
   ( [ ё ] = oo )
   ( [ е ] = e )
@@ -204,12 +205,11 @@
   ( [ ч ] = ch )
   ( [ ш ] = sh )
   ( [ щ ] = sch )
-  ( # [ й ] # = i k r aa t k o j e )
   ( [ й ] = j )
 
-  ( # [ ъ ] # = t vv oo r d y j z n aa k )
+  ( # [ ъ ] # = t vv oo r d ay j z n aa k )
   ( [ ъ ] =  )
-  ( # [ ь ] = mm aa h kk i j z n aa k )
+  ( # [ ь ] = mm aa h kk ae j z n aa k )
   ( [ ь ] =  )
 
   ( [ b ] SOFTLETTERS = bb )
