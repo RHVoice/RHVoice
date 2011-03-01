@@ -185,13 +185,13 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_terminate()
 
     def speakText(self,text,index=None):
-        fmt_str=u'<speak><prosody rate="%d%%" pitch="%d%%" volume="%d%%">%s%s</prosody></speak>'
+        fmt_str=u'<speak><voice variant="%s"><prosody rate="%d%%" pitch="%d%%" volume="%d%%">%s%s</prosody></voice></speak>'
         if isinstance(index,int):
             mark=u'<mark name="%d"/>' % index
         else:
             mark=u""
         escaped_text=text.replace("<","&lt;").replace("&","&amp;")
-        ssml=fmt_str % (self.__rate,self.__pitch,self.__volume,mark,escaped_text)
+        ssml=fmt_str % (self.__variant,self.__rate,self.__pitch,self.__volume,mark,escaped_text)
         self.__tts_queue.put(ssml)
 
     def pause(self,switch):

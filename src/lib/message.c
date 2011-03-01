@@ -36,6 +36,7 @@
 static float ext_rate=ext_rate_default;
 static float ext_pitch=ext_pitch_default;
 static float ext_volume=ext_volume_default;
+static RHVoice_variant current_variant=RHVoice_variant_pseudo_english;
 
 static float prosody_check_range(float val,float min,float max)
 {
@@ -92,6 +93,7 @@ typedef struct {
   int mark_index;
   int say_as;
   uint8_t *say_as_format;
+  RHVoice_variant variant;
 } token;
 
 static void token_free(token *t)
@@ -132,6 +134,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
   tok.mark_index=-1;
   tok.say_as=say_as;
   tok.say_as_format=NULL;
+  tok.variant=0;
   token *prev_tok=toklist_back(ts->l);
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
@@ -308,6 +311,8 @@ vector_t(ssml_tag,ssml_tag_stack)
 
 vector_t(prosody_params,prosody_stack)
 
+vector_t(int,variant_stack)
+
 typedef union {
   const uint8_t *u8;
   const uint16_t *u16;
@@ -330,6 +335,7 @@ typedef struct {
   RHVoice_message msg;
   ssml_tag_stack tags;
   prosody_stack prosody;
+  variant_stack variants;
   int in_cdata_section;
   int start_sentence;
   unsigned int skip;
@@ -539,6 +545,19 @@ static int ssml_translate_say_as_content_type(ssml_tag *t)
   else return 0;
 }
 
+static variant_stack variant_stack_update(variant_stack stack,ssml_tag *tag)
+{
+  int variant=*variant_stack_back(stack);
+  if(!variant_stack_push(stack,&variant)) return NULL;
+  const char *strvariant=(const char*)ssml_get_attribute_value(tag,"variant");
+  if(strvariant==NULL) return stack;
+  char *suffix;
+  variant=strtol(strvariant,&suffix,10);
+  if((variant>0)&&(variant<3)&&(suffix[0]=='\0'))
+    *variant_stack_back(stack)=variant;
+  return stack;
+}
+
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
@@ -575,6 +594,9 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
       if(state->say_as==-1) ssml_error(state);
       state->say_as_format=ssml_get_attribute_value(top,"format");
       break;
+    case ssml_voice:
+      if(!variant_stack_update(state->variants,top)) ssml_error(state);
+      break;
     default:
       break;
     }
@@ -606,6 +628,9 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
     case ssml_say_as:
       state->say_as=0;
       state->say_as_format=NULL;
+      break;
+    case ssml_voice:
+      variant_stack_pop(state->variants);
       break;
     default:
       break;
@@ -639,6 +664,7 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
         {
           tok=toklist_back(state->msg->tokens);
           tok->prosody=*prosody_stack_back(state->prosody);
+          tok->variant=*variant_stack_back(state->variants);
           tok->silence=state->msg->silence;
           if(state->start_sentence)
             {
@@ -683,6 +709,7 @@ static void XMLCALL ssml_cdata_section_end(void *user_data)
 
 static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_message m)
 {
+  int default_variant=0;
   s->src=*i;
   s->text=NULL;
   s->len=0;
@@ -703,6 +730,9 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->prosody=prosody_stack_alloc(10,NULL);
   if(s->prosody==NULL) goto err3;
   prosody_stack_push(s->prosody,&default_prosody_params);
+  s->variants=variant_stack_alloc(10,NULL);
+  if(s->variants==NULL) goto err4;
+  variant_stack_push(s->variants,&default_variant);
   switch(s->src.encoding)
     {
     case 16:
@@ -716,13 +746,14 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
       s->len=s->src.len;
       break;
     }
-  if(s->text==NULL) goto err4;
+  if(s->text==NULL) goto err5;
   tstream_init(&s->ts,s->msg->tokens);
   XML_SetUserData(s->parser,s);
   XML_SetElementHandler(s->parser,ssml_element_start,ssml_element_end);
   XML_SetCharacterDataHandler(s->parser,ssml_character_data);
   XML_SetCdataSectionHandler(s->parser,ssml_cdata_section_start,ssml_cdata_section_end);
   return s;
+  err5: variant_stack_free(s->variants);
   err4: prosody_stack_free(s->prosody);
   err3: ssml_tag_stack_free(s->tags);
   err2: XML_ParserFree(s->parser);
@@ -735,6 +766,7 @@ static void ssml_state_free(ssml_state *s)
   XML_ParserFree(s->parser);
   ssml_tag_stack_free(s->tags);
   prosody_stack_free(s->prosody);
+  variant_stack_free(s->variants);
   if(s->src.encoding!=8) free((uint8_t*)s->text);
 }
 
@@ -1065,6 +1097,7 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
           if(tok->say_as_format!=NULL)
             item_set_string(i,"say_as_format",(const char*)tok->say_as_format);
         }
+      item_set_int(i,"variant",(tok->variant?tok->variant:current_variant));
     }
   if(last==back) feat_set_int(u->features,"last",1);
   msg->pos=last-front+1;
@@ -1100,4 +1133,14 @@ void RHVoice_set_volume(float volume)
 float RHVoice_get_volume()
 {
   return ext_volume;
+}
+
+void RHVoice_set_variant(RHVoice_variant variant)
+{
+  if((variant>0)&&(variant<3)) current_variant=variant;
+}
+
+RHVoice_variant RHVoice_get_variant()
+{
+  return current_variant;
 }

@@ -69,6 +69,15 @@ extern "C" {
   float RHVoice_get_pitch();
   void RHVoice_set_volume(float volume);
   float RHVoice_get_volume();
+
+  typedef enum {
+    RHVoice_variant_pseudo_english=1,
+    RHVoice_variant_russian=2
+  } RHVoice_variant;
+
+  void RHVoice_set_variant(RHVoice_variant variant);
+  RHVoice_variant RHVoice_get_variant();
+
   const char *RHVoice_get_version();
 
 #ifdef __cplusplus
