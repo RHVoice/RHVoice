@@ -15,16 +15,15 @@
 
 #include "lib.h"
 #include <unistr.h>
+#include "ru_dict.h"
 #include "ru_lts.h"
 #include "ru_consonants_lts.h"
 #include "ru_en_lts.h"
-#include "ru_dict.h"
 #include <string.h>
 #include <stdlib.h>
 
 extern const cst_cart ru_stress_cart;
 
-static const uint8_t *ru_consonant_letters=(const uint8_t*)"бвгджзклмнпрстфхцчшщ";
 
 static int compare_entries(const void *key,const void *element)
 {
@@ -136,18 +135,33 @@ static int vowel_seg_between(const cst_item *f,const cst_item *l)
   return FALSE;
 }
 
-static cst_val* ru_word_to_phones(const cst_item *word)
+static cst_val* word_to_phones(const cst_item *word)
 {
-  int n;
-  cst_val *letters,*v,*phones;
+  cst_val*phones=NULL;
   const char *name=item_feat_string(word, "name");
-  letters=cst_utf8_explode(name);
-  const cst_lts_rewrites *lts_rules=&ru_lts;
-  if((name[u8_strspn((const uint8_t*)name,ru_consonant_letters)]=='\0')&&cst_streq(ffeature_string(word,"gpos"),"content"))
+  ustring32_t letters=ustring32_alloc(0);
+  if(letters==NULL) return NULL;
+  ustring32_assign8(letters,(const uint8_t*)name);
+  if(ustring32_empty(letters))
     {
-      lts_rules=&ru_consonants_lts;
+      ustring32_free(letters);
+      return NULL;
+    }
+  unsigned int flags=classify_characters(ustring32_str(letters),ustring32_length(letters));
+  cst_lexicon *cmu_lex=val_lexicon(feat_val(item_utt(word)->features,"cmu_lex"));
+  if(flags&cs_en)
+    {
+      cst_val *en_phones=lex_lookup(cmu_lex,name,(cst_streq(name,"a")?"n":NULL));
+      if(en_phones)
+        {
+          phones=ru_lts_apply(en_phones,&ru_en_lts);
+          delete_val(en_phones);
+        }
+    }
+  else if((flags&cs_lc)&&cst_streq(ffeature_string(word,"gpos"),"content"))
+    {
+      phones=ustring32_lts_apply(letters,&ru_consonants_lts);
       item_set_int(word,"no_vr",1);
-      item_set_int(word,"stressed_syl_num",-1);
     }
   else
     {
@@ -155,42 +169,13 @@ static cst_val* ru_word_to_phones(const cst_item *word)
       if(e!=NULL)
         {
           if(e->stress > 0)
-            {
-              v=letters;
-              for(n=e->stress;v&&(--n);v=(cst_val*)val_cdr(v)) {};
-              if(v)
-                {
-                  set_car(v,val_inc_refcount(string_val("ё")));
-                }
-            }
+            ustring32_set(letters,e->stress-1,1105);
           else
-            {
-              item_set_int(word,"stressed_syl_num",e->stress);
-            }
+            item_set_int(word,"stressed_syl_num",e->stress);
         }
+      phones=ustring32_lts_apply(letters,&ru_lts);
     }
-  phones=ru_lts_apply(letters, lts_rules);
-  delete_val(letters);
-  return phones;
-}
-
-static cst_val* en_word_to_phones(const cst_item *word)
-{
-  const char *name=item_name(word);
-  cst_utterance *u=item_utt(word);
-  cst_lexicon *cmu_lex=val_lexicon(feat_val(u->features,"cmu_lex"));
-  const char *pos=NULL;
-  cst_val *tmp,*phones;
-  if((name[strcspn(name,"aeiouy")]=='\0')&&(!in_lex(cmu_lex,name,NULL)))
-    phones=lts_rewrites_word(name,&ru_consonants_lts);
-  else
-    {
-      if(cst_streq(name,"a"))
-        pos="n";
-      tmp=lex_lookup(cmu_lex,name,pos);
-      phones=ru_lts_apply(tmp,&ru_en_lts);
-      delete_val(tmp);
-    }
+  ustring32_free(letters);
   return phones;
 }
 
@@ -263,8 +248,6 @@ cst_utterance *russian_lexical_insertion(cst_utterance *u)
   cst_val *phones;
   cst_item *ssword, *sssyl, *segitem, *sylitem, *seg_in_syl, *svsyl, *vowel_in_syl, *tword, *seg_in_word;
   cst_item *i,*tmp;
-  const char *s;
-  int is_english;
   syl = utt_relation_create(u,"Syllable");
   sylstructure = utt_relation_create(u,"SylStructure");
   seg = utt_relation_create(u,"Segment");
@@ -272,22 +255,7 @@ cst_utterance *russian_lexical_insertion(cst_utterance *u)
   transcription = utt_relation_create(u,"Transcription");
   for (word=relation_head(utt_relation(u,"Word"));word;word=item_next(word))
     {
-      is_english=FALSE;
-      for(s=item_name(word);*s!='\0';s++)
-        {
-          if((*s>='a')&&(*s<='z'))
-            {
-              is_english=TRUE;
-              break;
-            }
-        }
-      if(is_english)
-        {
-          item_set_int(word,"is_english",1);
-          phones=en_word_to_phones(word);
-        }
-      else
-        phones = ru_word_to_phones(word);
+      phones=word_to_phones(word);
       if(!phones)
         continue;
       ssword = relation_append(sylstructure,word);

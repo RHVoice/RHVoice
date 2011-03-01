@@ -21,48 +21,52 @@ DEF_STATIC_CONST_VAL_STRING(val_0010,"yy");
 #define CTNODE_ru_vowel_reduction_NO_0009 11
 DEF_STATIC_CONST_VAL_STRING(val_0011,"i");
 DEF_STATIC_CONST_VAL_STRING(val_0012,"-");
-#define CTNODE_ru_vowel_reduction_NO_0012 14
-DEF_STATIC_CONST_VAL_STRING(val_0013,"ii");
-#define CTNODE_ru_vowel_reduction_NO_0011 15
-DEF_STATIC_CONST_VAL_STRING(val_0014,"N");
-#define CTNODE_ru_vowel_reduction_NO_0000 16
-DEF_STATIC_CONST_VAL_STRING(val_0015,"pau");
-DEF_STATIC_CONST_VAL_STRING(val_0016,"a");
-#define CTNODE_ru_vowel_reduction_NO_0017 19
-#define CTNODE_ru_vowel_reduction_NO_0016 20
+DEF_STATIC_CONST_VAL_STRING(val_0013,"и");
+DEF_STATIC_CONST_VAL_STRING(val_0014,"content");
+DEF_STATIC_CONST_VAL_STRING(val_0015,"ii");
+#define CTNODE_ru_vowel_reduction_NO_0014 16
+#define CTNODE_ru_vowel_reduction_NO_0013 17
+#define CTNODE_ru_vowel_reduction_NO_0012 18
+#define CTNODE_ru_vowel_reduction_NO_0011 19
+DEF_STATIC_CONST_VAL_STRING(val_0016,"N");
+#define CTNODE_ru_vowel_reduction_NO_0000 20
+DEF_STATIC_CONST_VAL_STRING(val_0017,"pau");
+DEF_STATIC_CONST_VAL_STRING(val_0018,"a");
 #define CTNODE_ru_vowel_reduction_NO_0021 23
 #define CTNODE_ru_vowel_reduction_NO_0020 24
-DEF_STATIC_CONST_VAL_STRING(val_0017,"+");
 #define CTNODE_ru_vowel_reduction_NO_0025 27
 #define CTNODE_ru_vowel_reduction_NO_0024 28
-DEF_STATIC_CONST_VAL_STRING(val_0018,"0");
+DEF_STATIC_CONST_VAL_STRING(val_0019,"+");
 #define CTNODE_ru_vowel_reduction_NO_0029 31
-DEF_STATIC_CONST_VAL_STRING(val_0019,"y");
-#define CTNODE_ru_vowel_reduction_NO_0032 34
-#define CTNODE_ru_vowel_reduction_NO_0031 35
-#define CTNODE_ru_vowel_reduction_NO_0028 36
-DEF_STATIC_CONST_VAL_STRING(val_0020,"i");
-#define CTNODE_ru_vowel_reduction_NO_0038 40
-#define CTNODE_ru_vowel_reduction_NO_0040 42
+#define CTNODE_ru_vowel_reduction_NO_0028 32
+DEF_STATIC_CONST_VAL_STRING(val_0020,"0");
+#define CTNODE_ru_vowel_reduction_NO_0033 35
+DEF_STATIC_CONST_VAL_STRING(val_0021,"y");
+#define CTNODE_ru_vowel_reduction_NO_0036 38
+#define CTNODE_ru_vowel_reduction_NO_0035 39
+#define CTNODE_ru_vowel_reduction_NO_0032 40
+DEF_STATIC_CONST_VAL_STRING(val_0022,"i");
 #define CTNODE_ru_vowel_reduction_NO_0042 44
-#define CTNODE_ru_vowel_reduction_NO_0037 45
-#define CTNODE_ru_vowel_reduction_NO_0045 47
-#define CTNODE_ru_vowel_reduction_NO_0047 49
-#define CTNODE_ru_vowel_reduction_NO_0036 50
-DEF_STATIC_CONST_VAL_STRING(val_0021,"proc");
-#define CTNODE_ru_vowel_reduction_NO_0053 55
-#define CTNODE_ru_vowel_reduction_NO_0052 56
-#define CTNODE_ru_vowel_reduction_NO_0056 58
-#define CTNODE_ru_vowel_reduction_NO_0051 59
-DEF_STATIC_CONST_VAL_STRING(val_0022,"ur");
-#define CTNODE_ru_vowel_reduction_NO_0059 61
-DEF_STATIC_CONST_VAL_STRING(val_0023,"ae");
-#define CTNODE_ru_vowel_reduction_NO_0061 63
-DEF_STATIC_CONST_VAL_STRING(val_0024,"ay");
-#define CTNODE_ru_vowel_reduction_NO_0050 64
-#define CTNODE_ru_vowel_reduction_NO_0066 68
-#define CTNODE_ru_vowel_reduction_NO_0065 69
-#define CTNODE_ru_vowel_reduction_NO_0069 71
-#define CTNODE_ru_vowel_reduction_NO_0064 72
-#define CTNODE_ru_vowel_reduction_NO_0072 74
-#define CTNODE_ru_vowel_reduction_NO_0074 76
+#define CTNODE_ru_vowel_reduction_NO_0044 46
+#define CTNODE_ru_vowel_reduction_NO_0046 48
+#define CTNODE_ru_vowel_reduction_NO_0041 49
+#define CTNODE_ru_vowel_reduction_NO_0049 51
+#define CTNODE_ru_vowel_reduction_NO_0051 53
+#define CTNODE_ru_vowel_reduction_NO_0040 54
+DEF_STATIC_CONST_VAL_STRING(val_0023,"proc");
+#define CTNODE_ru_vowel_reduction_NO_0057 59
+#define CTNODE_ru_vowel_reduction_NO_0056 60
+#define CTNODE_ru_vowel_reduction_NO_0060 62
+#define CTNODE_ru_vowel_reduction_NO_0055 63
+DEF_STATIC_CONST_VAL_STRING(val_0024,"ur");
+#define CTNODE_ru_vowel_reduction_NO_0063 65
+DEF_STATIC_CONST_VAL_STRING(val_0025,"ae");
+#define CTNODE_ru_vowel_reduction_NO_0065 67
+DEF_STATIC_CONST_VAL_STRING(val_0026,"ay");
+#define CTNODE_ru_vowel_reduction_NO_0054 68
+#define CTNODE_ru_vowel_reduction_NO_0070 72
+#define CTNODE_ru_vowel_reduction_NO_0069 73
+#define CTNODE_ru_vowel_reduction_NO_0073 75
+#define CTNODE_ru_vowel_reduction_NO_0068 76
+#define CTNODE_ru_vowel_reduction_NO_0076 78
+#define CTNODE_ru_vowel_reduction_NO_0078 80

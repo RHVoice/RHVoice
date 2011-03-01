@@ -143,3 +143,28 @@ if(!uchars8_reserve(u8,uchars8_size(u8)+n)) return NULL;
     }
   return u8;
 }
+
+ustring32_t ustring32_assign8(ustring32_t u32,const uint8_t *u8)
+{
+  ustring32_clear(u32);
+  ucs4_t c;
+  const uint8_t *s=u8;
+  while((s=u8_next(&c,s)))
+    {
+      if(!ustring32_push(u32,c)) return NULL;
+    }
+  return u32;
+}
+
+ucs4_t ustring32_at(ustring32_t u,size_t i)
+{
+  ucs4_t *pc=uchars32_at(u,i);
+  return (pc==NULL)?0xffffffff:(*pc);
+}
+
+ustring32_t ustring32_set(ustring32_t u,size_t p,ucs4_t c)
+{
+  if(p>=ustring32_length(u)) return NULL;
+  ustring32_str(u)[p]=c;
+  return u;
+}
