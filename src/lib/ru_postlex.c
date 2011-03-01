@@ -38,7 +38,10 @@ cst_utterance *russian_postlex_function(cst_utterance *u)
             }
           else
             {
-              if(cst_streq(name,"ii")&&cst_streq(ffeature_string(seg,"R:Segment.p.ph_csoft"),"-"))
+              if(cst_streq(name,"ii")&&
+                 cst_streq(ffeature_string(seg,"R:Segment.p.ph_csoft"),"-")&&
+                 !(cst_streq(item_feat_string(word,"name"),"и")&&
+                   cst_streq(ffeature_string(word,"gpos"),"content")))
                 {
                   item_set_string(seg,"name","yy");
                 }

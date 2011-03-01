@@ -21,14 +21,16 @@ extern "C" {
 #endif
 
 #include "RHVoice.h"
+#include "ustring.h"
 #include <flite.h>
 #include <cst_lts_rewrites.h>
 #include <unitypes.h>
 
+
   void russian_init(cst_voice *v);
 
   cst_utterance* russian_phrasify(cst_utterance* u);
-  cst_val *ru_tokentowords(cst_item *t);
+  cst_utterance *russian_textanalysis(cst_utterance *u);
   cst_utterance* russian_lexical_insertion(cst_utterance* u);
   cst_utterance *russian_postlex_function(cst_utterance *u);
   cst_utterance *russian_pause_insertion(cst_utterance *u);
@@ -36,7 +38,12 @@ extern "C" {
   extern const cst_phoneset ru_phoneset;
   char *ru_implode(const cst_val *l);
   cst_val* ru_lts_apply(const cst_val *input, const cst_lts_rewrites *rule);
+  cst_val* ustring32_lts_apply(const ustring32_t u32,const cst_lts_rewrites *rule);
   const char *russian_vpair(const char *ph);
+
+  extern const char *ru_proc_list[];
+  extern const char *ru_enc_list[];
+  extern const char *ru_h_enc_list[];
 
   typedef struct ru_user_dict_struct {
     int size;
@@ -65,10 +72,14 @@ extern "C" {
     cs_lv=1 << 11,              /* vowel */
     cs_lc=1 << 12,              /* consonant */
     cs_ru=1 << 13,              /* Russian */
-    cs_en=1 << 14               /* English */
+    cs_en=1 << 14,               /* English */
+    cs_s=1 << 16,               /* symbol */
+    cs_lw=1 << 17               /* a letter which can be a separate word */
   } character_subset;
 
   unsigned int classify_character(ucs4_t c);
+  unsigned int classify_characters(const uint32_t *chars,size_t n);
+  const char *character_name(ucs4_t c);
 
   cst_utterance *next_utt_from_message(RHVoice_message msg);
 

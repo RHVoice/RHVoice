@@ -39,4 +39,7 @@ void ustring8_clear(ustring8_t u);
 ustring32_t ustring32_reserve(ustring32_t u,size_t r);
 ustring8_t ustring8_reserve(ustring8_t u,size_t r);
 ustring8_t ustring32_substr8(ustring8_t u8,ustring32_t u32,size_t p,size_t l);
+ustring32_t ustring32_assign8(ustring32_t u32,const uint8_t *u8);
+ucs4_t ustring32_at(ustring32_t u,size_t i);
+ustring32_t ustring32_set(ustring32_t u,size_t p,ucs4_t c);
 #endif

@@ -6,9 +6,9 @@
  (  
   (SOFTLETTERS 
          ;;; Letter that do make previous consonant soft
-   я ё ю и ь е
+   я ё ю и ь е e i
    )
-  (STARTSYL # ъ ь а я о ё у ю э е и ы)
+  (STARTSYL # ъ ь а a я о o ё у u ю э е e и i ы)
   )
  (
   ;; LTS rules
@@ -86,9 +86,12 @@
   ;; Simple vowels
 
   ( [ а ] = a )
+  ( [ a ] = a )
   ( [ ы ] = y )
   ( [ о ] = o )
+  ( [ o ] = o )
   ( [ у ] = u )
+  ( [ u ] = u )
   ( [ э ] = e )
   ( STARTSYL [ ю ] = j u )
   ( STARTSYL [ я ] = j a )
@@ -96,12 +99,14 @@
   ( STARTSYL [ ё ] = j oo )
   ( [ ё ] = oo )
   ( [ е ] = e )
+  ( [ e ] = e )
   ( [ я ] = a )
   ( [ ю ] = u )
   ( ж [ и ] = y )
   ( ш [ и ] = y )
   ( ц [ и ] = y )
   ( [ и ] = i )
+  ( [ i ] = i )
 
   ( [ т с ] я # = c )
   ( з а б о [ т ь с ] я # = tt ss )
@@ -199,11 +204,57 @@
   ( [ ч ] = ch )
   ( [ ш ] = sh )
   ( [ щ ] = sch )
+  ( # [ й ] # = i k r aa t k o j e )
   ( [ й ] = j )
 
+  ( # [ ъ ] # = t vv oo r d y j z n aa k )
   ( [ ъ ] =  )
+  ( # [ ь ] = mm aa h kk i j z n aa k )
   ( [ ь ] =  )
+
+  ( [ b ] SOFTLETTERS = bb )
+  ( [ d ] SOFTLETTERS = dd )
+  ( [ f ] SOFTLETTERS = ff )
+  ( [ g ] SOFTLETTERS = gg )
+  ( [ h ] SOFTLETTERS = hh )
+  ( [ k ] SOFTLETTERS = kk )
+  ( [ l ] SOFTLETTERS = ll )
+  ( [ m ] SOFTLETTERS = mm )
+  ( [ n ] SOFTLETTERS = nn )
+  ( [ p ] SOFTLETTERS = pp )
+  ( [ q ] SOFTLETTERS = kk )
+  ( [ r ] SOFTLETTERS = rr )
+  ( [ s ] SOFTLETTERS = ss )
+  ( [ t ] SOFTLETTERS = tt )
+  ( [ v ] SOFTLETTERS = vv )
+  ( [ w ] SOFTLETTERS = vv )
+  ( [ x ] SOFTLETTERS = k ss )
+  ( [ z ] SOFTLETTERS = zz )
+
+  ( [ b ] = b )
+  ( [ c ] = c )
+  ( [ d ] = d )
+  ( [ f ] = f )
+  ( [ g ] = g )
+  ( [ h ] = h )
+  ( [ j ] = zh )
+  ( [ k ] = k )
+  ( [ l ] = l )
+  ( [ m ] = m )
+  ( [ n ] = n )
+  ( [ p ] = p )
+  ( [ q ] = k )
+  ( [ r ] = r )
+  ( [ s ] = s )
+  ( [ t ] = t )
+  ( [ v ] = v )
+  ( [ w ] = v )
+  ( [ x ] = k s )
+  ( [ y ] = j )
+  ( [ z ] = z )
+
   ( [ - ] =  )
+  ( [ "'" ] = )
   ( [ + ] =  )
   ))
 

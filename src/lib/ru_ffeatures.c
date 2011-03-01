@@ -21,20 +21,21 @@ static const cst_val *ph_csoft(const cst_item *p)
   return phone_feature(item_phoneset(p),item_name(p),"csoft");
 }
 
-extern cst_val *ru_gpos;
 DEF_STATIC_CONST_VAL_STRING(val_string_content,"content");
+DEF_STATIC_CONST_VAL_STRING(val_string_proc,"proc");
+DEF_STATIC_CONST_VAL_STRING(val_string_enc,"enc");
 
 static const cst_val *gpos(const cst_item *word)
 {
-  const char *w=item_feat_string(word,"name");
-  const cst_val *l;
+  const char *name=item_feat_string(word,"name");
+  if(item_feat_present(word,"my_gpos"))
+    return item_feat(word,"my_gpos");
   if(!item_next(item_as(word,"Word"))&&!item_prev(item_as(word,"Word")))
     return &val_string_content;
-  for (l=ru_gpos; l; l=val_cdr(l))
-    {
-      if(val_member_string(w,val_cdr(val_car(l))))
-        return val_car(val_car(l));
-    }
+  if(cst_member_string(name,ru_proc_list))
+    return &val_string_proc;
+  if(cst_member_string(name,ru_enc_list))
+    return &val_string_enc;
   return &val_string_content;
 }
 

@@ -10,9 +10,7 @@ env=Environment()
 
 lts_list=[
     ("ru_consonants_lts","ru_consonants_lts.scm"),
-    ("ru_downcase_lts","ru_downcase_lts.scm"),
     ("ru_en_lts","ru_en_lts.scm"),
-    ("ru_hyphen_lts","ru_hyphen_lts.scm"),
     ("ru_lts","ru_lts.scm"),
     ("ru_number_lts","ru_number_lts.scm")]
 
@@ -43,8 +41,6 @@ for s1,s2,s3 in cart_list:
 lts_command='$FESTIVAL -b $MKVALLIST $MKLTSREWRITE \'(ltsrewritestoC "${TARGET.filebase}" "$SOURCE" "${TARGET.dir}")\'' 
 for s1,s2 in lts_list:
     env.Command(s1+".c",s2,lts_command,srcdir=scm_dir)
-gpos_command='$FESTIVAL -b $SOURCE $MKVALLIST \'(listtocstval "${TARGET.filebase}" ru_guess_pos "$TARGET")\''
-env.Command("ru_gpos.c","ru_tagger.scm",gpos_command,srcdir=scm_dir)
 
 import codecs
 def convert_dict(target=None,source=None,env=None):
