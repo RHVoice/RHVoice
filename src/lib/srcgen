@@ -10,6 +10,7 @@ env=Environment()
 
 lts_list=[
     ("ru_consonants_lts","ru_consonants_lts.scm"),
+    ("en_consonants_lts","en_consonants_lts.scm"),
     ("ru_en_lts","ru_en_lts.scm"),
     ("ru_lts","ru_lts.scm"),
     ("ru_number_lts","ru_number_lts.scm")]

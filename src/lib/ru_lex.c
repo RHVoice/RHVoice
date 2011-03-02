@@ -18,6 +18,7 @@
 #include "ru_dict.h"
 #include "ru_lts.h"
 #include "ru_consonants_lts.h"
+#include "en_consonants_lts.h"
 #include "ru_en_lts.h"
 #include <string.h>
 #include <stdlib.h>
@@ -150,7 +151,14 @@ static cst_val* word_to_phones(const cst_item *word)
   unsigned int flags=classify_characters(ustring32_str(letters),ustring32_length(letters));
   cst_lexicon *cmu_lex=val_lexicon(feat_val(item_utt(word)->features,"cmu_lex"));
   int variant=item_feat_int(item_parent(item_as(word,"Token")),"variant");
-  if((variant==RHVoice_variant_pseudo_english)&&(flags&cs_en))
+  if((flags&cs_lc)&&cst_streq(ffeature_string(word,"gpos"),"content"))
+    {
+      if(variant==RHVoice_variant_pseudo_english)
+        phones=ustring32_lts_apply(letters,&en_consonants_lts);
+      else phones=ustring32_lts_apply(letters,&ru_consonants_lts);
+      item_set_int(word,"no_vr",1);
+    }
+  else if((variant==RHVoice_variant_pseudo_english)&&(flags&cs_en))
     {
       cst_val *en_phones=lex_lookup(cmu_lex,name,(cst_streq(name,"a")?"n":NULL));
       if(en_phones)
@@ -159,11 +167,6 @@ static cst_val* word_to_phones(const cst_item *word)
           delete_val(en_phones);
         }
       item_set_int(word,"no_pl",1);
-    }
-  else if((flags&cs_lc)&&cst_streq(ffeature_string(word,"gpos"),"content"))
-    {
-      phones=ustring32_lts_apply(letters,&ru_consonants_lts);
-      item_set_int(word,"no_vr",1);
     }
   else
     {
