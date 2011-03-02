@@ -159,10 +159,10 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
               if(flags&cs_lw)
                 item_set_string(w,"my_gpos","content");
             }
-          else if((flags&cs_l)||((c=='\'')&&(pflags&(cs_l|cs_en))))
+          else if((flags&cs_l)||((c=='\'')&&(pflags&cs_l)&&(pflags&cs_en)))
             {
-              ustring8_push(word,uc_tolower(c));
-              if(!((nflags&cs_l)||((nc=='\'')&&(flags&(cs_l|cs_en)))))
+              if(c!='\'') ustring8_push(word,uc_tolower(c));
+              if(!((nflags&cs_l)||((nc=='\'')&&(flags&cs_l)&&(flags&cs_en))))
                 {
                   if(in_ru_compound_word)
                     {
