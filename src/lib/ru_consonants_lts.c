@@ -534,7 +534,7 @@ DEF_STATIC_CONST_VAL_CONS(ru_consonants_lts_lts_rules_0525,(void *)&ru_consonant
 DEF_STATIC_CONST_VAL_CONS(ru_consonants_lts_lts_rules_0526,0,(void *)&ru_consonants_lts_lts_rules_0525);
 DEF_STATIC_CONST_VAL_STRING(ru_consonants_lts_lts_rules_0527,"c");
 DEF_STATIC_CONST_VAL_CONS(ru_consonants_lts_lts_rules_0528,(void *)&ru_consonants_lts_lts_rules_0527,0);
-DEF_STATIC_CONST_VAL_STRING(ru_consonants_lts_lts_rules_0529,"sc");
+DEF_STATIC_CONST_VAL_STRING(ru_consonants_lts_lts_rules_0529,"c");
 DEF_STATIC_CONST_VAL_STRING(ru_consonants_lts_lts_rules_0530,"e");
 DEF_STATIC_CONST_VAL_CONS(ru_consonants_lts_lts_rules_0531,(void *)&ru_consonants_lts_lts_rules_0530,0);
 DEF_STATIC_CONST_VAL_CONS(ru_consonants_lts_lts_rules_0532,(void *)&ru_consonants_lts_lts_rules_0529,(void *)&ru_consonants_lts_lts_rules_0531);
