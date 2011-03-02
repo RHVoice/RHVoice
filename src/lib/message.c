@@ -918,7 +918,7 @@ static int is_sentence_boundary(const token *t1,const token *t2)
     else if ((post1[post1_len-1]==':')&&(pre2_len!=0))
       {
         unsigned int cs=classify_character(str2[0]);
-        if((cs&(cs_pq|cs_pi))||((t1->flags&&token_eol)&&(cs&cs_pd)))
+        if(((cs&cs_pq)&&(cs&cs_pi))||((t1->flags&token_eol)&&(cs&cs_pd)))
           return 1;
         else return 0;
       }
