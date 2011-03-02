@@ -857,9 +857,16 @@ static size_t prepunctuation_length(const ustring32_t t)
   const uint32_t *start=ustring32_str(t);
   const uint32_t *end=start+ustring32_length(t);
   const uint32_t *s=start;
+  unsigned int cs;
   while(s<end)
     {
-      if(!(classify_character(*s)&cs_pi)) break;
+      cs=classify_character(*s);
+      if(!(cs&cs_pi))
+        {
+          if((cs&cs_d)&&(s>start)&&(*(s-1)=='-'))
+            s--;
+          break;
+        }
       s++;
     }
   return (s-start);
