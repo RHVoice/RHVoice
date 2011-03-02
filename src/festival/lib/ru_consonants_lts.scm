@@ -51,7 +51,7 @@
   ( [ b ] # = b ee )
   ( [ b ] = b e )
   ( [ c ] # = c ee )
-  ( [ c ] = sc e )
+  ( [ c ] = c e )
   ( [ d ] # = d ee )
   ( [ d ] = d e )
   ( [ f ] # = ee f )
