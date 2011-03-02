@@ -201,9 +201,16 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
             {
               w=character_to_words(t,r,c);
             }
-          else if((c=='-')&&(pflags&(cs_l|cs_ru))&&(nflags&(cs_l|cs_ru)))
+          else if(c=='-')
             {
-              in_ru_compound_word=1;
+              if((pflags&cs_l)&&(pflags&cs_ru)&&(nflags&cs_l)&&(nflags&cs_ru))
+                {
+                  in_ru_compound_word=1;
+                }
+              else if((nflags&cs_d)&&(i==0))
+                {
+                  w=add_word(t,r,"минус");
+                }
             }
           pc=c;
           pflags=flags;
