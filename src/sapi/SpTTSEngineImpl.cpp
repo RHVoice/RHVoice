@@ -321,7 +321,7 @@ void CSpTTSEngineImpl::generate_ssml(const SPVTEXTFRAG *frags)
 {
   frag_map.clear();
   wostringstream s;
-  s.exceptions(wostringstream::failbit|wostringstream::badbit|wostringstream::eofbit);
+  s.exceptions(wostringstream::failbit|wostringstream::badbit);
   s << L"<speak>";
   for(const SPVTEXTFRAG *frag=frags;frag;frag=frag->pNext)
     {
