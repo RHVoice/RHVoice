@@ -499,7 +499,7 @@ static int ssml_add_mark(ssml_state *state)
 static int ssml_add_break(ssml_state *state)
 {
   int strength='u';
-  int time=0;
+  float time=0;
   ssml_tag *top=ssml_tag_stack_back(state->tags);
   const char *strstrength=(const char*)ssml_get_attribute_value(top,"strength");
   if(strstrength!=NULL)
