@@ -112,26 +112,8 @@ cst_utterance *russian_pause_insertion(cst_utterance *u)
   item_set_string(s,"name","pau");
   item_set_float(s,"time",time2);
   item_set_float(s,"factor",0);
-  if(get_param_int(u->features,"last",0)&&w2)
-    {
-      s=relation_tail(utt_relation(u,"Segment"));
-      if((item_feat_float(s,"time")==0)&&(item_feat_float(s,"factor")!=0))
-        {
-          const uint8_t *punc=(const uint8_t*)item_feat_string(relation_tail(utt_relation(u,"Token")),"punc");
-          const uint8_t *suffix=punc+u8_strlen(punc);
-          factor=0;
-          ucs4_t c;
-          while((suffix=u8_prev(&c,suffix,punc)))
-            {
-              if(!(classify_character(c)&cs_pq))
-                {
-                  if(c==',') factor=0.5;
-                  else factor=1;
-                  break;
-                }
-            }
-          item_set_float(s,"factor",factor);
-        }
-    }
+  s=relation_tail(utt_relation(u,"Segment"));
+  if(get_param_int(u->features,"last",0)&&(item_feat_float(s,"time")==0)&&(item_feat_int(relation_tail(utt_relation(u,"Token")),"break_strength")=='n'))
+    item_set_float(s,"factor",0);
   return u;
 }
