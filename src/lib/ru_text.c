@@ -117,11 +117,55 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c)
   return w;
 }
 
+static const char *unsep_words[]={"из-за","из-под",NULL};
+
+static cst_item *letters_to_words(cst_item *t,cst_relation *r,ustring8_t u)
+{
+  cst_item *w=NULL;
+  ustring8_push(u,'\0');
+  uint8_t *s=ustring8_str(u);
+  const uint8_t *pr=user_dict_lookup(s);
+  if(pr!=NULL)
+    w=add_words(t,r,(const char*)pr);
+  else if(cst_member_string((const char*)s,unsep_words))
+    w=add_word(t,r,(const char*)s);
+  else
+    {
+      int ends_with_enc=0;
+      uint8_t *p=u8_strrchr(s,'-');
+      if(p!=NULL)
+        {
+          *p='\0';
+          if(cst_member_string((const char*)(p+1),ru_h_enc_list))
+            ends_with_enc=1;
+        }
+      if(ends_with_enc&&(pr=user_dict_lookup(s)))
+        {
+          add_words(t,r,(const char*)pr);
+          w=add_word(t,r,(const char*)(p+1));
+        }
+      else
+        {
+          size_t n=ustring8_length(u);
+          size_t i;
+          for(i=0;i<n;i++)
+            {
+              if(s[i]=='-')
+                s[i]='\0';
+            }
+          w=add_words(t,r,(const char*)s);
+        }
+      if(ends_with_enc)
+        item_set_string(w,"my_gpos","enc");
+    }
+  ustring8_clear(u);
+  return w;
+}
+
 cst_utterance *russian_textanalysis(cst_utterance *u)
 {
   cst_relation *r=utt_relation_create(u,"Word");
   cst_item *t,*w;
-  const char *name,*pname;
   size_t n,i;
   ustring32_t text=ustring32_alloc(0);
   if(text==NULL) return NULL;
@@ -135,10 +179,8 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
   int spell;
   ucs4_t pc,c,nc;
   unsigned int pflags,flags,nflags;
-  int in_ru_compound_word;
   for(t=relation_head(utt_relation(u,"Token"));t;t=item_next(t))
     {
-      ustring8_clear(word);
       say_as=item_feat_present(t,"say_as")?item_feat_int(t,"say_as"):0;
       spell=((say_as=='s')||(say_as=='c'));
       ustring32_assign8(text,(const uint8_t*)item_feat_string(t,spell?"text":"name"));
@@ -148,7 +190,6 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
       pflags=cs_sp;
       c=ustring32_at(text,0);
       flags=classify_character(c);
-      in_ru_compound_word=0;
       for(i=0;i<n;i++)
         {
           nc=(i==(n-1))?'\0':ustring32_at(text,i+1);
@@ -159,34 +200,11 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
               if(flags&cs_lw)
                 item_set_string(w,"my_gpos","content");
             }
-          else if((flags&cs_l)||((c=='\'')&&(pflags&cs_l)&&(pflags&cs_en)))
+          else if(flags&cs_l)
             {
-              if(c!='\'') ustring8_push(word,uc_tolower(c));
-              if(!((nflags&cs_l)||((nc=='\'')&&(flags&cs_l)&&(flags&cs_en))))
-                {
-                  if(in_ru_compound_word)
-                    {
-                      name=(const char*)ustring8_str(word);
-                      pname=item_feat_string(w,"name");
-                      if(cst_member_string(name,ru_h_enc_list))
-                        {
-                          w=add_word(t,r,name);
-                          item_set_string(w,"my_gpos","enc");
-                        }
-                      else if(cst_streq(pname,"из"))
-                        {
-                          if(cst_streq(name,"за"))
-                            item_set_string(w,"name","из-за");
-                          else if(cst_streq(name,"под"))
-                            item_set_string(w,"name","из-под");
-                          else w=add_word(t,r,name);
-                        }
-                      else w=add_word(t,r,name);
-                    }
-                  else w=add_word(t,r,(const char*)ustring8_str(word));
-                  ustring8_clear(word);
-                  in_ru_compound_word=0;
-                }
+              ustring8_push(word,uc_tolower(c));
+              if(!((nflags&cs_l)||((nc=='\'')&&(flags&cs_en))||((nc=='-')&&(flags&cs_ru))))
+                w=letters_to_words(t,r,word);
             }
           else if(flags&cs_d)
             {
@@ -203,13 +221,26 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
             }
           else if(c=='-')
             {
-              if((pflags&cs_l)&&(pflags&cs_ru)&&(nflags&cs_l)&&(nflags&cs_ru))
+              if((pflags&cs_l)&&(pflags&cs_ru))
                 {
-                  in_ru_compound_word=1;
+                  if((nflags&cs_l)&&(nflags&cs_ru))
+                    ustring8_push(word,c);
+                  else
+                    w=letters_to_words(t,r,word);
                 }
               else if((nflags&cs_d)&&(i==0))
                 {
                   w=add_word(t,r,"минус");
+                }
+            }
+          else if(c=='\'')
+            {
+              if((pflags&cs_l)&&(pflags&cs_en))
+                {
+                  if((nflags&cs_l)&&(nflags&cs_en))
+                    ustring8_push(word,c);
+                  else
+                    w=letters_to_words(t,r,word);
                 }
             }
           pc=c;

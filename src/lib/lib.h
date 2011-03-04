@@ -45,14 +45,8 @@ extern "C" {
   extern const char *ru_enc_list[];
   extern const char *ru_h_enc_list[];
 
-  typedef struct ru_user_dict_struct {
-    int size;
-    char*** entries;
-  } ru_user_dict;
-
-  ru_user_dict* ru_user_dict_load(const char*path);
-  void ru_user_dict_free(ru_user_dict* dict);
-  const char** ru_user_dict_lookup(const ru_user_dict* dict,const char* word);
+  void free_user_dict();
+  const uint8_t* user_dict_lookup(const uint8_t* word);
 
   typedef enum {
     cs_sp=1 << 0,               /* space */

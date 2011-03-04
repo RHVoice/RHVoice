@@ -62,7 +62,7 @@ extern "C" {
   RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int length,int is_ssml);
   void RHVoice_delete_message(RHVoice_message message);
   int RHVoice_speak(RHVoice_message message);
-  /* int RHVoice_load_user_dict(const char *path); */
+  int RHVoice_load_user_dict(const char *path);
   void RHVoice_set_rate(float rate);
   float RHVoice_get_rate();
   void RHVoice_set_pitch(float pitch);
