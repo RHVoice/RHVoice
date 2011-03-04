@@ -156,12 +156,15 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_set_pitch.argtypes=(c_float,)
         self.__lib.RHVoice_set_volume.argtypes=(c_float,)
         self.__lib.RHVoice_get_version.restype=c_char_p
+        self.__lib.RHVoice_load_user_dict.argtypes=(c_char_p,)
         self.__silence_flag=threading.Event()
         self.__audio_callback=AudioCallback(self.__lib,self.__silence_flag)
         self.__audio_callback_wrapper=RHVoice_callback(self.__audio_callback)
         sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper)
         if sample_rate==0:
             raise RuntimeError("RHVoice: initialization error")
+        if os.path.isfile(userdict_path):
+            self.__lib.RHVoice_load_user_dict(userdict_path.encode("UTF-8"))
         self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=sample_rate,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
         self.__audio_callback.set_player(self.__player)
         self.__tts_queue=Queue.Queue()
