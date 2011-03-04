@@ -278,29 +278,7 @@ void RHVoice_terminate()
   HTS_Engine_clear(&ru_engine);
   delete_voice(voice);
   voice=NULL;
-}
-
-int RHVoice_load_user_dict(cst_voice *vox,const char *path)
-{
-  ru_user_dict *old_dict=NULL;
-  ru_user_dict *new_dict=NULL;
-  if(vox==NULL)
-    return FALSE;
-  if(path!=NULL)
-    {
-      new_dict=ru_user_dict_load(path);
-      if(new_dict==NULL)
-        return FALSE;
-    }
-  if(feat_present(vox->features,"user_dict"))
-    {
-      old_dict=(ru_user_dict*)val_userdata(feat_val(vox->features,"user_dict"));
-      feat_remove(vox->features,"user_dict");
-      ru_user_dict_free(old_dict);
-    }
-  if(new_dict!=NULL)
-    feat_set(vox->features,"user_dict",userdata_val(new_dict));
-  return TRUE;
+  free_user_dict();
 }
 
 const char *RHVoice_get_version()

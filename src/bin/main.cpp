@@ -204,6 +204,7 @@ int main(int argc,char **argv)
       RHVoice_set_pitch(pitch);
       RHVoice_set_volume(volume);
       RHVoice_set_variant(variant);
+      if(dictpath!=NULL) RHVoice_load_user_dict(dictpath);
       if(is_ssml)
         {
           msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),1);

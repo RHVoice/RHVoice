@@ -13,164 +13,152 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <search.h>
 #include <unistr.h>
 #include <unicase.h>
 #include "lib.h"
+#include "io_utils.h"
+#include "vector.h"
+#include "ustring.h"
 
-static int ru_user_dict_cmp(const void *p1,const void *p2)
-{
-  return u8_strcmp(**((const uint8_t***)p1),**((const uint8_t***)p2));
-}
-
-static cst_val *load_entries(const char *path)
-{
-  cst_tokenstream *ts_lines;
-  ucs4_t ru_a,ru_ya,ru_yo,c;
-  cst_val *entries=NULL;
-  cst_val *entry;
-  const char *line;
-  uint8_t *lcline=NULL;
-  size_t len=0;
-  const uint8_t *word;
+typedef struct {
+  uint8_t *word;
   uint8_t *pron;
-  const uint8_t *entry_delims=(const uint8_t*)" \t";
-  const uint8_t *word_delims=(const uint8_t*)"-";
-  uint8_t *ptr;
-  int only_valid_chars;
-  const uint8_t *s;
-  u8_strmbtouc(&ru_a,(const uint8_t*)"а");
-  u8_strmbtouc(&ru_ya,(const uint8_t*)"я");
-  u8_strmbtouc(&ru_yo,(const uint8_t*)"ё");
-  ts_lines=ts_open(path,"\r\n","","","");
-  if(ts_lines==NULL)
-    return NULL;
-  while(!ts_eof(ts_lines))
+} entry;
+
+vector_t(entry,userdict)
+
+static void entry_free(entry *e)
+{
+  free(e->word);
+  free(e->pron);
+}
+
+static int cmp(const void *p1,const void *p2)
+{
+  const entry *e1=(const entry*)p1;
+  const entry *e2=(const entry*)p2;
+  return u8_strcmp(e1->word,e2->word);
+}
+
+static int load_entry(ustring32_t line,entry *e)
+{
+  ustring32_push(line,'\0');
+  size_t n=ustring32_length(line)-1;
+  unsigned int cs;
+  size_t i;
+  ucs4_t c;
+  for(i=0;i<n;i++)
     {
-      line=ts_get(ts_lines);
-      len=u8_strlen((const uint8_t*)line);
-      if(len==0)
-        break;
-      lcline=u8_tolower((const uint8_t*)line,len,"ru",NULL,NULL,&len);
-      if(lcline==NULL)
-        continue;
-      lcline=(uint8_t*)realloc(lcline,len+1);
-      lcline[len]='\0';
-      ptr=NULL;
-      word=u8_strtok(lcline,entry_delims,&ptr);
-      if((word!=NULL)&&((entries==NULL)||!val_assoc_string((const char*)word,entries)))
+      c=ustring32_at(line,i);
+      cs=classify_character(c);
+      if(!((cs&cs_l)||(c==' ')||(c=='\t')||(c=='+')||(c=='-')))
+        return 0;
+    }
+  uint32_t delims[]={' ','\t','\0'};
+  uint32_t *word,*pron,*ptr;
+  word=u32_strtok(ustring32_str(line),delims,&ptr);
+  if(word==NULL) return 0;
+  pron=u32_strtok(NULL,delims,&ptr);
+  if(pron==NULL) return 0;
+  e->word=u32_to_u8(word,u32_strlen(word)+1,NULL,&n);
+  if(e->word==NULL) return 0;
+  n=u32_strlen(pron);
+  c='\0';
+  for(i=0;i<n;i++)
+    {
+      if((pron[i]=='-')&&(classify_character(c)&cs_l))
+        pron[i]='\0';
+      c=pron[i];
+    }
+  n+=2;
+  pron[n-1]='\0';
+  e->pron=u32_to_u8(pron,n,NULL,&n);
+  if(e->pron==NULL)
+    {
+      free(e->word);
+      return 0;
+    }
+  return 1;
+}
+
+static userdict load_entries(const char *path)
+{
+  FILE *fp=my_fopen(path,"rb");
+  if(fp==NULL) return NULL;
+  ustring32_t line=ustring32_alloc(64);
+  ucs4_t c;
+  unsigned int cs=0;
+  entry e;
+  entry *p;
+  size_t n;
+  userdict d=userdict_alloc(0,entry_free);
+  while((c=ufgetc(fp,NULL,NULL))!=UEOF)
+    {
+      cs=classify_character(c);
+      if(cs&cs_nl)
         {
-          pron=u8_strtok(NULL,entry_delims,&ptr);
-          if(pron!=NULL)
+          if(ustring32_empty(line)) continue;
+          else
             {
-              only_valid_chars=TRUE;
-              for(s=u8_next(&c,pron);s;s=u8_next(&c,s))
+              if(load_entry(line,&e))
                 {
-                  if(!((c>=ru_a&&c<=ru_ya)||(c==ru_yo)||(c=='+')||(c=='-')))
+                  n=userdict_size(d);
+                  if(n>0)
                     {
-                      only_valid_chars=FALSE;
-                      break;
+                      p=(entry*)lfind(&e,userdict_data(d),&n,sizeof(entry),cmp);
+                      if(p!=NULL)
+                        {
+                          entry_free(p);
+                          *p=e;
+                        }
+                      else userdict_push(d,&e);
                     }
+                  else userdict_push(d,&e);
                 }
-              if(only_valid_chars)
-                {
-                  entry=cons_val(string_val((const char*)word),NULL);
-                  ptr=NULL;
-                  for(word=u8_strtok(pron,word_delims,&ptr);word;word=u8_strtok(NULL,word_delims,&ptr))
-                    {
-                      entry=cons_val(string_val((const char*)word),entry);
-                    }
-                  if(val_length(entry)>=2)
-                    entries=cons_val(val_reverse(entry),entries);
-                  else
-                    delete_val(entry);
-                }
+              ustring32_clear(line);
             }
         }
-      free(lcline);
-      lcline=NULL;
+      else ustring32_push(line,uc_tolower(c));
     }
-  ts_close(ts_lines);
-  return val_reverse(entries);
-}
-
-ru_user_dict *ru_user_dict_load(const char *path)
-{
-  ru_user_dict *dict;
-  char ***p1,**p2;
-  const cst_val *l1,*l2;
-  cst_val *entries=load_entries(path);
-  if(entries==NULL)
-    return NULL;
-  dict=(ru_user_dict*)malloc(sizeof(ru_user_dict));
-  if(dict==NULL)
+  ustring32_free(line);
+  fclose(fp);
+  if(userdict_size(d)>0)
     {
-      delete_val(entries);
-      return NULL;
+      qsort(userdict_data(d),userdict_size(d),sizeof(entry),cmp);
+      return d;
     }
-  dict->size=val_length(entries);
-  dict->entries=(char***)calloc(dict->size,sizeof(char**));
-  if(dict->entries==NULL)
-    {
-      delete_val(entries);
-      free(dict);
-      return NULL;
-    }
-  for(l1=entries,p1=dict->entries;l1;l1=val_cdr(l1),p1++)
-    {
-      *p1=(char**)calloc(val_length(val_car(l1))+1,sizeof(char*));
-      if(*p1==NULL)
-        {
-          delete_val(entries);
-          ru_user_dict_free(dict);
-          return NULL;
-        }
-      for(l2=val_car(l1),p2=*p1;l2;l2=val_cdr(l2),p2++)
-        {
-          *p2=(char*)u8_strdup((const uint8_t*)val_string(val_car(l2)));
-          if(*p2==NULL)
-            {
-              delete_val(entries);
-              ru_user_dict_free(dict);
-              return NULL;
-            }
-        }
-    }
-  delete_val(entries);
-  qsort(dict->entries,dict->size,sizeof(char**),ru_user_dict_cmp);
-  return dict;
-}
-
-void ru_user_dict_free(ru_user_dict *dict)
-{
-  int i;
-  char **p;
-  if(dict==NULL)
-    return;
-  if(dict->entries==NULL)
-    return;
-  for(i=0;i<dict->size;i++)
-    {
-      if(dict->entries[i]==NULL)
-        break;
-      for(p=dict->entries[i];*p!=NULL;p++)
-        {
-          free(*p);
-        }
-      free(dict->entries[i]);
-    }
-  free(dict->entries);
-  free(dict);
-}
-
-const char **ru_user_dict_lookup(const ru_user_dict *dict,const char *word)
-{
-  const char *p1=word;
-  const char **p2=&p1;
-  const char ***p=bsearch(&p2,dict->entries,dict->size,sizeof(char**),ru_user_dict_cmp);
-  if(p==NULL)
-    return NULL;
   else
-    return *p;
+    {
+      userdict_free(d);
+      return NULL;
+    }
+}
+
+static userdict dict=NULL;
+
+int RHVoice_load_user_dict(const char *path)
+{
+  userdict d=load_entries(path);
+  if(d==NULL) return 0;
+  if(dict!=NULL) userdict_free(dict);
+  dict=d;
+  return 1;
+}
+
+void free_user_dict()
+{
+  if(dict!=NULL)
+    {
+      userdict_free(dict);
+      dict=NULL;
+    }
+}
+
+const uint8_t *user_dict_lookup(const uint8_t *word)
+{
+  if(dict==NULL) return NULL;
+  entry key={(uint8_t*)word,NULL};
+  const entry *p=(const entry*)bsearch(&key,userdict_data(dict),userdict_size(dict),sizeof(entry),cmp);
+  return (p==NULL)?NULL:(p->pron);
 }
