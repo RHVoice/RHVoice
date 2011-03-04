@@ -812,7 +812,7 @@ DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0803,"r");
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0804,(void *)&en_consonants_lts_lts_rules_0803,0);
 DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0805,"#");
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0806,(void *)&en_consonants_lts_lts_rules_0805,0);
-DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0807,"ee");
+DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0807,"aa");
 DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0808,"r");
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0809,(void *)&en_consonants_lts_lts_rules_0808,0);
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0810,(void *)&en_consonants_lts_lts_rules_0807,(void *)&en_consonants_lts_lts_rules_0809);
@@ -822,7 +822,7 @@ DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0813,(void *)&en_consonant
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0814,0,(void *)&en_consonants_lts_lts_rules_0813);
 DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0815,"r");
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0816,(void *)&en_consonants_lts_lts_rules_0815,0);
-DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0817,"e");
+DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0817,"a");
 DEF_STATIC_CONST_VAL_STRING(en_consonants_lts_lts_rules_0818,"r");
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0819,(void *)&en_consonants_lts_lts_rules_0818,0);
 DEF_STATIC_CONST_VAL_CONS(en_consonants_lts_lts_rules_0820,(void *)&en_consonants_lts_lts_rules_0817,(void *)&en_consonants_lts_lts_rules_0819);
