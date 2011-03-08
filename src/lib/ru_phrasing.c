@@ -113,7 +113,21 @@ cst_utterance *russian_pause_insertion(cst_utterance *u)
   item_set_float(s,"time",time2);
   item_set_float(s,"factor",0);
   s=relation_tail(utt_relation(u,"Segment"));
-  if(get_param_int(u->features,"last",0)&&(item_feat_float(s,"time")==0)&&(item_feat_int(relation_tail(utt_relation(u,"Token")),"break_strength")=='n'))
-    item_set_float(s,"factor",0);
+  if(get_param_int(u->features,"last",0)&&(item_feat_float(s,"time")==0))
+    {
+      if(item_feat_int(relation_tail(utt_relation(u,"Token")),"break_strength")=='n')
+        item_set_float(s,"factor",0);
+      else
+        {
+          const char *p=item_feat_string(relation_tail(utt_relation(u,"Token")),"punc");
+          if(p[0]=='\0')
+            item_set_float(s,"factor",0);
+          else if(strchr(p,'.')||strchr(p,'?')||strchr(p,'!'))
+            item_set_float(s,"factor",1);
+          else if(strchr(p,':')||strchr(p,';'))
+            item_set_float(s,"factor",0.75);
+          else item_set_float(s,"factor",0.5);
+        }
+    }
   return u;
 }
