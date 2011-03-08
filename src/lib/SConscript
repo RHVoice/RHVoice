@@ -5,10 +5,10 @@ local_env.Append(CPPPATH=os.path.join("..","hts_engine_api","include"))
 if "gcc" in local_env["TOOLS"] or "mingw" in local_env["TOOLS"]:
     local_env.Append(CPPFLAGS="-finput-charset=UTF-8")
     local_env.Append(CFLAGS="-Wno-unused-function")
-    if os.path.sep=="\\":
-        local_env.Append(CPPDEFINES=("path_sep",(r'\"\\\%s\"' % os.path.sep)))
-    else:
-        local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
+if os.path.sep=="\\":
+    local_env.Append(CPPDEFINES=("path_sep",(r'\"\\\%s\"' % os.path.sep)))
+else:
+    local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
 local_env.Append(CPPDEFINES=("SONIC_USE_SIN",1))
 lib_name="RHVoice"
 src=Glob("*.c")
