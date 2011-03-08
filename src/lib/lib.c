@@ -59,55 +59,55 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
   state->in_nsamples+=nsamples;
   if(state->in_nsamples>item_feat_int(state->cur_seg,"end"))
     state->cur_seg=item_next(state->cur_seg);
-    int end_of_audio=((!item_next(state->cur_seg))&&(state->in_nsamples==item_feat_int(state->cur_seg,"end")));
-    if(!svector_reserve(state->samples,svector_size(state->samples)+nsamples)) synth_error(state);
-    t=path_to_item(state->cur_seg,"R:Transcription.parent.R:Token.parent");
-    if(t)
-      {
-        volume=item_feat_float(t,"volume");
-        for(i=0;i<nsamples;i++)
-          {
-            fs=(float)samples[i]*volume;
-            if(fs<-32766) s=-32766;
-            else if(fs>32766) s=32766;
-            else s=(short)(fs+0.5);
-            svector_push(state->samples,&s);
-          }
-      }
-    else svector_append(state->samples,samples,nsamples);
-    size=svector_size(state->samples);
-  if((size>=state->min_buff_size)||end_of_audio)
+  int end_of_audio=((!item_next(state->cur_seg))&&(state->in_nsamples==item_feat_int(state->cur_seg,"end")));
+  if(!svector_reserve(state->samples,svector_size(state->samples)+nsamples)) synth_error(state);
+  t=path_to_item(state->cur_seg,"R:Transcription.parent.R:Token.parent");
+  if(t)
     {
-      if(state->stream)
+      volume=item_feat_float(t,"volume");
+      for(i=0;i<nsamples;i++)
         {
-          if(!sonicWriteShortToStream(state->stream,svector_data(state->samples),size))
-            synth_error(state);
+          fs=(float)samples[i]*volume;
+          if(fs<-32766) s=-32766;
+          else if(fs>32766) s=32766;
+          else s=(short)(fs+0.5);
+          svector_push(state->samples,&s);
+        }
+    }
+  else svector_append(state->samples,samples,nsamples);
+  if(state->stream)
+    {
+      if(!sonicWriteShortToStream(state->stream,svector_data(state->samples),svector_size(state->samples)))
+        synth_error(state);
+      svector_clear(state->samples);
+      if(end_of_audio) sonicFlushStream(state->stream);
+      size=sonicSamplesAvailable(state->stream);
+      if((size>0)&&((size>=state->min_buff_size)||end_of_audio))
+        {
           s=0;
-          if(end_of_audio) sonicFlushStream(state->stream);
-          size=sonicSamplesAvailable(state->stream);
           if(!svector_resize(state->samples,size,&s)) synth_error(state);
-          if(size>0)
-            sonicReadShortFromStream(state->stream,svector_data(state->samples),size);
+          sonicReadShortFromStream(state->stream,svector_data(state->samples),size);
         }
-      if(size>0)
+    }
+  size=svector_size(state->samples);
+  if((size>0)&&((size>=state->min_buff_size)||end_of_audio))
+    {
+      for(i=state->event_index;i<state->num_events;i++)
         {
-          for(i=state->event_index;i<state->num_events;i++)
+          d=eventlist_at(state->events,i)->audio_position-state->out_nsamples;
+          if(d>=size)
             {
-              d=eventlist_at(state->events,i)->audio_position-state->out_nsamples;
-              if(d>=size)
-                {
-                  if(end_of_audio) d=size;
-                  else break;
-                }
-              num_events++;
-              eventlist_at(state->events,i)->audio_position=d;
+              if(end_of_audio) d=size;
+              else break;
             }
-          if(num_events>0) events=eventlist_at(state->events,state->event_index);
-          state->last_result=user_callback(svector_data(state->samples),size,events,num_events);
-          state->out_nsamples+=size;
-          state->event_index+=num_events;
-          svector_clear(state->samples);
+          num_events++;
+          eventlist_at(state->events,i)->audio_position=d;
         }
+      if(num_events>0) events=eventlist_at(state->events,state->event_index);
+      state->last_result=user_callback(svector_data(state->samples),size,events,num_events);
+      state->out_nsamples+=size;
+      state->event_index+=num_events;
+      svector_clear(state->samples);
     }
   return end_of_audio?0:(state->last_result);
 }
