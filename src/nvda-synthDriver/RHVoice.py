@@ -134,6 +134,9 @@ class TTSThread(threading.Thread):
             except:
                 log.error("RHVoice: error while processing a message",exc_info=True)
 
+def convert_pitch(pitch):
+    return (50.0+float(pitch-50.0)/2.0)
+
 class SynthDriver(SynthDriver):
     name="RHVoice"
     description="RHVoice"
@@ -188,7 +191,7 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_terminate()
 
     def do_speak(self,text,index=None,is_character=False):
-        fmt_str=u'<speak><voice variant="%s"><prosody rate="%d%%" pitch="%d%%" volume="%d%%">%s%s</prosody></voice></speak>'
+        fmt_str=u'<speak><voice variant="%s"><prosody rate="%d%%" pitch="%f%%" volume="%d%%">%s%s</prosody></voice></speak>'
         if isinstance(index,int):
             mark=u'<mark name="%d"/>' % index
         else:
@@ -196,7 +199,7 @@ class SynthDriver(SynthDriver):
         escaped_text=text.replace("&","&amp;").replace("<","&lt;")
         if is_character:
             escaped_text=u'<say-as interpret-as="characters">%s</say-as>' % escaped_text
-        ssml=fmt_str % (self.__variant,self.__rate,self.__pitch,self.__volume,mark,escaped_text)
+        ssml=fmt_str % (self.__variant,self.__rate,convert_pitch(self.__pitch),self.__volume,mark,escaped_text)
         self.__tts_queue.put(ssml)
 
     def speakText(self,text,index=None):
