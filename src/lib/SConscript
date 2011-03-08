@@ -9,6 +9,7 @@ if "gcc" in local_env["TOOLS"] or "mingw" in local_env["TOOLS"]:
         local_env.Append(CPPDEFINES=("path_sep",(r'\"\\\%s\"' % os.path.sep)))
     else:
         local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
+local_env.Append(CPPDEFINES=("SONIC_USE_SIN",1))
 lib_name="RHVoice"
 src=Glob("*.c")
 if env["PLATFORM"]=="win32":
