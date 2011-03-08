@@ -340,11 +340,11 @@ void CSpTTSEngineImpl::generate_ssml(const SPVTEXTFRAG *frags)
               s << convert_volume(frag->State.Volume);
               s << L"%\">";
               if(frag->State.eAction==SPVA_SpellOut)
-                s << "<say-as interpret-as=\"characters\">";
+                s << L"<say-as interpret-as=\"characters\">";
               frag_map[s.tellp()]=frag;
               write_text_to_stream(s,frag->pTextStart,frag->ulTextLen);
               if(frag->State.eAction==SPVA_SpellOut)
-                s << "</say-as>";
+                s << L"</say-as>";
               s << L"</prosody>";
             }
           break;
