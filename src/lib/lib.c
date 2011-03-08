@@ -440,6 +440,7 @@ static cst_utterance *hts_synth(cst_utterance *u)
       state.stream=sonicCreateStream(ru_engine.global.sampling_rate,1);
       if(state.stream!=NULL)
         sonicSetSpeed(state.stream,rate);
+      sonicSetQuality(state.stream,1);
     }
   state.events=generate_events(u);
   state.num_events=eventlist_size(state.events);
