@@ -403,7 +403,7 @@ int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoic
       long n;
       wstring m;
       wistringstream s;
-      s.exceptions(wistringstream::failbit|wistringstream::badbit|wistringstream::eofbit);
+      s.exceptions(wistringstream::failbit|wistringstream::badbit);
       for(int i=0;i<num_events;i++)
         {
           if(events[i].type==RHVoice_event_mark)
