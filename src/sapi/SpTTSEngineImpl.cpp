@@ -441,9 +441,12 @@ int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoic
             }
           out->AddEvents(&e,1);
         }
-      if(FAILED(out->Write(samples,num_samples*sizeof(short),&bytes_written)))
-        result=0;
-      audio_bytes+=bytes_written;
+      if(samples!=NULL)
+      {
+        if(FAILED(out->Write(samples,num_samples*sizeof(short),&bytes_written)))
+          result=0;
+        audio_bytes+=bytes_written;
+      }
     }
   catch(...)
     {
