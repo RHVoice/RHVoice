@@ -59,6 +59,7 @@ static   std::wstring::const_iterator skip_unichar(std::wstring::const_iterator 
     }
 
   static std::wstring::const_iterator skip_unichars(std::wstring::const_iterator first,size_t n);
+  static unsigned long convert_position(std::wstring::const_iterator ssml_pos);
   static void generate_ssml(const SPVTEXTFRAG *frags);
   static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
   static float get_pitch_factor(int value);
