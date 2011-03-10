@@ -374,6 +374,17 @@ wstring::const_iterator CSpTTSEngineImpl::skip_unichars(wstring::const_iterator 
   return it;
 }
 
+unsigned long CSpTTSEngineImpl::convert_position(wstring::const_iterator ssml_pos)
+{
+  map<size_t,const SPVTEXTFRAG*>::const_iterator it=frag_map.lower_bound(ssml_pos-ssml.begin());
+  if((it==frag_map.end())||
+     (it->first>(ssml_pos-ssml.begin())))
+    it--;
+  wstring::const_iterator frag_start=ssml.begin()+it->first;
+  unsigned long real_pos=it->second->ulTextSrcOffset+((ssml_pos-frag_start)-4*count(frag_start,ssml_pos,L'&'));
+  return real_pos;
+}
+
 int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
 {
   int result=1;
@@ -387,8 +398,8 @@ int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoic
       SPEVENT e;
       e.ulStreamNum=0;
       unsigned long bytes_written=0;
-      map<size_t,const SPVTEXTFRAG*>::const_iterator frag_pos;
-      wstring::const_iterator frag_start,start,end;
+      wstring::const_iterator start,end;
+      unsigned long real_start,real_end;
       long n;
       wstring m;
       wistringstream s;
@@ -431,13 +442,10 @@ int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoic
             {
               start=skip_unichars(ssml.begin(),events[i].text_position-1);
               end=skip_unichars(start,events[i].text_length);
-              e.wParam=end-start-count(start,end,L'&')*4;
-              frag_pos=frag_map.lower_bound(start-ssml.begin());
-              if((frag_pos==frag_map.end())||
-                 (frag_pos->first>(start-ssml.begin())))
-                frag_pos--;
-              frag_start=ssml.begin()+frag_pos->first;
-              e.lParam=frag_pos->second->ulTextSrcOffset+(start-frag_start-count(frag_start,start,L'&'));
+              real_start=convert_position(start);
+              real_end=convert_position(end);
+              e.wParam=real_end-real_start;
+              e.lParam=real_start;
             }
           out->AddEvents(&e,1);
         }
