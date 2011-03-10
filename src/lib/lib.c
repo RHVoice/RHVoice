@@ -474,6 +474,8 @@ int RHVoice_speak(RHVoice_message msg)
       delete_utterance(u);
       if(!last_user_callback_result) break;
     }
+  if(last_user_callback_result)
+    report_final_mark(msg,user_callback);
   return 1;
 }
 

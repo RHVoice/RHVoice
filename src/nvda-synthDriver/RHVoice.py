@@ -100,7 +100,8 @@ class AudioCallback(object):
             if self.__silence_flag.is_set():
                 return 0
             try:
-                self.__player.feed(string_at(samples,num_samples*sizeof(c_short)))
+                if samples:
+                    self.__player.feed(string_at(samples,num_samples*sizeof(c_short)))
             except:
                 log.debugWarning("Error feeding audio to nvWave",exc_info=True)
             return 1

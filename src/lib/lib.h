@@ -76,6 +76,7 @@ extern "C" {
   const char *character_name(ucs4_t c);
 
   cst_utterance *next_utt_from_message(RHVoice_message msg);
+  int report_final_mark(RHVoice_message message,RHVoice_callback callback);
 
 #ifdef __cplusplus
 }

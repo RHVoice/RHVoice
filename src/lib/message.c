@@ -65,10 +65,22 @@ typedef struct {
   float silence;
 } mark;
 
-void mark_free(mark *m)
+static void mark_free(mark *m)
 {
   if(m==NULL) return;
   free(m->name);
+}
+
+static int report_mark(mark *m,RHVoice_message msg,RHVoice_callback f)
+{
+  RHVoice_event e;
+  e.message=msg;
+  e.type=RHVoice_event_mark;
+  e.audio_position=0;
+  e.text_position=m->pos+1;
+  e.text_length=0;
+  e.id.name=(const char*)m->name;
+  return f(NULL,0,&e,1);
 }
 
 vector_t(mark,marklist)
@@ -1096,7 +1108,7 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
         {
           m=marklist_at(msg->marks,tok->mark_index);
           item_set_string(i,"mark_name",(const char*)m->name);
-          item_set_int(i,"mark_position",m->pos);
+          item_set_int(i,"mark_position",m->pos+1);
         }
       if(tok->say_as!=0)
         {
@@ -1110,6 +1122,25 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   msg->pos=last-front+1;
   ustring8_free(str8);
   return u;
+}
+
+int report_final_mark(RHVoice_message message,RHVoice_callback callback)
+{
+  int result=1;
+  size_t num_marks=marklist_size(message->marks);
+  size_t num_tokens=toklist_size(message->tokens);
+  size_t i;
+  mark *m;
+  for(i=0;i<num_marks;i++)
+    {
+      m=marklist_at(message->marks,i);
+      if(m->next_token_index==num_tokens)
+        {
+          result=report_mark(m,message,callback);
+          if(!result) break;
+        }
+    }
+  return result;
 }
 
 void RHVoice_set_rate(float rate)
