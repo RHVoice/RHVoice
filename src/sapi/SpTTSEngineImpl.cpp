@@ -319,7 +319,7 @@ void CSpTTSEngineImpl::write_text_to_stream(wostringstream& s,const wchar_t *tex
       else if(text[i]==L'"')
         s << L"&#34;";
       else if(text[i]==L'\r')
-    s << L"&#10;";
+    s << L"&#13;";
       else
         s.put(text[i]);
     }
