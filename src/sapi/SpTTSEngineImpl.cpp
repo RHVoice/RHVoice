@@ -78,18 +78,22 @@ float CSpTTSEngineImpl::rate_table[21]={0.333333,
                                         2.687875,
                                         3.000000};
 unsigned long long CSpTTSEngineImpl::audio_bytes=0;
+int CSpTTSEngineImpl::sample_rate=0;
 
 CSpTTSEngineImpl::CSpTTSEngineImpl()
 {
   ref_count=0;
   InterlockedIncrement(&svr_ref_count);
-  sample_rate=0;
 }
 
 CSpTTSEngineImpl::~CSpTTSEngineImpl()
 {
   InterlockedDecrement(&svr_ref_count);
-  if(sample_rate!=0) RHVoice_terminate();
+  if((sample_rate!=0)&&(svr_ref_count==0))
+    {
+      RHVoice_terminate();
+      sample_rate=0;
+    }
 }
 
 STDMETHODIMP_(ULONG) CSpTTSEngineImpl::AddRef()
@@ -216,25 +220,27 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
       if(pToken==NULL)
         return E_INVALIDARG;
       object_token.Attach(pToken,true);
-      wchar_t *voice_path_w=NULL;
-      if(FAILED(pToken->GetStringValue(L"VoicePath",&voice_path_w)))
-        return E_FAIL;
-      string voice_path;
-      try
-        {
-          voice_path=wstring_to_string(voice_path_w);
-        }
-      catch(...)
-        {
-          CoTaskMemFree(voice_path_w);
-          throw;
-        }
-      CoTaskMemFree(voice_path_w);
-      voice_path_w=NULL;
-      if(sample_rate!=0) RHVoice_terminate();
-      sample_rate=RHVoice_initialize(voice_path.c_str(),callback);
       if(sample_rate==0)
-        return E_FAIL;
+        {
+          wchar_t *voice_path_w=NULL;
+          if(FAILED(pToken->GetStringValue(L"VoicePath",&voice_path_w)))
+            return E_FAIL;
+          string voice_path;
+          try
+            {
+              voice_path=wstring_to_string(voice_path_w);
+            }
+          catch(...)
+            {
+              CoTaskMemFree(voice_path_w);
+              throw;
+            }
+          CoTaskMemFree(voice_path_w);
+          voice_path_w=NULL;
+          sample_rate=RHVoice_initialize(voice_path.c_str(),callback);
+          if(sample_rate==0)
+            return E_FAIL;
+        }
     }
   catch(bad_alloc&)
     {
