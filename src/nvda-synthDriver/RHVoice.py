@@ -54,7 +54,7 @@ class RHVoice_event(Structure):
               ("audio_position",c_int),
               ("id",RHVoice_event_id)]
 
-RHVoice_callback=CFUNCTYPE(c_int,POINTER(c_short),c_int,POINTER(RHVoice_event),c_int)
+RHVoice_callback=CFUNCTYPE(c_int,POINTER(c_short),c_int,POINTER(RHVoice_event),c_int,RHVoice_message)
 
 class Message(object):
     def __init__(self,lib,text):
@@ -90,7 +90,7 @@ class AudioCallback(object):
     def set_player(self,player):
         self.__player=player
 
-    def __call__(self,samples,num_samples,events,num_events):
+    def __call__(self,samples,num_samples,events,num_events,message):
         try:
             if num_events > 0:
                 for i in xrange(num_events):

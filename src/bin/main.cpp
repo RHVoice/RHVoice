@@ -69,7 +69,7 @@ static void write_wave_header()
 
 static int wave_header_written=0;
 
-int static callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
+int static callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message msg)
 {
   if(!samples)
     return 1;

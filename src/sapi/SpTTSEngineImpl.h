@@ -44,10 +44,10 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
   ULONG ref_count;
   ISpObjectTokenPtr object_token;
   static int sample_rate;
-  static std::wstring ssml;
-  static std::map<size_t,const SPVTEXTFRAG*> frag_map;
-  static ISpTTSEngineSite *out;
-  static unsigned long long audio_bytes;
+  std::wstring ssml;
+  std::map<size_t,const SPVTEXTFRAG*> frag_map;
+  ISpTTSEngineSite *out;
+  unsigned long long audio_bytes;
   static float pitch_table[];
   static float rate_table[];
 
@@ -58,15 +58,17 @@ static   std::wstring::const_iterator skip_unichar(std::wstring::const_iterator 
       return ((*it<0xd800)||(*it>=0xe000))?(it+1):(it+2);
     }
 
-  static std::wstring::const_iterator skip_unichars(std::wstring::const_iterator first,size_t n);
-  static unsigned long convert_position(std::wstring::const_iterator ssml_pos);
-  static void generate_ssml(const SPVTEXTFRAG *frags);
-  static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
+  std::wstring::const_iterator skip_unichars(std::wstring::const_iterator first,size_t n);
+  unsigned long convert_position(std::wstring::const_iterator ssml_pos);
+  void generate_ssml(const SPVTEXTFRAG *frags);
+  static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
+  int real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
   static float get_pitch_factor(int value);
   static float get_rate_factor(int value);
   static float convert_volume(unsigned int value);
-  static void set_rate();
-  static void set_volume();
+  void set_rate();
+  void set_volume();
+  int get_sample_rate();
 };
 
 #endif

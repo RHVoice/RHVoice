@@ -1,4 +1,4 @@
-/* Copyright (C) 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -63,6 +63,7 @@ BOOL APIENTRY DllMain(HINSTANCE hInstance,DWORD dwReason,LPVOID lpReserved)
     {
     case DLL_PROCESS_ATTACH:
       dll_handle=hInstance;
+      InitializeCriticalSection(&init_mutex);
       break;
     case DLL_THREAD_ATTACH:
       _set_se_translator(exception_handler);

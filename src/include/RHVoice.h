@@ -50,7 +50,7 @@ extern "C" {
     } id;
   } RHVoice_event;
 
-  typedef int (*RHVoice_callback)(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
+  typedef int (*RHVoice_callback)(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
 
   /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
@@ -77,6 +77,8 @@ extern "C" {
 
   void RHVoice_set_variant(RHVoice_variant variant);
   RHVoice_variant RHVoice_get_variant();
+  void RHVoice_set_user_data(RHVoice_message message,void *data);
+  void *RHVoice_get_user_data(RHVoice_message message);
 
   const char *RHVoice_get_version();
 
