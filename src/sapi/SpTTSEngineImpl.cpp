@@ -32,9 +32,8 @@ using std::min;
 using std::max;
 using std::count;
 
-map<size_t,const SPVTEXTFRAG*> CSpTTSEngineImpl::frag_map=map<size_t,const SPVTEXTFRAG*>();
-ISpTTSEngineSite *CSpTTSEngineImpl::out=NULL;
-wstring CSpTTSEngineImpl::ssml=wstring();
+CRITICAL_SECTION init_mutex;
+
 float CSpTTSEngineImpl::pitch_table[21]={0.749154,
                                          0.771105,
                                          0.793701,
@@ -77,7 +76,6 @@ float CSpTTSEngineImpl::rate_table[21]={0.333333,
                                         2.408225,
                                         2.687875,
                                         3.000000};
-unsigned long long CSpTTSEngineImpl::audio_bytes=0;
 int CSpTTSEngineImpl::sample_rate=0;
 
 CSpTTSEngineImpl::CSpTTSEngineImpl()
@@ -89,11 +87,6 @@ CSpTTSEngineImpl::CSpTTSEngineImpl()
 CSpTTSEngineImpl::~CSpTTSEngineImpl()
 {
   InterlockedDecrement(&svr_ref_count);
-  if((sample_rate!=0)&&(svr_ref_count==0))
-    {
-      RHVoice_terminate();
-      sample_rate=0;
-    }
 }
 
 STDMETHODIMP_(ULONG) CSpTTSEngineImpl::AddRef()
@@ -142,16 +135,19 @@ STDMETHODIMP CSpTTSEngineImpl::Speak(DWORD dwSpeakFlags,REFGUID rguidFormatId,co
     {
       if((pTextFragList==NULL)||(pOutputSite==NULL))
         return E_INVALIDARG;
-      if(sample_rate==0)
+      if(get_sample_rate()==0)
         return E_UNEXPECTED;
       out=pOutputSite;
+      ssml.clear();
+      frag_map.clear();
+      audio_bytes=0;
       set_rate();
       set_volume();
       RHVoice_set_pitch(50);
       generate_ssml(pTextFragList);
       RHVoice_message msg=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
       if(msg==NULL) return E_FAIL;
-      audio_bytes=0;
+      RHVoice_set_user_data(msg,this);
       try
         {
           RHVoice_speak(msg);
@@ -185,7 +181,7 @@ STDMETHODIMP CSpTTSEngineImpl::GetOutputFormat(const GUID *pTargetFmtId,const WA
     {
       if((pOutputFormatId==NULL)||(ppCoMemOutputWaveFormatEx==NULL))
         return E_INVALIDARG;
-      if(sample_rate==0)
+      if(get_sample_rate()==0)
         return E_UNEXPECTED;
       *pOutputFormatId=SPDFID_WaveFormatEx;
       *ppCoMemOutputWaveFormatEx=NULL;
@@ -194,7 +190,7 @@ STDMETHODIMP CSpTTSEngineImpl::GetOutputFormat(const GUID *pTargetFmtId,const WA
         return E_OUTOFMEMORY;
       pwfex->wFormatTag=0x0001;
       pwfex->nChannels=1;
-      pwfex->nSamplesPerSec=sample_rate;
+      pwfex->nSamplesPerSec=get_sample_rate();
       pwfex->wBitsPerSample=16;
       pwfex->nBlockAlign=pwfex->nChannels*pwfex->wBitsPerSample/8;
       pwfex->nAvgBytesPerSec=pwfex->nSamplesPerSec*pwfex->nBlockAlign;
@@ -220,7 +216,7 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
       if(pToken==NULL)
         return E_INVALIDARG;
       object_token.Attach(pToken,true);
-      if(sample_rate==0)
+      if(get_sample_rate()==0)
         {
           wchar_t *voice_path_w=NULL;
           if(FAILED(pToken->GetStringValue(L"VoicePath",&voice_path_w)))
@@ -237,9 +233,19 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             }
           CoTaskMemFree(voice_path_w);
           voice_path_w=NULL;
-          sample_rate=RHVoice_initialize(voice_path.c_str(),callback);
-          if(sample_rate==0)
-            return E_FAIL;
+          EnterCriticalSection(&init_mutex);
+          try
+            {
+              if(sample_rate==0)
+                sample_rate=RHVoice_initialize(voice_path.c_str(),callback);
+              if(sample_rate==0) result=E_FAIL;
+            }
+          catch(...)
+            {
+              LeaveCriticalSection(&init_mutex);
+              throw;
+            }
+          LeaveCriticalSection(&init_mutex);
         }
     }
   catch(bad_alloc&)
@@ -393,7 +399,13 @@ unsigned long CSpTTSEngineImpl::convert_position(wstring::const_iterator ssml_po
   return real_pos;
 }
 
-int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
+int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message)
+{
+  CSpTTSEngineImpl *obj=static_cast<CSpTTSEngineImpl*>(RHVoice_get_user_data(message));
+  return obj->real_callback(samples,num_samples,events,num_events);
+}
+
+int CSpTTSEngineImpl::real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
 {
   int result=1;
   try
@@ -469,4 +481,13 @@ int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoic
       result=0;
     }
   return result;
+}
+
+int CSpTTSEngineImpl::get_sample_rate()
+{
+  int r=0;
+  EnterCriticalSection(&init_mutex);
+  r=sample_rate;
+  LeaveCriticalSection(&init_mutex);
+  return r;
 }

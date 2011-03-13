@@ -1,4 +1,4 @@
-/* Copyright (C) 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -13,12 +13,19 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef GLOBAL_H
-#define GLOBAL_H
-
+#ifdef WIN32
 #include <windows.h>
 
-extern ULONG svr_ref_count;
-extern CRITICAL_SECTION init_mutex;
-
+typedef CRITICAL_SECTION MUTEX;
+#define INIT_MUTEX(m) InitializeCriticalSection(m)
+#define DESTROY_MUTEX(m) DeleteCriticalSection(m)
+#define LOCK_MUTEX(m) EnterCriticalSection(m)
+#define UNLOCK_MUTEX(m) LeaveCriticalSection(m)
+#else
+#include <pthread.h>
+typedef pthread_mutex_t MUTEX;
+#define INIT_MUTEX(m) pthread_mutex_init(m,NULL)
+#define DESTROY_MUTEX(m) pthread_mutex_destroy(m)
+#define LOCK_MUTEX(m) pthread_mutex_lock(m)
+#define UNLOCK_MUTEX(m) pthread_mutex_unlock(m)
 #endif

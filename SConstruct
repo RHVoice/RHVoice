@@ -122,6 +122,8 @@ if enable_config:
         print "Error: cannot link with expat"
         exit(1)
     env.PrependUnique(LIBS="expat")
+    if env["PLATFORM"]=="win32":
+        env.AppendUnique(LIBS="kernel32")
     env=conf.Finish()
     if env["PLATFORM"]=="win32":
         sapi_conf=sapi_env.Configure(conf_dir=os.path.join(BUILDDIR,"sapi_configure_tests"),

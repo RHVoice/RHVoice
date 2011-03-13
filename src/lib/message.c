@@ -80,7 +80,7 @@ static int report_mark(mark *m,RHVoice_message msg,RHVoice_callback f)
   e.text_position=m->pos+1;
   e.text_length=0;
   e.id.name=(const char*)m->name;
-  return f(NULL,0,&e,1);
+  return f(NULL,0,&e,1,msg);
 }
 
 vector_t(mark,marklist)
@@ -366,6 +366,7 @@ struct RHVoice_message_s
   marklist marks;
   size_t pos;
   float silence;
+  void *user_data;
 };
 
 static RHVoice_message RHVoice_message_alloc(void)
@@ -373,6 +374,7 @@ static RHVoice_message RHVoice_message_alloc(void)
   RHVoice_message msg=(RHVoice_message)malloc(sizeof(struct RHVoice_message_s));
   if(msg==NULL) goto err0;
   msg->pos=0;
+  msg->user_data=NULL;
   msg->silence=0;
   msg->tokens=toklist_alloc(16,token_free);
   if(msg->tokens==NULL) goto err1;
@@ -1181,4 +1183,14 @@ void RHVoice_set_variant(RHVoice_variant variant)
 RHVoice_variant RHVoice_get_variant()
 {
   return current_variant;
+}
+
+void RHVoice_set_user_data(RHVoice_message message,void *data)
+{
+  message->user_data=data;
+}
+
+void *RHVoice_get_user_data(RHVoice_message message)
+{
+  return message->user_data;
 }
