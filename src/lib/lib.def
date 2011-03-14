@@ -17,3 +17,6 @@ RHVoice_get_version
 RHVoice_load_user_dict
 RHVoice_set_user_data
 RHVoice_get_user_data
+RHVoice_set_message_rate
+RHVoice_set_message_pitch
+RHVoice_set_message_volume

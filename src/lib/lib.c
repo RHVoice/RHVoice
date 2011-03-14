@@ -23,7 +23,6 @@
 #include "lib.h"
 #include "vector.h"
 #include "io_utils.h"
-#include "mutex.h"
 
 static const char *lib_version=VERSION;
 
@@ -298,6 +297,7 @@ int RHVoice_initialize(const char *path,RHVoice_callback callback)
   pool.engine_resources=reslist_alloc(0,engine_resource_free);
   if(pool.engine_resources==NULL) goto err2;
   INIT_MUTEX(&pool.mutex);
+  INIT_MUTEX(&settings_mutex);
   return 16000;
   err2: free(pool.data_path);pool.data_path=NULL;
   err1: delete_voice(voice);voice=NULL;
@@ -307,6 +307,7 @@ int RHVoice_initialize(const char *path,RHVoice_callback callback)
 void RHVoice_terminate()
 {
   if(voice==NULL) return;
+  DESTROY_MUTEX(&settings_mutex);
   DESTROY_MUTEX(&pool.mutex);
   reslist_free(pool.engine_resources);
   pool.engine_resources=NULL;

@@ -141,12 +141,12 @@ STDMETHODIMP CSpTTSEngineImpl::Speak(DWORD dwSpeakFlags,REFGUID rguidFormatId,co
       ssml.clear();
       frag_map.clear();
       audio_bytes=0;
-      set_rate();
-      set_volume();
-      RHVoice_set_pitch(50);
       generate_ssml(pTextFragList);
       RHVoice_message msg=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
       if(msg==NULL) return E_FAIL;
+      set_rate(msg);
+      RHVoice_set_message_pitch(msg,50);
+      set_volume(msg);
       RHVoice_set_user_data(msg,this);
       try
         {
@@ -295,11 +295,11 @@ float CSpTTSEngineImpl::get_rate_factor(int value)
   return rate_table[max(-10,min(10,value))+10];
 }
 
-void CSpTTSEngineImpl::set_rate()
+void CSpTTSEngineImpl::set_rate(RHVoice_message message)
 {
-  long rate;
+  long rate=0;
   out->GetRate(&rate);
-  RHVoice_set_rate(20.0*get_rate_factor(rate));
+  RHVoice_set_message_rate(message,20.0*get_rate_factor(rate));
 }
 
 float CSpTTSEngineImpl::convert_volume(unsigned int value)
@@ -307,11 +307,11 @@ float CSpTTSEngineImpl::convert_volume(unsigned int value)
   return value>100?100:value;
 }
 
-void CSpTTSEngineImpl::set_volume()
+void CSpTTSEngineImpl::set_volume(RHVoice_message message)
 {
-  unsigned short volume;
+  unsigned short volume=0;
   out->GetVolume(&volume);
-  RHVoice_set_volume(convert_volume(volume));
+  RHVoice_set_message_volume(message,convert_volume(volume));
 }
 
 void CSpTTSEngineImpl::write_text_to_stream(wostringstream& s,const wchar_t *text,size_t len)
@@ -402,10 +402,10 @@ unsigned long CSpTTSEngineImpl::convert_position(wstring::const_iterator ssml_po
 int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message)
 {
   CSpTTSEngineImpl *obj=static_cast<CSpTTSEngineImpl*>(RHVoice_get_user_data(message));
-  return obj->real_callback(samples,num_samples,events,num_events);
+  return obj->real_callback(samples,num_samples,events,num_events,message);
 }
 
-int CSpTTSEngineImpl::real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
+int CSpTTSEngineImpl::real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message)
 {
   int result=1;
   try
@@ -413,8 +413,8 @@ int CSpTTSEngineImpl::real_callback(const short *samples,int num_samples,const R
       DWORD a=out->GetActions();
       if(a&SPVES_ABORT) return 0;
       if(a&SPVES_SKIP) return 0;
-      if(a&SPVES_RATE) set_rate();
-      if(a&SPVES_VOLUME) set_volume();
+      if(a&SPVES_RATE) set_rate(message);
+      if(a&SPVES_VOLUME) set_volume(message);
       SPEVENT e;
       e.ulStreamNum=0;
       unsigned long bytes_written=0;

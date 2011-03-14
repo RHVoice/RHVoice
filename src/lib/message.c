@@ -33,6 +33,7 @@
 #define volume_max 2.0
 #define ext_volume_default 50.0
 
+MUTEX settings_mutex;
 static float ext_rate=ext_rate_default;
 static float ext_pitch=ext_pitch_default;
 static float ext_volume=ext_volume_default;
@@ -367,6 +368,7 @@ struct RHVoice_message_s
   size_t pos;
   float silence;
   void *user_data;
+  float rate,pitch,volume;
 };
 
 static RHVoice_message RHVoice_message_alloc(void)
@@ -375,6 +377,9 @@ static RHVoice_message RHVoice_message_alloc(void)
   if(msg==NULL) goto err0;
   msg->pos=0;
   msg->user_data=NULL;
+  msg->rate=-1;
+  msg->pitch=-1;
+  msg->volume=-1;
   msg->silence=0;
   msg->tokens=toklist_alloc(16,token_free);
   if(msg->tokens==NULL) goto err1;
@@ -1055,12 +1060,15 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   feat_set_int(u->features,"length",last->pos-first->pos+last->len);
   feat_set_int(u->features,"number",first->sentence_number);
   feat_set(u->features,"message",userdata_val(msg));
-  float rate=prosody_check_range((ext_rate/ext_rate_default)*first->prosody.rate.value,rate_min,rate_max);
+  float ext_msg_rate=(msg->rate==-1)?RHVoice_get_rate():msg->rate;
+  float ext_msg_pitch=(msg->pitch==-1)?RHVoice_get_pitch():msg->pitch;
+  float ext_msg_volume=(msg->volume==-1)?RHVoice_get_volume():msg->volume;
+  float rate=prosody_check_range((ext_msg_rate/ext_rate_default)*first->prosody.rate.value,rate_min,rate_max);
   feat_set_float(u->features,"rate",rate);
   float pitch;
-  float def_pitch=ext_pitch/ext_pitch_default;
+  float def_pitch=ext_msg_pitch/ext_pitch_default;
   float volume;
-  float def_volume=ext_volume/ext_volume_default;
+  float def_volume=ext_msg_volume/ext_volume_default;
   float initial_silence=(first==front)?0:first->silence;
   float final_silence=((last==back)?msg->silence:toklist_at(msg->tokens,(last-front)+1)->silence)-initial_silence;
   feat_set_float(u->features,"silence_time",final_silence);
@@ -1118,7 +1126,7 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
           if(tok->say_as_format!=NULL)
             item_set_string(i,"say_as_format",(const char*)tok->say_as_format);
         }
-      item_set_int(i,"variant",(tok->variant?tok->variant:current_variant));
+      item_set_int(i,"variant",(tok->variant?tok->variant:RHVoice_get_variant()));
     }
   if(last==back) feat_set_int(u->features,"last",1);
   msg->pos=last-front+1;
@@ -1147,42 +1155,69 @@ int report_final_mark(RHVoice_message message,RHVoice_callback callback)
 
 void RHVoice_set_rate(float rate)
 {
+  LOCK_MUTEX(&settings_mutex);
   ext_rate=(rate>100)?100:((rate<0)?0:rate);
+  UNLOCK_MUTEX(&settings_mutex);
 }
 
 float RHVoice_get_rate()
 {
-  return ext_rate;
+  float r=20;
+  LOCK_MUTEX(&settings_mutex);
+  r=ext_rate;
+  UNLOCK_MUTEX(&settings_mutex);
+  return r;
 }
 
 void RHVoice_set_pitch(float pitch)
 {
+  LOCK_MUTEX(&settings_mutex);
   ext_pitch=(pitch>100)?100:((pitch<0)?0:pitch);
+  UNLOCK_MUTEX(&settings_mutex);
 }
 
 float RHVoice_get_pitch()
 {
-  return ext_pitch;
+  float p=50;
+  LOCK_MUTEX(&settings_mutex);
+  p=ext_pitch;
+  UNLOCK_MUTEX(&settings_mutex);
+  return p;
 }
 
 void RHVoice_set_volume(float volume)
 {
+  LOCK_MUTEX(&settings_mutex);
   ext_volume=(volume>100)?100:((volume<0)?0:volume);
+  UNLOCK_MUTEX(&settings_mutex);
 }
 
 float RHVoice_get_volume()
 {
-  return ext_volume;
+  float v=50;
+  LOCK_MUTEX(&settings_mutex);
+  v=ext_volume;
+  UNLOCK_MUTEX(&settings_mutex);
+  return v;
 }
 
 void RHVoice_set_variant(RHVoice_variant variant)
 {
-  if((variant>0)&&(variant<3)) current_variant=variant;
+  if((variant>0)&&(variant<3))
+    {
+      LOCK_MUTEX(&settings_mutex);
+      current_variant=variant;
+      UNLOCK_MUTEX(&settings_mutex);
+    }
 }
 
 RHVoice_variant RHVoice_get_variant()
 {
-  return current_variant;
+  RHVoice_variant v=RHVoice_variant_pseudo_english;
+  LOCK_MUTEX(&settings_mutex);
+  v=current_variant;
+  UNLOCK_MUTEX(&settings_mutex);
+  return v;
 }
 
 void RHVoice_set_user_data(RHVoice_message message,void *data)
@@ -1193,4 +1228,19 @@ void RHVoice_set_user_data(RHVoice_message message,void *data)
 void *RHVoice_get_user_data(RHVoice_message message)
 {
   return message->user_data;
+}
+
+void RHVoice_set_message_rate(RHVoice_message message,float rate)
+{
+  message->rate=(rate<0)?0:((rate>100)?100:rate);
+}
+
+void RHVoice_set_message_pitch(RHVoice_message message,float pitch)
+{
+  message->pitch=(pitch<0)?0:((pitch>100)?100:pitch);
+}
+
+void RHVoice_set_message_volume(RHVoice_message message,float volume)
+{
+  message->volume=(volume<0)?0:((volume>100)?100:volume);
 }
