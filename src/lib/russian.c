@@ -15,8 +15,6 @@
 #include <unistr.h>
 #include "lib.h"
 
-cst_lexicon *cmu_lex_init();
-
 const char *ru_proc_list[]={"а","без","безо","в","во","для","до","за","и","из",
                             "изо","из-за","из-под","к","ко","меж","на","над",
                             "не","ни","о","об","обо","от","ото","перед",
@@ -130,18 +128,20 @@ const char *russian_vpair(const char *ph)
   return NULL;
 }
 
-void russian_init(cst_voice *v)
+void russian_init(cst_utterance *u)
 {
-    feat_set(v->features,"phoneset",phoneset_val(&ru_phoneset));
-    feat_set_string(v->features,"silence",ru_phoneset.silence);
-    feat_set(v->features,"textanalysis_func",uttfunc_val(&russian_textanalysis));
-    feat_set(v->features,"lexical_insertion_func",uttfunc_val(&russian_lexical_insertion));
-    feat_set(v->features,"phrasing_func",uttfunc_val(&russian_phrasify));
-    feat_set(v->features,"pause_insertion_func",uttfunc_val(&russian_pause_insertion));
-    feat_set(v->features,"intonation_func",uttfunc_val(&do_nothing));
-    feat_set(v->features,"postlex_func",uttfunc_val(russian_postlex_function));
-    feat_set(v->features,"duration_model_func",uttfunc_val(do_nothing));
-    feat_set(v->features,"f0_model_func",uttfunc_val(do_nothing));
-    feat_set(v->features,"cmu_lex",lexicon_val(cmu_lex_init()));
-    ru_ff_register(v->ffunctions);
+  feat_set(u->features,"phoneset",phoneset_val(&ru_phoneset));
+  feat_set_string(u->features,"silence",ru_phoneset.silence);
+  feat_set(u->features,"textanalysis_func",uttfunc_val(&russian_textanalysis));
+  feat_set(u->features,"lexical_insertion_func",uttfunc_val(&russian_lexical_insertion));
+  feat_set(u->features,"phrasing_func",uttfunc_val(&russian_phrasify));
+  feat_set(u->features,"pause_insertion_func",uttfunc_val(&russian_pause_insertion));
+  feat_set(u->features,"intonation_func",uttfunc_val(&do_nothing));
+  feat_set(u->features,"postlex_func",uttfunc_val(russian_postlex_function));
+  feat_set(u->features,"duration_model_func",uttfunc_val(do_nothing));
+  feat_set(u->features,"f0_model_func",uttfunc_val(do_nothing));
+  feat_set_string(u->features,"no_segment_duration_model","1");
+  feat_set_string(u->features,"no_f0_target_model","1");
+  feat_set(u->features,"wave_synth_func",uttfunc_val(&hts_synth));
+  ru_ff_register(u->ffunctions);
 }

@@ -149,7 +149,6 @@ static cst_val* word_to_phones(const cst_item *word)
       return NULL;
     }
   unsigned int flags=classify_characters(ustring32_str(letters),ustring32_length(letters));
-  cst_lexicon *cmu_lex=val_lexicon(feat_val(item_utt(word)->features,"cmu_lex"));
   int variant=item_feat_int(item_parent(item_as(word,"Token")),"variant");
   if((flags&cs_lc)&&cst_streq(ffeature_string(word,"gpos"),"content"))
     {
@@ -160,7 +159,7 @@ static cst_val* word_to_phones(const cst_item *word)
     }
   else if((variant==RHVoice_variant_pseudo_english)&&(flags&cs_en))
     {
-      cst_val *en_phones=lex_lookup(cmu_lex,name,(cst_streq(name,"a")?"n":NULL));
+      cst_val *en_phones=lex_lookup(en_lex,name,(cst_streq(name,"a")?"n":NULL));
       if(en_phones)
         {
           phones=ru_lts_apply(en_phones,&ru_en_lts);
