@@ -24,9 +24,12 @@
 #include "vector.h"
 #include "io_utils.h"
 
+cst_lexicon *cmu_lex_init();
+
 static const char *lib_version=VERSION;
 
-static cst_voice *voice=NULL;
+static int initialized=0;
+cst_lexicon *en_lex=NULL;
 
 static RHVoice_callback user_callback=NULL;
 
@@ -118,7 +121,6 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
 
 static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_files]);
 static void close_hts_data_files(FILE *file_list[num_hts_data_files]);
-static cst_utterance *hts_synth(cst_utterance *utt);
 
 typedef struct
 {
@@ -285,37 +287,30 @@ int RHVoice_initialize(const char *path,RHVoice_callback callback)
 {
   if((path==NULL)||(callback==NULL)) return 0;
   user_callback=callback;
-  voice = new_voice();
-  if(voice==NULL) goto err0;
-  russian_init(voice);
-  feat_set_string(voice->features,"name","Russian HTS voice");
-  feat_set_string(voice->features,"no_segment_duration_model","1");
-  feat_set_string(voice->features,"no_f0_target_model","1");
-  feat_set(voice->features,"wave_synth_func",uttfunc_val(&hts_synth));
+  if(en_lex==NULL) en_lex=cmu_lex_init();
   pool.data_path=(char*)u8_strdup((const uint8_t*)path);
   if(pool.data_path==NULL) goto err1;
   pool.engine_resources=reslist_alloc(0,engine_resource_free);
   if(pool.engine_resources==NULL) goto err2;
   INIT_MUTEX(&pool.mutex);
   INIT_MUTEX(&settings_mutex);
+  initialized=1;
   return 16000;
   err2: free(pool.data_path);pool.data_path=NULL;
-  err1: delete_voice(voice);voice=NULL;
-  err0: return 0;
+  err1: return 0;
 }
 
 void RHVoice_terminate()
 {
-  if(voice==NULL) return;
+  if(!initialized) return;
   DESTROY_MUTEX(&settings_mutex);
   DESTROY_MUTEX(&pool.mutex);
   reslist_free(pool.engine_resources);
   pool.engine_resources=NULL;
   free(pool.data_path);
   pool.data_path=NULL;
-  delete_voice(voice);
-  voice=NULL;
   free_user_dict();
+  initialized=0;
 }
 
 HTS_Engine *get_engine()
@@ -431,7 +426,7 @@ static eventlist generate_events(cst_utterance *u)
   return events;
 }
 
-static cst_utterance *hts_synth(cst_utterance *u)
+cst_utterance *hts_synth(cst_utterance *u)
 {
   HTS_LabelString *lstring=NULL;
   double *dur_mean,*dur_vari,local_dur;
@@ -577,11 +572,11 @@ int RHVoice_speak(RHVoice_message msg)
 {
   int last_user_callback_result=1;
   if(msg==NULL) return 0;
-  if(voice==NULL) return 0;
+  if(!initialized) return 0;
   cst_utterance *u;
   for(u=next_utt_from_message(msg);u;u=next_utt_from_message(msg))
     {
-      utt_init(u,voice);
+      russian_init(u);
       utt_synth_tokens(u);
       last_user_callback_result=get_param_int(u->features,"last_user_callback_result",1);
       delete_utterance(u);
