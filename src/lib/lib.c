@@ -454,20 +454,32 @@ static cst_utterance *hts_synth(cst_utterance *u)
   float final_pause_limit=0.25*frames_per_sec/((rate<=2)?rate:1);
   float factor,time;
   for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
-  if(nlabels==0) return NULL;
+  if(nlabels==0)
+    {
+      release_engine(engine);
+      return NULL;
+    }
   create_hts_labels(u);
   s=relation_head(utt_relation(u,"Segment"));
   if((item_feat_float(s,"factor")==0)&&(item_feat_float(s,"time")==0))
     {
       nlabels--;
-      if(nlabels==0) return NULL;
+      if(nlabels==0)
+        {
+          release_engine(engine);
+          return NULL;
+        }
       delete_item(s);
     }
   s=relation_tail(utt_relation(u,"Segment"));
   if((item_feat_float(s,"factor")==0)&&(item_feat_float(s,"time")==0))
     {
       nlabels--;
-      if(nlabels==0) return NULL;
+      if(nlabels==0)
+        {
+          release_engine(engine);
+          return NULL;
+        }
       delete_item(s);
     }
   labels=(char**)calloc(nlabels,sizeof(char*));
