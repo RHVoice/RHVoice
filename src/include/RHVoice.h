@@ -80,6 +80,10 @@ extern "C" {
   void RHVoice_set_user_data(RHVoice_message message,void *data);
   void *RHVoice_get_user_data(RHVoice_message message);
 
+  void RHVoice_set_message_rate(RHVoice_message message,float rate);
+  void RHVoice_set_message_pitch(RHVoice_message message,float pitch);
+  void RHVoice_set_message_volume(RHVoice_message message,float volume);
+
   const char *RHVoice_get_version();
 
 #ifdef __cplusplus

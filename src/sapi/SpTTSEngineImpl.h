@@ -62,12 +62,12 @@ static   std::wstring::const_iterator skip_unichar(std::wstring::const_iterator 
   unsigned long convert_position(std::wstring::const_iterator ssml_pos);
   void generate_ssml(const SPVTEXTFRAG *frags);
   static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
-  int real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
+  int real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
   static float get_pitch_factor(int value);
   static float get_rate_factor(int value);
   static float convert_volume(unsigned int value);
-  void set_rate();
-  void set_volume();
+  void set_rate(RHVoice_message message);
+  void set_volume(RHVoice_message message);
   int get_sample_rate();
 };
 
