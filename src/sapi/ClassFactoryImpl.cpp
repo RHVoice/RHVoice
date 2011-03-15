@@ -1,4 +1,4 @@
-/* Copyright (C) 2010  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -34,17 +34,15 @@ CClassFactoryImpl::~CClassFactoryImpl()
 
 STDMETHODIMP_(ULONG) CClassFactoryImpl::AddRef()
 {
-  return ++ref_count;
+  return InterlockedIncrement(&ref_count);
 }
 
 STDMETHODIMP_(ULONG) CClassFactoryImpl::Release()
 {
-  if(--ref_count==0)
-    {
-      delete this;
-      return 0;
-    }
-  return ref_count;
+  ULONG new_count=InterlockedDecrement(&ref_count);
+  if(new_count==0)
+    delete this;
+  return new_count;
 }
 
 STDMETHODIMP CClassFactoryImpl::QueryInterface(REFIID riid,void** ppv)

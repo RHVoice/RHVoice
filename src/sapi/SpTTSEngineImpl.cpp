@@ -91,17 +91,15 @@ CSpTTSEngineImpl::~CSpTTSEngineImpl()
 
 STDMETHODIMP_(ULONG) CSpTTSEngineImpl::AddRef()
 {
-  return ++ref_count;
+  return InterlockedIncrement(&ref_count);
 }
 
 STDMETHODIMP_(ULONG) CSpTTSEngineImpl::Release()
 {
-  if(--ref_count==0)
-    {
-      delete this;
-      return 0;
-    }
-  return ref_count;
+  ULONG new_count=InterlockedDecrement(&ref_count);
+  if(new_count==0)
+    delete this;
+  return new_count;
 }
 
 STDMETHODIMP CSpTTSEngineImpl::QueryInterface(REFIID riid,void** ppv)
