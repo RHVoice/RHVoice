@@ -43,6 +43,7 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
 
   ULONG ref_count;
   ISpObjectTokenPtr object_token;
+  CRITICAL_SECTION object_token_mutex;
   static int sample_rate;
   std::wstring ssml;
   std::map<size_t,const SPVTEXTFRAG*> frag_map;

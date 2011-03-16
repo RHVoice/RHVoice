@@ -80,12 +80,14 @@ int CSpTTSEngineImpl::sample_rate=0;
 
 CSpTTSEngineImpl::CSpTTSEngineImpl()
 {
+  InitializeCriticalSection(&object_token_mutex);
   ref_count=0;
   InterlockedIncrement(&svr_ref_count);
 }
 
 CSpTTSEngineImpl::~CSpTTSEngineImpl()
 {
+  DeleteCriticalSection(&object_token_mutex);
   InterlockedDecrement(&svr_ref_count);
 }
 
@@ -213,7 +215,6 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
     {
       if(pToken==NULL)
         return E_INVALIDARG;
-      object_token.Attach(pToken,true);
       if(get_sample_rate()==0)
         {
           wchar_t *voice_path_w=NULL;
@@ -245,6 +246,20 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             }
           LeaveCriticalSection(&init_mutex);
         }
+      if(result==S_OK)
+        {
+          EnterCriticalSection(&object_token_mutex);
+          try
+            {
+              object_token=pToken;
+            }
+          catch(...)
+            {
+              LeaveCriticalSection(&object_token_mutex);
+              throw;
+            }
+          LeaveCriticalSection(&object_token_mutex);
+        }
     }
   catch(bad_alloc&)
     {
@@ -263,14 +278,18 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
 
 STDMETHODIMP CSpTTSEngineImpl::GetObjectToken(ISpObjectToken **ppToken)
 {
-  HRESULT result=S_OK;
+  HRESULT result=E_FAIL;
   try
     {
       *ppToken=NULL;
-      if(!object_token)
-        return E_FAIL;
-      *ppToken=object_token.GetInterfacePtr();
-      (*ppToken)->AddRef();
+      EnterCriticalSection(&object_token_mutex);
+      if(object_token)
+        {
+          object_token.AddRef();
+          *ppToken=object_token.GetInterfacePtr();
+          result=S_OK;
+        }
+      LeaveCriticalSection(&object_token_mutex);
     }
   catch(win32_exception& e)
     {
