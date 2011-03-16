@@ -32,7 +32,7 @@ static const wstring str_svr_clsid=L"{9F215C97-3D3B-489D-8419-6B9ABBF31EC2}";
 static const wstring str_svr_key=L"CLSID\\"+str_svr_clsid;
 static const wstring str_svr_subkey=str_svr_key+L"\\InProcServer32";
 static const wstring str_svr_desc=L"RHVoice";
-static const wstring str_svr_threading_model=L"Apartment";
+static const wstring str_svr_threading_model=L"Both";
 
 static HINSTANCE dll_handle=NULL;
 
