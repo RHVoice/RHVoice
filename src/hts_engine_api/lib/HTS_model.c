@@ -49,6 +49,8 @@
 /* hts_engine libraries */
 #include "HTS_hidden.h"
 
+double strtod_c(const char*,char **);
+
 /* HTS_dp_match: recursive matching */
 static HTS_Boolean HTS_dp_match(const char *string, const char *pattern,
                                 const int pos, const int max)
@@ -379,7 +381,7 @@ static void HTS_Window_load(HTS_Window * win, FILE ** fp, int size)
       win->coefficient[i] = (double *) HTS_calloc(fsize, sizeof(double));
       for (j = 0; j < fsize; j++) {
          HTS_get_token(fp[i], buff);
-         win->coefficient[i][j] = (double) atof(buff);
+         win->coefficient[i][j] = strtod_c(buff,NULL);
       }
       /* set pointer */
       length = fsize / 2;

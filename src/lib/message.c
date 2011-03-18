@@ -416,7 +416,7 @@ static int prosody_parse_as_number(const char *value,float *number,int *sign,cha
       str++;
     }
   if(!(((str[0]>='0')&&(str[0]<='9'))||(str[0]=='.'))) return 0;
-  res=strtof(str,&end);
+  res=strtod_c(str,&end);
   if(end==str) return 0;
   if(res<0) return 0;
   *number=res;

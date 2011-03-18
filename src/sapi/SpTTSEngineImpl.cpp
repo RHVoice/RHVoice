@@ -16,6 +16,7 @@
 #include <new>
 #include <locale>
 #include <algorithm>
+#include <locale>
 #include "SpTTSEngineImpl.h"
 #include "global.h"
 #include "win32_exception.h"
@@ -31,6 +32,7 @@ using std::map;
 using std::min;
 using std::max;
 using std::count;
+using std::locale;
 
 CRITICAL_SECTION init_mutex;
 
@@ -352,6 +354,7 @@ void CSpTTSEngineImpl::generate_ssml(const SPVTEXTFRAG *frags)
 {
   frag_map.clear();
   wostringstream s;
+  s.imbue(locale::classic());
   s.exceptions(wostringstream::failbit|wostringstream::badbit);
   s << L"<speak>";
   for(const SPVTEXTFRAG *frag=frags;frag;frag=frag->pNext)

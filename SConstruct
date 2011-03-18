@@ -132,7 +132,7 @@ if enable_config:
             found=False
             headers=["windows.h","sapi.h","sapiddk.h",
                      "string","stdexcept","new","map","algorithm",
-                     "sstream","eh.h","comdef.h"]
+                     "sstream","locale","eh.h","comdef.h"]
             for header in headers:
                 found=sapi_conf.CheckCXXHeader(header)
                 if not found:

@@ -83,6 +83,8 @@ extern "C" {
 
   extern MUTEX settings_mutex;
 
+  double strtod_c(const char*,char**);
+
 #ifdef __cplusplus
 }
 #endif
