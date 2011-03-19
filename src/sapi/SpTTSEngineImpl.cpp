@@ -288,13 +288,17 @@ STDMETHODIMP CSpTTSEngineImpl::GetObjectToken(ISpObjectToken **ppToken)
 CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite) :
   message(NULL),
   audio_bytes(0),
-  out(pOutputSite,true)
+  out(pOutputSite,true),
+  current_sentence_number(0),
+  skipping(false),
+  sentence_count(0)
 {
   generate_ssml(pTextFragList);
   message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
   if(message==NULL)
     throw runtime_error("Message creation failed");
   RHVoice_set_message_pitch(message,50);
+  sentence_count=RHVoice_get_sentence_count(message);
   RHVoice_set_user_data(message,this);
 }
 
@@ -305,9 +309,44 @@ CSpTTSEngineImpl::TTSTask::~TTSTask()
 
 void CSpTTSEngineImpl::TTSTask::operator()()
 {
+  SPVSKIPTYPE skip_type;
+  long count;
+  int prev_sentence_number,next_sentence_number;
   set_rate();
   set_volume();
   RHVoice_speak(message);
+  while(skipping)
+    {
+      skipping=false;
+      if(SUCCEEDED(out->GetSkipInfo(&skip_type,&count)))
+        {
+          switch(skip_type)
+            {
+            case SPVST_SENTENCE:
+              prev_sentence_number=(current_sentence_number==0)?1:current_sentence_number;
+              next_sentence_number=prev_sentence_number+count;
+              if(sentence_count==0)
+                out->CompleteSkip(0);
+              else if(next_sentence_number>sentence_count)
+                out->CompleteSkip(sentence_count-prev_sentence_number);
+                else if(next_sentence_number<=0)
+                  out->CompleteSkip(-(prev_sentence_number-1));
+                else
+                  {
+                    out->CompleteSkip(next_sentence_number-prev_sentence_number);
+                    RHVoice_position p;
+                    p.type=RHVoice_position_sentence;
+                    p.info.number=next_sentence_number;
+                    if(RHVoice_set_position(message,&p))
+                      RHVoice_speak(message);
+                  }
+              break;
+            default:
+              out->CompleteSkip(0);
+              break;
+            }
+        }
+    }
 }
 
 float CSpTTSEngineImpl::TTSTask::get_pitch_factor(int value)
@@ -449,9 +488,13 @@ int CSpTTSEngineImpl::TTSTask::real_callback(const short *samples,int num_sample
     {
       DWORD a=out->GetActions();
       if(a&SPVES_ABORT) return 0;
-      if(a&SPVES_SKIP) return 0;
       if(a&SPVES_RATE) set_rate();
       if(a&SPVES_VOLUME) set_volume();
+      if(a&SPVES_SKIP)
+        {
+          skipping=true;
+          return 0;
+        }
       SPEVENT e;
       e.ulStreamNum=0;
       unsigned long bytes_written=0;
@@ -477,6 +520,7 @@ int CSpTTSEngineImpl::TTSTask::real_callback(const short *samples,int num_sample
             {
               e.eEventId=SPEI_SENTENCE_BOUNDARY;
               e.elParamType=SPET_LPARAM_IS_UNDEFINED;
+              current_sentence_number=events[i].id.number;
             }
           else continue;
           e.ullAudioStreamOffset=audio_bytes+events[i].audio_position*sizeof(short);

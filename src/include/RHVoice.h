@@ -52,6 +52,20 @@ extern "C" {
 
   typedef int (*RHVoice_callback)(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
 
+  typedef enum {
+    RHVoice_position_word,
+    RHVoice_position_sentence,
+    RHVoice_position_mark
+  } RHVoice_position_type;
+
+  typedef struct {
+    RHVoice_position_type type;
+    union {
+      int number;
+      const char *name;
+    } info;
+  } RHVoice_position;
+
   /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
   int RHVoice_initialize(const char *path,RHVoice_callback callback);
@@ -62,6 +76,9 @@ extern "C" {
   RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int length,int is_ssml);
   void RHVoice_delete_message(RHVoice_message message);
   int RHVoice_speak(RHVoice_message message);
+  int RHVoice_set_position(RHVoice_message message,const RHVoice_position *position);
+  int RHVoice_get_word_count(RHVoice_message message);
+  int RHVoice_get_sentence_count(RHVoice_message message);
   int RHVoice_load_user_dict(const char *path);
   void RHVoice_set_rate(float rate);
   float RHVoice_get_rate();

@@ -60,6 +60,9 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
     std::map<size_t,const SPVTEXTFRAG*> frag_map;
     ISpTTSEngineSitePtr out;
     unsigned long long audio_bytes;
+    int current_sentence_number;
+    bool skipping;
+    int sentence_count;
     static float pitch_table[];
     static float rate_table[];
 
