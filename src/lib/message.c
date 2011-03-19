@@ -1244,3 +1244,65 @@ void RHVoice_set_message_volume(RHVoice_message message,float volume)
 {
   message->volume=(volume<0)?0:((volume>100)?100:volume);
 }
+
+int RHVoice_set_position(RHVoice_message message,const RHVoice_position *position)
+{
+  if(message==NULL) return 0;
+  size_t i,n;
+  mark *m;
+  int result=0;
+  switch(position->type)
+    {
+    case RHVoice_position_word:
+      n=toklist_size(message->tokens);
+      if((n>0)&&(position->info.number>0))
+        {
+          if(position->info.number<=n)
+            {
+              message->pos=position->info.number-1;
+              result=1;
+            }
+        }
+      break;
+    case RHVoice_position_sentence:
+      n=toklist_size(message->tokens);
+      for(i=0;i<n;i++)
+        {
+          if(toklist_at(message->tokens,i)->sentence_number==position->info.number)
+            {
+              message->pos=i;
+              result=1;
+              break;
+            }
+        }
+      break;
+    case RHVoice_position_mark:
+      n=marklist_size(message->marks);
+      for(i=0;i<n;i++)
+        {
+          m=marklist_at(message->marks,i);
+          if(u8_strcmp(m->name,(const uint8_t*)position->info.name)==0)
+            {
+              message->pos=m->next_token_index;
+              result=1;
+              break;
+            }
+        }
+      break;
+    default:
+      break;
+    }
+  return result;
+}
+
+int RHVoice_get_word_count(RHVoice_message message)
+{
+  return (message==NULL)?0:toklist_size(message->tokens);
+}
+
+int RHVoice_get_sentence_count(RHVoice_message message)
+{
+  if(message==NULL) return 0;
+  token *t=toklist_back(message->tokens);
+  return (t==NULL)?0:(t->sentence_number);
+}

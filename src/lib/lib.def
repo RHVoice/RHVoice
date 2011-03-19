@@ -20,3 +20,6 @@ RHVoice_get_user_data
 RHVoice_set_message_rate
 RHVoice_set_message_pitch
 RHVoice_set_message_volume
+RHVoice_set_position
+RHVoice_get_word_count
+RHVoice_get_sentence_count
