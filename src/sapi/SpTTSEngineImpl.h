@@ -40,36 +40,48 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
  private:
 
   _COM_SMARTPTR_TYPEDEF(ISpObjectToken,IID_ISpObjectToken);
+  _COM_SMARTPTR_TYPEDEF(ISpTTSEngineSite,IID_ISpTTSEngineSite);
 
   ULONG ref_count;
   ISpObjectTokenPtr object_token;
   CRITICAL_SECTION object_token_mutex;
   static int sample_rate;
-  std::wstring ssml;
-  std::map<size_t,const SPVTEXTFRAG*> frag_map;
-  ISpTTSEngineSite *out;
-  unsigned long long audio_bytes;
-  static float pitch_table[];
-  static float rate_table[];
 
-  static void write_text_to_stream(std::wostringstream& s,const wchar_t *text,size_t len);
+  class TTSTask
+  {
+  public:
+    TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite);
+    ~TTSTask();
+    void operator()();
+    static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
+  private:
+    RHVoice_message message;
+    std::wstring ssml;
+    std::map<size_t,const SPVTEXTFRAG*> frag_map;
+    ISpTTSEngineSitePtr out;
+    unsigned long long audio_bytes;
+    static float pitch_table[];
+    static float rate_table[];
 
-static   std::wstring::const_iterator skip_unichar(std::wstring::const_iterator it)
+    static void write_text_to_stream(std::wostringstream& s,const wchar_t *text,size_t len);
+
+    static   std::wstring::const_iterator skip_unichar(std::wstring::const_iterator it)
     {
       return ((*it<0xd800)||(*it>=0xe000))?(it+1):(it+2);
     }
 
-  std::wstring::const_iterator skip_unichars(std::wstring::const_iterator first,size_t n);
-  unsigned long convert_position(std::wstring::const_iterator ssml_pos);
-  void generate_ssml(const SPVTEXTFRAG *frags);
-  static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
-  int real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
-  static float get_pitch_factor(int value);
-  static float get_rate_factor(int value);
-  static float convert_volume(unsigned int value);
-  void set_rate(RHVoice_message message);
-  void set_volume(RHVoice_message message);
-  int get_sample_rate();
+    std::wstring::const_iterator skip_unichars(std::wstring::const_iterator first,size_t n);
+    unsigned long convert_position(std::wstring::const_iterator ssml_pos);
+    void generate_ssml(const SPVTEXTFRAG *frags);
+    int real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
+    static float get_pitch_factor(int value);
+    static float get_rate_factor(int value);
+    static float convert_volume(unsigned int value);
+    void set_rate();
+    void set_volume();
+  };
+
+  int static get_sample_rate();
 };
 
 #endif
