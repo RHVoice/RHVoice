@@ -16,7 +16,7 @@
 #include <new>
 #include <locale>
 #include <algorithm>
-#include <locale>
+#include <stdexcept>
 #include "SpTTSEngineImpl.h"
 #include "global.h"
 #include "win32_exception.h"
@@ -32,52 +32,52 @@ using std::map;
 using std::min;
 using std::max;
 using std::count;
-using std::locale;
+using std::runtime_error;
 
 CRITICAL_SECTION init_mutex;
 
-float CSpTTSEngineImpl::pitch_table[21]={0.749154,
-                                         0.771105,
-                                         0.793701,
-                                         0.816958,
-                                         0.840896,
-                                         0.865537,
-                                         0.890899,
-                                         0.917004,
-                                         0.943874,
-                                         0.971532,
-                                         1.000000,
-                                         1.029302,
-                                         1.059463,
-                                         1.090508,
-                                         1.122462,
-                                         1.155353,
-                                         1.189207,
-                                         1.224054,
-                                         1.259921,
-                                         1.296840,
-                                         1.334840};
-float CSpTTSEngineImpl::rate_table[21]={0.333333,
-                                        0.372041,
-                                        0.415244,
-                                        0.463463,
-                                        0.517282,
-                                        0.577350,
-                                        0.644394,
-                                        0.719223,
-                                        0.802742,
-                                        0.895958,
-                                        1.000000,
-                                        1.116123,
-                                        1.245731,
-                                        1.390389,
-                                        1.551846,
-                                        1.732051,
-                                        1.933182,
-                                        2.157669,
-                                        2.408225,
-                                        2.687875,
-                                        3.000000};
+float CSpTTSEngineImpl::TTSTask::pitch_table[21]={0.749154,
+                                                  0.771105,
+                                                  0.793701,
+                                                  0.816958,
+                                                  0.840896,
+                                                  0.865537,
+                                                  0.890899,
+                                                  0.917004,
+                                                  0.943874,
+                                                  0.971532,
+                                                  1.000000,
+                                                  1.029302,
+                                                  1.059463,
+                                                  1.090508,
+                                                  1.122462,
+                                                  1.155353,
+                                                  1.189207,
+                                                  1.224054,
+                                                  1.259921,
+                                                  1.296840,
+                                                  1.334840};
+float CSpTTSEngineImpl::TTSTask::rate_table[21]={0.333333,
+                                                 0.372041,
+                                                 0.415244,
+                                                 0.463463,
+                                                 0.517282,
+                                                 0.577350,
+                                                 0.644394,
+                                                 0.719223,
+                                                 0.802742,
+                                                 0.895958,
+                                                 1.000000,
+                                                 1.116123,
+                                                 1.245731,
+                                                 1.390389,
+                                                 1.551846,
+                                                 1.732051,
+                                                 1.933182,
+                                                 2.157669,
+                                                 2.408225,
+                                                 2.687875,
+                                                 3.000000};
 int CSpTTSEngineImpl::sample_rate=0;
 
 CSpTTSEngineImpl::CSpTTSEngineImpl()
@@ -139,27 +139,8 @@ STDMETHODIMP CSpTTSEngineImpl::Speak(DWORD dwSpeakFlags,REFGUID rguidFormatId,co
         return E_INVALIDARG;
       if(get_sample_rate()==0)
         return E_UNEXPECTED;
-      out=pOutputSite;
-      ssml.clear();
-      frag_map.clear();
-      audio_bytes=0;
-      generate_ssml(pTextFragList);
-      RHVoice_message msg=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
-      if(msg==NULL) return E_FAIL;
-      set_rate(msg);
-      RHVoice_set_message_pitch(msg,50);
-      set_volume(msg);
-      RHVoice_set_user_data(msg,this);
-      try
-        {
-          RHVoice_speak(msg);
-        }
-      catch(...)
-        {
-          RHVoice_delete_message(msg);
-          throw;
-        }
-      RHVoice_delete_message(msg);
+      TTSTask t(pTextFragList,pOutputSite);
+      t();
     }
   catch(bad_alloc&)
     {
@@ -238,7 +219,7 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
           try
             {
               if(sample_rate==0)
-                sample_rate=RHVoice_initialize(voice_path.c_str(),callback);
+                sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback);
               if(sample_rate==0) result=E_FAIL;
             }
           catch(...)
@@ -304,36 +285,63 @@ STDMETHODIMP CSpTTSEngineImpl::GetObjectToken(ISpObjectToken **ppToken)
   return result;
 }
 
-float CSpTTSEngineImpl::get_pitch_factor(int value)
+CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite) :
+  message(NULL),
+  audio_bytes(0),
+  out(pOutputSite,true)
+{
+  generate_ssml(pTextFragList);
+  message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
+  if(message==NULL)
+    throw runtime_error("Message creation failed");
+  RHVoice_set_message_pitch(message,50);
+  RHVoice_set_user_data(message,this);
+}
+
+CSpTTSEngineImpl::TTSTask::~TTSTask()
+{
+  if(message!=NULL) RHVoice_delete_message(message);
+}
+
+void CSpTTSEngineImpl::TTSTask::operator()()
+{
+  set_rate();
+  set_volume();
+  RHVoice_speak(message);
+}
+
+float CSpTTSEngineImpl::TTSTask::get_pitch_factor(int value)
 {
   return pitch_table[max(-10,min(10,value))+10];
 }
 
-float CSpTTSEngineImpl::get_rate_factor(int value)
+float CSpTTSEngineImpl::TTSTask::get_rate_factor(int value)
 {
   return rate_table[max(-10,min(10,value))+10];
 }
 
-void CSpTTSEngineImpl::set_rate(RHVoice_message message)
+void CSpTTSEngineImpl::TTSTask::set_rate()
 {
+  if(message==NULL) return;
   long rate=0;
   out->GetRate(&rate);
   RHVoice_set_message_rate(message,20.0*get_rate_factor(rate));
 }
 
-float CSpTTSEngineImpl::convert_volume(unsigned int value)
+float CSpTTSEngineImpl::TTSTask::convert_volume(unsigned int value)
 {
   return value>100?100:value;
 }
 
-void CSpTTSEngineImpl::set_volume(RHVoice_message message)
+void CSpTTSEngineImpl::TTSTask::set_volume()
 {
+  if(message==NULL) return;
   unsigned short volume=0;
   out->GetVolume(&volume);
   RHVoice_set_message_volume(message,convert_volume(volume));
 }
 
-void CSpTTSEngineImpl::write_text_to_stream(wostringstream& s,const wchar_t *text,size_t len)
+void CSpTTSEngineImpl::TTSTask::write_text_to_stream(wostringstream& s,const wchar_t *text,size_t len)
 {
   for(size_t i=0;i<len;i++)
     {
@@ -350,7 +358,7 @@ void CSpTTSEngineImpl::write_text_to_stream(wostringstream& s,const wchar_t *tex
     }
 }
 
-void CSpTTSEngineImpl::generate_ssml(const SPVTEXTFRAG *frags)
+void CSpTTSEngineImpl::TTSTask::generate_ssml(const SPVTEXTFRAG *frags)
 {
   frag_map.clear();
   wostringstream s;
@@ -400,7 +408,7 @@ void CSpTTSEngineImpl::generate_ssml(const SPVTEXTFRAG *frags)
   ssml.assign(s.str());
 }
 
-wstring::const_iterator CSpTTSEngineImpl::skip_unichars(wstring::const_iterator first,size_t n)
+wstring::const_iterator CSpTTSEngineImpl::TTSTask::skip_unichars(wstring::const_iterator first,size_t n)
 {
   size_t i;
   wstring::const_iterator it;
@@ -408,7 +416,7 @@ wstring::const_iterator CSpTTSEngineImpl::skip_unichars(wstring::const_iterator 
   return it;
 }
 
-unsigned long CSpTTSEngineImpl::convert_position(wstring::const_iterator ssml_pos)
+unsigned long CSpTTSEngineImpl::TTSTask::convert_position(wstring::const_iterator ssml_pos)
 {
   map<size_t,const SPVTEXTFRAG*>::const_iterator it=frag_map.lower_bound(ssml_pos-ssml.begin());
   if((it==frag_map.end())||
@@ -419,13 +427,22 @@ unsigned long CSpTTSEngineImpl::convert_position(wstring::const_iterator ssml_po
   return real_pos;
 }
 
-int CSpTTSEngineImpl::callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message)
+int CSpTTSEngineImpl::TTSTask::callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message)
 {
-  CSpTTSEngineImpl *obj=static_cast<CSpTTSEngineImpl*>(RHVoice_get_user_data(message));
-  return obj->real_callback(samples,num_samples,events,num_events,message);
+  int result=1;
+  try
+    {
+      CSpTTSEngineImpl::TTSTask *obj=static_cast<CSpTTSEngineImpl::TTSTask*>(RHVoice_get_user_data(message));
+      result=obj->real_callback(samples,num_samples,events,num_events);
+    }
+  catch(...)
+    {
+      result=0;
+    }
+  return result;
 }
 
-int CSpTTSEngineImpl::real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message)
+int CSpTTSEngineImpl::TTSTask::real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events)
 {
   int result=1;
   try
@@ -433,8 +450,8 @@ int CSpTTSEngineImpl::real_callback(const short *samples,int num_samples,const R
       DWORD a=out->GetActions();
       if(a&SPVES_ABORT) return 0;
       if(a&SPVES_SKIP) return 0;
-      if(a&SPVES_RATE) set_rate(message);
-      if(a&SPVES_VOLUME) set_volume(message);
+      if(a&SPVES_RATE) set_rate();
+      if(a&SPVES_VOLUME) set_volume();
       SPEVENT e;
       e.ulStreamNum=0;
       unsigned long bytes_written=0;
