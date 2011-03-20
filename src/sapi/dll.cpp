@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <new>
 #include <eh.h>
+#include "RHVoice.h"
 #include "SpTTSEngineImpl.h"
 #include "ClassFactoryImpl.h"
 #include "global.h"
@@ -67,6 +68,13 @@ BOOL APIENTRY DllMain(HINSTANCE hInstance,DWORD dwReason,LPVOID lpReserved)
       break;
     case DLL_THREAD_ATTACH:
       _set_se_translator(exception_handler);
+      break;
+    case DLL_PROCESS_DETACH:
+      if(lpReserved==NULL)
+        {
+          DeleteCriticalSection(&init_mutex);
+          RHVoice_terminate();
+        }
       break;
     default:
       break;
