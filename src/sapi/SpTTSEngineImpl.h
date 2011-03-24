@@ -46,11 +46,12 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
   ISpObjectTokenPtr object_token;
   CRITICAL_SECTION object_token_mutex;
   static int sample_rate;
+  DWORD variant;
 
   class TTSTask
   {
   public:
-    TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite);
+    TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,DWORD dwVariant);
     ~TTSTask();
     void operator()();
     static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
@@ -65,6 +66,7 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
     int sentence_count;
     static float pitch_table[];
     static float rate_table[];
+    DWORD variant;
 
     static void write_text_to_stream(std::wostringstream& s,const wchar_t *text,size_t len);
 
