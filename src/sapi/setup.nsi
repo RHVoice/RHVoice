@@ -3,8 +3,7 @@
 !define VERSION "0.3"
 !endif
 !define UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT}"
-!define SPTOKEN_REG_KEY "SOFTWARE\Microsoft\Speech\Voices\Tokens\RHVoice-M1"
-!define SPTOKEN_ATTR_REG_KEY "${SPTOKEN_REG_KEY}\Attributes"
+!define SPTOKENS_REG_KEY "SOFTWARE\Microsoft\Speech\Voices\Tokens"
 !define CLSID "{9F215C97-3D3B-489D-8419-6B9ABBF31EC2}"
 
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
@@ -28,6 +27,18 @@ Page directory
 Page instfiles
 UninstPage uninstConfirm
 UninstPage instfiles
+
+!macro RegisterVoice token_name voice_name voice_path voice_variant
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}" "" "${voice_name}"
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}" "CLSID" ${CLSID}
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}" "VoicePath" "$INSTDIR\data\${voice_path}"
+  WriteRegDWORD HKLM "${SPTOKENS_REG_KEY}\${token_name}" "Variant" ${voice_variant}
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}\Attributes" "Age" "Adult"
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}\Attributes" "Gender" "Male"
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}\Attributes" "Language" "419"
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}\Attributes" "Name" "${voice_name}"
+  WriteRegStr HKLM "${SPTOKENS_REG_KEY}\${token_name}\Attributes" "Vendor" "Olga Yakovleva"
+!macroend
 
 Section
   SetOutPath "$INSTDIR\data\RHVoice-M1"
@@ -57,15 +68,9 @@ Section
   MessageBox MB_RETRYCANCEL|MB_ICONSTOP $(^ErrorRegistering) /SD IDCANCEL IDRETRY try_RegDLL IDCANCEL 0
   Abort
   RegDLL_success:
-  # Register the voice with SAPI
-  WriteRegStr HKLM ${SPTOKEN_REG_KEY} "" "RHVoice-M1"
-  WriteRegStr HKLM ${SPTOKEN_REG_KEY} "CLSID" ${CLSID}
-  WriteRegStr HKLM ${SPTOKEN_REG_KEY} "VoicePath" "$INSTDIR\data\RHVoice-M1"
-  WriteRegStr HKLM ${SPTOKEN_ATTR_REG_KEY} "Age" "Adult"
-  WriteRegStr HKLM ${SPTOKEN_ATTR_REG_KEY} "Gender" "Male"
-  WriteRegStr HKLM ${SPTOKEN_ATTR_REG_KEY} "Language" "419"
-  WriteRegStr HKLM ${SPTOKEN_ATTR_REG_KEY} "Name" "RHVoice-M1"
-  WriteRegStr HKLM ${SPTOKEN_ATTR_REG_KEY} "Vendor" "Olga Yakovleva"
+  # Register the voices with SAPI
+!insertmacro RegisterVoice "RHVoice-M1-V1" "RHVoice-M1 (Pseudo-English Variant)" "RHVoice-M1" 1
+!insertmacro RegisterVoice "RHVoice-M1-V2" "RHVoice-M1 (Russian Variant)" "RHVoice-M1" 2
   # Uninstallation information
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM ${UNINSTALL_REG_KEY} "INSTDIR" $INSTDIR
@@ -80,7 +85,8 @@ Section
 SectionEnd
 
 Section Uninstall
-  DeleteRegKey HKLM ${SPTOKEN_REG_KEY}
+  DeleteRegKey HKLM "${SPTOKENS_REG_KEY}\RHVoice-M1-V1"
+  DeleteRegKey HKLM "${SPTOKENS_REG_KEY}\RHVoice-M1-V2"
   UnRegDLL "$INSTDIR\lib\RHVoiceSvr.dll"
   Delete "$INSTDIR\lib\RHVoiceSvr.dll"
   Delete "$INSTDIR\lib\RHVoice.dll"

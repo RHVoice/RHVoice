@@ -85,6 +85,7 @@ CSpTTSEngineImpl::CSpTTSEngineImpl()
   InitializeCriticalSection(&object_token_mutex);
   ref_count=0;
   InterlockedIncrement(&svr_ref_count);
+  variant=1;
 }
 
 CSpTTSEngineImpl::~CSpTTSEngineImpl()
@@ -139,7 +140,7 @@ STDMETHODIMP CSpTTSEngineImpl::Speak(DWORD dwSpeakFlags,REFGUID rguidFormatId,co
         return E_INVALIDARG;
       if(get_sample_rate()==0)
         return E_UNEXPECTED;
-      TTSTask t(pTextFragList,pOutputSite);
+      TTSTask t(pTextFragList,pOutputSite,variant);
       t();
     }
   catch(bad_alloc&)
@@ -194,6 +195,7 @@ STDMETHODIMP CSpTTSEngineImpl::GetOutputFormat(const GUID *pTargetFmtId,const WA
 STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
 {
   HRESULT result=S_OK;
+  DWORD v=1;
   try
     {
       if(pToken==NULL)
@@ -243,6 +245,11 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             }
           LeaveCriticalSection(&object_token_mutex);
         }
+      if(SUCCEEDED(pToken->GetDWORD(L"Variant",&v)))
+        {
+          if((v>0)&&(v<3))
+            variant=v;
+        }
     }
   catch(bad_alloc&)
     {
@@ -285,13 +292,14 @@ STDMETHODIMP CSpTTSEngineImpl::GetObjectToken(ISpObjectToken **ppToken)
   return result;
 }
 
-CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite) :
+CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,DWORD dwVariant) :
   message(NULL),
   audio_bytes(0),
   out(pOutputSite,true),
   current_sentence_number(0),
   skipping(false),
-  sentence_count(0)
+  sentence_count(0),
+  variant(dwVariant)
 {
   generate_ssml(pTextFragList);
   message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
@@ -404,6 +412,9 @@ void CSpTTSEngineImpl::TTSTask::generate_ssml(const SPVTEXTFRAG *frags)
   s.imbue(locale::classic());
   s.exceptions(wostringstream::failbit|wostringstream::badbit);
   s << L"<speak>";
+  s << L"<voice variant=\"";
+  s << variant;
+  s << L"\">";
   for(const SPVTEXTFRAG *frag=frags;frag;frag=frag->pNext)
     {
       switch(frag->State.eAction)
@@ -443,6 +454,7 @@ void CSpTTSEngineImpl::TTSTask::generate_ssml(const SPVTEXTFRAG *frags)
           break;
         }
     }
+  s << L"</voice>";
   s << L"</speak>";
   ssml.assign(s.str());
 }
