@@ -79,6 +79,7 @@ int static callback(const short *samples,int num_samples,const RHVoice_event *ev
       wave_header_written=1;
     }
   cout.write(reinterpret_cast<const char*>(samples),sizeof(short)*num_samples);
+  cout.flush();
   return 1;
 }
 
