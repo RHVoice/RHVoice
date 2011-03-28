@@ -528,7 +528,7 @@ cst_utterance *hts_synth(cst_utterance *u)
             }
         }
       nsamples=0;
-      for(j=0;j<engine->sss.nstate;j++)
+      for(j=0;j<(((!item_next(s))&&get_param_int(u->features,"min_final_pause",0))?1:(engine->sss.nstate));j++)
         {
           nsamples+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j)*engine->global.fperiod;
         }
