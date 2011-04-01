@@ -196,7 +196,10 @@ int main(int argc,char **argv)
         }
       while(cin.get(ch))
         {
-          text.push_back(ch);
+          if((static_cast<unsigned char>(ch)>=32)||(ch=='\t')||(ch=='\n')||(ch=='\r'))
+            text.push_back(ch);
+          else
+            text.push_back(' ');
         }
       if(text.empty()) return 1;
       sample_rate=RHVoice_initialize(voxdir,callback);

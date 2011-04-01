@@ -181,6 +181,15 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_set_rate(100)
         self.__lib.RHVoice_set_pitch(100)
         self.__lib.RHVoice_set_volume(100)
+        self.__char_mapping={}
+        for c in range(9):
+            self.__char_mapping[c]=32
+            self.__char_mapping[11]=32
+            self.__char_mapping[12]=32
+            for c in range(14,32):
+                self.__char_mapping[c]=32
+                self.__char_mapping[ord("<")]=u"&lt;"
+                self.__char_mapping[ord("&")]=u"&amp;"
         self.__tts_thread.start()
         log.info("Using RHVoice version %s" % self.__lib.RHVoice_get_version())
 
@@ -197,7 +206,7 @@ class SynthDriver(SynthDriver):
             mark=u'<mark name="%d"/>' % index
         else:
             mark=u""
-        escaped_text=text.replace("&","&amp;").replace("<","&lt;")
+        escaped_text=text.translate(self.__char_mapping)
         if is_character:
             escaped_text=u'<say-as interpret-as="characters">%s</say-as>' % escaped_text
         ssml=fmt_str % (self.__variant,self.__rate,convert_pitch(self.__pitch),self.__volume,mark,escaped_text)
