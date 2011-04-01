@@ -400,6 +400,8 @@ void CSpTTSEngineImpl::TTSTask::write_text_to_stream(wostringstream& s,const wch
         s << L"&#34;";
       else if(text[i]==L'\r')
     s << L"&#13;";
+      else if((text[i]<32)&&(text[i]!=L'\t')&&(text[i]!=L'\n'))
+        s.put(L' ');
       else
         s.put(text[i]);
     }
