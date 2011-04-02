@@ -206,7 +206,7 @@ class SynthDriver(SynthDriver):
             mark=u'<mark name="%d"/>' % index
         else:
             mark=u""
-        escaped_text=text.translate(self.__char_mapping)
+        escaped_text=unicode(text).translate(self.__char_mapping)
         if is_character:
             escaped_text=u'<say-as interpret-as="characters">%s</say-as>' % escaped_text
         ssml=fmt_str % (self.__variant,self.__rate,convert_pitch(self.__pitch),self.__volume,mark,escaped_text)
