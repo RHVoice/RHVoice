@@ -551,6 +551,7 @@ int CSpTTSEngineImpl::TTSTask::real_callback(const short *samples,int num_sample
                 {
                   n=0;
                 }
+              s.clear();
               e.wParam=n;
             }
           else
