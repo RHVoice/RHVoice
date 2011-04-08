@@ -168,3 +168,23 @@ ustring32_t ustring32_set(ustring32_t u,size_t p,ucs4_t c)
   ustring32_str(u)[p]=c;
   return u;
 }
+
+ustring8_t ustring8_append(ustring8_t u,const uint8_t *s,size_t n)
+{
+  if((u==NULL)||(s==NULL)||(n==0)) return u;
+  if(!uchars8_reserve(u,uchars8_size(u)+n)) return NULL;
+  uchars8_pop(u);
+  uchars8_append(u,(uint8_t*)s,n);
+  uchars8_push(u,&cz8);
+  return u;
+}
+
+ustring8_t ustring8_assign(ustring8_t u,const uint8_t *s,size_t n)
+{
+  if((u==NULL)||(s==NULL)||(n==0)) return u;
+  if(!uchars8_reserve(u,n+1)) return NULL;
+  uchars8_clear(u);
+  uchars8_append(u,(uint8_t*)s,n);
+  uchars8_push(u,&cz8);
+  return u;
+}
