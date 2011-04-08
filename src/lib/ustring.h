@@ -34,6 +34,8 @@ int ustring32_empty(ustring32_t u);
 int ustring8_empty(ustring8_t u);
 ustring32_t ustring32_push(ustring32_t u,ucs4_t c);
 ustring8_t ustring8_push(ustring8_t u,ucs4_t c);
+ustring8_t ustring8_append(ustring8_t u,const uint8_t *s,size_t n);
+ustring8_t ustring8_assign(ustring8_t u,const uint8_t *s,size_t n);
 void ustring32_clear(ustring32_t u);
 void ustring8_clear(ustring8_t u);
 ustring32_t ustring32_reserve(ustring32_t u,size_t r);

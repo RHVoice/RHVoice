@@ -27,7 +27,6 @@ extern "C" {
 #include <cst_lts_rewrites.h>
 #include <unitypes.h>
 
-
   void russian_init(cst_utterance *u);
 
   cst_utterance* russian_phrasify(cst_utterance* u);
@@ -84,6 +83,9 @@ extern "C" {
   extern MUTEX settings_mutex;
 
   double strtod_c(const char*,char**);
+
+  typedef int (*config_callback)(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data);
+  void parse_config(const char *path,config_callback callback,void *user_data);
 
 #ifdef __cplusplus
 }
