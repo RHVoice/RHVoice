@@ -1,6 +1,6 @@
 Building
 Requirements:
-* A C compiler
+* A C/C++ compiler
 * SCons build system (http://www.scons.org/)
 * Python (http://www.python.org/)
 * Flite 1.4 or later
@@ -28,7 +28,7 @@ pitch aver = 50
 pitch max = 100
 rate num digits after dot = 2
 rate min = 0
-rate aver = 20
+rate aver = 50
 rate max = 100
 volume num digits after dot = 2
 volume min = 0
