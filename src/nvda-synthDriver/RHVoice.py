@@ -30,7 +30,7 @@ from synthDriverHandler import SynthDriver,VoiceInfo
 module_dir=os.path.join(config.getUserDefaultConfigPath(),"synthDrivers")
 lib_path=os.path.join(module_dir,"RHVoice.dll")
 data_path=os.path.join(module_dir,"RHVoice-data","voice")
-userdict_path=os.path.join(module_dir,"RHVoice-userdict.txt")
+cfg_path=os.path.join(module_dir,"RHVoice.ini")
 
 class RHVoice_message_s(Structure):
     pass
@@ -135,8 +135,12 @@ class TTSThread(threading.Thread):
             except:
                 log.error("RHVoice: error while processing a message",exc_info=True)
 
-def convert_pitch(pitch):
-    return (50.0+float(pitch-50.0)/2.0)
+def convert_to_native_percent(val,nmin,nmax,ndef):
+    if val>=50:
+        nval=ndef+(float(val)-50.0)/50.0*(nmax-ndef)
+    else:
+        nval=nmin+float(val)/50.0*(ndef-nmin)
+    return nval/ndef*100.0
 
 class SynthDriver(SynthDriver):
     name="RHVoice"
@@ -150,37 +154,40 @@ class SynthDriver(SynthDriver):
 
     def __init__(self):
         self.__lib=ctypes.CDLL(lib_path.encode(sys.getfilesystemencoding()))
-        self.__lib.RHVoice_initialize.argtypes=(c_char_p,RHVoice_callback)
+        self.__lib.RHVoice_initialize.argtypes=(c_char_p,RHVoice_callback,c_char_p)
         self.__lib.RHVoice_initialize.restype=c_int
         self.__lib.RHVoice_new_message_utf16.argtypes=(c_wchar_p,c_int,c_int)
         self.__lib.RHVoice_new_message_utf16.restype=RHVoice_message
         self.__lib.RHVoice_delete_message.argtypes=(RHVoice_message,)
         self.__lib.RHVoice_speak.argtypes=(RHVoice_message,)
-        self.__lib.RHVoice_set_rate.argtypes=(c_float,)
-        self.__lib.RHVoice_set_pitch.argtypes=(c_float,)
-        self.__lib.RHVoice_set_volume.argtypes=(c_float,)
+        self.__lib.RHVoice_get_min_rate.restype=c_float
+        self.__lib.RHVoice_get_rate.restype=c_float
+        self.__lib.RHVoice_get_max_rate.restype=c_float
+        self.__lib.RHVoice_get_min_pitch.restype=c_float
+        self.__lib.RHVoice_get_pitch.restype=c_float
+        self.__lib.RHVoice_get_max_pitch.restype=c_float
+        self.__lib.RHVoice_get_min_volume.restype=c_float
+        self.__lib.RHVoice_get_volume.restype=c_float
+        self.__lib.RHVoice_get_max_volume.restype=c_float
         self.__lib.RHVoice_get_version.restype=c_char_p
-        self.__lib.RHVoice_load_user_dict.argtypes=(c_char_p,)
         self.__silence_flag=threading.Event()
         self.__audio_callback=AudioCallback(self.__lib,self.__silence_flag)
         self.__audio_callback_wrapper=RHVoice_callback(self.__audio_callback)
-        sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper)
+        sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper,cfg_path.encode("UTF-8"))
         if sample_rate==0:
             raise RuntimeError("RHVoice: initialization error")
-        if os.path.isfile(userdict_path):
-            self.__lib.RHVoice_load_user_dict(userdict_path.encode("UTF-8"))
         self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=sample_rate,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
         self.__audio_callback.set_player(self.__player)
         self.__tts_queue=Queue.Queue()
         self.__tts_thread=TTSThread(self.__lib,self.__tts_queue,self.__player,self.__silence_flag)
         self._availableVariants=OrderedDict((("1",VoiceInfo("1",u"псевдо-английский")),("2",VoiceInfo("2",u"русский"))))
         self.__variant="1"
-        self.__rate=20
+        self.__rate=50
         self.__pitch=50
         self.__volume=50
-        self.__lib.RHVoice_set_rate(100)
-        self.__lib.RHVoice_set_pitch(100)
-        self.__lib.RHVoice_set_volume(100)
+        self.__native_rate_range=(self.__lib.RHVoice_get_min_rate(),self.__lib.RHVoice_get_max_rate(),self.__lib.RHVoice_get_rate())
+        self.__native_pitch_range=(self.__lib.RHVoice_get_min_pitch(),self.__lib.RHVoice_get_max_pitch(),self.__lib.RHVoice_get_pitch())
+        self.__native_volume_range=(self.__lib.RHVoice_get_min_volume(),self.__lib.RHVoice_get_max_volume(),self.__lib.RHVoice_get_volume())
         self.__char_mapping={}
         for c in range(9):
             self.__char_mapping[c]=32
@@ -201,7 +208,7 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_terminate()
 
     def do_speak(self,text,index=None,is_character=False):
-        fmt_str=u'<speak><voice variant="%s"><prosody rate="%d%%" pitch="%f%%" volume="%d%%">%s%s</prosody></voice></speak>'
+        fmt_str=u'<speak><voice variant="%s"><prosody rate="%f%%" pitch="%f%%" volume="%f%%">%s%s</prosody></voice></speak>'
         if isinstance(index,int):
             mark=u'<mark name="%d"/>' % index
         else:
@@ -209,7 +216,10 @@ class SynthDriver(SynthDriver):
         escaped_text=unicode(text).translate(self.__char_mapping)
         if is_character:
             escaped_text=u'<say-as interpret-as="characters">%s</say-as>' % escaped_text
-        ssml=fmt_str % (self.__variant,self.__rate,convert_pitch(self.__pitch),self.__volume,mark,escaped_text)
+        rate=convert_to_native_percent(self.__rate,*self.__native_rate_range)
+        pitch=convert_to_native_percent(self.__pitch,*self.__native_pitch_range)
+        volume=convert_to_native_percent(self.__volume,*self.__native_volume_range)
+        ssml=fmt_str % (self.__variant,rate,pitch,volume,mark,escaped_text)
         self.__tts_queue.put(ssml)
 
     def speakText(self,text,index=None):
