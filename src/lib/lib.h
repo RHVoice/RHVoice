@@ -22,7 +22,6 @@ extern "C" {
 
 #include "RHVoice.h"
 #include "ustring.h"
-#include "mutex.h"
 #include <flite.h>
 #include <cst_lts_rewrites.h>
 #include <unitypes.h>
@@ -79,8 +78,6 @@ extern "C" {
 
   cst_utterance *next_utt_from_message(RHVoice_message msg);
   int report_final_mark(RHVoice_message message,RHVoice_callback callback);
-
-  extern MUTEX settings_mutex;
 
   double strtod_c(const char*,char**);
 
