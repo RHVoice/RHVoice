@@ -17,6 +17,97 @@
 #include <stdlib.h>
 #include <unistr.h>
 
+#ifdef WIN32
+
+static int cp1251_table[64]={
+  1026,
+  1027,
+  8218,
+  1107,
+  8222,
+  8230,
+  8224,
+  8225,
+  8364,
+  8240,
+  1033,
+  8249,
+  1034,
+  1036,
+  1035,
+  1039,
+  1106,
+  8216,
+  8217,
+  8220,
+  8221,
+  8226,
+  8211,
+  8212,
+  -1,
+  8482,
+  1113,
+  8250,
+  1114,
+  1116,
+  1115,
+  1119,
+  160,
+  1038,
+  1118,
+  1032,
+  164,
+  1168,
+  166,
+  167,
+  1025,
+  169,
+  1028,
+  171,
+  172,
+  173,
+  174,
+  1031,
+  176,
+  177,
+  1030,
+  1110,
+  1169,
+  181,
+  182,
+  183,
+  1105,
+  8470,
+  1108,
+  187,
+  1112,
+  1029,
+  1109,
+  1111};
+
+ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
+{
+  int n;
+  int C;
+  unsigned char c;
+  ucs4_t uc;
+  uint8_t b[4];
+  C=getc(f);
+  if(C==EOF) return UEOF;
+  c=C;
+  if(c<128) uc=c;
+  else if(c>=192) uc=c+848;
+  else if(c==152) return UEOF;
+  else uc=cp1251_table[c-128];
+  if(l!=NULL)
+    {
+      n=u8_uctomb(b,uc,4);
+      if(d!=NULL) u8_cpy(d,b,n);
+      *l=n;
+    }
+  return uc;
+}
+#else
 ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
 {
   int n;
@@ -40,6 +131,7 @@ ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
     }
   return UEOF;
 }
+#endif
 
 FILE *my_fopen(const char *path,const char *mode)
 {
