@@ -23,6 +23,8 @@
 #include "lib.h"
 #include "vector.h"
 #include "io_utils.h"
+#include "mutex.h"
+#include "settings.h"
 
 cst_lexicon *cmu_lex_init();
 
@@ -283,7 +285,7 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   return sampling_rate;
 }
 
-int RHVoice_initialize(const char *path,RHVoice_callback callback)
+int RHVoice_initialize(const char *path,RHVoice_callback callback,const char *cfgfile)
 {
   if((path==NULL)||(callback==NULL)) return 0;
   user_callback=callback;
@@ -293,7 +295,7 @@ int RHVoice_initialize(const char *path,RHVoice_callback callback)
   pool.engine_resources=reslist_alloc(0,engine_resource_free);
   if(pool.engine_resources==NULL) goto err2;
   INIT_MUTEX(&pool.mutex);
-  INIT_MUTEX(&settings_mutex);
+  load_settings(cfgfile);
   initialized=1;
   return 16000;
   err2: free(pool.data_path);pool.data_path=NULL;
@@ -303,7 +305,7 @@ int RHVoice_initialize(const char *path,RHVoice_callback callback)
 void RHVoice_terminate()
 {
   if(!initialized) return;
-  DESTROY_MUTEX(&settings_mutex);
+  free_settings();
   DESTROY_MUTEX(&pool.mutex);
   reslist_free(pool.engine_resources);
   pool.engine_resources=NULL;

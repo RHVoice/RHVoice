@@ -91,7 +91,7 @@ static struct option program_options[]=
     {"pitch",required_argument,0,'p'},
     {"volume",required_argument,0,'v'},
     {"voice-directory",required_argument,0,'d'},
-    {"user-dict",required_argument,0,'u'},
+    {"config",required_argument,0,'c'},
     {"variant",required_argument,0,'n'},
     {"ssml",no_argument,0,'s'},
     {0,0,0,0}
@@ -112,39 +112,47 @@ static void show_help()
   int w=40;
   cout << left << setw(w) << "-h, --help" << "print this help message and exit\n";
   cout << setw(w) << "-V, --version" << "print the program version and exit\n";
-  cout << setw(w) << "-r, --rate=<number from 0 to 100>" << "rate, default is 20\n";
-  cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "pitch, default is 50\n";
-  cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume, default is 50\n";
+  cout << setw(w) << "-r, --rate=<number from 0 to 100>" << "rate\n";
+  cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
+  cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
   cout << setw(w) << "-d, --voice-directory=<path>" << "path to voice files\n";
-  cout << setw(w) << "-u, --user-dict=<path>" << "path to the user dictionary\n";
+  cout << setw(w) << "-c, --config=<path>" << "path to the configuration file\n";
   cout << setw(w) << "-n, --variant=<number from 1 to 2>" << "variant\n";
   cout << setw(w) << "-s, --ssml" << "ssml input\n";
 }
 
-static float parse_prosody_option(const char *str,float default_value)
+static float parse_prosody_option(const char *str)
 {
   istringstream s(str);
   s.exceptions(istringstream::failbit|istringstream::badbit);
-  float result=default_value;
+  float result=-1;
   try
     {
       s >> result;
+      if(result<0) result=0;
+      else if(result>100) result=100;
     }
   catch(...)
     {
-      result=default_value;
+      result=-1;
     }
   return result;
+}
+
+static float convert_prosody_value(float val,float nmin,float nmax,float ndef)
+{
+  float f=val/50.0-1;
+  return (ndef+f*((f>=0)?(nmax-ndef):(ndef-nmin)));
 }
 
 int main(int argc,char **argv)
 {
   const char *voxdir=VOXDIR;
   RHVoice_message msg=NULL;
-  const char *dictpath=NULL;
-  float rate=20;
-  float pitch=50;
-  float volume=50;
+  const char *cfgfile=NULL;
+  float rate=-1;
+  float pitch=-1;
+  float volume=-1;
   RHVoice_variant variant=RHVoice_variant_pseudo_english;
   int is_ssml=0;
   string text;
@@ -153,7 +161,7 @@ int main(int argc,char **argv)
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"d:u:hVr:p:v:n:s",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"d:c:hVr:p:v:n:s",program_options,&i))!=-1)
         {
           switch(c)
             {
@@ -164,13 +172,13 @@ int main(int argc,char **argv)
               show_help();
               return 0;
             case 'r':
-              rate=parse_prosody_option(optarg,20);
+              rate=parse_prosody_option(optarg);
               break;
             case 'p':
-              pitch=parse_prosody_option(optarg,50);
+              pitch=parse_prosody_option(optarg);
               break;
             case 'v':
-              volume=parse_prosody_option(optarg,50);
+              volume=parse_prosody_option(optarg);
               break;
             case 's':
               is_ssml=1;
@@ -178,8 +186,8 @@ int main(int argc,char **argv)
             case 'd':
               voxdir=optarg;
               break;
-            case 'u':
-              dictpath=optarg;
+            case 'c':
+              cfgfile=optarg;
               break;
             case 'n':
               {
@@ -202,13 +210,15 @@ int main(int argc,char **argv)
             text.push_back(' ');
         }
       if(text.empty()) return 1;
-      sample_rate=RHVoice_initialize(voxdir,callback);
+      sample_rate=RHVoice_initialize(voxdir,callback,cfgfile);
       if(sample_rate==0) return 1;
-      RHVoice_set_rate(rate);
-      RHVoice_set_pitch(pitch);
-      RHVoice_set_volume(volume);
+      if(rate!=-1)
+        RHVoice_set_rate(convert_prosody_value(rate,RHVoice_get_min_rate(),RHVoice_get_max_rate(),RHVoice_get_default_rate()));
+      if(pitch!=-1)
+        RHVoice_set_pitch(convert_prosody_value(pitch,RHVoice_get_min_pitch(),RHVoice_get_max_pitch(),RHVoice_get_default_pitch()));
+      if(volume!=-1)
+        RHVoice_set_volume(convert_prosody_value(volume,RHVoice_get_min_volume(),RHVoice_get_max_volume(),RHVoice_get_default_volume()));
       RHVoice_set_variant(variant);
-      if(dictpath!=NULL) RHVoice_load_user_dict(dictpath);
       if(is_ssml)
         {
           msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),1);

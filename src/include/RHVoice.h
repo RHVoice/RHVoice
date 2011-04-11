@@ -68,7 +68,7 @@ extern "C" {
 
   /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
-  int RHVoice_initialize(const char *path,RHVoice_callback callback);
+  int RHVoice_initialize(const char *path,RHVoice_callback callback,const char *cfgfile);
   void RHVoice_terminate();
   /* The following three functions accept only valid unicode strings */
   RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int length,int is_ssml);
@@ -79,13 +79,21 @@ extern "C" {
   int RHVoice_set_position(RHVoice_message message,const RHVoice_position *position);
   int RHVoice_get_word_count(RHVoice_message message);
   int RHVoice_get_sentence_count(RHVoice_message message);
-  int RHVoice_load_user_dict(const char *path);
   void RHVoice_set_rate(float rate);
   float RHVoice_get_rate();
   void RHVoice_set_pitch(float pitch);
   float RHVoice_get_pitch();
   void RHVoice_set_volume(float volume);
   float RHVoice_get_volume();
+  float RHVoice_get_min_rate();
+  float RHVoice_get_default_rate();
+  float RHVoice_get_max_rate();
+  float RHVoice_get_min_pitch();
+  float RHVoice_get_default_pitch();
+  float RHVoice_get_max_pitch();
+  float RHVoice_get_min_volume();
+  float RHVoice_get_default_volume();
+  float RHVoice_get_max_volume();
 
   typedef enum {
     RHVoice_variant_pseudo_english=1,
