@@ -22,7 +22,7 @@ static float max_rate=4.0;
 static float current_rate=1.0;
 static float min_pitch=0.5;
 static float default_pitch=1.0;
-static float max_pitch=1.5;
+static float max_pitch=2.0;
 static float current_pitch=1.0;
 static float min_volume=0.0;
 static float default_volume=1.0;
@@ -236,7 +236,7 @@ void load_settings(const char *path)
   if((min_pitch>max_pitch)||(default_pitch<min_pitch)||(default_pitch>max_pitch))
     {
       min_pitch=0.5;
-      max_pitch=1.5;
+      max_pitch=2.0;
       default_pitch=1.0;
     }
   else
@@ -260,7 +260,7 @@ void free_settings()
   current_rate=1.0;
   min_pitch=0.5;
   default_pitch=1.0;
-  max_pitch=1.5;
+  max_pitch=2.0;
   current_pitch=1.0;
   min_volume=0.0;
   default_volume=1.0;
