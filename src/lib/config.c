@@ -18,18 +18,20 @@
 #include <stdio.h>
 #include <unistr.h>
 
-static int next_line(FILE *fp,ustring8_t s)
+typedef ucs4_t(*ufgetc_func)(FILE*,uint8_t*,size_t*);
+
+static int next_line(FILE *fp,ufgetc_func f,ustring8_t s)
 {
   ucs4_t c;
   uint8_t b[4];
   size_t n;
-  while((c=ufgetc(fp,b,&n))!=UEOF)
+  while((c=f(fp,b,&n))!=UEOF)
     {
       if((c!='\n')&&(c!='\r')) break;
     }
   if(c==UEOF) return 0;
   if(!ustring8_assign(s,b,n)) return 0;
-  while((c=ufgetc(fp,b,&n))!=UEOF)
+  while((c=f(fp,b,&n))!=UEOF)
     {
       if((c=='\n')||(c=='\r')) break;
       if(!ustring8_append(s,b,n)) return 0;
@@ -112,7 +114,7 @@ static int expand_escapes(const uint8_t *s,size_t n,ustring8_t u)
 
 void parse_config(const char *path,config_callback callback,void *user_data)
 {
-  FILE *fp=my_fopen(path,"r");
+  FILE *fp=my_fopen(path,"rb");
   if(fp==NULL) goto err0;
   ustring8_t line=ustring8_alloc(0);
   if(line==NULL) goto err1;
@@ -128,7 +130,17 @@ void parse_config(const char *path,config_callback callback,void *user_data)
   const uint8_t *strsection=NULL;
   const uint8_t *strkey=NULL;
   const uint8_t *strvalue=NULL;
-  while(next_line(fp,line))
+  ufgetc_func f;
+#ifdef WIN32
+  if(skip_utf8_bom(fp))
+    f=ufgetc;
+  else
+    f=ufgetca;
+#else
+  skip_utf8_bom(fp);
+  f=ufgetc;
+#endif
+  while(next_line(fp,f,line))
     {
       s=ustring8_str(line);
       n=u8_strspn(s,(const uint8_t*)" \t");
