@@ -85,7 +85,7 @@ static int cp1251_table[64]={
   1109,
   1111};
 
-ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
+ucs4_t ufgetca(FILE *f,uint8_t *d,size_t *l)
 {
   int n;
   int C;
@@ -93,7 +93,7 @@ ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
   ucs4_t uc;
   uint8_t b[4];
   C=getc(f);
-  if(C==EOF) return UEOF;
+  if((C==EOF)||(C==0)) return UEOF;
   c=C;
   if(c<128) uc=c;
   else if(c>=192) uc=c+848;
@@ -107,7 +107,7 @@ ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
     }
   return uc;
 }
-#else
+#endif
 ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
 {
   int n;
@@ -124,6 +124,7 @@ ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
       if(n==-1) return UEOF;
       if(n>0)
         {
+          if(uc==0) return UEOF;
           if(l!=NULL) *l=n;
           if(d!=NULL) u8_cpy(d,b,n);
           return uc;
@@ -131,7 +132,6 @@ ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l)
     }
   return UEOF;
 }
-#endif
 
 FILE *my_fopen(const char *path,const char *mode)
 {
@@ -155,4 +155,18 @@ FILE *my_fopen(const char *path,const char *mode)
 #else
   return fopen(path,mode);
 #endif
+}
+
+int skip_utf8_bom(FILE *f)
+{
+  if(ftell(f)!=0) return 0;
+  unsigned char b[3];
+  size_t n=fread(b,3,1,f);
+  if((n==1)&&(b[0]==0xef)&&(b[1]==0xbb)&&(b[2]==0xbf))
+    return 1;
+  else
+    {
+      rewind(f);
+      return 0;
+    }
 }

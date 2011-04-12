@@ -21,5 +21,9 @@
 #define UEOF 0xffffffffu
 
 ucs4_t ufgetc(FILE *f,uint8_t *d,size_t *l);
+#ifdef WIN32
+ucs4_t ufgetca(FILE *f,uint8_t *d,size_t *l);
+#endif
+int skip_utf8_bom(FILE *f);
 FILE *my_fopen(const char *path,const char *mode);
 #endif
