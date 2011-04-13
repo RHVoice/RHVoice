@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cmath>
+#include <shlobj.h>
 #include "SpTTSEngineImpl.h"
 #include "global.h"
 #include "win32_exception.h"
@@ -181,9 +182,12 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
           try
             {
               if(sample_rate==0)
-                sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback,NULL);
+                {
+                  sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback,NULL);
+                if(sample_rate>0)
+                  CSpTTSEngineImpl::TTSTask::initialize();
+                }
               if(sample_rate==0) result=E_FAIL;
-              else CSpTTSEngineImpl::TTSTask::initialize();
             }
           catch(...)
             {
