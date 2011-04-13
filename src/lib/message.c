@@ -460,7 +460,7 @@ static prosody_stack prosody_stack_update(prosody_stack stack,const ssml_tag *ta
               fval/=50.0;
               fval-=1;
               p.volume.is_absolute=1;
-              p.volume.value=dvolume+fval*((fval>=0)?(RHVoice_get_max_volume()-dvolume):(dvolume-RHVoice_get_min_volume()));
+              p.volume.value=dvolume+fval*((fval>=0)?(RHVoice_get_max_volume()-dvolume):dvolume);
             }
           else if(strcmp(suffix,"%")==0)
             {

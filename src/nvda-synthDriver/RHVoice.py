@@ -166,7 +166,6 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_get_min_pitch.restype=c_float
         self.__lib.RHVoice_get_pitch.restype=c_float
         self.__lib.RHVoice_get_max_pitch.restype=c_float
-        self.__lib.RHVoice_get_min_volume.restype=c_float
         self.__lib.RHVoice_get_volume.restype=c_float
         self.__lib.RHVoice_get_max_volume.restype=c_float
         self.__lib.RHVoice_get_version.restype=c_char_p
@@ -187,7 +186,7 @@ class SynthDriver(SynthDriver):
         self.__volume=50
         self.__native_rate_range=(self.__lib.RHVoice_get_min_rate(),self.__lib.RHVoice_get_max_rate(),self.__lib.RHVoice_get_rate())
         self.__native_pitch_range=(self.__lib.RHVoice_get_min_pitch(),self.__lib.RHVoice_get_max_pitch(),self.__lib.RHVoice_get_pitch())
-        self.__native_volume_range=(self.__lib.RHVoice_get_min_volume(),self.__lib.RHVoice_get_max_volume(),self.__lib.RHVoice_get_volume())
+        self.__native_volume_range=(0,self.__lib.RHVoice_get_max_volume(),self.__lib.RHVoice_get_volume())
         self.__char_mapping={}
         for c in range(9):
             self.__char_mapping[c]=32

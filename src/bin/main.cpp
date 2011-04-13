@@ -217,7 +217,7 @@ int main(int argc,char **argv)
       if(pitch!=-1)
         RHVoice_set_pitch(convert_prosody_value(pitch,RHVoice_get_min_pitch(),RHVoice_get_max_pitch(),RHVoice_get_default_pitch()));
       if(volume!=-1)
-        RHVoice_set_volume(convert_prosody_value(volume,RHVoice_get_min_volume(),RHVoice_get_max_volume(),RHVoice_get_default_volume()));
+        RHVoice_set_volume(convert_prosody_value(volume,0,RHVoice_get_max_volume(),RHVoice_get_default_volume()));
       RHVoice_set_variant(variant);
       if(is_ssml)
         {
