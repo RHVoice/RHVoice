@@ -130,7 +130,7 @@ if enable_config:
                                      log_file=os.path.join(BUILDDIR,"sapi_configure.log"))
         if sapi_conf.CheckCXX():
             found=False
-            headers=["windows.h","sapi.h","sapiddk.h",
+            headers=["windows.h","shlobj.h","sapi.h","sapiddk.h",
                      "string","stdexcept","new","map","algorithm",
                      "sstream","locale","eh.h","comdef.h"]
             for header in headers:
@@ -138,7 +138,7 @@ if enable_config:
                 if not found:
                     break
             if found:
-                for lib in ["kernel32","advapi32","ole32","sapi","comsuppw"]:
+                for lib in ["kernel32","advapi32","shell32","ole32","sapi","comsuppw"]:
                     found=sapi_conf.CheckLib(lib,language="C++",autoadd=0)
                     if not found:
                         break

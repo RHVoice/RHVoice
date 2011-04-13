@@ -178,12 +178,20 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             }
           CoTaskMemFree(voice_path_w);
           voice_path_w=NULL;
+          string cfg_path;
+          wchar_t appdata_path[MAX_PATH];
+          if(SHGetFolderPath(NULL,CSIDL_APPDATA,NULL,0,appdata_path)==S_OK)
+            {
+              cfg_path.assign(wstring_to_string(appdata_path));
+              if(*cfg_path.rbegin()!='\\') cfg_path+='\\';
+              cfg_path+="RHVoice\\RHVoice.ini";
+            }
           EnterCriticalSection(&init_mutex);
           try
             {
               if(sample_rate==0)
                 {
-                  sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback,NULL);
+                  sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback,cfg_path.empty()?NULL:cfg_path.c_str());
                 if(sample_rate>0)
                   CSpTTSEngineImpl::TTSTask::initialize();
                 }
