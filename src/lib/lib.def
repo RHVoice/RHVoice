@@ -19,7 +19,6 @@ RHVoice_get_max_rate
 RHVoice_get_min_pitch
 RHVoice_get_default_pitch
 RHVoice_get_max_pitch
-RHVoice_get_min_volume
 RHVoice_get_default_volume
 RHVoice_get_max_volume
 RHVoice_get_version

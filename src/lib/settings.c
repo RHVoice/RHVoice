@@ -24,7 +24,6 @@ static float min_pitch=0.5;
 static float default_pitch=1.0;
 static float max_pitch=2.0;
 static float current_pitch=1.0;
-static float min_volume=0.0;
 static float default_volume=1.0;
 static float max_volume=2.0;
 static float current_volume=1.0;
@@ -45,7 +44,7 @@ float check_rate_range(float value)
 
 float check_volume_range(float value)
 {
-  return ((value<min_volume)?min_volume:((value>max_volume)?max_volume:value));
+  return ((value<0)?0:((value>max_volume)?max_volume:value));
 }
 
 void RHVoice_set_rate(float rate)
@@ -148,11 +147,6 @@ float RHVoice_get_max_pitch()
   return max_pitch;
 }
 
-float RHVoice_get_min_volume()
-{
-  return min_volume;
-}
-
 float RHVoice_get_default_volume()
 {
   return default_volume;
@@ -201,11 +195,6 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
           fvalue=strtod_c(value1,NULL);
           if((fvalue>=0.2)&&(fvalue<=6)) max_rate=fvalue;
         }
-      else if(strcmp(key1,"min_volume")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>0)&&(fvalue<=2)) min_volume=fvalue;
-        }
       else if(strcmp(key1,"default_volume")==0)
         {
           fvalue=strtod_c(value1,NULL);
@@ -241,9 +230,8 @@ void load_settings(const char *path)
     }
   else
     current_pitch=default_pitch;
-  if((min_volume>max_volume)||(default_volume<min_volume)||(default_volume>max_volume))
+  if(default_volume>max_volume)
     {
-      min_volume=0.0;
       max_volume=2.0;
       default_volume=1.0;
     }
@@ -262,7 +250,6 @@ void free_settings()
   default_pitch=1.0;
   max_pitch=2.0;
   current_pitch=1.0;
-  min_volume=0.0;
   default_volume=1.0;
   max_volume=2.0;
   current_volume=1.0;

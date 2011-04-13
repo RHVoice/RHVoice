@@ -91,7 +91,6 @@ extern "C" {
   float RHVoice_get_min_pitch();
   float RHVoice_get_default_pitch();
   float RHVoice_get_max_pitch();
-  float RHVoice_get_min_volume();
   float RHVoice_get_default_volume();
   float RHVoice_get_max_volume();
 
