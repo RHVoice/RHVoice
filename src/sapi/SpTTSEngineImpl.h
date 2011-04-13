@@ -55,6 +55,7 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
     ~TTSTask();
     void operator()();
     static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
+    static void initialize();
   private:
     RHVoice_message message;
     std::wstring ssml;
@@ -67,6 +68,9 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
     static float pitch_table[];
     static float rate_table[];
     DWORD variant;
+    static float default_native_rate;
+    static float default_native_pitch;
+    static float max_native_volume;
 
     static void write_text_to_stream(std::wostringstream& s,const wchar_t *text,size_t len);
 
@@ -81,7 +85,7 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
     int real_callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events);
     static float get_pitch_factor(int value);
     static float get_rate_factor(int value);
-    static float convert_volume(unsigned int value);
+    static float get_volume_factor(unsigned int value);
     void set_rate();
     void set_volume();
   };
