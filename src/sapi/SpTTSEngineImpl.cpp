@@ -17,6 +17,7 @@
 #include <locale>
 #include <algorithm>
 #include <stdexcept>
+#include <cmath>
 #include "SpTTSEngineImpl.h"
 #include "global.h"
 #include "win32_exception.h"
@@ -31,53 +32,12 @@ using std::locale;
 using std::map;
 using std::min;
 using std::max;
+using std::pow;
 using std::count;
 using std::runtime_error;
 
 CRITICAL_SECTION init_mutex;
 
-float CSpTTSEngineImpl::TTSTask::pitch_table[21]={0.749154,
-                                                  0.771105,
-                                                  0.793701,
-                                                  0.816958,
-                                                  0.840896,
-                                                  0.865537,
-                                                  0.890899,
-                                                  0.917004,
-                                                  0.943874,
-                                                  0.971532,
-                                                  1.000000,
-                                                  1.029302,
-                                                  1.059463,
-                                                  1.090508,
-                                                  1.122462,
-                                                  1.155353,
-                                                  1.189207,
-                                                  1.224054,
-                                                  1.259921,
-                                                  1.296840,
-                                                  1.334840};
-float CSpTTSEngineImpl::TTSTask::rate_table[21]={0.333333,
-                                                 0.372041,
-                                                 0.415244,
-                                                 0.463463,
-                                                 0.517282,
-                                                 0.577350,
-                                                 0.644394,
-                                                 0.719223,
-                                                 0.802742,
-                                                 0.895958,
-                                                 1.000000,
-                                                 1.116123,
-                                                 1.245731,
-                                                 1.390389,
-                                                 1.551846,
-                                                 1.732051,
-                                                 1.933182,
-                                                 2.157669,
-                                                 2.408225,
-                                                 2.687875,
-                                                 3.000000};
 int CSpTTSEngineImpl::sample_rate=0;
 
 CSpTTSEngineImpl::CSpTTSEngineImpl()
@@ -221,8 +181,9 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
           try
             {
               if(sample_rate==0)
-                sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback);
+                sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback,NULL);
               if(sample_rate==0) result=E_FAIL;
+              else CSpTTSEngineImpl::TTSTask::initialize();
             }
           catch(...)
             {
@@ -292,6 +253,12 @@ STDMETHODIMP CSpTTSEngineImpl::GetObjectToken(ISpObjectToken **ppToken)
   return result;
 }
 
+float CSpTTSEngineImpl::TTSTask::rate_table[21]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+float CSpTTSEngineImpl::TTSTask::pitch_table[49]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+float CSpTTSEngineImpl::TTSTask::default_native_rate=1.0;
+float CSpTTSEngineImpl::TTSTask::default_native_pitch=1.0;
+float CSpTTSEngineImpl::TTSTask::max_native_volume=2.0;
+
 CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,DWORD dwVariant) :
   message(NULL),
   audio_bytes(0),
@@ -305,7 +272,7 @@ CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngine
   message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
   if(message==NULL)
     throw runtime_error("Message creation failed");
-  RHVoice_set_message_pitch(message,50);
+  RHVoice_set_message_pitch(message,default_native_pitch);
   sentence_count=RHVoice_get_sentence_count(message);
   RHVoice_set_user_data(message,this);
 }
@@ -357,9 +324,35 @@ void CSpTTSEngineImpl::TTSTask::operator()()
     }
 }
 
+void CSpTTSEngineImpl::TTSTask::initialize()
+{
+  default_native_rate=RHVoice_get_default_rate();
+  default_native_pitch=RHVoice_get_default_pitch();
+  max_native_volume=RHVoice_get_max_volume();
+  int i;
+  float p=0.1;
+  float m=max(RHVoice_get_max_rate()/default_native_rate,default_native_rate/RHVoice_get_min_rate());
+  float f=pow(m,p);
+  rate_table[10]=1;
+  for(i=1;i<=10;i++)
+    {
+      rate_table[10+i]=rate_table[9+i]*f;
+      rate_table[10-i]=rate_table[11-i]/f;
+    }
+  m=max(RHVoice_get_max_pitch()/default_native_pitch,default_native_pitch/RHVoice_get_min_pitch());
+  p=1.0/24.0;
+  f=pow(m,p);
+  pitch_table[24]=1;
+  for(i=1;i<=24;i++)
+    {
+      pitch_table[24+i]=pitch_table[23+i]*f;
+      pitch_table[24-i]=pitch_table[25-i]/f;
+    }
+}
+
 float CSpTTSEngineImpl::TTSTask::get_pitch_factor(int value)
 {
-  return pitch_table[max(-10,min(10,value))+10];
+  return pitch_table[max(-24,min(24,value))+24];
 }
 
 float CSpTTSEngineImpl::TTSTask::get_rate_factor(int value)
@@ -372,12 +365,12 @@ void CSpTTSEngineImpl::TTSTask::set_rate()
   if(message==NULL) return;
   long rate=0;
   out->GetRate(&rate);
-  RHVoice_set_message_rate(message,20.0*get_rate_factor(rate));
+  RHVoice_set_message_rate(message,default_native_rate*get_rate_factor(rate));
 }
 
-float CSpTTSEngineImpl::TTSTask::convert_volume(unsigned int value)
+float CSpTTSEngineImpl::TTSTask::get_volume_factor(unsigned int value)
 {
-  return value>100?100:value;
+  return (value>100)?1.0:(static_cast<float>(value)/100.0);
 }
 
 void CSpTTSEngineImpl::TTSTask::set_volume()
@@ -385,7 +378,7 @@ void CSpTTSEngineImpl::TTSTask::set_volume()
   if(message==NULL) return;
   unsigned short volume=0;
   out->GetVolume(&volume);
-  RHVoice_set_message_volume(message,convert_volume(volume));
+  RHVoice_set_message_volume(message,max_native_volume*get_volume_factor(volume));
 }
 
 void CSpTTSEngineImpl::TTSTask::write_text_to_stream(wostringstream& s,const wchar_t *text,size_t len)
@@ -427,11 +420,11 @@ void CSpTTSEngineImpl::TTSTask::generate_ssml(const SPVTEXTFRAG *frags)
           if(frag->ulTextLen>0)
             {
               s << L"<prosody rate=\"";
-              s << 100.0*get_rate_factor(frag->State.RateAdj);
-              s << L"%\" pitch=\"";
+              s << get_rate_factor(frag->State.RateAdj);
+              s << L"\" pitch=\"";
               s << 100.0*get_pitch_factor(frag->State.PitchAdj.MiddleAdj);
               s << L"%\" volume=\"";
-              s << convert_volume(frag->State.Volume);
+              s << ((frag->State.Volume>100)?100:frag->State.Volume);
               s << L"%\">";
               if(frag->State.eAction==SPVA_SpellOut)
                 s << L"<say-as interpret-as=\"characters\">";
