@@ -311,7 +311,6 @@ void RHVoice_terminate()
   pool.engine_resources=NULL;
   free(pool.data_path);
   pool.data_path=NULL;
-  free_user_dict();
   initialized=0;
 }
 

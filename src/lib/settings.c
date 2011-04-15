@@ -157,55 +157,62 @@ float RHVoice_get_max_volume()
   return max_volume;
 }
 
+user_dict global_user_dict=NULL;
+
 static int setting_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
 {
   int res=1;
   const char *key1=(const char*)key;
   const char *value1=(const char*)value;
   float fvalue;
-  if((section==NULL)&&(value!=NULL))
+  if((section==NULL))
     {
-      if(strcmp(key1,"min_pitch")==0)
+      if(value!=NULL)
         {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>=0.2)&&(fvalue<=2)) min_pitch=fvalue;
-        }
-      else if(strcmp(key1,"default_pitch")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>=0.2)&&(fvalue<=2)) default_pitch=fvalue;
-        }
-      else if(strcmp(key1,"max_pitch")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>=0.2)&&(fvalue<=2)) max_pitch=fvalue;
-        }
-      if(strcmp(key1,"min_rate")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>=0.2)&&(fvalue<=6)) min_rate=fvalue;
-        }
-      if(strcmp(key1,"default_rate")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>=0.2)&&(fvalue<=6)) default_rate=fvalue;
-        }
-      else if(strcmp(key1,"max_rate")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>=0.2)&&(fvalue<=6)) max_rate=fvalue;
-        }
-      else if(strcmp(key1,"default_volume")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>0)&&(fvalue<=2)) default_volume=fvalue;
-        }
-      else if(strcmp(key1,"max_volume")==0)
-        {
-          fvalue=strtod_c(value1,NULL);
-          if((fvalue>0)&&(fvalue<=2)) max_volume=fvalue;
+          if(strcmp(key1,"min_pitch")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>=0.2)&&(fvalue<=2)) min_pitch=fvalue;
+            }
+          else if(strcmp(key1,"default_pitch")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>=0.2)&&(fvalue<=2)) default_pitch=fvalue;
+            }
+          else if(strcmp(key1,"max_pitch")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>=0.2)&&(fvalue<=2)) max_pitch=fvalue;
+            }
+          if(strcmp(key1,"min_rate")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>=0.2)&&(fvalue<=6)) min_rate=fvalue;
+            }
+          if(strcmp(key1,"default_rate")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>=0.2)&&(fvalue<=6)) default_rate=fvalue;
+            }
+          else if(strcmp(key1,"max_rate")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>=0.2)&&(fvalue<=6)) max_rate=fvalue;
+            }
+          else if(strcmp(key1,"default_volume")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>0)&&(fvalue<=2)) default_volume=fvalue;
+            }
+          else if(strcmp(key1,"max_volume")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if((fvalue>0)&&(fvalue<=2)) max_volume=fvalue;
+            }
         }
     }
+  else if(strcmp((const char*)section,"dicts")==0)
+    user_dict_update(global_user_dict,key1);
   return res;
 }
 
@@ -213,6 +220,7 @@ void load_settings(const char *path)
 {
   INIT_MUTEX(&settings_mutex);
   if(path==NULL) return;
+  global_user_dict=user_dict_create();
   parse_config(path,setting_callback,NULL);
   if((min_rate>max_rate)||(default_rate<min_rate)||(default_rate>max_rate))
     {
@@ -242,6 +250,8 @@ void load_settings(const char *path)
 void free_settings()
 {
   DESTROY_MUTEX(&settings_mutex);
+  user_dict_free(global_user_dict);
+  global_user_dict=NULL;
   min_rate=0.25;
   default_rate=1.0;
   max_rate=4.0;
