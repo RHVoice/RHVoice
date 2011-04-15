@@ -18,6 +18,7 @@
 #include <unistr.h>
 #include <unicase.h>
 #include "lib.h"
+#include "settings.h"
 #include "ru_number_lts.h"
 
 DEF_STATIC_CONST_VAL_STRING(thousand_symbol,"th");
@@ -124,7 +125,7 @@ static cst_item *letters_to_words(cst_item *t,cst_relation *r,ustring8_t u)
   cst_item *w=NULL;
   ustring8_push(u,'\0');
   uint8_t *s=ustring8_str(u);
-  const uint8_t *pr=user_dict_lookup(s);
+  const uint8_t *pr=user_dict_lookup(global_user_dict,s);
   if(pr!=NULL)
     w=add_words(t,r,(const char*)pr);
   else if(cst_member_string((const char*)s,unsep_words))
@@ -139,7 +140,7 @@ static cst_item *letters_to_words(cst_item *t,cst_relation *r,ustring8_t u)
           if(cst_member_string((const char*)(p+1),ru_h_enc_list))
             ends_with_enc=1;
         }
-      if(ends_with_enc&&(pr=user_dict_lookup(s)))
+      if(ends_with_enc&&(pr=user_dict_lookup(global_user_dict,s)))
         {
           add_words(t,r,(const char*)pr);
           w=add_word(t,r,(const char*)(p+1));
