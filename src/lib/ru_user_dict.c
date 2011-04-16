@@ -47,6 +47,8 @@ RB_GENERATE_STATIC(word_tree,word_node,links,word_cmp)
 struct user_dict_s
 {
   struct word_tree words;
+  ucs4_t stress_marker;
+  int mark_next_vowel_as_stressed;
 };
 
 user_dict user_dict_create()
@@ -54,6 +56,8 @@ user_dict user_dict_create()
   user_dict dict=(user_dict)malloc(sizeof(struct user_dict_s));
   if(dict==NULL) return NULL;
   RB_INIT(&dict->words);
+  dict->stress_marker='+';
+  dict->mark_next_vowel_as_stressed=1;
   return dict;
 }
 
@@ -72,44 +76,78 @@ void user_dict_free(user_dict dict)
   free(dict);
 }
 
-static int check_user_pron_value(const uint8_t *p)
+static int check_user_pron_value(const user_dict d,const uint8_t *p)
 {
   ucs4_t c;
+  ucs4_t pc='\0';
   unsigned int cs;
+  unsigned int pcs=0;
   const uint8_t *s=p+u8_strspn(p,space_delims);
   if(s[0]=='\0') return 0;
   while((s=u8_next(&c,s)))
     {
       cs=classify_character(c);
-      if(!(((cs&cs_ru)&&(cs&cs_ll))||(c=='+')||(c==' ')||(c=='\t'))) return 0;
+      if(!(((cs&cs_ru)&&(cs&cs_ll))||(c==d->stress_marker)||(c==' ')||(c=='\t'))) return 0;
+      if(d->mark_next_vowel_as_stressed)
+        {
+          if((pc==d->stress_marker)&&!(cs&cs_lv)) return 0;
+        }
+      else
+        {
+          if((c==d->stress_marker)&&!(pcs&cs_lv)) return 0;
+        }
+      pc=c;
+      pcs=cs;
     }
   return 1;
 }
 
-static uint8_t *copy_user_pron_value(const uint8_t *p)
+static uint8_t *copy_user_pron_value(user_dict d,const uint8_t *p)
 {
   const uint8_t *s=p+u8_strspn(p,space_delims);
-  size_t l=u8_strlen(s);
+  const uint8_t *s1=s;
+  const uint8_t *s2;
+  ucs4_t c;
   size_t n=1;
-  size_t i;
-  for(i=0;i<l;i++)
+  while((s2=u8_next(&c,s1)))
     {
-      if((s[i]!=' ')&&(s[i]!='\t'))
+      if((c!=' ')&&(c!='\t'))
         {
-          n++;
-          if((s[i+1]=='\0')||(s[i+1]==' ')||(s[i+1]=='\t')) n++;
+          if(c==d->stress_marker) n++;
+          else n+=(s2-s1);
+          if((s2[0]=='\0')||(s2[0]==' ')||(s2[0]=='\t')) n++;
         }
+      s1=s2;
     }
   uint8_t *r=(uint8_t*)malloc(n);
   if(r==NULL) return NULL;
-  size_t j=0;
-  for(i=0;i<l;i++)
+  size_t i=0;
+  size_t l=0;
+  s1=s;
+  while((s2=u8_next(&c,s1)))
     {
-      if((s[i]!=' ')&&(s[i]!='\t'))
+      if((c!=' ')&&(c!='\t'))
         {
-          r[j++]=s[i];
-          if((s[i+1]=='\0')||(s[i+1]==' ')||(s[i+1]=='\t')) r[j++]='\0';
+          if(c==d->stress_marker)
+            {
+              if(d->mark_next_vowel_as_stressed)
+                r[i++]='+';
+              else
+                {
+                  u8_move(&r[i-l+1],&r[i-l],l);
+                  r[i-l]='+';
+                  i++;
+                }
+            }
+          else
+            {
+              l=s2-s1;
+              u8_cpy(&r[i],s1,l);
+              i+=l;
+            }
+          if((s2[0]=='\0')||(s2[0]==' ')||(s2[0]=='\t')) r[i++]='\0';
         }
+      s1=s2;
     }
   r[n-1]='\0';
   return r;
@@ -118,8 +156,8 @@ static uint8_t *copy_user_pron_value(const uint8_t *p)
 static void add_word(user_dict dict,const uint8_t *key,const uint8_t *value)
 {
   if(value==NULL) return;
-  if(!check_user_pron_value(value)) return;
-  uint8_t *pron=copy_user_pron_value(value);
+  if(!check_user_pron_value(dict,value)) return;
+  uint8_t *pron=copy_user_pron_value(dict,value);
   if(pron==NULL) return;
   struct word_node find;
   find.word=(uint8_t*)key;
@@ -152,7 +190,24 @@ static void add_word(user_dict dict,const uint8_t *key,const uint8_t *value)
 static int dict_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
 {
   user_dict dict=(user_dict)user_data;
-  if(u8_strcmp(section,(const uint8_t*)"main")==0)
+  if(section==NULL)
+    {
+      if(value!=NULL)
+        {
+          if(u8_strcmp(key,(const uint8_t*)"stress_marker")==0)
+            {
+              u8_next(&dict->stress_marker,value);
+            }
+          else if(u8_strcmp(key,(const uint8_t*)"mark_next_vowel_as_stressed")==0)
+            {
+              if(strchr("tTyY1",(char)value[0]))
+                dict->mark_next_vowel_as_stressed=1;
+              else if(strchr("fFnN0",(char)value[0]))
+                dict->mark_next_vowel_as_stressed=0;
+            }
+        }
+    }
+  else if(u8_strcmp(section,(const uint8_t*)"main")==0)
       add_word(dict,key,value);
   return 1;
 }
