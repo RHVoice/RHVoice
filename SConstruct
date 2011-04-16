@@ -35,7 +35,6 @@ vars.Add("CCFLAGS","C compiler flags")
 vars.Add("LINKFLAGS","Linker flags")
 if env["PLATFORM"]=="win32":
     vars.Add("MSVC_FLAGS","MSVC flags")
-vars.Add(EnumVariable("enable_source_generation","Enable regeneration of C sources from Scheme sources","no",["yes","no"],ignorecase=1))
 vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
 vars.Add("package_version","Package version",env["package_version"])
 vars.Update(env)
