@@ -47,6 +47,7 @@
   (set! f_in (fopen ifile "r"))
   (set! f_out (fopen ofile "w"))
   (readfp f_in)
+  (format f_out "MNCL\n")
   (while
    (not (equal? (set! e (readfp f_in)) (eof-val)))
    (cond
