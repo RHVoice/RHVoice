@@ -1468,7 +1468,7 @@ DEF_STATIC_CONST_VAL_CONS(ru_lts_lts_rules_1459,(void *)&ru_lts_lts_rules_1458,0
 DEF_STATIC_CONST_VAL_CONS(ru_lts_lts_rules_1460,(void *)&ru_lts_lts_rules_1456,(void *)&ru_lts_lts_rules_1459);
 DEF_STATIC_CONST_VAL_CONS(ru_lts_lts_rules_1461,(void *)&ru_lts_lts_rules_1454,(void *)&ru_lts_lts_rules_1460);
 DEF_STATIC_CONST_VAL_CONS(ru_lts_lts_rules_1462,0,(void *)&ru_lts_lts_rules_1461);
-DEF_STATIC_CONST_VAL_STRING(ru_lts_lts_rules_1463,"[н");
+DEF_STATIC_CONST_VAL_STRING(ru_lts_lts_rules_1463,"н");
 DEF_STATIC_CONST_VAL_STRING(ru_lts_lts_rules_1464,"т");
 DEF_STATIC_CONST_VAL_CONS(ru_lts_lts_rules_1465,(void *)&ru_lts_lts_rules_1464,0);
 DEF_STATIC_CONST_VAL_CONS(ru_lts_lts_rules_1466,(void *)&ru_lts_lts_rules_1463,(void *)&ru_lts_lts_rules_1465);
