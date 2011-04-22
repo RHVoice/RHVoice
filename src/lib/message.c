@@ -24,6 +24,9 @@
 
 #define ssml_error(s) {s->error_flag=1;XML_StopParser(s->parser,XML_FALSE);return;}
 
+#define max_token_len 200
+#define max_sentence_len 500
+
 typedef struct {
   float value;
   int is_absolute;
@@ -136,7 +139,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
     }
   if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
     {
-      if((ts->cs&cs_ws)||(prev_tok&&(prev_tok->say_as=='c')))
+      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||(ustring32_length(prev_tok->text)==max_token_len))))
         {
           tok.text=ustring32_alloc(1);
           if(tok.text==NULL) return 0;
@@ -655,13 +658,15 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
   const uint8_t *str=(const uint8_t*)text;
   int n;
   ucs4_t c;
-  token *tok=toklist_back(state->msg->tokens);
+  token *tok;
+  size_t prev_num_tokens=toklist_size(state->msg->tokens);
   while(r>0)
     {
       n=u8_mbtoucr(&c,str,r);
       if(!tstream_putc(&state->ts,c,p,no_refs?1:src_len_in_chars,state->say_as)) ssml_error(state);
-      if(tok!=toklist_back(state->msg->tokens))
+      if(prev_num_tokens!=toklist_size(state->msg->tokens))
         {
+          prev_num_tokens=toklist_size(state->msg->tokens);
           tok=toklist_back(state->msg->tokens);
           tok->prosody=*prosody_stack_back(state->prosody);
           tok->variant=*variant_stack_back(state->variants);
@@ -936,26 +941,43 @@ static void mark_sentence_boundaries(RHVoice_message msg)
 {
   if(toklist_size(msg->tokens)==0) return;
   token *first=toklist_front(msg->tokens);
-  first->flags|=token_sentence_start;
   token *last=toklist_back(msg->tokens);
   last->flags|=token_sentence_end;
-  if(first==last) return;
-  token *next=first;
-  token *prev=next;
-  next++;
-  int skip=0;
-  while(next<=last)
+  if(first==last)
     {
-      skip=(next->flags&token_sentence_start);
-      if(skip||is_sentence_boundary(prev,next))
+      first->flags|=token_sentence_start;
+      return;
+    }
+  token *prev=first;
+  token *next=prev+1;
+  while(prev<last)
+    {
+      if(prev->flags&token_sentence_start)
         {
-          prev->flags|=token_sentence_end;
-          next->flags|=token_sentence_start;
+          for(;!(prev->flags&token_sentence_end);prev++);
+          next=prev+1;
         }
-      if(skip)
-        for(;!(next->flags&token_sentence_end);next++) {};
+      else if((next->flags&token_sentence_start)||is_sentence_boundary(prev,next))
+        prev->flags|=token_sentence_end;
       prev=next;
       next++;
+    }
+  first->flags|=token_sentence_start;
+  for(next=first;next<last;next++)
+    {
+      if(next->flags&token_sentence_end)
+        (next+1)->flags|=token_sentence_start;
+    }
+  size_t sentence_len;
+  for(next=first;next<last;next++)
+    {
+      if(next->flags&token_sentence_start) sentence_len=0;
+      sentence_len+=ustring32_length(next->text);
+      if(sentence_len>=max_sentence_len)
+        {
+          next->flags|=token_sentence_end;
+          (next+1)->flags|=token_sentence_start;
+        }
     }
       int number=0;
       for(next=first;next<=last;next++)
