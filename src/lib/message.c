@@ -26,6 +26,7 @@
 
 #define max_token_len 200
 #define max_sentence_len 500
+#define max_line_len 80
 
 typedef struct {
   float value;
@@ -104,6 +105,7 @@ typedef struct {
   toklist l;
   ucs4_t c;
   unsigned int cs;
+  size_t ln;
 } tstream;
 
 static void tstream_init(tstream *ts,toklist tl)
@@ -111,6 +113,7 @@ static void tstream_init(tstream *ts,toklist tl)
   ts->l=tl;
   ts->c='\0';
   ts->cs=cs_sp;
+  ts->ln=0;
 }
 
 static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int say_as)
@@ -134,8 +137,9 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
     {
       prev_tok->flags|=token_eol;
-      if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n'))))
+      if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n')))||(ts->ln>max_line_len))
         prev_tok->flags|=token_eop;
+      ts->ln=0;
     }
   if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
     {
@@ -152,6 +156,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
       prev_tok=toklist_back(ts->l);
       if(!ustring32_push(prev_tok->text,c)) return 0;
       if(src_len>0) prev_tok->len=src_pos-prev_tok->pos+src_len;
+      ts->ln++;
     }
   ts->c=c;
   ts->cs=cs;
