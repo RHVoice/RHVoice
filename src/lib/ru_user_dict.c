@@ -15,38 +15,20 @@
 
 #include <stdlib.h>
 #include <unistr.h>
-#include "tree.h"
+#include "tst.h"
 #include "lib.h"
 #include "ustring.h"
 
 static const uint8_t space_delims[]={' ','\t','\0'};
 
-struct word_node
+static void free_pron(void *p)
 {
-  uint8_t *word;
-  uint8_t *pron;
-  RB_ENTRY(word_node) links;
-};
-
-RB_HEAD(word_tree,word_node);
-
-static void delete_word_node(struct word_node *el)
-{
-  free(el->word);
-  free(el->pron);
-  free(el);
+  free(p);
 }
-
-static int word_cmp(const struct word_node *el1,const struct word_node *el2)
-{
-  return u8_strcmp(el1->word,el2->word);
-}
-
-RB_GENERATE_STATIC(word_tree,word_node,links,word_cmp)
 
 struct user_dict_s
 {
-  struct word_tree words;
+  tst words;
   ucs4_t stress_marker;
   int mark_next_vowel_as_stressed;
 };
@@ -54,25 +36,20 @@ struct user_dict_s
 user_dict user_dict_create()
 {
   user_dict dict=(user_dict)malloc(sizeof(struct user_dict_s));
-  if(dict==NULL) return NULL;
-  RB_INIT(&dict->words);
+  if(dict==NULL) goto err0;
+  dict->words=tst_create(1,free_pron);
+  if(dict->words==NULL) goto err1;
   dict->stress_marker='+';
   dict->mark_next_vowel_as_stressed=1;
   return dict;
+  err1: free(dict);
+  err0: return NULL;
 }
 
 void user_dict_free(user_dict dict)
 {
   if(dict==NULL) return;
-  struct word_node *el,*tmp;
-  el=RB_MIN(word_tree,&dict->words);
-  while(el)
-    {
-      tmp=RB_NEXT(word_tree,&dict->words,el);
-      RB_REMOVE(word_tree,&dict->words,el);
-      delete_word_node(el);
-      el=tmp;
-    }
+  tst_free(dict->words);
   free(dict);
 }
 
@@ -159,32 +136,7 @@ static void add_word(user_dict dict,const uint8_t *key,const uint8_t *value)
   if(!check_user_pron_value(dict,value)) return;
   uint8_t *pron=copy_user_pron_value(dict,value);
   if(pron==NULL) return;
-  struct word_node find;
-  find.word=(uint8_t*)key;
-  struct word_node *node=RB_FIND(word_tree,&dict->words,&find);
-  if(node!=NULL)
-    {
-      free(node->pron);
-      node->pron=pron;
-    }
-  else
-    {
-      node=(struct word_node*)malloc(sizeof(struct word_node));
-      if(node==NULL)
-        {
-          free(pron);
-          return;
-        }
-      node->word=u8_strdup(key);
-      if(node->word==NULL)
-        {
-          free(pron);
-          free(node);
-          return;
-        }
-      node->pron=pron;
-      RB_INSERT(word_tree,&dict->words,node);
-    }
+  if(!tst_add(dict->words,key,pron)) free(pron);
 }
 
 static int dict_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
@@ -218,11 +170,18 @@ void user_dict_update(user_dict dict,const char *path)
   parse_config(path,dict_callback,dict);
 }
 
+void user_dict_build(user_dict dict)
+{
+  if(dict==NULL) return;
+  tst_build(dict->words);
+}
+
 const uint8_t* user_dict_lookup(const user_dict dict,const uint8_t* word)
 {
   if(dict==NULL) return NULL;
-  struct word_node find;
-  find.word=(uint8_t*)word;
-  struct word_node *found=RB_FIND(word_tree,&dict->words,&find);
-  return (found==NULL)?NULL:(found->pron);
+  uint8_t *p=NULL;
+  if(tst_search(dict->words,word,(void**)&p))
+    return p;
+  else
+    return NULL;
 }

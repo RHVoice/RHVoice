@@ -245,6 +245,7 @@ void load_settings(const char *path)
     }
   else
     current_volume=default_volume;
+  user_dict_build(global_user_dict);
 }
 
 void free_settings()
