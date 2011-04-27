@@ -116,7 +116,7 @@ static void show_help()
   cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
   cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
   cout << setw(w) << "-d, --voice-directory=<path>" << "path to voice files\n";
-  cout << setw(w) << "-c, --config=<path>" << "path to the configuration file\n";
+  cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
   cout << setw(w) << "-n, --variant=<number from 1 to 2>" << "variant\n";
   cout << setw(w) << "-s, --ssml" << "ssml input\n";
 }
@@ -149,7 +149,7 @@ int main(int argc,char **argv)
 {
   const char *voxdir=VOXDIR;
   RHVoice_message msg=NULL;
-  const char *cfgfile=NULL;
+  const char *cfgpath=NULL;
   float rate=-1;
   float pitch=-1;
   float volume=-1;
@@ -187,7 +187,7 @@ int main(int argc,char **argv)
               voxdir=optarg;
               break;
             case 'c':
-              cfgfile=optarg;
+              cfgpath=optarg;
               break;
             case 'n':
               {
@@ -210,7 +210,7 @@ int main(int argc,char **argv)
             text.push_back(' ');
         }
       if(text.empty()) return 1;
-      sample_rate=RHVoice_initialize(voxdir,callback,cfgfile);
+      sample_rate=RHVoice_initialize(voxdir,callback,cfgpath);
       if(sample_rate==0) return 1;
       if(rate!=-1)
         RHVoice_set_rate(convert_prosody_value(rate,RHVoice_get_min_rate(),RHVoice_get_max_rate(),RHVoice_get_default_rate()));

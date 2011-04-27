@@ -184,7 +184,7 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             {
               cfg_path.assign(wstring_to_string(appdata_path));
               if(*cfg_path.rbegin()!='\\') cfg_path+='\\';
-              cfg_path+="RHVoice\\RHVoice.ini";
+              cfg_path+="RHVoice";
             }
           EnterCriticalSection(&init_mutex);
           try

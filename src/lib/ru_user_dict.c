@@ -159,15 +159,19 @@ static int dict_callback(const uint8_t *section,const uint8_t *key,const uint8_t
             }
         }
     }
-  else if(u8_strcmp(section,(const uint8_t*)"main")==0)
+  else if(u8_strcmp(section,(const uint8_t*)"dict")==0)
       add_word(dict,key,value);
   return 1;
 }
 
-void user_dict_update(user_dict dict,const char *path)
+int user_dict_update(const char *path,void *data)
 {
-  if(dict==NULL) return;
+  user_dict dict=(user_dict)data;
+  if(dict==NULL) return 0;
   parse_config(path,dict_callback,dict);
+  dict->stress_marker='+';
+  dict->mark_next_vowel_as_stressed=1;
+  return 1;
 }
 
 void user_dict_build(user_dict dict)

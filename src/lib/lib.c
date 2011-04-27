@@ -285,17 +285,17 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   return sampling_rate;
 }
 
-int RHVoice_initialize(const char *path,RHVoice_callback callback,const char *cfgfile)
+int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path)
 {
-  if((path==NULL)||(callback==NULL)) return 0;
+  if((data_path==NULL)||(callback==NULL)) return 0;
   user_callback=callback;
   if(en_lex==NULL) en_lex=cmu_lex_init();
-  pool.data_path=(char*)u8_strdup((const uint8_t*)path);
+  pool.data_path=(char*)u8_strdup((const uint8_t*)data_path);
   if(pool.data_path==NULL) goto err1;
   pool.engine_resources=reslist_alloc(0,engine_resource_free);
   if(pool.engine_resources==NULL) goto err2;
   INIT_MUTEX(&pool.mutex);
-  load_settings(cfgfile);
+  load_settings(cfg_path);
   initialized=1;
   return 16000;
   err2: free(pool.data_path);pool.data_path=NULL;
