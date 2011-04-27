@@ -5,6 +5,22 @@ import os.path
 BUILDDIR=os.path.join("build",sys.platform)
 Execute(Mkdir(BUILDDIR))
 SConsignFile(os.path.join(BUILDDIR,"scons"))
+var_cache=os.path.join(BUILDDIR,"user.conf")
+args={"DESTDIR":""}
+args.update(ARGUMENTS)
+vars=Variables(var_cache,args)
+if sys.platform!="win32":
+    vars.Add("prefix","Installation prefix","/usr/local")
+    vars.Add("bindir","Program installation directory","$prefix/bin")
+    vars.Add("datadir","Data installation directory","$prefix/share")
+    vars.Add("DESTDIR","Support for staged installation","")
+vars.Add("FLAGS","Additional compiler/linker flags")
+vars.Add("CCFLAGS","C compiler flags")
+vars.Add("LINKFLAGS","Linker flags")
+if sys.platform=="win32":
+    vars.Add("MSVC_FLAGS","MSVC flags")
+vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
+vars.Add("package_version","Package version","0.3")
 if sys.platform=="win32":
     toolset=["mingw","newlines"]
     sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",enabled=False)
@@ -14,37 +30,17 @@ if sys.platform=="win32":
     sapi_env.Prepend(CCFLAGS="/EHa")
 else:
     toolset=["default","installer"]
-env=Environment(tools=toolset,package_name="RHVoice",package_version="0.3")
-env["CPPPATH"]=[".",os.path.join("#src","include")]
-env["LIBPATH"]=[]
-env["CPPDEFINES"]=[("PACKAGE",env.subst(r'\"$package_name\"'))]
-if env["PLATFORM"]=="win32":
-    env.Append(CPPDEFINES=("WIN32",1))
-var_cache=os.path.join(BUILDDIR,"user.conf")
-args={"DESTDIR":""}
-args.update(ARGUMENTS)
-vars=Variables(var_cache,args)
-if env["PLATFORM"]!="win32":
-    vars.Add("prefix","Installation prefix","/usr/local")
-    vars.Add("bindir","Program installation directory","$prefix/bin")
-    vars.Add("datadir","Data installation directory","$prefix/share")
-    vars.Add("DESTDIR","Support for staged installation","")
-vars.Add("CC","C compiler",env.get("CC"))
-vars.Add("FLAGS","Additional compiler/linker flags")
-vars.Add("CCFLAGS","C compiler flags")
-vars.Add("LINKFLAGS","Linker flags")
-if env["PLATFORM"]=="win32":
-    vars.Add("MSVC_FLAGS","MSVC flags")
-vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
-vars.Add("package_version","Package version",env["package_version"])
-vars.Update(env)
-vars.Save(var_cache,env)
+env=Environment(tools=toolset,CPPPATH=[],LIBPATH=[],CPPDEFINES=[],package_name="RHVoice",variables=vars)
 Help("Type 'scons' to build the package.\n")
-if env["PLATFORM"]!="win32":
+if sys.platform!="win32":
     Help("Then type 'scons install' to install it.\n")
     Help("Type 'scons --clean install' to uninstall the software.\n")
 Help("You may use the following configuration variables:\n")
 Help(vars.GenerateHelpText(env))
+env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
+env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
+if env["PLATFORM"]=="win32":
+    env.Append(CPPDEFINES=("WIN32",1))
 flags=env.get("FLAGS")
 if flags:
     env.MergeFlags(flags)
@@ -62,6 +58,7 @@ if env["PLATFORM"]=="win32":
     if flags:
         sapi_env.MergeFlags(flags)
 env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
+vars.Save(var_cache,env)
 if GetOption("clean"):
     enable_config=False
 elif GetOption("help"):
@@ -106,12 +103,13 @@ if enable_config:
         print "error: cannot link with the flite_cmulex library"
         exit(1)
     env.PrependUnique(LIBS="flite_cmulex")
-    has_libunistring=conf.CheckLibWithHeader("unistring","unistr.h","C",call="u8_strchr(\"a\",'a');",autoadd=0)
+    has_libunistring=conf.CheckLibWithHeader("unistring","uniconv.h","C",call="u8_strconv_to_locale((const uint8_t*)\"a\");",autoadd=0)
     if not has_libunistring:
         if not GetOption("silent"):
             print "Perhaps libunistring requires libiconv on this platform"
-        if conf.CheckLib("iconv",autoadd=1):
-            has_libunistring=conf.CheckLibWithHeader("unistring","unistr.h","C",call="u8_strchr(\"a\",'a');",autoadd=0)
+        if conf.CheckLib("iconv",autoadd=0):
+            env.PrependUnique(LIBS="iconv")
+            has_libunistring=conf.CheckLibWithHeader("unistring","unistr.h","C",call="u8_strchr((const uint8_t*)\"a\",'a');",autoadd=0)
     if not has_libunistring:
         print "Error: cannot link with libunistring"
         exit(1)
