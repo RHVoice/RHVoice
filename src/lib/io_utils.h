@@ -26,4 +26,7 @@ ucs4_t ufgetca(FILE *f,uint8_t *d,size_t *l);
 #endif
 int skip_utf8_bom(FILE *f);
 FILE *my_fopen(const char *path,const char *mode);
+char *path_append(const char *path1,const char *path2);
+typedef int (*file_action)(const char *path,void *user_data);
+void for_each_file_in_dir(const char *dir_path,file_action action,void *user_data);
 #endif

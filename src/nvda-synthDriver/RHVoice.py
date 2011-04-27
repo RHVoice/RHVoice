@@ -30,7 +30,7 @@ from synthDriverHandler import SynthDriver,VoiceInfo
 module_dir=os.path.join(config.getUserDefaultConfigPath(),"synthDrivers")
 lib_path=os.path.join(module_dir,"RHVoice.dll")
 data_path=os.path.join(module_dir,"RHVoice-data","voice")
-cfg_path=os.path.join(module_dir,"RHVoice.ini")
+cfg_path=os.path.join(module_dir,"RHVoice-config")
 
 class RHVoice_message_s(Structure):
     pass

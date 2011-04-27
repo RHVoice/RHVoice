@@ -15,6 +15,13 @@
 
 #include "lib.h"
 #include "mutex.h"
+#include "io_utils.h"
+
+#ifdef WIN32
+static const char *cfg_file_name="RHVoice.ini";
+#else
+static const char *cfg_file_name="RHVoice.conf";
+#endif
 
 static float min_rate=0.25;
 static float default_rate=1.0;
@@ -211,41 +218,51 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
             }
         }
     }
-  else if(strcmp((const char*)section,"dicts")==0)
-    user_dict_update(global_user_dict,key1);
   return res;
 }
 
 void load_settings(const char *path)
 {
+  char *subpath=NULL;
   INIT_MUTEX(&settings_mutex);
   if(path==NULL) return;
   global_user_dict=user_dict_create();
-  parse_config(path,setting_callback,NULL);
-  if((min_rate>max_rate)||(default_rate<min_rate)||(default_rate>max_rate))
+  subpath=path_append(path,cfg_file_name);
+  if(subpath!=NULL)
     {
-      min_rate=0.25;
-      max_rate=4.0;
-      default_rate=1.0;
+      parse_config(subpath,setting_callback,NULL);
+      free(subpath);
+      if((min_rate>max_rate)||(default_rate<min_rate)||(default_rate>max_rate))
+        {
+          min_rate=0.25;
+          max_rate=4.0;
+          default_rate=1.0;
+        }
+      else
+        current_rate=default_rate;
+      if((min_pitch>max_pitch)||(default_pitch<min_pitch)||(default_pitch>max_pitch))
+        {
+          min_pitch=0.5;
+          max_pitch=2.0;
+          default_pitch=1.0;
+        }
+      else
+        current_pitch=default_pitch;
+      if(default_volume>max_volume)
+        {
+          max_volume=2.0;
+          default_volume=1.0;
+        }
+      else
+        current_volume=default_volume;
     }
-  else
-    current_rate=default_rate;
-  if((min_pitch>max_pitch)||(default_pitch<min_pitch)||(default_pitch>max_pitch))
+  subpath=path_append(path,"dicts");
+  if(subpath!=NULL)
     {
-      min_pitch=0.5;
-      max_pitch=2.0;
-      default_pitch=1.0;
+      for_each_file_in_dir(subpath,user_dict_update,global_user_dict);
+      free(subpath);
+      user_dict_build(global_user_dict);
     }
-  else
-    current_pitch=default_pitch;
-  if(default_volume>max_volume)
-    {
-      max_volume=2.0;
-      default_volume=1.0;
-    }
-  else
-    current_volume=default_volume;
-  user_dict_build(global_user_dict);
 }
 
 void free_settings()

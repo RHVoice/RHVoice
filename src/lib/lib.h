@@ -49,7 +49,7 @@ extern "C" {
   struct user_dict_s;
   typedef struct user_dict_s *user_dict;
   user_dict user_dict_create();
-  void user_dict_update(user_dict dict,const char *path);
+  int user_dict_update(const char *path,void *data);
   void user_dict_build(user_dict dict);
   void user_dict_free(user_dict dict);
   const uint8_t* user_dict_lookup(const user_dict dict,const uint8_t* word);

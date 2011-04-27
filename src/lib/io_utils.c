@@ -16,6 +16,9 @@
 #include "io_utils.h"
 #include <stdlib.h>
 #include <unistr.h>
+#include <unistdio.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 #ifdef WIN32
 
@@ -170,3 +173,90 @@ int skip_utf8_bom(FILE *f)
       return 0;
     }
 }
+
+char *path_append(const char *path1,const char *path2)
+{
+  if((path1==NULL)||(path2==NULL)||(path1[0]=='\0')||(path2[0]=='\0')) return NULL;
+  uint8_t *result=NULL;
+  int n=0;
+  if(u8_endswith((const uint8_t*)path1,(const uint8_t*)path_sep))
+    n=u8_asprintf(&result,"%U%U",(const uint8_t*)path1,(const uint8_t*)path2);
+  else
+    n=u8_asprintf(&result,"%U%U%U",(const uint8_t*)path1,(const uint8_t*)path_sep,(const uint8_t*)path2);
+  return (n>0)?((char*)result):NULL;
+}
+
+#ifdef WIN32
+
+void for_each_file_in_dir(const char *dir_path,file_action action,void *user_data)
+{
+  if((dir_path==NULL)||(dir_path[0]=='\0')) return;
+  size_t n=0;
+  uint16_t *dir_wpath=u8_to_u16((const uint8_t*)dir_path,u8_strlen((const uint8_t*)dir_path)+1,NULL,&n);
+  if(dir_wpath==NULL) return;
+  _WDIR *d=_wopendir((const wchar_t*)dir_wpath);
+  if(d==NULL)
+    {
+      free(dir_wpath);
+      return;
+    }
+  struct _wdirent *e=NULL;
+  struct _stat s;
+  uint8_t *full_path=NULL;
+  uint16_t *full_wpath=NULL;
+  int r=1;
+  const char *fmt=(dir_wpath[n-2]=='\\')?"%lU%lU":"%lU\\%lU";
+  while((e=_wreaddir(d)))
+    {
+      if(u16_asprintf(&full_wpath,fmt,dir_wpath,(const uint16_t*)e->d_name)<=0) break;
+      if(_wstat((const wchar_t*)full_wpath,&s)==0)
+        {
+          if(S_ISREG(s.st_mode))
+            {
+              full_path=u16_to_u8(full_wpath,u16_strlen(full_wpath)+1,NULL,&n);
+              if(full_path!=NULL)
+                {
+                  r=action((const char*)full_path,user_data);
+                  free(full_path);
+                  full_path=NULL;
+                }
+            }
+        }
+      free(full_wpath);
+      full_wpath=NULL;
+      if(r==0) break;
+    }
+  _wclosedir(d);
+  free(dir_wpath);
+}
+
+#else
+
+void for_each_file_in_dir(const char *dir_path,file_action action,void *user_data)
+{
+  if((dir_path==NULL)||(dir_path[0]=='\0')) return;
+  DIR *d=opendir(dir_path);
+  if(d==NULL) return;
+  struct dirent *e=NULL;
+  struct stat s;
+  char *full_path=NULL;
+  int r=1;
+  while((e=readdir(d)))
+    {
+      full_path=path_append(dir_path,e->d_name);
+      if(full_path==NULL) break;
+      if(stat(full_path,&s)==0)
+        {
+          if(S_ISREG(s.st_mode))
+            {
+              r=action(full_path,user_data);
+            }
+        }
+      free(full_path);
+      full_path=NULL;
+      if(r==0) break;
+    }
+  closedir(d);
+}
+
+#endif
