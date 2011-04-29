@@ -1,10 +1,10 @@
 /* ----------------------------------------------------------------- */
-/*           The HMM-Based Speech Synthesis System (HTS)             */
-/*           hts_engine API developed by HTS Working Group           */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
 /*           http://hts-engine.sourceforge.net/                      */
 /* ----------------------------------------------------------------- */
 /*                                                                   */
-/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*  Copyright (c) 2001-2011  Nagoya Institute of Technology          */
 /*                           Department of Computer Science          */
 /*                                                                   */
 /*                2001-2008  Tokyo Institute of Technology           */
@@ -41,6 +41,19 @@
 /* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
 /* POSSIBILITY OF SUCH DAMAGE.                                       */
 /* ----------------------------------------------------------------- */
+
+#ifndef HTS_MISC_C
+#define HTS_MISC_C
+
+#ifdef __cplusplus
+#define HTS_MISC_C_START extern "C" {
+#define HTS_MISC_C_END   }
+#else
+#define HTS_MISC_C_START
+#define HTS_MISC_C_END
+#endif                          /* __CPLUSPLUS */
+
+HTS_MISC_C_START;
 
 #include <stdlib.h>             /* for exit(),calloc(),free() */
 #include <stdarg.h>             /* for va_list */
@@ -287,3 +300,7 @@ void HTS_free_matrix(double **p, const int x)
       HTS_free(p[i]);
    HTS_free(p);
 }
+
+HTS_MISC_C_END;
+
+#endif                          /* !HTS_MISC_C */

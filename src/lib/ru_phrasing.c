@@ -78,6 +78,7 @@ cst_utterance *russian_phrasify(cst_utterance *u)
 
 cst_utterance *russian_pause_insertion(cst_utterance *u)
 {
+  const char *p=NULL;
   float time2=feat_float(u->features,"silence_time");
   float time1,factor;
   cst_item *s,*w1,*w2,*t1,*t2,*p1,*p2;
@@ -108,33 +109,31 @@ cst_utterance *russian_pause_insertion(cst_utterance *u)
     }
   if(w2)
     s=item_prepend(relation_head(utt_relation(u,"Segment")),NULL);
-  else s=relation_append(utt_relation(u,"Segment"),NULL);
-  item_set_string(s,"name","pau");
-  item_set_float(s,"time",time2);
-  item_set_float(s,"factor",0);
-  s=relation_tail(utt_relation(u,"Segment"));
-  if(get_param_int(u->features,"last",0)&&(item_feat_float(s,"time")==0))
+  else if(feat_float(u->features,"silence_time")!=0)
+    s=relation_append(utt_relation(u,"Segment"),NULL);
+  else s=NULL;
+  if(s!=NULL)
     {
-      if(item_feat_int(relation_tail(utt_relation(u,"Token")),"break_strength")=='n')
+      item_set_string(s,"name","pau");
+      item_set_float(s,"time",(time2>0)?time2:0.0);
+      item_set_float(s,"factor",(time2>0)?0.0:1.0);
+    }
+  s=relation_tail(utt_relation(u,"Segment"));
+  if((s!=NULL)&&(item_feat_float(s,"time")==0.0))
+    {
+      item_set_float(s,"factor",0.0);
+      t1=relation_tail(utt_relation(u,"Token"));
+      if(t1!=NULL)
         {
-          item_set_float(s,"factor",0);
-          item_set_float(s,"time",0.001);
-          feat_set_int(u->features,"min_final_pause",1);
-        }
-      else
-        {
-          const char *p=item_feat_string(relation_tail(utt_relation(u,"Token")),"punc");
+          p=item_feat_string(t1,"punc");
           if(p[0]=='\0')
-            {
-              item_set_float(s,"factor",0);
-              item_set_float(s,"time",0.001);
-              feat_set_int(u->features,"min_final_pause",1);
-            }
+            item_set_float(s,"time",0.025);
           else if(strchr(p,'.')||strchr(p,'?')||strchr(p,'!'))
-            item_set_float(s,"factor",1);
+            item_set_float(s,"time",0.2);
           else if(strchr(p,':')||strchr(p,';'))
-            item_set_float(s,"factor",0.75);
-          else item_set_float(s,"factor",0.5);
+            item_set_float(s,"time",0.15);
+          else
+            item_set_float(s,"time",0.1);
         }
     }
   return u;
