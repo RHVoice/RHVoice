@@ -1,10 +1,10 @@
 /* ----------------------------------------------------------------- */
-/*           The HMM-Based Speech Synthesis System (HTS)             */
-/*           hts_engine API developed by HTS Working Group           */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
 /*           http://hts-engine.sourceforge.net/                      */
 /* ----------------------------------------------------------------- */
 /*                                                                   */
-/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*  Copyright (c) 2001-2011  Nagoya Institute of Technology          */
 /*                           Department of Computer Science          */
 /*                                                                   */
 /*                2001-2008  Tokyo Institute of Technology           */
@@ -41,6 +41,19 @@
 /* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
 /* POSSIBILITY OF SUCH DAMAGE.                                       */
 /* ----------------------------------------------------------------- */
+
+#ifndef HTS_PSTREAM_C
+#define HTS_PSTREAM_C
+
+#ifdef __cplusplus
+#define HTS_PSTREAM_C_START extern "C" {
+#define HTS_PSTREAM_C_END   }
+#else
+#define HTS_PSTREAM_C_START
+#define HTS_PSTREAM_C_END
+#endif                          /* __CPLUSPLUS */
+
+HTS_PSTREAM_C_START;
 
 #include <math.h>               /* for sqrt() */
 
@@ -136,19 +149,20 @@ static void HTS_PStream_backward_substitution(HTS_PStream * pst, const int m)
 }
 
 /* HTS_PStream_calc_gv: subfunction for mlpg using GV */
-static void HTS_PStream_calc_gv(HTS_PStream * pst, double *mean, double *vari)
+static void HTS_PStream_calc_gv(HTS_PStream * pst, const int m, double *mean,
+                                double *vari)
 {
    int t;
 
    *mean = 0.0;
    for (t = 0; t < pst->length; t++)
       if (pst->gv_switch[t])
-         *mean += pst->gv_buff[t];
+         *mean += pst->par[t][m];
    *mean /= pst->gv_length;
    *vari = 0.0;
    for (t = 0; t < pst->length; t++)
       if (pst->gv_switch[t])
-         *vari += (pst->gv_buff[t] - *mean) * (pst->gv_buff[t] - *mean);
+         *vari += (pst->par[t][m] - *mean) * (pst->par[t][m] - *mean);
    *vari /= pst->gv_length;
 }
 
@@ -160,11 +174,11 @@ static void HTS_PStream_conv_gv(HTS_PStream * pst, const int m)
    double mean;
    double vari;
 
-   HTS_PStream_calc_gv(pst, &mean, &vari);
+   HTS_PStream_calc_gv(pst, m, &mean, &vari);
    ratio = sqrt(pst->gv_mean[m] / vari);
    for (t = 0; t < pst->length; t++)
       if (pst->gv_switch[t])
-         pst->gv_buff[t] = ratio * (pst->gv_buff[t] - mean) + mean;
+         pst->par[t][m] = ratio * (pst->par[t][m] - mean) + mean;
 }
 
 /* HTS_PStream_calc_derivative: subfunction for mlpg using GV */
@@ -179,32 +193,31 @@ static double HTS_PStream_calc_derivative(HTS_PStream * pst, const int m)
    double hmmobj;
    const double w = 1.0 / (pst->win_size * pst->length);
 
-   HTS_PStream_calc_gv(pst, &mean, &vari);
+   HTS_PStream_calc_gv(pst, m, &mean, &vari);
    gvobj = -0.5 * W2 * vari * pst->gv_vari[m] * (vari - 2.0 * pst->gv_mean[m]);
    dv = -2.0 * pst->gv_vari[m] * (vari - pst->gv_mean[m]) / pst->length;
 
    for (t = 0; t < pst->length; t++) {
-      pst->sm.g[t] = pst->sm.wuw[t][0] * pst->gv_buff[t];
+      pst->sm.g[t] = pst->sm.wuw[t][0] * pst->par[t][m];
       for (i = 1; i < pst->width; i++) {
          if (t + i < pst->length)
-            pst->sm.g[t] += pst->sm.wuw[t][i] * pst->gv_buff[t + i];
+            pst->sm.g[t] += pst->sm.wuw[t][i] * pst->par[t + i][m];
          if (t + 1 > i)
-            pst->sm.g[t] += pst->sm.wuw[t - i][i] * pst->gv_buff[t - i];
+            pst->sm.g[t] += pst->sm.wuw[t - i][i] * pst->par[t - i][m];
       }
    }
 
    for (t = 0, hmmobj = 0.0; t < pst->length; t++) {
-      hmmobj +=
-          W1 * w * pst->gv_buff[t] * (pst->sm.wum[t] - 0.5 * pst->sm.g[t]);
+      hmmobj += W1 * w * pst->par[t][m] * (pst->sm.wum[t] - 0.5 * pst->sm.g[t]);
       h = -W1 * w * pst->sm.wuw[t][1 - 1]
           - W2 * 2.0 / (pst->length * pst->length) *
           ((pst->length - 1) * pst->gv_vari[m] * (vari - pst->gv_mean[m])
-           + 2.0 * pst->gv_vari[m] * (pst->gv_buff[t] -
-                                      mean) * (pst->gv_buff[t] - mean));
+           + 2.0 * pst->gv_vari[m] * (pst->par[t][m] - mean) * (pst->par[t][m] -
+                                                                mean));
       if (pst->gv_switch[t])
          pst->sm.g[t] =
              1.0 / h * (W1 * w * (-pst->sm.g[t] + pst->sm.wum[t]) +
-                        W2 * dv * (pst->gv_buff[t] - mean));
+                        W2 * dv * (pst->par[t][m] - mean));
       else
          pst->sm.g[t] = 1.0 / h * (W1 * w * (-pst->sm.g[t] + pst->sm.wum[t]));
    }
@@ -223,8 +236,6 @@ static void HTS_PStream_gv_parmgen(HTS_PStream * pst, const int m)
    if (pst->gv_length == 0)
       return;
 
-   for (t = 0; t < pst->length; t++)
-      pst->gv_buff[t] = pst->par[t][m];
    HTS_PStream_conv_gv(pst, m);
    if (GV_MAX_ITERATION > 0) {
       HTS_PStream_calc_wuw_and_wum(pst, m);
@@ -235,12 +246,10 @@ static void HTS_PStream_gv_parmgen(HTS_PStream * pst, const int m)
          if (obj < prev)
             step *= STEPINC;
          for (t = 0; t < pst->length; t++)
-            pst->gv_buff[t] += step * pst->sm.g[t];
+            pst->par[t][m] += step * pst->sm.g[t];
          prev = obj;
       }
    }
-   for (t = 0; t < pst->length; t++)
-      pst->par[t][m] += pst->gv_weight * (pst->gv_buff[t] - pst->par[t][m]);
 }
 
 /* HTS_PStream_mlpg: generate sequence of speech parameter vector maximizing its output probability for given pdf sequence */
@@ -256,7 +265,7 @@ static void HTS_PStream_mlpg(HTS_PStream * pst)
       HTS_PStream_ldl_factorization(pst);       /* LDL factorization */
       HTS_PStream_forward_substitution(pst);    /* forward substitution   */
       HTS_PStream_backward_substitution(pst, m);        /* backward substitution  */
-      if (pst->gv_buff != NULL)
+      if (pst->gv_length > 0)
          HTS_PStream_gv_parmgen(pst, m);
    }
 }
@@ -347,10 +356,9 @@ void HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss,
              (double *) HTS_calloc(pst->static_length, sizeof(double));
          pst->gv_vari =
              (double *) HTS_calloc(pst->static_length, sizeof(double));
-         pst->gv_weight = gv_weight[i];
-         pst->gv_buff = (double *) HTS_calloc(pst->length, sizeof(double));
          for (j = 0; j < pst->static_length; j++) {
-            pst->gv_mean[j] = HTS_SStreamSet_get_gv_mean(sss, i, j);
+            pst->gv_mean[j] =
+                HTS_SStreamSet_get_gv_mean(sss, i, j) * gv_weight[i];
             pst->gv_vari[j] = HTS_SStreamSet_get_gv_vari(sss, i, j);
          }
          pst->gv_switch =
@@ -378,7 +386,6 @@ void HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss,
          pst->gv_length = 0;
          pst->gv_mean = NULL;
          pst->gv_vari = NULL;
-         pst->gv_buff = NULL;
       }
       /* copy pdfs */
       if (HTS_SStreamSet_is_msd(sss, i)) {      /* for MSD */
@@ -510,8 +517,6 @@ void HTS_PStreamSet_clear(HTS_PStreamSet * pss)
             pstream->win_coefficient[j] += pstream->win_l_width[j];
             HTS_free(pstream->win_coefficient[j]);
          }
-         if (pstream->gv_buff)
-            HTS_free(pstream->gv_buff);
          if (pstream->gv_mean)
             HTS_free(pstream->gv_mean);
          if (pstream->gv_vari)
@@ -526,3 +531,7 @@ void HTS_PStreamSet_clear(HTS_PStreamSet * pss)
    }
    HTS_PStreamSet_initialize(pss);
 }
+
+HTS_PSTREAM_C_END;
+
+#endif                          /* !HTS_PSTREAM_C */

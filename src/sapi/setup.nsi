@@ -47,12 +47,15 @@ Section
   File ..\..\data\voice\lf0.win1
   File ..\..\data\voice\lf0.win2
   File ..\..\data\voice\lf0.win3
+  File ..\..\data\voice\lpf.pdf
+  File ..\..\data\voice\lpf.win1
   File ..\..\data\voice\mgc.pdf
   File ..\..\data\voice\mgc.win1
   File ..\..\data\voice\mgc.win2
   File ..\..\data\voice\mgc.win3
   File ..\..\data\voice\tree-dur.inf
   File ..\..\data\voice\tree-lf0.inf
+  File ..\..\data\voice\tree-lpf.inf
   File ..\..\data\voice\tree-mgc.inf
   SetOutPath "$INSTDIR\documentation"
   File ..\..\build\win32\README.txt
@@ -100,12 +103,15 @@ Section Uninstall
   Delete "$INSTDIR\data\RHVoice-M1\lf0.win1"
   Delete "$INSTDIR\data\RHVoice-M1\lf0.win2"
   Delete "$INSTDIR\data\RHVoice-M1\lf0.win3"
+  Delete "$INSTDIR\data\RHVoice-M1\lpf.pdf"
+  Delete "$INSTDIR\data\RHVoice-M1\lpf.win1"
   Delete "$INSTDIR\data\RHVoice-M1\mgc.pdf"
   Delete "$INSTDIR\data\RHVoice-M1\mgc.win1"
   Delete "$INSTDIR\data\RHVoice-M1\mgc.win2"
   Delete "$INSTDIR\data\RHVoice-M1\mgc.win3"
   Delete "$INSTDIR\data\RHVoice-M1\tree-dur.inf"
   Delete "$INSTDIR\data\RHVoice-M1\tree-lf0.inf"
+  Delete "$INSTDIR\data\RHVoice-M1\tree-lpf.inf"
   Delete "$INSTDIR\data\RHVoice-M1\tree-mgc.inf"
   RMDir "$INSTDIR\data\RHVoice-M1"
   RMDir "$INSTDIR\data"

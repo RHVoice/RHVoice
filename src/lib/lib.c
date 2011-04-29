@@ -119,7 +119,7 @@ static int synth_callback(const short *samples,int nsamples,void *user_data)
   return end_of_audio?0:(state->last_result);
 }
 
-#define num_hts_data_files 17
+#define num_hts_data_files 15
 
 static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_files]);
 static void close_hts_data_files(FILE *file_list[num_hts_data_files]);
@@ -144,11 +144,9 @@ static const hts_data_file_info hts_data_list[num_hts_data_files]={
   {"lf0.win1","r",0},
   {"lf0.win2","r",0},
   {"lf0.win3","r",0},
-  {"gv-mgc.pdf","rb",1},
-  {"tree-gv-mgc.inf","r",1},
-  {"gv-lf0.pdf","rb",1},
-  {"tree-gv-lf0.inf","r",1},
-  {"gv-switch.inf","r",1}};
+  {"lpf.pdf","rb",0},
+  {"tree-lpf.inf","r",0},
+  {"lpf.win1","r",0}};
 
 static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_files])
 {
@@ -223,19 +221,9 @@ static struct {
 
 int initialize_engine(HTS_Engine *engine,const char *path)
 {
-  int i,j;
+  int i;
   FILE *fp[num_hts_data_files];
-  int use_gv=1;
-  int sampling_rate=16000;
-  int fperiod=80;
-  float alpha=0.42;
-  float stage=0.0;
-  float beta=0.4;
-  float uv_threshold=0.5;
-  float gv_weight_lf0=0.7;
-  float gv_weight_mcp=1.0;
-  HTS_Boolean use_log_gain=TRUE;
-  HTS_Engine_initialize(engine,2);
+  HTS_Engine_initialize(engine,3);
   HTS_Engine_set_SynthCallback(engine,synth_callback);
   if(!open_hts_data_files(path,fp)) return 0;
   i=0;
@@ -245,44 +233,21 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   i+=5;
   HTS_Engine_load_parameter_from_fp(engine,&fp[i],&fp[i+1],&fp[i+2],1,TRUE,3,1);
   i+=5;
-  for(j=i;j<num_hts_data_files;j++)
-    {
-      if(fp[j]==NULL)
-        {
-        use_gv=0;
-        break;
-        }
-    }
-  if(use_gv)
-    {
-      beta=0;
-      HTS_Engine_load_gv_from_fp(engine,&fp[i],&fp[i+1],0,1);
-      i+=2;
-      HTS_Engine_load_gv_from_fp(engine,&fp[i],&fp[i+1],1,1);
-      HTS_Engine_load_gv_switch_from_fp(engine,fp[i]);
-    }
+  HTS_Engine_load_parameter_from_fp(engine,&fp[i],&fp[i+1],&fp[i+2],2,FALSE,1,1);
+  i+=3;
   close_hts_data_files(fp);
-  HTS_Engine_set_sampling_rate(engine,sampling_rate);
-  HTS_Engine_set_fperiod(engine,fperiod);
-  HTS_Engine_set_alpha(engine,alpha);
-  HTS_Engine_set_gamma(engine,stage);
-  HTS_Engine_set_log_gain(engine,use_log_gain);
-  HTS_Engine_set_beta(engine,beta);
-  HTS_Engine_set_msd_threshold(engine,1,uv_threshold);
-  if(use_gv)
-    {
-      HTS_Engine_set_gv_weight(engine,0,gv_weight_mcp);
-      HTS_Engine_set_gv_weight(engine,1,gv_weight_lf0);
-    }
+  HTS_Engine_set_sampling_rate(engine,16000);
+  HTS_Engine_set_fperiod(engine,80);
+  HTS_Engine_set_alpha(engine,0.42);
+  HTS_Engine_set_gamma(engine,0);
+  HTS_Engine_set_log_gain(engine,TRUE);
+  HTS_Engine_set_beta(engine,0.4);
+  HTS_Engine_set_msd_threshold(engine,1,0.5);
   HTS_Engine_set_duration_interpolation_weight(engine,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,0,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,1,0,1.0);
-  if(use_gv)
-    {
-      HTS_Engine_set_gv_interpolation_weight(engine,0,0,1.0);
-      HTS_Engine_set_gv_interpolation_weight(engine,1,0,1.0);
-    }
-  return sampling_rate;
+  HTS_Engine_set_parameter_interpolation_weight(engine,2,0,1.0);
+  return engine->global.sampling_rate;
 }
 
 int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path)
@@ -522,7 +487,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   HTS_Engine *engine=get_engine();
   if(engine==NULL) return NULL;
   synth_state state;
-  state.min_buff_size=0.15*engine->global.sampling_rate;
+  state.min_buff_size=0.1*engine->global.sampling_rate;
   state.samples=svector_alloc(state.min_buff_size,NULL);
   if(state.samples==NULL)
     {
@@ -531,7 +496,6 @@ cst_utterance *hts_synth(cst_utterance *u)
     }
   rate=feat_float(u->features,"rate");
   float frames_per_sec=(float)engine->global.sampling_rate/((float)engine->global.fperiod);
-  float final_pause_limit=0.25*frames_per_sec/((rate<=2)?rate:1);
   float factor,time;
   for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
   if(nlabels==0)
@@ -540,28 +504,6 @@ cst_utterance *hts_synth(cst_utterance *u)
       return NULL;
     }
   create_hts_labels(u);
-  s=relation_head(utt_relation(u,"Segment"));
-  if((item_feat_float(s,"factor")==0)&&(item_feat_float(s,"time")==0))
-    {
-      nlabels--;
-      if(nlabels==0)
-        {
-          release_engine(engine);
-          return NULL;
-        }
-      delete_item(s);
-    }
-  s=relation_tail(utt_relation(u,"Segment"));
-  if((item_feat_float(s,"factor")==0)&&(item_feat_float(s,"time")==0))
-    {
-      nlabels--;
-      if(nlabels==0)
-        {
-          release_engine(engine);
-          return NULL;
-        }
-      delete_item(s);
-    }
   labels=(char**)calloc(nlabels,sizeof(char*));
   for(i=0,s=relation_head(utt_relation(u,"Segment"));s;s=item_next(s),i++)
     {
@@ -583,8 +525,6 @@ cst_utterance *hts_synth(cst_utterance *u)
       if(rate<=2) local_dur/=rate;
       if(cst_streq(item_name(s),"pau"))
         {
-          if((!item_next(s))&&(local_dur>final_pause_limit))
-            local_dur=final_pause_limit;
           factor=item_feat_float(s,"factor");
           time=item_feat_float(s,"time");
           local_dur*=factor;

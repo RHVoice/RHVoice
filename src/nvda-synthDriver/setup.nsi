@@ -28,12 +28,15 @@ Section
   File ..\..\data\voice\lf0.win1
   File ..\..\data\voice\lf0.win2
   File ..\..\data\voice\lf0.win3
+  File ..\..\data\voice\lpf.pdf
+  File ..\..\data\voice\lpf.win1
   File ..\..\data\voice\mgc.pdf
   File ..\..\data\voice\mgc.win1
   File ..\..\data\voice\mgc.win2
   File ..\..\data\voice\mgc.win3
   File ..\..\data\voice\tree-dur.inf
   File ..\..\data\voice\tree-lf0.inf
+  File ..\..\data\voice\tree-lpf.inf
   File ..\..\data\voice\tree-mgc.inf
   SetOutPath $INSTDIR
   File ..\..\build\win32\lib\RHVoice.dll

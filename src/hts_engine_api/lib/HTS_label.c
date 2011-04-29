@@ -1,10 +1,10 @@
 /* ----------------------------------------------------------------- */
-/*           The HMM-Based Speech Synthesis System (HTS)             */
-/*           hts_engine API developed by HTS Working Group           */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
 /*           http://hts-engine.sourceforge.net/                      */
 /* ----------------------------------------------------------------- */
 /*                                                                   */
-/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*  Copyright (c) 2001-2011  Nagoya Institute of Technology          */
 /*                           Department of Computer Science          */
 /*                                                                   */
 /*                2001-2008  Tokyo Institute of Technology           */
@@ -41,6 +41,19 @@
 /* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
 /* POSSIBILITY OF SUCH DAMAGE.                                       */
 /* ----------------------------------------------------------------- */
+
+#ifndef HTS_LABEL_C
+#define HTS_LABEL_C
+
+#ifdef __cplusplus
+#define HTS_LABEL_C_START extern "C" {
+#define HTS_LABEL_C_END   }
+#else
+#define HTS_LABEL_C_START
+#define HTS_LABEL_C_END
+#endif                          /* __CPLUSPLUS */
+
+HTS_LABEL_C_START;
 
 #include <stdlib.h>             /* for atof() */
 #include <ctype.h>              /* for isgraph(),isdigit() */
@@ -113,7 +126,7 @@ void HTS_Label_load_from_fp(HTS_Label * label, int sampling_rate, int fperiod,
       HTS_error(1, "HTS_Label_load_from_fp: label is not initialized.\n");
    /* parse label file */
    while (HTS_get_token(fp, buff)) {
-      if (!isgraph(buff[0]))
+      if (!isgraph((int) buff[0]))
          break;
       label->size++;
 
@@ -156,7 +169,7 @@ void HTS_Label_load_from_string(HTS_Label * label, int sampling_rate,
       HTS_error(1, "HTS_Label_load_from_fp: label list is not initialized.\n");
    /* copy label */
    while (HTS_get_token_from_string(data, &data_index, buff)) {
-      if (!isgraph(buff[0]))
+      if (!isgraph((int) buff[0]))
          break;
       label->size++;
 
@@ -200,7 +213,7 @@ void HTS_Label_load_from_string_list(HTS_Label * label, int sampling_rate,
       HTS_error(1, "HTS_Label_load_from_fp: label list is not initialized.\n");
    /* copy label */
    for (i = 0; i < size; i++) {
-      if (!isgraph(data[i][0]))
+      if (!isgraph((int) data[i][0]))
          break;
       label->size++;
 
@@ -311,3 +324,7 @@ void HTS_Label_clear(HTS_Label * label)
    }
    HTS_Label_initialize(label);
 }
+
+HTS_LABEL_C_END;
+
+#endif                          /* !HTS_LABEL_C */

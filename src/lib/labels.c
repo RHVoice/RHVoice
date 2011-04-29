@@ -78,10 +78,8 @@ cst_utterance *create_hts_labels(cst_utterance *u)
               count++;
               dist=1;
             }
-          else
-            {
-              dist++;
-            }
+          else if(dist>0)
+            dist++;
         }
       for(count=0,dist=0,w=item_last_daughter(phr);w;w=item_prev(w))
         {
@@ -93,17 +91,14 @@ cst_utterance *create_hts_labels(cst_utterance *u)
               count++;
               dist=1;
             }
-          else
-            {
-              dist++;
-            }
+          else if(dist>0)
+            dist++;
         }
       tmp=path_to_item(phr,"daughtern.R:SylStructure.daughtern.R:Syllable");
-      for(count=0,dist=0,syl=path_to_item(phr,"daughter.R:SylStructure.daughter.R:Syllable");
-          syl;
-          syl=item_next(syl))
+      syl=path_to_item(phr,"daughter.R:SylStructure.daughter.R:Syllable");
+      for(count=(cst_streq(item_feat_string(syl,"stress"),"1")?-1:0),dist=0;syl;syl=item_next(syl))
         {
-          item_set_int(syl,"num_stressed_syls_before",count);
+          item_set_int(syl,"num_stressed_syls_before",(count<0)?0:count);
           item_set_int(syl,"dist_to_prev_stress",dist);
           is_stressed=!cst_streq(item_feat_string(syl,"stress"),"0");
           if(is_stressed)
@@ -111,10 +106,8 @@ cst_utterance *create_hts_labels(cst_utterance *u)
               count++;
               dist=1;
             }
-          else
-            {
-              dist++;
-            }
+          else if(dist > 0)
+            dist++;
           if(item_equal(syl,tmp))
             break;
         }
@@ -131,10 +124,8 @@ cst_utterance *create_hts_labels(cst_utterance *u)
               count++;
               dist=1;
             }
-          else
-            {
-              dist++;
-            }
+          else if(dist>0)
+            dist++;
           if(item_equal(syl,tmp))
             break;
         }
@@ -169,11 +160,11 @@ cst_utterance *create_hts_labels(cst_utterance *u)
           ptr+=sprintf(ptr,"@%d_%d",seg_pos_in_syl+1,num_segs_in_syl-seg_pos_in_syl);
         }
       ptr+=sprintf(ptr,"/A:%s",ffeature_string(s,is_pau?"p.R:SylStructure.parent.R:Syllable.stress":"R:SylStructure.parent.R:Syllable.p.stress"));
-      ptr+=sprintf(ptr,"_x");
+      ptr+=sprintf(ptr,"_0");
       tmp=path_to_item(s,is_pau?"p.R:SylStructure.parent.R:Syllable":"R:SylStructure.parent.R:Syllable.p");
       ptr+=sprintf(ptr,"_%d",tmp?item_feat_int(tmp,"num_phones"):0);
       ptr+=sprintf(ptr,"/B:%s",is_pau?"x":ffeature_string(s,"R:SylStructure.parent.R:Syllable.stress"));
-      ptr+=sprintf(ptr,"-x");
+      ptr+=sprintf(ptr,"-%s",is_pau?"x":"0");
       ptr+=(is_pau?sprintf(ptr,"-x"):sprintf(ptr,"-%d",num_segs_in_syl));
       if(is_pau)
         ptr+=sprintf(ptr,"@x-x");
@@ -197,12 +188,12 @@ cst_utterance *create_hts_labels(cst_utterance *u)
         {
           ptr+=sprintf(ptr,"#%d-%d",item_feat_int(syl,"num_stressed_syls_before")+1,item_feat_int(syl,"num_stressed_syls_after")+1);
         }
-      ptr+=sprintf(ptr,"$x-x");
+      ptr+=sprintf(ptr,is_pau?"$x-x":"$1-1");
       if(is_pau)
         ptr+=sprintf(ptr,"!x-x");
       else
         ptr+=sprintf(ptr,"!%d-%d",item_feat_int(syl,"dist_to_prev_stress"),item_feat_int(syl,"dist_to_next_stress"));
-      ptr+=sprintf(ptr,";x-x");
+      ptr+=sprintf(ptr,is_pau?";x-x":";0-0");
       if(is_pau)
         ptr+=sprintf(ptr,"|x");
       else
@@ -211,7 +202,7 @@ cst_utterance *create_hts_labels(cst_utterance *u)
           ptr+=sprintf(ptr,"|%s",tmp?item_name(tmp):"novowel");
         }
       ptr+=sprintf(ptr,"/C:%s",ffeature_string(s,is_pau?"n.R:SylStructure.parent.R:Syllable.stress":"R:SylStructure.parent.R:Syllable.n.stress"));
-      ptr+=sprintf(ptr,"+x");
+      ptr+=sprintf(ptr,"+0");
       tmp=path_to_item(s,is_pau?"n.R:SylStructure.parent.R:Syllable":"R:SylStructure.parent.R:Syllable.n");
       ptr+=sprintf(ptr,"+%d",tmp?item_feat_int(tmp,"num_phones"):0);
       ptr+=sprintf(ptr,"/D:%s",ffeature_string(s,is_pau?"p.R:SylStructure.parent.parent.R:Word.gpos":"R:SylStructure.parent.parent.R:Word.p.gpos"));
@@ -245,13 +236,13 @@ cst_utterance *create_hts_labels(cst_utterance *u)
       ptr+=sprintf(ptr,"/G:%d",tmp?item_feat_int(tmp,"num_syls"):0);
       ptr+=sprintf(ptr,"_%d",tmp?item_feat_int(tmp,"num_words"):0);
       if(is_pau)
-        ptr+=sprintf(ptr,"/H:x=x@x=x");
+        ptr+=sprintf(ptr,"/H:x=x^1=%d",total_phrases);
       else
         {
           phrase_pos_in_utt=item_feat_int(phr,"pos_in_utt");
-          ptr+=sprintf(ptr,"/H:%d=%d@%d=%d",item_feat_int(phr,"num_syls"),item_feat_int(phr,"num_words"),phrase_pos_in_utt+1,total_phrases-phrase_pos_in_utt);
+          ptr+=sprintf(ptr,"/H:%d=%d^%d=%d",item_feat_int(phr,"num_syls"),item_feat_int(phr,"num_words"),phrase_pos_in_utt+1,total_phrases-phrase_pos_in_utt);
         }
-      ptr+=sprintf(ptr,"|x");
+      ptr+=sprintf(ptr,is_pau?"|0":"|NONE");
       tmp=is_pau?path_to_item(s,"n.R:SylStructure.parent.parent.R:Phrase.parent"):item_next(phr);
       ptr+=sprintf(ptr,"/I:%d",tmp?item_feat_int(tmp,"num_syls"):0);
       ptr+=sprintf(ptr,"=%d",tmp?item_feat_int(tmp,"num_words"):0);
