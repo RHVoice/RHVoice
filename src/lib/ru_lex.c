@@ -152,12 +152,12 @@ static cst_val* word_to_phones(const cst_item *word)
   int variant=item_feat_int(item_parent(item_as(word,"Token")),"variant");
   if((flags&cs_lc)&&cst_streq(ffeature_string(word,"gpos"),"content"))
     {
-      if(variant==RHVoice_variant_pseudo_english)
+      if(variant==variant_pseudo_english)
         phones=ustring32_lts_apply(letters,&en_consonants_lts);
       else phones=ustring32_lts_apply(letters,&ru_consonants_lts);
       item_set_int(word,"no_vr",1);
     }
-  else if((variant==RHVoice_variant_pseudo_english)&&(flags&cs_en))
+  else if((variant==variant_pseudo_english)&&(flags&cs_en))
     {
       cst_val *en_phones=lex_lookup(en_lex,name,(cst_streq(name,"a")?"n":NULL));
       if(en_phones)

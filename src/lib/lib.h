@@ -52,7 +52,19 @@ extern "C" {
   int user_dict_update(const char *path,void *data);
   void user_dict_build(user_dict dict);
   void user_dict_free(user_dict dict);
-  const uint8_t* user_dict_lookup(const user_dict dict,const uint8_t* word);
+  const uint8_t* user_dict_lookup32(const user_dict dict,const uint32_t* word);
+  const uint8_t* user_dict_lookup8(const user_dict dict,const uint8_t* word);
+
+#define builtin_variant_count 2
+#define variant_pseudo_english 1
+#define variant_russian 2
+  void load_user_variants(const char *dir);
+  int user_variant_get_count();
+  int user_variant_is_alpha(int v,ucs4_t c);
+  ustring8_t user_variant_apply(int v,const uint32_t *word);
+  const uint8_t *user_variant_lookup(int v,const uint32_t *word);
+  void free_user_variants();
+  const char *user_variant_get_name(int v);
 
   typedef enum {
     cs_sp=1 << 0,               /* space */

@@ -37,7 +37,7 @@ static float current_volume=1.0;
 
 MUTEX settings_mutex;
 
-static RHVoice_variant current_variant=RHVoice_variant_pseudo_english;
+static int current_variant=variant_pseudo_english;
 
 float check_pitch_range(float value)
 {
@@ -105,9 +105,9 @@ float RHVoice_get_volume()
   return val;
 }
 
-void RHVoice_set_variant(RHVoice_variant variant)
+void RHVoice_set_variant(int variant)
 {
-  if((variant>0)&&(variant<3))
+  if((variant>0)&&(variant<=RHVoice_get_variant_count()))
     {
       LOCK_MUTEX(&settings_mutex);
       current_variant=variant;
@@ -115,13 +115,35 @@ void RHVoice_set_variant(RHVoice_variant variant)
     }
 }
 
-RHVoice_variant RHVoice_get_variant()
+int RHVoice_get_variant()
 {
-  RHVoice_variant v=RHVoice_variant_pseudo_english;
+  int v=1;
   LOCK_MUTEX(&settings_mutex);
   v=current_variant;
   UNLOCK_MUTEX(&settings_mutex);
   return v;
+}
+
+int RHVoice_get_variant_count()
+{
+  return builtin_variant_count+user_variant_get_count();
+}
+
+const char *RHVoice_get_variant_name(int variant)
+{
+  if(variant<1) return NULL;
+  switch(variant)
+    {
+    case variant_pseudo_english:
+      return "Pseudo-English";
+      break;
+    case variant_russian:
+      return "Russian";
+      break;
+    default:
+      return user_variant_get_name(variant-builtin_variant_count);
+      break;
+    }
 }
 
 float RHVoice_get_min_rate()
@@ -263,6 +285,12 @@ void load_settings(const char *path)
       free(subpath);
       user_dict_build(global_user_dict);
     }
+  subpath=path_append(path,"variants");
+  if(subpath!=NULL)
+    {
+      load_user_variants(subpath);
+      free(subpath);
+    }
 }
 
 void free_settings()
@@ -270,6 +298,7 @@ void free_settings()
   DESTROY_MUTEX(&settings_mutex);
   user_dict_free(global_user_dict);
   global_user_dict=NULL;
+  free_user_variants();
   min_rate=0.25;
   default_rate=1.0;
   max_rate=4.0;
@@ -281,5 +310,5 @@ void free_settings()
   default_volume=1.0;
   max_volume=2.0;
   current_volume=1.0;
-  current_variant=RHVoice_variant_pseudo_english;
+  current_variant=variant_pseudo_english;
 }
