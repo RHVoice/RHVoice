@@ -94,13 +94,10 @@ extern "C" {
   float RHVoice_get_default_volume();
   float RHVoice_get_max_volume();
 
-  typedef enum {
-    RHVoice_variant_pseudo_english=1,
-    RHVoice_variant_russian=2
-  } RHVoice_variant;
-
-  void RHVoice_set_variant(RHVoice_variant variant);
-  RHVoice_variant RHVoice_get_variant();
+  void RHVoice_set_variant(int variant);
+  int RHVoice_get_variant();
+  int RHVoice_get_variant_count();
+  const char *RHVoice_get_variant_name(int variant);
   void RHVoice_set_user_data(RHVoice_message message,void *data);
   void *RHVoice_get_user_data(RHVoice_message message);
 

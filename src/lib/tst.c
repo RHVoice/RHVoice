@@ -229,7 +229,7 @@ void tst_build(tst t)
   free_items(t);
 }
 
-int tst_search(tst t,const uint8_t *key,void **pvalue)
+int tst_search8(tst t,const uint8_t *key,void **pvalue)
 {
   if(nodelist_front(t->nodes)->spltchr=='\0') return 0;
   ucs4_t c,sc;
@@ -250,6 +250,35 @@ int tst_search(tst t,const uint8_t *key,void **pvalue)
             }
           n=nodelist_at(t->nodes,n)->mid;
           s=u8_next(&c,s);
+          if(s==NULL) c='\0';
+        }
+      else n=nodelist_at(t->nodes,n)->right;
+    }
+  while(n>0);
+  return 0;
+}
+
+int tst_search32(tst t,const uint32_t *key,void **pvalue)
+{
+  if(nodelist_front(t->nodes)->spltchr=='\0') return 0;
+  ucs4_t c,sc;
+  const uint32_t *s=u32_next(&c,key);
+  if(s==NULL) return 0;
+  size_t n=0;
+  do
+    {
+      sc=nodelist_at(t->nodes,n)->spltchr;
+      if(c<sc) n=nodelist_at(t->nodes,n)->left;
+      else if(c==sc)
+        {
+          if(c=='\0')
+            {
+              if(t->store_values&&(pvalue!=NULL))
+                *pvalue=(void*)nodelist_at(t->nodes,n)->mid;
+              return 1;
+            }
+          n=nodelist_at(t->nodes,n)->mid;
+          s=u32_next(&c,s);
           if(s==NULL) c='\0';
         }
       else n=nodelist_at(t->nodes,n)->right;

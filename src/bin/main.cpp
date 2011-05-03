@@ -117,7 +117,7 @@ static void show_help()
   cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
   cout << setw(w) << "-d, --voice-directory=<path>" << "path to voice files\n";
   cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
-  cout << setw(w) << "-n, --variant=<number from 1 to 2>" << "variant\n";
+  cout << setw(w) << "-n, --variant=<name>" << "variant\n";
   cout << setw(w) << "-s, --ssml" << "ssml input\n";
 }
 
@@ -153,7 +153,7 @@ int main(int argc,char **argv)
   float rate=-1;
   float pitch=-1;
   float volume=-1;
-  RHVoice_variant variant=RHVoice_variant_pseudo_english;
+  string variant;
   int is_ssml=0;
   string text;
   char ch;
@@ -190,11 +190,7 @@ int main(int argc,char **argv)
               cfgpath=optarg;
               break;
             case 'n':
-              {
-                unsigned int tmp=1;
-                istringstream(optarg) >> tmp;
-                if(tmp==2) variant=RHVoice_variant_russian;
-              }
+              variant=optarg;
               break;
             case 0:
               break;
@@ -218,7 +214,18 @@ int main(int argc,char **argv)
         RHVoice_set_pitch(convert_prosody_value(pitch,RHVoice_get_min_pitch(),RHVoice_get_max_pitch(),RHVoice_get_default_pitch()));
       if(volume!=-1)
         RHVoice_set_volume(convert_prosody_value(volume,0,RHVoice_get_max_volume(),RHVoice_get_default_volume()));
-      RHVoice_set_variant(variant);
+      if(!variant.empty())
+        {
+          int n=RHVoice_get_variant_count();
+          for(int i=1;i<=n;i++)
+            {
+              if(variant==RHVoice_get_variant_name(i))
+                {
+                  RHVoice_set_variant(i);
+                  break;
+                }
+            }
+        }
       if(is_ssml)
         {
           msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),1);

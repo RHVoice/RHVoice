@@ -88,7 +88,7 @@ typedef struct {
   int mark_index;
   int say_as;
   uint8_t *say_as_format;
-  RHVoice_variant variant;
+  int variant;
 } token;
 
 static void token_free(token *t)
@@ -561,7 +561,7 @@ static variant_stack variant_stack_update(variant_stack stack,ssml_tag *tag)
   if(strvariant==NULL) return stack;
   char *suffix;
   variant=strtol(strvariant,&suffix,10);
-  if((variant>0)&&(variant<3)&&(suffix[0]=='\0'))
+  if((variant>0)&&(variant<=RHVoice_get_variant_count())&&(suffix[0]=='\0'))
     *variant_stack_back(stack)=variant;
   return stack;
 }
