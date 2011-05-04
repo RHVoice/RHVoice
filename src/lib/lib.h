@@ -63,6 +63,7 @@ extern "C" {
   int user_variant_is_alpha(int v,ucs4_t c);
   ustring8_t user_variant_apply(int v,const uint32_t *word);
   const uint8_t *user_variant_lookup(int v,const uint32_t *word);
+  int user_variant_is_member(int v,ucs4_t c,uint8_t g);
   void free_user_variants();
   const char *user_variant_get_name(int v);
 
