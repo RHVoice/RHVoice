@@ -219,9 +219,7 @@ const uint8_t* user_dict_lookup32(const user_dict dict,const uint32_t* word)
 
 typedef struct
 {
-  uint32_t *substring;
-  ustring32_t prefix;
-  ustring32_t suffix;
+  uint32_t *prefix,*substring,*suffix;
   uint8_t *pron;
 } rule;
 
@@ -229,32 +227,17 @@ void free_rule(rule *r)
 {
   if(r==NULL) return;
   free(r->substring);
-  if(r->prefix) ustring32_free(r->prefix);
-  if(r->suffix) ustring32_free(r->suffix);
+  if(r->prefix) free(r->prefix);
+  if(r->suffix) free(r->suffix);
   free(r->pron);
 }
 
 vector_t(rule,ruleset)
 
-typedef struct
-{
-  uint8_t *name;
-  uint32_t *members;
-} group;
-
-void free_group(group *g)
-{
-  if(g->name!=NULL) free(g->name);
-  if(g->members!=NULL) free(g->members);
-}
-
-vector_t(group,grouplist)
-
 typedef struct {
   char *name;
   user_dict dict;
-  ustring32_t alphabet;
-  grouplist groups;
+  uint32_t *groups[26];
   ruleset rules;
 } user_variant;
 
@@ -262,144 +245,99 @@ vector_t(user_variant,variantlist)
 
 static void user_variant_free(user_variant *pv)
 {
+  size_t i;
   user_dict_free(pv->dict);
-  ustring32_free(pv->alphabet);
+  for(i=0;i<26;i++)
+    {
+      if(pv->groups[i]!=NULL) free(pv->groups[i]);
+    }
   ruleset_free(pv->rules);
 }
 
 static variantlist variants=NULL;
 
-static int check_context_delims(const uint8_t *key)
+static int check_context_delims(const uint32_t *key)
 {
-  const uint8_t *l=u8_strchr(key,'<');
-  if(l!=u8_strrchr(key,'<')) return 0;
-  const uint8_t *r=u8_strchr(key,'>');
-  if(r!=u8_strrchr(key,'>')) return 0;
+  const uint32_t *l=u32_strchr(key,'<');
+  if(l!=u32_strrchr(key,'<')) return 0;
+  const uint32_t *r=u32_strchr(key,'>');
+  if(r!=u32_strrchr(key,'>')) return 0;
   if(l&&r&&(l>r)) return 0;
   return 1;
-}
-
-static ustring32_t parse_context_pattern(user_variant *pv,const uint8_t *pattern)
-{
-  ustring32_t result=ustring32_alloc(0);
-  if(result==NULL) return NULL;
-  ucs4_t c;
-  const uint8_t *s=pattern;
-  const uint8_t *p=NULL;
-  size_t n=grouplist_size(pv->groups);
-  size_t i;
-  const uint8_t *gname=NULL;
-  while((s=u8_next(&c,s)))
-    {
-      if(c=='{')
-        {
-          p=u8_strchr(s,'}');
-          if((p==NULL)||(p==s))
-            {
-              ustring32_free(result);
-              return NULL;
-            }
-          gname=NULL;
-          for(i=0;i<n;i++)
-            {
-              gname=grouplist_at(pv->groups,i)->name;
-              if(u8_cmp2(s,p-s,gname,u8_strlen(gname))==0)
-                {
-                  c=0x10ffff+1+i;
-                  break;
-                }
-              else
-                gname=NULL;
-            }
-          if(gname==NULL)
-            {
-              ustring32_free(result);
-              return NULL;
-            }
-          s=p+1;
-        }
-      if(!ustring32_push(result,c))
-        {
-          ustring32_free(result);
-          return NULL;
-        }
-    }
-  return result;
 }
 
 static void add_rule(user_variant *pv,const uint8_t *key,const uint8_t *value)
 {
   if(value==NULL) return;
-  if(!check_context_delims(key)) return;
   if(!((value[0]=='\0')||check_user_pron_value(pv->dict,value))) return;
   size_t n=0;
-  uint8_t *key0=u8_strdup(key);
+  uint32_t *key0=u8_to_u32(key,u8_strlen(key)+1,NULL,&n);
   if(key0==NULL) goto err0;
+  if(!check_context_delims(key0)) goto err1;
   rule r;
   r.substring=NULL;
   r.prefix=NULL;
   r.suffix=NULL;
   r.pron=NULL;
-  uint8_t *s1=u8_strchr(key0,'<');
+  uint32_t *s1=u32_strchr(key0,'<');
   if(s1!=NULL)
     {
       s1[0]='\0';
       s1++;
-      r.prefix=parse_context_pattern(pv,key0);
+      r.prefix=u32_strdup(key0);
       if(r.prefix==NULL) goto err1;
     }
   else
     s1=key0;
-  uint8_t *s2=u8_strrchr(s1,'>');
+  uint32_t *s2=u32_strrchr(s1,'>');
   if(s2!=NULL)
     {
       s2[0]='\0';
       s2++;
-      r.suffix=parse_context_pattern(pv,s2);
+      r.suffix=u32_strdup(s2);
       if(r.suffix==NULL) goto err2;
     }
   if(s1[0]=='\0') goto err3;
-  r.substring=u8_to_u32(s1,u8_strlen(s1)+1,NULL,&n);
+  r.substring=u32_strdup(s1);
   if(r.substring==NULL) goto err3;
   r.pron=copy_user_pron_value(pv->dict,value);
   if(r.pron==NULL) goto err4;
-  ucs4_t c;
-  const uint8_t *s=s1;
-  while((s=u8_next(&c,s)))
-    {
-      if(ustring32_empty(pv->alphabet)||(u32_chr(ustring32_str(pv->alphabet),ustring32_length(pv->alphabet),c)==NULL))
-        ustring32_push(pv->alphabet,c);
-    }
   if(!ruleset_push(pv->rules,&r)) goto err5;
   free(key0);
   return;
   err5: if(r.pron) free(r.pron);
   err4: if(r.substring) free(r.substring);
-  err3: if(r.suffix!=NULL) ustring32_free(r.suffix);
-  err2: if(r.prefix!=NULL) ustring32_free(r.prefix);
+  err3: if(r.suffix!=NULL) free(r.suffix);
+  err2: if(r.prefix!=NULL) free(r.prefix);
   err1: free(key0);
   err0: return;
 }
 
 static void add_group(user_variant *pv,const uint8_t *key,const uint8_t *value)
 {
+  if(key[1]!='\0') return;
+  if((key[0]<'A')||(key[0]>'Z')) return;
+  size_t k=key[0]-'A';
   if(value==NULL) return;
   if(value[0]=='\0') return;
-  group g;
-  g.name=u8_strdup(key);
-  if(g.name==NULL) return;
   size_t n=0;
-  g.members=u8_to_u32(value,u8_strlen(value+1),NULL,&n);
-  if(g.members==NULL)
-    {
-      free(g.name);
-      return;
-    }
-  if(!grouplist_push(pv->groups,&g))
-    {
-      free(g.name);
-      free(g.members);
-    }
+  if(pv->groups[k]!=NULL) free(pv->groups[k]);
+  pv->groups[k]=u8_to_u32(value,u8_strlen(value)+1,NULL,&n);
+}
+
+static int user_variant_is_in_group(user_variant *pv,ucs4_t c,uint8_t n)
+{
+  if(c=='\0') return 0;
+  const uint32_t *g=pv->groups[n-'A'];
+  if(g==NULL) return 0;
+  return (u32_strchr(g,c)!=NULL);
+}
+
+int user_variant_is_member(int v,ucs4_t c,uint8_t g)
+{
+  if(v>user_variant_get_count()) return 0;
+  if((g<'A')||(g>'Z')) return 0;
+  return user_variant_is_in_group(variantlist_at(variants,v-1),c,g);
 }
 
 static int variant_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
@@ -418,11 +356,15 @@ static int variant_callback(const uint8_t *section,const uint8_t *key,const uint
         }
       else return user_dict_callback(section,key,value,pv->dict);
     }
-  else if(u8_strcmp(section,(const uint8_t*)"rules")==0)
-    add_rule(pv,key,value);
-  else if(u8_strcmp(section,(const uint8_t*)"groups")==0)
-    add_group(pv,key,value);
-  else return user_dict_callback(section,key,value,pv->dict);
+  else
+    {
+      if(pv->name==NULL) return 0;
+      if(u8_strcmp(section,(const uint8_t*)"rules")==0)
+        add_rule(pv,key,value);
+      else if(u8_strcmp(section,(const uint8_t*)"groups")==0)
+        add_group(pv,key,value);
+      else return user_dict_callback(section,key,value,pv->dict);
+    }
   return 1;
 }
 
@@ -430,26 +372,25 @@ static int load_user_variant(const char *path,void *data)
 {
   user_variant v;
   v.name=NULL;
+  size_t i;
+  for(i=0;i<26;i++)
+    {
+      v.groups[i]=NULL;
+    }
   v.dict=user_dict_create();
-  if(v.dict==NULL) goto err0;
-  v.alphabet=ustring32_alloc(40);
-  if(v.alphabet==NULL) goto err1;
+  if(v.dict==NULL) goto err1;
   v.rules=ruleset_alloc(0,free_rule);
   if(v.rules==NULL) goto err2;
-  v.groups=grouplist_alloc(0,free_group);
-  if(v.groups==NULL) goto err3;
   parse_config(path,variant_callback,&v);
-  if((v.name==NULL)||ustring32_empty(v.alphabet)) goto err3;
+  if(v.name==NULL) goto err3;
   user_dict_build(v.dict);
-  if(!variantlist_push(variants,&v)) goto err4;
+  if(!variantlist_push(variants,&v)) goto err3;
   return 1;
-  err4: grouplist_free(v.groups);
   err3:
   if(v.name!=NULL) free(v.name);
   ruleset_free(v.rules);
-  err2: ustring32_free(v.alphabet);
-  err1: user_dict_free(v.dict);
-  err0: return 0;
+  err2: user_dict_free(v.dict);
+  err1: return 0;
 }
 
 void load_user_variants(const char *dir)
@@ -479,8 +420,9 @@ const char *user_variant_get_name(int v)
 int user_variant_is_alpha(int v,ucs4_t c)
 {
   if(v>user_variant_get_count()) return 0;
-  ustring32_t a=variantlist_at(variants,v-1)->alphabet;
-  return (u32_chr(ustring32_str(a),ustring32_length(a),c)!=NULL);
+  return (user_variant_is_member(v,c,'V')||
+          user_variant_is_member(v,c,'C')||
+          user_variant_is_member(v,c,'O'));
 }
 
 const uint8_t *user_variant_lookup(int v,const uint32_t *word)
@@ -493,17 +435,15 @@ static int matches(user_variant *pv,const uint32_t *w,size_t p,rule *r)
 {
   if(!u32_startswith(w+p,r->substring)) return 0;
   size_t e=p+u32_strlen(r->substring);
-  group *g=grouplist_data(pv->groups);
   ucs4_t c1,c2;
   const uint32_t *s1,*s2;
   if(r->prefix!=NULL)
     {
-      const uint32_t *prefix_pattern=ustring32_str(r->prefix);
       s1=w+p;
-      s2=prefix_pattern+ustring32_length(r->prefix);
-      while((s2=u32_prev(&c2,s2,prefix_pattern)))
+      s2=r->prefix+u32_strlen(r->prefix);
+      while((s2=u32_prev(&c2,s2,r->prefix)))
         {
-          if((c2=='$')&&(s2==prefix_pattern))
+          if((c2=='$')&&(s2==r->prefix))
             {
               if(s1==w)
                 break;
@@ -513,17 +453,17 @@ static int matches(user_variant *pv,const uint32_t *w,size_t p,rule *r)
           if(s1==w) return 0;
           s1--;
           c1=*s1;
-          if(c2>0x10ffff)
+          if((c2>='A')&&(c2<='Z'))
             {
-              if(!u32_strchr(g[c2-0x10ffff-1].members,c1)) return 0;
-            }
+              if(!user_variant_is_in_group(pv,c1,c2)) return 0;
+        }
           else if(c1!=c2) return 0;
         }
     }
   if(r->suffix!=NULL)
     {
       s1=w+e;
-      s2=ustring32_str(r->suffix);
+      s2=r->suffix;
       while((s2=u32_next(&c2,s2)))
         {
           if((c2=='$')&&(s2[0]=='\0'))
@@ -536,9 +476,9 @@ static int matches(user_variant *pv,const uint32_t *w,size_t p,rule *r)
           if(s1[0]=='\0') return 0;
           c1=*s1;
           s1++;
-          if(c2>0x10ffff)
+          if((c2>='A')&&(c2<='Z'))
             {
-              if(!u32_strchr(g[c2-0x10ffff-1].members,c1)) return 0;
+              if(!user_variant_is_in_group(pv,c1,c2)) return 0;
             }
           else if(c1!=c2) return 0;
         }
