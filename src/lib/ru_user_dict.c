@@ -437,6 +437,7 @@ const char *user_variant_get_name(int v)
 int user_variant_is_alpha(int v,ucs4_t c)
 {
   if(v>user_variant_get_count()) return 0;
+  if(((c>='0')&&(c<='9'))||((c>='A')&&(c<='Z'))||(c=='$')||(c=='<')||(c=='>')) return 0;
   return (user_variant_is_member(v,c,'V')||
           user_variant_is_member(v,c,'C')||
           user_variant_is_member(v,c,'O'));
@@ -453,7 +454,9 @@ static int context_matches(user_variant *pv,const uint32_t *str,const uint32_t *
   if(pattern==NULL) return 1;
   const uint32_t *p=pattern;
   const uint32_t *s=str;
-  ucs4_t c,pc;
+  ucs4_t c,pc,c0;
+  size_t l,n;
+  const uint32_t *s0;
   while((p=u32_next(&pc,p)))
     {
       c=*s;
@@ -470,6 +473,19 @@ static int context_matches(user_variant *pv,const uint32_t *str,const uint32_t *
               if(c!=pc) return 0;
             }
           else return 0;
+        }
+      else if((pc>='0')&&(pc<='9')&&((p[0]=='\0')||((p[0]=='$')&&(p[1]=='\0'))))
+        {
+          l=pc-'0';
+          n=0;
+          s0=s;
+          while((s0=u32_next(&c0,s0)))
+            {
+              if(user_variant_is_in_group(pv,c0,'V')) n++;
+            }
+          if((p[0]=='$')&&(n!=l)) return 0;
+          else if((p[0]=='\0')&&(n<l)) return 0;
+          else break;
         }
       else if(c=='\0') return 0;
       else if((pc>='A')&&(pc<='Z'))
