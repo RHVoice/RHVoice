@@ -266,6 +266,22 @@ static int check_context_delims(const uint32_t *key)
   return 1;
 }
 
+static uint32_t *ustr_reverse(uint32_t *s)
+{
+  size_t n=u32_strlen(s);
+  if(n<2) return s;
+  n--;
+  size_t m;
+  uint32_t tmp;
+  for(m=0;m<n;m++,n--)
+    {
+      tmp=s[m];
+      s[m]=s[n];
+      s[n]=tmp;
+    }
+  return s;
+}
+
 static void add_rule(user_variant *pv,const uint8_t *key,const uint8_t *value)
 {
   if(value==NULL) return;
@@ -286,6 +302,7 @@ static void add_rule(user_variant *pv,const uint8_t *key,const uint8_t *value)
       s1++;
       r.prefix=u32_strdup(key0);
       if(r.prefix==NULL) goto err1;
+      r.prefix=ustr_reverse(r.prefix);
     }
   else
     s1=key0;
@@ -431,62 +448,51 @@ const uint8_t *user_variant_lookup(int v,const uint32_t *word)
   return user_dict_lookup32(variantlist_at(variants,v-1)->dict,word);
 }
 
-static int matches(user_variant *pv,const uint32_t *w,size_t p,rule *r)
+static int context_matches(user_variant *pv,const uint32_t *str,const uint32_t *pattern)
 {
-  if(!u32_startswith(w+p,r->substring)) return 0;
-  size_t e=p+u32_strlen(r->substring);
-  ucs4_t c1,c2;
-  const uint32_t *s1,*s2;
-  if(r->prefix!=NULL)
+  if(pattern==NULL) return 1;
+  const uint32_t *p=pattern;
+  const uint32_t *s=str;
+  ucs4_t c,pc;
+  while((p=u32_next(&pc,p)))
     {
-      s1=w+p;
-      s2=r->prefix+u32_strlen(r->prefix);
-      while((s2=u32_prev(&c2,s2,r->prefix)))
+      c=*s;
+      if(pc=='$')
         {
-          if((c2=='$')&&(s2==r->prefix))
+          if(p[0]=='\0')
             {
-              if(s1==w)
-                break;
-              else
-                return 0;
+              if(c!='\0') return 0;
+              else break;
             }
-          if(s1==w) return 0;
-          s1--;
-          c1=*s1;
-          if((c2>='A')&&(c2<='Z'))
+          else if(p[0]=='$')
             {
-              if(!user_variant_is_in_group(pv,c1,c2)) return 0;
+              p=u32_next(&pc,p);
+              if(c!=pc) return 0;
+            }
+          else return 0;
         }
-          else if(c1!=c2) return 0;
-        }
-    }
-  if(r->suffix!=NULL)
-    {
-      s1=w+e;
-      s2=r->suffix;
-      while((s2=u32_next(&c2,s2)))
+      else if(c=='\0') return 0;
+      else if((pc>='A')&&(pc<='Z'))
+            {
+              if(!user_variant_is_in_group(pv,c,pc)) return 0;
+              s++;
+            }
+      else
         {
-          if((c2=='$')&&(s2[0]=='\0'))
-            {
-              if(s1[0]=='\0')
-                break;
-              else
-                return 0;
-            }
-          if(s1[0]=='\0') return 0;
-          c1=*s1;
-          s1++;
-          if((c2>='A')&&(c2<='Z'))
-            {
-              if(!user_variant_is_in_group(pv,c1,c2)) return 0;
-            }
-          else if(c1!=c2) return 0;
+          if(c!=pc) return 0;
+          s++;
         }
     }
   return 1;
 }
 
-static rule *find_rule(user_variant *pv,const uint32_t *w,size_t p)
+static int rule_matches(user_variant *pv,const uint32_t *left,const uint32_t *right,rule *r)
+{
+  if(!u32_startswith(right,r->substring)) return 0;
+  return (context_matches(pv,left,r->prefix)&&context_matches(pv,right+u32_strlen(r->substring),r->suffix));
+}
+
+static rule *find_rule(user_variant *pv,const uint32_t *left,const uint32_t *right)
 {
   rule *r;
   size_t n=ruleset_size(pv->rules);
@@ -494,7 +500,7 @@ static rule *find_rule(user_variant *pv,const uint32_t *w,size_t p)
   for(i=0;i<n;i++)
     {
       r=ruleset_at(pv->rules,i);
-      if(matches(pv,w,p,r)) return r;
+      if(rule_matches(pv,left,right,r)) return r;
     }
   return NULL;
 }
@@ -503,29 +509,43 @@ ustring8_t user_variant_apply(int v,const uint32_t *word)
 {
   if(v>user_variant_get_count()) return NULL;
   user_variant *pv=variantlist_at(variants,v-1);
+  uint32_t *rword=u32_strdup(word);
+  if(rword==NULL) return NULL;
+  ustr_reverse(rword);
   ustring8_t result=ustring8_alloc(0);
-  if(result==NULL) return NULL;
-  size_t n=u32_strlen(word);
-  size_t p=0;
-  rule *r;
-  while(p<n)
+  if(result==NULL)
     {
-      r=find_rule(pv,word,p);
+      free(rword);
+      return NULL;
+    }
+  size_t n=u32_strlen(word);
+  const uint32_t *right=word;
+  const uint32_t *left=rword+n;
+  size_t l;
+  rule *r;
+  while((right[0]!='\0'))
+    {
+      r=find_rule(pv,left,right);
       if(r==NULL)
         {
-          p++;
+          right++;
+          left--;
           continue;
         }
-      p+=u32_strlen(r->substring);
+      l=u32_strlen(r->substring);
       if(r->pron[0]!='\0')
         {
           if(!ustring8_append(result,r->pron,u8_strlen(r->pron)))
             {
               ustring8_free(result);
+              free(rword);
               return NULL;
             }
         }
+      right+=l;
+      left-=l;
     }
+  free(rword);
   if(ustring8_empty(result)||(!ustring8_push(result,'\0')))
     {
       ustring8_free(result);
