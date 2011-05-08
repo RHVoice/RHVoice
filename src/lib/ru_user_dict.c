@@ -246,6 +246,7 @@ vector_t(user_variant,variantlist)
 static void user_variant_free(user_variant *pv)
 {
   size_t i;
+  if(pv->name!=NULL) free(pv->name);
   user_dict_free(pv->dict);
   for(i=0;i<26;i++)
     {
