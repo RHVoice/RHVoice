@@ -109,9 +109,11 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c)
   ls[0]=uc_tolower(c);
   ls[1]='\0';
   ustring8_t name0=NULL;
-  int v=item_feat_int(t,"variant");
-  if((v>builtin_variant_count)&&user_variant_is_alpha(v,ls[0])&&
-     ((name=(const char*)user_variant_lookup(v,ls))||(name0=user_variant_apply(v,ls))))
+  int uv=item_feat_int(t,"variant")-builtin_variant_count;
+  if(uv<0) uv=0;
+  if((uv>0)&&
+     ((name=(const char*)user_variant_lookup(uv,ls))||
+      (name0=user_variant_apply(uv,ls))))
     {
       if(name!=NULL) w=add_words(t,r,name);
       else
@@ -120,7 +122,8 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c)
           ustring8_free(name0);
         }
     }
-  else if((name=character_name(c)))
+  else if((name=(const char*)user_dict_lookup32(global_user_dict,ls))||
+          (name=character_name(c)))
     {
       w=add_words(t,r,name);
     }
@@ -177,17 +180,16 @@ static cst_item *ru_letters_to_words(cst_item *t,cst_relation *r,const uint32_t 
   return w;
 }
 
-static cst_item *variant_letters_to_words(cst_item *t,cst_relation *r,const uint32_t *s32)
+static cst_item *user_variant_letters_to_words(cst_item *t,cst_relation *r,const uint32_t *s32,int uv)
 {
-  int v=item_feat_int(t,"variant")-builtin_variant_count;
   cst_item *w=NULL;
-  const uint8_t *pr1=user_variant_lookup(v,s32);
-  if(pr1!=NULL)
+  const uint8_t *pr1=NULL;
+  if(!((s32[1]=='\0')&&user_variant_is_member(uv,s32[0],'W'))&&(pr1=user_variant_lookup(uv,s32)))
     {
       w=add_words(t,r,(const char*)pr1);
       return w;
     }
-  ustring8_t pr2=user_variant_apply(v,s32);
+  ustring8_t pr2=user_variant_apply(uv,s32);
   if(pr2!=NULL)
     {
       w=add_words(t,r,(const char*)ustring8_str(pr2));
@@ -214,18 +216,15 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
   int spell;
   ucs4_t pc,c,nc,lc,plc,nlc;
   unsigned int pflags,flags,nflags;
-  int v;
+  int uv;
   for(t=relation_head(utt_relation(u,"Token"));t;t=item_next(t))
     {
       say_as=item_feat_present(t,"say_as")?item_feat_int(t,"say_as"):0;
       spell=((say_as=='s')||(say_as=='c'));
       ustring32_assign8(text,(const uint8_t*)item_feat_string(t,spell?"text":"name"));
       if(ustring32_empty(text)) continue;
-      v=item_feat_int(t,"variant");
-      if(v>builtin_variant_count)
-        v-=builtin_variant_count;
-      else
-        v=0;
+      uv=item_feat_int(t,"variant")-builtin_variant_count;
+      if(uv<0) uv=0;
       n=ustring32_length(text);
       pc='\0';
       plc='\0';
@@ -244,19 +243,19 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
               if(w!=NULL)
                 item_set_string(w,"my_gpos","content");
             }
-          else if(v&&user_variant_is_alpha(v,lc))
+          else if(uv&&user_variant_is_alpha(uv,lc))
             {
               ustring32_push(word,lc);
-              if(!user_variant_is_alpha(v,nlc))
+              if(!user_variant_is_alpha(uv,nlc))
                 {
-                  w=variant_letters_to_words(t,r,ustring32_str(word));
+                  w=user_variant_letters_to_words(t,r,ustring32_str(word),uv);
                   ustring32_clear(word);
                 }
             }
           else if(flags&cs_l)
             {
               ustring32_push(word,lc);
-              if((v&&user_variant_is_alpha(v,nlc))||(!((nflags&cs_l)||((nc=='\'')&&(flags&cs_en))||((nc=='-')&&(flags&cs_ru)))))
+              if((uv&&user_variant_is_alpha(uv,nlc))||(!((nflags&cs_l)||((nc=='\'')&&(flags&cs_en))||((nc=='-')&&(flags&cs_ru)))))
                 {
                   w=ru_letters_to_words(t,r,ustring32_str(word));
                   ustring32_clear(word);
@@ -279,7 +278,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
             {
               if((!ustring32_empty(word))&&(pflags&cs_l)&&(pflags&cs_ru))
                 {
-                  if((nflags&cs_l)&&(nflags&cs_ru)&&(!(v&&user_variant_is_alpha(v,nlc))))
+                  if((nflags&cs_l)&&(nflags&cs_ru)&&(!(uv&&user_variant_is_alpha(uv,nlc))))
                     ustring32_push(word,c);
                   else
                     {
@@ -296,7 +295,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
             {
               if((!ustring32_empty(word))&&(pflags&cs_l)&&(pflags&cs_en))
                 {
-                  if((nflags&cs_l)&&(nflags&cs_en)&&(!(v&&user_variant_is_alpha(v,nlc))))
+                  if((nflags&cs_l)&&(nflags&cs_en)&&(!(uv&&user_variant_is_alpha(uv,nlc))))
                     ustring32_push(word,c);
                   else
                     {
@@ -305,6 +304,8 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
                     }
                 }
             }
+          else if(flags&cs_p);
+          else w=character_to_words(t,r,c);
           pc=c;
           pflags=flags;
           plc=lc;
