@@ -427,6 +427,90 @@ static eventlist generate_events(cst_utterance *u)
   return events;
 }
 
+static const char* sonorants[]={"m","mm","n","nn","l","ll","r","rr","j"};
+
+static void fix_f0(cst_utterance *u,HTS_Engine *e)
+{
+  cst_item *t=relation_tail(utt_relation(u,"Token"));
+  if(t==NULL) return;
+  const char *p=item_feat_string(t,"punc");
+  if(p[0]=='\0')
+    return;
+  const char *q=strchr(p,'?');
+  if((!q)&&(strchr(p,'.')||strchr(p,'!')||strchr(p,':')||strchr(p,';')))
+    return;
+  cst_item *w;
+  for(w=item_last_daughter(relation_tail(utt_relation(u,"Phrase")));w;w=item_prev(w))
+    {
+      if(cst_streq(ffeature_string(w,"gpos"),"content")) break;
+    }
+  if(w==NULL) return;
+  cst_item *syl;
+  for(syl=path_to_item(w,"R:SylStructure.daughtern");syl;syl=item_prev(syl))
+    {
+      if(cst_streq(item_feat_string(syl,"stress"),"1")) break;
+    }
+  if(syl==NULL) return;
+  cst_item *v=path_to_item(syl,"R:SylVowel.daughter1.R:Segment");
+  if(v==NULL) return;
+  cst_item *pv=path_to_item(v,"R:SylVowel.parent.p.daughter1.R:Segment");
+  int n;
+  cst_item *s;
+  for(n=0,s=relation_head(utt_relation(u,"Segment"));s!=v;s=item_next(s),n++);
+  int ns=e->sss.nstate;
+  int start=ns*n;
+  int end=start+ns-1;
+  double f0;
+  double B=HTS_SStreamSet_get_mean(&e->sss,1,start,0);
+  int i,j;
+  for(i=start+1;i<e->sss.total_state;i++)
+    {
+      f0=HTS_SStreamSet_get_mean(&e->sss,1,i,0);
+      if((f0>0)&&(f0<B))
+        B=f0;
+    }
+  double T=B+log(2);
+  double M=B+0.5*log(2);
+  for(s=path_to_item(v,"R:Segment.p"),i=(n-1)*ns;s;s=item_prev(s),i-=ns)
+    {
+      if(s==pv)
+        {
+          M=0;
+          for(j=0;j<ns;j++)
+            {
+              M+=HTS_SStreamSet_get_mean(&e->sss,1,i+j,0)/ns;
+            }
+          T=M+log(2);
+          B=M-log(2);
+          break;
+        }
+    }
+  if(cst_member_string(ffeature_string(v,"R:SylStructure.p.name"),sonorants))
+    {
+      f0=M;
+      for(i=start-ns;i<start;i++)
+        {
+          f0=0.95*f0+0.05*T;
+          HTS_SStreamSet_set_mean(&e->sss,1,i,0,f0);
+        }
+    }
+  else
+    f0=M;
+  if(q)
+  f0=0.5*f0+0.5*T;
+  else
+    f0=0.75*f0+0.25*T;
+  HTS_SStreamSet_set_mean(&e->sss,1,start,0,f0);
+  f0=0.95*f0+0.05*B;
+  HTS_SStreamSet_set_mean(&e->sss,1,start+1,0,f0);
+  f0=0.95*f0+0.05*B;
+  HTS_SStreamSet_set_mean(&e->sss,1,start+2,0,f0);
+  f0=0.95*f0+0.05*B;
+  HTS_SStreamSet_set_mean(&e->sss,1,start+3,0,f0);
+  f0=0.5*f0+0.5*B;
+  HTS_SStreamSet_set_mean(&e->sss,1,start+4,0,f0);
+}
+
 cst_utterance *hts_synth(cst_utterance *u)
 {
   HTS_LabelString *lstring=NULL;
@@ -514,6 +598,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   free(dur_mean);
   HTS_Label_set_frame_specified_flag(&engine->label,TRUE);
   HTS_Engine_create_sstream(engine);
+  fix_f0(u,engine);
   total_nsamples=0;
   for(s=relation_head(utt_relation(u,"Segment")),i=0;s;s=item_next(s),i++)
     {
