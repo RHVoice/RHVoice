@@ -18,6 +18,7 @@
 #include <unistr.h>
 #include <unicase.h>
 #include <unistdio.h>
+#include <unictype.h>
 #include "lib.h"
 #include "settings.h"
 #include "ru_number_lts.h"
@@ -101,7 +102,7 @@ static cst_item *digits_to_words(cst_item *t,cst_relation *r,const uint32_t *dig
   return w;
 }
 
-static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c)
+static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c,int spell)
 {
   cst_item *w=NULL;
   const char *name=NULL;
@@ -127,7 +128,7 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c)
     {
       w=add_words(t,r,name);
     }
-  else
+  else if(spell||uc_is_property(c,UC_PROPERTY_ALPHABETIC))
     {
       add_word(t,r,"символ");
       uint32_t b[10];
@@ -239,7 +240,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
           nflags=classify_character(nc);
           if(spell)
             {
-              w=character_to_words(t,r,c);
+              w=character_to_words(t,r,c,1);
               if(w!=NULL)
                 item_set_string(w,"my_gpos","content");
             }
@@ -272,7 +273,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
             }
           else if(flags&cs_s)
             {
-              w=character_to_words(t,r,c);
+              w=character_to_words(t,r,c,0);
             }
           else if(c=='-')
             {
@@ -304,8 +305,8 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
                     }
                 }
             }
-          else if(flags&cs_p);
-          else w=character_to_words(t,r,c);
+          else if(uc_is_property(c,UC_PROPERTY_PUNCTUATION));
+          else w=character_to_words(t,r,c,0);
           pc=c;
           pflags=flags;
           plc=lc;
