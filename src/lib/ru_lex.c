@@ -196,18 +196,24 @@ static void assign_stress(cst_item *word)
   const char *name=item_name(word);
   const char *pname=ffeature_string(word,"R:Phrase.p.name");
   const char *nname=ffeature_string(word,"R:Phrase.n.name");
-  if((cst_streq(name,"не")||cst_streq(name,"ни"))&&
+  if(cst_streq(ffeature_string(word,"R:Token.p.name"),"по")&&
+     (cst_streq(name,"моему")||cst_streq(name,"своему")||cst_streq(name,"твоему")))
+    {
+      item_set_string(syl,"stress","1");
+      return;
+    }
+  else if((cst_streq(name,"не")||cst_streq(name,"ни"))&&
      (cst_streq(nname,"был")||cst_streq(nname,"были")||cst_streq(nname,"было")))
     {
       item_set_string(syl,"stress","1");
       return;
     }
-  if((cst_streq(name,"был")||cst_streq(name,"были")||cst_streq(name,"было"))&&
+  else if((cst_streq(name,"был")||cst_streq(name,"были")||cst_streq(name,"было"))&&
      (cst_streq(pname,"не")||cst_streq(pname,"ни")))
     return;
-  if(cst_streq(gpos,"enc")&&item_prev(word_in_phrase))
+  else if(cst_streq(gpos,"enc")&&item_prev(word_in_phrase))
     return;
-  if(cst_streq(gpos,"proc")&&item_next(word_in_phrase))
+  else if(cst_streq(gpos,"proc")&&item_next(word_in_phrase))
     return;
   if(!vowel_seg_between(item_daughter(transcription),item_last_daughter(transcription)))
     return;

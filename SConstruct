@@ -119,6 +119,11 @@ if enable_config:
         print "Error: cannot link with expat"
         exit(1)
     env.PrependUnique(LIBS="expat")
+    has_pcre=conf.CheckLibWithHeader("pcre","pcre.h","C",call='pcre_compile("^$",0,NULL,NULL,NULL);',autoadd=0)
+    if not has_pcre:
+        print "Error: cannot link with pcre"
+        exit(1)
+    env.PrependUnique(LIBS="pcre")
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     env=conf.Finish()

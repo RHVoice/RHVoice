@@ -24,5 +24,4 @@ float check_volume_range(float value);
 void load_settings(const char *path);
 void free_settings();
 
-extern user_dict global_user_dict;
 #endif
