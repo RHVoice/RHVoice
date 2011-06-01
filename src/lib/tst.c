@@ -13,18 +13,17 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <search.h>
 #include <unistr.h>
+#include <unicase.h>
 #include "tst.h"
 #include "vector.h"
 
 typedef struct
 {
   ucs4_t spltchr;
-  size_t left,right;
-  uintptr_t mid;
+  uint32_t left,right,mid;
 } node;
 
 vector_t(node,nodelist)
@@ -35,7 +34,7 @@ typedef struct
 {
   uint8_t *key;
   void *value;
-  size_t index;
+  uint32_t index;
 } item;
 
 vector_t(item,itemlist)
@@ -44,11 +43,10 @@ struct tst_s
 {
   nodelist nodes;
   itemlist items;
-  int store_values;
   tst_free_value_func free_value_func;
 };
 
-tst tst_create(int store_values,tst_free_value_func free_value_func)
+tst tst_create(tst_free_value_func free_value_func)
 {
   tst t=(tst)malloc(sizeof(struct tst_s));
   if(t==NULL) goto err0;
@@ -57,8 +55,7 @@ tst tst_create(int store_values,tst_free_value_func free_value_func)
   nodelist_push(t->nodes,&default_node);
   t->items=itemlist_alloc(0,NULL);
   if(t->items==NULL) goto err2;
-  t->store_values=store_values;
-  t->free_value_func=store_values?free_value_func:NULL;
+  t->free_value_func=free_value_func;
   return t;
   err2: nodelist_free(t->nodes);
   err1: free(t);
@@ -75,7 +72,7 @@ static void free_items(tst t)
       for(i=itemlist_front(t->items);i<=last;i++)
         {
           if(i->key) free(i->key);
-          if(t->store_values&&t->free_value_func&&(i->value!=NULL))
+          if(t->free_value_func&&(i->value!=NULL))
             t->free_value_func(i->value);
         }
     }
@@ -87,15 +84,6 @@ void tst_free(tst t)
 {
   if(t==NULL) return;
   free_items(t);
-  if(t->store_values&&t->free_value_func)
-    {
-      node *last=nodelist_back(t->nodes);
-      node *n;
-      for(n=nodelist_front(t->nodes)+1;n<=last;n++)
-        {
-          if((n->spltchr=='\0')&&(n->mid!=0)) t->free_value_func((void*)n->mid);
-        }
-    }
   nodelist_free(t->nodes);
   free(t);
 }
@@ -114,6 +102,7 @@ static node *insert_key(tst t,const uint8_t *key)
   ucs4_t sc,c;
   const uint8_t *s=u8_next(&c,key);
   if(s==NULL) return NULL;
+  c=uc_tolower(c);
   if(nodelist_front(t->nodes)->spltchr=='\0') nodelist_front(t->nodes)->spltchr=c;
   while(1)
     {
@@ -135,6 +124,7 @@ static node *insert_key(tst t,const uint8_t *key)
             {
               s=u8_next(&c,s);
               if(s==NULL) c='\0';
+              else c=uc_tolower(c);
               if(nodelist_at(t->nodes,n)->mid==0)
             {
               k=new_node(t->nodes,c);
@@ -158,19 +148,39 @@ static node *insert_key(tst t,const uint8_t *key)
   return nodelist_at(t->nodes,n);
 }
 
+static int strcmpi(const uint8_t *s1,const uint8_t *s2)
+{
+  ucs4_t c1,c2;
+  int d=0;
+  if((s1[0]!='\0')||(s2[0]!='\0'))
+    {
+      do
+        {
+          s1=u8_next(&c1,s1);
+          s2=u8_next(&c2,s2);
+          if((s1==NULL)&&(s2==NULL)) break;
+          if(s1!=NULL) d=uc_tolower(c1);
+          if(s2!=NULL) d-=uc_tolower(c2);
+        }
+      while(d==0);
+    }
+  return d;
+}
+
 static int item_cmp(const void *p1,const void *p2)
 {
-  const item *i1=(const item*)p1;
-  const item *i2=(const item*)p2;
-  int r=u8_strcmp(i1->key,i2->key);
-  return (r!=0)?r:(i1->index-i2->index);
+  const uint8_t *s1=((const item*)p1)->key;
+  const uint8_t *s2=((const item*)p2)->key;
+  int r=strcmpi(s1,s2);
+  return (r!=0)?r:(((const item*)p1)->index-((const item*)p2)->index);
 }
 
 int tst_add(tst t,const uint8_t *key,void *value)
 {
   if(t==NULL) return 0;
   item i;
-  i.value=(t->store_values)?value:NULL;
+  if(itemlist_size(t->items)==0xfffff) return 0;
+  i.value=value;
   i.index=itemlist_size(t->items);
   i.key=u8_strdup(key);
   if(i.key==NULL) return 0;
@@ -190,14 +200,41 @@ void tst_build(tst t)
   if(t->items==NULL) return;
   if(itemlist_size(t->items)==0) return;
   qsort(itemlist_data(t->items),itemlist_size(t->items),sizeof(item),item_cmp);
-  argstack s=argstack_alloc(2,NULL);
-  if(s==NULL) return;
-  item *p;
+  item *p=itemlist_front(t->items);
+  p->index=0;
+  const uint8_t *key=p->key;
   size_t i,k,m,n;
+  n=itemlist_size(t->items);
+  k=1;
+  for(i=1;i<n;i++)
+    {
+      p=itemlist_at(t->items,i);
+      if(strcmpi(key,p->key)==0)
+        p->index=(p-1)->index+1;
+      else
+        {
+          p->index=0;
+          key=p->key;
+          k++;
+        }
+    }
+  argstack v=argstack_alloc(k,NULL);
+  if(v==NULL) return;
+  for(i=0;i<n;i++)
+    {
+      if(itemlist_at(t->items,i)->index==0)
+        argstack_push(v,&i);
+    }
+  argstack s=argstack_alloc(2,NULL);
+  if(s==NULL)
+    {
+      argstack_free(v);
+      return;
+    }
   node *tn;
   i=0;
   argstack_push(s,&i);
-  i=itemlist_size(t->items);
+  i=argstack_size(v);
   argstack_push(s,&i);
   while(argstack_size(s)>0)
     {
@@ -208,14 +245,11 @@ void tst_build(tst t)
       if(n>0)
         {
           m=n/2;
-          p=itemlist_at(t->items,k+m);
+          i=*argstack_at(v,k+m);
+          p=itemlist_at(t->items,i);
           tn=insert_key(t,p->key);
           if(tn==NULL) break;
-          if(t->store_values&&(p->index>=tn->mid))
-            {
-              tn->mid=(uintptr_t)p->value;
-              p->value=NULL;
-            }
+          tn->mid=i;
           if(!argstack_reserve(s,argstack_size(s)+4)) break;
           i=k+m+1;
           argstack_push(s,&i);
@@ -226,63 +260,60 @@ void tst_build(tst t)
         }
     }
   argstack_free(s);
-  free_items(t);
+  argstack_free(v);
 }
 
-int tst_search8(tst t,const uint8_t *key,void **pvalue)
+void tst_enum_prefixes(tst t,const uint8_t *key,tst_enum_callback f,void *d)
 {
-  if(nodelist_front(t->nodes)->spltchr=='\0') return 0;
+  if(nodelist_front(t->nodes)->spltchr=='\0') return;
   ucs4_t c,sc;
   const uint8_t *s=u8_next(&c,key);
-  if(s==NULL) return 0;
+  if(s==NULL) return;
+  c=uc_tolower(c);
+  size_t i;
+  size_t k=itemlist_size(t->items);
+  const item*p;
+  size_t l=0;
   size_t n=0;
+  argstack r=argstack_alloc(2*u8_mbsnlen(s,u8_strlen(s)),NULL);
+  if(r==NULL) return;
   do
     {
       sc=nodelist_at(t->nodes,n)->spltchr;
+      if((sc=='\0')&&(l>0))
+        {
+          argstack_push(r,&n);
+          argstack_push(r,&l);
+        }
       if(c<sc) n=nodelist_at(t->nodes,n)->left;
       else if(c==sc)
         {
-          if(c=='\0')
-            {
-              if(t->store_values&&(pvalue!=NULL))
-                *pvalue=(void*)nodelist_at(t->nodes,n)->mid;
-              return 1;
-            }
+          if(c=='\0') break;
+          l=s-key;
           n=nodelist_at(t->nodes,n)->mid;
           s=u8_next(&c,s);
           if(s==NULL) c='\0';
+          else c=uc_tolower(c);
         }
       else n=nodelist_at(t->nodes,n)->right;
     }
   while(n>0);
-  return 0;
-}
-
-int tst_search32(tst t,const uint32_t *key,void **pvalue)
-{
-  if(nodelist_front(t->nodes)->spltchr=='\0') return 0;
-  ucs4_t c,sc;
-  const uint32_t *s=u32_next(&c,key);
-  if(s==NULL) return 0;
-  size_t n=0;
-  do
+  while(argstack_size(r)>0)
     {
-      sc=nodelist_at(t->nodes,n)->spltchr;
-      if(c<sc) n=nodelist_at(t->nodes,n)->left;
-      else if(c==sc)
-        {
-          if(c=='\0')
+      l=*argstack_back(r);
+      argstack_pop(r);
+      n=*argstack_back(r);
+      argstack_pop(r);
+          i=nodelist_at(t->nodes,n)->mid;
+          p=itemlist_at(t->items,i);
+          do
             {
-              if(t->store_values&&(pvalue!=NULL))
-                *pvalue=(void*)nodelist_at(t->nodes,n)->mid;
-              return 1;
+              if(!f(p->key,l,p->value,d)) break;
+              i++;
+              if(i==k) break;
+              p=itemlist_at(t->items,i);
             }
-          n=nodelist_at(t->nodes,n)->mid;
-          s=u32_next(&c,s);
-          if(s==NULL) c='\0';
-        }
-      else n=nodelist_at(t->nodes,n)->right;
+          while((p->index>0));
     }
-  while(n>0);
-  return 0;
+  argstack_free(r);
 }

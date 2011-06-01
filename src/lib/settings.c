@@ -126,7 +126,7 @@ int RHVoice_get_variant()
 
 int RHVoice_get_variant_count()
 {
-  return builtin_variant_count+user_variant_get_count();
+  return (builtin_variant_count+get_user_dicts_count()-1);
 }
 
 const char *RHVoice_get_variant_name(int variant)
@@ -141,7 +141,7 @@ const char *RHVoice_get_variant_name(int variant)
       return "Russian";
       break;
     default:
-      return user_variant_get_name(variant-builtin_variant_count);
+      return (const char*)user_dict_get_name(variant-builtin_variant_count);
       break;
     }
 }
@@ -185,8 +185,6 @@ float RHVoice_get_max_volume()
 {
   return max_volume;
 }
-
-user_dict global_user_dict=NULL;
 
 static int setting_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
 {
@@ -248,7 +246,6 @@ void load_settings(const char *path)
   char *subpath=NULL;
   INIT_MUTEX(&settings_mutex);
   if(path==NULL) return;
-  global_user_dict=user_dict_create();
   subpath=path_append(path,cfg_file_name);
   if(subpath!=NULL)
     {
@@ -278,27 +275,13 @@ void load_settings(const char *path)
       else
         current_volume=default_volume;
     }
-  subpath=path_append(path,"dicts");
-  if(subpath!=NULL)
-    {
-      for_each_file_in_dir(subpath,user_dict_update,global_user_dict);
-      free(subpath);
-      user_dict_build(global_user_dict);
-    }
-  subpath=path_append(path,"variants");
-  if(subpath!=NULL)
-    {
-      load_user_variants(subpath);
-      free(subpath);
-    }
+  load_user_dicts(path);
 }
 
 void free_settings()
 {
   DESTROY_MUTEX(&settings_mutex);
-  user_dict_free(global_user_dict);
-  global_user_dict=NULL;
-  free_user_variants();
+  free_user_dicts();
   min_rate=0.25;
   default_rate=1.0;
   max_rate=4.0;

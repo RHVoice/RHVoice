@@ -17,10 +17,10 @@
 #include <string.h>
 #include <unistr.h>
 #include <unicase.h>
-#include <unistdio.h>
 #include <unictype.h>
 #include "lib.h"
 #include "settings.h"
+#include "ustring.h"
 #include "ru_number_lts.h"
 
 DEF_STATIC_CONST_VAL_STRING(thousand_symbol,"th");
@@ -48,10 +48,9 @@ static cst_item *add_words(cst_item *t,cst_relation *r,const char *strlist)
   return w;
 }
 
-static cst_item *digits_to_words(cst_item *t,cst_relation *r,const uint32_t *digits)
+static cst_item *digits_to_words(cst_item *t,cst_relation *r,const uint8_t *digits,size_t n)
 {
   cst_item *w=NULL;
-  size_t n=u32_strlen(digits);
   size_t i;
   if((n>15)||(digits[0]=='0'))
     {
@@ -106,216 +105,119 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c,int spe
 {
   cst_item *w=NULL;
   const char *name=NULL;
-  uint32_t ls[2];
-  ls[0]=uc_tolower(c);
-  ls[1]='\0';
-  ustring8_t name0=NULL;
   int uv=item_feat_int(t,"variant")-builtin_variant_count;
   if(uv<0) uv=0;
-  if((uv>0)&&
-     ((name=(const char*)user_variant_lookup(uv,ls))||
-      (name0=user_variant_apply(uv,ls))))
-    {
-      if(name!=NULL) w=add_words(t,r,name);
-      else
-        {
-          w=add_words(t,r,(const char*)ustring8_str(name0));
-          ustring8_free(name0);
-        }
-    }
-  else if((name=(const char*)user_dict_lookup32(global_user_dict,ls))||
-          (name=character_name(c)))
-    {
-      w=add_words(t,r,name);
-    }
+  uint8_t b[8];
+  int n=u8_uctomb(b,c,sizeof(b));
+  b[n]='\0';
+  size_t p=0;
+  if(uv>0) name=(const char*)user_dict_lookup(uv,b,&p);
+  if(name==NULL) name=(const char*)user_dict_lookup(0,b,&p);
+  if(name==NULL) name=character_name(c);
+  if(name)
+    w=add_words(t,r,name);
   else if(spell||uc_is_property(c,UC_PROPERTY_ALPHABETIC))
     {
       add_word(t,r,"символ");
-      uint32_t b[10];
-      u32_sprintf(b,"%u",c);
-      w=digits_to_words(t,r,b);
+      snprintf((char*)b,sizeof(b),"%u",c);
+      w=digits_to_words(t,r,b,n);
     }
   return w;
-}
-
-static const char *unsep_words[]={"из-за","из-под",NULL};
-
-static cst_item *ru_letters_to_words(cst_item *t,cst_relation *r,const uint32_t *s32)
-{
-  cst_item *w=NULL;
-  const uint8_t *pr=user_dict_lookup32(global_user_dict,s32);
-  if(pr!=NULL)
-    return add_words(t,r,(const char*)pr);
-  size_t n=0;
-  uint8_t *s8=u32_to_u8(s32,u32_strlen(s32)+1,NULL,&n);
-  if(s8==NULL) return NULL;
-  if(cst_member_string((const char*)s8,unsep_words))
-    {
-      w=add_word(t,r,(const char*)s8);
-      free(s8);
-      return w;
-    }
-  const uint8_t *enc=NULL;
-  uint8_t *p=u8_strrchr(s8,'-');
-  if((p!=NULL)&&cst_member_string((const char*)(p+1),ru_h_enc_list))
-    {
-      *p='\0';
-      enc=p+1;
-    }
-  p=NULL;
-  uint8_t *s=u8_strtok(s8,(const uint8_t*)"-",&p);
-  while(s)
-    {
-      if((pr=user_dict_lookup8(global_user_dict,s)))
-        w=add_words(t,r,(const char*)pr);
-      else
-        w=add_word(t,r,(const char*)s);
-      s=u8_strtok(NULL,(const uint8_t*)"-",&p);
-    }
-  if(enc!=NULL)
-    {
-      w=add_word(t,r,(const char*)enc);
-      item_set_string(w,"my_gpos","enc");
-    }
-  free(s8);
-  return w;
-}
-
-static cst_item *user_variant_letters_to_words(cst_item *t,cst_relation *r,const uint32_t *s32,int uv)
-{
-  cst_item *w=NULL;
-  const uint8_t *pr1=NULL;
-  if(!((s32[1]=='\0')&&user_variant_is_member(uv,s32[0],'W'))&&(pr1=user_variant_lookup(uv,s32)))
-    {
-      w=add_words(t,r,(const char*)pr1);
-      return w;
-    }
-  ustring8_t pr2=user_variant_apply(uv,s32);
-  if(pr2!=NULL)
-    {
-      w=add_words(t,r,(const char*)ustring8_str(pr2));
-      ustring8_free(pr2);
-      return w;
-    }
-  return NULL;
 }
 
 cst_utterance *russian_textanalysis(cst_utterance *u)
 {
   cst_relation *r=utt_relation_create(u,"Word");
   cst_item *t,*w;
-  size_t n,i;
-  ustring32_t text=ustring32_alloc(0);
-  if(text==NULL) return NULL;
-  ustring32_t word=ustring32_alloc(0);
-  if(word==NULL)
-    {
-      ustring32_free(text);
-      return NULL;
-    }
+  ustring8_t word=ustring8_alloc(0);
+  if(word==NULL) return NULL;
+  const uint8_t *text,*s1,*s2,*pron;
+  size_t pos;
+  size_t len;
   int say_as;
   int spell;
-  ucs4_t pc,c,nc,lc,plc,nlc;
-  unsigned int pflags,flags,nflags;
+  ucs4_t c,lc;
+  unsigned int flags;
   int uv;
   for(t=relation_head(utt_relation(u,"Token"));t;t=item_next(t))
     {
       say_as=item_feat_present(t,"say_as")?item_feat_int(t,"say_as"):0;
       spell=((say_as=='s')||(say_as=='c'));
-      ustring32_assign8(text,(const uint8_t*)item_feat_string(t,spell?"text":"name"));
-      if(ustring32_empty(text)) continue;
+      text=(const uint8_t*)item_feat_string(t,"text");
+      if(text[0]=='\0') continue;
       uv=item_feat_int(t,"variant")-builtin_variant_count;
       if(uv<0) uv=0;
-      n=ustring32_length(text);
-      pc='\0';
-      plc='\0';
-      pflags=cs_sp;
-      c=ustring32_at(text,0);
-      lc=uc_tolower(c);
-      flags=classify_character(c);
-      for(i=0;i<n;i++)
+      s1=text;
+      s2=u8_next(&c,s1);
+      while(s2)
         {
-          nc=(i==(n-1))?'\0':ustring32_at(text,i+1);
-          nlc=uc_tolower(nc);
-          nflags=classify_character(nc);
+          pos=s1-text;
+          lc=uc_tolower(c);
+          flags=classify_character(c);
           if(spell)
             {
               w=character_to_words(t,r,c,1);
               if(w!=NULL)
                 item_set_string(w,"my_gpos","content");
             }
-          else if(uv&&user_variant_is_alpha(uv,lc))
+          else if(uc_is_property(c,UC_PROPERTY_PUNCTUATION))
             {
-              ustring32_push(word,lc);
-              if(!user_variant_is_alpha(uv,nlc))
+              if(!ustring8_empty(word))
                 {
-                  w=user_variant_letters_to_words(t,r,ustring32_str(word),uv);
-                  ustring32_clear(word);
+                  w=add_word(t,r,(const char*)ustring8_str(word));
+                  ustring8_clear(word);
                 }
+            }
+          else if(((uv>0)&&(pron=user_dict_lookup(uv,text,&pos)))||
+                  (pron=user_dict_lookup(0,text,&pos)))
+            {
+              s2=text+pos;
+              len=u8_strlen(pron);
+              if(pron[len+1]!='\0')
+                {
+                  if(!ustring8_empty(word))
+                    {
+                      w=add_word(t,r,(const char*)ustring8_str(word));
+                      ustring8_clear(word);
+                    }
+                  w=add_words(t,r,(const char*)pron);
+                }
+              else
+                ustring8_append(word,pron,len);
             }
           else if(flags&cs_l)
             {
-              ustring32_push(word,lc);
-              if((uv&&user_variant_is_alpha(uv,nlc))||(!((nflags&cs_l)||((nc=='\'')&&(flags&cs_en))||((nc=='-')&&(flags&cs_ru)))))
-                {
-                  w=ru_letters_to_words(t,r,ustring32_str(word));
-                  ustring32_clear(word);
-                }
+              ustring8_push(word,lc);
             }
           else if(flags&cs_d)
             {
-              ustring32_push(word,c);
-              if(!(nflags&cs_d))
+              if(!ustring8_empty(word))
                 {
-                  w=digits_to_words(t,r,ustring32_str(word));
-                  ustring32_clear(word);
+                  w=add_word(t,r,(const char*)ustring8_str(word));
+                  ustring8_clear(word);
                 }
+              s2=s1+u8_strspn(s1,(const uint8_t*)"0123456789");
+              if(((s1-text)==1)&&(text[0]=='-')) add_word(t,r,"минус");
+          w=digits_to_words(t,r,s1,s2-s1);
             }
-          else if(flags&cs_s)
+          else
             {
+              if(!ustring8_empty(word))
+                {
+                  w=add_word(t,r,(const char*)ustring8_str(word));
+                  ustring8_clear(word);
+                }
               w=character_to_words(t,r,c,0);
             }
-          else if(c=='-')
-            {
-              if((!ustring32_empty(word))&&(pflags&cs_l)&&(pflags&cs_ru))
-                {
-                  if((nflags&cs_l)&&(nflags&cs_ru)&&(!(uv&&user_variant_is_alpha(uv,nlc))))
-                    ustring32_push(word,c);
-                  else
-                    {
-                      w=ru_letters_to_words(t,r,ustring32_str(word));
-                      ustring32_clear(word);
-                    }
-                }
-              else if((nflags&cs_d)&&(i==0))
-                {
-                  w=add_word(t,r,"минус");
-                }
-            }
-          else if(c=='\'')
-            {
-              if((!ustring32_empty(word))&&(pflags&cs_l)&&(pflags&cs_en))
-                {
-                  if((nflags&cs_l)&&(nflags&cs_en)&&(!(uv&&user_variant_is_alpha(uv,nlc))))
-                    ustring32_push(word,c);
-                  else
-                    {
-                      w=ru_letters_to_words(t,r,ustring32_str(word));
-                      ustring32_clear(word);
-                    }
-                }
-            }
-          else if(uc_is_property(c,UC_PROPERTY_PUNCTUATION));
-          else w=character_to_words(t,r,c,0);
-          pc=c;
-          pflags=flags;
-          plc=lc;
-          c=nc;
-          flags=nflags;
-          lc=nlc;
+          s1=s2;
+          s2=u8_next(&c,s1);
+        }
+      if(!ustring8_empty(word))
+        {
+          w=add_word(t,r,(const char*)ustring8_str(word));
+          ustring8_clear(word);
         }
     }
-  ustring32_free(word);
-  ustring32_free(text);
+  ustring8_free(word);
   return u;
 }

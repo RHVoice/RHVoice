@@ -21,12 +21,10 @@
 struct tst_s;
 typedef struct tst_s *tst;
 typedef void (*tst_free_value_func)(void *value);
-typedef int(*tst_enum_prefixes_func)(const uint32_t *src,size_t preflen,void *value,void *user_data);
-
-tst tst_create(int store_values,tst_free_value_func free_value_func);
+tst tst_create(tst_free_value_func free_value_func);
 void tst_free(tst tree);
 int tst_add(tst tree,const uint8_t *key,void *value);
 void tst_build(tst tree);
-int tst_search32(tst tree,const uint32_t *key,void **pvalue);
-int tst_search8(tst tree,const uint8_t *key,void **pvalue);
+typedef int (*tst_enum_callback)(const uint8_t *key,size_t len,void *value,void *user_data);
+void tst_enum_prefixes(tst tree,const uint8_t *key,tst_enum_callback callback,void *user_data);
 #endif
