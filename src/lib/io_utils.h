@@ -29,4 +29,5 @@ FILE *my_fopen(const char *path,const char *mode);
 char *path_append(const char *path1,const char *path2);
 typedef int (*file_action)(const char *path,void *user_data);
 void for_each_file_in_dir(const char *dir_path,file_action action,void *user_data);
+void for_each_dir_in_dir(const char *dir_path,file_action action,void *user_data);
 #endif

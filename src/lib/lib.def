@@ -30,3 +30,13 @@ RHVoice_set_message_volume
 RHVoice_set_position
 RHVoice_get_word_count
 RHVoice_get_sentence_count
+RHVoice_get_variant_count
+RHVoice_get_variant_name
+RHVoice_find_variant
+RHVoice_get_variant
+RHVoice_set_variant
+RHVoice_get_voice_count
+RHVoice_get_voice_name
+RHVoice_find_voice
+RHVoice_get_voice
+RHVoice_set_voice

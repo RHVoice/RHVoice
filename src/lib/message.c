@@ -89,6 +89,7 @@ typedef struct {
   int say_as;
   uint8_t *say_as_format;
   int variant;
+  int voice;
 } token;
 
 static void token_free(token *t)
@@ -132,6 +133,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
   tok.say_as=say_as;
   tok.say_as_format=NULL;
   tok.variant=0;
+  tok.voice=0;
   token *prev_tok=toklist_back(ts->l);
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
@@ -310,7 +312,7 @@ vector_t(ssml_tag,ssml_tag_stack)
 
 vector_t(prosody_params,prosody_stack)
 
-vector_t(int,variant_stack)
+vector_t(int,int_stack)
 
 typedef union {
   const uint8_t *u8;
@@ -334,7 +336,8 @@ typedef struct {
   RHVoice_message msg;
   ssml_tag_stack tags;
   prosody_stack prosody;
-  variant_stack variants;
+  int_stack variants;
+  int_stack voices;
   int in_cdata_section;
   int start_sentence;
   unsigned int skip;
@@ -553,16 +556,38 @@ static int ssml_translate_say_as_content_type(ssml_tag *t)
   else return 0;
 }
 
-static variant_stack variant_stack_update(variant_stack stack,ssml_tag *tag)
+static int_stack variant_stack_update(int_stack stack,ssml_tag *tag)
 {
-  int variant=*variant_stack_back(stack);
-  if(!variant_stack_push(stack,&variant)) return NULL;
+  int variant=*int_stack_back(stack);
+  if(!int_stack_push(stack,&variant)) return NULL;
   const char *strvariant=(const char*)ssml_get_attribute_value(tag,"variant");
   if(strvariant==NULL) return stack;
   char *suffix;
   variant=strtol(strvariant,&suffix,10);
   if((variant>0)&&(variant<=RHVoice_get_variant_count())&&(suffix[0]=='\0'))
-    *variant_stack_back(stack)=variant;
+    *int_stack_back(stack)=variant;
+  return stack;
+}
+
+static int_stack voice_stack_update(int_stack stack,ssml_tag *tag)
+{
+  int voice=*int_stack_back(stack);
+  if(!int_stack_push(stack,&voice)) return NULL;
+  const uint8_t *val=ssml_get_attribute_value(tag,"name");
+  if(val==NULL) return stack;
+  uint8_t *names=u8_strdup(val);
+  if(names==NULL) return NULL;
+  uint8_t *p=NULL;
+  const uint8_t *name=u8_strtok(names,(const uint8_t*)" ",&p);
+  if(name==NULL)
+    {
+      free(names);
+      return stack;
+    }
+  voice=RHVoice_find_voice((const char*)name);
+  free(names);
+  if(voice>0)
+    *int_stack_back(stack)=voice;
   return stack;
 }
 
@@ -604,6 +629,7 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
       break;
     case ssml_voice:
       if(!variant_stack_update(state->variants,top)) ssml_error(state);
+      if(!voice_stack_update(state->voices,top)) ssml_error(state);
       break;
     default:
       break;
@@ -638,7 +664,8 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
       state->say_as_format=NULL;
       break;
     case ssml_voice:
-      variant_stack_pop(state->variants);
+      int_stack_pop(state->variants);
+      int_stack_pop(state->voices);
       break;
     default:
       break;
@@ -674,7 +701,8 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
           prev_num_tokens=toklist_size(state->msg->tokens);
           tok=toklist_back(state->msg->tokens);
           tok->prosody=*prosody_stack_back(state->prosody);
-          tok->variant=*variant_stack_back(state->variants);
+          tok->variant=*int_stack_back(state->variants);
+          tok->voice=*int_stack_back(state->voices);
           tok->silence=state->msg->silence;
           if(state->start_sentence)
             {
@@ -740,9 +768,12 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->prosody=prosody_stack_alloc(10,NULL);
   if(s->prosody==NULL) goto err3;
   prosody_stack_push(s->prosody,&default_prosody_params);
-  s->variants=variant_stack_alloc(10,NULL);
+  s->variants=int_stack_alloc(10,NULL);
   if(s->variants==NULL) goto err4;
-  variant_stack_push(s->variants,&default_variant);
+  int_stack_push(s->variants,&default_variant);
+  s->voices=int_stack_alloc(10,NULL);
+  if(s->voices==NULL) goto err5;
+  int_stack_push(s->voices,&default_variant);
   switch(s->src.encoding)
     {
     case 16:
@@ -756,14 +787,15 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
       s->len=s->src.len;
       break;
     }
-  if(s->text==NULL) goto err5;
+  if(s->text==NULL) goto err6;
   tstream_init(&s->ts,s->msg->tokens);
   XML_SetUserData(s->parser,s);
   XML_SetElementHandler(s->parser,ssml_element_start,ssml_element_end);
   XML_SetCharacterDataHandler(s->parser,ssml_character_data);
   XML_SetCdataSectionHandler(s->parser,ssml_cdata_section_start,ssml_cdata_section_end);
   return s;
-  err5: variant_stack_free(s->variants);
+  err6: int_stack_free(s->voices);
+  err5: int_stack_free(s->variants);
   err4: prosody_stack_free(s->prosody);
   err3: ssml_tag_stack_free(s->tags);
   err2: XML_ParserFree(s->parser);
@@ -776,7 +808,8 @@ static void ssml_state_free(ssml_state *s)
   XML_ParserFree(s->parser);
   ssml_tag_stack_free(s->tags);
   prosody_stack_free(s->prosody);
-  variant_stack_free(s->variants);
+  int_stack_free(s->variants);
+  int_stack_free(s->voices);
   if(s->src.encoding!=8) free((uint8_t*)s->text);
 }
 
@@ -1068,6 +1101,7 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   feat_set_int(u->features,"length",last->pos-first->pos+last->len);
   feat_set_int(u->features,"number",first->sentence_number);
   feat_set(u->features,"message",userdata_val(msg));
+  feat_set_int(u->features,"voice_id",(first->voice)?(first->voice):RHVoice_get_voice());
   float msg_rate=(msg->rate==-1)?RHVoice_get_rate():msg->rate;
   float msg_pitch=(msg->pitch==-1)?RHVoice_get_pitch():msg->pitch;
   float msg_volume=(msg->volume==-1)?RHVoice_get_volume():msg->volume;

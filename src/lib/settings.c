@@ -38,6 +38,7 @@ static float current_volume=1.0;
 MUTEX settings_mutex;
 
 static int current_variant=variant_pseudo_english;
+static int current_voice=1;
 
 float check_pitch_range(float value)
 {
@@ -126,7 +127,11 @@ int RHVoice_get_variant()
 
 int RHVoice_get_variant_count()
 {
-  return (builtin_variant_count+get_user_dicts_count()-1);
+  int n=get_user_dicts_count();
+  if(n>0)
+    return (builtin_variant_count+n-1);
+  else
+    return builtin_variant_count;
 }
 
 const char *RHVoice_get_variant_name(int variant)
@@ -143,6 +148,25 @@ const char *RHVoice_get_variant_name(int variant)
     default:
       return (const char*)user_dict_get_name(variant-builtin_variant_count);
       break;
+    }
+}
+
+int RHVoice_find_variant(const char *name)
+{
+  if(strcmp(name,"Pseudo-English")==0)
+    return variant_pseudo_english;
+  else if(strcmp(name,"Russian")==0)
+    return variant_russian;
+  else
+    {
+      int n=get_user_dicts_count();
+      int i;
+      for(i=1;i<n;i++)
+        {
+          if(strcmp(name,(const char*)user_dict_get_name(i))==0)
+            return (builtin_variant_count+i);
+        }
+      return 0;
     }
 }
 
@@ -294,4 +318,24 @@ void free_settings()
   max_volume=2.0;
   current_volume=1.0;
   current_variant=variant_pseudo_english;
+  current_voice=0;
+}
+
+void RHVoice_set_voice(int voice)
+{
+  if((voice>0)&&(voice<=RHVoice_get_voice_count()))
+    {
+      LOCK_MUTEX(&settings_mutex);
+      current_voice=voice;
+      UNLOCK_MUTEX(&settings_mutex);
+    }
+}
+
+int RHVoice_get_voice()
+{
+  int v=1;
+  LOCK_MUTEX(&settings_mutex);
+  v=current_voice;
+  UNLOCK_MUTEX(&settings_mutex);
+  return v;
 }

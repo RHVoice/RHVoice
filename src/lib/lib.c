@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistr.h>
+#include <unicase.h>
 #include <sox.h>
 #include <math.h>
 #include <HTS_engine.h>
@@ -370,7 +371,11 @@ static int open_hts_data_files(const char *path,FILE *file_list[num_hts_data_fil
 {
   int result=1;
   int i,l;
+#ifdef WIN32
+  char sep='\\';
+#else
   char sep='/';
+#endif
   char *full_path;
   char *name;
   memset(file_list,0,num_hts_data_files*sizeof(FILE*));
@@ -419,6 +424,7 @@ static void close_hts_data_files(FILE *file_list[num_hts_data_files])
 
 typedef struct
 {
+  int id;
   HTS_Engine *engine;
   int is_free;
 } engine_resource;
@@ -429,13 +435,82 @@ void engine_resource_free(engine_resource *r)
   free(r->engine);
 }
 
+typedef struct
+{
+  uint8_t *name;
+  uint8_t *path;
+} voice;
+
+void voice_free(voice *v)
+{
+  free(v->name);
+  free(v->path);
+}
+
 vector_t(engine_resource,reslist)
+vector_t(voice,voicelist)
 
 static struct {
   MUTEX mutex;
   reslist engine_resources;
-  char *data_path;
-} pool;
+  voicelist voices;
+} engine_pool;
+
+static int add_voice(const char *voice_path,void *user_data)
+{
+  FILE *file_list[num_hts_data_files];
+  if(!open_hts_data_files(voice_path,file_list)) return 1;
+  close_hts_data_files(file_list);
+  voice v;
+  v.path=u8_strdup((const uint8_t*)voice_path);
+  if(v.path==NULL) goto err0;
+  #ifdef WIN32
+  const uint8_t *p=u8_strrchr(v.path,'\\')+1;
+#else
+  const uint8_t *p=u8_strrchr(v.path,'/')+1;
+#endif
+  size_t n=0;
+  v.name=u8_totitle(p,u8_strlen(p)+1,NULL,NULL,NULL,&n);
+  if(v.name==NULL) goto err1;
+  if(!voicelist_push(engine_pool.voices,&v)) goto err2;
+  return 1;
+  err2: free(v.name);
+  err1: free(v.path);
+  err0: return 1;
+}
+
+int RHVoice_get_voice_count()
+{
+  return (engine_pool.voices!=NULL)?voicelist_size(engine_pool.voices):0;
+}
+
+static const voice *get_voice_by_id(int id)
+{
+  if((id>0)&&(id<=RHVoice_get_voice_count()))
+    return voicelist_at(engine_pool.voices,id-1);
+  else
+    return NULL;
+}
+
+const char *RHVoice_get_voice_name(int id)
+{
+  if((id>0)&&(id<=RHVoice_get_voice_count()))
+    return (const char*)(get_voice_by_id(id)->name);
+  else
+    return NULL;
+}
+
+int RHVoice_find_voice(const char *name)
+{
+  int n=RHVoice_get_voice_count();
+  int i;
+  for(i=1;i<=n;i++)
+    {
+      if(u8_strcmp((const uint8_t*)name,get_voice_by_id(i)->name)==0)
+        return i;
+    }
+  return 0;
+}
 
 int initialize_engine(HTS_Engine *engine,const char *path)
 {
@@ -472,66 +547,80 @@ int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const cha
   if((data_path==NULL)||(callback==NULL)) return 0;
   user_callback=callback;
   if(en_lex==NULL) en_lex=cmu_lex_init();
-  pool.data_path=(char*)u8_strdup((const uint8_t*)data_path);
-  if(pool.data_path==NULL) goto err1;
-  pool.engine_resources=reslist_alloc(0,engine_resource_free);
-  if(pool.engine_resources==NULL) goto err2;
-  INIT_MUTEX(&pool.mutex);
-  sox_init();
+  engine_pool.voices=voicelist_alloc(0,voice_free);
+  if(engine_pool.voices==NULL) goto err1;
+  for_each_dir_in_dir(data_path,add_voice,NULL);
+  if(voicelist_size(engine_pool.voices)==0) goto err2;
+  engine_pool.engine_resources=reslist_alloc(0,engine_resource_free);
+  if(engine_pool.engine_resources==NULL) goto err2;
+  if(sox_init()!=SOX_SUCCESS) goto err3;
   vol_effect_handler=sox_find_effect("vol");
+  INIT_MUTEX(&engine_pool.mutex);
   load_settings(cfg_path);
   initialized=1;
+<<<<<<< HEAD
   return 16000;
  err2: free(pool.data_path);pool.data_path=NULL;
  err1: return 0;
+=======
+  return 32000;
+  err3: reslist_free(engine_pool.engine_resources);
+  engine_pool.engine_resources=NULL;
+  err2: voicelist_free(engine_pool.voices);
+  engine_pool.voices=NULL;
+  err1: return 0;
+>>>>>>> a0b4506... Support multiple voices
 }
 
 void RHVoice_terminate()
 {
   if(!initialized) return;
   free_settings();
-  DESTROY_MUTEX(&pool.mutex);
-  reslist_free(pool.engine_resources);
-  pool.engine_resources=NULL;
-  free(pool.data_path);
-  pool.data_path=NULL;
+  DESTROY_MUTEX(&engine_pool.mutex);
+  reslist_free(engine_pool.engine_resources);
+  engine_pool.engine_resources=NULL;
+  voicelist_free(engine_pool.voices);
+  engine_pool.voices=NULL;
   sox_quit();
   vol_effect_handler=NULL;
   initialized=0;
 }
 
-HTS_Engine *get_engine()
+HTS_Engine *get_engine(int id)
 {
+  const voice *v=get_voice_by_id(id);
+  if(v==NULL) return NULL;
   size_t n,i;
   engine_resource r,*pr;
   HTS_Engine *p=NULL;
-  LOCK_MUTEX(&pool.mutex);
-  n=reslist_size(pool.engine_resources);
+  LOCK_MUTEX(&engine_pool.mutex);
+  n=reslist_size(engine_pool.engine_resources);
   for(i=0;i<n;i++)
     {
-      pr=reslist_at(pool.engine_resources,i);
-      if(pr->is_free)
+      pr=reslist_at(engine_pool.engine_resources,i);
+      if((pr->id==id)&&pr->is_free)
         {
           p=pr->engine;
           pr->is_free=0;
           break;
         }
     }
-  UNLOCK_MUTEX(&pool.mutex);
+  UNLOCK_MUTEX(&engine_pool.mutex);
   if(p==NULL)
     {
       r.engine=malloc(sizeof(HTS_Engine));
       if(r.engine==NULL) return NULL;
-      if(!initialize_engine(r.engine,pool.data_path))
+      if(!initialize_engine(r.engine,(const char*)v->path))
         {
           free(r.engine);
           return NULL;
         }
       r.is_free=0;
-      LOCK_MUTEX(&pool.mutex);
-      if(reslist_push(pool.engine_resources,&r))
-        p=(reslist_back(pool.engine_resources)->engine);
-      UNLOCK_MUTEX(&pool.mutex);
+      r.id=id;
+      LOCK_MUTEX(&engine_pool.mutex);
+      if(reslist_push(engine_pool.engine_resources,&r))
+        p=(reslist_back(engine_pool.engine_resources)->engine);
+      UNLOCK_MUTEX(&engine_pool.mutex);
       if(p==NULL)
         {
           HTS_Engine_clear(r.engine);
@@ -545,15 +634,15 @@ void release_engine(HTS_Engine *engine)
 {
   size_t n,i;
   engine_resource *pr;
-  LOCK_MUTEX(&pool.mutex);
-  n=reslist_size(pool.engine_resources);
+  LOCK_MUTEX(&engine_pool.mutex);
+  n=reslist_size(engine_pool.engine_resources);
   for(i=0;i<n;i++)
     {
-      pr=reslist_at(pool.engine_resources,i);
+      pr=reslist_at(engine_pool.engine_resources,i);
       if(engine==pr->engine)
         pr->is_free=1;
     }
-  UNLOCK_MUTEX(&pool.mutex);
+  UNLOCK_MUTEX(&engine_pool.mutex);
 }
 
 const char *RHVoice_get_version()
@@ -711,7 +800,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   float pitch,rate,volume,f0;
   char strvolume[8];
   char *volopts[2]={strvolume,"0.02"};
-  HTS_Engine *engine=get_engine();
+  HTS_Engine *engine=get_engine(get_param_int(u->features,"voice_id",1));
   if(engine==NULL) return NULL;
   synth_state state;
   sox_encodinginfo_t enc={SOX_ENCODING_SIGN2,16,0,SOX_OPTION_DEFAULT,SOX_OPTION_DEFAULT,SOX_OPTION_DEFAULT,sox_false};

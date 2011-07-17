@@ -1,4 +1,5 @@
 import os.path
 Import("env")
 
-env.InstallData(Glob(os.path.join("voice","[!.]*")),"voice")
+env.InstallData(Glob(os.path.join("Aleksandr","[!.]*")),"Aleksandr")
+env.InstallData(Glob(os.path.join("Elena","[!.]*")),"Elena")
