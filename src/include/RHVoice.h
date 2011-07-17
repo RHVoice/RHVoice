@@ -98,6 +98,14 @@ extern "C" {
   int RHVoice_get_variant();
   int RHVoice_get_variant_count();
   const char *RHVoice_get_variant_name(int variant);
+  int RHVoice_find_variant(const char *name);
+
+  int RHVoice_get_voice_count();
+  const char *RHVoice_get_voice_name(int id);
+  int RHVoice_find_voice(const char *name);
+  void RHVoice_set_voice(int id);
+  int RHVoice_get_voice();
+
   void RHVoice_set_user_data(RHVoice_message message,void *data);
   void *RHVoice_get_user_data(RHVoice_message message);
 

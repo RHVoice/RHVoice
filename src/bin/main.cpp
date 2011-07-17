@@ -90,9 +90,10 @@ static struct option program_options[]=
     {"rate",required_argument,0,'r'},
     {"pitch",required_argument,0,'p'},
     {"volume",required_argument,0,'v'},
-    {"voice-directory",required_argument,0,'d'},
+    {"data",required_argument,0,'d'},
     {"config",required_argument,0,'c'},
-    {"variant",required_argument,0,'n'},
+    {"variant",required_argument,0,'w'},
+    {"voice",required_argument,0,'W'},
     {"ssml",no_argument,0,'s'},
     {0,0,0,0}
   };
@@ -115,9 +116,10 @@ static void show_help()
   cout << setw(w) << "-r, --rate=<number from 0 to 100>" << "rate\n";
   cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
   cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
-  cout << setw(w) << "-d, --voice-directory=<path>" << "path to voice files\n";
+  cout << setw(w) << "-d, --data=<path>" << "path to the data directory\n";
   cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
-  cout << setw(w) << "-n, --variant=<name>" << "variant\n";
+  cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
+  cout << setw(w) << "-W, --voice=<name>" << "select a voice\n";
   cout << setw(w) << "-s, --ssml" << "ssml input\n";
 }
 
@@ -147,13 +149,16 @@ static float convert_prosody_value(float val,float nmin,float nmax,float ndef)
 
 int main(int argc,char **argv)
 {
-  const char *voxdir=VOXDIR;
+  const char *voices_dir=VOICESDIR;
   RHVoice_message msg=NULL;
   const char *cfgpath=NULL;
   float rate=-1;
   float pitch=-1;
   float volume=-1;
-  string variant;
+  const char *variant_name=NULL;
+  int variant=0;
+  const char *voice_name=NULL;
+  int voice=0;
   int is_ssml=0;
   string text;
   char ch;
@@ -161,7 +166,7 @@ int main(int argc,char **argv)
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"d:c:hVr:p:v:n:s",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"d:c:hVr:p:v:w:W:s",program_options,&i))!=-1)
         {
           switch(c)
             {
@@ -184,13 +189,16 @@ int main(int argc,char **argv)
               is_ssml=1;
               break;
             case 'd':
-              voxdir=optarg;
+              voices_dir=optarg;
               break;
             case 'c':
               cfgpath=optarg;
               break;
-            case 'n':
-              variant=optarg;
+            case 'w':
+              variant_name=optarg;
+              break;
+            case 'W':
+              voice_name=optarg;
               break;
             case 0:
               break;
@@ -206,7 +214,7 @@ int main(int argc,char **argv)
             text.push_back(' ');
         }
       if(text.empty()) return 1;
-      sample_rate=RHVoice_initialize(voxdir,callback,cfgpath);
+      sample_rate=RHVoice_initialize(voices_dir,callback,cfgpath);
       if(sample_rate==0) return 1;
       if(rate!=-1)
         RHVoice_set_rate(convert_prosody_value(rate,RHVoice_get_min_rate(),RHVoice_get_max_rate(),RHVoice_get_default_rate()));
@@ -214,62 +222,19 @@ int main(int argc,char **argv)
         RHVoice_set_pitch(convert_prosody_value(pitch,RHVoice_get_min_pitch(),RHVoice_get_max_pitch(),RHVoice_get_default_pitch()));
       if(volume!=-1)
         RHVoice_set_volume(convert_prosody_value(volume,0,RHVoice_get_max_volume(),RHVoice_get_default_volume()));
-      if(!variant.empty())
+      if(variant_name!=NULL)
         {
-          int n=RHVoice_get_variant_count();
-          for(int i=1;i<=n;i++)
-            {
-              if(variant==RHVoice_get_variant_name(i))
-                {
-                  RHVoice_set_variant(i);
-                  break;
-                }
-            }
+          variant=RHVoice_find_variant(variant_name);
+          if(variant>0)
+            RHVoice_set_variant(variant);
         }
-      if(is_ssml)
+      if(voice_name!=NULL)
         {
-          msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),1);
+          voice=RHVoice_find_voice(voice_name);
+          if(voice>0)
+            RHVoice_set_voice(voice);
         }
-      else
-        {
-          bool is_single_char=false;
-          int n=u8_mblen(reinterpret_cast<const uint8_t*>(text.data()),text.size());
-          if(n<0)
-            {
-              RHVoice_terminate();
-              return 1;
-            }
-          is_single_char=(n==text.size());
-          string ssml_text("<speak>");
-          if(is_single_char)
-            ssml_text+="<say-as interpret-as=\"tts:char\">";
-          ssml_text.reserve(text.size()+50);
-          char ch;
-          for(string::const_iterator it=text.begin();it!=text.end();++it)
-            {
-              ch=*it;
-              switch(ch)
-                {
-                case '<':
-                  ssml_text+="&lt;";
-                  break;
-                case '&':
-                  ssml_text+="&amp;";
-                  break;
-                case '\r':
-                  ssml_text+="&#13;";
-                  break;
-                default:
-                  ssml_text+=ch;
-                  break;
-                }
-            }
-          if(is_single_char)
-            ssml_text+="</say-as>";
-          ssml_text+="<break strength=\"none\"/>";
-          ssml_text+="</speak>";
-          msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(ssml_text.data()),ssml_text.size(),1);
-        }
+      msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),is_ssml);
       if(msg==NULL)
         {
           RHVoice_terminate();
