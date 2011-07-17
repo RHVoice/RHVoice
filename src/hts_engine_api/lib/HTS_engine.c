@@ -73,8 +73,6 @@ void HTS_Engine_initialize(HTS_Engine * engine, int nstream)
    engine->global.alpha = 0.42;
    engine->global.beta = 0.0;
    engine->global.audio_buff_size = 0;
-   engine->global.synth_callback=NULL;
-   engine->global.user_data=NULL;
    engine->global.msd_threshold =
        (double *) HTS_calloc(nstream, sizeof(double));
    for (i = 0; i < nstream; i++)
@@ -350,18 +348,6 @@ int HTS_Engine_get_audio_buff_size(HTS_Engine * engine)
    return engine->global.audio_buff_size;
 }
 
-/* HTS_Engine_set_SynthCallback: set user callback function for streaming synthesis */
-void HTS_Engine_set_SynthCallback(HTS_Engine *engine, HTS_SynthCallback callback)
-{
-  engine->global.synth_callback=callback;
-}
-
-/* HTS_Engine_set_user_data: set user data for streaming synthesis */
-void HTS_Engine_set_user_data(HTS_Engine *engine, void *user_data)
-{
-  engine->global.user_data=user_data;
-}
-
 /* HTS_Egnine_set_msd_threshold: set MSD threshold */
 void HTS_Engine_set_msd_threshold(HTS_Engine * engine, int stream_index,
                                   double f)
@@ -516,9 +502,7 @@ void HTS_Engine_create_gstream(HTS_Engine * engine)
                          engine->global.alpha, engine->global.beta,
                          &engine->global.stop, engine->global.volume,
                          engine->global.audio_buff_size >
-                         0 ? &engine->audio : NULL,
-                         engine->global.synth_callback,
-                         engine->global.user_data);
+                         0 ? &engine->audio : NULL);
 }
 
 /* HTS_Engine_save_information: output trace information */

@@ -124,6 +124,11 @@ if enable_config:
         print "Error: cannot link with pcre"
         exit(1)
     env.PrependUnique(LIBS="pcre")
+    has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
+    if not has_sox:
+        print "Error: cannot link with libsox"
+        exit(1)
+    env.PrependUnique(LIBS="sox")
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     env=conf.Finish()

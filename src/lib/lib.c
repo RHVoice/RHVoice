@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistr.h>
+#include <sox.h>
 #include <math.h>
 #include <HTS_engine.h>
 #include "sonic.h"
@@ -26,12 +27,79 @@
 #include "mutex.h"
 #include "settings.h"
 
+static void synth_start(HTS_Engine *e,HTS_Vocoder *v)
+{
+  int i, j, k;
+  int msd_frame;
+
+  /* initialize */
+  e->gss.nstream = HTS_PStreamSet_get_nstream(&e->pss);
+  e->gss.total_frame = HTS_PStreamSet_get_total_frame(&e->pss);
+  e->gss.total_nsample = e->global.fperiod * e->gss.total_frame;
+  e->gss.gstream = (HTS_GStream *) calloc(e->gss.nstream, sizeof(HTS_GStream));
+  for (i = 0; i < e->gss.nstream; i++) {
+    e->gss.gstream[i].static_length = HTS_PStreamSet_get_static_length(&e->pss, i);
+    e->gss.gstream[i].par =
+      (double **) calloc(e->gss.total_frame, sizeof(double *));
+    for (j = 0; j < e->gss.total_frame; j++)
+      e->gss.gstream[i].par[j] =
+        (double *) calloc(e->gss.gstream[i].static_length,
+                          sizeof(double));
+  }
+  e->gss.gspeech = NULL;
+
+  /* copy generated parameter */
+  for (i = 0; i < e->gss.nstream; i++) {
+    if (HTS_PStreamSet_is_msd(&e->pss, i)) {      /* for MSD */
+      for (j = 0, msd_frame = 0; j < e->gss.total_frame; j++)
+        if (HTS_PStreamSet_get_msd_flag(&e->pss, i, j)) {
+          for (k = 0; k < e->gss.gstream[i].static_length; k++)
+            e->gss.gstream[i].par[j][k] =
+              HTS_PStreamSet_get_parameter(&e->pss, i, msd_frame, k);
+          msd_frame++;
+        } else
+          for (k = 0; k < e->gss.gstream[i].static_length; k++)
+            e->gss.gstream[i].par[j][k] = LZERO;
+    } else {                  /* for non MSD */
+      for (j = 0; j < e->gss.total_frame; j++)
+        for (k = 0; k < e->gss.gstream[i].static_length; k++)
+          e->gss.gstream[i].par[j][k] =
+            HTS_PStreamSet_get_parameter(&e->pss, i, j, k);
+    }
+  }
+
+  HTS_Vocoder_initialize(v, e->gss.gstream[0].static_length - 1, e->global.stage,
+                         e->global.use_log_gain, e->global.sampling_rate, e->global.fperiod);
+}
+
+static void synth_frame(HTS_Engine *e,HTS_Vocoder *v,int i,short *osamples)
+{
+  int nlpf = 0;
+  double *lpf = NULL;
+  if (e->gss.nstream >= 3)
+    {
+      nlpf = (e->gss.gstream[2].static_length - 1) / 2;
+      lpf = &e->gss.gstream[2].par[i][0];
+    }
+  HTS_Vocoder_synthesize(v, e->gss.gstream[0].static_length - 1,
+                         e->gss.gstream[1].par[i][0],
+                         &e->gss.gstream[0].par[i][0], nlpf, lpf,
+                         e->global.alpha, e->global.beta,
+                         e->global.volume, osamples, NULL);
+}
+
+static void synth_finish(HTS_Engine *e,HTS_Vocoder *v)
+{
+  HTS_Vocoder_clear(v);
+}
+
 cst_lexicon *cmu_lex_init();
 
 static const char *lib_version=VERSION;
 
 static int initialized=0;
 cst_lexicon *en_lex=NULL;
+static const sox_effect_handler_t *vol_effect_handler=NULL;
 
 static RHVoice_callback user_callback=NULL;
 
@@ -39,9 +107,14 @@ vector_t(short,svector)
 vector_t(RHVoice_event,eventlist)
 
 typedef struct {
+  HTS_Engine *engine;
+  HTS_Vocoder vocoder;
+  int next_frame;
   svector samples;
-  int min_buff_size;
-  sonicStream stream;
+  svector osamples;
+  sonicStream sstream;
+  int sstream_flushed;
+  float rate;
   eventlist events;
   cst_item *cur_seg;
   int in_nsamples;
@@ -52,71 +125,216 @@ typedef struct {
   RHVoice_message message;
 } synth_state;
 
+static int synth_callback(const short *samples,int nsamples,synth_state *state);
+
+typedef struct {
+  synth_state *state;
+} private_t;
+
+static int getopts(sox_effect_t *e,int argc,char *argv[])
+{
+  private_t *p=(private_t*)(e->priv);
+  p->state=(synth_state*)argv[1];
+  return SOX_SUCCESS;
+}
+
+static int out_flow(sox_effect_t *e,const sox_sample_t *ib,sox_sample_t *ob,size_t *ins,size_t *ons)
+{
+  SOX_SAMPLE_LOCALS;
+  synth_state *s=((private_t*)(e->priv))->state;
+  *ons=0;
+  int i;
+  int res;
+  short sample;
+  int c=0;
+  if(*ins>0)
+    {
+      if(!svector_reserve(s->osamples,svector_size(s->osamples)+*ins))
+        return SOX_EOF;
+      for(i=0;i<*ins;i++)
+        {
+          sample=SOX_SAMPLE_TO_SIGNED_16BIT(ib[i],c);
+          svector_push(s->osamples,&sample);
+        }
+      if(svector_size(s->osamples)>=4800)
+        {
+          res=synth_callback(svector_data(s->osamples),svector_size(s->osamples),s);
+          svector_clear(s->osamples);
+          if(!res)
+            return SOX_EOF;
+        }
+    }
+  return SOX_SUCCESS;
+}
+
+static int out_stop(sox_effect_t *e)
+{
+  synth_state *s=((private_t*)(e->priv))->state;
+  if(svector_size(s->osamples)>0)
+    {
+      synth_callback(svector_data(s->osamples),svector_size(s->osamples),s);
+      svector_clear(s->osamples);
+    }
+  return SOX_SUCCESS;
+}
+
+static int in_drain(sox_effect_t *e,sox_sample_t *ob,size_t *ons)
+{
+  SOX_SAMPLE_LOCALS;
+  synth_state *s=((private_t *)(e->priv))->state;
+  if(s->next_frame>=s->engine->gss.total_frame)
+    {
+      *ons=0;
+      return SOX_EOF;
+    }
+  int fperiod=s->engine->global.fperiod;
+  int i,j,n;
+  n=*ons/fperiod;
+  if(n>(s->engine->gss.total_frame-s->next_frame))
+    n=s->engine->gss.total_frame-s->next_frame;
+  if(n>10)
+    n=10;
+  short speech[80];
+  for(i=0;i<n;i++)
+    {
+      synth_frame(s->engine,&s->vocoder,s->next_frame+i,speech);
+      for(j=0;j<fperiod;j++)
+        {
+          ob[i*fperiod+j]=SOX_SIGNED_TO_SAMPLE(16,speech[j]);
+        }
+    }
+  s->next_frame+=n;
+  *ons=n*fperiod;
+  return SOX_SUCCESS;
+}
+
+static int sonic_start(sox_effect_t *e)
+{
+  synth_state *s=((private_t*)(e->priv))->state;
+  s->sstream=sonicCreateStream(s->engine->global.sampling_rate,1);
+  if(s->sstream==NULL)
+    return SOX_EOF;
+  sonicSetSpeed(s->sstream,s->rate);
+  return SOX_SUCCESS;
+}
+
+static int sonic_stop(sox_effect_t *e)
+{
+  synth_state *s=((private_t*)(e->priv))->state;
+  if(s->sstream)
+    {
+      sonicDestroyStream(s->sstream);
+      s->sstream=NULL;
+    }
+  return SOX_SUCCESS;
+}
+
+static int sonic_flow(sox_effect_t *e,const sox_sample_t *ib,sox_sample_t *ob,size_t *ins,size_t *ons)
+{
+  SOX_SAMPLE_LOCALS;
+  synth_state *s=((private_t*)(e->priv))->state;
+  int i;
+  short sample;
+  int c=0;
+  svector_clear(s->samples);
+  if(*ins>0)
+    {
+      if(!svector_reserve(s->samples,*ins))
+        {
+          *ons=0;
+          return SOX_EOF;
+        }
+      for(i=0;i<*ins;i++)
+        {
+          sample=SOX_SAMPLE_TO_SIGNED_16BIT(ib[i],c);
+          svector_push(s->samples,&sample);
+        }
+      if(!sonicWriteShortToStream(s->sstream,svector_data(s->samples),svector_size(s->samples)))
+        {
+          *ons=0;
+          return SOX_EOF;
+        }
+      svector_clear(s->samples);
+    }
+  if(*ons>sonicSamplesAvailable(s->sstream))
+    *ons=sonicSamplesAvailable(s->sstream);
+  if(*ons>0)
+    {
+      sample=0;
+      if(!svector_resize(s->samples,*ons,&sample))
+        {
+          *ons=0;
+          return SOX_EOF;
+        }
+      sonicReadShortFromStream(s->sstream,svector_data(s->samples),*ons);
+      for(i=0;i<*ons;i++)
+        {
+          ob[i]=SOX_SIGNED_TO_SAMPLE(16,*svector_at(s->samples,i));
+        }
+    }
+  return SOX_SUCCESS;
+}
+
+static int sonic_drain(sox_effect_t *e,sox_sample_t *ob,size_t *ons)
+{
+  SOX_SAMPLE_LOCALS;
+  int i;
+  short sample;
+  synth_state *s=((private_t*)(e->priv))->state;
+  if(!s->sstream_flushed)
+    {
+      sonicFlushStream(s->sstream);
+      s->sstream_flushed=1;
+    }
+  if(sonicSamplesAvailable(s->sstream)==0)
+    {
+      *ons=0;
+      return SOX_EOF;
+    }
+  if(*ons>sonicSamplesAvailable(s->sstream))
+    *ons=sonicSamplesAvailable(s->sstream);
+  if(*ons>0)
+    {
+      svector_clear(s->samples);
+      sample=0;
+      if(!svector_resize(s->samples,*ons,&sample))
+        {
+          *ons=0;
+          return SOX_EOF;
+        }
+      sonicReadShortFromStream(s->sstream,svector_data(s->samples),*ons);
+      for(i=0;i<*ons;i++)
+        {
+          ob[i]=SOX_SIGNED_TO_SAMPLE(16,*svector_at(s->samples,i));
+        }
+    }
+  return SOX_SUCCESS;
+}
+
+static const sox_effect_handler_t in_effect_handler={"in",NULL,SOX_EFF_MCHAN,getopts,NULL,NULL,in_drain,NULL,NULL,sizeof(private_t)};
+static const sox_effect_handler_t out_effect_handler={"out",NULL,SOX_EFF_MCHAN,getopts,NULL,out_flow,NULL,out_stop,NULL,sizeof(private_t)};
+static const sox_effect_handler_t sonic_effect_handler={"sonic",NULL,SOX_EFF_MCHAN,getopts,sonic_start,sonic_flow,sonic_drain,sonic_stop,NULL,sizeof(private_t)};
+
 #define synth_error(s) {s->last_result=0;return 0;}
 
-static int synth_callback(const short *samples,int nsamples,void *user_data)
+static int synth_callback(const short *samples,int nsamples,synth_state *state)
 {
-  synth_state *state=(synth_state*)user_data;
-  float volume,fs;
-  short s;
-  int i,size,d;
+  int i,d;
   RHVoice_event *events=NULL;
   int num_events=0;
-  cst_item *t;
   state->in_nsamples+=nsamples;
-  if(state->in_nsamples>item_feat_int(state->cur_seg,"end"))
-    state->cur_seg=item_next(state->cur_seg);
-  int end_of_audio=((!item_next(state->cur_seg))&&(state->in_nsamples==item_feat_int(state->cur_seg,"end")));
-  if(!svector_reserve(state->samples,svector_size(state->samples)+nsamples)) synth_error(state);
-  t=path_to_item(state->cur_seg,"R:Transcription.parent.R:Token.parent");
-  if(t)
+  for(i=state->event_index;i<state->num_events;i++)
     {
-      volume=item_feat_float(t,"volume");
-      for(i=0;i<nsamples;i++)
-        {
-          fs=(float)samples[i]*volume;
-          if(fs<-32766) s=-32766;
-          else if(fs>32766) s=32766;
-          else s=(short)(fs+0.5);
-          svector_push(state->samples,&s);
-        }
+      d=eventlist_at(state->events,i)->audio_position-state->out_nsamples;
+      if(d>=nsamples) break;
+      num_events++;
+      eventlist_at(state->events,i)->audio_position=d;
     }
-  else svector_append(state->samples,samples,nsamples);
-  if(state->stream)
-    {
-      if(!sonicWriteShortToStream(state->stream,svector_data(state->samples),svector_size(state->samples)))
-        synth_error(state);
-      svector_clear(state->samples);
-      if(end_of_audio) sonicFlushStream(state->stream);
-      size=sonicSamplesAvailable(state->stream);
-      if((size>0)&&((size>=state->min_buff_size)||end_of_audio))
-        {
-          s=0;
-          if(!svector_resize(state->samples,size,&s)) synth_error(state);
-          sonicReadShortFromStream(state->stream,svector_data(state->samples),size);
-        }
-    }
-  size=svector_size(state->samples);
-  if((size>0)&&((size>=state->min_buff_size)||end_of_audio))
-    {
-      for(i=state->event_index;i<state->num_events;i++)
-        {
-          d=eventlist_at(state->events,i)->audio_position-state->out_nsamples;
-          if(d>=size)
-            {
-              if(end_of_audio) d=size;
-              else break;
-            }
-          num_events++;
-          eventlist_at(state->events,i)->audio_position=d;
-        }
-      if(num_events>0) events=eventlist_at(state->events,state->event_index);
-      state->last_result=user_callback(svector_data(state->samples),size,events,num_events,state->message);
-      state->out_nsamples+=size;
-      state->event_index+=num_events;
-      svector_clear(state->samples);
-    }
-  return end_of_audio?0:(state->last_result);
+  if(num_events>0) events=eventlist_at(state->events,state->event_index);
+  state->last_result=user_callback(samples,nsamples,events,num_events,state->message);
+  state->out_nsamples+=nsamples;
+  state->event_index+=num_events;
+  return state->last_result;
 }
 
 #define num_hts_data_files 15
@@ -224,7 +442,6 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   int i;
   FILE *fp[num_hts_data_files];
   HTS_Engine_initialize(engine,3);
-  HTS_Engine_set_SynthCallback(engine,synth_callback);
   if(!open_hts_data_files(path,fp)) return 0;
   i=0;
   HTS_Engine_load_duration_from_fp(engine,&fp[i],&fp[i+1],1);
@@ -260,11 +477,13 @@ int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const cha
   pool.engine_resources=reslist_alloc(0,engine_resource_free);
   if(pool.engine_resources==NULL) goto err2;
   INIT_MUTEX(&pool.mutex);
+  sox_init();
+  vol_effect_handler=sox_find_effect("vol");
   load_settings(cfg_path);
   initialized=1;
   return 16000;
-  err2: free(pool.data_path);pool.data_path=NULL;
-  err1: return 0;
+ err2: free(pool.data_path);pool.data_path=NULL;
+ err1: return 0;
 }
 
 void RHVoice_terminate()
@@ -276,6 +495,8 @@ void RHVoice_terminate()
   pool.engine_resources=NULL;
   free(pool.data_path);
   pool.data_path=NULL;
+  sox_quit();
+  vol_effect_handler=NULL;
   initialized=0;
 }
 
@@ -478,31 +699,48 @@ static void fix_f0(cst_utterance *u,HTS_Engine *e)
 
 cst_utterance *hts_synth(cst_utterance *u)
 {
+  sox_effect_t *e;
+  sox_effects_chain_t *c;
+  char *opts[1];
   HTS_LabelString *lstring=NULL;
   double *dur_mean,*dur_vari,local_dur;
   char **labels=NULL;
-  int i,j,nsamples,nlabels,total_nsamples;
+  int i,j,nlabels;
+  double nframes,total_nframes;
   cst_item *s,*t;
-  float pitch,rate,f0;
+  float pitch,rate,volume,f0;
+  char strvolume[8];
+  char *volopts[2]={strvolume,"0.02"};
   HTS_Engine *engine=get_engine();
   if(engine==NULL) return NULL;
   synth_state state;
-  state.min_buff_size=0.1*engine->global.sampling_rate;
-  state.samples=svector_alloc(state.min_buff_size,NULL);
-  if(state.samples==NULL)
-    {
-      release_engine(engine);
-      return NULL;
-    }
-  rate=feat_float(u->features,"rate");
-  float frames_per_sec=(float)engine->global.sampling_rate/((float)engine->global.fperiod);
-  float factor,time;
+  sox_encodinginfo_t enc={SOX_ENCODING_SIGN2,16,0,SOX_OPTION_DEFAULT,SOX_OPTION_DEFAULT,SOX_OPTION_DEFAULT,sox_false};
+  sox_signalinfo_t isig={engine->global.sampling_rate,1,16,SOX_UNSPEC,NULL};
+  sox_signalinfo_t osig={engine->global.sampling_rate,1,16,SOX_UNSPEC,NULL};
+  state.engine=engine;
   for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
   if(nlabels==0)
     {
       release_engine(engine);
       return NULL;
     }
+  state.samples=svector_alloc(9600,NULL);
+  if(state.samples==NULL)
+    {
+      release_engine(engine);
+      return NULL;
+    }
+  state.osamples=svector_alloc(9600,NULL);
+  if(state.osamples==NULL)
+    {
+      svector_free(state.samples);
+      release_engine(engine);
+      return NULL;
+    }
+  rate=feat_float(u->features,"rate");
+  volume=feat_float(u->features,"volume");
+  float frames_per_sec=(float)engine->global.sampling_rate/((float)engine->global.fperiod);
+  float factor,time;
   create_hts_labels(u);
   labels=(char**)calloc(nlabels,sizeof(char*));
   for(i=0,s=relation_head(utt_relation(u,"Segment"));s;s=item_next(s),i++)
@@ -522,13 +760,13 @@ cst_utterance *hts_synth(cst_utterance *u)
         {
           local_dur+=dur_mean[i];
         }
-      if(rate<=2) local_dur/=rate;
+      local_dur/=((rate<2.0)?rate:1.0);
       if(cst_streq(item_name(s),"pau"))
         {
           factor=item_feat_float(s,"factor");
           time=item_feat_float(s,"time");
           local_dur*=factor;
-          local_dur+=((rate>2)?rate:1.0)*time*frames_per_sec;
+          local_dur+=((rate>2.0)?rate:1.0)*time*frames_per_sec;
         }
       lstring->end=lstring->start+local_dur;
       if(lstring->next)
@@ -539,7 +777,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   HTS_Label_set_frame_specified_flag(&engine->label,TRUE);
   HTS_Engine_create_sstream(engine);
   fix_f0(u,engine);
-  total_nsamples=0;
+  total_nframes=0;
   for(s=relation_head(utt_relation(u,"Segment")),i=0;s;s=item_next(s),i++)
     {
       t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
@@ -553,27 +791,19 @@ cst_utterance *hts_synth(cst_utterance *u)
               HTS_SStreamSet_set_mean(&engine->sss,1,i*engine->sss.nstate+j,0,log(f0));
             }
         }
-      nsamples=0;
-      for(j=0;j<(((!item_next(s))&&get_param_int(u->features,"min_final_pause",0))?1:(engine->sss.nstate));j++)
+      nframes=0;
+      for(j=0;j<engine->sss.nstate;j++)
         {
-          nsamples+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j)*engine->global.fperiod;
+          nframes+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j);
         }
-      item_set_int(s,"start",total_nsamples);
-      item_set_int(s,"expected_start",(rate>2)?((int)((float)total_nsamples/rate)):total_nsamples);
-      total_nsamples+=nsamples;
-      item_set_int(s,"end",total_nsamples);
-      item_set_int(s,"expected_end",(rate>2)?((int)((float)total_nsamples/rate)):total_nsamples);
+      item_set_int(s,"expected_start",(int)(((float)engine->global.fperiod)*total_nframes*((rate>2.0)?(1.0/rate):1.0)));
+      total_nframes+=nframes;
+      item_set_int(s,"expected_end",(int)(((float)engine->global.fperiod)*total_nframes*((rate>2.0)?(1.0/rate):1.0)));
     }
   HTS_Engine_create_pstream(engine);
-  if(rate<=2)
-    state.stream=NULL;
-  else
-    {
-      state.stream=sonicCreateStream(engine->global.sampling_rate,1);
-      if(state.stream!=NULL)
-        sonicSetSpeed(state.stream,rate);
-      sonicSetQuality(state.stream,1);
-    }
+  state.rate=rate;
+  state.sstream=NULL;
+  state.sstream_flushed=0;
   state.events=generate_events(u);
   state.num_events=eventlist_size(state.events);
   state.event_index=0;
@@ -582,15 +812,38 @@ cst_utterance *hts_synth(cst_utterance *u)
   state.out_nsamples=0;
   state.last_result=1;
   state.message=(RHVoice_message)val_userdata(feat_val(u->features,"message"));
-  HTS_Engine_set_user_data(engine,&state);
-  HTS_Engine_create_gstream(engine);
-  HTS_Engine_set_user_data(engine,NULL);
+  state.next_frame=0;
+  synth_start(engine,&state.vocoder);
+  c=sox_create_effects_chain(&enc,&enc);
+  opts[0]=(char*)(&state);
+  e=sox_create_effect(&in_effect_handler);
+  sox_effect_options(e,1,opts);
+  sox_add_effect(c,e,&isig,&isig);
+  if(rate>2.0)
+    {
+      e=sox_create_effect(&sonic_effect_handler);
+      sox_effect_options(e,1,opts);
+      sox_add_effect(c,e,&isig,&isig);
+    }
+  if(volume!=1)
+    {
+      snprintf(strvolume,sizeof(strvolume),"%.4f",volume);
+      e=sox_create_effect(vol_effect_handler);
+      sox_effect_options(e,2,volopts);
+      sox_add_effect(c,e,&osig,&osig);
+    }
+  e=sox_create_effect(&out_effect_handler);
+  sox_effect_options(e,1,opts);
+  sox_add_effect(c,e,&osig,&osig);
+  sox_flow_effects(c,NULL,NULL);
+  sox_delete_effects_chain(c);
+  synth_finish(engine,&state.vocoder);
   HTS_Engine_refresh(engine);
   release_engine(engine);
   feat_set_int(u->features,"last_user_callback_result",state.last_result);
-  if(state.stream!=NULL) sonicDestroyStream(state.stream);
   if(state.events!=NULL) eventlist_free(state.events);
   svector_free(state.samples);
+  svector_free(state.osamples);
   return u;
 }
 
