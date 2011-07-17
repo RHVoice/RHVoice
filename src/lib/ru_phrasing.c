@@ -127,7 +127,7 @@ cst_utterance *russian_pause_insertion(cst_utterance *u)
         {
           p=item_feat_string(t1,"punc");
           if(p[0]=='\0')
-            item_set_float(s,"time",0.025);
+            item_set_float(s,"time",0.05);
           else if(strchr(p,'.')||strchr(p,'?')||strchr(p,'!'))
             item_set_float(s,"time",0.2);
           else if(strchr(p,':')||strchr(p,';'))

@@ -1073,8 +1073,9 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   float msg_volume=(msg->volume==-1)?RHVoice_get_volume():msg->volume;
   float rate=check_rate_range(msg_rate*first->prosody.rate.value);
   feat_set_float(u->features,"rate",rate);
+  float volume=check_volume_range(first->prosody.volume.value*(first->prosody.volume.is_absolute?1.0:msg_volume));
+  feat_set_float(u->features,"volume",volume);
   float pitch;
-  float volume;
   float initial_silence=(first==front)?0:first->silence;
   float final_silence=((last==back)?msg->silence:toklist_at(msg->tokens,(last-front)+1)->silence)-initial_silence;
   feat_set_float(u->features,"silence_time",final_silence);
@@ -1112,8 +1113,6 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
         }
       pitch=check_pitch_range(tok->prosody.pitch.value*msg_pitch);
       item_set_float(i,"pitch",pitch);
-      volume=check_volume_range(tok->prosody.volume.value*(tok->prosody.volume.is_absolute?1.0:msg_volume));
-      item_set_float(i,"volume",volume);
       item_set_int(i,"position",tok->pos+1);
       item_set_int(i,"length",tok->len);
       item_set_int(i,"number",tok-front+1);
