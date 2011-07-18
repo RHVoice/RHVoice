@@ -168,7 +168,7 @@ static int out_flow(sox_effect_t *e,const sox_sample_t *ib,sox_sample_t *ob,size
   return SOX_SUCCESS;
 }
 
-static int out_stop(sox_effect_t *e)
+static int out_drain(sox_effect_t *e,sox_sample_t *ob,size_t *ons)
 {
   synth_state *s=((private_t*)(e->priv))->state;
   if(svector_size(s->osamples)>0)
@@ -176,7 +176,8 @@ static int out_stop(sox_effect_t *e)
       synth_callback(svector_data(s->osamples),svector_size(s->osamples),s);
       svector_clear(s->osamples);
     }
-  return SOX_SUCCESS;
+  *ons=0;
+  return SOX_EOF;
 }
 
 static int in_drain(sox_effect_t *e,sox_sample_t *ob,size_t *ons)
@@ -313,8 +314,8 @@ static int sonic_drain(sox_effect_t *e,sox_sample_t *ob,size_t *ons)
 }
 
 static const sox_effect_handler_t in_effect_handler={"in",NULL,SOX_EFF_MCHAN,getopts,NULL,NULL,in_drain,NULL,NULL,sizeof(private_t)};
-static const sox_effect_handler_t out_effect_handler={"out",NULL,SOX_EFF_MCHAN,getopts,NULL,out_flow,NULL,out_stop,NULL,sizeof(private_t)};
-static const sox_effect_handler_t sonic_effect_handler={"sonic",NULL,SOX_EFF_MCHAN,getopts,sonic_start,sonic_flow,sonic_drain,sonic_stop,NULL,sizeof(private_t)};
+static const sox_effect_handler_t out_effect_handler={"out",NULL,SOX_EFF_MCHAN,getopts,NULL,out_flow,out_drain,NULL,NULL,sizeof(private_t)};
+static const sox_effect_handler_t sonic_effect_handler={"sonic",NULL,SOX_EFF_MCHAN|SOX_EFF_LENGTH,getopts,sonic_start,sonic_flow,sonic_drain,sonic_stop,NULL,sizeof(private_t)};
 
 #define synth_error(s) {s->last_result=0;return 0;}
 
@@ -558,18 +559,12 @@ int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const cha
   INIT_MUTEX(&engine_pool.mutex);
   load_settings(cfg_path);
   initialized=1;
-<<<<<<< HEAD
   return 16000;
- err2: free(pool.data_path);pool.data_path=NULL;
- err1: return 0;
-=======
-  return 32000;
   err3: reslist_free(engine_pool.engine_resources);
   engine_pool.engine_resources=NULL;
   err2: voicelist_free(engine_pool.voices);
   engine_pool.voices=NULL;
   err1: return 0;
->>>>>>> a0b4506... Support multiple voices
 }
 
 void RHVoice_terminate()
@@ -799,7 +794,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   cst_item *s,*t;
   float pitch,rate,volume,f0;
   char strvolume[8];
-  char *volopts[2]={strvolume,"0.02"};
+  char *volopts[3]={strvolume,"amplitude","0.02"};
   HTS_Engine *engine=get_engine(get_param_int(u->features,"voice_id",1));
   if(engine==NULL) return NULL;
   synth_state state;
@@ -907,23 +902,37 @@ cst_utterance *hts_synth(cst_utterance *u)
   opts[0]=(char*)(&state);
   e=sox_create_effect(&in_effect_handler);
   sox_effect_options(e,1,opts);
-  sox_add_effect(c,e,&isig,&isig);
+  sox_add_effect(c,e,&isig,&osig);
+  /* The way code examples included in the sox source distribution are written */
+/* suggests  that the effect is now owned by the chain and will be freed when the chain is deleted. */
+  /* But sox_add_effect does not store the effect pointer in the chain, */
+  /* it copies the contents of the structure into the freshly allocated memory region. */
+/*   So we have a memory leak, which is a problem for us, */
+/* because we often create and destroy effects and effect chains. */
+/* I do not know if we are supposed to free the structure ourselves, */
+/* or this problem must be fixed by the developers of libsox. */
+  /* Someone has already opened a corresponding bug, */
+/* but the developers have not commented on it yet. */
+  free(e);
   if(rate>2.0)
     {
       e=sox_create_effect(&sonic_effect_handler);
       sox_effect_options(e,1,opts);
-      sox_add_effect(c,e,&isig,&isig);
+      sox_add_effect(c,e,&isig,&osig);
+      free(e);
     }
   if(volume!=1)
     {
       snprintf(strvolume,sizeof(strvolume),"%.4f",volume);
       e=sox_create_effect(vol_effect_handler);
-      sox_effect_options(e,2,volopts);
-      sox_add_effect(c,e,&osig,&osig);
+      sox_effect_options(e,3,volopts);
+      sox_add_effect(c,e,&isig,&osig);
+      free(e);
     }
   e=sox_create_effect(&out_effect_handler);
   sox_effect_options(e,1,opts);
-  sox_add_effect(c,e,&osig,&osig);
+  sox_add_effect(c,e,&isig,&osig);
+  free(e);
   sox_flow_effects(c,NULL,NULL);
   sox_delete_effects_chain(c);
   synth_finish(engine,&state.vocoder);
