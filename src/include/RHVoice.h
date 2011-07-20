@@ -66,6 +66,12 @@ extern "C" {
     } info;
   } RHVoice_position;
 
+  typedef enum {
+    RHVoice_punctuation_none,
+    RHVoice_punctuation_all,
+    RHVoice_punctuation_some
+  } RHVoice_punctuation_mode;
+
   /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
   int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path);
@@ -105,6 +111,10 @@ extern "C" {
   int RHVoice_find_voice(const char *name);
   void RHVoice_set_voice(int id);
   int RHVoice_get_voice();
+
+  void RHVoice_set_punctuation_mode(RHVoice_punctuation_mode mode);
+  RHVoice_punctuation_mode RHVoice_get_punctuation_mode();
+  void RHVoice_set_punctuation_list(const char *list);
 
   void RHVoice_set_user_data(RHVoice_message message,void *data);
   void *RHVoice_get_user_data(RHVoice_message message);

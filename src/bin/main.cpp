@@ -18,7 +18,6 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-#include <unistr.h>
 #include "RHVoice.h"
 
 using std::string;
@@ -95,6 +94,7 @@ static struct option program_options[]=
     {"variant",required_argument,0,'w'},
     {"voice",required_argument,0,'W'},
     {"ssml",no_argument,0,'s'},
+    {"punct",optional_argument,NULL,'P'},
     {0,0,0,0}
   };
 
@@ -116,6 +116,7 @@ static void show_help()
   cout << setw(w) << "-r, --rate=<number from 0 to 100>" << "rate\n";
   cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
   cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
+  cout << setw(w) << "-P, --punct=<optional string>" << "speak all or some punctuation\n";
   cout << setw(w) << "-d, --data=<path>" << "path to the data directory\n";
   cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
   cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
@@ -160,13 +161,15 @@ int main(int argc,char **argv)
   const char *voice_name=NULL;
   int voice=0;
   int is_ssml=0;
+  RHVoice_punctuation_mode punct_mode=RHVoice_punctuation_none;
+  const char *punct_list=NULL;
   string text;
   char ch;
   int c;
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"d:c:hVr:p:v:w:W:s",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"d:c:hVr:p:v:w:W:sP",program_options,&i))!=-1)
         {
           switch(c)
             {
@@ -202,6 +205,15 @@ int main(int argc,char **argv)
               break;
             case 0:
               break;
+            case 'P':
+              if(optarg!=NULL)
+                {
+                  punct_mode=RHVoice_punctuation_some;
+                  punct_list=optarg;
+                }
+              else
+                punct_mode=RHVoice_punctuation_all;
+              break;
             default:
               return 1;
             }
@@ -233,6 +245,12 @@ int main(int argc,char **argv)
           voice=RHVoice_find_voice(voice_name);
           if(voice>0)
             RHVoice_set_voice(voice);
+        }
+      if(punct_mode!=RHVoice_punctuation_none)
+        {
+          RHVoice_set_punctuation_mode(punct_mode);
+          if(punct_list!=NULL)
+            RHVoice_set_punctuation_list(punct_list);
         }
       msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),is_ssml);
       if(msg==NULL)

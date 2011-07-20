@@ -40,3 +40,6 @@ RHVoice_get_voice_name
 RHVoice_find_voice
 RHVoice_get_voice
 RHVoice_set_voice
+RHVoice_set_punctuation_mode
+RHVoice_get_punctuation_mode
+RHVoice_set_punctuation_list

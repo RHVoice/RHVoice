@@ -139,6 +139,8 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
   ucs4_t c,lc;
   unsigned int flags;
   int uv;
+  int punct_mode;
+  const uint32_t *punct_list;
   for(t=relation_head(utt_relation(u,"Token"));t;t=item_next(t))
     {
       say_as=item_feat_present(t,"say_as")?item_feat_int(t,"say_as"):0;
@@ -147,6 +149,11 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
       if(text[0]=='\0') continue;
       uv=item_feat_int(t,"variant")-builtin_variant_count;
       if(uv<0) uv=0;
+      punct_mode=item_feat_int(t,"punct_mode");
+      if(punct_mode==RHVoice_punctuation_some)
+        punct_list=(const uint32_t*)val_userdata(item_feat(t,"punct_list"));
+      else
+        punct_list=NULL;
       s1=text;
       s2=u8_next(&c,s1);
       while(s2)
@@ -160,13 +167,15 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
               if(w!=NULL)
                 item_set_string(w,"my_gpos","content");
             }
-          else if(uc_is_property(c,UC_PROPERTY_PUNCTUATION))
+          else if(uc_is_general_category(c,UC_PUNCTUATION)||uc_is_general_category(c,UC_SYMBOL))
             {
               if(!ustring8_empty(word))
                 {
                   w=add_word(t,r,(const char*)ustring8_str(word));
                   ustring8_clear(word);
                 }
+              if((punct_mode==RHVoice_punctuation_all)||((punct_mode==RHVoice_punctuation_some)&&u32_strchr(punct_list,c)))
+                w=character_to_words(t,r,c,0);
             }
           else if(((uv>0)&&(pron=user_dict_lookup(uv,text,&pos)))||
                   (pron=user_dict_lookup(0,text,&pos)))

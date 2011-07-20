@@ -21,6 +21,8 @@ float check_pitch_range(float value);
 float check_rate_range(float value);
 float check_volume_range(float value);
 
+uint32_t *copy_punctuation_list();
+
 void load_settings(const char *path);
 void free_settings();
 
