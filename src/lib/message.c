@@ -68,6 +68,19 @@ static int report_mark(mark *m,RHVoice_message msg,RHVoice_callback f)
 
 vector_t(mark,marklist)
 
+typedef struct {
+  RHVoice_punctuation_mode mode;
+  uint32_t *list;
+} punct_option;
+
+void free_punct_option(punct_option *p)
+{
+  if((p!=NULL)&&(p->list!=NULL))
+    free(p->list);
+}
+
+vector_t(punct_option,punct_opt_list)
+
 typedef enum {
   token_sentence_start=1 << 0,
   token_sentence_end=1 << 1,
@@ -90,6 +103,7 @@ typedef struct {
   uint8_t *say_as_format;
   int variant;
   int voice;
+  size_t punct_opt_index;
 } token;
 
 static void token_free(token *t)
@@ -134,6 +148,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
   tok.say_as_format=NULL;
   tok.variant=0;
   tok.voice=0;
+  tok.punct_opt_index=0;
   token *prev_tok=toklist_back(ts->l);
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
@@ -180,8 +195,8 @@ typedef enum {
   ssml_s,
   ssml_say_as,
   ssml_speak,
-  ssml_style,
   ssml_sub,
+  ssml_style,
   ssml_voice,
   ssml_unknown,
   ssml_max
@@ -202,8 +217,8 @@ const char *ssml_tag_names[ssml_max-1]={
   "s",
   "say-as",
   "speak",
-  "tts:style",
   "sub",
+  "tts:style",
   "voice"};
 
 static const int ssml_element_table[ssml_max][ssml_max+1]={
@@ -338,6 +353,7 @@ typedef struct {
   prosody_stack prosody;
   int_stack variants;
   int_stack voices;
+  int_stack punctuation;
   int in_cdata_section;
   int start_sentence;
   unsigned int skip;
@@ -358,10 +374,13 @@ struct RHVoice_message_s
   float silence;
   void *user_data;
   float rate,pitch,volume;
+  uint32_t *default_punct_list;
+  punct_opt_list punct_opts;
 };
 
 static RHVoice_message RHVoice_message_alloc(void)
 {
+  punct_option p;
   RHVoice_message msg=(RHVoice_message)malloc(sizeof(struct RHVoice_message_s));
   if(msg==NULL) goto err0;
   msg->pos=0;
@@ -374,7 +393,16 @@ static RHVoice_message RHVoice_message_alloc(void)
   if(msg->tokens==NULL) goto err1;
   msg->marks=marklist_alloc(0,mark_free);
   if(msg->marks==NULL) goto err2;
+  p.list=NULL;
+  p.mode=RHVoice_get_punctuation_mode();
+  msg->default_punct_list=copy_punctuation_list();
+  if(msg->default_punct_list==NULL) goto err3;
+  msg->punct_opts=punct_opt_list_alloc(1,free_punct_option);
+  if(msg->punct_opts==NULL) goto err4;
+  punct_opt_list_push(msg->punct_opts,&p);
   return msg;
+  err4: free(msg->default_punct_list);
+  err3: marklist_free(msg->marks);
   err2: toklist_free(msg->tokens);
   err1: free(msg);
   err0: return NULL;
@@ -385,6 +413,8 @@ static void RHVoice_message_free(RHVoice_message msg)
   if(msg==NULL) return;
   toklist_free(msg->tokens);
   marklist_free(msg->marks);
+  free(msg->default_punct_list);
+  punct_opt_list_free(msg->punct_opts);
   free(msg);
 }
 
@@ -591,6 +621,37 @@ static int_stack voice_stack_update(int_stack stack,ssml_tag *tag)
   return stack;
 }
 
+static ssml_state *punct_stack_update(ssml_state *state,ssml_tag *tag)
+{
+  int index=*int_stack_back(state->punctuation);
+  if(!int_stack_push(state->punctuation,&index)) return NULL;
+  const uint8_t *strval=ssml_get_attribute_value(tag,"field");
+  if(strval==NULL) return NULL;
+  if(u8_strcmp(strval,(const uint8_t*)"punctuation")!=0) return state;
+  strval=ssml_get_attribute_value(tag,"mode");
+  if(strval==NULL) return NULL;
+  punct_option p;
+  if(u8_strcmp(strval,(const uint8_t*)"all")==0)
+    p.mode=RHVoice_punctuation_all;
+  else if(u8_strcmp(strval,(const uint8_t*)"none")==0)
+    p.mode=RHVoice_punctuation_none;
+  else if(u8_strcmp(strval,(const uint8_t*)"some")==0)
+    p.mode=RHVoice_punctuation_some;
+  else
+    return NULL;
+  p.list=NULL;
+  if(!punct_opt_list_push(state->msg->punct_opts,&p)) return NULL;
+  *int_stack_back(state->punctuation)=punct_opt_list_size(state->msg->punct_opts)-1;
+  if(p.mode!=RHVoice_punctuation_some) return state;
+  strval=ssml_get_attribute_value(tag,"detail");
+  if(strval==NULL) return state;
+  size_t n=0;
+  p.list=u8_to_u32(strval,u8_strlen(strval)+1,NULL,&n);
+  if(p.list==NULL) return NULL;
+  punct_opt_list_back(state->msg->punct_opts)->list=p.list;
+  return state;
+}
+
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
@@ -631,6 +692,9 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
       if(!variant_stack_update(state->variants,top)) ssml_error(state);
       if(!voice_stack_update(state->voices,top)) ssml_error(state);
       break;
+    case ssml_style:
+      if(!punct_stack_update(state,top)) ssml_error(state);
+      break;
     default:
       break;
     }
@@ -666,6 +730,9 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
     case ssml_voice:
       int_stack_pop(state->variants);
       int_stack_pop(state->voices);
+      break;
+    case ssml_style:
+      int_stack_pop(state->punctuation);
       break;
     default:
       break;
@@ -722,6 +789,7 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
                 }
               if(state->say_as!='s') state->say_as=0;
             }
+          tok->punct_opt_index=*int_stack_back(state->punctuation);
         }
       r-=n;
       str+=n;
@@ -747,7 +815,7 @@ static void XMLCALL ssml_cdata_section_end(void *user_data)
 
 static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_message m)
 {
-  int default_variant=0;
+  int z=0;
   s->src=*i;
   s->text=NULL;
   s->len=0;
@@ -770,10 +838,13 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   prosody_stack_push(s->prosody,&default_prosody_params);
   s->variants=int_stack_alloc(10,NULL);
   if(s->variants==NULL) goto err4;
-  int_stack_push(s->variants,&default_variant);
+  int_stack_push(s->variants,&z);
   s->voices=int_stack_alloc(10,NULL);
   if(s->voices==NULL) goto err5;
-  int_stack_push(s->voices,&default_variant);
+  int_stack_push(s->voices,&z);
+  s->punctuation=int_stack_alloc(10,NULL);
+  if(s->punctuation==NULL) goto err6;
+  int_stack_push(s->punctuation,&z);
   switch(s->src.encoding)
     {
     case 16:
@@ -787,13 +858,14 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
       s->len=s->src.len;
       break;
     }
-  if(s->text==NULL) goto err6;
+  if(s->text==NULL) goto err7;
   tstream_init(&s->ts,s->msg->tokens);
   XML_SetUserData(s->parser,s);
   XML_SetElementHandler(s->parser,ssml_element_start,ssml_element_end);
   XML_SetCharacterDataHandler(s->parser,ssml_character_data);
   XML_SetCdataSectionHandler(s->parser,ssml_cdata_section_start,ssml_cdata_section_end);
   return s;
+  err7: int_stack_free(s->punctuation);
   err6: int_stack_free(s->voices);
   err5: int_stack_free(s->variants);
   err4: prosody_stack_free(s->prosody);
@@ -810,6 +882,7 @@ static void ssml_state_free(ssml_state *s)
   prosody_stack_free(s->prosody);
   int_stack_free(s->variants);
   int_stack_free(s->voices);
+  int_stack_free(s->punctuation);
   if(s->src.encoding!=8) free((uint8_t*)s->text);
 }
 
@@ -1098,6 +1171,7 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   size_t len,pre_len,post_len,name_len;
   const token *tok;
   const mark *m;
+  const punct_option *p;
   feat_set_int(u->features,"length",last->pos-first->pos+last->len);
   feat_set_int(u->features,"number",first->sentence_number);
   feat_set(u->features,"message",userdata_val(msg));
@@ -1166,6 +1240,10 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
             item_set_string(i,"say_as_format",(const char*)tok->say_as_format);
         }
       item_set_int(i,"variant",(tok->variant?tok->variant:RHVoice_get_variant()));
+      p=punct_opt_list_at(msg->punct_opts,tok->punct_opt_index);
+      item_set_int(i,"punct_mode",p->mode);
+      if(p->mode==RHVoice_punctuation_some)
+        item_set(i,"punct_list",userdata_val((void*)((p->list==NULL)?(msg->default_punct_list):(p->list))));
     }
   if(last==back) feat_set_int(u->features,"last",1);
   msg->pos=last-front+1;

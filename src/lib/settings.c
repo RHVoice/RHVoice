@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <unistr.h>
 #include "lib.h"
 #include "mutex.h"
 #include "io_utils.h"
@@ -39,6 +40,10 @@ MUTEX settings_mutex;
 
 static int current_variant=variant_pseudo_english;
 static int current_voice=1;
+
+static RHVoice_punctuation_mode punctuation_mode=RHVoice_punctuation_none;
+static uint32_t *punctuation_list=NULL;
+static const uint32_t default_punctuation_list[]={'+','=','<','>','~','@','#','$','%','^','&','*','/','\\','|','\0'};
 
 float check_pitch_range(float value)
 {
@@ -260,6 +265,21 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               fvalue=strtod_c(value1,NULL);
               if((fvalue>0)&&(fvalue<=2)) max_volume=fvalue;
             }
+          else if(strcmp(key1,"punctuation_mode")==0)
+            {
+              if(strcmp(value1,"none")==0)
+                punctuation_mode=RHVoice_punctuation_none;
+              else if(strcmp(value1,"some")==0)
+                punctuation_mode=RHVoice_punctuation_some;
+              else if(strcmp(value1,"all")==0)
+                punctuation_mode=RHVoice_punctuation_all;
+            }
+          else if(strcmp(key1,"punctuation_list")==0)
+            {
+              size_t n=0;
+              if(punctuation_list!=NULL) free(punctuation_list);
+              punctuation_list=u8_to_u32(value,u8_strlen(value)+1,NULL,&n);
+            }
         }
     }
   return res;
@@ -319,6 +339,12 @@ void free_settings()
   current_volume=1.0;
   current_variant=variant_pseudo_english;
   current_voice=0;
+  punctuation_mode=RHVoice_punctuation_none;
+  if(punctuation_list!=NULL)
+    {
+      free(punctuation_list);
+      punctuation_list=NULL;
+    }
 }
 
 void RHVoice_set_voice(int voice)
@@ -338,4 +364,54 @@ int RHVoice_get_voice()
   v=current_voice;
   UNLOCK_MUTEX(&settings_mutex);
   return v;
+}
+
+void RHVoice_set_punctuation_mode(RHVoice_punctuation_mode mode)
+{
+  if(!((mode==RHVoice_punctuation_none)||(mode==RHVoice_punctuation_some)||(mode==RHVoice_punctuation_all))) return;
+  LOCK_MUTEX(&settings_mutex);
+  punctuation_mode=mode;
+  UNLOCK_MUTEX(&settings_mutex);
+}
+
+RHVoice_punctuation_mode RHVoice_get_punctuation_mode()
+{
+  RHVoice_punctuation_mode mode=RHVoice_punctuation_none;
+  LOCK_MUTEX(&settings_mutex);
+  mode=punctuation_mode;
+  UNLOCK_MUTEX(&settings_mutex);
+  return mode;
+}
+
+void RHVoice_set_punctuation_list(const char *list)
+{
+  if(list==NULL)
+    {
+      LOCK_MUTEX(&settings_mutex);
+      if(punctuation_list!=NULL)
+        {
+          free(punctuation_list);
+          punctuation_list=NULL;
+        }
+      UNLOCK_MUTEX(&settings_mutex);
+    }
+  else
+    {
+      size_t n=0;
+      uint32_t *l=u8_to_u32((const uint8_t*)list,u8_strlen((const uint8_t*)list)+1,NULL,&n);
+      if(l==NULL) return;
+      LOCK_MUTEX(&settings_mutex);
+      if(punctuation_list!=NULL) free(punctuation_list);
+      punctuation_list=l;
+      UNLOCK_MUTEX(&settings_mutex);
+    }
+}
+
+uint32_t *copy_punctuation_list()
+{
+  uint32_t *l=NULL;
+  LOCK_MUTEX(&settings_mutex);
+  l=u32_strdup((punctuation_list==NULL)?default_punctuation_list:punctuation_list);
+  UNLOCK_MUTEX(&settings_mutex);
+  return l;
 }
