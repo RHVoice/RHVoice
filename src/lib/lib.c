@@ -844,13 +844,13 @@ cst_utterance *hts_synth(cst_utterance *u)
         {
           local_dur+=dur_mean[i];
         }
-      local_dur/=((rate<2.0)?rate:1.0);
+      local_dur/=((rate<min_sonic_rate)?rate:1.0);
       if(cst_streq(item_name(s),"pau"))
         {
           factor=item_feat_float(s,"factor");
           time=item_feat_float(s,"time");
           local_dur*=factor;
-          local_dur+=((rate>2.0)?rate:1.0)*time*frames_per_sec;
+          local_dur+=((rate>=min_sonic_rate)?rate:1.0)*time*frames_per_sec;
         }
       lstring->end=lstring->start+local_dur;
       if(lstring->next)
@@ -880,9 +880,9 @@ cst_utterance *hts_synth(cst_utterance *u)
         {
           nframes+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j);
         }
-      item_set_int(s,"expected_start",(int)(((float)engine->global.fperiod)*total_nframes*((rate>2.0)?(1.0/rate):1.0)));
+        item_set_int(s,"expected_start",(int)(((float)engine->global.fperiod)*total_nframes*((rate>=min_sonic_rate)?(1.0/rate):1.0)));
       total_nframes+=nframes;
-      item_set_int(s,"expected_end",(int)(((float)engine->global.fperiod)*total_nframes*((rate>2.0)?(1.0/rate):1.0)));
+      item_set_int(s,"expected_end",(int)(((float)engine->global.fperiod)*total_nframes*((rate>=min_sonic_rate)?(1.0/rate):1.0)));
     }
   HTS_Engine_create_pstream(engine);
   state.rate=rate;
@@ -914,7 +914,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   /* Someone has already opened a corresponding bug, */
 /* but the developers have not commented on it yet. */
   free(e);
-  if(rate>2.0)
+  if((rate!=1.0)&&(rate>=min_sonic_rate))
     {
       e=sox_create_effect(&sonic_effect_handler);
       sox_effect_options(e,1,opts);
