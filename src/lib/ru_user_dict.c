@@ -48,16 +48,12 @@ typedef struct
 {
   uint8_t *name;
   tst words;
-  ucs4_t stress_marker;
-  int mark_next_vowel_as_stressed;
 } user_dict;
 
 static int init_user_dict(user_dict *dict)
 {
   dict->words=tst_create(free_rule);
   if(dict->words==NULL) return 0;
-  dict->stress_marker='+';
-  dict->mark_next_vowel_as_stressed=1;
   dict->name=NULL;
   return 1;
 }
@@ -73,33 +69,21 @@ vector_t(user_dict,dictlist)
 
 static dictlist dicts=NULL;
 
-static int check_user_pron_value(const user_dict *d,const uint8_t *p)
+static int check_user_pron_value(const uint8_t *p)
 {
   ucs4_t c;
-  ucs4_t pc='\0';
   unsigned int cs;
-  unsigned int pcs=0;
   const uint8_t *s=p+u8_strspn(p,space_delims);
   if(s[0]=='\0') return 0;
   while((s=u8_next(&c,s)))
     {
       cs=classify_character(c);
-      if(!(((cs&cs_ru)&&(cs&cs_ll))||(c==d->stress_marker)||(c==' ')||(c=='\t'))) return 0;
-      if(d->mark_next_vowel_as_stressed)
-        {
-          if((pc==d->stress_marker)&&!(cs&cs_lv)) return 0;
-        }
-      else
-        {
-          if((c==d->stress_marker)&&!(pcs&cs_lv)) return 0;
-        }
-      pc=c;
-      pcs=cs;
+      if(!(((cs&cs_ru)&&(cs&cs_ll))||(c=='+')||(c==' ')||(c=='\t'))) return 0;
     }
   return 1;
 }
 
-static uint8_t *copy_user_pron_value(user_dict *d,const uint8_t *p)
+static uint8_t *copy_user_pron_value(const uint8_t *p)
 {
   const uint8_t *s=p+u8_strspn(p,space_delims);
   const uint8_t *s1=s;
@@ -110,8 +94,7 @@ static uint8_t *copy_user_pron_value(user_dict *d,const uint8_t *p)
     {
       if((c!=' ')&&(c!='\t'))
         {
-          if(c==d->stress_marker) n++;
-          else n+=(s2-s1);
+          n+=(s2-s1);
           if((s2[0]=='\0')||(s2[0]==' ')||(s2[0]=='\t')) n++;
         }
       s1=s2;
@@ -125,23 +108,9 @@ static uint8_t *copy_user_pron_value(user_dict *d,const uint8_t *p)
     {
       if((c!=' ')&&(c!='\t'))
         {
-          if(c==d->stress_marker)
-            {
-              if(d->mark_next_vowel_as_stressed)
-                r[i++]='+';
-              else
-                {
-                  u8_move(&r[i-l+1],&r[i-l],l);
-                  r[i-l]='+';
-                  i++;
-                }
-            }
-          else
-            {
-              l=s2-s1;
-              u8_cpy(&r[i],s1,l);
-              i+=l;
-            }
+          l=s2-s1;
+          u8_cpy(&r[i],s1,l);
+          i+=l;
           if((s2[0]=='\0')||(s2[0]==' ')||(s2[0]=='\t')) r[i++]='\0';
         }
       s1=s2;
@@ -150,32 +119,17 @@ static uint8_t *copy_user_pron_value(user_dict *d,const uint8_t *p)
   return r;
 }
 
-static size_t get_user_pron_len(const uint8_t *pron)
-{
-  uint8_t c=pron[0];
-  uint8_t pc;
-  size_t n=0;
-  do
-    {
-      pc=c;
-      n++;
-      c=pron[n];
-    }
-  while(!((c=='\0')&&(pc=='\0')));
-  return (n+1);
-}
-
 static void add_word(user_dict *dict,const uint8_t *key,const uint8_t *value)
 {
   const char *errptr=NULL;
   int erroffset=0;
   if(value==NULL) return;
-  if(!check_user_pron_value(dict,value)) return;
+  if(!check_user_pron_value(value)) return;
   rule *r=malloc(sizeof(rule));
   if(r==NULL) return;
   r->prefix_regex=NULL;
   r->suffix_regex=NULL;
-  r->pron=copy_user_pron_value(dict,value);
+  r->pron=copy_user_pron_value(value);
   if(r->pron==NULL) goto err0;
   r->ignore_case=1;
   uint8_t *s=u8_strdup(key);
@@ -241,18 +195,7 @@ static int user_dict_callback(const uint8_t *section,const uint8_t *key,const ui
     {
       if(value!=NULL)
         {
-          if(u8_strcmp(key,(const uint8_t*)"stress_marker")==0)
-            {
-              u8_next(&dict->stress_marker,value);
-            }
-          else if(u8_strcmp(key,(const uint8_t*)"mark_next_vowel_as_stressed")==0)
-            {
-              if(strchr("tTyY1",(char)value[0]))
-                dict->mark_next_vowel_as_stressed=1;
-              else if(strchr("fFnN0",(char)value[0]))
-                dict->mark_next_vowel_as_stressed=0;
-            }
-          else if(u8_strcmp(key,(const uint8_t*)"name")==0)
+          if(u8_strcmp(key,(const uint8_t*)"name")==0)
             {
               if(dict->name!=NULL) free(dict->name);
               dict->name=u8_strdup(value);
@@ -270,8 +213,6 @@ static int update_user_dict(const char *path,void *data)
   if(dict!=NULL)
     {
       parse_config(path,user_dict_callback,dict);
-      dict->stress_marker='+';
-      dict->mark_next_vowel_as_stressed=1;
     }
   else
     {

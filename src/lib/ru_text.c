@@ -136,7 +136,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
   size_t len;
   int say_as;
   int spell;
-  ucs4_t c,lc;
+  ucs4_t c,lc,pc;
   unsigned int flags;
   int uv;
   int punct_mode;
@@ -154,6 +154,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
         punct_list=(const uint32_t*)val_userdata(item_feat(t,"punct_list"));
       else
         punct_list=NULL;
+      pc='\0';
       s1=text;
       s2=u8_next(&c,s1);
       while(s2)
@@ -161,12 +162,15 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
           pos=s1-text;
           lc=uc_tolower(c);
           flags=classify_character(c);
+          if((!spell)&&(stress_marker!='\0')&&(pc==stress_marker)&&(flags&cs_ru)&&(flags&cs_lv))
+            ustring8_push(word,'+');
           if(spell)
             {
               w=character_to_words(t,r,c,1);
               if(w!=NULL)
                 item_set_string(w,"my_gpos","content");
             }
+          else if((stress_marker!='\0')&&(c==stress_marker));
           else if(uc_is_general_category(c,UC_PUNCTUATION)||uc_is_general_category(c,UC_SYMBOL))
             {
               if(!ustring8_empty(word))
@@ -218,6 +222,7 @@ cst_utterance *russian_textanalysis(cst_utterance *u)
                 }
               w=character_to_words(t,r,c,0);
             }
+          pc=c;
           s1=s2;
           s2=u8_next(&c,s1);
         }
