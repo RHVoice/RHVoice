@@ -28,6 +28,7 @@ static float min_rate=0.25;
 static float default_rate=1.0;
 static float max_rate=4.0;
 static float current_rate=1.0;
+float min_sonic_rate=2.0;
 static float min_pitch=0.5;
 static float default_pitch=1.0;
 static float max_pitch=2.0;
@@ -242,12 +243,12 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               fvalue=strtod_c(value1,NULL);
               if((fvalue>=0.2)&&(fvalue<=2)) max_pitch=fvalue;
             }
-          if(strcmp(key1,"min_rate")==0)
+          else if(strcmp(key1,"min_rate")==0)
             {
               fvalue=strtod_c(value1,NULL);
               if((fvalue>=0.2)&&(fvalue<=6)) min_rate=fvalue;
             }
-          if(strcmp(key1,"default_rate")==0)
+          else if(strcmp(key1,"default_rate")==0)
             {
               fvalue=strtod_c(value1,NULL);
               if((fvalue>=0.2)&&(fvalue<=6)) default_rate=fvalue;
@@ -256,6 +257,11 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
             {
               fvalue=strtod_c(value1,NULL);
               if((fvalue>=0.2)&&(fvalue<=6)) max_rate=fvalue;
+            }
+          else if(strcmp(key1,"min_sonic_rate")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if(fvalue>0) min_sonic_rate=fvalue;
             }
           else if(strcmp(key1,"default_volume")==0)
             {
@@ -334,6 +340,7 @@ void free_settings()
   default_rate=1.0;
   max_rate=4.0;
   current_rate=1.0;
+  min_sonic_rate=2.0;
   min_pitch=0.5;
   default_pitch=1.0;
   max_pitch=2.0;
