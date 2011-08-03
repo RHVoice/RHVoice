@@ -45,6 +45,8 @@ static RHVoice_punctuation_mode punctuation_mode=RHVoice_punctuation_none;
 static uint32_t *punctuation_list=NULL;
 static const uint32_t default_punctuation_list[]={'+','=','<','>','~','@','#','$','%','^','&','*','/','\\','|','\0'};
 
+ucs4_t stress_marker='\0';
+
 float check_pitch_range(float value)
 {
   return ((value<min_pitch)?min_pitch:((value>max_pitch)?max_pitch:value));
@@ -280,6 +282,8 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               if(punctuation_list!=NULL) free(punctuation_list);
               punctuation_list=u8_to_u32(value,u8_strlen(value)+1,NULL,&n);
             }
+          if(strcmp(key1,"stress_marker")==0)
+            u8_next(&stress_marker,value);
         }
     }
   return res;
@@ -345,6 +349,7 @@ void free_settings()
       free(punctuation_list);
       punctuation_list=NULL;
     }
+  stress_marker='\0';
 }
 
 void RHVoice_set_voice(int voice)

@@ -23,6 +23,8 @@ float check_volume_range(float value);
 
 uint32_t *copy_punctuation_list();
 
+extern ucs4_t stress_marker;
+
 void load_settings(const char *path);
 void free_settings();
 
