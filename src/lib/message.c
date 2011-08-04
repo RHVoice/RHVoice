@@ -1181,9 +1181,10 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   float msg_volume=(msg->volume==-1)?RHVoice_get_volume():msg->volume;
   float rate=check_rate_range(msg_rate*first->prosody.rate.value);
   feat_set_float(u->features,"rate",rate);
+  float pitch=check_pitch_range(msg_pitch*first->prosody.pitch.value);
+  feat_set_float(u->features,"pitch",pitch);
   float volume=check_volume_range(first->prosody.volume.value*(first->prosody.volume.is_absolute?1.0:msg_volume));
   feat_set_float(u->features,"volume",volume);
-  float pitch;
   float initial_silence=(first==front)?0:first->silence;
   float final_silence=((last==back)?msg->silence:toklist_at(msg->tokens,(last-front)+1)->silence)-initial_silence;
   feat_set_float(u->features,"silence_time",final_silence);

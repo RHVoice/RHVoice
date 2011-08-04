@@ -50,6 +50,8 @@ ucs4_t stress_marker='\0';
 
 int apply_high_pass_filter=0;
 
+int use_libsonic_for_pitch=0;
+
 float check_pitch_range(float value)
 {
   return ((value<min_pitch)?min_pitch:((value>max_pitch)?max_pitch:value));
@@ -290,12 +292,17 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               if(punctuation_list!=NULL) free(punctuation_list);
               punctuation_list=u8_to_u32(value,u8_strlen(value)+1,NULL,&n);
             }
-          if(strcmp(key1,"stress_marker")==0)
+          else if(strcmp(key1,"stress_marker")==0)
             u8_next(&stress_marker,value);
-          if(strcmp(key1,"apply_high_pass_filter")==0)
+          else if(strcmp(key1,"apply_high_pass_filter")==0)
             {
               if(strcmp(value1,"yes")==0)
                 apply_high_pass_filter=1;
+            }
+          else if(strcmp(key1,"use_libsonic_for_pitch")==0)
+            {
+              if(strcmp(value1,"yes")==0)
+                use_libsonic_for_pitch=1;
             }
         }
     }
@@ -365,6 +372,7 @@ void free_settings()
     }
   stress_marker='\0';
   apply_high_pass_filter=0;
+  use_libsonic_for_pitch=0;
 }
 
 void RHVoice_set_voice(int voice)
