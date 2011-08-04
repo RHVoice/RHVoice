@@ -29,6 +29,8 @@ extern float min_sonic_rate;
 
 extern int apply_high_pass_filter;
 
+extern int use_libsonic_for_pitch;
+
 void load_settings(const char *path);
 void free_settings();
 

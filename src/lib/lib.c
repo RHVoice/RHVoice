@@ -117,6 +117,7 @@ typedef struct {
   sonicStream sstream;
   int sstream_flushed;
   float rate;
+  float pitch;
   eventlist events;
   cst_item *cur_seg;
   int in_nsamples;
@@ -217,6 +218,8 @@ static int sonic_start(sox_effect_t *e)
   s->sstream=sonicCreateStream(s->engine->global.sampling_rate,1);
   if(s->sstream==NULL)
     return SOX_EOF;
+  if(use_libsonic_for_pitch)
+    sonicSetPitch(s->sstream,s->pitch);
   sonicSetSpeed(s->sstream,s->rate);
   return SOX_SUCCESS;
 }
@@ -795,6 +798,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   int i,j,nlabels;
   double nframes,total_nframes;
   cst_item *s,*t;
+  int use_libsonic=0;
   float pitch,rate,volume,f0;
   char strvolume[8];
   char *volopts[3]={strvolume,"amplitude","0.02"};
@@ -826,6 +830,8 @@ cst_utterance *hts_synth(cst_utterance *u)
       return NULL;
     }
   rate=feat_float(u->features,"rate");
+  pitch=feat_float(u->features,"pitch");
+  use_libsonic=(((rate!=1.0)&&(rate>=min_sonic_rate))||((pitch!=1.0)&&(use_libsonic_for_pitch)));
   volume=feat_float(u->features,"volume");
   float frames_per_sec=(float)engine->global.sampling_rate/((float)engine->global.fperiod);
   float factor,time;
@@ -848,13 +854,13 @@ cst_utterance *hts_synth(cst_utterance *u)
         {
           local_dur+=dur_mean[i];
         }
-      local_dur/=((rate<min_sonic_rate)?rate:1.0);
+      local_dur/=(use_libsonic?1.0:rate);
       if(cst_streq(item_name(s),"pau"))
         {
           factor=item_feat_float(s,"factor");
           time=item_feat_float(s,"time");
           local_dur*=factor;
-          local_dur+=((rate>=min_sonic_rate)?rate:1.0)*time*frames_per_sec;
+          local_dur+=(use_libsonic?1.0:(1.0/rate))*time*frames_per_sec;
         }
       lstring->end=lstring->start+local_dur;
       if(lstring->next)
@@ -868,10 +874,11 @@ cst_utterance *hts_synth(cst_utterance *u)
   total_nframes=0;
   for(s=relation_head(utt_relation(u,"Segment")),i=0;s;s=item_next(s),i++)
     {
-      t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
-      if(t)
+      if(!use_libsonic_for_pitch)
         {
-          pitch=item_feat_float(t,"pitch");
+          t=path_to_item(s,"R:Transcription.parent.R:Token.parent");
+          if(t)
+            pitch=item_feat_float(t,"pitch");
           for(j=0;j<engine->sss.nstate;j++)
             {
               f0=exp(HTS_SStreamSet_get_mean(&engine->sss,1,i*engine->sss.nstate+j,0))*pitch;
@@ -884,12 +891,13 @@ cst_utterance *hts_synth(cst_utterance *u)
         {
           nframes+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j);
         }
-        item_set_int(s,"expected_start",(int)(((float)engine->global.fperiod)*total_nframes*((rate>=min_sonic_rate)?(1.0/rate):1.0)));
+      item_set_int(s,"expected_start",(int)(((float)engine->global.fperiod)*total_nframes*(use_libsonic?(1.0/rate):1.0)));
       total_nframes+=nframes;
-      item_set_int(s,"expected_end",(int)(((float)engine->global.fperiod)*total_nframes*((rate>=min_sonic_rate)?(1.0/rate):1.0)));
+      item_set_int(s,"expected_end",(int)(((float)engine->global.fperiod)*total_nframes*(use_libsonic?(1.0/rate):1.0)));
     }
   HTS_Engine_create_pstream(engine);
   state.rate=rate;
+  state.pitch=use_libsonic_for_pitch?pitch:1.0;
   state.sstream=NULL;
   state.sstream_flushed=0;
   state.events=generate_events(u);
@@ -918,7 +926,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   /* Someone has already opened a corresponding bug, */
 /* but the developers have not commented on it yet. */
   free(e);
-  if((rate!=1.0)&&(rate>=min_sonic_rate))
+  if(use_libsonic)
     {
       e=sox_create_effect(&sonic_effect_handler);
       sox_effect_options(e,1,opts);
