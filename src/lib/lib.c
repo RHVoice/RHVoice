@@ -101,6 +101,7 @@ static const char *lib_version=VERSION;
 static int initialized=0;
 cst_lexicon *en_lex=NULL;
 static const sox_effect_handler_t *vol_effect_handler=NULL;
+static const sox_effect_handler_t *hpf_effect_handler=NULL;
 
 static RHVoice_callback user_callback=NULL;
 
@@ -556,6 +557,7 @@ int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const cha
   if(engine_pool.engine_resources==NULL) goto err2;
   if(sox_init()!=SOX_SUCCESS) goto err3;
   vol_effect_handler=sox_find_effect("vol");
+  hpf_effect_handler=sox_find_effect("highpass");
   INIT_MUTEX(&engine_pool.mutex);
   load_settings(cfg_path);
   initialized=1;
@@ -578,6 +580,7 @@ void RHVoice_terminate()
   engine_pool.voices=NULL;
   sox_quit();
   vol_effect_handler=NULL;
+  hpf_effect_handler=NULL;
   initialized=0;
 }
 
@@ -795,6 +798,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   float pitch,rate,volume,f0;
   char strvolume[8];
   char *volopts[3]={strvolume,"amplitude","0.02"};
+  char * hpfopts[1]={"350"};
   HTS_Engine *engine=get_engine(get_param_int(u->features,"voice_id",1));
   if(engine==NULL) return NULL;
   synth_state state;
@@ -918,6 +922,13 @@ cst_utterance *hts_synth(cst_utterance *u)
     {
       e=sox_create_effect(&sonic_effect_handler);
       sox_effect_options(e,1,opts);
+      sox_add_effect(c,e,&isig,&osig);
+      free(e);
+    }
+  if(apply_high_pass_filter)
+    {
+      e=sox_create_effect(hpf_effect_handler);
+      sox_effect_options(e,1,hpfopts);
       sox_add_effect(c,e,&isig,&osig);
       free(e);
     }
