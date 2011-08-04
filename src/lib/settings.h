@@ -27,6 +27,8 @@ extern ucs4_t stress_marker;
 
 extern float min_sonic_rate;
 
+extern int apply_high_pass_filter;
+
 void load_settings(const char *path);
 void free_settings();
 

@@ -48,6 +48,8 @@ static const uint32_t default_punctuation_list[]={'+','=','<','>','~','@','#','$
 
 ucs4_t stress_marker='\0';
 
+int apply_high_pass_filter=0;
+
 float check_pitch_range(float value)
 {
   return ((value<min_pitch)?min_pitch:((value>max_pitch)?max_pitch:value));
@@ -290,6 +292,11 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
             }
           if(strcmp(key1,"stress_marker")==0)
             u8_next(&stress_marker,value);
+          if(strcmp(key1,"apply_high_pass_filter")==0)
+            {
+              if(strcmp(value1,"yes")==0)
+                apply_high_pass_filter=1;
+            }
         }
     }
   return res;
@@ -357,6 +364,7 @@ void free_settings()
       punctuation_list=NULL;
     }
   stress_marker='\0';
+  apply_high_pass_filter=0;
 }
 
 void RHVoice_set_voice(int voice)
