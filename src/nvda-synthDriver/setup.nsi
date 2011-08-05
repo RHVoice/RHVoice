@@ -21,27 +21,33 @@ ShowUninstDetails show
 Page directory
 Page instfiles
 
+!macro InstallVoice name
+  SetOutPath "$INSTDIR\RHVoice-data\${name}"
+  File ..\..\data\${name}\dur.pdf
+  File ..\..\data\${name}\lf0.pdf
+  File ..\..\data\${name}\lf0.win1
+  File ..\..\data\${name}\lf0.win2
+  File ..\..\data\${name}\lf0.win3
+  File ..\..\data\${name}\lpf.pdf
+  File ..\..\data\${name}\lpf.win1
+  File ..\..\data\${name}\mgc.pdf
+  File ..\..\data\${name}\mgc.win1
+  File ..\..\data\${name}\mgc.win2
+  File ..\..\data\${name}\mgc.win3
+  File ..\..\data\${name}\tree-dur.inf
+  File ..\..\data\${name}\tree-lf0.inf
+  File ..\..\data\${name}\tree-lpf.inf
+  File ..\..\data\${name}\tree-mgc.inf
+!macroend
+
 Section
-  SetOutPath "$INSTDIR\RHVoice-data\voice"
-  File ..\..\data\voice\dur.pdf
-  File ..\..\data\voice\lf0.pdf
-  File ..\..\data\voice\lf0.win1
-  File ..\..\data\voice\lf0.win2
-  File ..\..\data\voice\lf0.win3
-  File ..\..\data\voice\lpf.pdf
-  File ..\..\data\voice\lpf.win1
-  File ..\..\data\voice\mgc.pdf
-  File ..\..\data\voice\mgc.win1
-  File ..\..\data\voice\mgc.win2
-  File ..\..\data\voice\mgc.win3
-  File ..\..\data\voice\tree-dur.inf
-  File ..\..\data\voice\tree-lf0.inf
-  File ..\..\data\voice\tree-lpf.inf
-  File ..\..\data\voice\tree-mgc.inf
+  !insertmacro InstallVoice "Aleksandr"
+  !insertmacro InstallVoice "Elena"
   SetOutPath $INSTDIR
   File ..\..\build\win32\lib\RHVoice.dll
   File RHVoice.py
-  File /oname=RHVoice-README.txt ..\..\build\win32\README.txt
-  File /oname=RHVoice-COPYING.txt ..\..\build\win32\COPYING.txt
-  File /oname=hts_engine_API-COPYING.txt ..\..\build\win32\hts_engine_api\COPYING.txt
+  SetOutPath "$INSTDIR\RHVoice-doc"
+  File /oname=readme.txt ..\..\build\win32\README.txt
+  File /oname=license.txt ..\..\build\win32\COPYING.txt
+  File /oname=HTS_Engine_license.txt ..\..\build\win32\hts_engine_api\COPYING.txt
 SectionEnd
