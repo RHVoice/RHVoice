@@ -2,6 +2,7 @@ import os.path
 
 Import(["env","sapi_env","BUILDDIR"])
 dll_name="RHVoiceSvr"
+sapi_env.Append(LIBPATH=".")
 if env.get("debug")=="yes":
     sapi_env["PDB"]=File(dll_name+".pdb").abspath
     sapi_env["CCPDBFLAGS"]=["/Zi","/Fd"+File("symbols.pdb").abspath]

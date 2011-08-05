@@ -59,6 +59,8 @@ if env["PLATFORM"]=="win32":
         sapi_env.MergeFlags(flags)
 env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
 vars.Save(var_cache,env)
+if env["PLATFORM"]=="win32":
+    env.Append(CPPDEFINES={"PCRE_STATIC":"1"})
 if GetOption("clean"):
     enable_config=False
 elif GetOption("help"):
@@ -161,12 +163,10 @@ if env["PLATFORM"]=="win32":
     Export("sapi_env")
 lib_objects=[]
 Export("lib_objects")
-src_subdirs=["hts_engine_api","lib"]
+src_subdirs=["hts_engine_api","lib","bin"]
 if env["PLATFORM"]=="win32":
     if sapi_env["enabled"]:
         src_subdirs.append("sapi")
-else:
-    src_subdirs.append("bin")
 for subdir in src_subdirs:
     SConscript(os.path.join("src",subdir,"SConscript"),
                variant_dir=os.path.join(BUILDDIR,subdir),

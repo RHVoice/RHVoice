@@ -18,6 +18,12 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#ifdef WIN32
+#include <cstdio>
+#include <io.h>
+#include <fcntl.h>
+#endif
 #include "RHVoice.h"
 
 using std::string;
@@ -27,8 +33,13 @@ using std::cout;
 using std::endl;
 using std::setw;
 using std::left;
+using std::ifstream;
+using std::ofstream;
 
 static int sample_rate=0;
+
+static ofstream outfile;
+static ifstream infile;
 
 static void write_wave_header()
 {
@@ -63,7 +74,13 @@ static void write_wave_header()
   header[29]=(byte_rate>>8)&0xff;
   header[30]=(byte_rate>>16)&0xff;
   header[31]=(byte_rate>>24)&0xff;
-  cout.write(reinterpret_cast<char*>(&header[0]),sizeof(header));
+  if(!outfile.is_open())
+    {
+#ifdef WIN32
+      _setmode(_fileno(stdout),_O_BINARY);
+#endif
+    }
+  ((outfile.is_open())?outfile:cout).write(reinterpret_cast<char*>(&header[0]),sizeof(header));
 }
 
 static int wave_header_written=0;
@@ -77,8 +94,9 @@ int static callback(const short *samples,int num_samples,const RHVoice_event *ev
       write_wave_header();
       wave_header_written=1;
     }
-  cout.write(reinterpret_cast<const char*>(samples),sizeof(short)*num_samples);
-  cout.flush();
+  ((outfile.is_open())?outfile:cout).write(reinterpret_cast<const char*>(samples),sizeof(short)*num_samples);
+  if(!outfile.is_open())
+    cout.flush();
   return 1;
 }
 
@@ -89,6 +107,8 @@ static struct option program_options[]=
     {"rate",required_argument,0,'r'},
     {"pitch",required_argument,0,'p'},
     {"volume",required_argument,0,'v'},
+    {"input",required_argument,0,'i'},
+    {"output",required_argument,0,'o'},
     {"data",required_argument,0,'d'},
     {"config",required_argument,0,'c'},
     {"variant",required_argument,0,'w'},
@@ -108,8 +128,8 @@ static void show_help()
   show_version();
   cout << "a speech synthesizer for Russian language\n";
   cout << "usage: RHVoice [options]\n";
-  cout << "reads text from stdin (expects UTF-8 encoding)\n";
-  cout << "writes speech output to stdout\n";
+  cout << "reads text from a file or from stdin (expects UTF-8 encoding)\n";
+  cout << "writes speech output to a file or to stdout\n";
   int w=40;
   cout << left << setw(w) << "-h, --help" << "print this help message and exit\n";
   cout << setw(w) << "-V, --version" << "print the program version and exit\n";
@@ -117,6 +137,8 @@ static void show_help()
   cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
   cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
   cout << setw(w) << "-P, --punct=<optional string>" << "speak all or some punctuation\n";
+  cout << setw(w) << "-i, --input=<path>" << "input file\n";
+  cout << setw(w) << "-o, --output=<path>" << "output file\n";
   cout << setw(w) << "-d, --data=<path>" << "path to the data directory\n";
   cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
   cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
@@ -150,6 +172,8 @@ static float convert_prosody_value(float val,float nmin,float nmax,float ndef)
 
 int main(int argc,char **argv)
 {
+  const char *inpath=NULL;
+  const char *outpath=NULL;
   const char *voices_dir=VOICESDIR;
   RHVoice_message msg=NULL;
   const char *cfgpath=NULL;
@@ -169,7 +193,7 @@ int main(int argc,char **argv)
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"d:c:hVr:p:v:w:W:sP",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:sP",program_options,&i))!=-1)
         {
           switch(c)
             {
@@ -203,7 +227,11 @@ int main(int argc,char **argv)
             case 'W':
               voice_name=optarg;
               break;
-            case 0:
+            case 'i':
+              inpath=optarg;
+              break;
+            case 'o':
+              outpath=optarg;
               break;
             case 'P':
               if(optarg!=NULL)
@@ -214,11 +242,17 @@ int main(int argc,char **argv)
               else
                 punct_mode=RHVoice_punctuation_all;
               break;
+            case 0:
+              break;
             default:
               return 1;
             }
         }
-      while(cin.get(ch))
+      if(inpath!=NULL)
+        infile.open(inpath);
+      if(outpath!=NULL)
+        outfile.open(outpath,std::ios::out|std::ios::binary);
+      while(((infile.is_open())?infile:cin).get(ch))
         {
           if((static_cast<unsigned char>(ch)>=32)||(ch=='\t')||(ch=='\n')||(ch=='\r'))
             text.push_back(ch);

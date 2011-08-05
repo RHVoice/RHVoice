@@ -1,8 +1,17 @@
 import os.path
 Import("env")
 local_env=env.Clone()
-local_env.Append(CPPDEFINES=("VOICESDIR",(r'\"%s\"' % local_env.subst("$datadir/$package_name"))))
+if local_env["PLATFORM"]=="win32":
+    local_env.Append(CPPDEFINES={"VOICESDIR":r'\"..\\..\\..\\data\"'})
+else:
+    local_env.Append(CPPDEFINES=("VOICESDIR",(r'\"%s\"' % local_env.subst("$datadir/$package_name"))))
 local_env.Prepend(LIBS="RHVoice")
 local_env.Prepend(LIBPATH=os.path.join("..","lib"))
+if local_env["PLATFORM"]=="win32":
+    local_env.Append(LINKFLAGS="-static-libgcc")
+    local_env.Append(LINKFLAGS="-static-libstdc++")
 program=local_env.Program("RHVoice",["main.cpp"])
-local_env.InstallProgram(program)
+if local_env["PLATFORM"]!="win32":
+    local_env.InstallProgram(program)
+else:
+    local_env.Install(os.path.join("..","install"),program)

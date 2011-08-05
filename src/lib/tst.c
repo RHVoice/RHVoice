@@ -148,7 +148,7 @@ static node *insert_key(tst t,const uint8_t *key)
   return nodelist_at(t->nodes,n);
 }
 
-static int strcmpi(const uint8_t *s1,const uint8_t *s2)
+static int simple_caseless_compare(const uint8_t *s1,const uint8_t *s2)
 {
   ucs4_t c1,c2;
   int d=0;
@@ -171,7 +171,7 @@ static int item_cmp(const void *p1,const void *p2)
 {
   const uint8_t *s1=((const item*)p1)->key;
   const uint8_t *s2=((const item*)p2)->key;
-  int r=strcmpi(s1,s2);
+  int r=simple_caseless_compare(s1,s2);
   return (r!=0)?r:(((const item*)p1)->index-((const item*)p2)->index);
 }
 
@@ -209,7 +209,7 @@ void tst_build(tst t)
   for(i=1;i<n;i++)
     {
       p=itemlist_at(t->items,i);
-      if(strcmpi(key,p->key)==0)
+      if(simple_caseless_compare(key,p->key)==0)
         p->index=(p-1)->index+1;
       else
         {
