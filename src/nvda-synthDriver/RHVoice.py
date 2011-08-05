@@ -29,7 +29,7 @@ from synthDriverHandler import SynthDriver,VoiceInfo
 
 module_dir=os.path.join(config.getUserDefaultConfigPath(),"synthDrivers")
 lib_path=os.path.join(module_dir,"RHVoice.dll")
-data_path=os.path.join(module_dir,"RHVoice-data","voice")
+data_path=os.path.join(module_dir,"RHVoice-data")
 cfg_path=os.path.join(module_dir,"RHVoice-config")
 
 class RHVoice_message_s(Structure):
@@ -146,7 +146,7 @@ class SynthDriver(SynthDriver):
     name="RHVoice"
     description="RHVoice"
 
-    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting(),SynthDriver.VariantSetting())
+    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting(),SynthDriver.VoiceSetting(),SynthDriver.VariantSetting())
 
     @classmethod
     def check(cls):
@@ -168,6 +168,20 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_get_max_pitch.restype=c_float
         self.__lib.RHVoice_get_volume.restype=c_float
         self.__lib.RHVoice_get_max_volume.restype=c_float
+        self.__lib.RHVoice_get_voice_count.restype=c_int
+        self.__lib.RHVoice_get_variant_count.restype=c_int
+        self.__lib.RHVoice_get_voice_name.argtypes=(c_int,)
+        self.__lib.RHVoice_get_voice_name.restype=c_char_p
+        self.__lib.RHVoice_get_variant_name.argtypes=(c_int,)
+        self.__lib.RHVoice_get_variant_name.restype=c_char_p
+        self.__lib.RHVoice_find_voice.argtypes=(c_char_p,)
+        self.__lib.RHVoice_find_voice.restype=c_int
+        self.__lib.RHVoice_find_variant.argtypes=(c_char_p,)
+        self.__lib.RHVoice_find_variant.restype=c_int
+        self.__lib.RHVoice_get_voice.restype=c_int
+        self.__lib.RHVoice_get_variant.restype=c_int
+        self.__lib.RHVoice_set_voice.argtypes=(c_int,)
+        self.__lib.RHVoice_set_variant.argtypes=(c_int,)
         self.__lib.RHVoice_get_version.restype=c_char_p
         self.__silence_flag=threading.Event()
         self.__audio_callback=AudioCallback(self.__lib,self.__silence_flag)
@@ -175,12 +189,26 @@ class SynthDriver(SynthDriver):
         sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper,cfg_path.encode("UTF-8"))
         if sample_rate==0:
             raise RuntimeError("RHVoice: initialization error")
+        voice_count=self.__lib.RHVoice_get_voice_count()
+        if voice_count==0:
+            raise RuntimeError("RHVoice: initialization error")
         self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=sample_rate,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
         self.__audio_callback.set_player(self.__player)
         self.__tts_queue=Queue.Queue()
         self.__tts_thread=TTSThread(self.__lib,self.__tts_queue,self.__player,self.__silence_flag)
-        self._availableVariants=OrderedDict((("1",VoiceInfo("1",u"псевдо-английский")),("2",VoiceInfo("2",u"русский"))))
-        self.__variant="1"
+        self._availableVoices=OrderedDict()
+        for id in range(1,voice_count+1):
+            name=self.__lib.RHVoice_get_voice_name(id)
+            self._availableVoices[name]=VoiceInfo(name,name,"ru")
+        self.__lib.RHVoice_set_voice(1)
+        self.__voice=self.__lib.RHVoice_get_voice_name(1)
+        variant_count=self.__lib.RHVoice_get_variant_count()
+        self._availableVariants=OrderedDict()
+        for id in range(1,variant_count+1):
+            name=self.__lib.RHVoice_get_variant_name(id)
+            self._availableVariants[name]=VoiceInfo(name,name,"ru")
+        self.__lib.RHVoice_set_variant(1)
+        self.__variant=self.__lib.RHVoice_get_variant_name(1)
         self.__rate=50
         self.__pitch=50
         self.__volume=50
@@ -207,7 +235,10 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_terminate()
 
     def do_speak(self,text,index=None,is_character=False):
-        fmt_str=u'<speak><voice variant="%s"><prosody rate="%f%%" pitch="%f%%" volume="%f%%">%s%s</prosody></voice></speak>'
+        fmt_str=u'<speak><voice name="%s" variant="%d"><prosody rate="%f%%" pitch="%f%%" volume="%f%%">%s%s</prosody></voice></speak>'
+        variant=self.__lib.RHVoice_find_variant(self.__variant)
+        if variant==0:
+            variant=1
         if isinstance(index,int):
             mark=u'<mark name="%d"/>' % index
         else:
@@ -218,7 +249,7 @@ class SynthDriver(SynthDriver):
         rate=convert_to_native_percent(self.__rate,*self.__native_rate_range)
         pitch=convert_to_native_percent(self.__pitch,*self.__native_pitch_range)
         volume=convert_to_native_percent(self.__volume,*self.__native_volume_range)
-        ssml=fmt_str % (self.__variant,rate,pitch,volume,mark,escaped_text)
+        ssml=fmt_str % (self.__voice,variant,rate,pitch,volume,mark,escaped_text)
         self.__tts_queue.put(ssml)
 
     def speakText(self,text,index=None):
@@ -263,14 +294,20 @@ class SynthDriver(SynthDriver):
     def _set_volume(self,volume):
         self.__volume=max(0,min(100,volume))
 
+    def _get_voice(self):
+        return self.__voice
+
+    def _set_voice(self,voice):
+        try:
+            self.__voice=self._availableVoices[voice].ID
+        except:
+            pass
+
     def _get_variant(self):
         return self.__variant
 
     def _set_variant(self,variant):
-        self.__variant=variant
-
-    def loadSettings(self):
-        c=config.conf["speech"][self.name]
-        c.configspec=self.getConfigSpec()
-        config.conf.validate(config.val,copy=True,section=c)
-        super(SynthDriver,self).loadSettings()
+        try:
+            self.__variant=self._availableVariants[variant].ID
+        except:
+            pass
