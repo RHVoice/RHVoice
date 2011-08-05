@@ -609,7 +609,7 @@ HTS_Engine *get_engine(int id)
   UNLOCK_MUTEX(&engine_pool.mutex);
   if(p==NULL)
     {
-      r.engine=malloc(sizeof(HTS_Engine));
+      r.engine=calloc(1,sizeof(HTS_Engine));
       if(r.engine==NULL) return NULL;
       if(!initialize_engine(r.engine,(const char*)v->path))
         {

@@ -10,6 +10,7 @@ if os.path.sep=="\\":
 else:
     local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
 local_env.Append(CPPDEFINES=("SONIC_USE_SIN",1))
+local_env.Append(CPPDEFINES=("AUDIO_PLAY_NONE","1"))
 lib_name="RHVoice"
 src=Glob("*.c")
 if env["PLATFORM"]=="win32":
@@ -18,11 +19,11 @@ else:
     objects=local_env.StaticObject(src)
 lib_objects.extend(objects)
 if env["PLATFORM"]=="win32":
-    dll=local_env.SharedLibrary(lib_name,lib_objects+["lib.def"],no_import_lib=True)
+    dll=local_env.SharedLibrary(lib_name,lib_objects+["lib.def"])
+    local_env.Install(os.path.join("..","install"),dll)
     Import("sapi_env")
     if sapi_env["enabled"]:
-        sapi_env.Command(lib_name+".lib",["lib.def",dll],"lib /machine:x86 /def:${SOURCES[0]} /out:$TARGET")
+        sapi_env.Command(os.path.join("..","sapi",lib_name+".lib"),["lib.def",dll],"lib /machine:x86 /def:${SOURCES[0]} /out:$TARGET")
         sapi_env.Prepend(LIBS=lib_name)
-        sapi_env.Prepend(LIBPATH=os.path.join("..","lib"))
 else:
     local_env.StaticLibrary(lib_name,lib_objects)
