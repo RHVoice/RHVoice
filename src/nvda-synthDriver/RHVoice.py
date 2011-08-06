@@ -26,6 +26,7 @@ import config
 import nvwave
 from logHandler import log
 from synthDriverHandler import SynthDriver,VoiceInfo
+import speech
 
 module_dir=os.path.join(config.getUserDefaultConfigPath(),"synthDrivers")
 lib_path=os.path.join(module_dir,"RHVoice.dll")
@@ -234,29 +235,34 @@ class SynthDriver(SynthDriver):
         self.__player.close()
         self.__lib.RHVoice_terminate()
 
-    def do_speak(self,text,index=None,is_character=False):
-        fmt_str=u'<speak><voice name="%s" variant="%d"><prosody rate="%f%%" pitch="%f%%" volume="%f%%">%s%s</prosody></voice></speak>'
+    def speak(self,speech_sequence):
+        spell_mode=False
+        text_list=[]
+        for item in speech_sequence:
+            if isinstance(item,basestring):
+                s=unicode(item).translate(self.__char_mapping)
+                text_list.append((u'<say-as interpret-as="characters">%s</say-as>' % s) if spell_mode else s)
+            elif isinstance(item,speech.IndexCommand):
+                text_list.append('<mark name="%d"/>' % item.index)
+            elif isinstance(item,speech.CharacterModeCommand):
+                if item.state:
+                    spell_mode=True
+                else:
+                    spell_mode=False
+            elif isinstance(item,speech.SpeechCommand):
+                log.debugWarning("Unsupported speech command: %s"%item)
+            else:
+                log.error("Unknown speech: %s"%item)
+        text=u"".join(text_list)
+        fmt_str=u'<speak><voice name="%s" variant="%d"><prosody rate="%f%%" pitch="%f%%" volume="%f%%">%s</prosody></voice></speak>'
         variant=self.__lib.RHVoice_find_variant(self.__variant)
         if variant==0:
             variant=1
-        if isinstance(index,int):
-            mark=u'<mark name="%d"/>' % index
-        else:
-            mark=u""
-        escaped_text=unicode(text).translate(self.__char_mapping)
-        if is_character:
-            escaped_text=u'<say-as interpret-as="characters">%s</say-as>' % escaped_text
         rate=convert_to_native_percent(self.__rate,*self.__native_rate_range)
         pitch=convert_to_native_percent(self.__pitch,*self.__native_pitch_range)
         volume=convert_to_native_percent(self.__volume,*self.__native_volume_range)
-        ssml=fmt_str % (self.__voice,variant,rate,pitch,volume,mark,escaped_text)
+        ssml=fmt_str % (self.__voice,variant,rate,pitch,volume,text)
         self.__tts_queue.put(ssml)
-
-    def speakText(self,text,index=None):
-        self.do_speak(text,index,False)
-
-    def speakCharacter(self,text,index=None):
-        self.do_speak(text,index,True)
 
     def pause(self,switch):
         self.__player.pause(switch)
