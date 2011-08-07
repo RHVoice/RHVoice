@@ -221,6 +221,7 @@ static int sonic_start(sox_effect_t *e)
   if(use_libsonic_for_pitch)
     sonicSetPitch(s->sstream,s->pitch);
   sonicSetSpeed(s->sstream,s->rate);
+  sonicSetQuality(s->sstream,libsonic_hq?1:0);
   return SOX_SUCCESS;
 }
 

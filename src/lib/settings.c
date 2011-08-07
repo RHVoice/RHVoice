@@ -51,6 +51,7 @@ ucs4_t stress_marker='\0';
 int apply_high_pass_filter=0;
 
 int use_libsonic_for_pitch=0;
+int libsonic_hq=1;
 
 float check_pitch_range(float value)
 {
@@ -308,6 +309,13 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               else if(strcmp(value1,"no")==0)
                 use_libsonic_for_pitch=0;
             }
+          else if(strcmp(key1,"libsonic_hq")==0)
+            {
+              if(strcmp(value1,"yes")==0)
+                libsonic_hq=1;
+              else if(strcmp(value1,"no")==0)
+                libsonic_hq=0;
+            }
         }
     }
   return res;
@@ -377,6 +385,7 @@ void free_settings()
   stress_marker='\0';
   apply_high_pass_filter=0;
   use_libsonic_for_pitch=0;
+  libsonic_hq=1;
 }
 
 void RHVoice_set_voice(int voice)
