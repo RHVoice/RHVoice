@@ -120,7 +120,7 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c,int spe
     {
       add_word(t,r,"символ");
       snprintf((char*)b,sizeof(b),"%u",c);
-      w=digits_to_words(t,r,b,n);
+      w=digits_to_words(t,r,b,u8_strlen(b));
     }
   return w;
 }
