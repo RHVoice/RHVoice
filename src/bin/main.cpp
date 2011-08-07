@@ -111,6 +111,8 @@ static struct option program_options[]=
     {"output",required_argument,0,'o'},
     {"data",required_argument,0,'d'},
     {"config",required_argument,0,'c'},
+    {"list-variants",no_argument,0,'l'},
+    {"list-voices",no_argument,0,'L'},
     {"variant",required_argument,0,'w'},
     {"voice",required_argument,0,'W'},
     {"ssml",no_argument,0,'s'},
@@ -141,9 +143,35 @@ static void show_help()
   cout << setw(w) << "-o, --output=<path>" << "output file\n";
   cout << setw(w) << "-d, --data=<path>" << "path to the data directory\n";
   cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
+  cout << setw(w) << "-l, --list-variants" << "list all available variants\n";
+  cout << setw(w) << "-L, --list-voices" << "list all available voices\n";
   cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
   cout << setw(w) << "-W, --voice=<name>" << "select a voice\n";
   cout << setw(w) << "-s, --ssml" << "ssml input\n";
+}
+
+static void list_variants()
+{
+  int n=RHVoice_get_variant_count();
+  if(n==0) return;
+  cout << "List of variants:\n";
+  int i;
+  for(i=1;i<=n;i++)
+    {
+      cout << RHVoice_get_variant_name(i) << endl;
+    }
+}
+
+static void list_voices()
+{
+  int n=RHVoice_get_voice_count();
+  if(n==0) return;
+  cout << "List of voices:\n";
+  int i;
+  for(i=1;i<=n;i++)
+    {
+      cout << RHVoice_get_voice_name(i) << endl;
+    }
 }
 
 static float parse_prosody_option(const char *str)
@@ -187,13 +215,15 @@ int main(int argc,char **argv)
   int is_ssml=0;
   RHVoice_punctuation_mode punct_mode=RHVoice_punctuation_none;
   const char *punct_list=NULL;
+  int opt_list_voices=0;
+  int opt_list_variants=0;
   string text;
   char ch;
   int c;
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:sP::",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:sP::lL",program_options,&i))!=-1)
         {
           switch(c)
             {
@@ -242,11 +272,28 @@ int main(int argc,char **argv)
               else
                 punct_mode=RHVoice_punctuation_all;
               break;
+            case 'l':
+              opt_list_variants=1;
+              break;
+            case 'L':
+              opt_list_voices=1;
+              break;
             case 0:
               break;
             default:
               return 1;
             }
+        }
+      sample_rate=RHVoice_initialize(voices_dir,callback,cfgpath);
+      if(sample_rate==0) return 1;
+      if(opt_list_variants||opt_list_voices)
+        {
+          if(opt_list_voices)
+            list_voices();
+          if(opt_list_variants)
+            list_variants();
+          RHVoice_terminate();
+          return 0;
         }
       if(inpath!=NULL)
         infile.open(inpath);
@@ -259,9 +306,11 @@ int main(int argc,char **argv)
           else
             text.push_back(' ');
         }
-      if(text.empty()) return 1;
-      sample_rate=RHVoice_initialize(voices_dir,callback,cfgpath);
-      if(sample_rate==0) return 1;
+      if(text.empty())
+        {
+          RHVoice_terminate();
+          return 1;
+        }
       if(rate!=-1)
         RHVoice_set_rate(convert_prosody_value(rate,RHVoice_get_min_rate(),RHVoice_get_max_rate(),RHVoice_get_default_rate()));
       if(pitch!=-1)
