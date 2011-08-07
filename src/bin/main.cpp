@@ -193,7 +193,7 @@ int main(int argc,char **argv)
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:sP",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:sP::",program_options,&i))!=-1)
         {
           switch(c)
             {
