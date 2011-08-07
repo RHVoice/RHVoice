@@ -280,17 +280,14 @@ void tst_enum_prefixes(tst t,const uint8_t *key,tst_enum_callback f,void *d)
   do
     {
       sc=nodelist_at(t->nodes,n)->spltchr;
-      if((sc=='\0')&&(l>0))
-        {
-          argstack_push(r,&n);
-          argstack_push(r,&l);
-        }
       if(c<sc) n=nodelist_at(t->nodes,n)->left;
       else if(c==sc)
         {
           if(c=='\0') break;
           l=s-key;
           n=nodelist_at(t->nodes,n)->mid;
+          argstack_push(r,&n);
+          argstack_push(r,&l);
           s=u8_next(&c,s);
           if(s==NULL) c='\0';
           else c=uc_tolower(c);
@@ -304,16 +301,29 @@ void tst_enum_prefixes(tst t,const uint8_t *key,tst_enum_callback f,void *d)
       argstack_pop(r);
       n=*argstack_back(r);
       argstack_pop(r);
-          i=nodelist_at(t->nodes,n)->mid;
-          p=itemlist_at(t->items,i);
-          do
+      while(n)
+        {
+          if(nodelist_at(t->nodes,n)->spltchr=='\0')
             {
-              if(!f(p->key,l,p->value,d)) break;
-              i++;
-              if(i==k) break;
+              i=nodelist_at(t->nodes,n)->mid;
               p=itemlist_at(t->items,i);
+              do
+                {
+                  if(!f(p->key,l,p->value,d))
+                    {
+                      argstack_free(r);
+                      return;
+                    }
+                  i++;
+                  if(i==k) break;
+                  p=itemlist_at(t->items,i);
+                }
+              while((p->index>0));
+              break;
             }
-          while((p->index>0));
+          else
+            n=nodelist_at(t->nodes,n)->left;
+        }
     }
   argstack_free(r);
 }
