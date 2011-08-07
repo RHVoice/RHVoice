@@ -34,7 +34,7 @@ static float default_pitch=1.0;
 static float max_pitch=2.0;
 static float current_pitch=1.0;
 static float default_volume=1.0;
-static float max_volume=2.0;
+const static float max_volume=2.0;
 static float current_volume=1.0;
 
 MUTEX settings_mutex;
@@ -273,11 +273,6 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               fvalue=strtod_c(value1,NULL);
               if((fvalue>0)&&(fvalue<=2)) default_volume=fvalue;
             }
-          else if(strcmp(key1,"max_volume")==0)
-            {
-              fvalue=strtod_c(value1,NULL);
-              if((fvalue>0)&&(fvalue<=2)) max_volume=fvalue;
-            }
           else if(strcmp(key1,"punctuation_mode")==0)
             {
               if(strcmp(value1,"none")==0)
@@ -348,10 +343,7 @@ void load_settings(const char *path)
       else
         current_pitch=default_pitch;
       if(default_volume>max_volume)
-        {
-          max_volume=2.0;
-          default_volume=1.0;
-        }
+        default_volume=1.0;
       else
         current_volume=default_volume;
     }
@@ -372,7 +364,6 @@ void free_settings()
   max_pitch=2.0;
   current_pitch=1.0;
   default_volume=1.0;
-  max_volume=2.0;
   current_volume=1.0;
   current_variant=variant_pseudo_english;
   current_voice=0;
