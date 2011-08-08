@@ -863,6 +863,8 @@ cst_utterance *hts_synth(cst_utterance *u)
           local_dur*=factor;
           local_dur+=(use_libsonic?1.0:(1.0/rate))*time*frames_per_sec;
         }
+      if(local_dur<HTS_ModelSet_get_nstate(&engine->ms))
+        local_dur=HTS_ModelSet_get_nstate(&engine->ms);
       lstring->end=lstring->start+local_dur;
       if(lstring->next)
         lstring->next->start=lstring->end;
