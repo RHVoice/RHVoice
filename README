@@ -7,13 +7,10 @@ RHVoice uses the following free software components:
   but I've made changes in other parts, either to simplify conversion
   to the flite format, or to add new features, or just to understand
   how it all works.
-* The voice has been trained with The HMM-based Speech Synthesis
+* The voices have been trained with The HMM-based Speech Synthesis
   System (HTS) (http://hts.sp.nitech.ac.jp)
 * The hts_engine API is used for runtime speech generation
   (http://hts-engine.sourceforge.net/)
-  Since the library does not support streaming synthesis, the original
-  version has been modified to implement this functionality, and the
-  synthesizer distribution includes this patched version.
 * The C implementation of the Russian text analyzer uses Flite
   (http://www.speech.cs.cmu.edu/flite)
   I used the flite's implementation of English language support as an
@@ -27,6 +24,10 @@ RHVoice uses the following free software components:
   (git://vinuxproject.org/sonic)
 * The expat XML parser is used to implement SSML support
   (http://expat.sourceforge.net)
+* the PCRE library is used for regular expressions support in
+  pronunciation dictionaries (http://pcre.org)
+* libsox is used for some post-processing tasks
+  (http://sox.sourceforge.net)
 
                       Getting the latest sources
 The latest release can be found at http://github.com/Olga-Yakovleva/RHVoice/downloads
