@@ -539,7 +539,7 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   HTS_Engine_set_alpha(engine,0.42);
   HTS_Engine_set_gamma(engine,0);
   HTS_Engine_set_log_gain(engine,TRUE);
-  HTS_Engine_set_beta(engine,0.4);
+  HTS_Engine_set_beta(engine,0.6);
   HTS_Engine_set_msd_threshold(engine,1,0.5);
   HTS_Engine_set_duration_interpolation_weight(engine,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,0,0,1.0);
