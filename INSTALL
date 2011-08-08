@@ -6,6 +6,8 @@ Requirements:
 * Flite 1.4 or later
 * GNU libunistring 0.9.3 or later
 * expat
+* pcre
+* libsox
 To compile the package type 'scons'. Then type 'scons install'. If you
 want to change the installation prefix, then the first command should
 be 'scons prefix=<path>'. Type 'scons -h' for help.
@@ -20,7 +22,7 @@ example:
 name = RHVoice
 type = command
 lang = rus
-synth command = "RHVoice -r %r -p %p -v %v"
+synth command = "RHVoice -r %r -p %p -v %v -W Elena"
 alsa player command = "play -"
 pitch num digits after dot = 2
 pitch min = 0
