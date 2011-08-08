@@ -5,6 +5,13 @@
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"
 
+LicenseLangString readmeFile ${LANG_ENGLISH} setup-readme-en.txt
+LicenseLangString readmeFile ${LANG_RUSSIAN} setup-readme-ru.txt
+LangString readmeCaption ${LANG_ENGLISH} ": Readme"
+LangString readmeCaption ${LANG_RUSSIAN} ": О программе"
+LangString readmeText ${LANG_ENGLISH} "General information about RHVoice"
+LangString readmeText ${LANG_RUSSIAN} "Общие сведения об RHVoice"
+
 SetCompressor /solid lzma
 SetOverwrite on
 AllowSkipFiles off
@@ -18,6 +25,11 @@ RequestExecutionLevel user
 ShowInstDetails show
 ShowUninstDetails show
 
+PageEx license
+Caption $(readmeCaption)
+LicenseText $(readmeText) $(^NextBtn)
+LicenseData $(readmeFile)
+PageExEnd
 Page directory
 Page instfiles
 
