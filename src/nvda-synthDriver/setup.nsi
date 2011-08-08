@@ -62,4 +62,11 @@ Section
   File /oname=readme.txt ..\..\build\win32\README.txt
   File /oname=license.txt ..\..\build\win32\COPYING.txt
   File /oname=HTS_Engine_license.txt ..\..\build\win32\hts_engine_api\COPYING.txt
+  SetOverwrite off
+  SetOutPath "$INSTDIR\RHVoice-config"
+  File ..\..\build\win32\RHVoice.ini
+  SetOutPath "$INSTDIR\RHVoice-config\dicts"
+  File /oname=example.txt ..\..\build\win32\dict.txt
+  SetOutPath "$INSTDIR\RHVoice-config\variants"
+  File ..\..\build\win32\Pseudo-Esperanto.txt
 SectionEnd
