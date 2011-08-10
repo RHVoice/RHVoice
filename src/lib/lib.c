@@ -704,8 +704,6 @@ static eventlist generate_events(cst_utterance *u)
   return events;
 }
 
-static const char* sonorants[]={"m","mm","n","nn","l","ll","r","rr","j"};
-
 static void fix_f0(cst_utterance *u,HTS_Engine *e)
 {
   cst_item *t=relation_tail(utt_relation(u,"Token"));
@@ -714,7 +712,7 @@ static void fix_f0(cst_utterance *u,HTS_Engine *e)
   if(p[0]=='\0')
     return;
   const char *q=strchr(p,'?');
-  if((!q)&&(strchr(p,'.')||strchr(p,'!')||strchr(p,':')||strchr(p,';')))
+  if(!q)
     return;
   cst_item *w;
   for(w=item_last_daughter(relation_tail(utt_relation(u,"Phrase")));w;w=item_prev(w))
@@ -762,30 +760,19 @@ static void fix_f0(cst_utterance *u,HTS_Engine *e)
           break;
         }
     }
-  if(cst_member_string(ffeature_string(v,"R:SylStructure.p.name"),sonorants))
+  f0=M;
+  for(i=start;i<=end;i++)
     {
-      f0=M;
-      for(i=start-ns;i<start;i++)
-        {
-          f0=0.95*f0+0.05*T;
-          HTS_SStreamSet_set_mean(&e->sss,1,i,0,f0);
-        }
+      HTS_SStreamSet_set_mean(&e->sss,1,i,0,f0);
+      f0=0.875*f0+0.125*T;
     }
-  else
-    f0=M;
-  if(q)
-  f0=0.5*f0+0.5*T;
-  else
-    f0=0.75*f0+0.25*T;
-  HTS_SStreamSet_set_mean(&e->sss,1,start,0,f0);
-  f0=0.95*f0+0.05*B;
-  HTS_SStreamSet_set_mean(&e->sss,1,start+1,0,f0);
-  f0=0.95*f0+0.05*B;
-  HTS_SStreamSet_set_mean(&e->sss,1,start+2,0,f0);
-  f0=0.95*f0+0.05*B;
-  HTS_SStreamSet_set_mean(&e->sss,1,start+3,0,f0);
-  f0=0.5*f0+0.5*B;
-  HTS_SStreamSet_set_mean(&e->sss,1,start+4,0,f0);
+    for(i=end+1;i<e->sss.total_state;i++)
+      {
+        if(HTS_SStreamSet_get_msd(&e->sss,1,i)<=e->global.msd_threshold[1]) break;
+        if(HTS_SStreamSet_get_mean(&e->sss,1,i,0)>=f0) break;
+        HTS_SStreamSet_set_mean(&e->sss,1,i,0,f0);
+        f0=0.875*f0+0.125*B;
+      }
 }
 
 cst_utterance *hts_synth(cst_utterance *u)
