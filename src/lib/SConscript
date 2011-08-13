@@ -23,7 +23,11 @@ if env["PLATFORM"]=="win32":
     local_env.Install(os.path.join("..","install"),dll)
     Import("sapi_env")
     if sapi_env["enabled"]:
-        sapi_env.Command(os.path.join("..","sapi",lib_name+".lib"),["lib.def",dll],"lib /machine:x86 /def:${SOURCES[0]} /out:$TARGET")
+        if sapi_env["TARGET_ARCH"].endswith("64"):
+            machine="x64"
+        else:
+            machine="x86"
+        sapi_env.Command(os.path.join("..","sapi",lib_name+".lib"),["lib.def",dll],"lib /machine:$MACHINE /def:${SOURCES[0]} /out:$TARGET",MACHINE=machine)
         sapi_env.Prepend(LIBS=lib_name)
 else:
     local_env.StaticLibrary(lib_name,lib_objects)

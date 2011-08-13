@@ -1,3 +1,7 @@
+!include "LogicLib.nsh"
+!include "Library.nsh"
+!include "x64.nsh"
+
 !define PRODUCT RHVoice
 !ifndef VERSION
 !define VERSION "0.3"
@@ -93,10 +97,26 @@ UninstPage instfiles
   WriteRegStr HKLM "${SPTOKENS_REG_KEY}\RHVoice-${name}-${variant}\Attributes" "Vendor" "Olga Yakovleva"
 !macroend
 
+Function RegisterVoices
+  # Register the voices with SAPI
+  !insertmacro RegisterVoice "Aleksandr" "Pseudo-English" "Male"
+  !insertmacro RegisterVoice "Aleksandr" "Russian" "Male"
+  !insertmacro RegisterVoice "Elena" "Pseudo-English" "Female"
+  !insertmacro RegisterVoice "Elena" "Russian" "Female"
+  WriteRegStr HKLM ${PROGRAM_REG_KEY} "data_path" "$INSTDIR\data"
+FunctionEnd
+
+Function un.registerVoices
+  DeleteRegKey HKLM "${SPTOKENS_REG_KEY}\RHVoice-Aleksandr-Pseudo-English"
+  DeleteRegKey HKLM "${SPTOKENS_REG_KEY}\RHVoice-Aleksandr-Russian"
+  DeleteRegKey HKLM "${SPTOKENS_REG_KEY}\RHVoice-Elena-Pseudo-English"
+  DeleteRegKey HKLM "${SPTOKENS_REG_KEY}\RHVoice-Elena-Russian"
+  DeleteRegKey HKLM ${PROGRAM_REG_KEY}
+FunctionEnd
+
 Section
   !insertmacro InstallVoice "Aleksandr"
   !insertmacro InstallVoice "Elena"
-  WriteRegStr HKLM ${PROGRAM_REG_KEY} "data_path" "$INSTDIR\data"
   SetOutPath "$INSTDIR\documentation"
   File /oname=readme.txt ..\..\build\win32\README.txt
   File /oname=license.txt ..\..\build\win32\COPYING.txt
@@ -109,19 +129,18 @@ Section
   File ..\..\build\win32\Pseudo-Esperanto.txt
   SetOutPath "$INSTDIR\lib"
   File ..\..\build\win32\lib\RHVoice.dll
-  File ..\..\build\win32\sapi\RHVoiceSvr.dll
-  try_RegDLL:
-  ClearErrors
-  RegDLL "$INSTDIR\lib\RHVoiceSvr.dll"
-  IfErrors 0 RegDLL_success
-  MessageBox MB_RETRYCANCEL|MB_ICONSTOP $(^ErrorRegistering) /SD IDCANCEL IDRETRY try_RegDLL IDCANCEL 0
-  Abort
-  RegDLL_success:
-  # Register the voices with SAPI
-  !insertmacro RegisterVoice "Aleksandr" "Pseudo-English" "Male"
-  !insertmacro RegisterVoice "Aleksandr" "Russian" "Male"
-  !insertmacro RegisterVoice "Elena" "Pseudo-English" "Female"
-  !insertmacro RegisterVoice "Elena" "Russian" "Female"
+  !insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED ..\..\build\win32\sapi\RHVoiceSvr.dll "$INSTDIR\lib\RHVoiceSvr.dll" $INSTDIR
+  Call RegisterVoices
+  !define LIBRARY_X64
+  ${If} ${RunningX64}
+    SetOutPath "$INSTDIR\lib64"
+    File ..\..\build\win64\lib\RHVoice.dll
+    !insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED ..\..\build\win64\sapi\RHVoiceSvr.dll "$INSTDIR\lib64\RHVoiceSvr.dll" $INSTDIR
+    SetRegView 64
+    Call RegisterVoices
+    SetRegView 32
+  ${EndIf}
+  !undef LIBRARY_X64      
   # Uninstallation information
   WriteUninstaller "$INSTDIR\uninstall.exe"
   WriteRegStr HKLM ${UNINSTALL_REG_KEY} "INSTDIR" $INSTDIR
@@ -136,10 +155,20 @@ Section
 SectionEnd
 
 Section Uninstall
-  UnRegDLL "$INSTDIR\lib\RHVoiceSvr.dll"
-  Delete "$INSTDIR\lib\RHVoiceSvr.dll"
+  Call un.registerVoices
+  !insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED "$INSTDIR\lib\RHVoiceSvr.dll"
   Delete "$INSTDIR\lib\RHVoice.dll"
   RMDIR "$INSTDIR\lib"
+  !define LIBRARY_X64
+  ${If} ${RunningX64}
+  SetRegView 64
+    Call un.registerVoices
+    SetRegView 32
+    !insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED "$INSTDIR\lib64\RHVoiceSvr.dll"
+    Delete "$INSTDIR\lib64\RHVoice.dll"
+    RMDIR "$INSTDIR\lib64"
+  ${EndIf}
+  !undef LIBRARY_X64
   Delete "$INSTDIR\documentation\readme.txt"
   Delete "$INSTDIR\documentation\license.txt"
   Delete "$INSTDIR\documentation\HTS_Engine_license.txt"
@@ -155,6 +184,5 @@ Section Uninstall
   RMDir "$INSTDIR\data"
   Delete "$INSTDIR\uninstall.exe"
   RMDIR "$INSTDIR"
-  DeleteRegKey HKLM ${PROGRAM_REG_KEY}
   DeleteRegKey HKLM ${UNINSTALL_REG_KEY}
 SectionEnd
