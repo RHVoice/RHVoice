@@ -1,11 +1,18 @@
 import sys
 import os
 import os.path
+import subprocess
 
 BUILDDIR=os.path.join("build",sys.platform)
+if sys.platform=="win32":
+    msvc_target_arch="x86"
+    if subprocess.check_output(["gcc","-dumpmachine"]).startswith("x86_64-"):
+        BUILDDIR=os.path.join("build","win64")
+        msvc_target_arch="x86_64"
 Execute(Mkdir(BUILDDIR))
 SConsignFile(os.path.join(BUILDDIR,"scons"))
 var_cache=os.path.join(BUILDDIR,"user.conf")
+env_args={}
 args={"DESTDIR":""}
 args.update(ARGUMENTS)
 vars=Variables(var_cache,args)
@@ -22,15 +29,21 @@ if sys.platform=="win32":
 vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
 vars.Add("package_version","Package version","0.3")
 if sys.platform=="win32":
-    toolset=["mingw","newlines"]
-    sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH="x86",enabled=False)
+    env_args["tools"]=["mingw","newlines"]
+    env_args["ENV"]={"PATH":os.environ["PATH"]}
+    sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH=msvc_target_arch,enabled=False)
     sapi_env["CPPPATH"]=[".",os.path.join("#src","include")]
     sapi_env["CPPDEFINES"]=[("UNICODE","1")]
     sapi_env.Prepend(CCFLAGS="/MT")
     sapi_env.Prepend(CCFLAGS="/EHa")
 else:
-    toolset=["default","installer"]
-env=Environment(tools=toolset,CPPPATH=[],LIBPATH=[],CPPDEFINES=[],package_name="RHVoice",variables=vars)
+    env_args["tools"]=["default","installer"]
+env_args["variables"]=vars
+env_args["CPPPATH"]=[]
+env_args["LIBPATH"]=[]
+env_args["package_name"]="RHVoice"
+env_args["CPPDEFINES"]=[]
+env=Environment(**env_args)
 Help("Type 'scons' to build the package.\n")
 if sys.platform!="win32":
     Help("Then type 'scons install' to install it.\n")
