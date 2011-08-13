@@ -46,12 +46,13 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
   ISpObjectTokenPtr object_token;
   CRITICAL_SECTION object_token_mutex;
   static int sample_rate;
-  DWORD variant;
+  std::wstring voice;
+  int variant;
 
   class TTSTask
   {
   public:
-    TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,DWORD dwVariant);
+    TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,std::wstring voice_name,int variant_id,bool speek_punctuation);
     ~TTSTask();
     void operator()();
     static int callback(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
@@ -67,7 +68,9 @@ class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) CSpTTSEngineImp
     int sentence_count;
     static float pitch_table[];
     static float rate_table[];
-    DWORD variant;
+    std::wstring voice;
+    int variant;
+    bool punctuation_mode;
     static float default_native_rate;
     static float default_native_pitch;
     static float max_native_volume;

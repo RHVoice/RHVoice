@@ -101,7 +101,7 @@ STDMETHODIMP CSpTTSEngineImpl::Speak(DWORD dwSpeakFlags,REFGUID rguidFormatId,co
         return E_INVALIDARG;
       if(get_sample_rate()==0)
         return E_UNEXPECTED;
-      TTSTask t(pTextFragList,pOutputSite,variant);
+      TTSTask t(pTextFragList,pOutputSite,voice,variant,dwSpeakFlags&SPF_NLP_SPEAK_PUNC);
       t();
     }
   catch(bad_alloc&)
@@ -156,28 +156,32 @@ STDMETHODIMP CSpTTSEngineImpl::GetOutputFormat(const GUID *pTargetFmtId,const WA
 STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
 {
   HRESULT result=S_OK;
-  DWORD v=1;
+  wchar_t *name=NULL;
   try
     {
       if(pToken==NULL)
         return E_INVALIDARG;
       if(get_sample_rate()==0)
         {
-          wchar_t *voice_path_w=NULL;
-          if(FAILED(pToken->GetStringValue(L"VoicePath",&voice_path_w)))
-            return E_FAIL;
-          string voice_path;
-          try
+          wstring data_path_w;
+          HKEY k;
+          if(RegOpenKeyEx(HKEY_LOCAL_MACHINE,L"Software\\RHVoice",0,KEY_QUERY_VALUE,&k)==ERROR_SUCCESS)
             {
-              voice_path=wstring_to_string(voice_path_w);
+              wchar_t buff[MAX_PATH+1];
+              DWORD size=MAX_PATH*sizeof(wchar_t);
+              DWORD type=0;
+              if(RegQueryValueEx(k,L"data_path",0,&type,(BYTE*)buff,&size)==ERROR_SUCCESS)
+                {
+                  if(type==REG_SZ)
+                    {
+                      buff[size/sizeof(wchar_t)]=L'\0';
+                      data_path_w.assign(buff);
+                    }
+                }
+              RegCloseKey(k);
             }
-          catch(...)
-            {
-              CoTaskMemFree(voice_path_w);
-              throw;
-            }
-          CoTaskMemFree(voice_path_w);
-          voice_path_w=NULL;
+          if(data_path_w.empty()) return E_FAIL;
+          string data_path=wstring_to_string(data_path_w);
           string cfg_path;
           wchar_t appdata_path[MAX_PATH];
           if(SHGetFolderPath(NULL,CSIDL_APPDATA,NULL,0,appdata_path)==S_OK)
@@ -191,7 +195,7 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             {
               if(sample_rate==0)
                 {
-                  sample_rate=RHVoice_initialize(voice_path.c_str(),TTSTask::callback,cfg_path.empty()?NULL:cfg_path.c_str());
+                  sample_rate=RHVoice_initialize(data_path.c_str(),TTSTask::callback,cfg_path.empty()?NULL:cfg_path.c_str());
                 if(sample_rate>0)
                   CSpTTSEngineImpl::TTSTask::initialize();
                 }
@@ -218,10 +222,27 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             }
           LeaveCriticalSection(&object_token_mutex);
         }
-      if(SUCCEEDED(pToken->GetDWORD(L"Variant",&v)))
+      if(SUCCEEDED(pToken->GetStringValue(L"voice",&name)))
         {
-          if((v>0)&&(v<3))
-            variant=v;
+          try
+            {
+              if(RHVoice_find_voice(wstring_to_string(name).c_str()))
+                voice.assign(name);
+            }
+          catch(...) {}
+          CoTaskMemFree(name);
+          name=NULL;
+        }
+      if(SUCCEEDED(pToken->GetStringValue(L"variant",&name)))
+        {
+          try
+            {
+              int id=RHVoice_find_variant(wstring_to_string(name).c_str());
+              if(id>0) variant=id;
+            }
+          catch(...) {}
+          CoTaskMemFree(name);
+          name=NULL;
         }
     }
   catch(bad_alloc&)
@@ -271,14 +292,16 @@ float CSpTTSEngineImpl::TTSTask::default_native_rate=1.0;
 float CSpTTSEngineImpl::TTSTask::default_native_pitch=1.0;
 float CSpTTSEngineImpl::TTSTask::max_native_volume=2.0;
 
-CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,DWORD dwVariant) :
+CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite,wstring voice_name,int variant_id,bool speak_punctuation) :
   message(NULL),
   audio_bytes(0),
   out(pOutputSite,true),
   current_sentence_number(0),
   skipping(false),
   sentence_count(0),
-  variant(dwVariant)
+  voice(voice_name),
+  variant(variant_id),
+  punctuation_mode(speak_punctuation)
 {
   generate_ssml(pTextFragList);
   message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
@@ -419,9 +442,18 @@ void CSpTTSEngineImpl::TTSTask::generate_ssml(const SPVTEXTFRAG *frags)
   s.imbue(locale::classic());
   s.exceptions(wostringstream::failbit|wostringstream::badbit);
   s << L"<speak>";
-  s << L"<voice variant=\"";
+  s << L"<voice";
+  if(!voice.empty())
+    {
+      s << L" name=\"";
+      s << voice;
+      s << L"\"";
+    }
+  s << L" variant=\"";
   s << variant;
   s << L"\">";
+  if(punctuation_mode)
+    s << L"<tts:style field=\"punctuation\" mode=\"all\">";
   for(const SPVTEXTFRAG *frag=frags;frag;frag=frag->pNext)
     {
       switch(frag->State.eAction)
@@ -461,6 +493,8 @@ void CSpTTSEngineImpl::TTSTask::generate_ssml(const SPVTEXTFRAG *frags)
           break;
         }
     }
+  if(punctuation_mode)
+    s << L"</tts:style>";
   s << L"</voice>";
   s << L"</speak>";
   ssml.assign(s.str());
