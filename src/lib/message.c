@@ -1079,7 +1079,7 @@ static void mark_sentence_boundaries(RHVoice_message msg)
       if(next->flags&token_sentence_end)
         (next+1)->flags|=token_sentence_start;
     }
-  size_t sentence_len;
+  size_t sentence_len=0;
   for(next=first;next<last;next++)
     {
       if(next->flags&token_sentence_start) sentence_len=0;
