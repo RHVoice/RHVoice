@@ -24,6 +24,8 @@
 #include "vector.h"
 #include "io_utils.h"
 
+#define max_pron_len 80
+
 static const uint8_t space_delims[]={' ','\t','\0'};
 
 typedef struct
@@ -75,6 +77,7 @@ static int check_user_pron_value(const uint8_t *p)
   unsigned int cs;
   const uint8_t *s=p+u8_strspn(p,space_delims);
   if(s[0]=='\0') return 0;
+  if(u8_mbsnlen(s,u8_strlen(s))>max_pron_len) return 0;
   while((s=u8_next(&c,s)))
     {
       cs=classify_character(c);

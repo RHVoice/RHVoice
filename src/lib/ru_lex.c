@@ -13,6 +13,8 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#define max_num_segs 2000
+
 #include "lib.h"
 #include <unistr.h>
 #include "ru_dict.h"
@@ -258,6 +260,8 @@ cst_utterance *russian_lexical_insertion(cst_utterance *u)
   cst_val *phones;
   cst_item *ssword, *sssyl, *segitem, *sylitem, *seg_in_syl, *svsyl, *vowel_in_syl, *tword, *seg_in_word;
   cst_item *i,*tmp;
+  int num_segs;
+  int total_num_segs=0;
   syl = utt_relation_create(u,"Syllable");
   sylstructure = utt_relation_create(u,"SylStructure");
   seg = utt_relation_create(u,"Segment");
@@ -268,6 +272,12 @@ cst_utterance *russian_lexical_insertion(cst_utterance *u)
       phones=word_to_phones(word);
       if(!phones)
         continue;
+      num_segs=val_length(phones);
+      if((total_num_segs+num_segs)>max_num_segs)
+        {
+          delete_val(phones);
+          break;
+        }
       ssword = relation_append(sylstructure,word);
       tword = relation_append(transcription,word);
       for (sssyl=NULL,sylitem=NULL,p=phones; p; p=val_cdr(p))
@@ -296,13 +306,18 @@ cst_utterance *russian_lexical_insertion(cst_utterance *u)
         }
       assign_stress(word);
       delete_val(phones);
+      total_num_segs+=num_segs;
     }
   i=relation_head(utt_relation(u,"Word"));
   while(i)
     {
       tmp=item_next(i);
       if(item_as(i,"Transcription")==NULL)
-        delete_item(i);
+        {
+          delete_item(item_as(i,"Token"));
+          delete_item(item_as(i,"Phrase"));
+          delete_item(i);
+        }
       i=tmp;
     }
   i=relation_head(utt_relation(u,"Phrase"));
