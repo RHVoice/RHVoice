@@ -24,9 +24,10 @@
 
 #define ssml_error(s) {s->error_flag=1;XML_StopParser(s->parser,XML_FALSE);return;}
 
-#define max_token_len 200
-#define max_sentence_len 500
+#define max_token_len 80
+#define max_sentence_len 800
 #define max_line_len 80
+#define max_tokens_in_sentence 100
 
 typedef struct {
   float value;
@@ -154,13 +155,13 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
     {
       prev_tok->flags|=token_eol;
-      if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n')))||(ts->ln>max_line_len))
+      if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n')))||(ts->ln>=max_line_len))
         prev_tok->flags|=token_eop;
       ts->ln=0;
     }
   if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
     {
-      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||(ustring32_length(prev_tok->text)==max_token_len))))
+      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||((cs&cs_ws)&&((say_as=='s')||(say_as=='c')))||(ustring32_length(prev_tok->text)==max_token_len))))
         {
           tok.text=ustring32_alloc(1);
           if(tok.text==NULL) return 0;
@@ -1011,6 +1012,9 @@ static int is_sentence_boundary(const token *t1,const token *t2)
       else return 0;
     }
   if(t1->flags&token_eop) return 1;
+  if(t1->say_as=='s') return 1;
+  if((ustring32_length(t1->text)>=max_token_len)||(ustring32_length(t2->text)>=max_token_len))
+    return 1;
   const uint32_t *str1=ustring32_str(t1->text);
   size_t len1=ustring32_length(t1->text);
   size_t pre1_len=prepunctuation_length(t1->text);
@@ -1080,11 +1084,17 @@ static void mark_sentence_boundaries(RHVoice_message msg)
         (next+1)->flags|=token_sentence_start;
     }
   size_t sentence_len=0;
+  size_t num_tokens=0;
   for(next=first;next<last;next++)
     {
-      if(next->flags&token_sentence_start) sentence_len=0;
+      if(next->flags&token_sentence_start)
+        {
+          sentence_len=0;
+          num_tokens=0;
+        }
       sentence_len+=ustring32_length(next->text);
-      if(sentence_len>=max_sentence_len)
+      num_tokens++;
+      if((sentence_len>=max_sentence_len)||(num_tokens>=max_tokens_in_sentence))
         {
           next->flags|=token_sentence_end;
           (next+1)->flags|=token_sentence_start;
