@@ -161,7 +161,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
     }
   if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
     {
-      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||((cs&cs_ws)&&((say_as=='s')||(say_as=='c')))||(ustring32_length(prev_tok->text)==max_token_len))))
+      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||(say_as=='s')||(say_as=='c')||(ustring32_length(prev_tok->text)==max_token_len))))
         {
           tok.text=ustring32_alloc(1);
           if(tok.text==NULL) return 0;
