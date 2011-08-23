@@ -16,43 +16,118 @@
 #include <unistr.h>
 #include "lib.h"
 
-static int should_be_final_in_phrase(cst_item *w)
+static const ucs4_t phrase_final_punc_list[]={'.','!','?',',',';',':','-',')','\0'};
+
+static cst_utterance *assign_phrase_breaks(cst_utterance *u)
 {
-  if(item_next(item_as(w,"Token"))!=NULL) return 0;
-  cst_item *n=item_next(item_as(w,"Word"));
-  if(n==NULL) return 1;
-  cst_item *nt=item_parent(item_as(n,"Token"));
-  cst_item *t=item_prev(nt);
-  int bs=item_feat_int(t,"break_strength");
-  if(bs!='u')
+  cst_item *w=relation_tail(utt_relation(u,"Word"));
+  if(w)
+    item_set_string(w,"phrbrk","B");
+  else
+    return u;
+  cst_item *t0,*t;
+  const uint8_t *p;
+  int bs;
+  for(t0=relation_head(utt_relation(u,"Token"));t0;t0=item_next(t0))
     {
-      if((bs=='s')||(bs=='b')) return 1;
-      else return 0;
-    }
-  const uint8_t *p=(const uint8_t*)item_feat_string(nt,"prepunctuation");
-  if(p[0]=='(') return 1;
-  if(strlen(item_name(nt))==0) return 0;
-  p=(const uint8_t*)item_feat_string(t,"punc");
-  ucs4_t c;
-  unsigned int cs;
-  int result=0;
-  while((p=u8_next(&c,p)))
-    {
-      cs=classify_character(c);
-      if(cs&cs_pq) continue;
-      if(cs&cs_pf)
+      w=item_last_daughter(t0);
+      if(w!=NULL)
         {
-          result=1;
-          break;
+          t=(item_next(item_as(w,"Word"))?path_to_item(w,"R:Word.n.R:Token.parent.p"):t0);
+          bs=item_feat_int(t,"break_strength");
+          ucs4_t c;
+          if((bs=='s')||(bs=='b'))
+            {
+              item_set_string(w,"phrbrk","B");
+              continue;
+            }
+          if(item_next(t)&&
+             (ffeature_string(t,"n.prepunctuation")[0]=='('))
+            {
+              item_set_string(w,"phrbrk","B");
+              continue;
+            }
+          p=(const uint8_t*)item_feat_string(t,"punc");
+          while((p=u8_next(&c,p)))
+            {
+              if(u32_strchr(phrase_final_punc_list,c))
+                {
+                  item_set_string(w,"phrbrk","B");
+                  break;
+                }
+            }
         }
     }
-  return result;
+  int num_words_to_prev_break=0;
+  int num_words_to_next_break;
+  int num_cont_words_to_prev_break=0;
+  int num_cont_words_to_next_break;
+  cst_item *w1;
+  for(w=relation_head(utt_relation(u,"Word"));w;w=item_next(w))
+    {
+      num_words_to_prev_break++;
+      if(cst_streq(ffeature_string(w,"gpos"),"content"))
+        num_cont_words_to_prev_break++;
+      if(cst_streq(item_feat_string(w,"phrbrk"),"NB")) continue;
+      else if(cst_streq(item_feat_string(w,"phrbrk"),"B"))
+        {
+          num_words_to_prev_break=0;
+          num_cont_words_to_prev_break=0;
+          continue;
+        }
+      else if(!cst_streq(ffeature_string(w,"gpos"),"proc")&&cst_streq(ffeature_string(w,"n.gpos"),"proc"))
+        {
+          num_words_to_next_break=0;
+          num_cont_words_to_next_break=0;
+          for(w1=item_next(w);w1;w1=item_next(w1))
+            {
+              num_words_to_next_break++;
+              if(cst_streq(ffeature_string(w1,"gpos"),"content"))
+                num_cont_words_to_next_break++;
+              if(cst_streq(item_feat_string(w1,"phrbrk"),"B")) break;
+            }
+          if(((num_words_to_prev_break+num_words_to_next_break)>=9)&&
+             (cst_streq(ffeature_string(w,"n.name"),"и")&&(num_cont_words_to_prev_break>=2)&&(num_cont_words_to_next_break>=2)))
+            {
+              item_set_string(w,"phrbrk","B");
+              num_words_to_prev_break=0;
+              num_cont_words_to_prev_break=0;
+            }
+        }
+    }
+  num_words_to_prev_break=0;
+  for(w=relation_head(utt_relation(u,"Word"));w;w=item_next(w))
+    {
+      num_words_to_prev_break++;
+      if(cst_streq(item_feat_string(w,"phrbrk"),"NB")) continue;
+      else if(cst_streq(item_feat_string(w,"phrbrk"),"B"))
+        {
+          num_words_to_prev_break=0;
+          continue;
+        }
+      else if(num_words_to_prev_break>25)
+        {
+          num_words_to_next_break=0;
+          for(w1=item_next(w);w1;w1=item_next(w1))
+            {
+              num_words_to_next_break++;
+              if(cst_streq(item_feat_string(w1,"phrbrk"),"B")) break;
+            }
+          if(num_words_to_next_break>5)
+            {
+              item_set_string(w,"phrbrk","B");
+              num_words_to_prev_break=0;
+            }
+        }
+    }
+  return u;
 }
 
 cst_utterance *russian_phrasify(cst_utterance *u)
 {
   cst_relation *r;
   cst_item *w,*n,*p=NULL;
+  assign_phrase_breaks(u);
   r = utt_relation_create(u,"Phrase");
   for (p=NULL,w=relation_head(utt_relation(u,"Word")); w; w=item_next(w))
     {
@@ -62,7 +137,7 @@ cst_utterance *russian_phrasify(cst_utterance *u)
           item_set_string(p,"name","B");
 	}
       item_add_daughter(p,w);
-      if(should_be_final_in_phrase(w))
+      if(cst_streq(item_feat_string(w,"phrbrk"),"B"))
         {
           n=item_next(w);
           if(n)

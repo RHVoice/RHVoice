@@ -32,6 +32,7 @@ static cst_item *add_word(cst_item *t,cst_relation *r,const char *name)
 {
   cst_item *w=item_add_daughter(t,NULL);
   item_set_string(w,"name",name);
+  item_set_string(w,"phrbrk","PB");
   relation_append(r,w);
   return w;
 }
@@ -95,8 +96,10 @@ static cst_item *digits_to_words(cst_item *t,cst_relation *r,const uint8_t *digi
       for(v=words;v;v=val_cdr(v))
         {
           w=add_word(t,r,val_string(val_car(v)));
+          item_set_string(w,"phrbrk","NB");
         }
       delete_val(words);
+      item_set_string(w,"phrbrk","PB");
     }
   return w;
 }
@@ -122,6 +125,7 @@ static cst_item *character_to_words(cst_item *t,cst_relation *r,ucs4_t c,int spe
       snprintf((char*)b,sizeof(b),"%u",c);
       w=digits_to_words(t,r,b,u8_strlen(b));
     }
+  if(spell&&w) item_set_string(w,"phrbrk","B");
   return w;
 }
 

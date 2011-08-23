@@ -32,9 +32,9 @@ static const cst_val *gpos(const cst_item *word)
     return item_feat(word,"my_gpos");
   if(item_prev(item_as(word,"Token"))&&cst_member_string(name,ru_h_enc_list))
     return &val_string_enc;
-  if(item_next(item_as(word,"Phrase"))&&cst_member_string(name,ru_proc_list))
+  if(item_next(item_as(word,"Word"))&&cst_member_string(name,ru_proc_list))
     return &val_string_proc;
-  if(item_prev(item_as(word,"Phrase"))&&cst_member_string(name,ru_enc_list))
+  if(item_prev(item_as(word,"Word"))&&cst_member_string(name,ru_enc_list))
     return &val_string_enc;
   return &val_string_content;
 }
