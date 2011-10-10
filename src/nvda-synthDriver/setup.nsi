@@ -50,6 +50,7 @@ Page instfiles
   File ..\..\data\${name}\tree-lf0.inf
   File ..\..\data\${name}\tree-lpf.inf
   File ..\..\data\${name}\tree-mgc.inf
+  File ..\..\data\${name}\voice.conf
 !macroend
 
 Section

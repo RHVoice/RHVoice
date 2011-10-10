@@ -518,6 +518,22 @@ int RHVoice_find_voice(const char *name)
   return 0;
 }
 
+static int engine_config_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
+{
+  HTS_Engine *engine=(HTS_Engine*)user_data;
+  double fval;
+  if(section==NULL)
+    {
+      if((u8_strcmp(key,(const uint8_t*)"msd_threshold")==NULL)&&(value!=NULL))
+        {
+          fval=strtod_c((const char*)value,NULL);
+          if((fval>0)&&(fval<1))
+            HTS_Engine_set_msd_threshold(engine,1,fval);
+        }
+    }
+  return 1;
+}
+
 int initialize_engine(HTS_Engine *engine,const char *path)
 {
   int i;
@@ -539,12 +555,18 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   HTS_Engine_set_alpha(engine,0.42);
   HTS_Engine_set_gamma(engine,0);
   HTS_Engine_set_log_gain(engine,TRUE);
-  HTS_Engine_set_beta(engine,0.6);
+  HTS_Engine_set_beta(engine,0.4);
   HTS_Engine_set_msd_threshold(engine,1,0.5);
   HTS_Engine_set_duration_interpolation_weight(engine,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,0,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,1,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,2,0,1.0);
+  char *cfg_path=path_append(path,"voice.conf");
+  if(cfg_path!=NULL)
+    {
+      parse_config(cfg_path,engine_config_callback,engine);
+      free(cfg_path);
+    }
   return engine->global.sampling_rate;
 }
 

@@ -62,6 +62,7 @@ UninstPage instfiles
   File ..\..\data\${name}\tree-lf0.inf
   File ..\..\data\${name}\tree-lpf.inf
   File ..\..\data\${name}\tree-mgc.inf
+  File ..\..\data\${name}\voice.conf
 !macroend
 
 !macro UninstallVoice name
@@ -82,6 +83,7 @@ UninstPage instfiles
   Delete "$INSTDIR\data\${name}\tree-lf0.inf"
   Delete "$INSTDIR\data\${name}\tree-lpf.inf"
   Delete "$INSTDIR\data\${name}\tree-mgc.inf"
+  Delete "$INSTDIR\data\${name}\voice.conf"
   RMDir "$INSTDIR\data\${name}"
 !macroend
 
