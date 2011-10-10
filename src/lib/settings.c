@@ -34,7 +34,7 @@ static float default_pitch=1.0;
 static float max_pitch=2.0;
 static float current_pitch=1.0;
 static float default_volume=1.0;
-const static float max_volume=2.0;
+const static float max_volume=1.75;
 static float current_volume=1.0;
 
 MUTEX settings_mutex;
