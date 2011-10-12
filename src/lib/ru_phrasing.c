@@ -141,7 +141,7 @@ cst_utterance *russian_phrasify(cst_utterance *u)
         {
           n=item_next(w);
           if(n)
-            item_set_float(p,"break_time",item_feat_float(item_prev(item_parent(item_as(n,"Token"))),"break_time"));
+            item_set_float(p,"break_time",ffeature_float(n,"R:Token.parent.p.break_time"));
           p = NULL;
         }
     }
