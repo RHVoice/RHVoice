@@ -36,14 +36,14 @@ using std::left;
 using std::ifstream;
 using std::ofstream;
 
-static int sample_rate=0;
+static uint32_t sample_rate=0;
 
 static ofstream outfile;
 static ifstream infile;
 
 static void write_wave_header()
 {
-  int byte_rate=2*sample_rate;
+  uint32_t byte_rate=2*sample_rate;
   unsigned char header[]={
     /* RIFF header */
     'R','I','F','F',            /* ChunkID */
@@ -65,15 +65,9 @@ static void write_wave_header()
     /* Again using espeak as an example */
     0x00,0xf0,0xff,0x7f};     /* Subchunk2Size */
   /* Write actual sample rate */
-  header[24]=sample_rate&0xff;
-  header[25]=(sample_rate>>8)&0xff;
-  header[26]=(sample_rate>>16)&0xff;
-  header[27]=(sample_rate>>24)&0xff;
+  *reinterpret_cast<uint32_t*>(header+24)=sample_rate;
   /* Write actual byte rate */
-  header[28]=byte_rate&0xff;
-  header[29]=(byte_rate>>8)&0xff;
-  header[30]=(byte_rate>>16)&0xff;
-  header[31]=(byte_rate>>24)&0xff;
+  *reinterpret_cast<uint32_t*>(header+28)=byte_rate;
   if(!outfile.is_open())
     {
 #ifdef WIN32
