@@ -13,22 +13,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os.path
-Import(["env","lib_objects"])
-local_env=env.Clone()
-local_env.Append(CPPPATH="include")
-local_env.Append(CPPDEFINES=("AUDIO_PLAY_NONE","1"))
-# hts_engine API calls AC_C_BIGENDIAN during configuration
-# I do not think my project will be used on such platforms, 
-# but as I have included the sources, I should try to configure them properly
-if sys.byteorder=="big":
-    local_env.Append(CPPDEFINES=("WORDS_BIGENDIAN","1"))
-src=Glob(os.path.join("lib","*.c"))
-if env["PLATFORM"]=="win32" or env["enable_shared"]=="yes":
-    objects=local_env.SharedObject(src)
-else:
-    objects=local_env.StaticObject(src)
-lib_objects.extend(objects)
-if local_env["PLATFORM"]=="win32":
-    local_env.ConvertNewlines("COPYING")
+import os
+from SCons.Script import *
+
+def exists(env):
+    return True
+
+def SharedLibraryEx(env,name,source,version):
+    if hasattr(os,"uname") and os.uname()[0]=="Linux":
+        so_name=env.subst("$SHLIBPREFIX")+name+env.subst("$SHLIBSUFFIX")+"."+version.split(".")[0]
+        flags="-Wl,-soname,"+so_name
+        return env.SharedLibrary(name,source,LINKFLAGS=flags)
+    else:
+        return env.SharedLibrary(name,source)
+
+def generate(env):
+    env.AddMethod(SharedLibraryEx)

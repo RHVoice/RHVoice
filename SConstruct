@@ -33,8 +33,11 @@ vars=Variables(var_cache,args)
 if sys.platform!="win32":
     vars.Add("prefix","Installation prefix","/usr/local")
     vars.Add("bindir","Program installation directory","$prefix/bin")
+    vars.Add("libdir","Library installation directory","$prefix/lib")
+    vars.Add("includedir","Header installation directory","$prefix/include")
     vars.Add("datadir","Data installation directory","$prefix/share")
     vars.Add("DESTDIR","Support for staged installation","")
+    vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
 vars.Add("FLAGS","Additional compiler/linker flags")
 vars.Add("CCFLAGS","C compiler flags")
 vars.Add("LINKFLAGS","Linker flags")
@@ -51,7 +54,7 @@ if sys.platform=="win32":
     sapi_env.Prepend(CCFLAGS="/MT")
     sapi_env.Prepend(CCFLAGS="/EHa")
 else:
-    env_args["tools"]=["default","installer"]
+    env_args["tools"]=["default","installer","shlib"]
 env_args["variables"]=vars
 env_args["CPPPATH"]=[]
 env_args["LIBPATH"]=[]
@@ -194,6 +197,8 @@ src_subdirs=["hts_engine_api","lib","bin"]
 if env["PLATFORM"]=="win32":
     if sapi_env["enabled"]:
         src_subdirs.append("sapi")
+else:
+    src_subdirs.append("include")
 for subdir in src_subdirs:
     SConscript(os.path.join("src",subdir,"SConscript"),
                variant_dir=os.path.join(BUILDDIR,subdir),
