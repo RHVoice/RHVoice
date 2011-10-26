@@ -572,12 +572,19 @@ int initialize_engine(HTS_Engine *engine,const char *path)
 
 int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path)
 {
-  if((data_path==NULL)||(callback==NULL)) return 0;
+  if(callback==NULL) return 0;
+#ifdef WIN32
+  if(data_path==NULL) return 0;
+#endif
   user_callback=callback;
   if(en_lex==NULL) en_lex=cmu_lex_init();
   engine_pool.voices=voicelist_alloc(0,voice_free);
   if(engine_pool.voices==NULL) goto err1;
+#ifdef WIN32
   for_each_dir_in_dir(data_path,add_voice,NULL);
+#else
+  for_each_dir_in_dir(data_path?data_path:DATADIR,add_voice,NULL);
+#endif
   if(voicelist_size(engine_pool.voices)==0) goto err2;
   engine_pool.engine_resources=reslist_alloc(0,engine_resource_free);
   if(engine_pool.engine_resources==NULL) goto err2;
@@ -585,7 +592,11 @@ int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const cha
   vol_effect_handler=sox_find_effect("vol");
   hpf_effect_handler=sox_find_effect("highpass");
   INIT_MUTEX(&engine_pool.mutex);
+#ifdef WIN32
   load_settings(cfg_path);
+#else
+  load_settings(cfg_path?cfg_path:CONFDIR);
+#endif
   initialized=1;
   return 16000;
   err3: reslist_free(engine_pool.engine_resources);

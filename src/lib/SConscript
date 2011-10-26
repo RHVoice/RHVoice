@@ -26,6 +26,9 @@ else:
     local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
 local_env.Append(CPPDEFINES=("SONIC_USE_SIN",1))
 local_env.Append(CPPDEFINES=("AUDIO_PLAY_NONE","1"))
+if local_env["PLATFORM"]!="win32":
+    local_env.Append(CPPDEFINES=("DATADIR",(r'\"%s\"' % local_env.subst("$datadir/$package_name"))))
+    local_env.Append(CPPDEFINES=("CONFDIR",(r'\"%s\"' % local_env.subst("$sysconfdir/$package_name"))))
 lib_name="RHVoice"
 src=Glob("*.c")
 if env["PLATFORM"]=="win32" or env["enable_shared"]=="yes":

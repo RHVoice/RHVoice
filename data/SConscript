@@ -1,5 +1,4 @@
-import os.path
 Import("env")
 
-env.InstallData(Glob(os.path.join("Aleksandr","[!.]*")),"Aleksandr")
-env.InstallData(Glob(os.path.join("Elena","[!.]*")),"Elena")
+env.InstallData(Glob("Aleksandr/*"),"Aleksandr")
+env.InstallData(Glob("Elena/*"),"Elena")
