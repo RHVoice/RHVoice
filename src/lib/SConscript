@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import os.path
 Import(["env","lib_objects"])
 local_env=env.Clone()
@@ -30,6 +31,9 @@ if local_env["PLATFORM"]!="win32":
     local_env.Append(CPPDEFINES=("DATADIR",(r'\"%s\"' % local_env.subst("$datadir/$package_name"))))
     local_env.Append(CPPDEFINES=("CONFDIR",(r'\"%s\"' % local_env.subst("$sysconfdir/$package_name"))))
 lib_name="RHVoice"
+lib_version="0.0.0"
+if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]=="yes":
+    local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
 src=Glob("*.c")
 if env["PLATFORM"]=="win32" or env["enable_shared"]=="yes":
     objects=local_env.SharedObject(src)
@@ -49,8 +53,7 @@ if env["PLATFORM"]=="win32":
         sapi_env.Prepend(LIBS=lib_name)
 else:
     if env["enable_shared"]=="yes":
-        lib_version="0.0.0"
-        lib=local_env.SharedLibraryEx(lib_name,lib_objects,lib_version)
+        lib=local_env.SharedLibrary(lib_name,lib_objects)
         env.InstallSharedLibrary(lib,lib_version)
     else:
         lib=local_env.StaticLibrary(lib_name,lib_objects)
