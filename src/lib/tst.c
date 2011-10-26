@@ -17,6 +17,7 @@
 #include <search.h>
 #include <unistr.h>
 #include <unicase.h>
+#include "lib.h"
 #include "tst.h"
 #include "vector.h"
 
@@ -146,25 +147,6 @@ static node *insert_key(tst t,const uint8_t *key)
         }
     }
   return nodelist_at(t->nodes,n);
-}
-
-static int simple_caseless_compare(const uint8_t *s1,const uint8_t *s2)
-{
-  ucs4_t c1,c2;
-  int d=0;
-  if((s1[0]!='\0')||(s2[0]!='\0'))
-    {
-      do
-        {
-          s1=u8_next(&c1,s1);
-          s2=u8_next(&c2,s2);
-          if((s1==NULL)&&(s2==NULL)) break;
-          if(s1!=NULL) d=uc_tolower(c1);
-          if(s2!=NULL) d-=uc_tolower(c2);
-        }
-      while(d==0);
-    }
-  return d;
 }
 
 static int item_cmp(const void *p1,const void *p2)

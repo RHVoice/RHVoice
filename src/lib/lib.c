@@ -508,11 +508,12 @@ const char *RHVoice_get_voice_name(int id)
 
 int RHVoice_find_voice(const char *name)
 {
+  if(name==NULL) return 0;
   int n=RHVoice_get_voice_count();
   int i;
   for(i=1;i<=n;i++)
     {
-      if(u8_strcmp((const uint8_t*)name,get_voice_by_id(i)->name)==0)
+      if(simple_caseless_compare((const uint8_t*)name,get_voice_by_id(i)->name)==0)
         return i;
     }
   return 0;
