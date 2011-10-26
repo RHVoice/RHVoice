@@ -16,12 +16,8 @@
 import os.path
 Import("env")
 local_env=env.Clone()
-if local_env["PLATFORM"]=="win32":
-    local_env.Append(CPPDEFINES={"VOICESDIR":r'\"..\\..\\..\\data\"'})
-else:
-    local_env.Append(CPPDEFINES=("VOICESDIR",(r'\"%s\"' % local_env.subst("$datadir/$package_name"))))
-    if env["enable_shared"]=="yes":
-        local_env["LIBS"]=[]
+if local_env["PLATFORM"]!="win32" and env["enable_shared"]=="yes":
+    local_env["LIBS"]=[]
 local_env.Prepend(LIBS="RHVoice")
 local_env.Prepend(LIBPATH=os.path.join("..","lib"))
 if local_env["PLATFORM"]=="win32":

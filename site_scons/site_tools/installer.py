@@ -23,60 +23,57 @@ def exists(env):
     else:
         return True
 
-def InstallProgram(env,src):
-    if not env.has_key("BINDESTDIR"):
-        env["BINDESTDIR"]=env.subst("$DESTDIR$bindir")
-        env.Alias("install",env["BINDESTDIR"])
-    inst=env.Install(env["BINDESTDIR"],src)
-    env.AddPostAction(inst,Chmod("$TARGET",0755))
+def Install(env,src,instpath,instname=None,sysdir=True,mode=644):
+    destpath=env.subst("$DESTDIR"+instpath)
+    env.Alias("install",destpath)
+    if instname:
+        inst=env.InstallAs(os.path.join(destpath,instname),src)
+    else:
+        inst=env.Install(destpath,src)
+    env.AddPostAction(inst,Chmod("$TARGET",mode))
     return inst
 
-def InstallData(env,src,subdir=None):
-    if not env.has_key("DATADESTDIR"):
-        env["DATADESTDIR"]=env.subst("$DESTDIR$datadir")
-        env.Alias("install",env["DATADESTDIR"])
-        env.Clean(env["DATADESTDIR"],os.path.join(env["DATADESTDIR"],env["package_name"]))
-    if subdir:
-        dest=os.path.join(env["DATADESTDIR"],env["package_name"],subdir)
+def InstallProgram(env,src):
+    return Install(env,src,"$bindir",mode=0755)
+
+def InstallData(env,src,dest=None):
+    if dest:
+        inst=Install(env,src,os.path.join("$datadir","$package_name",dest))
     else:
-        dest=os.path.join(env["DATADESTDIR"],env["package_name"])
-    inst=env.Install(dest,src)
-    env.AddPostAction(inst,Chmod("$TARGET",0644))
+        inst=Install(env,src,os.path.join("$datadir","$package_name"))
+    env.Clean("install",env.subst("$DESTDIR$datadir/$package_name"))
+    return inst
+
+def InstallConfig(env,src,dest=None):
+    if dest:
+        inst=Install(env,src,os.path.join("$sysconfdir","$package_name",dest))
+    else:
+        inst=Install(env,src,os.path.join("$sysconfdir","$package_name"))
+    env.Clean("install",env.subst("$DESTDIR$sysconfdir/$package_name"))
     return inst
 
 def InstallStaticLibrary(env,src):
-    if not env.has_key("LIBDESTDIR"):
-        env["LIBDESTDIR"]=env.subst("$DESTDIR$libdir")
-        env.Alias("install",env["LIBDESTDIR"])
-    inst=env.Install(env["LIBDESTDIR"],src)
-    env.AddPostAction(inst,Chmod("$TARGET",0644))
-    return inst
+    return Install(env,src,"$libdir")
 
 def InstallSharedLibrary(env,src,version):
-    if not env.has_key("LIBDESTDIR"):
-        env["LIBDESTDIR"]=env.subst("$DESTDIR$libdir")
-        env.Alias("install",env["LIBDESTDIR"])
     if hasattr(os,"uname") and os.uname()[0]=="Linux":
-        name=os.path.join(env["LIBDESTDIR"],os.path.split(str(src[0]))[1])
-        inst=env.InstallAs(name+"."+version,src)
-        inst+=env.Command(name+"."+version.split(".")[0],inst[0],"ln -s ${SOURCE.file} ${TARGET.file}",chdir=1)
-        inst+=env.Command(name,inst[0],"ln -s ${SOURCE.file} ${TARGET.file}",chdir=1)
+        name=os.path.split(str(src[0]))[1]
+        inst=Install(env,src,"$libdir",instname=name+"."+version,mode=0755)
+        libpath=os.path.split(inst[0].path)[0]
+        for s in [name+"."+version.split(".")[0],name]:
+            inst+=env.Command(os.path.join(libpath,s),inst[0],"ln -s ${SOURCE.file} ${TARGET.file}",chdir=1)
+            env.AddPostAction(inst[-1],Chmod("$TARGET",0755))
     else:
-        inst=env.Install(env["LIBDESTDIR"],src)
-    env.AddPostAction(inst,Chmod("$TARGET",0755))
+        inst=Install(env,src,"$libdir",mode=0755)
     return inst
 
 def InstallHeader(env,src):
-    if not env.has_key("INCDESTDIR"):
-        env["INCDESTDIR"]=env.subst("$DESTDIR$includedir")
-        env.Alias("install",env["INCDESTDIR"])
-    inst=env.Install(env["INCDESTDIR"],src)
-    env.AddPostAction(inst,Chmod("$TARGET",0644))
-    return inst
+    return Install(env,src,"$includedir")
 
 def generate(env):
     env.AddMethod(InstallProgram)
     env.AddMethod(InstallData)
+    env.AddMethod(InstallConfig)
     env.AddMethod(InstallStaticLibrary)
     env.AddMethod(InstallSharedLibrary)
     env.AddMethod(InstallHeader)

@@ -36,6 +36,7 @@ if sys.platform!="win32":
     vars.Add("libdir","Library installation directory","$prefix/lib")
     vars.Add("includedir","Header installation directory","$prefix/include")
     vars.Add("datadir","Data installation directory","$prefix/share")
+    vars.Add("sysconfdir","A directory for configuration files","$prefix/etc")
     vars.Add("DESTDIR","Support for staged installation","")
     vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
 vars.Add("FLAGS","Additional compiler/linker flags")
@@ -205,6 +206,7 @@ for subdir in src_subdirs:
                duplicate=0)
 if env["PLATFORM"]!="win32":
     SConscript(os.path.join("data","SConscript"))
+    SConscript(os.path.join("config","SConscript"))
 if env["PLATFORM"]=="win32":
     for f in ["README","COPYING"]:
         env.ConvertNewlines(os.path.join(BUILDDIR,f),f)

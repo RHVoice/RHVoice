@@ -196,7 +196,7 @@ int main(int argc,char **argv)
 {
   const char *inpath=NULL;
   const char *outpath=NULL;
-  const char *voices_dir=VOICESDIR;
+  const char *datadir=NULL;
   RHVoice_message msg=NULL;
   const char *cfgpath=NULL;
   float rate=-1;
@@ -240,7 +240,7 @@ int main(int argc,char **argv)
               is_ssml=1;
               break;
             case 'd':
-              voices_dir=optarg;
+              datadir=optarg;
               break;
             case 'c':
               cfgpath=optarg;
@@ -278,7 +278,7 @@ int main(int argc,char **argv)
               return 1;
             }
         }
-      sample_rate=RHVoice_initialize(voices_dir,callback,cfgpath);
+      sample_rate=RHVoice_initialize(datadir,callback,cfgpath);
       if(sample_rate==0) return 1;
       if(opt_list_variants||opt_list_voices)
         {
