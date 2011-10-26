@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 #include <unistr.h>
+#include <unicase.h>
 #include "lib.h"
 
 const char *ru_proc_list[]={"а","без","безо","в","во","для","до","за","и","из",
@@ -95,6 +96,25 @@ char *ru_implode(const cst_val *l)
     }
   *p='\0';
   return s;
+}
+
+int simple_caseless_compare(const uint8_t *s1,const uint8_t *s2)
+{
+  ucs4_t c1,c2;
+  int d=0;
+  if((s1[0]!='\0')||(s2[0]!='\0'))
+    {
+      do
+        {
+          s1=u8_next(&c1,s1);
+          s2=u8_next(&c2,s2);
+          if((s1==NULL)&&(s2==NULL)) break;
+          if(s1!=NULL) d=uc_tolower(c1);
+          if(s2!=NULL) d-=uc_tolower(c2);
+        }
+      while(d==0);
+    }
+  return d;
 }
 
 static const char* vpairs[][2]=

@@ -40,6 +40,7 @@ extern "C" {
   char *ru_implode(const cst_val *l);
   cst_val* ru_lts_apply(const cst_val *input, const cst_lts_rewrites *rule);
   cst_val* ustring32_lts_apply(const ustring32_t u32,const cst_lts_rewrites *rule);
+  int simple_caseless_compare(const uint8_t *s1,const uint8_t *s2);
   const char *russian_vpair(const char *ph);
 
   extern const char *ru_proc_list[];

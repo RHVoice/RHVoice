@@ -166,9 +166,10 @@ const char *RHVoice_get_variant_name(int variant)
 
 int RHVoice_find_variant(const char *name)
 {
-  if(strcmp(name,"Pseudo-English")==0)
+  if(name==NULL) return 0;
+  if(simple_caseless_compare((const uint8_t*)name,(const uint8_t*)"Pseudo-English")==0)
     return variant_pseudo_english;
-  else if(strcmp(name,"Russian")==0)
+  else if(simple_caseless_compare((const uint8_t*)name,(const uint8_t*)"Russian")==0)
     return variant_russian;
   else
     {
@@ -176,7 +177,7 @@ int RHVoice_find_variant(const char *name)
       int i;
       for(i=1;i<n;i++)
         {
-          if(strcmp(name,(const char*)user_dict_get_name(i))==0)
+          if(simple_caseless_compare((const uint8_t*)name,user_dict_get_name(i))==0)
             return (builtin_variant_count+i);
         }
       return 0;
