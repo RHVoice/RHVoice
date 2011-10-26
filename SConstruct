@@ -55,7 +55,7 @@ if sys.platform=="win32":
     sapi_env.Prepend(CCFLAGS="/MT")
     sapi_env.Prepend(CCFLAGS="/EHa")
 else:
-    env_args["tools"]=["default","installer","shlib"]
+    env_args["tools"]=["default","installer"]
 env_args["variables"]=vars
 env_args["CPPPATH"]=[]
 env_args["LIBPATH"]=[]
