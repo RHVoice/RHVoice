@@ -37,6 +37,7 @@ RHVoice_get_variant
 RHVoice_set_variant
 RHVoice_get_voice_count
 RHVoice_get_voice_name
+RHVoice_get_voice_gender
 RHVoice_find_voice
 RHVoice_get_voice
 RHVoice_set_voice

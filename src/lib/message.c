@@ -604,19 +604,52 @@ static int_stack voice_stack_update(int_stack stack,ssml_tag *tag)
 {
   int voice=*int_stack_back(stack);
   if(!int_stack_push(stack,&voice)) return NULL;
+  voice=0;
   const uint8_t *val=ssml_get_attribute_value(tag,"name");
-  if(val==NULL) return stack;
+  if(val!=NULL)
+    {
   uint8_t *names=u8_strdup(val);
   if(names==NULL) return NULL;
   uint8_t *p=NULL;
   const uint8_t *name=u8_strtok(names,(const uint8_t*)" ",&p);
-  if(name==NULL)
+  while(name)
     {
-      free(names);
-      return stack;
+      voice=RHVoice_find_voice((const char*)name);
+      if(voice>0) break;
+      name=u8_strtok(NULL,(const uint8_t*)" ",&p);
     }
-  voice=RHVoice_find_voice((const char*)name);
   free(names);
+    }
+  RHVoice_voice_gender gender=RHVoice_voice_gender_unknown;
+  val=ssml_get_attribute_value(tag,"gender");
+  if(val!=NULL)
+    {
+      if(u8_strcmp(val,(const uint8_t*)"male")==0)
+        gender=RHVoice_voice_gender_male;
+      else if(u8_strcmp(val,(const uint8_t*)"female")==0)
+        gender=RHVoice_voice_gender_female;
+      if(gender!=RHVoice_voice_gender_unknown)
+        {
+          if(voice>0)
+            {
+              if(RHVoice_get_voice_gender(voice)!=gender)
+                voice=0;
+            }
+          else
+            {
+              int count=RHVoice_get_voice_count();
+              int id;
+              for(id=1;id<=count;id++)
+                {
+                  if(RHVoice_get_voice_gender(id)==gender)
+                    {
+                      voice=id;
+                      break;
+                    }
+                }
+            }
+        }
+    }
   if(voice>0)
     *int_stack_back(stack)=voice;
   return stack;

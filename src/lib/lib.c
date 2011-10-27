@@ -444,7 +444,9 @@ void engine_resource_free(engine_resource *r)
 typedef struct
 {
   uint8_t *name;
+  RHVoice_voice_gender gender;
   uint8_t *path;
+  double msd_threshold;
 } voice;
 
 void voice_free(voice *v)
@@ -462,6 +464,29 @@ static struct {
   voicelist voices;
 } engine_pool;
 
+static int voice_config_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
+{
+  voice *v=(voice*)user_data;
+  double fval;
+  if(section==NULL)
+    {
+      if((u8_strcmp(key,(const uint8_t*)"msd_threshold")==0)&&(value!=NULL))
+        {
+          fval=strtod_c((const char*)value,NULL);
+          if((fval>0)&&(fval<1))
+            v->msd_threshold=fval;
+        }
+      else if((u8_strcmp(key,(const uint8_t*)"gender")==0)&&(value!=NULL))
+        {
+          if(u8_strcmp(value,(const uint8_t*)"male")==0)
+            v->gender=RHVoice_voice_gender_male;
+          else if(u8_strcmp(value,(const uint8_t*)"female")==0)
+            v->gender=RHVoice_voice_gender_female;
+        }
+    }
+  return 1;
+}
+
 static int add_voice(const char *voice_path,void *user_data)
 {
   FILE *file_list[num_hts_data_files];
@@ -478,6 +503,14 @@ static int add_voice(const char *voice_path,void *user_data)
   size_t n=0;
   v.name=u8_totitle(p,u8_strlen(p)+1,NULL,NULL,NULL,&n);
   if(v.name==NULL) goto err1;
+  v.gender=RHVoice_voice_gender_unknown;
+  v.msd_threshold=0.5;
+  char *cfg_path=path_append(voice_path,"voice.conf");
+  if(cfg_path!=NULL)
+    {
+      parse_config(cfg_path,voice_config_callback,&v);
+      free(cfg_path);
+    }
   if(!voicelist_push(engine_pool.voices,&v)) goto err2;
   return 1;
   err2: free(v.name);
@@ -506,6 +539,14 @@ const char *RHVoice_get_voice_name(int id)
     return NULL;
 }
 
+RHVoice_voice_gender RHVoice_get_voice_gender(int id)
+{
+  if((id>0)&&(id<=RHVoice_get_voice_count()))
+    return (get_voice_by_id(id)->gender);
+  else
+    return RHVoice_voice_gender_unknown;
+}
+
 int RHVoice_find_voice(const char *name)
 {
   if(name==NULL) return 0;
@@ -519,28 +560,12 @@ int RHVoice_find_voice(const char *name)
   return 0;
 }
 
-static int engine_config_callback(const uint8_t *section,const uint8_t *key,const uint8_t *value,void *user_data)
-{
-  HTS_Engine *engine=(HTS_Engine*)user_data;
-  double fval;
-  if(section==NULL)
-    {
-      if((u8_strcmp(key,(const uint8_t*)"msd_threshold")==NULL)&&(value!=NULL))
-        {
-          fval=strtod_c((const char*)value,NULL);
-          if((fval>0)&&(fval<1))
-            HTS_Engine_set_msd_threshold(engine,1,fval);
-        }
-    }
-  return 1;
-}
-
-int initialize_engine(HTS_Engine *engine,const char *path)
+int initialize_engine(HTS_Engine *engine,const voice *v)
 {
   int i;
   FILE *fp[num_hts_data_files];
   HTS_Engine_initialize(engine,3);
-  if(!open_hts_data_files(path,fp)) return 0;
+  if(!open_hts_data_files((const char*)(v->path),fp)) return 0;
   i=0;
   HTS_Engine_load_duration_from_fp(engine,&fp[i],&fp[i+1],1);
   i+=2;
@@ -557,17 +582,11 @@ int initialize_engine(HTS_Engine *engine,const char *path)
   HTS_Engine_set_gamma(engine,0);
   HTS_Engine_set_log_gain(engine,TRUE);
   HTS_Engine_set_beta(engine,0.4);
-  HTS_Engine_set_msd_threshold(engine,1,0.5);
+  HTS_Engine_set_msd_threshold(engine,1,v->msd_threshold);
   HTS_Engine_set_duration_interpolation_weight(engine,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,0,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,1,0,1.0);
   HTS_Engine_set_parameter_interpolation_weight(engine,2,0,1.0);
-  char *cfg_path=path_append(path,"voice.conf");
-  if(cfg_path!=NULL)
-    {
-      parse_config(cfg_path,engine_config_callback,engine);
-      free(cfg_path);
-    }
   return engine->global.sampling_rate;
 }
 
@@ -646,7 +665,7 @@ HTS_Engine *get_engine(int id)
     {
       r.engine=calloc(1,sizeof(HTS_Engine));
       if(r.engine==NULL) return NULL;
-      if(!initialize_engine(r.engine,(const char*)v->path))
+      if(!initialize_engine(r.engine,v))
         {
           free(r.engine);
           return NULL;
