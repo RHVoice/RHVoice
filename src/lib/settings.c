@@ -233,6 +233,7 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
   const char *key1=(const char*)key;
   const char *value1=(const char*)value;
   float fvalue;
+  int id;
   if((section==NULL))
     {
       if(value!=NULL)
@@ -330,6 +331,16 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               if(fvalue>0)
                 cap_pitch_factor=fvalue;
             }
+          else if(strcmp(key1,"default_voice")==0)
+            {
+              id=RHVoice_find_voice(value1);
+              if(id>0) current_voice=id;
+            }
+          else if(strcmp(key1,"default_variant")==0)
+            {
+              id=RHVoice_find_variant(value1);
+              if(id>0) current_variant=id;
+            }
         }
     }
   return res;
@@ -340,6 +351,7 @@ void load_settings(const char *path)
   char *subpath=NULL;
   INIT_MUTEX(&settings_mutex);
   if(path==NULL) return;
+  load_user_dicts(path);
   subpath=path_append(path,cfg_file_name);
   if(subpath!=NULL)
     {
@@ -366,7 +378,6 @@ void load_settings(const char *path)
       else
         current_volume=default_volume;
     }
-  load_user_dicts(path);
 }
 
 void free_settings()
@@ -385,7 +396,7 @@ void free_settings()
   default_volume=1.0;
   current_volume=1.0;
   current_variant=variant_pseudo_english;
-  current_voice=0;
+  current_voice=1;
   punctuation_mode=RHVoice_punctuation_none;
   if(punctuation_list!=NULL)
     {
