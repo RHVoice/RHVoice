@@ -344,7 +344,7 @@ typedef struct
   int encoding;
   ustr text;
   int len;
-  int is_ssml;
+  RHVoice_message_type type;
 } source_info;
 
 typedef struct {
@@ -1017,7 +1017,7 @@ static RHVoice_message parse_text(const source_info *i)
           break;
         }
       msg->num_chars++;
-      if(!tstream_putc(&ts,c,p,1,0))
+      if(!tstream_putc(&ts,c,p,1,(i->type==RHVoice_message_characters)?'s':0))
         {
           RHVoice_message_free(msg);
           return NULL;
@@ -1185,13 +1185,13 @@ static void mark_sentence_boundaries(RHVoice_message msg)
 static RHVoice_message new_message(const source_info *i)
 {
   RHVoice_message msg;
-  msg=(i->is_ssml)?parse_ssml(i):parse_text(i);
+  msg=(i->type==RHVoice_message_ssml)?parse_ssml(i):parse_text(i);
   if(msg==NULL) return NULL;
   mark_sentence_boundaries(msg);
   return msg;
 }
 
-RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int len,int is_ssml)
+RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int len,RHVoice_message_type type)
 {
   if((text==NULL)||(len<=0)) return NULL;
   source_info i;
@@ -1199,11 +1199,11 @@ RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int len,int is_ssml
   i.encoding=8;
   i.text.u8=text;
   i.len=len;
-  i.is_ssml=is_ssml;
+  i.type=type;
   return new_message(&i);
 }
 
-RHVoice_message RHVoice_new_message_utf16(const uint16_t *text,int len,int is_ssml)
+RHVoice_message RHVoice_new_message_utf16(const uint16_t *text,int len,RHVoice_message_type type)
 {
   if((text==NULL)||(len<=0)) return NULL;
   source_info i;
@@ -1211,11 +1211,11 @@ RHVoice_message RHVoice_new_message_utf16(const uint16_t *text,int len,int is_ss
   i.encoding=16;
   i.text.u16=text;
   i.len=len;
-  i.is_ssml=is_ssml;
+  i.type=type;
   return new_message(&i);
 }
 
-RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int len,int is_ssml)
+RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int len,RHVoice_message_type type)
 {
   if((text==NULL)||(len<=0)) return NULL;
   source_info i;
@@ -1223,7 +1223,7 @@ RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int len,int is_ss
   i.encoding=32;
   i.text.u32=text;
   i.len=len;
-  i.is_ssml=is_ssml;
+  i.type=type;
   return new_message(&i);
 }
 
