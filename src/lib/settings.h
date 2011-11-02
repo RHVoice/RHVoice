@@ -31,6 +31,7 @@ extern int apply_high_pass_filter;
 
 extern int use_libsonic_for_pitch;
 extern int libsonic_hq;
+extern float cap_pitch_factor;
 
 void load_settings(const char *path);
 void free_settings();

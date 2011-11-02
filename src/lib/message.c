@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistr.h>
+#include <unictype.h>
 #include <expat.h>
 #include "lib.h"
 #include "vector.h"
@@ -105,6 +106,7 @@ typedef struct {
   int variant;
   int voice;
   size_t punct_opt_index;
+  int capitals_mode;
 } token;
 
 static void token_free(token *t)
@@ -150,6 +152,7 @@ static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int 
   tok.variant=0;
   tok.voice=0;
   tok.punct_opt_index=0;
+  tok.capitals_mode=-1;
   token *prev_tok=toklist_back(ts->l);
   unsigned int cs=classify_character(c);
   if(prev_tok&&(cs&(cs_nl|cs_pr)))
@@ -236,9 +239,9 @@ static const int ssml_element_table[ssml_max][ssml_max+1]={
   {1,1,0,1,0,1,0,0,1,1,1,1,1,0,1,1,1,0,1},
   {1,1,0,1,0,1,0,0,0,1,1,0,1,0,1,1,1,0,1},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,1,0,1,0,1,0,0,1,1,1,1,1,0,1,1,1,0,1},
+  {1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1},
   {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,1,0,1,0,1,0,0,1,1,1,1,1,0,1,1,1,0,1},
   {1,1,0,1,0,1,0,0,1,1,1,1,1,0,1,1,1,0,1},
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
@@ -355,6 +358,7 @@ typedef struct {
   int_stack variants;
   int_stack voices;
   int_stack punctuation;
+  int_stack capitals;
   int in_cdata_section;
   int start_sentence;
   unsigned int skip;
@@ -377,6 +381,7 @@ struct RHVoice_message_s
   float rate,pitch,volume;
   uint32_t *default_punct_list;
   punct_opt_list punct_opts;
+  size_t num_chars;
 };
 
 static RHVoice_message RHVoice_message_alloc(void)
@@ -401,6 +406,7 @@ static RHVoice_message RHVoice_message_alloc(void)
   msg->punct_opts=punct_opt_list_alloc(1,free_punct_option);
   if(msg->punct_opts==NULL) goto err4;
   punct_opt_list_push(msg->punct_opts,&p);
+  msg->num_chars=0;
   return msg;
   err4: free(msg->default_punct_list);
   err3: marklist_free(msg->marks);
@@ -686,6 +692,29 @@ static ssml_state *punct_stack_update(ssml_state *state,ssml_tag *tag)
   return state;
 }
 
+static ssml_state *cap_stack_update(ssml_state *state,ssml_tag *tag)
+{
+  int mode=*int_stack_back(state->capitals);
+  if(!int_stack_push(state->capitals,&mode)) return NULL;
+  const uint8_t *strval=ssml_get_attribute_value(tag,"field");
+  if(strval==NULL) return NULL;
+  if(u8_strcmp(strval,(const uint8_t*)"capital_letters")!=0) return state;
+  strval=ssml_get_attribute_value(tag,"mode");
+  if(strval==NULL) return NULL;
+  if(u8_strcmp(strval,(const uint8_t*)"no")==0)
+    mode=RHVoice_capitals_off;
+  else if(u8_strcmp(strval,(const uint8_t*)"pitch")==0)
+    mode=RHVoice_capitals_pitch;
+  else if(u8_strcmp(strval,(const uint8_t*)"icon")==0)
+    mode=RHVoice_capitals_sound;
+  else if(u8_strcmp(strval,(const uint8_t*)"spelling")==0)
+    return state;
+  else
+    return NULL;
+  *int_stack_back(state->capitals)=mode;
+  return state;
+}
+
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
@@ -728,6 +757,7 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
       break;
     case ssml_style:
       if(!punct_stack_update(state,top)) ssml_error(state);
+      if(!cap_stack_update(state,top)) ssml_error(state);
       break;
     default:
       break;
@@ -767,6 +797,7 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
       break;
     case ssml_style:
       int_stack_pop(state->punctuation);
+      int_stack_pop(state->capitals);
       break;
     default:
       break;
@@ -797,6 +828,7 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
     {
       n=u8_mbtoucr(&c,str,r);
       if(!tstream_putc(&state->ts,c,p,no_refs?1:src_len_in_chars,state->say_as)) ssml_error(state);
+      state->msg->num_chars++;
       if(prev_num_tokens!=toklist_size(state->msg->tokens))
         {
           prev_num_tokens=toklist_size(state->msg->tokens);
@@ -824,6 +856,7 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
               if(state->say_as!='s') state->say_as=0;
             }
           tok->punct_opt_index=*int_stack_back(state->punctuation);
+          tok->capitals_mode=*int_stack_back(state->capitals);
         }
       r-=n;
       str+=n;
@@ -879,6 +912,10 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->punctuation=int_stack_alloc(10,NULL);
   if(s->punctuation==NULL) goto err6;
   int_stack_push(s->punctuation,&z);
+  s->capitals=int_stack_alloc(10,NULL);
+  if(s->capitals==NULL) goto err7;
+  int_stack_push(s->capitals,&z);
+  *int_stack_back(s->capitals)=-1;
   switch(s->src.encoding)
     {
     case 16:
@@ -892,13 +929,14 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
       s->len=s->src.len;
       break;
     }
-  if(s->text==NULL) goto err7;
+  if(s->text==NULL) goto err8;
   tstream_init(&s->ts,s->msg->tokens);
   XML_SetUserData(s->parser,s);
   XML_SetElementHandler(s->parser,ssml_element_start,ssml_element_end);
   XML_SetCharacterDataHandler(s->parser,ssml_character_data);
   XML_SetCdataSectionHandler(s->parser,ssml_cdata_section_start,ssml_cdata_section_end);
   return s;
+  err8: int_stack_free(s->capitals);
   err7: int_stack_free(s->punctuation);
   err6: int_stack_free(s->voices);
   err5: int_stack_free(s->variants);
@@ -978,6 +1016,7 @@ static RHVoice_message parse_text(const source_info *i)
           n=u32_mbtoucr(&c,s.u32,r);
           break;
         }
+      msg->num_chars++;
       if(!tstream_putc(&ts,c,p,1,0))
         {
           RHVoice_message_free(msg);
@@ -1045,7 +1084,8 @@ static int is_sentence_boundary(const token *t1,const token *t2)
       else return 0;
     }
   if(t1->flags&token_eop) return 1;
-  if(t1->say_as=='s') return 1;
+  if((t1->say_as=='s')||(t1->say_as=='c')||(t2->say_as=='s')||(t2->say_as=='c'))
+    return 1;
   if((ustring32_length(t1->text)>=max_token_len)||(ustring32_length(t2->text)>=max_token_len))
     return 1;
   const uint32_t *str1=ustring32_str(t1->text);
@@ -1221,11 +1261,26 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
   feat_set_int(u->features,"voice_id",(first->voice)?(first->voice):RHVoice_get_voice());
   float msg_rate=(msg->rate==-1)?RHVoice_get_rate():msg->rate;
   float msg_pitch=(msg->pitch==-1)?RHVoice_get_pitch():msg->pitch;
+  RHVoice_capitals_mode capitals_mode=(first->capitals_mode==-1)?RHVoice_get_capitals_mode():(first->capitals_mode);
+  int indicate_capital=0;
+  if(((msg->num_chars==1)||
+      (((first->say_as=='s')||
+       (first->say_as=='c'))&&
+      (first==last)&&
+       (ustring32_length(first->text)==1)))&&
+     (capitals_mode!=RHVoice_capitals_off)&&
+     uc_is_property_uppercase(ustring32_at(first->text,0)))
+    indicate_capital=1;
   float msg_volume=(msg->volume==-1)?RHVoice_get_volume():msg->volume;
   float rate=check_rate_range(msg_rate*first->prosody.rate.value);
   feat_set_float(u->features,"rate",rate);
-  float pitch=check_pitch_range(msg_pitch*first->prosody.pitch.value);
+  float pitch=msg_pitch*first->prosody.pitch.value;
+  if(indicate_capital&&(capitals_mode==RHVoice_capitals_pitch))
+    pitch*=cap_pitch_factor;
+  pitch=check_pitch_range(pitch);
   feat_set_float(u->features,"pitch",pitch);
+  if(indicate_capital&&(capitals_mode==RHVoice_capitals_sound))
+    feat_set_int(u->features,"prepend_sound_icon",1);
   float volume=check_volume_range(first->prosody.volume.value*(first->prosody.volume.is_absolute?1.0:msg_volume));
   feat_set_float(u->features,"volume",volume);
   float initial_silence=(first==front)?0:first->silence;
@@ -1263,7 +1318,10 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
           ustring32_substr8(str8,str32,pre_len+name_len,post_len);
           item_set_string(i,"punc",(const char*)ustring8_str(str8));
         }
-      pitch=check_pitch_range(tok->prosody.pitch.value*msg_pitch);
+      pitch=tok->prosody.pitch.value*msg_pitch;
+      if(indicate_capital&&(capitals_mode==RHVoice_capitals_pitch))
+        pitch*=cap_pitch_factor;
+      pitch=check_pitch_range(pitch);
       item_set_float(i,"pitch",pitch);
       item_set_int(i,"position",tok->pos+1);
       item_set_int(i,"length",tok->len);
