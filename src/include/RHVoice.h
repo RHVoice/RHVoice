@@ -31,6 +31,12 @@ extern "C" {
   typedef struct RHVoice_message_s *RHVoice_message;
 
   typedef enum {
+    RHVoice_message_text,
+    RHVoice_message_ssml,
+    RHVoice_message_characters
+  } RHVoice_message_type;
+
+  typedef enum {
     RHVoice_event_word_start,
     RHVoice_event_word_end,
     RHVoice_event_sentence_start,
@@ -90,9 +96,9 @@ extern "C" {
   int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path);
   void RHVoice_terminate();
   /* The following three functions accept only valid unicode strings */
-  RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int length,int is_ssml);
-  RHVoice_message RHVoice_new_message_utf16(const uint16_t *text,int length,int is_ssml);
-  RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int length,int is_ssml);
+  RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int length,RHVoice_message_type type);
+  RHVoice_message RHVoice_new_message_utf16(const uint16_t *text,int length,RHVoice_message_type type);
+  RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int length,RHVoice_message_type type);
   void RHVoice_delete_message(RHVoice_message message);
   int RHVoice_speak(RHVoice_message message);
   int RHVoice_set_position(RHVoice_message message,const RHVoice_position *position);

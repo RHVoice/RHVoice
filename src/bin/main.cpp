@@ -30,6 +30,7 @@ using std::string;
 using std::istringstream;
 using std::cin;
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::setw;
 using std::left;
@@ -109,7 +110,7 @@ static struct option program_options[]=
     {"list-voices",no_argument,0,'L'},
     {"variant",required_argument,0,'w'},
     {"voice",required_argument,0,'W'},
-    {"ssml",no_argument,0,'s'},
+    {"type",required_argument,0,'t'},
     {"punct",optional_argument,NULL,'P'},
     {0,0,0,0}
   };
@@ -141,7 +142,7 @@ static void show_help()
   cout << setw(w) << "-L, --list-voices" << "list all available voices\n";
   cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
   cout << setw(w) << "-W, --voice=<name>" << "select a voice\n";
-  cout << setw(w) << "-s, --ssml" << "ssml input\n";
+  cout << setw(w) << "-t, --type" << "type of input (text/ssml/characters)\n";
 }
 
 static void list_variants()
@@ -199,6 +200,7 @@ int main(int argc,char **argv)
   const char *datadir=NULL;
   RHVoice_message msg=NULL;
   const char *cfgpath=NULL;
+  string strtype;
   float rate=-1;
   float pitch=-1;
   float volume=-1;
@@ -206,7 +208,7 @@ int main(int argc,char **argv)
   int variant=0;
   const char *voice_name=NULL;
   int voice=0;
-  int is_ssml=0;
+  RHVoice_message_type message_type=RHVoice_message_text;
   RHVoice_punctuation_mode punct_mode=RHVoice_punctuation_none;
   const char *punct_list=NULL;
   int opt_list_voices=0;
@@ -217,7 +219,7 @@ int main(int argc,char **argv)
   int i;
   try
     {
-      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:sP::lL",program_options,&i))!=-1)
+      while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:t:P::lL",program_options,&i))!=-1)
         {
           switch(c)
             {
@@ -236,8 +238,19 @@ int main(int argc,char **argv)
             case 'v':
               volume=parse_prosody_option(optarg);
               break;
-            case 's':
-              is_ssml=1;
+            case 't':
+              strtype=optarg;
+              if(strtype=="text")
+                message_type=RHVoice_message_text;
+              else if(strtype=="ssml")
+                message_type=RHVoice_message_ssml;
+              else if(strtype=="characters")
+                message_type=RHVoice_message_characters;
+              else
+                {
+                  cerr << "Unknown input type\n";
+                  return 1;
+                }
               break;
             case 'd':
               datadir=optarg;
@@ -329,7 +342,7 @@ int main(int argc,char **argv)
           if(punct_list!=NULL)
             RHVoice_set_punctuation_list(punct_list);
         }
-      msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),is_ssml);
+      msg=RHVoice_new_message_utf8(reinterpret_cast<const uint8_t*>(text.data()),text.size(),message_type);
       if(msg==NULL)
         {
           RHVoice_terminate();
