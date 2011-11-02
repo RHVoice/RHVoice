@@ -44,3 +44,5 @@ RHVoice_set_voice
 RHVoice_set_punctuation_mode
 RHVoice_get_punctuation_mode
 RHVoice_set_punctuation_list
+RHVoice_set_capitals_mode
+RHVoice_get_capitals_mode

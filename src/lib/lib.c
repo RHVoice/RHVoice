@@ -28,6 +28,56 @@
 #include "mutex.h"
 #include "settings.h"
 
+static const short sound_icon[]={ 1097, 9442, 15735, 15534, 9724, -62,
+  -9598, -15669, -15573, -9695, 37, 9619, 15650, 15593, 9676, -20,
+  -9636, -15633, -15608, -9662, 6, 9649, 15621, 15618, 9652, 3, -9657,
+  -15615, -15624, -9647, -6, 9658, 15612, 15626, 9648, 6, -9658,
+  -15614, -15624, -9650, -3, 9655, 15617, 15621, 9652, 1, -9654,
+  -15619, -15619, -9653, 1, 9653, 15620, 15619, 9654, 0, -9652,
+  -15620, -15619, -9653, 1, 9653, 15620, 15619, 9653, -1, -9653,
+  -15619, -15619, -9653, 0, 9653, 15618, 15620, 9653, -1, -9653,
+  -15619, -15618, -9653, 0, 9653, 15619, 15619, 9653, -1, -9653,
+  -15619, -15619, -9653, -1, 9652, 15620, 15619, 9653, 0, -9653,
+  -15618, -15619, -9653, 1, 9653, 15619, 15619, 9652, 0, -9653,
+  -15620, -15619, -9653, 0, 9653, 15619, 15619, 9653, 0, -9653,
+  -15620, -15619, -9653, 0, 9653, 15619, 15619, 9654, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9653, 0, -9653,
+  -15619, -15619, -9654, -1, 9653, 15619, 15619, 9653, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9654, 0, -9653,
+  -15618, -15619, -9653, 0, 9653, 15619, 15620, 9653, 0, -9654,
+  -15619, -15620, -9654, 0, 9653, 15620, 15619, 9652, 0, -9653,
+  -15620, -15620, -9654, 0, 9653, 15619, 15619, 9654, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9654, 0, -9653,
+  -15619, -15620, -9653, 0, 9653, 15619, 15620, 9653, 0, -9654,
+  -15618, -15619, -9653, 0, 9653, 15620, 15619, 9653, 1, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15618, 9653, 1, -9653,
+  -15620, -15620, -9654, 0, 9653, 15619, 15619, 9654, 1, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9653, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9654, 1, -9653,
+  -15620, -15619, -9653, 0, 9653, 15620, 15619, 9653, 0, -9653,
+  -15619, -15619, -9654, 0, 9653, 15619, 15619, 9654, 0, -9653,
+  -15619, -15619, -9652, 0, 9653, 15620, 15619, 9653, 1, -9653,
+  -15619, -15620, -9654, 0, 9653, 15619, 15620, 9654, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9653, 0, -9652,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9653, 0, -9653,
+  -15619, -15619, -9653, -1, 9654, 15619, 15619, 9652, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15619, 15619, 9652, 0, -9653,
+  -15619, -15619, -9653, 0, 9653, 15620, 15619, 9654, 0, -9653,
+  -15619, -15619, -9653, 0, 9654, 15619, 15620, 9653, 0, -9652,
+  -15619, -15619, -9653, 0, 9653, 15620, 15619, 9654, 0, -9653,
+  -15620, -15619, -9653, 0, 9653, 15619, 15620, 9653, -1, -9653,
+  -15620, -15619, -9654, 0, 9653, 15619, 15619, 9653, 0, -9653,
+  -15619, -15620, -9653, 0, 9653, 15619, 15619, 9653, 0, -9653,
+  -15619, -15619, -9653, 0, 9654, 15619, 15620, 9653, 0, -9653,
+  -15619, -15620, -9653, -1, 9654, 15619, 15619, 9653, 0, -9654,
+  -15619, -15620, -9653, -1, 9654, 15618, 15620, 9653, 0, -9654,
+  -15619, -15619, -9653, -1, 9652, 15620, 15619, 9654, -2, -9652,
+  -15622, -15617, -9656, 3, 9650, 15623, 15615, 9657, -6, -9648,
+  -15625, -15614, -9659, 6, 9648, 15623, 15616, 9655, -1, -9653,
+  -15616, -15623, -9648, -8, 9664, 15606, 15635, 9634, 23, -9678,
+  -15591, -15650, -9619, -37, 9694, 15575, 15666, 9602, 55, -9714,
+  -15548, -15715, -9476};
+
 static void synth_start(HTS_Engine *e,HTS_Vocoder *v)
 {
   int i, j, k;
@@ -118,6 +168,7 @@ typedef struct {
   int sstream_flushed;
   float rate;
   float pitch;
+  float volume;
   eventlist events;
   cst_item *cur_seg;
   int in_nsamples;
@@ -828,6 +879,37 @@ static void fix_f0(cst_utterance *u,HTS_Engine *e)
       }
 }
 
+static void pass_sound_icon(synth_state *state)
+{
+  int nsamples=sizeof(sound_icon)/sizeof(short);
+  if(state->volume!=1.0)
+    {
+      if(!svector_reserve(state->osamples,nsamples))
+        {
+          state->last_result=0;
+          return;
+        }
+      float f;
+      short s;
+      int i;
+      for(i=0;i<nsamples;i++)
+        {
+          f=sound_icon[i]*state->volume;
+          if(f>32767)
+            s=32767;
+          else if(f<-32767)
+            s=-32767;
+          else
+            s=f;
+          svector_push(state->osamples,&s);
+        }
+      state->last_result=user_callback(svector_data(state->osamples),nsamples,NULL,0,state->message);
+      svector_clear(state->osamples);
+    }
+  else
+    state->last_result=user_callback(sound_icon,nsamples,NULL,0,state->message);
+}
+
 cst_utterance *hts_synth(cst_utterance *u)
 {
   sox_effect_t *e;
@@ -874,6 +956,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   pitch=feat_float(u->features,"pitch");
   use_libsonic=(((rate!=1.0)&&(rate>=min_sonic_rate))||((pitch!=1.0)&&(use_libsonic_for_pitch)));
   volume=feat_float(u->features,"volume");
+  int prepend_sound_icon=get_param_int(u->features,"prepend_sound_icon",0);
   float frames_per_sec=(float)engine->global.sampling_rate/((float)engine->global.fperiod);
   float factor,time;
   create_hts_labels(u);
@@ -941,6 +1024,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   HTS_Engine_create_pstream(engine);
   state.rate=rate;
   state.pitch=use_libsonic_for_pitch?pitch:1.0;
+  state.volume=volume;
   state.sstream=NULL;
   state.sstream_flushed=0;
   state.events=generate_events(u);
@@ -952,52 +1036,57 @@ cst_utterance *hts_synth(cst_utterance *u)
   state.last_result=1;
   state.message=(RHVoice_message)val_userdata(feat_val(u->features,"message"));
   state.next_frame=0;
-  synth_start(engine,&state.vocoder);
-  c=sox_create_effects_chain(&enc,&enc);
-  opts[0]=(char*)(&state);
-  e=sox_create_effect(&in_effect_handler);
-  sox_effect_options(e,1,opts);
-  sox_add_effect(c,e,&isig,&osig);
-  /* The way code examples included in the sox source distribution are written */
-/* suggests  that the effect is now owned by the chain and will be freed when the chain is deleted. */
-  /* But sox_add_effect does not store the effect pointer in the chain, */
-  /* it copies the contents of the structure into the freshly allocated memory region. */
-/*   So we have a memory leak, which is a problem for us, */
-/* because we often create and destroy effects and effect chains. */
-/* I do not know if we are supposed to free the structure ourselves, */
-/* or this problem must be fixed by the developers of libsox. */
-  /* Someone has already opened a corresponding bug, */
-/* but the developers have not commented on it yet. */
-  free(e);
-  if(use_libsonic)
+  if(prepend_sound_icon)
+    pass_sound_icon(&state);
+  if(state.last_result)
     {
-      e=sox_create_effect(&sonic_effect_handler);
+      synth_start(engine,&state.vocoder);
+      c=sox_create_effects_chain(&enc,&enc);
+      opts[0]=(char*)(&state);
+      e=sox_create_effect(&in_effect_handler);
+      sox_effect_options(e,1,opts);
+      sox_add_effect(c,e,&isig,&osig);
+      /* The way code examples included in the sox source distribution are written */
+      /* suggests  that the effect is now owned by the chain and will be freed when the chain is deleted. */
+      /* But sox_add_effect does not store the effect pointer in the chain, */
+      /* it copies the contents of the structure into the freshly allocated memory region. */
+      /*   So we have a memory leak, which is a problem for us, */
+      /* because we often create and destroy effects and effect chains. */
+      /* I do not know if we are supposed to free the structure ourselves, */
+      /* or this problem must be fixed by the developers of libsox. */
+      /* Someone has already opened a corresponding bug, */
+      /* but the developers have not commented on it yet. */
+      free(e);
+      if(use_libsonic)
+        {
+          e=sox_create_effect(&sonic_effect_handler);
+          sox_effect_options(e,1,opts);
+          sox_add_effect(c,e,&isig,&osig);
+          free(e);
+        }
+      if(apply_high_pass_filter)
+        {
+          e=sox_create_effect(hpf_effect_handler);
+          sox_effect_options(e,1,hpfopts);
+          sox_add_effect(c,e,&isig,&osig);
+          free(e);
+        }
+      if(volume!=1)
+        {
+          snprintf(strvolume,sizeof(strvolume),"%.4f",volume);
+          e=sox_create_effect(vol_effect_handler);
+          sox_effect_options(e,3,volopts);
+          sox_add_effect(c,e,&isig,&osig);
+          free(e);
+        }
+      e=sox_create_effect(&out_effect_handler);
       sox_effect_options(e,1,opts);
       sox_add_effect(c,e,&isig,&osig);
       free(e);
+      sox_flow_effects(c,NULL,NULL);
+      sox_delete_effects_chain(c);
+      synth_finish(engine,&state.vocoder);
     }
-  if(apply_high_pass_filter)
-    {
-      e=sox_create_effect(hpf_effect_handler);
-      sox_effect_options(e,1,hpfopts);
-      sox_add_effect(c,e,&isig,&osig);
-      free(e);
-    }
-  if(volume!=1)
-    {
-      snprintf(strvolume,sizeof(strvolume),"%.4f",volume);
-      e=sox_create_effect(vol_effect_handler);
-      sox_effect_options(e,3,volopts);
-      sox_add_effect(c,e,&isig,&osig);
-      free(e);
-    }
-  e=sox_create_effect(&out_effect_handler);
-  sox_effect_options(e,1,opts);
-  sox_add_effect(c,e,&isig,&osig);
-  free(e);
-  sox_flow_effects(c,NULL,NULL);
-  sox_delete_effects_chain(c);
-  synth_finish(engine,&state.vocoder);
   HTS_Engine_refresh(engine);
   release_engine(engine);
   feat_set_int(u->features,"last_user_callback_result",state.last_result);

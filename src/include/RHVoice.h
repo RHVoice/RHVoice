@@ -78,6 +78,13 @@ extern "C" {
     RHVoice_voice_gender_female
   } RHVoice_voice_gender;
 
+  /* This mode applies to reading by characters. */
+  typedef enum {
+    RHVoice_capitals_off,
+    RHVoice_capitals_pitch,
+    RHVoice_capitals_sound
+  } RHVoice_capitals_mode;
+
   /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
   int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path);
@@ -122,6 +129,9 @@ extern "C" {
   void RHVoice_set_punctuation_mode(RHVoice_punctuation_mode mode);
   RHVoice_punctuation_mode RHVoice_get_punctuation_mode();
   void RHVoice_set_punctuation_list(const char *list);
+
+  void RHVoice_set_capitals_mode(RHVoice_capitals_mode mode);
+  RHVoice_capitals_mode RHVoice_get_capitals_mode();
 
   void RHVoice_set_user_data(RHVoice_message message,void *data);
   void *RHVoice_get_user_data(RHVoice_message message);

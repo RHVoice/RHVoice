@@ -53,6 +53,9 @@ int apply_high_pass_filter=0;
 int use_libsonic_for_pitch=0;
 int libsonic_hq=1;
 
+static RHVoice_capitals_mode capitals_mode=RHVoice_capitals_off;
+float cap_pitch_factor=1.5;
+
 float check_pitch_range(float value)
 {
   return ((value<min_pitch)?min_pitch:((value>max_pitch)?max_pitch:value));
@@ -312,6 +315,21 @@ static int setting_callback(const uint8_t *section,const uint8_t *key,const uint
               else if(strcmp(value1,"no")==0)
                 libsonic_hq=0;
             }
+          else if(strcmp(key1,"indicate_capitals")==0)
+            {
+              if(strcmp(value1,"no")==0)
+                capitals_mode=RHVoice_capitals_off;
+              else if(strcmp(value1,"pitch")==0)
+                capitals_mode=RHVoice_capitals_pitch;
+              else if(strcmp(value1,"sound")==0)
+                capitals_mode=RHVoice_capitals_sound;
+            }
+          else if(strcmp(key1,"cap_pitch_factor")==0)
+            {
+              fvalue=strtod_c(value1,NULL);
+              if(fvalue>0)
+                cap_pitch_factor=fvalue;
+            }
         }
     }
   return res;
@@ -378,6 +396,8 @@ void free_settings()
   apply_high_pass_filter=0;
   use_libsonic_for_pitch=0;
   libsonic_hq=1;
+  capitals_mode=RHVoice_capitals_off;
+  cap_pitch_factor=1.5;
 }
 
 void RHVoice_set_voice(int voice)
@@ -447,4 +467,22 @@ uint32_t *copy_punctuation_list()
   l=u32_strdup((punctuation_list==NULL)?default_punctuation_list:punctuation_list);
   UNLOCK_MUTEX(&settings_mutex);
   return l;
+}
+
+void RHVoice_set_capitals_mode(RHVoice_capitals_mode mode)
+{
+  if((mode!=RHVoice_capitals_off)&&(mode!=RHVoice_capitals_pitch)&&(mode!=RHVoice_capitals_sound))
+    return;
+  LOCK_MUTEX(&settings_mutex);
+  capitals_mode=mode;
+  UNLOCK_MUTEX(&settings_mutex);
+}
+
+RHVoice_capitals_mode RHVoice_get_capitals_mode()
+{
+  RHVoice_capitals_mode mode=RHVoice_capitals_off;
+  LOCK_MUTEX(&settings_mutex);
+  mode=capitals_mode;
+  UNLOCK_MUTEX(&settings_mutex);
+  return mode;
 }
