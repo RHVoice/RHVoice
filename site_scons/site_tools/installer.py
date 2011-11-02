@@ -23,7 +23,7 @@ def exists(env):
     else:
         return True
 
-def Install(env,src,instpath,instname=None,sysdir=True,mode=644):
+def Install(env,src,instpath,instname=None,sysdir=True,mode=0644):
     destpath=env.subst("$DESTDIR"+instpath)
     env.Alias("install",destpath)
     if instname:
