@@ -486,7 +486,7 @@ typedef struct
   int is_free;
 } engine_resource;
 
-void engine_resource_free(engine_resource *r)
+static void engine_resource_free(engine_resource *r)
 {
   HTS_Engine_clear(r->engine);
   free(r->engine);
@@ -500,7 +500,7 @@ typedef struct
   double msd_threshold;
 } voice;
 
-void voice_free(voice *v)
+static void voice_free(voice *v)
 {
   free(v->name);
   free(v->path);
@@ -611,7 +611,7 @@ int RHVoice_find_voice(const char *name)
   return 0;
 }
 
-int initialize_engine(HTS_Engine *engine,const voice *v)
+static int initialize_engine(HTS_Engine *engine,const voice *v)
 {
   int i;
   FILE *fp[num_hts_data_files];
@@ -641,58 +641,7 @@ int initialize_engine(HTS_Engine *engine,const voice *v)
   return engine->global.sampling_rate;
 }
 
-int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path)
-{
-  if(callback==NULL) return 0;
-#ifdef WIN32
-  if(data_path==NULL) return 0;
-#endif
-  user_callback=callback;
-  if(en_lex==NULL) en_lex=cmu_lex_init();
-  engine_pool.voices=voicelist_alloc(0,voice_free);
-  if(engine_pool.voices==NULL) goto err1;
-#ifdef WIN32
-  for_each_dir_in_dir(data_path,add_voice,NULL);
-#else
-  for_each_dir_in_dir(data_path?data_path:DATADIR,add_voice,NULL);
-#endif
-  if(voicelist_size(engine_pool.voices)==0) goto err2;
-  engine_pool.engine_resources=reslist_alloc(0,engine_resource_free);
-  if(engine_pool.engine_resources==NULL) goto err2;
-  if(sox_init()!=SOX_SUCCESS) goto err3;
-  vol_effect_handler=sox_find_effect("vol");
-  hpf_effect_handler=sox_find_effect("highpass");
-  INIT_MUTEX(&engine_pool.mutex);
-#ifdef WIN32
-  load_settings(cfg_path);
-#else
-  load_settings(cfg_path?cfg_path:CONFDIR);
-#endif
-  initialized=1;
-  return 16000;
-  err3: reslist_free(engine_pool.engine_resources);
-  engine_pool.engine_resources=NULL;
-  err2: voicelist_free(engine_pool.voices);
-  engine_pool.voices=NULL;
-  err1: return 0;
-}
-
-void RHVoice_terminate()
-{
-  if(!initialized) return;
-  free_settings();
-  DESTROY_MUTEX(&engine_pool.mutex);
-  reslist_free(engine_pool.engine_resources);
-  engine_pool.engine_resources=NULL;
-  voicelist_free(engine_pool.voices);
-  engine_pool.voices=NULL;
-  sox_quit();
-  vol_effect_handler=NULL;
-  hpf_effect_handler=NULL;
-  initialized=0;
-}
-
-HTS_Engine *get_engine(int id)
+static HTS_Engine *get_engine(int id)
 {
   const voice *v=get_voice_by_id(id);
   if(v==NULL) return NULL;
@@ -736,7 +685,7 @@ HTS_Engine *get_engine(int id)
   return p;
 }
 
-void release_engine(HTS_Engine *engine)
+static void release_engine(HTS_Engine *engine)
 {
   size_t n,i;
   engine_resource *pr;
@@ -749,6 +698,75 @@ void release_engine(HTS_Engine *engine)
         pr->is_free=1;
     }
   UNLOCK_MUTEX(&engine_pool.mutex);
+}
+
+int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path,unsigned int options)
+{
+  if(callback==NULL) return 0;
+#ifdef WIN32
+  if(data_path==NULL) return 0;
+#endif
+  user_callback=callback;
+  if(en_lex==NULL) en_lex=cmu_lex_init();
+  engine_pool.voices=voicelist_alloc(0,voice_free);
+  if(engine_pool.voices==NULL) goto err1;
+#ifdef WIN32
+  for_each_dir_in_dir(data_path,add_voice,NULL);
+#else
+  for_each_dir_in_dir(data_path?data_path:DATADIR,add_voice,NULL);
+#endif
+  size_t num_voices=voicelist_size(engine_pool.voices);
+  if(num_voices==0) goto err2;
+  engine_pool.engine_resources=reslist_alloc(0,engine_resource_free);
+  if(engine_pool.engine_resources==NULL) goto err2;
+  INIT_MUTEX(&engine_pool.mutex);
+  if(options&RHVoice_preload_voices)
+    {
+      HTS_Engine *e;
+      int id;
+      size_t num_engines=0;
+      for(id=1;id<=num_voices;id++)
+        {
+          e=get_engine(id);
+          if(e!=NULL)
+            {
+              num_engines++;
+              release_engine(e);
+            }
+        }
+      if(num_engines<num_voices) goto err3;
+    }
+  if(sox_init()!=SOX_SUCCESS) goto err3;
+  vol_effect_handler=sox_find_effect("vol");
+  hpf_effect_handler=sox_find_effect("highpass");
+#ifdef WIN32
+  load_settings(cfg_path);
+#else
+  load_settings(cfg_path?cfg_path:CONFDIR);
+#endif
+  initialized=1;
+  return 16000;
+  err3: DESTROY_MUTEX(&engine_pool.mutex);
+  reslist_free(engine_pool.engine_resources);
+  engine_pool.engine_resources=NULL;
+  err2: voicelist_free(engine_pool.voices);
+  engine_pool.voices=NULL;
+  err1: return 0;
+}
+
+void RHVoice_terminate()
+{
+  if(!initialized) return;
+  free_settings();
+  DESTROY_MUTEX(&engine_pool.mutex);
+  reslist_free(engine_pool.engine_resources);
+  engine_pool.engine_resources=NULL;
+  voicelist_free(engine_pool.voices);
+  engine_pool.voices=NULL;
+  sox_quit();
+  vol_effect_handler=NULL;
+  hpf_effect_handler=NULL;
+  initialized=0;
 }
 
 const char *RHVoice_get_version()

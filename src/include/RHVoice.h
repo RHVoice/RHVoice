@@ -31,6 +31,10 @@ extern "C" {
   typedef struct RHVoice_message_s *RHVoice_message;
 
   typedef enum {
+    RHVoice_preload_voices=1
+  } RHVoice_init_option;
+
+  typedef enum {
     RHVoice_message_text,
     RHVoice_message_ssml,
     RHVoice_message_characters
@@ -93,7 +97,7 @@ extern "C" {
 
   /* Under Windows we assume that the paths are in UTF-8 */
   /* This function returns sample rate on success and 0 on error */
-  int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path);
+  int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path,unsigned int options);
   void RHVoice_terminate();
   /* The following three functions accept only valid unicode strings */
   RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int length,RHVoice_message_type type);

@@ -375,6 +375,7 @@ int main(int argc,char **argv)
   const char *punct_list=NULL;
   int opt_list_voices=0;
   int opt_list_variants=0;
+  unsigned int init_options=0;
   string text;
   char ch;
   int c;
@@ -468,6 +469,9 @@ int main(int argc,char **argv)
           exit(1);
         }
 
+      if(start_daemon_flag)
+        init_options|=RHVoice_preload_voices;
+
       if (daemon_dir.empty())
         {
           daemon_dir = getenv("HOME");
@@ -492,7 +496,7 @@ int main(int argc,char **argv)
         }
 #endif
 
-      sample_rate=RHVoice_initialize(datadir,callback,cfgpath);
+      sample_rate=RHVoice_initialize(datadir,callback,cfgpath,init_options);
       if(sample_rate==0) return 1;
       if(opt_list_variants||opt_list_voices)
         {

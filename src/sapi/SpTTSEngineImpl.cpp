@@ -195,7 +195,7 @@ STDMETHODIMP CSpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
             {
               if(sample_rate==0)
                 {
-                  sample_rate=RHVoice_initialize(data_path.c_str(),TTSTask::callback,cfg_path.empty()?NULL:cfg_path.c_str());
+                  sample_rate=RHVoice_initialize(data_path.c_str(),TTSTask::callback,cfg_path.empty()?NULL:cfg_path.c_str(),0);
                 if(sample_rate>0)
                   CSpTTSEngineImpl::TTSTask::initialize();
                 }
