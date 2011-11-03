@@ -23,6 +23,19 @@
 #include <cstdio>
 #include <io.h>
 #include <fcntl.h>
+#else
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <syslog.h>
+#include <signal.h>
+#include <time.h>
+#include <unistd.h>
 #endif
 #include "RHVoice.h"
 
@@ -95,6 +108,145 @@ int static callback(const short *samples,int num_samples,const RHVoice_event *ev
   return 1;
 }
 
+#ifndef WIN32
+static int start_daemon_flag = false;
+static int kill_daemon_flag = false;
+static string daemon_dir;
+static char *pidfile_name;
+static char *socket_name;
+
+static void cleanup_files()
+{
+  // The order of removal is important.
+  if (socket_name && *socket_name)
+    {
+      unlink(socket_name);
+      *socket_name = 0;
+    }
+  if (pidfile_name && *pidfile_name)
+    {
+      unlink(pidfile_name);
+      *pidfile_name = 0;
+    }
+}
+
+static void cleanup_handler(int sig)
+{
+  cleanup_files();
+  _exit(2);
+}
+
+static void kill_daemon()
+{
+  int pid;
+  ifstream pidfile(pidfile_name);
+  if ((pidfile >> pid) && kill(pid, SIGTERM) == -1)
+    {
+      if (errno == ESRCH)
+        {
+          // Process does not exist, so removing its files.
+          cleanup_files();
+        }
+      else
+        {
+          int saved_errno = errno;
+          cerr << "kill: " << strerror(saved_errno) << '\n';
+        }
+    }
+}
+
+static void handle_daemon_error(const char *msg)
+{
+  syslog(LOG_ERR, "%s: %m", msg);
+    cleanup_files();
+    RHVoice_terminate();
+  exit(1);
+}
+
+static void start_daemon()
+{
+  if (mkdir(daemon_dir.c_str(), 0777) == -1 && errno != EEXIST)
+    {
+      int saved_errno = errno;
+      cerr << "mkdir(" << daemon_dir << "): " << strerror(saved_errno) << '\n';
+      RHVoice_terminate();
+      exit(1);
+    }
+  int pidfile;
+  // Tries to create pidfile with timeout.
+  for (int i=1;
+       (pidfile = open(pidfile_name, O_WRONLY|O_CREAT|O_EXCL, 0666)) == -1
+         && errno == EEXIST && kill_daemon_flag && i <= 20; i++)
+    {
+      timespec ts;
+      ts.tv_sec = 0;
+      ts.tv_nsec = 500000000L;
+      nanosleep(&ts, NULL);
+    }
+  if (pidfile == -1)
+    {
+      int saved_errno = errno;
+      cerr << "Could not create " << pidfile_name << " anew: "
+           << strerror(saved_errno) << endl;
+      RHVoice_terminate();
+      exit(1);
+    }
+  close(pidfile);
+  signal(SIGTERM, cleanup_handler);
+  signal(SIGCHLD, SIG_IGN);
+
+  openlog("RHVoice", LOG_PID, LOG_USER);
+  if (daemon(0, 0) == -1)
+    handle_daemon_error("daemon");
+
+  {
+    ofstream pidfile(pidfile_name);
+    pidfile << getpid() << endl;
+    pidfile.close();
+  }
+
+  // Creates a socket and waits incoming connections.
+  int sock = socket(AF_UNIX, SOCK_STREAM, 0);
+  if (sock == -1)
+    handle_daemon_error("socket");
+
+  struct sockaddr_un addr;
+  memset(&addr, 0, sizeof(addr));
+  addr.sun_family = AF_UNIX;
+  strncpy(addr.sun_path, socket_name, sizeof(addr.sun_path) - 1);
+
+  if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)) == -1)
+    handle_daemon_error("bind");
+
+  if (listen(sock, 20) == -1)
+    handle_daemon_error("listen");
+
+  // Accepts incoming connections in the infinite loop.
+  do
+    {
+      socklen_t size = sizeof(addr);
+      int conn = accept(sock, (struct sockaddr *) &addr, &size);
+      if (conn == -1)
+        handle_daemon_error("accept");
+
+      switch (fork())
+        {
+        case -1:
+          handle_daemon_error("fork");
+
+        case 0:
+	  signal(SIGTERM, SIG_DFL);
+          dup2(conn, STDIN_FILENO);
+          dup2(conn, STDOUT_FILENO);
+          // Will read header with parameters first. Just return for now.
+          return;
+        }
+      close(conn);
+    }
+  while (true);
+}
+#endif
+
 static struct option program_options[]=
   {
     {"help",no_argument,0,'h'},
@@ -112,6 +264,11 @@ static struct option program_options[]=
     {"voice",required_argument,0,'W'},
     {"type",required_argument,0,'t'},
     {"punct",optional_argument,NULL,'P'},
+#ifndef WIN32
+    { "daemon", no_argument, &start_daemon_flag, true },
+    { "kill", no_argument, &kill_daemon_flag, true },
+    { "daemon-dir", required_argument, NULL, 'D' },
+#endif
     {0,0,0,0}
   };
 
@@ -143,6 +300,11 @@ static void show_help()
   cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
   cout << setw(w) << "-W, --voice=<name>" << "select a voice\n";
   cout << setw(w) << "-t, --type" << "type of input (text/ssml/characters)\n";
+#ifndef WIN32
+  cout << setw(w) << "--daemon" << "start as a daemon\n";
+  cout << setw(w) << "--kill" << "kill the running daemon\n";
+  cout << setw(w) << "--daemon-dir=<path-to-directory>" << "Where to create socket and pid-file\n";
+#endif
 }
 
 static void list_variants()
@@ -285,12 +447,51 @@ int main(int argc,char **argv)
             case 'L':
               opt_list_voices=1;
               break;
+#ifndef WIN32
+	      case 'D':
+		daemon_dir = optarg;
+		break;
+#endif
             case 0:
               break;
             default:
               return 1;
             }
         }
+
+#ifndef WIN32
+      if ((opt_list_variants || opt_list_voices || inpath || outpath)
+          && (kill_daemon_flag || start_daemon_flag))
+        {
+          cerr << "Cannot accept these arguments "
+               << "while --daemon or --kill is given\n";
+          exit(1);
+        }
+
+      if (daemon_dir.empty())
+        {
+          daemon_dir = getenv("HOME");
+          if (daemon_dir[daemon_dir.length()-1] != '/')
+            daemon_dir += '/';
+          daemon_dir += ".rhvoice/";
+        }
+      else if (daemon_dir[daemon_dir.length()-1] != '/')
+        daemon_dir += '/';
+      pidfile_name = new char[daemon_dir.length() + sizeof("rhvoice.pid")];
+      daemon_dir.copy(pidfile_name, string::npos);
+      strcpy(pidfile_name + daemon_dir.length(), "rhvoice.pid");
+      socket_name = new char[daemon_dir.length() + sizeof("socket")];
+      daemon_dir.copy(socket_name, string::npos);
+      strcpy(socket_name + daemon_dir.length(), "socket");
+
+      if (kill_daemon_flag)
+        {
+          kill_daemon();
+          if (!start_daemon_flag)
+            exit(0);
+        }
+#endif
+
       sample_rate=RHVoice_initialize(datadir,callback,cfgpath);
       if(sample_rate==0) return 1;
       if(opt_list_variants||opt_list_voices)
@@ -302,6 +503,12 @@ int main(int argc,char **argv)
           RHVoice_terminate();
           return 0;
         }
+
+#ifndef WIN32
+if (start_daemon_flag)
+        start_daemon();
+#endif
+
       if(inpath!=NULL)
         infile.open(inpath);
       if(outpath!=NULL)
