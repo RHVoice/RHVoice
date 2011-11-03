@@ -20,7 +20,7 @@ import Queue
 from collections import OrderedDict
 import threading
 import ctypes
-from ctypes import c_char_p,c_wchar_p,c_short,c_int,c_float,POINTER,Structure,Union,sizeof,string_at,CFUNCTYPE
+from ctypes import c_char_p,c_wchar_p,c_short,c_int,c_uint,c_float,POINTER,Structure,Union,sizeof,string_at,CFUNCTYPE
 
 import config
 import nvwave
@@ -155,7 +155,7 @@ class SynthDriver(SynthDriver):
 
     def __init__(self):
         self.__lib=ctypes.CDLL(lib_path.encode(sys.getfilesystemencoding()))
-        self.__lib.RHVoice_initialize.argtypes=(c_char_p,RHVoice_callback,c_char_p)
+        self.__lib.RHVoice_initialize.argtypes=(c_char_p,RHVoice_callback,c_char_p,c_uint)
         self.__lib.RHVoice_initialize.restype=c_int
         self.__lib.RHVoice_new_message_utf16.argtypes=(c_wchar_p,c_int,c_int)
         self.__lib.RHVoice_new_message_utf16.restype=RHVoice_message
@@ -187,7 +187,7 @@ class SynthDriver(SynthDriver):
         self.__silence_flag=threading.Event()
         self.__audio_callback=AudioCallback(self.__lib,self.__silence_flag)
         self.__audio_callback_wrapper=RHVoice_callback(self.__audio_callback)
-        sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper,cfg_path.encode("UTF-8"))
+        sample_rate=self.__lib.RHVoice_initialize(data_path.encode("UTF-8"),self.__audio_callback_wrapper,cfg_path.encode("UTF-8"),0)
         if sample_rate==0:
             raise RuntimeError("RHVoice: initialization error")
         voice_count=self.__lib.RHVoice_get_voice_count()
