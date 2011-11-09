@@ -15,6 +15,13 @@
 
 import os.path
 Import("env")
+
+if env["PLATFORM"]!="win32":
+    client_env = env.Clone()
+    client_env["LIBS"] = []
+    client = client_env.Program("rhvoice-client", ["rhvoice-client.c"])
+    client_env.InstallProgram(client)
+
 local_env=env.Clone()
 if local_env["PLATFORM"]!="win32" and env["enable_shared"]=="yes":
     local_env["LIBS"]=[]
