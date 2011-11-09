@@ -108,6 +108,7 @@ int static callback(const short *samples,int num_samples,const RHVoice_event *ev
   return 1;
 }
 
+static bool daemon_running = false;
 #ifndef WIN32
 static int start_daemon_flag = false;
 static int kill_daemon_flag = false;
@@ -155,6 +156,242 @@ static void kill_daemon()
     }
 }
 
+static bool set_prosody_option(float& param, const char *str);
+
+namespace opt
+{
+  const char *inpath=NULL;
+  const char *outpath=NULL;
+  const char *datadir=NULL;
+  const char *cfgpath=NULL;
+  float rate=-1;
+  float pitch=-1;
+  float volume=-1;
+  const char *variant_name=NULL;
+  int variant=0;
+  const char *voice_name=NULL;
+  int voice=0;
+  RHVoice_message_type message_type=RHVoice_message_text;
+  RHVoice_punctuation_mode punct_mode=RHVoice_punctuation_none;
+  const char *punct_list=NULL;
+  int opt_list_voices=0;
+  int opt_list_variants=0;
+
+  struct option program_options[]=
+    {
+      {"help",no_argument,0,'h'},
+      {"version",no_argument,0,'V'},
+      {"rate",required_argument,0,'r'},
+      {"pitch",required_argument,0,'p'},
+      {"volume",required_argument,0,'v'},
+      {"input",required_argument,0,'i'},
+      {"output",required_argument,0,'o'},
+      {"data",required_argument,0,'d'},
+      {"config",required_argument,0,'c'},
+      {"list-variants",no_argument,0,'l'},
+      {"list-voices",no_argument,0,'L'},
+      {"variant",required_argument,0,'w'},
+      {"voice",required_argument,0,'W'},
+      {"type",required_argument,0,'t'},
+      {"punct",optional_argument,NULL,'P'},
+#ifndef WIN32
+      { "daemon", no_argument, &start_daemon_flag, true },
+      { "kill", no_argument, &kill_daemon_flag, true },
+      { "daemon-dir", required_argument, NULL, 'D' },
+#endif
+      {0,0,0,0}
+    };
+
+  void show_version()
+  {
+    cout << PACKAGE << " version " << RHVoice_get_version() << endl;
+  }
+
+  void show_help()
+  {
+    show_version();
+    cout << "a speech synthesizer for Russian language\n";
+    cout << "usage: RHVoice [options]\n";
+    cout << "reads text from a file or from stdin (expects UTF-8 encoding)\n";
+    cout << "writes speech output to a file or to stdout\n";
+    int w=40;
+    cout << left << setw(w) << "-h, --help" << "print this help message and exit\n";
+    cout << setw(w) << "-V, --version" << "print the program version and exit\n";
+    cout << setw(w) << "-r, --rate=<number from 0 to 100>" << "rate\n";
+    cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
+    cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
+    cout << setw(w) << "-P, --punct=<optional string>" << "speak all or some punctuation\n";
+    cout << setw(w) << "-i, --input=<path>" << "input file\n";
+    cout << setw(w) << "-o, --output=<path>" << "output file\n";
+    cout << setw(w) << "-d, --data=<path>" << "path to the data directory\n";
+    cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
+    cout << setw(w) << "-l, --list-variants" << "list all available variants\n";
+    cout << setw(w) << "-L, --list-voices" << "list all available voices\n";
+    cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
+    cout << setw(w) << "-W, --voice=<name>" << "select a voice\n";
+    cout << setw(w) << "-t, --type" << "type of input (text/ssml/characters)\n";
+#ifndef WIN32
+    cout << setw(w) << "--daemon" << "start as a daemon\n";
+    cout << setw(w) << "--kill" << "kill the running daemon\n";
+    cout << setw(w) << "--daemon-dir=<path-to-directory>" << "Where to create socket and pid-file\n";
+#endif
+  }
+
+  // Returns error message if any.
+  const char* set_option(int c, int idx, const char* arg)
+  {
+    using ::set_prosody_option;
+    const char *daemon_err = "not allowed in daemon mode";
+    const char *float_err = "not a float value";
+
+    // We create a copy of arg when it can be saved in daemon mode.
+    switch (c)
+      {
+      case 'V':
+        if (daemon_running) return daemon_err;
+        show_version();
+        exit(0);
+
+      case 'h':
+        if (daemon_running) return daemon_err;
+        show_help();
+        exit(0);
+
+      case 'r':
+        if (!set_prosody_option(rate, arg))
+          return float_err;
+        break;
+
+      case 'p':
+        if (!set_prosody_option(pitch, arg))
+          return float_err;
+        break;
+
+      case 'v':
+        if (!set_prosody_option(volume, arg))
+          return float_err;
+        break;
+
+      case 't':
+        {
+          string type(arg);
+          if(type=="text")
+            message_type=RHVoice_message_text;
+          else if(type=="ssml")
+            message_type=RHVoice_message_ssml;
+          else if(type=="characters")
+            message_type=RHVoice_message_characters;
+          else
+            return "unknown input type";
+        }
+        break;
+
+      case 'd':
+        if (daemon_running) return daemon_err;
+        datadir=arg;
+        break;
+
+      case 'c':
+        if (daemon_running) return daemon_err;
+        cfgpath=arg;
+        break;
+
+      case 'w':
+        variant_name=strdup(arg);
+        break;
+
+      case 'W':
+        voice_name=strdup(arg);
+        break;
+
+      case 'i':
+        if (daemon_running) return daemon_err;
+        inpath=arg;
+        break;
+
+      case 'o':
+        if (daemon_running) return daemon_err;
+        outpath=arg;
+        break;
+
+      case 'P':
+        if(arg!=NULL)
+          {
+            punct_mode=RHVoice_punctuation_some;
+            punct_list=strdup(arg);
+          }
+        else
+          punct_mode=RHVoice_punctuation_all;
+        break;
+
+      case 'l':
+        if (daemon_running) return daemon_err;
+        opt_list_variants=1;
+        break;
+
+      case 'L':
+        if (daemon_running) return daemon_err;
+        opt_list_voices=1;
+        break;
+
+#ifndef WIN32
+      case 'D':
+        if (daemon_running) return daemon_err;
+        daemon_dir = arg;
+        break;
+#endif
+
+      case 0:
+        if (daemon_running) return daemon_err;
+        break;
+
+      default:
+        return "unknown option";
+      }
+    return NULL;
+  }
+}
+
+// Function parses the header transmitted through the connection to daemon
+// and sets speech parameters to the corresponding values. Each parameter is
+// encoded in a separate line in the form
+// parameter=value
+// The text proper is separated from the header by the empty line.
+static void parse_daemon_header()
+{
+  using opt::program_options;
+  using opt::set_option;
+  string line, param;
+  bool skip = false;
+
+  while (getline(cin, line), !line.empty())
+    {
+      if (skip) continue;
+      string::size_type p = line.find('=');
+      if (p == string::npos)
+        {
+          syslog(LOG_ERR, "Wrong header: %s", line.substr(0, 40).c_str());
+          skip = true;
+          continue;
+        }
+
+      param.assign(line, 0, p);
+      struct option* popt = program_options;
+      for (; popt->name && param != popt->name; popt++) {}
+      if (popt->name == NULL)
+        {
+          syslog(LOG_ERR, "Wrong header: %s", param.substr(0, 40).c_str());
+          skip = true;
+          continue;
+        }
+      const char* err = set_option(popt->flag == NULL ? popt->val : 0,
+                                   popt - program_options,
+                                   p+1 == line.length() ? NULL : line.c_str()+p+1);
+      if (err)
+        syslog(LOG_ERR, "%s: %s", param.c_str(), err);
+    }
+}
+
 static void handle_daemon_error(const char *msg)
 {
   syslog(LOG_ERR, "%s: %m", msg);
@@ -198,7 +435,7 @@ static void start_daemon()
   openlog("RHVoice", LOG_PID, LOG_USER);
   if (daemon(0, 0) == -1)
     handle_daemon_error("daemon");
-
+  daemon_running = true;
   {
     ofstream pidfile(pidfile_name);
     pidfile << getpid() << endl;
@@ -238,7 +475,7 @@ static void start_daemon()
 	  signal(SIGTERM, SIG_DFL);
           dup2(conn, STDIN_FILENO);
           dup2(conn, STDOUT_FILENO);
-          // Will read header with parameters first. Just return for now.
+          parse_daemon_header();
           return;
         }
       close(conn);
@@ -246,66 +483,6 @@ static void start_daemon()
   while (true);
 }
 #endif
-
-static struct option program_options[]=
-  {
-    {"help",no_argument,0,'h'},
-    {"version",no_argument,0,'V'},
-    {"rate",required_argument,0,'r'},
-    {"pitch",required_argument,0,'p'},
-    {"volume",required_argument,0,'v'},
-    {"input",required_argument,0,'i'},
-    {"output",required_argument,0,'o'},
-    {"data",required_argument,0,'d'},
-    {"config",required_argument,0,'c'},
-    {"list-variants",no_argument,0,'l'},
-    {"list-voices",no_argument,0,'L'},
-    {"variant",required_argument,0,'w'},
-    {"voice",required_argument,0,'W'},
-    {"type",required_argument,0,'t'},
-    {"punct",optional_argument,NULL,'P'},
-#ifndef WIN32
-    { "daemon", no_argument, &start_daemon_flag, true },
-    { "kill", no_argument, &kill_daemon_flag, true },
-    { "daemon-dir", required_argument, NULL, 'D' },
-#endif
-    {0,0,0,0}
-  };
-
-static void show_version()
-{
-  cout << PACKAGE << " version " << RHVoice_get_version() << endl;
-}
-
-static void show_help()
-{
-  show_version();
-  cout << "a speech synthesizer for Russian language\n";
-  cout << "usage: RHVoice [options]\n";
-  cout << "reads text from a file or from stdin (expects UTF-8 encoding)\n";
-  cout << "writes speech output to a file or to stdout\n";
-  int w=40;
-  cout << left << setw(w) << "-h, --help" << "print this help message and exit\n";
-  cout << setw(w) << "-V, --version" << "print the program version and exit\n";
-  cout << setw(w) << "-r, --rate=<number from 0 to 100>" << "rate\n";
-  cout << setw(w) << "-p, --pitch=<number from 0 to 100>" << "rate\n";
-  cout << setw(w) << "-v, --volume=<number from 0 to 100>" << "volume\n";
-  cout << setw(w) << "-P, --punct=<optional string>" << "speak all or some punctuation\n";
-  cout << setw(w) << "-i, --input=<path>" << "input file\n";
-  cout << setw(w) << "-o, --output=<path>" << "output file\n";
-  cout << setw(w) << "-d, --data=<path>" << "path to the data directory\n";
-  cout << setw(w) << "-c, --config=<path>" << "path to the configuration directory\n";
-  cout << setw(w) << "-l, --list-variants" << "list all available variants\n";
-  cout << setw(w) << "-L, --list-voices" << "list all available voices\n";
-  cout << setw(w) << "-w, --variant=<name>" << "select a variant\n";
-  cout << setw(w) << "-W, --voice=<name>" << "select a voice\n";
-  cout << setw(w) << "-t, --type" << "type of input (text/ssml/characters)\n";
-#ifndef WIN32
-  cout << setw(w) << "--daemon" << "start as a daemon\n";
-  cout << setw(w) << "--kill" << "kill the running daemon\n";
-  cout << setw(w) << "--daemon-dir=<path-to-directory>" << "Where to create socket and pid-file\n";
-#endif
-}
 
 static void list_variants()
 {
@@ -331,22 +508,19 @@ static void list_voices()
     }
 }
 
-static float parse_prosody_option(const char *str)
+static bool set_prosody_option(float& param, const char *str)
 {
   istringstream s(str);
-  s.exceptions(istringstream::failbit|istringstream::badbit);
   float result=-1;
-  try
+  
+  if (s >> result)
     {
-      s >> result;
       if(result<0) result=0;
       else if(result>100) result=100;
+      param = result;
+      return true;
     }
-  catch(...)
-    {
-      result=-1;
-    }
-  return result;
+  return false;
 }
 
 static float convert_prosody_value(float val,float nmin,float nmax,float ndef)
@@ -357,24 +531,8 @@ static float convert_prosody_value(float val,float nmin,float nmax,float ndef)
 
 int main(int argc,char **argv)
 {
-  const char *inpath=NULL;
-  const char *outpath=NULL;
-  const char *datadir=NULL;
+  using namespace opt;
   RHVoice_message msg=NULL;
-  const char *cfgpath=NULL;
-  string strtype;
-  float rate=-1;
-  float pitch=-1;
-  float volume=-1;
-  const char *variant_name=NULL;
-  int variant=0;
-  const char *voice_name=NULL;
-  int voice=0;
-  RHVoice_message_type message_type=RHVoice_message_text;
-  RHVoice_punctuation_mode punct_mode=RHVoice_punctuation_none;
-  const char *punct_list=NULL;
-  int opt_list_voices=0;
-  int opt_list_variants=0;
   unsigned int init_options=0;
   string text;
   char ch;
@@ -383,82 +541,16 @@ int main(int argc,char **argv)
   try
     {
       while((c=getopt_long(argc,argv,"i:o:d:c:hVr:p:v:w:W:t:P::lL",program_options,&i))!=-1)
-        {
-          switch(c)
-            {
-            case 'V':
-              show_version();
-              return 0;
-            case 'h':
-              show_help();
-              return 0;
-            case 'r':
-              rate=parse_prosody_option(optarg);
-              break;
-            case 'p':
-              pitch=parse_prosody_option(optarg);
-              break;
-            case 'v':
-              volume=parse_prosody_option(optarg);
-              break;
-            case 't':
-              strtype=optarg;
-              if(strtype=="text")
-                message_type=RHVoice_message_text;
-              else if(strtype=="ssml")
-                message_type=RHVoice_message_ssml;
-              else if(strtype=="characters")
-                message_type=RHVoice_message_characters;
-              else
-                {
-                  cerr << "Unknown input type\n";
-                  return 1;
-                }
-              break;
-            case 'd':
-              datadir=optarg;
-              break;
-            case 'c':
-              cfgpath=optarg;
-              break;
-            case 'w':
-              variant_name=optarg;
-              break;
-            case 'W':
-              voice_name=optarg;
-              break;
-            case 'i':
-              inpath=optarg;
-              break;
-            case 'o':
-              outpath=optarg;
-              break;
-            case 'P':
-              if(optarg!=NULL)
-                {
-                  punct_mode=RHVoice_punctuation_some;
-                  punct_list=optarg;
-                }
-              else
-                punct_mode=RHVoice_punctuation_all;
-              break;
-            case 'l':
-              opt_list_variants=1;
-              break;
-            case 'L':
-              opt_list_voices=1;
-              break;
-#ifndef WIN32
-	      case 'D':
-		daemon_dir = optarg;
-		break;
-#endif
-            case 0:
-              break;
-            default:
-              return 1;
-            }
-        }
+	{
+          if (c == '?') exit(1);
+	  const char* err = set_option(c, i, optarg);
+	  if (err)
+	    {
+	      cerr << "Error in " << program_options[i].name
+		   << " option: " << err << endl;
+	      exit(1);
+	    }
+	}
 
 #ifndef WIN32
       if ((opt_list_variants || opt_list_voices || inpath || outpath)
