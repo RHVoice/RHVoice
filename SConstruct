@@ -210,6 +210,6 @@ if env["PLATFORM"]!="win32":
 if env["PLATFORM"]=="win32":
     for f in ["README","COPYING"]:
         env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("src","config","RHVoice.conf"))
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("src","config","dicts","example.txt"))
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"Pseudo-Esperanto.txt"),os.path.join("src","config","variants","Pseudo-Esperanto.txt"))
+    env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
+    env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
+    env.ConvertNewlinesB(os.path.join(BUILDDIR,"Pseudo-Esperanto.txt"),os.path.join("config","variants","Pseudo-Esperanto.txt"))
