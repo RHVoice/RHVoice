@@ -45,7 +45,8 @@ extern "C" {
     RHVoice_event_word_end,
     RHVoice_event_sentence_start,
     RHVoice_event_sentence_end,
-    RHVoice_event_mark
+    RHVoice_event_mark,
+    RHVoice_event_play
   } RHVoice_event_type;
 
   typedef struct {
@@ -55,8 +56,8 @@ extern "C" {
     int text_length;            /* in unicode characters */
     int audio_position;
     union {
-      const char *name;
-      int number;
+      const char *name;         /* For marks and audio elements */
+      int number;               /* For words and sentences */
     } id;
   } RHVoice_event;
 
@@ -73,7 +74,7 @@ extern "C" {
     union {
       int number;
       const char *name;
-    } info;
+    } id;
   } RHVoice_position;
 
   typedef enum {
@@ -105,6 +106,7 @@ extern "C" {
   RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int length,RHVoice_message_type type);
   void RHVoice_delete_message(RHVoice_message message);
   int RHVoice_speak(RHVoice_message message);
+  const char *RHVoice_get_xml_base(RHVoice_message message);
   int RHVoice_set_position(RHVoice_message message,const RHVoice_position *position);
   int RHVoice_get_word_count(RHVoice_message message);
   int RHVoice_get_sentence_count(RHVoice_message message);

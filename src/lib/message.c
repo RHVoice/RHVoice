@@ -41,34 +41,14 @@ typedef struct {
 
 static prosody_params default_prosody_params={{1.0,0},{1.0,0},{1.0,0}};
 
-struct token_struct;
-
-typedef struct {
-  int pos;
-  uint8_t *name;
-  int next_token_index;
-  float silence;
-} mark;
-
-static void mark_free(mark *m)
+static void free_event(RHVoice_event *e)
 {
-  if(m==NULL) return;
-  free(m->name);
+  if(e==NULL) return;
+  if(((e->type==RHVoice_event_mark)||(e->type==RHVoice_event_play))&&(e->id.name)!=NULL)
+    free((char*)(e->id.name));
 }
 
-static int report_mark(mark *m,RHVoice_message msg,RHVoice_callback f)
-{
-  RHVoice_event e;
-  e.message=msg;
-  e.type=RHVoice_event_mark;
-  e.audio_position=0;
-  e.text_position=m->pos+1;
-  e.text_length=0;
-  e.id.name=(const char*)m->name;
-  return f(NULL,0,&e,1,msg);
-}
-
-vector_t(mark,marklist)
+vector_t(RHVoice_event,eventlist)
 
 typedef struct {
   RHVoice_punctuation_mode mode;
@@ -98,15 +78,14 @@ typedef struct {
   prosody_params prosody;
   int break_strength;
   float break_time;
-  float silence;
   int sentence_number;
-  int mark_index;
   int say_as;
   uint8_t *say_as_format;
   int variant;
   int voice;
   size_t punct_opt_index;
   int capitals_mode;
+  size_t event_index;
 } token;
 
 static void token_free(token *t)
@@ -120,69 +99,11 @@ static void token_free(token *t)
 vector_t(token,toklist)
 
 typedef struct {
-  toklist l;
+  RHVoice_message m;
   ucs4_t c;
   unsigned int cs;
   size_t ln;
 } tstream;
-
-static void tstream_init(tstream *ts,toklist tl)
-{
-  ts->l=tl;
-  ts->c='\0';
-  ts->cs=cs_sp;
-  ts->ln=0;
-}
-
-static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int say_as)
-{
-  token tok;
-  tok.flags=0;
-  tok.pos=src_pos;
-  tok.len=src_len;
-  tok.text=NULL;
-  tok.prosody=default_prosody_params;
-  tok.break_strength='u';
-  tok.break_time=0;
-  tok.silence=0;
-  tok.sentence_number=0;
-  tok.mark_index=-1;
-  tok.say_as=say_as;
-  tok.say_as_format=NULL;
-  tok.variant=0;
-  tok.voice=0;
-  tok.punct_opt_index=0;
-  tok.capitals_mode=-1;
-  token *prev_tok=toklist_back(ts->l);
-  unsigned int cs=classify_character(c);
-  if(prev_tok&&(cs&(cs_nl|cs_pr)))
-    {
-      prev_tok->flags|=token_eol;
-      if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n')))||(ts->ln>=max_line_len))
-        prev_tok->flags|=token_eop;
-      ts->ln=0;
-    }
-  if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
-    {
-      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||(say_as=='s')||(say_as=='c')||(ustring32_length(prev_tok->text)==max_token_len))))
-        {
-          tok.text=ustring32_alloc(1);
-          if(tok.text==NULL) return 0;
-          if(!toklist_push(ts->l,&tok))
-            {
-              ustring32_free(tok.text);
-              return 0;
-            }
-        }
-      prev_tok=toklist_back(ts->l);
-      if(!ustring32_push(prev_tok->text,c)) return 0;
-      if(src_len>0) prev_tok->len=src_pos-prev_tok->pos+src_len;
-      ts->ln++;
-    }
-  ts->c=c;
-  ts->cs=cs;
-  return 1;
-}
 
 typedef enum {
   ssml_audio=0,
@@ -361,11 +282,11 @@ typedef struct {
   int_stack capitals;
   int in_cdata_section;
   int start_sentence;
-  unsigned int skip;
+  unsigned int skip_metadata;
+  unsigned int skip_audio;
   tstream ts;
   size_t text_start;
   size_t text_start_in_chars;
-  ssml_tag_id last_closed_element;
   int say_as;
   const uint8_t *say_as_format;
   int error_flag;
@@ -374,15 +295,91 @@ typedef struct {
 struct RHVoice_message_s
 {
   toklist tokens;
-  marklist marks;
+  eventlist events;
   size_t pos;
-  float silence;
   void *user_data;
   float rate,pitch,volume;
   uint32_t *default_punct_list;
   punct_opt_list punct_opts;
   size_t num_chars;
+  uint8_t *xml_base;
 };
+
+static void tstream_init(tstream *ts,RHVoice_message m)
+{
+  ts->m=m;
+  ts->c='\0';
+  ts->cs=cs_sp;
+  ts->ln=0;
+}
+
+static int tstream_putc (tstream *ts,ucs4_t c,size_t src_pos,size_t src_len,int say_as)
+{
+  token tok;
+  tok.flags=0;
+  tok.pos=src_pos;
+  tok.len=src_len;
+  tok.text=NULL;
+  tok.prosody=default_prosody_params;
+  tok.break_strength='u';
+  tok.break_time=0;
+  tok.sentence_number=0;
+  tok.say_as=say_as;
+  tok.say_as_format=NULL;
+  tok.variant=0;
+  tok.voice=0;
+  tok.punct_opt_index=0;
+  tok.capitals_mode=-1;
+  tok.event_index=eventlist_size(ts->m->events);
+  RHVoice_event event;
+  event.message=ts->m;
+  event.text_position=src_pos+1;
+  event.text_length=src_len;
+  event.id.number=toklist_size(ts->m->tokens)+1;
+  event.audio_position=0;
+  token *prev_tok=toklist_back(ts->m->tokens);
+  RHVoice_event *prev_event=NULL;
+  unsigned int cs=classify_character(c);
+  if(prev_tok&&(cs&(cs_nl|cs_pr)))
+    {
+      prev_tok->flags|=token_eol;
+      if((cs&cs_pr)||((ts->cs&cs_nl)&&!((ts->c=='\r')&&(c=='\n')))||(ts->ln>=max_line_len))
+        prev_tok->flags|=token_eop;
+      ts->ln=0;
+    }
+  if((!(cs&cs_ws))||(say_as=='s')||(say_as=='c'))
+    {
+      if((ts->cs&cs_ws)||(prev_tok&&((prev_tok->say_as=='c')||(say_as=='s')||(say_as=='c')||(ustring32_length(prev_tok->text)==max_token_len))))
+        {
+          if(!eventlist_reserve(ts->m->events,eventlist_size(ts->m->events)+2)) return 0;
+          tok.text=ustring32_alloc(1);
+          if(tok.text==NULL) return 0;
+          if(!toklist_push(ts->m->tokens,&tok))
+            {
+              ustring32_free(tok.text);
+              return 0;
+            }
+          event.type=RHVoice_event_word_start;
+          eventlist_push(ts->m->events,&event);
+          event.type=RHVoice_event_word_end;
+          event.text_length=0;
+          eventlist_push(ts->m->events,&event);
+        }
+      prev_tok=toklist_back(ts->m->tokens);
+      prev_event=eventlist_back(ts->m->events);
+      if(!ustring32_push(prev_tok->text,c)) return 0;
+      if(src_len>0)
+        {
+          prev_tok->len=src_pos-prev_tok->pos+src_len;
+          (prev_event-1)->text_length=prev_tok->len;
+          prev_event->text_position=(prev_event-1)->text_position+(prev_event-1)->text_length;
+        }
+      ts->ln++;
+    }
+  ts->c=c;
+  ts->cs=cs;
+  return 1;
+}
 
 static RHVoice_message RHVoice_message_alloc(void)
 {
@@ -394,11 +391,10 @@ static RHVoice_message RHVoice_message_alloc(void)
   msg->rate=-1;
   msg->pitch=-1;
   msg->volume=-1;
-  msg->silence=0;
   msg->tokens=toklist_alloc(16,token_free);
   if(msg->tokens==NULL) goto err1;
-  msg->marks=marklist_alloc(0,mark_free);
-  if(msg->marks==NULL) goto err2;
+  msg->events=eventlist_alloc(0,free_event);
+  if(msg->events==NULL) goto err2;
   p.list=NULL;
   p.mode=RHVoice_get_punctuation_mode();
   msg->default_punct_list=copy_punctuation_list();
@@ -407,9 +403,10 @@ static RHVoice_message RHVoice_message_alloc(void)
   if(msg->punct_opts==NULL) goto err4;
   punct_opt_list_push(msg->punct_opts,&p);
   msg->num_chars=0;
+  msg->xml_base=NULL;
   return msg;
   err4: free(msg->default_punct_list);
-  err3: marklist_free(msg->marks);
+  err3: eventlist_free(msg->events);
   err2: toklist_free(msg->tokens);
   err1: free(msg);
   err0: return NULL;
@@ -419,9 +416,10 @@ static void RHVoice_message_free(RHVoice_message msg)
 {
   if(msg==NULL) return;
   toklist_free(msg->tokens);
-  marklist_free(msg->marks);
+  eventlist_free(msg->events);
   free(msg->default_punct_list);
   punct_opt_list_free(msg->punct_opts);
+  if(msg->xml_base!=NULL) free(msg->xml_base);
   free(msg);
 }
 
@@ -527,16 +525,38 @@ static int ssml_add_mark(ssml_state *state)
   ssml_tag *top=ssml_tag_stack_back(state->tags);
   const uint8_t *name=ssml_get_attribute_value(top,"name");
   if(name==NULL) return 0;
-  size_t pos=XML_GetCurrentByteIndex(state->parser);
-  mark m;
-  m.pos=state->text_start_in_chars+u8_mbsnlen(state->text+state->text_start,pos-state->text_start);
-  m.name=u8_strdup(name);
-  if(m.name==NULL) return 0;
-  m.next_token_index=toklist_size(state->msg->tokens);
-  m.silence=state->msg->silence;
-  if(!marklist_push(state->msg->marks,&m))
+  RHVoice_event e;
+  e.message=state->msg;
+  e.type=RHVoice_event_mark;
+  e.text_position=state->text_start_in_chars+u8_mbsnlen(state->text+state->text_start,XML_GetCurrentByteIndex(state->parser)-state->text_start)+1;
+  e.text_length=0;
+  e.audio_position=0;
+  e.id.name=(const char*)u8_strdup(name);
+  if(e.id.name==NULL) return 0;
+  if(!eventlist_push(state->msg->events,&e))
     {
-      free(m.name);
+      free((char*)(e.id.name));
+      return 0;
+    }
+  return 1;
+}
+
+static int ssml_add_audio(ssml_state *state)
+{
+  ssml_tag *top=ssml_tag_stack_back(state->tags);
+  const uint8_t *src=ssml_get_attribute_value(top,"src");
+  if(src==NULL) return 0;
+  RHVoice_event e;
+  e.message=state->msg;
+  e.type=RHVoice_event_play;
+  e.text_position=state->text_start_in_chars+u8_mbsnlen(state->text+state->text_start,XML_GetCurrentByteIndex(state->parser)-state->text_start)+1;
+  e.text_length=0;
+  e.audio_position=0;
+  e.id.name=(const char*)u8_strdup(src);
+  if(e.id.name==NULL) return 0;
+  if(!eventlist_push(state->msg->events,&e))
+    {
+      free((char*)(e.id.name));
       return 0;
     }
   return 1;
@@ -575,12 +595,12 @@ static int ssml_add_break(ssml_state *state)
     }
   else if(strength=='u') strength='b';
   token *tok=toklist_back(state->msg->tokens);
-  if((tok!=NULL)&&(tok->break_strength=='u')&&(tok->break_time==0))
+  RHVoice_event *event=eventlist_back(state->msg->events);
+  if((tok!=NULL)&&(event->type==RHVoice_event_word_end)&&(tok->break_strength=='u')&&(tok->break_time==0))
     {
       tok->break_strength=strength;
       tok->break_time=time;
     }
-  state->msg->silence+=time;
   return 1;
 }
 
@@ -718,19 +738,25 @@ static ssml_state *cap_stack_update(ssml_state *state,ssml_tag *tag)
 static void XMLCALL ssml_element_start(void *user_data,const char *name,const char **atts)
 {
   ssml_state *state=(ssml_state*)user_data;
-  if(state->skip) {state->skip++;return;}
+  if(state->skip_metadata) {state->skip_metadata++;return;}
+  else if(state->skip_audio) {state->skip_audio++;return;}
   if(!tstream_putc(&state->ts,' ',0,0,0)) ssml_error(state);
   ssml_tag tag;
   tag.id=ssml_get_tag_id(name);
   int accept=(ssml_tag_stack_size(state->tags)==0)?(tag.id==ssml_speak):ssml_element_table[ssml_tag_stack_back(state->tags)->id][tag.id];
   if(!accept) ssml_error(state);
-  if(tag.id==ssml_metadata) {state->skip=1;return;}
+  if(tag.id==ssml_metadata) {state->skip_metadata=1;return;}
   tag.attributes=ssml_copy_attributes(atts);
   if(tag.attributes==NULL) ssml_error(state);
   if(!ssml_tag_stack_push(state->tags,&tag)) ssml_error(state);
   ssml_tag *top=ssml_tag_stack_back(state->tags);
+  const uint8_t *xml_base=NULL;
   switch(top->id)
     {
+    case ssml_speak:
+      xml_base=ssml_get_attribute_value(top,"xml:base");
+      if(xml_base!=NULL) state->msg->xml_base=u8_strdup(xml_base);
+      break;
     case ssml_prosody:
       if(!prosody_stack_update(state->prosody,top)) ssml_error(state);
       break;
@@ -742,6 +768,10 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
       break;
     case ssml_mark:
       if(!ssml_add_mark(state)) ssml_error(state);
+      break;
+    case ssml_audio:
+      if(!ssml_add_audio(state)) ssml_error(state);
+      state->skip_audio=1;
       break;
     case ssml_break:
       if(!ssml_add_break(state)) ssml_error(state);
@@ -767,11 +797,15 @@ static void XMLCALL ssml_element_start(void *user_data,const char *name,const ch
 static void XMLCALL ssml_element_end(void *user_data,const char *name)
 {
   ssml_state *state=(ssml_state*)user_data;
-  if(state->skip)
+  if(state->skip_metadata)
     {
-      state->skip--;
-      if(state->skip==0) state->last_closed_element=ssml_metadata;
+      state->skip_metadata--;
       return;
+    }
+  else if(state->skip_audio)
+    {
+      state->skip_audio--;
+      if(state->skip_audio>0) return;
     }
   if(!tstream_putc(&state->ts,' ',0,0,0)) ssml_error(state);
   ssml_tag *top=ssml_tag_stack_back(state->tags);
@@ -802,14 +836,13 @@ static void XMLCALL ssml_element_end(void *user_data,const char *name)
     default:
       break;
     }
-  state->last_closed_element=top->id;
   ssml_tag_stack_pop(state->tags);
 }
 
 static void XMLCALL ssml_character_data(void *user_data,const char *text,int len)
 {
   ssml_state *state=(ssml_state*)user_data;
-  if(state->skip||(ssml_tag_stack_size(state->tags)==0)) return;
+  if(state->skip_metadata||state->skip_audio||(ssml_tag_stack_size(state->tags)==0)) return;
   ssml_tag *top=ssml_tag_stack_back(state->tags);
   if(!ssml_element_table[top->id][ssml_max]) ssml_error(state);
   size_t src_len=XML_GetCurrentByteCount(state->parser);
@@ -836,16 +869,11 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
           tok->prosody=*prosody_stack_back(state->prosody);
           tok->variant=*int_stack_back(state->variants);
           tok->voice=*int_stack_back(state->voices);
-          tok->silence=state->msg->silence;
           if(state->start_sentence)
             {
               tok->flags|=token_sentence_start;
               state->start_sentence=0;
             }
-          if((marklist_size(state->msg->marks)>0)&&
-             (state->last_closed_element!=ssml_break)&&
-             (marklist_back(state->msg->marks)->next_token_index==(toklist_size(state->msg->tokens)-1)))
-                tok->mark_index=marklist_size(state->msg->marks)-1;
           if(state->say_as)
             {
               if(state->say_as_format!=NULL)
@@ -869,14 +897,14 @@ static void XMLCALL ssml_character_data(void *user_data,const char *text,int len
 static void XMLCALL ssml_cdata_section_start(void *user_data)
 {
   ssml_state *state=(ssml_state*)user_data;
-  if(state->skip) return;
+  if(state->skip_metadata||state->skip_audio) return;
   state->in_cdata_section=1;
 }
 
 static void XMLCALL ssml_cdata_section_end(void *user_data)
 {
   ssml_state *state=(ssml_state*)user_data;
-  if(state->skip) return;
+  if(state->skip_metadata||state->skip_audio) return;
   state->in_cdata_section=0;
 }
 
@@ -888,12 +916,12 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
   s->len=0;
   s->msg=m;
   s->error_flag=0;
-  s->skip=0;
+  s->skip_metadata=0;
+  s->skip_audio=0;
   s->in_cdata_section=0;
   s->start_sentence=0;
   s->text_start=0;
   s->text_start_in_chars=0;
-  s->last_closed_element=ssml_unknown;
   s->say_as=0;
   s->say_as_format=NULL;
   s->parser=XML_ParserCreate("UTF-8");
@@ -930,7 +958,7 @@ static ssml_state *ssml_state_init(ssml_state *s,const source_info *i,RHVoice_me
       break;
     }
   if(s->text==NULL) goto err8;
-  tstream_init(&s->ts,s->msg->tokens);
+  tstream_init(&s->ts,s->msg);
   XML_SetUserData(s->parser,s);
   XML_SetElementHandler(s->parser,ssml_element_start,ssml_element_end);
   XML_SetCharacterDataHandler(s->parser,ssml_character_data);
@@ -1001,7 +1029,7 @@ static RHVoice_message parse_text(const source_info *i)
   size_t p=0;
   int n;
   ustr s=i->text;
-  tstream_init(&ts,msg->tokens);
+  tstream_init(&ts,msg);
   while(r>0)
     {
       switch(i->encoding)
@@ -1233,32 +1261,85 @@ void RHVoice_delete_message(RHVoice_message msg)
   RHVoice_message_free(msg);
 }
 
-cst_utterance *next_utt_from_message(RHVoice_message msg)
+synth_input get_next_synth_input(RHVoice_message msg)
 {
-  if(msg==NULL) return NULL;
-  if(msg->pos>=toklist_size(msg->tokens)) return NULL;
+  synth_input res={NULL,0,NULL};
+  if(msg==NULL) return res;
+  size_t n=eventlist_size(msg->events);
+  if(msg->pos>=n) return res;
   ustring32_t str32;
-  const token *front=toklist_front(msg->tokens);
   const token *back=toklist_back(msg->tokens);
-  const token *first=toklist_at(msg->tokens,msg->pos);
+  const token *first=NULL;
+  size_t k;
+  RHVoice_event *events=eventlist_at(msg->events,msg->pos);
+  RHVoice_event *e;
+  for(k=msg->pos;k<n;k++)
+    {
+      e=eventlist_at(msg->events,k);
+      if(e->type==RHVoice_event_word_start)
+        {
+          first=toklist_at(msg->tokens,e->id.number-1);
+          break;
+        }
+    }
+  if(first==NULL)
+    {
+      res.num_events=n-msg->pos;
+      res.events=malloc(res.num_events*sizeof(RHVoice_event));
+      if(res.events!=NULL)
+        memcpy(res.events,events,res.num_events*sizeof(RHVoice_event));
+      else
+        res.num_events=0;
+      msg->pos=n;
+      return res;
+    }
   const token *last;
   for(last=first;last!=back;last++)
     {
       if(last->flags&token_sentence_end) break;
     }
-  ustring8_t str8=ustring8_alloc(64);
-  if(str8==NULL) return NULL;
-  cst_utterance *u=new_utterance();
-  cst_relation *tr=utt_relation_create(u,"Token");
+  size_t n1=first->event_index-msg->pos;
+  size_t n2=last->event_index+2-first->event_index;
+  res.num_events=n1+n2+2;
+  res.events=malloc(res.num_events*sizeof(RHVoice_event));
+  if(res.events==NULL)
+    {
+      res.num_events=0;
+      return res;
+    }
+  ustring8_t str8=ustring8_alloc(4*max_token_len);
+  if(str8==NULL)
+    {
+      free(res.events);
+      res.events=NULL;
+      res.num_events=0;
+      return res;
+    }
+  if(n1>0)
+    memcpy(res.events,events,n1*sizeof(RHVoice_event));
+  e=res.events+n1;
+  e->type=RHVoice_event_sentence_start;
+  e->message=msg;
+  e->text_position=first->pos+1;
+  e->text_length=last->pos-first->pos+last->len;
+  e->audio_position=0;
+  e->id.number=first->sentence_number;
+  memcpy(res.events+n1+1,events+n1,n2*sizeof(RHVoice_event));
+  e=res.events+res.num_events-1;
+  e->type=RHVoice_event_sentence_end;
+  e->message=msg;
+  e->text_position=last->pos+last->len+1;
+  e->text_length=0;
+  e->audio_position=0;
+  e->id.number=last->sentence_number;
+  res.utt=new_utterance();
+  cst_relation *tr=utt_relation_create(res.utt,"Token");
   cst_item *i;
   size_t len,pre_len,post_len,name_len;
   const token *tok;
-  const mark *m;
   const punct_option *p;
-  feat_set_int(u->features,"length",last->pos-first->pos+last->len);
-  feat_set_int(u->features,"number",first->sentence_number);
-  feat_set(u->features,"message",userdata_val(msg));
-  feat_set_int(u->features,"voice_id",(first->voice)?(first->voice):RHVoice_get_voice());
+  feat_set(res.utt->features,"message",userdata_val(msg));
+  feat_set_int(res.utt->features,"voice_id",(first->voice)?(first->voice):RHVoice_get_voice());
   float msg_rate=(msg->rate==-1)?RHVoice_get_rate():msg->rate;
   float msg_pitch=(msg->pitch==-1)?RHVoice_get_pitch():msg->pitch;
   RHVoice_capitals_mode capitals_mode=(first->capitals_mode==-1)?RHVoice_get_capitals_mode():(first->capitals_mode);
@@ -1273,19 +1354,16 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
     indicate_capital=1;
   float msg_volume=(msg->volume==-1)?RHVoice_get_volume():msg->volume;
   float rate=check_rate_range(msg_rate*first->prosody.rate.value);
-  feat_set_float(u->features,"rate",rate);
+  feat_set_float(res.utt->features,"rate",rate);
   float pitch=msg_pitch*first->prosody.pitch.value;
   if(indicate_capital&&(capitals_mode==RHVoice_capitals_pitch))
     pitch*=cap_pitch_factor;
   pitch=check_pitch_range(pitch);
-  feat_set_float(u->features,"pitch",pitch);
+  feat_set_float(res.utt->features,"pitch",pitch);
   if(indicate_capital&&(capitals_mode==RHVoice_capitals_sound))
-    feat_set_int(u->features,"prepend_sound_icon",1);
+    feat_set_int(res.utt->features,"prepend_sound_icon",1);
   float volume=check_volume_range(first->prosody.volume.value*(first->prosody.volume.is_absolute?1.0:msg_volume));
-  feat_set_float(u->features,"volume",volume);
-  float initial_silence=(first==front)?0:first->silence;
-  float final_silence=((last==back)?msg->silence:toklist_at(msg->tokens,(last-front)+1)->silence)-initial_silence;
-  feat_set_float(u->features,"silence_time",final_silence);
+  feat_set_float(res.utt->features,"volume",volume);
   for(tok=first;tok<=last;tok++)
     {
       i=relation_append(tr,NULL);
@@ -1323,18 +1401,8 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
         pitch*=cap_pitch_factor;
       pitch=check_pitch_range(pitch);
       item_set_float(i,"pitch",pitch);
-      item_set_int(i,"position",tok->pos+1);
-      item_set_int(i,"length",tok->len);
-      item_set_int(i,"number",tok-front+1);
-      item_set_float(i,"silence_time",tok->silence-initial_silence);
       item_set_int(i,"break_strength",tok->break_strength);
       item_set_float(i,"break_time",tok->break_time);
-      if(tok->mark_index>=0)
-        {
-          m=marklist_at(msg->marks,tok->mark_index);
-          item_set_string(i,"mark_name",(const char*)m->name);
-          item_set_int(i,"mark_position",m->pos+1);
-        }
       if(tok->say_as!=0)
         {
           item_set_int(i,"say_as",tok->say_as);
@@ -1347,29 +1415,9 @@ cst_utterance *next_utt_from_message(RHVoice_message msg)
       if(p->mode==RHVoice_punctuation_some)
         item_set(i,"punct_list",userdata_val((void*)((p->list==NULL)?(msg->default_punct_list):(p->list))));
     }
-  if(last==back) feat_set_int(u->features,"last",1);
-  msg->pos=last-front+1;
+  msg->pos=last->event_index+2;
   ustring8_free(str8);
-  return u;
-}
-
-int report_final_mark(RHVoice_message message,RHVoice_callback callback)
-{
-  int result=1;
-  size_t num_marks=marklist_size(message->marks);
-  size_t num_tokens=toklist_size(message->tokens);
-  size_t i;
-  mark *m;
-  for(i=0;i<num_marks;i++)
-    {
-      m=marklist_at(message->marks,i);
-      if(m->next_token_index==num_tokens)
-        {
-          result=report_mark(m,message,callback);
-          if(!result) break;
-        }
-    }
-  return result;
+  return res;
 }
 
 void RHVoice_set_user_data(RHVoice_message message,void *data)
@@ -1380,6 +1428,11 @@ void RHVoice_set_user_data(RHVoice_message message,void *data)
 void *RHVoice_get_user_data(RHVoice_message message)
 {
   return message->user_data;
+}
+
+const char *RHVoice_get_xml_base(RHVoice_message message)
+{
+  return (const char*)(message->xml_base);
 }
 
 void RHVoice_set_message_rate(RHVoice_message message,float rate)
@@ -1401,17 +1454,17 @@ int RHVoice_set_position(RHVoice_message message,const RHVoice_position *positio
 {
   if(message==NULL) return 0;
   size_t i,n;
-  mark *m;
+  RHVoice_event *e;
   int result=0;
   switch(position->type)
     {
     case RHVoice_position_word:
       n=toklist_size(message->tokens);
-      if((n>0)&&(position->info.number>0))
+      if((n>0)&&(position->id.number>0))
         {
-          if(position->info.number<=n)
+          if(position->id.number<=n)
             {
-              message->pos=position->info.number-1;
+              message->pos=toklist_at(message->tokens,position->id.number-1)->event_index;
               result=1;
             }
         }
@@ -1420,22 +1473,22 @@ int RHVoice_set_position(RHVoice_message message,const RHVoice_position *positio
       n=toklist_size(message->tokens);
       for(i=0;i<n;i++)
         {
-          if(toklist_at(message->tokens,i)->sentence_number==position->info.number)
+          if(toklist_at(message->tokens,i)->sentence_number==position->id.number)
             {
-              message->pos=i;
+              message->pos=toklist_at(message->tokens,i)->event_index;
               result=1;
               break;
             }
         }
       break;
     case RHVoice_position_mark:
-      n=marklist_size(message->marks);
+      n=eventlist_size(message->events);
       for(i=0;i<n;i++)
         {
-          m=marklist_at(message->marks,i);
-          if(u8_strcmp(m->name,(const uint8_t*)position->info.name)==0)
+          e=eventlist_at(message->events,i);
+          if((e->type=RHVoice_event_mark)&&(strcmp(e->id.name,position->id.name)==0))
             {
-              message->pos=m->next_token_index;
+              message->pos=i;
               result=1;
               break;
             }

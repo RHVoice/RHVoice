@@ -36,7 +36,7 @@ static cst_utterance *assign_phrase_breaks(cst_utterance *u)
           t=(item_next(item_as(w,"Word"))?path_to_item(w,"R:Word.n.R:Token.parent.p"):t0);
           bs=item_feat_int(t,"break_strength");
           ucs4_t c;
-          if((bs=='s')||(bs=='b'))
+          if((bs!='n')&&(bs!='u'))
             {
               item_set_string(w,"phrbrk","B");
               continue;
@@ -154,8 +154,7 @@ cst_utterance *russian_phrasify(cst_utterance *u)
 cst_utterance *russian_pause_insertion(cst_utterance *u)
 {
   const char *p=NULL;
-  float time2=feat_float(u->features,"silence_time");
-  float time1,factor;
+  float time,factor;
   cst_item *s,*w1,*w2,*t1,*t2,*p1,*p2;
   w2=NULL;
   t2=NULL;
@@ -165,13 +164,13 @@ cst_utterance *russian_pause_insertion(cst_utterance *u)
     {
       t1=item_parent(item_as(w1,"Token"));
       p1=item_parent(item_as(w1,"Phrase"));
-      time1=item_feat_float(t1,"silence_time");
-      if((p1!=p2)||(time1!=time2))
+      if(p1!=p2)
         {
           s=item_append(item_as(item_last_daughter(w1),"Segment"),NULL);
           item_set_string(s,"name","pau");
-          item_set_float(s,"time",time2-time1);
-          if((p1!=p2)&&(item_feat_float(p1,"break_time")==0))
+          time=item_feat_float(p1,"break_time");
+          item_set_float(s,"time",time);
+          if(time==0)
             factor=1;
           else factor=0;
           item_set_float(s,"factor",factor);
@@ -179,19 +178,14 @@ cst_utterance *russian_pause_insertion(cst_utterance *u)
       w2=w1;
       t2=t1;
       p2=p1;
-      time2=time1;
       w1=item_prev(w1);
     }
   if(w2)
-    s=item_prepend(relation_head(utt_relation(u,"Segment")),NULL);
-  else if(feat_float(u->features,"silence_time")!=0)
-    s=relation_append(utt_relation(u,"Segment"),NULL);
-  else s=NULL;
-  if(s!=NULL)
     {
+      s=item_prepend(relation_head(utt_relation(u,"Segment")),NULL);
       item_set_string(s,"name","pau");
-      item_set_float(s,"time",(time2>0)?time2:0.0);
-      item_set_float(s,"factor",(time2>0)?0.0:1.0);
+      item_set_float(s,"time",0.0);
+      item_set_float(s,"factor",1.0);
     }
   s=relation_tail(utt_relation(u,"Segment"));
   if((s!=NULL)&&(item_feat_float(s,"time")==0.0))
