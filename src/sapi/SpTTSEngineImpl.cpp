@@ -304,7 +304,7 @@ CSpTTSEngineImpl::TTSTask::TTSTask(const SPVTEXTFRAG *pTextFragList,ISpTTSEngine
   punctuation_mode(speak_punctuation)
 {
   generate_ssml(pTextFragList);
-  message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),1);
+  message=RHVoice_new_message_utf16(reinterpret_cast<const uint16_t*>(ssml.data()),ssml.size(),RHVoice_message_ssml);
   if(message==NULL)
     throw runtime_error("Message creation failed");
   RHVoice_set_message_pitch(message,default_native_pitch);
@@ -346,7 +346,7 @@ void CSpTTSEngineImpl::TTSTask::operator()()
                     out->CompleteSkip(next_sentence_number-prev_sentence_number);
                     RHVoice_position p;
                     p.type=RHVoice_position_sentence;
-                    p.info.number=next_sentence_number;
+                    p.id.number=next_sentence_number;
                     if(RHVoice_set_position(message,&p))
                       RHVoice_speak(message);
                   }
