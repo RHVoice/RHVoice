@@ -84,8 +84,13 @@ extern "C" {
   unsigned int classify_characters(const uint32_t *chars,size_t n);
   const char *character_name(ucs4_t c);
 
-  cst_utterance *next_utt_from_message(RHVoice_message msg);
-  int report_final_mark(RHVoice_message message,RHVoice_callback callback);
+  typedef struct {
+    RHVoice_event *events;
+    int num_events;
+    cst_utterance *utt;
+  } synth_input;
+
+  synth_input get_next_synth_input(RHVoice_message msg);
 
   double strtod_c(const char*,char**);
 

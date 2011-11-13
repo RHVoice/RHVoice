@@ -156,7 +156,6 @@ static const sox_effect_handler_t *hpf_effect_handler=NULL;
 static RHVoice_callback user_callback=NULL;
 
 vector_t(short,svector)
-vector_t(RHVoice_event,eventlist)
 
 typedef struct {
   HTS_Engine *engine;
@@ -169,7 +168,7 @@ typedef struct {
   float rate;
   float pitch;
   float volume;
-  eventlist events;
+  RHVoice_event *events;
   cst_item *cur_seg;
   int in_nsamples;
   int out_nsamples;
@@ -383,12 +382,12 @@ static int synth_callback(const short *samples,int nsamples,synth_state *state)
   state->in_nsamples+=nsamples;
   for(i=state->event_index;i<state->num_events;i++)
     {
-      d=eventlist_at(state->events,i)->audio_position-state->out_nsamples;
+      d=state->events[i].audio_position-state->out_nsamples;
       if(d>=nsamples) break;
       num_events++;
-      eventlist_at(state->events,i)->audio_position=d;
+      state->events[i].audio_position=d;
     }
-  if(num_events>0) events=eventlist_at(state->events,state->event_index);
+  if(num_events>0) events=state->events+state->event_index;
   state->last_result=user_callback(samples,nsamples,events,num_events,state->message);
   state->out_nsamples+=nsamples;
   state->event_index+=num_events;
@@ -774,58 +773,6 @@ const char *RHVoice_get_version()
   return lib_version;
 }
 
-static eventlist generate_events(cst_utterance *u)
-{
-  eventlist events=eventlist_alloc(0,NULL);
-  RHVoice_event e;
-  cst_item *t,*s;
-  e.audio_position=0;
-  s=item_daughter(relation_head(utt_relation(u,"Transcription")));
-  if(s) e.audio_position=item_feat_int(s,"expected_start");
-  e.message=(RHVoice_message)val_userdata(feat_val(u->features,"message"));
-  for(t=relation_head(utt_relation(u,"Token"));t;t=item_next(t))
-    {
-      s=path_to_item(t,"daughter1.R:Transcription.daughter1");
-      if(s) e.audio_position=item_feat_int(s,"expected_start");
-      if(item_feat_present(t,"mark_name"))
-        {
-          e.type=RHVoice_event_mark;
-          e.text_position=item_feat_int(t,"mark_position");
-          e.text_length=0;
-          e.id.name=item_feat_string(t,"mark_name");
-          eventlist_push(events,&e);
-        }
-      e.text_position=item_feat_int(t,"position");
-      if(!item_prev(t))
-        {
-          e.type=RHVoice_event_sentence_start;
-          e.text_length=feat_int(u->features,"length");
-          e.id.number=feat_int(u->features,"number");
-          eventlist_push(events,&e);
-        }
-      e.type=RHVoice_event_word_start;
-      e.text_length=item_feat_int(t,"length");
-      e.id.number=item_feat_int(t,"number");
-      eventlist_push(events,&e);
-      if(s)
-        {
-          s=path_to_item(t,"daughtern.R:Transcription.daughtern");
-          e.audio_position=item_feat_int(s,"expected_end");
-        }
-      e.text_position+=e.text_length;
-      e.text_length=0;
-      e.type=RHVoice_event_word_end;
-      eventlist_push(events,&e);
-      if(!item_next(t))
-        {
-          e.type=RHVoice_event_sentence_end;
-          e.id.number=feat_int(u->features,"number");
-          eventlist_push(events,&e);
-        }
-    }
-  return events;
-}
-
 static void fix_f0(cst_utterance *u,HTS_Engine *e)
 {
   cst_item *t=relation_tail(utt_relation(u,"Token"));
@@ -900,6 +847,15 @@ static void fix_f0(cst_utterance *u,HTS_Engine *e)
 static void pass_sound_icon(synth_state *state)
 {
   int nsamples=sizeof(sound_icon)/sizeof(short);
+  const RHVoice_event *events=NULL;
+  int num_events=0;
+  int i;
+  for(i=0;i<state->num_events;i++)
+    {
+      if(state->events[i].type==RHVoice_event_sentence_start) break;
+      num_events++;
+    }
+  if(num_events>0) events=state->events;
   if(state->volume!=1.0)
     {
       if(!svector_reserve(state->osamples,nsamples))
@@ -909,7 +865,6 @@ static void pass_sound_icon(synth_state *state)
         }
       float f;
       short s;
-      int i;
       for(i=0;i<nsamples;i++)
         {
           f=sound_icon[i]*state->volume;
@@ -921,11 +876,12 @@ static void pass_sound_icon(synth_state *state)
             s=f;
           svector_push(state->osamples,&s);
         }
-      state->last_result=user_callback(svector_data(state->osamples),nsamples,NULL,0,state->message);
+      state->last_result=user_callback(svector_data(state->osamples),nsamples,events,num_events,state->message);
       svector_clear(state->osamples);
     }
   else
-    state->last_result=user_callback(sound_icon,nsamples,NULL,0,state->message);
+    state->last_result=user_callback(sound_icon,nsamples,events,num_events,state->message);
+  state->event_index+=num_events;
 }
 
 cst_utterance *hts_synth(cst_utterance *u)
@@ -941,6 +897,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   cst_item *s,*t;
   int use_libsonic=0;
   float pitch,rate,volume,f0;
+  int audio_pos=0;
   char strvolume[8];
   char *volopts[3]={strvolume,"amplitude","0.02"};
   char * hpfopts[1]={"350"};
@@ -1035,9 +992,9 @@ cst_utterance *hts_synth(cst_utterance *u)
         {
           nframes+=HTS_SStreamSet_get_duration(&engine->sss,i*engine->sss.nstate+j);
         }
-      item_set_int(s,"expected_start",(int)(((float)engine->global.fperiod)*total_nframes*(use_libsonic?(1.0/rate):1.0)));
+      item_set_int(s,"start",(int)(((float)engine->global.fperiod)*total_nframes*(use_libsonic?(1.0/rate):1.0)));
       total_nframes+=nframes;
-      item_set_int(s,"expected_end",(int)(((float)engine->global.fperiod)*total_nframes*(use_libsonic?(1.0/rate):1.0)));
+      item_set_int(s,"end",(int)(((float)engine->global.fperiod)*total_nframes*(use_libsonic?(1.0/rate):1.0)));
     }
   HTS_Engine_create_pstream(engine);
   state.rate=rate;
@@ -1045,8 +1002,41 @@ cst_utterance *hts_synth(cst_utterance *u)
   state.volume=volume;
   state.sstream=NULL;
   state.sstream_flushed=0;
-  state.events=generate_events(u);
-  state.num_events=eventlist_size(state.events);
+  state.events=(RHVoice_event*)val_userdata(feat_val(u->features,"events"));
+  state.num_events=feat_int(u->features,"num_events");
+  t=relation_head(utt_relation(u,"Token"));
+  for(i=0;i<state.num_events;i++)
+    {
+      switch(state.events[i].type)
+        {
+        case RHVoice_event_sentence_start:
+          s=item_daughter(relation_head(utt_relation(u,"Transcription")));
+          if(s) audio_pos=item_feat_int(s,"start");
+          state.events[i].audio_position=audio_pos;
+          break;
+        case RHVoice_event_word_start:
+          s=path_to_item(t,"daughter1.R:Transcription.daughter1");
+          if(s) audio_pos=item_feat_int(s,"start");
+          state.events[i].audio_position=audio_pos;
+          break;
+        case RHVoice_event_word_end:
+          s=path_to_item(t,"daughtern.R:Transcription.daughtern");
+          if(s)
+            {
+              audio_pos=item_feat_int(s,"end");
+              state.events[i].audio_position=audio_pos;
+              s=path_to_item(s,"parent.n.daughter1");
+              if(s) audio_pos=item_feat_int(s,"start");
+            }
+          else
+            state.events[i].audio_position=audio_pos;
+          t=item_next(t);
+          break;
+        default:
+          state.events[i].audio_position=audio_pos;
+          break;
+        }
+    }
   state.event_index=0;
   state.cur_seg=relation_head(utt_relation(u,"Segment"));
   state.in_nsamples=0;
@@ -1108,7 +1098,6 @@ cst_utterance *hts_synth(cst_utterance *u)
   HTS_Engine_refresh(engine);
   release_engine(engine);
   feat_set_int(u->features,"last_user_callback_result",state.last_result);
-  if(state.events!=NULL) eventlist_free(state.events);
   svector_free(state.samples);
   svector_free(state.osamples);
   return u;
@@ -1119,18 +1108,28 @@ int RHVoice_speak(RHVoice_message msg)
   int last_user_callback_result=1;
   if(msg==NULL) return 0;
   if(!initialized) return 0;
-  cst_utterance *u;
-  for(u=next_utt_from_message(msg);u;u=next_utt_from_message(msg))
+  synth_input i;
+  while(true)
     {
-      russian_init(u);
-      utt_synth_tokens(u);
-      last_user_callback_result=get_param_int(u->features,"last_user_callback_result",1);
-      delete_utterance(u);
+      i=get_next_synth_input(msg);
+      if(i.num_events==0) break;
+      else if(i.utt==NULL)
+        {
+          user_callback(NULL,0,i.events,i.num_events,msg);
+          free(i.events);
+          break;
+        }
+      else
+        {
+          feat_set(i.utt->features,"events",userdata_val(i.events));
+          feat_set_int(i.utt->features,"num_events",i.num_events);
+          russian_init(i.utt);
+      utt_synth_tokens(i.utt);
+      last_user_callback_result=get_param_int(i.utt->features,"last_user_callback_result",1);
+      delete_utterance(i.utt);
+      free(i.events);
       if(!last_user_callback_result) break;
+        }
     }
-  if(last_user_callback_result)
-    report_final_mark(msg,user_callback);
   return 1;
 }
-
-
