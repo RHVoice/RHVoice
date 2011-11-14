@@ -909,7 +909,7 @@ cst_utterance *hts_synth(cst_utterance *u)
   sox_signalinfo_t osig={engine->global.sampling_rate,1,16,SOX_UNSPEC,NULL};
   state.engine=engine;
   for(nlabels=0,s=relation_head(utt_relation(u,"Segment"));s;nlabels++,s=item_next(s)) {}
-  if(nlabels==0)
+  if(nlabels<2)
     {
       release_engine(engine);
       return NULL;
@@ -935,6 +935,8 @@ cst_utterance *hts_synth(cst_utterance *u)
   float frames_per_sec=(float)engine->global.sampling_rate/((float)engine->global.fperiod);
   float factor,time;
   create_hts_labels(u);
+  nlabels--;
+  delete_item(relation_head(utt_relation(u,"Segment")));
   labels=(char**)calloc(nlabels,sizeof(char*));
   for(i=0,s=relation_head(utt_relation(u,"Segment"));s;s=item_next(s),i++)
     {
