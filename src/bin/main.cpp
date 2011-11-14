@@ -19,14 +19,14 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <cstdlib>
 #ifdef WIN32
 #include <cstdio>
 #include <io.h>
 #include <fcntl.h>
 #else
-#include <cerrno>
-#include <cstdlib>
 #include <cstring>
+#include <cerrno>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -49,6 +49,7 @@ using std::setw;
 using std::left;
 using std::ifstream;
 using std::ofstream;
+using std::exit;
 
 static uint32_t sample_rate=0;
 
@@ -155,6 +156,7 @@ static void kill_daemon()
         }
     }
 }
+#endif
 
 static bool set_prosody_option(float& param, const char *str);
 
@@ -352,6 +354,7 @@ namespace opt
   }
 }
 
+#ifndef WIN32
 // Function parses the header transmitted through the connection to daemon
 // and sets speech parameters to the corresponding values. Each parameter is
 // encoded in a separate line in the form
