@@ -1,4 +1,5 @@
 /* Copyright (C) 2009, 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2011  Dmitri Paduchikh <dpaduchikh@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
