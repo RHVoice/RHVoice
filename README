@@ -24,7 +24,7 @@ RHVoice uses the following free software components:
   (git://vinuxproject.org/sonic)
 * The expat XML parser is used to implement SSML support
   (http://expat.sourceforge.net)
-* the PCRE library is used for regular expressions support in
+* the PCRE library (version 8.10 or newer) is used for regular expressions support in
   pronunciation dictionaries (http://pcre.org)
 * libsox is used for some post-processing tasks
   (http://sox.sourceforge.net)
