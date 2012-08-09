@@ -1,0 +1,62 @@
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+
+Import("env")
+local_env=env.Clone()
+local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$datadir/$package_name\"')))
+local_env.Append(CPPDEFINES=("CONFIG_PATH",r'\"config\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$sysconfdir/$package_name\"')))
+
+lib_name="RHVoice_core"
+lib_version="0.0.0"
+if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]=="yes":
+    local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
+
+src=["unicode.cpp",
+	 "io.cpp",
+	 "path.cpp",
+	 "fst.cpp",
+	 "dtree.cpp",
+	 "lts.cpp",
+	 "item.cpp",
+	 "relation.cpp",
+	 "utterance.cpp",
+	 "document.cpp",
+	 "ini_parser.cpp",
+	 "config.cpp",
+	 "engine.cpp",
+	 "params.cpp",
+	 "phoneme_set.cpp",
+	 "language.cpp",
+	 "russian.cpp",
+	 "english.cpp",
+	 "esperanto.cpp",
+	 "voice.cpp",
+	 "hts_engine_pool.cpp",
+	 "hts_engine_call.cpp",
+	 "hts_labeller.cpp",
+	 "sonic.c",
+	 "speech_stream.cpp"]
+src.extend(Glob("hts_engine/*.c",strings=True))
+if env["PLATFORM"]=="win32":
+	lib=local_env.StaticLibrary(lib_name,src)
+elif env["enable_shared"]=="yes":
+	lib=local_env.SharedLibrary(lib_name,src)
+	env.InstallSharedLibrary(lib,lib_version)
+else:
+	lib=local_env.StaticLibrary(lib_name,src)
+	env.InstallStaticLibrary(lib)

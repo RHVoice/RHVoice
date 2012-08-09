@@ -1,0 +1,28 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+import sys
+import os
+import os.path
+
+if __name__=="__main__":
+	names=sorted(name for name in os.listdir(sys.argv[1]) if name.endswith(".lab"))
+	for name in names:
+		print(name)
+		labs=[]
+		prev_phone=None
+		with open(os.path.join(sys.argv[1],name),"r") as f:
+			next(f)
+			for line in f:
+				strtime,x,phone=line.split()
+				time=float(strtime)
+				if phone=="ssil":
+					phone="pau"
+				if phone=="pau" and prev_phone=="pau":
+					labs[-1][0]=time
+				else:
+					labs.append([time,phone])
+				prev_phone=phone
+		with open(os.path.join(sys.argv[2],name),"w") as f:
+			f.write("#\n")
+			for lab in labs:
+				f.write("{} 125 {}\n".format(*lab))

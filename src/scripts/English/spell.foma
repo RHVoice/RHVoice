@@ -1,0 +1,90 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Letter 
+[[a|A]:a] | 
+[[b|B]:b] | 
+[[c|C]:c] | 
+[[d|D]:d] | 
+[[e|E]:e] | 
+[[f|F]:f] | 
+[[g|G]:g] | 
+[[h|H]:h] | 
+[[i|I]:i] | 
+[[j|J]:j] | 
+[[k|K]:k] | 
+[[l|L]:l] | 
+[[m|M]:m] | 
+[[n|N]:n] | 
+[[o|O]:o] | 
+[[p|P]:p] | 
+[[q|Q]:q] | 
+[[r|R]:r] | 
+[[s|S]:s] | 
+[[t|T]:t] | 
+[[u|U]:u] | 
+[[v|V]:v] | 
+[[w|W]:w] | 
+[[x|X]:x] | 
+[[y|Y]:y] | 
+[[z|Z]:z] ; 
+
+define Digit %0:zero|1:one|2:two|3:three|4:four|5:five|6:six|7:seven|8:eight|9:nine;
+
+define Whitespace 
+tab:tab | 
+nl:newline | 
+cr:[carriage return] | 
+sp:space | 
+nbsp:[non breaking space] ; 
+
+define Punctuation 
+%,:comma | 
+%.:dot | 
+%?:[question mark] | 
+%!:[exclamation mark] | 
+%::colon | 
+%;: semicolon | 
+%":quote | 
+%':apostrophe | 
+%(:[left paren] | 
+%):[right paren] | 
+%-:dash | 
+%[:[left bracket] | 
+%]:[right bracket] | 
+%{:[left brace] | 
+%}:[right brace] ; 
+
+define Symbol 
+%$:dollar | 
+%%:percent | 
+%#:hash | 
+%&:ampersand | 
+%*:asterisk | 
+%+:plus | 
+%/:slash | 
+%<:[less than] | 
+%=:equals | 
+%>:[grater then] | 
+%@:at | 
+%\:backslash | 
+%^:caret | 
+%_:underscore | 
+%`:backquote | 
+%|:[vertical bar] | 
+%~:tilde ; 
+
+regex 
+Letter | Digit | Whitespace | Punctuation | Symbol ; 

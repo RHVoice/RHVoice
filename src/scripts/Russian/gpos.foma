@@ -1,0 +1,309 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Conjunction 
+а | 
+ато | 
+будто | 
+дабы | 
+если | 
+зато | 
+и | 
+или | 
+коли | 
+либо | 
+но | 
+однако | 
+пока | 
+поскольку | 
+притом | 
+словно | 
+также | 
+то | 
+хотя | 
+чтоб | 
+чтобы;
+
+define Preposition 
+без | 
+безо | 
+близ | 
+в | 
+вместо | 
+во | 
+возле | 
+вокруг | 
+вроде | 
+для | 
+до | 
+за | 
+засчёт | 
+из | 
+из-за | 
+из-под | 
+изо | 
+к | 
+ко | 
+кроме | 
+меж | 
+между | 
+мимо | 
+на | 
+над | 
+напротив | 
+насчёт | 
+о | 
+об | 
+обо | 
+около | 
+от | 
+ото | 
+перед | 
+передо | 
+по | 
+под | 
+подо | 
+помимо | 
+после | 
+пред |
+предо |  
+при | 
+про | 
+против | 
+ради | 
+с | 
+сверх | 
+сквозь | 
+со | 
+спустя | 
+среди | 
+у | 
+через;
+
+define Particle 
+"-де" | 
+"-ка" | 
+"-либо" | 
+"-нибудь" | 
+"-с" | 
+"-таки" | 
+"-то" | 
+аж | 
+б | 
+бишь | 
+бы | 
+ведь | 
+вот | 
+да | 
+даже | 
+дескать | 
+ж | 
+же | 
+именно | 
+ли | 
+лишь | 
+ль | 
+не | 
+ни | 
+пусть | 
+разве | 
+таки | 
+уж | 
+хоть | 
+это | 
+якобы;
+
+define Relative 
+где | 
+зачем | 
+как | 
+какая | 
+какие | 
+каким | 
+каких | 
+каков | 
+какова | 
+каково | 
+какового | 
+каковой | 
+каковом | 
+каковому | 
+каковую | 
+каковы | 
+каковым | 
+каковыми | 
+каковых | 
+какого | 
+какое | 
+какой | 
+каком | 
+какому | 
+какую | 
+кем | 
+когда | 
+кого | 
+ком | 
+кому | 
+которая | 
+которого | 
+которое | 
+которой | 
+котором | 
+которому | 
+которую | 
+которые | 
+который | 
+которым | 
+которыми | 
+которых | 
+кто | 
+куда | 
+откуда | 
+почему | 
+сколько | 
+чего | 
+чей | 
+чем | 
+чему | 
+что | 
+чьего | 
+чьей | 
+чьему | 
+чьи | 
+чьим | 
+чьим | 
+чьими | 
+чьих | 
+чью | 
+чья | 
+чьё | 
+чьём | 
+чём;
+
+define Personal 
+вам | 
+вами | 
+вас | 
+вы | 
+его | 
+ей | 
+ему | 
+ею | 
+её | 
+им | 
+ими | 
+их | 
+меня | 
+мне | 
+мной | 
+мною | 
+мы | 
+нам | 
+нами | 
+нас | 
+него | 
+ней | 
+нему | 
+нею | 
+неё | 
+ним | 
+ними | 
+них | 
+нём | 
+он | 
+она | 
+они | 
+оно | 
+тебе | 
+тебя | 
+тобой | 
+тобою | 
+ты | 
+я;
+
+define Possessive 
+ваш | 
+ваша | 
+ваше  |  
+вашего | 
+вашей | 
+вашем | 
+вашему | 
+вашею | 
+ваши | 
+вашим | 
+вашими | 
+ваших | 
+вашу | 
+моего | 
+моей | 
+моему | 
+моею | 
+мои | 
+моим | 
+моими | 
+моих | 
+мой | 
+моя | 
+моё | 
+моём | 
+наш | 
+наша | 
+наше  |  
+нашего | 
+нашей | 
+нашем | 
+нашему | 
+нашею | 
+наши | 
+нашим | 
+нашими | 
+наших | 
+нашу | 
+своего | 
+своей | 
+своему | 
+своею | 
+свои | 
+своим | 
+своими | 
+своих | 
+свой | 
+своя | 
+своё | 
+своём | 
+твоего | 
+твоей | 
+твоему | 
+твоею | 
+твои | 
+твоим | 
+твоими | 
+твоих | 
+твой | 
+твоя | 
+твоё | 
+твоём;
+
+define FunctionWord Conjunction | Preposition | Particle | Relative | Personal | Possessive;
+
+regex 
+Conjunction -> conj || _ ,, 
+Preposition -> prep || _ ,, 
+Particle -> part || _ ,, 
+Relative -> rel || _ ,, 
+Personal -> pers || _ ,, 
+Possessive -> pos || _ ,, 
+\FunctionWord -> content || _ ; 

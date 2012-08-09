@@ -1,0 +1,84 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import codecs
+import struct
+
+class arc(object):
+	__slots__=["dest","isym","osym"]
+
+	def __init__(self,dest,isym,osym):
+		self.dest=dest
+		self.isym=isym
+		self.osym=osym
+
+class state(object):
+	__slots__=["final","arcs"]
+
+	def __init__(self):
+		self.final=False
+		self.arcs=[]
+
+class fst(object):
+	def __init__(self,file_path):
+		self.symbols={"@0@":0,"@_IDENTITY_SYMBOL_@":1,"@_UNKNOWN_SYMBOL_@":1}
+		self.states=[]
+		with codecs.open(file_path,"r","utf-8") as f:
+			for line in f:
+				parts=line.split()
+				if not parts:
+					continue
+				src=self.get_state(int(parts[0]))
+				if len(parts)==1:
+					src.final=True
+				else:
+					dest_id=int(parts[1])
+					dest=self.get_state(dest_id)
+					src.arcs.append(arc(dest_id,self.get_sym_id(parts[2]),self.get_sym_id(parts[3])))
+		for s in self.states:
+			s.arcs.sort(key=lambda a: a.isym)
+
+	def get_state(self,id):
+		n=len(self.states)
+		if id>=n:
+			self.states.extend(state() for i in xrange(n,id+1))
+		return self.states[id]
+
+	def get_sym_id(self,name):
+		if name not in self.symbols:
+			next_id=max(self.symbols.itervalues())+1
+			self.symbols[name]=next_id
+		return self.symbols[name]
+
+	def save(self,file_path):
+		symbols=sorted((p for p in self.symbols.iteritems() if p[1]>1),key=lambda p: p[1])
+		with open(file_path,"wb") as f:
+			f.write(struct.pack(">H",len(symbols)))
+			for name,id in symbols:
+				utf8_name=name.encode("utf-8")
+				n=len(utf8_name)
+				f.write(struct.pack(">B{}s".format(n),n,utf8_name))
+			f.write(struct.pack(">I",len(self.states)))
+			for s in self.states:
+				f.write(struct.pack(">BI",s.final,len(s.arcs)))
+				for a in s.arcs:
+					f.write(struct.pack(">IHH",a.dest,a.isym,a.osym))
+
+if __name__=="__main__":
+	fst(sys.argv[1]).save(sys.argv[2])

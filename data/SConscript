@@ -1,4 +1,8 @@
+import os.path
+
 Import("env")
 
-env.InstallData(Glob("Aleksandr/*"),"Aleksandr")
-env.InstallData(Glob("Elena/*"),"Elena")
+for language_path in Glob("languages/*",strings=True):
+    env.InstallData(Glob(language_path+"/*"),language_path)
+for voice_path in Glob("voices/*",strings=True):
+    env.InstallData(Glob(voice_path+"/*"),voice_path)

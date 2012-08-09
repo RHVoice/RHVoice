@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<phonemes>
+<phoneme name="a" vc="+" vheight="1" vfront="2" vrnd="-"/>
+<phoneme name="e" vc="+" vheight="2" vfront="3" vrnd="-"/>
+<phoneme name="i" vc="+" vheight="3" vfront="3" vrnd="-"/>
+<phoneme name="o" vc="+" vheight="2" vfront="1" vrnd="+"/>
+<phoneme name="u" vc="+" vheight="3" vfront="1" vrnd="+"/>
+<phoneme name="b" vc="-" ctype="s" cplace="b" cvox="+"/>
+<phoneme name="d" vc="-" ctype="s" cplace="a" cvox="+"/>
+<phoneme name="g" vc="-" ctype="s" cplace="v" cvox="+"/>
+<phoneme name="p" vc="-" ctype="s" cplace="b" cvox="-"/>
+<phoneme name="t" vc="-" ctype="s" cplace="a" cvox="-"/>
+<phoneme name="k" vc="-" ctype="s" cplace="v" cvox="-"/>
+<phoneme name="v" vc="-" ctype="f" cplace="l" cvox="+"/>
+<phoneme name="z" vc="-" ctype="f" cplace="a" cvox="+"/>
+<phoneme name="zh" vc="-" ctype="f" cplace="p" cvox="+"/>
+<phoneme name="f" vc="-" ctype="f" cplace="l" cvox="-"/>
+<phoneme name="s" vc="-" ctype="f" cplace="a" cvox="-"/>
+<phoneme name="sh" vc="-" ctype="f" cplace="p" cvox="-"/>
+<phoneme name="hh" vc="-" ctype="f" cplace="v" cvox="-"/>
+<phoneme name="h" vc="-" ctype="f" cplace="g" cvox="-"/>
+<phoneme name="j" vc="-" ctype="a" cplace="p" cvox="+"/>
+<phoneme name="c" vc="-" ctype="a" cplace="a" cvox="-"/>
+<phoneme name="ch" vc="-" ctype="a" cplace="p" cvox="-"/>
+<phoneme name="m" vc="-" ctype="n" cplace="b" cvox="+"/>
+<phoneme name="n" vc="-" ctype="n" cplace="a" cvox="+"/>
+<phoneme name="l" vc="-" ctype="l" cplace="a" cvox="+"/>
+<phoneme name="r" vc="-" ctype="l" cplace="a" cvox="+"/>
+<phoneme name="y" vc="-" ctype="g" cplace="p" cvox="+"/>
+<phoneme name="w" vc="-" ctype="g" cplace="b" cvox="+"/>
+<phoneme name="pau"/>
+</phonemes>

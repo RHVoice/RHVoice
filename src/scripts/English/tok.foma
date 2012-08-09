@@ -1,0 +1,117 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define SmallLetter a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z;
+define CapitalLetter A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z;
+define Letter SmallLetter | CapitalLetter;
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define Number %0 | [NZDigit Digit*];
+
+define CaseVariants 
+a -> a|A , 
+b -> b|B , 
+c -> c|C , 
+d -> d|D , 
+e -> e|E , 
+f -> f|F , 
+g -> g|G , 
+h -> h|H , 
+i -> i|I , 
+j -> j|J , 
+k -> k|K , 
+l -> l|L , 
+m -> m|M , 
+n -> n|N , 
+o -> o|O , 
+p -> p|P , 
+q -> q|Q , 
+r -> r|R , 
+s -> s|S , 
+t -> t|T , 
+u -> u|U , 
+v -> v|V , 
+w -> w|W , 
+x -> x|X , 
+y -> y|Y , 
+z -> z|Z ; 
+
+define ConsonantLetterSequence 
+[b|c|d|f|g|h|j|k|l|m|n|q|p|r|s|t|v|w|x|z]+ ; 
+
+read text initialisms.txt
+letter machine
+define LetterSequenceWithVowels
+
+define LetterSequence 
+[[{IT} | {US} | ConsonantLetterSequence | LetterSequenceWithVowels] .o. CaseVariants].l ; 
+
+define Am %' [m|M];
+define Are %' [r|R] [e|E];
+define Have %' [v|V] [e|E];
+define Has %' [s|S];
+define Had %' [d|D];
+define Will %' [l|L] [l|L];
+define Is Has;
+define Not [n|N] %' [t|T];
+define Them %' [e|E] [m|M];
+
+define Contraction 
+Has|Had|Have|Will| 
+Them | 
+[[I|i] [Am|Will|Have|Had]] | 
+[[w|W] [e|E] [Are|Will|Have|Had]] | 
+[[y|Y] [o|O] [u|U] [Are|Will|Have|Had]] | 
+[[t|T] [h|H] [e|E] [y|Y] [Are|Will|Have|Had]] | 
+[(s|S) [h|H] [e|E] [Will|Has|Had]] | 
+[[i|I] [t|T] [Has|Had|Will]] | 
+[[[[a|A] [r|R] [e|E]] | 
+[[c|C] [a|A]] | 
+[[c|C|w|W|[[s|S] [h|H]]] [o|O] [u|U] [l|L] [d|D]] | 
+[[d|D] [a|A] [r|R] [e|E]] | 
+[[d|D] [i|I] [d|D]] | 
+[[d|D] [o|O] ([e|E] [s|S])] | 
+[[h|H] [a|A] [s|S|d|D|[[v|V] [e|E]]]] | 
+[[i|I] [s|S]] | 
+[[w|W] [a|A] [s|S]] | 
+[[w|W] [e|E] [r|R] [e|E]] | 
+[[w|W] [o|O]] |
+[[a|A] [i|I]] |
+[[m|M] [a|A] [y|Y]] |
+[[m|M] [i|I] [g|G] [h|H] [t|T]] |
+[[m|M] [u|U] [s|S] [t|T]] |
+[[n|N] [e|E] [e|E] [d|D]] |
+[[o|O] [u|U] [g|G] [h|H] [t|T]] |
+[[s|S] [h|H] [a|A]]] Not] | 
+[[o|O] %' [c|C] [l|L] [o|O] [c|C] [k|K]] ; 
+
+define Word Letter+ | Contraction ;
+
+define Stage1 
+[..] -> word || SmallLetter _ CapitalLetter ;
+
+define Stage2 
+Number @-> ... num || _ ,, 
+Word @-> ... word || _ .#. | \Letter ,, 
+\[Letter | Digit | word] @-> ... sym || _ ,, 
+word -> 0 || _ ; 
+
+define Stage3 
+word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
+num -> dig || Digit^15 _ ;
+
+regex Stage1 .o. Stage2 .o. Stage3;

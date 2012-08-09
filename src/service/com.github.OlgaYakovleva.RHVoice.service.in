@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name = com.github.OlgaYakovleva.RHVoice
+Exec = @bindir@/RHVoice-service

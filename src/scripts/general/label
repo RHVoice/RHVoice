@@ -1,0 +1,136 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import os
+import os.path
+import subprocess
+import argparse
+import codecs
+import re
+import itertools
+import collections
+import decimal
+
+def run(*args):
+	subprocess.check_call(args,stdout=sys.stdout,stderr=sys.stderr)
+
+def setup(args):
+	os.mkdir("labels")
+	os.mkdir(os.path.join("labels","mono"))
+	os.mkdir(os.path.join("labels","full"))
+	os.mkdir("ehmm")
+	for subdir in ["feat","mod","etc","lab"]:
+		os.mkdir(os.path.join("ehmm",subdir))
+		ehmm_settings=collections.OrderedDict()
+	with codecs.open(os.path.join(args.ehmm_dir,"etc","mysp_settings"),"rb","utf-8") as f:
+		for line in f:
+			m=re.match(r"\s*(\S+)\s*:\s*(\S+)\s*",line)
+			if m:
+				ehmm_settings[m.group(1)]=m.group(2)
+	ehmm_settings["WaveDir"]=args.wave_dir
+	with codecs.open(os.path.join("ehmm","etc","mysp_settings"),"wb","utf-8") as f:
+		for k,v in ehmm_settings.iteritems():
+			f.write(u"{}: {}\n".format(k,v))
+
+def phseq(args):
+	work_dir=os.path.join("ehmm","etc")
+	waves=sorted(name for name in os.listdir(args.wave_dir) if name.endswith(".wav"))
+	transcription_path=os.path.join(work_dir,"transcription.txt")
+	run("RHVoice-transcribe-sentences","-b","ssil",args.text,transcription_path)
+	with codecs.open(transcription_path,"rb","utf-8") as f_in:
+		with codecs.open(os.path.join(work_dir,"txt.phseq.data"),"wb","utf-8") as f_out:
+			for name,line in itertools.izip(waves,f_in):
+				f_out.write(os.path.splitext(name)[0])
+				f_out.write(" ")
+				f_out.write(line.strip())
+				f_out.write("\n")
+	bin_dir=os.path.join(args.ehmm_dir,"bin")
+	run("perl",os.path.join(bin_dir,"phfromutt.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"ph_list"),"5")
+	run("perl",os.path.join(bin_dir,"getwavlist.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"mywavelist"))
+
+def feats(args):
+	bin_dir=os.path.join(args.ehmm_dir,"bin")
+	work_dir=os.path.join("ehmm","etc")
+	feat_dir=os.path.join("ehmm","feat")
+	run(os.path.join(bin_dir,"FeatureExtraction"),os.path.join(work_dir,"mysp_settings"),os.path.join(work_dir,"mywavelist"))
+	run("perl",os.path.join(bin_dir,"comp_dcep.pl"),os.path.join(work_dir,"mywavelist"),feat_dir,"mfcc","ft","0","0")
+	run("perl",os.path.join(bin_dir,"scale_feat.pl"),os.path.join(work_dir,"mywavelist"),feat_dir,os.path.join("ehmm","mod"),"ft","4")
+	run("perl",os.path.join(bin_dir,"seqproc.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"ph_list"),"2","2","13")
+
+def bw(args):
+	bin_dir=os.path.join(args.ehmm_dir,"bin")
+	feat_dir=os.path.join("ehmm","feat")
+	mod_dir=os.path.join("ehmm","mod")
+	work_dir=os.path.join("ehmm","etc")
+	run(os.path.join(bin_dir,"ehmm"),os.path.join(work_dir,"ph_list.int"),os.path.join(work_dir,"txt.phseq.data.int"),"1","0",feat_dir,"ft",mod_dir,"0","0","0")
+
+def align(args):
+	bin_dir=os.path.join(args.ehmm_dir,"bin")
+	feat_dir=os.path.join("ehmm","feat")
+	mod_dir=os.path.join("ehmm","mod")
+	work_dir=os.path.join("ehmm","etc")
+	lab_dir=os.path.join("ehmm","lab")
+	run(os.path.join(bin_dir,"edec"),os.path.join(work_dir,"ph_list.int"),os.path.join(work_dir,"txt.phseq.data.int"),"1",feat_dir,"ft",os.path.join(work_dir,"mysp_settings"),mod_dir,"0",lab_dir)
+	run("perl",os.path.join(bin_dir,"sym2nm.pl"),lab_dir,os.path.join(work_dir,"ph_list.int"))
+
+def mono(args):
+	print("Writing monophone labels")
+	ehmm_lab_dir=os.path.join("ehmm","lab")
+	hts_lab_dir=os.path.join("labels","mono")
+	for fname in sorted(fname for fname in os.listdir(ehmm_lab_dir) if fname.endswith(".lab")):
+		prev_phone=None
+		labels=list()
+		with codecs.open(os.path.join(ehmm_lab_dir,fname),"rb","utf-8") as f:
+			f.readline()
+			for line in f:
+				tokens=line.split()
+				time=int(decimal.Decimal(tokens[0])*10000000)
+				phone=tokens[-1]
+				if phone=="ssil":
+					phone="pau"
+				if phone=="pau" and prev_phone=="pau":
+					labels[-1][1]=time
+				else:
+					labels.append([phone,time])
+				prev_phone=phone
+		prev_time=0
+		with codecs.open(os.path.join(hts_lab_dir,fname),"wb","utf-8") as f:
+			for phone,time in labels:
+				f.write(u"{} {} {}\n".format(prev_time,time,phone))
+				prev_time=time
+
+def full(args):
+	print("Writing full context labels")
+	mono_lab_dir=os.path.join("labels","mono")
+	full_lab_dir=os.path.join("labels","full")
+	run("RHVoice-make-hts-labels","-l",mono_lab_dir,args.text,full_lab_dir)
+
+if __name__=="__main__":
+	arg_parser=argparse.ArgumentParser(description="Label a speech database using the Ehmm labeller")
+	arg_parser.add_argument("--ehmm-dir",required=True,help="the path to the Ehmm labeller")
+	arg_parser.add_argument("--text",required=True,help="the path to the recording script")
+	arg_parser.add_argument("--wave-dir",required=True,help="the path to the recordings")
+	args=arg_parser.parse_args()
+	setup(args)
+	phseq(args)
+	feats(args)
+	bw(args)
+	align(args)
+	mono(args)
+	full(args)

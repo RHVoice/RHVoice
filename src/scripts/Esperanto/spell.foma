@@ -1,0 +1,69 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Letter 
+[[a|A]:a] | 
+[[b|B]:bo] | 
+[[c|C]:co] | 
+[[ĉ|Ĉ]:ĉo] | 
+[[d|D]:do] | 
+[[e|E]:e] | 
+[[f|F]:fo] | 
+[[g|G]:go] | 
+[[ĝ|Ĝ]:ĝo] | 
+[[h|H]:ho] | 
+[[ĥ|Ĥ]:ĥo] | 
+[[i|I]:i] | 
+[[j|J]:jo] | 
+[[ĵ|Ĵ]:ĵo] | 
+[[k|K]:ko] | 
+[[l|L]:lo] | 
+[[m|M]:mo] | 
+[[n|N]:no] | 
+[[o|O]:o] | 
+[[p|P]:po] | 
+[[q|Q]:kuo] | 
+[[r|R]:ro] | 
+[[s|S]:so] | 
+[[ŝ|Ŝ]:ŝo] | 
+[[t|T]:to] | 
+[[u|U]:u] | 
+[[v|V]:vo] | 
+[[w|W]:[duobla vo]] | 
+[[ŭ|Ŭ]:ŭo] | 
+[[x|X]:ikso] | 
+[[y|Y]:ipsilono] | 
+[[z|Z]:zo] ; 
+
+define Digit %0:nulo|1:unu|2:du|3:tri|4:kvar|5:kvin|6:ses|7:sep|8:ok|9:naŭ;
+
+define Whitespace 
+tab:tabo | 
+sp:spaco ; 
+
+define Punctuation 
+%,:komo | 
+%.:punkto | 
+%?:demandosigno | 
+%::dupunkto | 
+%!:krisigno | 
+%;:punktokomo ; 
+
+define Symbol 
+%$:dolaro | 
+%%:procento ; 
+
+regex 
+Letter | Digit | Whitespace | Punctuation | Symbol ; 

@@ -1,0 +1,40 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Nucleus 
+[[a0 | a1 | e0 | e1 | o0 | o1] (y | w)] | i0 | i1 | [[u0 | u1] (y)] ; 
+
+define MarkNuclei Nucleus @-> %{ ... %} ; 
+
+define Consonant 
+b|c|ch|d|f|g|j|h|hh|y|zh|k|l|m|n|p|r|s|sh|t|v|w|z ; 
+define Onset 
+0 | Consonant | 
+{bl} | {br} | {pl} | {pr} | {dr} | {tr} | {gl} | {gr} | {kl} | {kr} | 
+{fl} | {fr} | {sl} | [sh l] | [sh r] | 
+{sc} | {sp} | {spl} | {spr} | {st} | {str} | {sk} | {skl} | {skr} | [sh p] | [sh p r] | [sh t] | [sh t r] | 
+{gn} | {kn} | {sm} | {sn} | [sh m] | [sh n] | 
+{gv} | {kv} | {sv} | [sh v] | 
+{ty} | [ch y] | {fy} | {vy} | {ny} | 
+{dz} ; 
+
+define Syllable Onset %{ Nucleus %} Consonant* ; 
+
+define MarkSyllables Syllable @> ... "." || _ Syllable;
+
+regex 
+MarkNuclei .o. 
+MarkSyllables .o. 
+[%{|%} -> 0] ;
