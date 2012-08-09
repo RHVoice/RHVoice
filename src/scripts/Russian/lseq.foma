@@ -1,0 +1,88 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define TranscribeLetterSequence 
+а|a -> a0 || _ \.#. ,, 
+а|a -> a1 || _ .#. ,, 
+б|b -> b e0 || _ \.#. ,, 
+б|b -> b e1 || _ .#. ,, 
+в|v -> v e0 || _ \.#. ,, 
+в|v -> v e1 || _ .#. ,, 
+г|g -> g e0 || _ \.#. ,, 
+г|g -> g e1 || _ .#. ,, 
+д|d -> d e0 || _ \.#. ,, 
+д|d -> d e1 || _ .#. ,, 
+е|e -> j e0 || _ \.#. ,, 
+е|e -> j e1 || _ .#. ,, 
+ё -> j o1 || _ ,, 
+ж -> zh e0 || _ \.#. ,, 
+ж -> zh e1 || _ .#. ,, 
+j -> j o1 t || _ ,, 
+з|z -> z e0 || _ \.#. ,, 
+з|z -> z e1 || _ .#. ,, 
+и|i -> i0 || _ \.#. ,, 
+и|i -> i1 || _ .#. ,, 
+й -> i0 k r a1 t k a0 j e0 || _ ,, 
+к|k -> k a0 || _ \.#. ,, 
+к|k -> k a1 || _ .#. ,, 
+l|л -> e0 l || _ \.#. ,, 
+l|л -> e1 l || \.#. _ .#. ,, 
+l|л -> e1 ll || .#. _ .#. ,, 
+m|м -> e0 m || _ \.#. ,, 
+m|м -> e1 m || _ .#. ,, 
+n|н -> e0 n || _ \.#. ,, 
+n|н -> e1 n || _ .#. ,, 
+о|o -> o1 || _ ,, 
+п|p -> p e0 || _ \.#. ,, 
+п|p -> p e1 || _ .#. ,, 
+r|р -> e0 r || _ \.#. ,, 
+r|р -> e1 r || _ .#. ,, 
+s|с -> e0 s || _ \.#. ,, 
+s|с -> e1 s || _ .#. ,, 
+т|t -> t e0 || _ \.#. ,, 
+т|t -> t e1 || _ .#. ,, 
+у|u -> u0 || _ \.#. ,, 
+у|u -> u1 || _ .#. ,, 
+f|ф -> e0 f || _ \.#. ,, 
+f|ф -> e1 f || _ .#. ,, 
+х|h -> h a0 || _ \.#. ,, 
+х|h -> h a1 || _ .#. ,, 
+ц|c -> c e0 || _ \.#. ,, 
+ц|c -> c e1 || _ .#. ,, 
+ч -> ch e0 || _ \.#. ,, 
+ч -> ch e1 || _ .#. ,, 
+ш -> sh a0 || _ \.#. ,, 
+ш -> sh a1 || _ .#. ,, 
+щ -> sch a0 || _ \.#. ,, 
+щ -> sch a1 || _ .#. ,, 
+ь -> mm a1 h kk i0 j z n a1 k || .#. _ .#. ,, 
+ы -> y0 || _ \.#. ,, 
+ы -> y1 || _ .#. ,, 
+ъ -> t vv o1 r d y0 j z n a1 k || .#. _ .#. ,, 
+э -> e0 || _ \.#. ,, 
+э -> e1 || _ .#. ,, 
+ю -> j u0 || _ \.#. ,, 
+ю -> j u1 || _ .#. ,, 
+я -> j a0 || _ \.#. ,, 
+я -> j a1 || _ .#. ,, 
+q -> k u0 || _ \.#. ,, 
+q -> k u1 || _ .#. ,, 
+w -> d u0 b ll v e1 || _ ,, 
+x -> i0 k s || _ \.#. ,, 
+x -> i1 k s || _ .#. ,, 
+y -> i1 g rr i0 k || _ ; 
+
+regex 
+TranscribeLetterSequence ; 

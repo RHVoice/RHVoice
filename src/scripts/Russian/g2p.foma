@@ -1,0 +1,127 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define ApplyOrthoepicRules 
+о г о:О @-> || .#. _ .#. ,, 
+е г:в О @-> || _ .#. ,, 
+е г:в о @-> || _ .#. ,, 
+е г:в о с я @-> || _ .#. ,, 
+о г:в о @-> || \.#. _ .#. ,, 
+О г:в о @-> || _ .#. ,, 
+о г:в О @-> || _ .#. ,, 
+с е г:в О д н я @-> || .#. _ ,, 
+({не} | {на}) {мнОго} @-> || .#. _ .#. ,, 
+({не} | {за}) {дОрого} @-> || .#. _ .#. ,, 
+(н е) {стрОго} @-> || .#. _ .#. ,, 
+{нАстрого} @-> || .#. _ .#. ,, 
+{полОго} @-> || .#. _ .#. ,, 
+{отмЕться} @-> || .#. _ .#. ,, 
+((п) о) {забОться} @-> || .#. _ .#. ,, 
+[т (ь) с]:ц я:а @-> || _ .#. ,, 
+б О г:х @-> || .#. _ .#. ,, 
+г:х [к|ч] @-> || _ ,, 
+с т:0 с к @-> || _ ,, 
+{дс}:ц {тв} @-> || _ ,, 
+{тс}:ц {тв} @-> || _ ,, 
+ч:ш т О @-> || .#. _ ,, 
+н и ч:ш т О @-> || .#. _ .#. ,, 
+к о н Е ч:ш н о @-> || .#. _ .#. ,, 
+н а р О ч:ш н о @-> || .#. _ .#. ,, 
+н е н а р О ч:ш н о @-> || .#. _ .#. ,, 
+я И ч:ш н и ц @-> || .#. _ ,, 
+с к У ч:ш н @-> || _ ,, 
+с к у ч:ш н @-> || _ ,, 
+д в О е ч:ш н и @-> || .#. _ ,, 
+т р О е ч:ш н и @-> || .#. _ ,, 
+п о м О щ:ш н и @-> || .#. _ ,, 
+ч У в:0 с т в @-> || _ ,, 
+ч у в:0 с т в @-> || _ ,, 
+з д р А в:0 с т в @-> || .#. _ ,, 
+{безмОл} в:0 {ств} @-> || .#. _ ,, 
+с т:0 н @-> || _ ,, 
+з д:0 н @-> || _ ,, 
+л:0 н ц @-> || _ ,, 
+{сч}:щ А с т:0 л и в @-> || _ ,, 
+{сч}:щ а с т:0 л И в @-> || _ ,, 
+ж А л о с т:0 л и в @-> || .#. _ ,, 
+з а в И с т:0 л и в @-> || .#. _ ,, 
+у ч А с т:0 л и в @-> || .#. _ ,, 
+н т:0 щ @-> || _ ,, 
+р д:0 ч @-> || _ ,, 
+н д:0 ц @-> || _ ,, 
+р д:0 ц @-> || _ ,, 
+б е с @-> || .#. _ ч ,, 
+и с @-> || .#. _ ч ,, 
+и {сч}:щ Е з @-> || .#. _ ,, 
+и {сч}:щ е з @-> || .#. _ ,, 
+р а с @-> || .#. _ ч ,, 
+р О с @-> || .#. _ ч ,, 
+ч е р е с @-> || .#. _ ч ,, 
+с @-> || .#. _ ч ,, 
+{сч}:щ А с т @-> || .#. _ ,, 
+{сч}:щ а с т @-> || .#. _ ,, 
+{сч}:щ ё т @-> || .#. _ ,, 
+{сч}:щ и т @-> || .#. _ ,, 
+{сч}:щ И т @-> || .#. _ ,, 
+р а {сч}:щ ё т @-> || .#. _ ,, 
+{сч}:щ @-> || \.#. _ ,, 
+{зч}:щ @-> || _ ,, 
+{здч}:щ @-> || _ ,, 
+р г:0 с к @-> || _ ,, 
+н д:0 с к @-> || _ ,, 
+н т:0 с к @-> || _ ,, 
+с т:0 ц @-> || _ ,, 
+з д:0 ц @-> || _ ,, 
+д:0 ц а т @-> || _ ,, 
+д:0 ц А т @-> || _ ,, 
+м у {жч}:щ И н @-> || .#. _ ,, 
+п е р е б Е {жч}:щ и @-> || .#. _ ; 
+
+define SoftConsonant bb | vv | gg | dd | zz | j | kk | ll | mm | nn | pp | rr | ss | tt | ff | hh | ch | sch;
+define HardConsonant b | v | g | d | zh | z | k | l | m | n | p | r | s | t | f | h | c | sh;
+
+define YVowelLetter е | Е | ё | Ё | ю | Ю | я | Я;
+define VowelLetter а | А | и | И | о | О | у | У | ы | Ы | э | Э | YVowelLetter;
+
+define TranscribeI и:i0 | И:i1;
+define TranscribeYVowel е:e0 | Е:e1 | ё:o1 | Ё:o1 | ю:u0 | Ю:u1 | я:a0 | Я:a1;
+define TranscribeHardVowel а:a0 | А:a1 | о:o0 | О:o1 | у:u0 | У:u1 | ы:y0 | Ы:y1 | э:e0 | Э:e1;
+define TranscribeVowel TranscribeHardVowel | TranscribeI | TranscribeYVowel;
+
+define TranscribeAsHardConsonant б:b | в:v | г:g | д:d | ж:zh | з:z | й:j | к:k | л:l | м:m | н:n | п:p | р:r | с:s | т:t | ф:f | х:h | ц:c | ч:ch | ш:sh | щ:sch;
+
+define TranscribeAsSoftConsonant б:bb | в:vv | г:gg | д:dd | ж:zh | з:zz | й:j | к:kk | л:ll | м:mm | н:nn | п:pp | р:rr | с:ss | т:tt | ф:ff | х:hh | ц:c | ч:ch | ш:sh | щ:sch;
+
+define Transcribe 
+TranscribeAsSoftConsonant ь:0 @-> || _ ,, 
+TranscribeAsSoftConsonant TranscribeYVowel @-> || _ ,, 
+TranscribeAsSoftConsonant TranscribeI @-> || _ ,, 
+TranscribeAsSoftConsonant ь:j TranscribeVowel @-> || _ ,, 
+TranscribeAsHardConsonant ъ:j TranscribeVowel @-> || _ ,, 
+TranscribeAsHardConsonant @-> || _ ,, 
+0:j TranscribeYVowel @-> || _ ,, 
+TranscribeI @-> || _ ,, 
+TranscribeHardVowel @-> || _ ,, 
+ь @-> 0 || _ ,, 
+ъ @-> 0 || _ ; 
+
+define ChangeItoYAfterHardConsonants 
+i0 -> y0 , i1 -> y1 || c | zh | sh _ ; 
+
+regex 
+[%- -> 0] .o. 
+ApplyOrthoepicRules .o. 
+Transcribe .o. 
+ChangeItoYAfterHardConsonants ; 

@@ -1,10 +1,7 @@
 from SCons.Script import *
 
 def exists(env):
-    if env["PLATFORM"]=="win32":
-        return True
-    else:
-        return False
+    return (env["PLATFORM"]=="win32")
 
 def ConvertNewlines(target,source,env):
     for t,s in zip(target,source):

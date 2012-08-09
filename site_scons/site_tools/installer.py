@@ -70,6 +70,10 @@ def InstallSharedLibrary(env,src,version):
 def InstallHeader(env,src):
     return Install(env,src,"$includedir")
 
+def InstallServiceFile(env,src):
+    service_file=env.Substfile(src,SUBST_DICT={"@bindir@":"$bindir"})
+    return Install(env,service_file,"$servicedir")
+
 def generate(env):
     env.AddMethod(InstallProgram)
     env.AddMethod(InstallData)
@@ -77,3 +81,4 @@ def generate(env):
     env.AddMethod(InstallStaticLibrary)
     env.AddMethod(InstallSharedLibrary)
     env.AddMethod(InstallHeader)
+    env.AddMethod(InstallServiceFile)

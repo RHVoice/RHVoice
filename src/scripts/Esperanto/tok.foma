@@ -1,0 +1,74 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define CaseVariants 
+a -> a|A , 
+b -> b|B , 
+c -> c|C , 
+d -> d|D , 
+e -> e|E , 
+f -> f|F , 
+g -> g|G , 
+h -> h|H , 
+i -> i|I , 
+j -> j|J , 
+k -> k|K , 
+l -> l|L , 
+m -> m|M , 
+n -> n|N , 
+o -> o|O , 
+p -> p|P , 
+q -> q|Q , 
+r -> r|R , 
+s -> s|S , 
+t -> t|T , 
+u -> u|U , 
+v -> v|V , 
+w -> w|W , 
+x -> x|X , 
+y -> y|Y , 
+z -> z|Z , 
+ĉ -> ĉ|Ĉ , 
+ĝ -> ĝ|Ĝ , 
+ĥ -> ĥ|Ĥ , 
+ĵ -> ĵ|Ĵ , 
+ŝ -> ŝ|Ŝ , 
+ŭ -> ŭ|Ŭ ; 
+
+define ConsonantLetterSequence 
+[b|c|d|f|g|h|j|k|l|m|n|q|p|r|s|t|v|w|x|z]+ ; 
+
+define LetterSequence 
+[ConsonantLetterSequence .o. CaseVariants].l ; 
+
+define Letter a|A|b|B|c|C|d|D|e|E|f|F|g|G|h|H|i|I|j|J|k|K|l|L|m|M|n|N|o|O|p|P|q|Q|r|R|s|S|t|T|u|U|v|V|w|W|x|X|y|Y|z|Z|ĉ|Ĉ|ĝ|Ĝ|ĥ|Ĥ|ĵ|Ĵ|ŝ|Ŝ|ŭ|Ŭ;
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define Number %0 | [NZDigit Digit*];
+
+define Word Letter+ ;
+
+define Stage1 
+Number @-> ... num || _ ,, 
+Word @-> ... word || _ .#. | \Letter ,, 
+\[Letter | Digit] @-> ... sym || _ ; 
+
+define Stage2 
+word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
+num -> dig || Digit^15 _ ;
+
+regex Stage1 .o. Stage2;

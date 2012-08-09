@@ -1,0 +1,40 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+read text exceptions.txt
+define Words
+define YoWords Words & [?* ё ?*];
+
+define Unstress 
+А -> а || _ ,, 
+Е -> е || _ ,, 
+И -> и || _ ,, 
+О -> о || _ ,, 
+У -> у || _ ,, 
+Ы -> ы || _ ,, 
+Э -> э || _ ,, 
+Ю -> ю || _ ,, 
+Я -> я || _ ; 
+
+define YoToYe 
+ё -> е;
+
+define YoDict [YoWords .o. Unstress .o. YoToYe].i;
+define Dict [[Words & [?* [А|Е|И|О|У|Ы|Э|Ю|Я] ?*]] .o. Unstress].i | YoDict;
+
+source extra.foma
+source corrections.foma
+
+regex Corrections .P. Dict | Extra;

@@ -1,5 +1,4 @@
 Import("env")
 
 env.InstallConfig("RHVoice.conf")
-env.InstallConfig(Glob("dicts/*"),"dicts")
-env.InstallConfig(Glob("variants/*"),"variants")
+# env.InstallConfig(Glob("dicts/*"),"dicts")
