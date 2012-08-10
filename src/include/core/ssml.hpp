@@ -310,6 +310,24 @@ namespace RHVoice
             }
         }
     }
+
+    template<typename ch>
+    class audio_handler: public xml::element_handler<ch>
+    {
+    public:
+      audio_handler():
+        xml::element_handler<ch>("audio")
+      {
+      }
+
+      bool enter(xml::handler_args<ch>& args)
+      {
+        std::string src=xml::get_attribute_value(args.node,"src");
+        if(!src.empty())
+          args.target_document.add_audio(src);
+        return false;
+      }
+    };
   }
 }
 #endif

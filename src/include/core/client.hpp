@@ -26,7 +26,8 @@ namespace RHVoice
       event_word_starts=2,
       event_word_ends=4,
       event_sentence_starts=8,
-      event_sentence_ends=16
+      event_sentence_ends=16,
+      event_audio=32
     };
   typedef unsigned int event_mask;
 
@@ -48,6 +49,11 @@ namespace RHVoice
     }
 
     virtual bool process_mark(const std::string& name)
+    {
+      return true;
+    }
+
+    virtual bool play_audio(const std::string& src)
     {
       return true;
     }

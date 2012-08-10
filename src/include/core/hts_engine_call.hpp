@@ -189,6 +189,24 @@ namespace RHVoice
       std::string name;
     };
 
+    class audio_event: public event
+    {
+    public:
+      audio_event(int offset,const std::string& audio_src):
+        event(offset),
+        src(audio_src)
+      {
+      }
+
+      bool notify(client& c) const
+      {
+        return c.play_audio(src);
+      }
+
+    private:
+      std::string src;
+    };
+
     const utterance& utt;
     client& result_handler;
     hts_engine_pool& engine_pool;

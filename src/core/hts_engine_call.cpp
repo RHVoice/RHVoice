@@ -195,6 +195,15 @@ namespace RHVoice
                 if(mask&event_mark)
                   events.push(event_ptr(new mark_event(offset,mark_val.as<std::string>())));
               }
+            else
+              {
+                const value& audio_val=it->get("audio",true);
+                if(!audio_val.empty())
+                  {
+                    if(mask&event_audio)
+                      events.push(event_ptr(new audio_event(offset,audio_val.as<std::string>())));
+                  }
+              }
           }
       }
     if(mask&event_sentence_ends)

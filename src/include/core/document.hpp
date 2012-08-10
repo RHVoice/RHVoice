@@ -43,7 +43,8 @@ namespace RHVoice
     enum command_type
       {
         command_token,
-        command_mark
+        command_mark,
+        command_audio
       };
 
     class abstract_command: public utterance_function
@@ -125,6 +126,23 @@ namespace RHVoice
       std::string name;
     };
 
+    class append_audio: public command<command_audio>
+    {
+    public:
+      explicit append_audio(const std::string& audio_src):
+        src(audio_src)
+      {
+      }
+
+      void execute(utterance& u) const
+      {
+        u.get_relation("Event",true).append().set("audio",src);
+      }
+
+    private:
+      std::string src;
+    };
+
     std::list<command_ptr> commands;
     std::vector<utf8::uint32_t> trailing_whitespace,last_token;
     const document* parent;
@@ -148,6 +166,11 @@ namespace RHVoice
     void add_mark(const std::string& name)
     {
       commands.push_back(command_ptr(new append_mark(name)));
+    }
+
+    void add_audio(const std::string& src)
+    {
+      commands.push_back(command_ptr(new append_audio(src)));
     }
 
   private:
@@ -286,6 +309,11 @@ namespace RHVoice
     void add_mark(const std::string& name)
     {
       get_current_sentence().add_mark(name);
+    }
+
+    void add_audio(const std::string& src)
+    {
+      get_current_sentence().add_audio(src);
     }
 
     void finish_sentence()
@@ -447,6 +475,8 @@ namespace RHVoice
     parser.add_element_handler(say_as_handler);
     ssml::prosody_handler<char_type> prosody_handler;
     parser.add_element_handler(prosody_handler);
+    ssml::audio_handler<char_type> audio_handler;
+    parser.add_element_handler(audio_handler);
     parser.parse(text_start,text_end,*doc_ptr);
     return doc_ptr;
   }
