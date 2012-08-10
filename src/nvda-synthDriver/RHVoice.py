@@ -49,6 +49,7 @@ class RHVoice_callback_types:
     word_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
     sentence_starts=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
     sentence_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
+    play_audio=CFUNCTYPE(c_int,c_char_p,c_void_p)
 
 class RHVoice_callbacks(Structure):
     _fields_=[("play_speech",RHVoice_callback_types.play_speech),
@@ -258,7 +259,8 @@ class SynthDriver(SynthDriver):
                                                           cast(None,RHVoice_callback_types.word_starts),
                                                           cast(None,RHVoice_callback_types.word_ends),
                                                           cast(None,RHVoice_callback_types.sentence_starts),
-                                                          cast(None,RHVoice_callback_types.sentence_ends)),
+                                                          cast(None,RHVoice_callback_types.sentence_ends),
+                                                          cast(None,RHVoice_callback_types.play_audio)),
                                         0)
         self.__tts_engine=self.__lib.RHVoice_new_tts_engine(byref(init_params))
         if not self.__tts_engine:

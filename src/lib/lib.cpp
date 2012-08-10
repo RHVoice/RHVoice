@@ -65,6 +65,11 @@ struct RHVoice_message_struct: public client
     return callbacks.word_ends(position,length,user_data);
   }
 
+  bool play_audio(const std::string& src)
+  {
+    return callbacks.play_audio(src.c_str(),user_data);
+  }
+
   void speak()
   {
     doc_ptr->synthesize();
@@ -219,6 +224,8 @@ event_mask RHVoice_message_struct::get_supported_events() const
     result|=event_sentence_starts;
   if(callbacks.sentence_ends)
     result|=event_sentence_ends;
+  if(callbacks.play_audio)
+    result|=event_audio;
   return result;
 }
 
