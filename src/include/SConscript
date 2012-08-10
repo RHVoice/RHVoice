@@ -15,4 +15,5 @@
 
 Import("env")
 
+env.InstallHeader("RHVoice_common.h")
 env.InstallHeader("RHVoice.h")

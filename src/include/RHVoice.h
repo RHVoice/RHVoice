@@ -16,6 +16,8 @@
 #ifndef RHVOICE_H
 #define RHVOICE_H
 
+#include "RHVoice_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #else
@@ -66,6 +68,7 @@ typedef struct
     /* Language code. */
     const char* language;
     const char* name;
+    RHVoice_voice_gender gender;
   } RHVoice_voice_info;
 
   typedef struct

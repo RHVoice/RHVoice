@@ -139,6 +139,7 @@ RHVoice_voice_info RHVoice_tts_engine_struct::convert_voice_info::operator()(con
   const std::string& alpha2_code=info.get_language()->get_alpha2_code();
   result.language=(alpha2_code.empty()?info.get_language()->get_alpha3_code():alpha2_code).c_str();
   result.name=info.get_name().c_str();
+  result.gender=info.get_gender();
   return result;
 }
 

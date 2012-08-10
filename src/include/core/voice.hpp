@@ -19,6 +19,7 @@
 #include <string>
 #include <functional>
 #include <set>
+#include "RHVoice_common.h"
 #include "smart_ptr.hpp"
 #include "str.hpp"
 #include "property.hpp"
@@ -69,6 +70,11 @@ private:
       return sample_rate;
     }
 
+    RHVoice_voice_gender get_gender() const
+    {
+      return gender;
+    }
+
     voice_params settings;
 
     void register_settings(config& cfg);
@@ -91,6 +97,7 @@ private:
 
     language_list::const_iterator voice_language;
     enum_property<sample_rate_t> sample_rate;
+    enum_property<RHVoice_voice_gender> gender;
     bool_property enabled,preferred;
   };
 
