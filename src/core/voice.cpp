@@ -34,12 +34,15 @@ namespace RHVoice
 
   voice_info::voice_info(const std::string& data_path,language_list& languages):
     sample_rate("sample_rate",sample_rate_16k),
+    gender("gender",RHVoice_voice_gender_unknown),
     enabled("enabled",true),
     preferred("preferred",false)
   {
     sample_rate.define("16k",sample_rate_16k);
     sample_rate.define("44k",sample_rate_44k);
     sample_rate.define("48k",sample_rate_48k);
+    gender.define("male",RHVoice_voice_gender_male);
+    gender.define("female",RHVoice_voice_gender_female);
     set_data_path(data_path);
     string_property name("name");
     enum_string_property language_name("language");
@@ -51,6 +54,7 @@ namespace RHVoice
     cfg.register_setting(name);
     cfg.register_setting(language_name);
     cfg.register_setting(sample_rate);
+    cfg.register_setting(gender);
     cfg.load();
     if(!name.is_set())
       throw file_format_error("Voice name is not set");

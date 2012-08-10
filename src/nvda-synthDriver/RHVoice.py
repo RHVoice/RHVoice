@@ -69,9 +69,15 @@ class RHVoice_message_type:
     ssml=1
     characters=2
 
+class RHVoice_voice_gender:
+    unknown=0
+    male=1
+    female=2
+
 class RHVoice_voice_info(Structure):
     _fields_=[("language",c_char_p),
-              ("name",c_char_p)]
+              ("name",c_char_p),
+              ("gender",c_int)]
 
 class RHVoice_synth_params(Structure):
     _fields_=[("main_voice",c_char_p),
