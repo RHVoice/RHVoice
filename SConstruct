@@ -138,8 +138,7 @@ if has_ao:
     if has_giomm:
         src_subdirs.append("service")
 if env["PLATFORM"]=="win32":
-    pass
-    # src_subdirs.append("sapi")
+    src_subdirs.append("sapi")
 else:
     src_subdirs.append("include")
 for subdir in src_subdirs:
