@@ -53,6 +53,9 @@ namespace RHVoice
     {
       set_alpha2_code("ru");
       set_alpha3_code("rus");
+      #ifdef WIN32
+      set_id(0x0419);
+      #endif
       register_letter_range(0x430,32);
       register_letter_range(0x410,32);
       register_letter(0x451);
