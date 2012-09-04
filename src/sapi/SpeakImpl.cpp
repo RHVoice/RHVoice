@@ -51,6 +51,8 @@ namespace RHVoice
               markup.prosody.rate=convert_rate(frag->State.RateAdj);
               markup.prosody.pitch=convert_pitch(frag->State.PitchAdj.MiddleAdj);
               markup.prosody.volume=convert_volume(frag->State.Volume);
+              if(frag->State.eAction==SPVA_SpellOut)
+                markup.say_as=content_chars;
               doc.add_text(text_start,text_end,markup);
               break;
             case SPVA_Bookmark:
