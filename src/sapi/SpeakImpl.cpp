@@ -24,20 +24,34 @@ namespace RHVoice
 {
   namespace sapi
   {
+    const double SpeakImpl::rate_table[]={0.333333,0.372041,0.415244,0.463463,0.517282,0.577350,0.644394,0.719223,0.802742,0.895958,1.000000,
+                                          1.116123,1.245731,1.390389,1.551846,1.732051,1.933182,2.157669,2.408225,2.687875,3.000000};
+    const double SpeakImpl::pitch_table[]={0.500000,0.514651,0.529732,0.545254,0.561231,0.577676,0.594604,0.612027,0.629961,0.648420,0.667420,0.686977,
+                                           0.707107,0.727827,0.749154,0.771105,0.793701,0.816958,0.840896,0.865537,0.890899,0.917004,0.943874,0.971532,1.000000,
+                                           1.029302,1.059463,1.090508,1.122462,1.155353,1.189207,1.224054,1.259921,1.296840,1.334840,1.373954,1.414214,
+                                           1.455653,1.498307,1.542211,1.587401,1.633915,1.681793,1.731073,1.781797,1.834008,1.887749,1.943064,2.000000};
+
     SpeakImpl::SpeakImpl(const init_params& p):
       caller(p.caller),
       doc(get_engine(),p.document_params),
       bytes_written(0)
     {
+      doc.speech_settings.relative.rate=get_rate();
+      doc.speech_settings.absolute.volume=1;
+      doc.speech_settings.relative.volume=get_volume();
       for(const SPVTEXTFRAG* frag=p.input;frag;frag=frag->pNext)
         {
           text_iterator text_start(frag,0);
           text_iterator text_end(frag,frag->ulTextLen);
+          tts_markup markup;
           switch(frag->State.eAction)
             {
             case SPVA_Speak:
             case SPVA_SpellOut:
-              doc.add_text(text_start,text_end);
+              markup.prosody.rate=convert_rate(frag->State.RateAdj);
+              markup.prosody.pitch=convert_pitch(frag->State.PitchAdj.MiddleAdj);
+              markup.prosody.volume=convert_volume(frag->State.Volume);
+              doc.add_text(text_start,text_end,markup);
               break;
             case SPVA_Bookmark:
               doc.add_mark(utils::wstring_to_string(frag->pTextStart,frag->ulTextLen));
@@ -80,6 +94,10 @@ namespace RHVoice
           caller->CompleteSkip(0);
           return false;
         }
+      if(actions&SPVES_RATE)
+        doc.speech_settings.relative.rate=get_rate();
+      if(actions&SPVES_VOLUME)
+        doc.speech_settings.relative.volume=get_volume();
       return true;
     }
 

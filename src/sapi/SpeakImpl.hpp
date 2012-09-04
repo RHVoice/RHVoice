@@ -16,6 +16,7 @@
 #ifndef RHVOICE_SAPI_SPEAKIMPL_HPP
 #define RHVOICE_SAPI_SPEAKIMPL_HPP
 
+#include <algorithm>
 #include <windows.h>
 #include <sapi.h>
 #include <sapiddk.h>
@@ -52,6 +53,41 @@ namespace RHVoice
       bool check_actions();
       bool queue_boundary_event(bool is_word,std::size_t position,std::size_t length);
 
+      double convert_rate(long rate) const
+      {
+        return rate_table[10+std::max<long>(-10,std::min<long>(rate,10))];
+      }
+
+      double convert_pitch(long pitch) const
+      {
+        return pitch_table[24+std::max<long>(-24,std::min<long>(pitch,24))];
+      }
+
+      double convert_volume(unsigned long volume) const
+      {
+        return (std::min<unsigned long>(volume,100)/100.0);
+      }
+
+      const static double rate_table[];
+      const static double pitch_table[];
+
+      double get_rate()
+      {
+        long rate;
+          if(SUCCEEDED(caller->GetRate(&rate)))
+            return convert_rate(rate);
+          else
+            return 1;
+      }
+
+      double get_volume()
+      {
+        unsigned short volume;
+        if(SUCCEEDED(caller->GetVolume(&volume)))
+          return convert_volume(volume);
+        else
+          return 1;
+      }
 
       ISpTTSEngineSite* caller;
       document doc;
