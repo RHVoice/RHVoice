@@ -32,6 +32,7 @@ namespace RHVoice
     void mark_clitics(utterance& u) const;
     void reduce_vowels(utterance& u) const;
     void do_final_devoicing_and_voicing_assimilation(utterance& u) const;
+    void rename_unstressed_vowels(utterance& u) const;
 
     void decode_as_word(item& token) const;
     void transcribe_word(item& word) const;
