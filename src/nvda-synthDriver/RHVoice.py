@@ -57,7 +57,8 @@ class RHVoice_callbacks(Structure):
               ("word_starts",RHVoice_callback_types.word_starts),
               ("word_ends",RHVoice_callback_types.word_ends),
               ("sentence_starts",RHVoice_callback_types.sentence_starts),
-              ("sentence_ends",RHVoice_callback_types.sentence_ends)]
+              ("sentence_ends",RHVoice_callback_types.sentence_ends),
+              ("play_audio",RHVoice_callback_types.play_audio)]
 
 class RHVoice_init_params(Structure):
     _fields_=[("data_path",c_char_p),
