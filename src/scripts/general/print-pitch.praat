@@ -17,6 +17,7 @@ form Parameters
 word Input_file recording.wav
 positive Lower_f0 40
 positive Upper_f0 500
+real Voicing_threshold 0.45
 boolean Print_log_f0 0
 endform
 sound0=Read from file... 'input_file$'
@@ -37,19 +38,10 @@ final_silence=Create Sound from formula... final_silence nchannels 0 final_silen
 select sound0
 plus final_silence
 sound1=Concatenate
-select sound0
-Remove
-select final_silence
-Remove
 select initial_silence
 plus sound1
 sound=Concatenate
-select sound1
-Remove
-select initial_silence
-Remove
-select sound
-pitch=To Pitch... frame_shift_in_seconds lower_f0 upper_f0
+pitch=To Pitch (ac)... frame_shift_in_seconds lower_f0 15 no 0.03 voicing_threshold 0.01 0.35 0.14 upper_f0
 nframes=Get number of frames
 for i to nframes
 f0=Get value in frame... i hertz
@@ -68,6 +60,3 @@ printline 'f0'
 endif
 endif
 endfor
-Remove
-select sound
-Remove
