@@ -1,11 +1,16 @@
 <?xml version="1.0"?>
 <phonemes>
-<phoneme name="a" vc="+" vheight="1" vfront="2" vrnd="-"/>
-<phoneme name="e" vc="+" vheight="2" vfront="3" vrnd="-"/>
-<phoneme name="i" vc="+" vheight="3" vfront="3" vrnd="-"/>
-<phoneme name="o" vc="+" vheight="2" vfront="1" vrnd="+"/>
-<phoneme name="y" vc="+" vheight="3" vfront="2" vrnd="-"/>
-<phoneme name="u" vc="+" vheight="3" vfront="1" vrnd="+"/>
+<phoneme name="a" vc="+" vlng="l" vheight="1" vfront="2" vrnd="-"/>
+<phoneme name="e" vc="+" vlng="l" vheight="2" vfront="3" vrnd="-"/>
+<phoneme name="i" vc="+" vlng="l" vheight="3" vfront="3" vrnd="-"/>
+<phoneme name="o" vc="+" vlng="l" vheight="2" vfront="1" vrnd="+"/>
+<phoneme name="y" vc="+" vlng="l" vheight="3" vfront="2" vrnd="-"/>
+<phoneme name="u" vc="+" vlng="l" vheight="3" vfront="1" vrnd="+"/>
+<phoneme name="a0" vc="+" vlng="s" vheight="1" vfront="2" vrnd="-"/>
+<phoneme name="e0" vc="+" vlng="s" vheight="2" vfront="3" vrnd="-"/>
+<phoneme name="i0" vc="+" vlng="s" vheight="3" vfront="3" vrnd="-"/>
+<phoneme name="y0" vc="+" vlng="s" vheight="3" vfront="2" vrnd="-"/>
+<phoneme name="u0" vc="+" vlng="s" vheight="3" vfront="1" vrnd="+"/>
 <phoneme name="b" vc="-" ctype="s" cplace="b" cvox="+" cpal="-" vpair="p"/>
 <phoneme name="bb" vc="-" ctype="s" cplace="b" cvox="+" cpal="+" vpair="pp"/>
 <phoneme name="c" vc="-" ctype="a" cplace="d" cvox="-" cpal="-"/>

@@ -280,10 +280,26 @@ namespace RHVoice
       }
   }
 
+  void russian::rename_unstressed_vowels(utterance& u) const
+  {
+    relation& seg_rel=u.get_relation("Segment");
+    for(relation::iterator seg_iter=seg_rel.begin();seg_iter!=seg_rel.end();++seg_iter)
+      {
+        if((seg_iter->eval("ph_vc").as<std::string>()=="+")&&
+           (seg_iter->eval("R:SylStructure.parent.stress").as<std::string>()=="0"))
+          {
+            std::string name(seg_iter->get("name").as<std::string>());
+            name+="0";
+            seg_iter->set("name",name);
+          }
+      }
+  }
+
   void russian::post_lex(utterance& u) const
   {
     mark_clitics(u);
     reduce_vowels(u);
     do_final_devoicing_and_voicing_assimilation(u);
+    rename_unstressed_vowels(u);
   }
 }
