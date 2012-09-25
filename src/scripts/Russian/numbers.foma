@@ -29,6 +29,9 @@ define InsertBillions
 define InsertTrillions 
 [..] -> триллионов || Digit _ Digit^3 миллиардов;
 
+define RemoveSkippedParts 
+%0 %0 %0 [тысяч|миллионов|миллиардов|триллионов] -> 0 ;
+
 define Units %0:0|1:один|2:два|3:три|4:четыре|5:пять|6:шесть|7:семь|8:восемь|9:девять;
 
 define Teens 1:0 [%0:десять|1:одинадцать|2:двенадцать|3:тринадцать|4:четырнадцать|5:пятнадцать|6:шестнадцать|7:семнадцать|8:восемнадцать|9:девятнадцать];
@@ -56,6 +59,7 @@ InsertThousands .o.
 InsertMillions .o. 
 InsertBillions .o. 
 InsertTrillions .o. 
+RemoveSkippedParts .o. 
 DigitsToWords .o. 
 FixCase .o. 
 FixGender;
