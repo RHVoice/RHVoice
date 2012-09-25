@@ -1,0 +1,236 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os.path
+import argparse
+import re
+import codecs
+import collections
+
+tag_regex=re.compile("<[^<]+>")
+
+class word_extractor(object):
+	def __init__(self,args):
+		alphabet=args.alphabet.decode("utf-8")
+		self.alphabet=set(alphabet)
+		self.word_regex=re.compile(ur"(?u)\b[{a}]+\b".format(a=alphabet))
+		self.words=collections.Counter()
+
+	def __call__(self,arg,dirname,filenames):
+		for filename in filenames:
+			path=os.path.join(dirname,filename)
+			if os.path.isfile(path):
+				with codecs.open(path,"r","utf-8") as f:
+					for word in (m.group(0).lower() for m in self.word_regex.finditer(tag_regex.sub(" ",f.read()))):
+						letters=set(c for c in word if c.isalpha())
+						if letters.issubset(self.alphabet):
+							self.words[word]+=1
+
+def words(args):
+	ext=word_extractor(args)
+	os.path.walk(args.source,ext,None)
+	with codecs.open("words","w","utf-8") as f:
+		for w,c in ext.words.most_common():
+			f.write(w)
+			f.write("\n")
+
+class sentence_selector(object):
+	def __init__(self,args):
+		self.count=0
+		self.sentences=dict()
+		with codecs.open("words","r","utf-8") as f:
+			self.words=set(f.read().split()[:args.word_count])
+			self.min_length=args.min_length
+			self.max_length=args.max_length
+			self.vowels=set(args.vowels.decode("utf-8"))
+			self.delim_regex=re.compile(u"(?u)\s*(?:</?doc(?:\s+[^<>]+)?>\s*)+")
+
+	def add_paragraph(self,paragraph):
+		remaining_tokens=collections.deque(paragraph.split())
+		sentence_tokens=list()
+		while remaining_tokens:
+			sentence_tokens.append(remaining_tokens.popleft())
+			if self.is_sentence_boundary(sentence_tokens,remaining_tokens):
+				if self.is_nice_sentence(sentence_tokens):
+					sentence=u" ".join(sentence_tokens)
+					if sentence not in self.sentences:
+						self.sentences[sentence]=self.count
+						self.count+=1
+				sentence_tokens=list()
+
+	def is_sentence_boundary(self,sentence_tokens,remaining_tokens):
+		if not sentence_tokens:
+			return False
+		if not remaining_tokens:
+			return True
+		if not remaining_tokens[0].istitle():
+			return False
+		last_token=sentence_tokens[-1]
+		if (last_token[-1]==".") and (len(last_token)>1) and last_token[-2].isalpha() and ((len(last_token)==2) or (not last_token[-3].isalpha())):
+			return False
+		for c in reversed(last_token):
+			if c in [".","?","!"]:
+				return True
+			elif c.isalpha() or c.isdigit():
+				return False
+		return False
+
+	def is_nice_sentence(self,tokens):
+		if len(tokens) < self.min_length:
+			return False
+		if len(tokens) > self.max_length:
+			return False
+		if not tokens[0].istitle():
+			return False
+		for token in tokens[1:]:
+			if not token.islower():
+				return False
+		for token in tokens[:-1]:
+			word=token[:-1].lower() if token[-1]=="," else token.lower()
+			if word not in self.words:
+				return False
+			if (len(word) > 1) and (not next((c for c in word if c in self.vowels),None)):
+				return False
+		if tokens[-1][-1] not in [".","?"]:
+			return False
+		last_word=tokens[-1][:-1].lower()
+		if last_word not in self.words:
+			return False
+		if not next((c for c in last_word if c in self.vowels),None):
+			return False
+		return True
+		
+	def __call__(self,arg,dirname,filenames):
+		for filename in sorted(filenames):
+			path=os.path.join(dirname,filename)
+			if os.path.isfile(path):
+				with codecs.open(path,"r","utf-8") as f:
+					contents=f.read()
+					for article_text in self.delim_regex.split(contents):
+						if article_text:
+							clean_article_text=tag_regex.sub(u" ",article_text).replace("()","")
+							for paragraph in clean_article_text.split("\n"):
+								self.add_paragraph(paragraph)
+
+def sentences(args):
+	sel=sentence_selector(args)
+	os.path.walk(args.source,sel,None)
+	with codecs.open("sentences","w","utf-8") as f:
+		for sentence,id in sorted(sel.sentences.iteritems(),key=lambda p: p[1]):
+			f.write(sentence)
+			f.write("\n")
+
+def get_bigrams(sentence):
+	chars="#"+sentence.strip().lower()[:-1].replace(" ","").replace(",","#")+"#"
+	return [(chars[i-1],chars[i]) for i in xrange(1,len(chars))]
+
+class prompt_selector(object):
+	def __init__(self,args):
+		self.coverage_in_statements=args.coverage_in_statements
+		self.coverage_in_questions=args.coverage_in_questions
+		self.statements=set()
+		self.questions=set()
+		self.sentences=collections.OrderedDict()
+		with codecs.open("sentences","r","utf-8") as f:
+			for line in f:
+				sentence=line.strip()
+				if sentence:
+					bigrams=get_bigrams(sentence)
+					self.sentences[sentence]=bigrams
+					if sentence.endswith("?"):
+						self.questions.add(sentence)
+					else:
+						self.statements.add(sentence)
+
+	def reduce(self,candidates,coverage):
+		result=set(candidates)
+		cover=collections.Counter()
+		for candidate in candidates:
+			cover.update(self.sentences[candidate])
+		target_cover=collections.Counter()
+		for bigram,count in cover.iteritems():
+			target_cover[bigram]=min(count,coverage)
+		for candidate in candidates:
+			bigrams=self.sentences[candidate]
+			cover.subtract(bigrams)
+			if (target_cover-cover):
+				cover.update(bigrams)
+			else:
+				result.remove(candidate)
+		return result
+
+	def __call__(self):
+		statements=self.reduce(self.statements,self.coverage_in_statements)
+		questions=self.reduce(self.questions,self.coverage_in_questions)
+		result=list()
+		for sentence in self.sentences.iterkeys():
+			if (sentence in statements) or (sentence in questions):
+				result.append(sentence)
+		return result
+
+def prompts(args):
+	sel=prompt_selector(args)
+	prompts=sel()
+	with codecs.open("prompts","w","utf-8") as f:
+		for prompt in prompts:
+			f.write(prompt)
+			f.write("\n\n")
+	words=set()
+	for prompt in prompts:
+		words.update((word[:-1] if word[-1] in [",",".","?"] else word).lower() for word in prompt.split())
+	with codecs.open("vocab","w","utf-8") as f:
+		for word in sorted(words):
+			f.write(word)
+			f.write("\n")
+		
+def stats(args):
+	lengths=collections.Counter()
+	bigrams=collections.Counter()
+	with codecs.open("prompts","r","utf-8") as f:
+		for line in f:
+			sentence=line.strip()
+			if sentence:
+				lengths[len(sentence.split())]+=1
+				bigrams.update(get_bigrams(sentence))
+	for l,c in lengths.most_common():
+		print("{} sentences of length {}".format(c,l))
+	for i in xrange(1,11):
+		n=len([b for b in bigrams if bigrams[b]>=i])
+		print("{} bigrams with count>={}".format(n,i))
+
+if __name__=="__main__":
+	parser=argparse.ArgumentParser(description="Select sentences for recording")
+	parser.add_argument("--source",required=True,help="the path to the Wikipedia articles (clean text)")
+	subparsers=parser.add_subparsers()
+	words_parser=subparsers.add_parser("words")
+	words_parser.add_argument("--alphabet",required=True,help="alphabet")
+	words_parser.set_defaults(func=words)
+	sentences_parser=subparsers.add_parser("sentences")
+	sentences_parser.add_argument("--word-count",type=int,default=5000,help="consider only most frequent words")
+	sentences_parser.add_argument("--min-length",type=int,default=2,help="Minimum sentence length")
+	sentences_parser.add_argument("--max-length",type=int,default=20,help="maximum sentence length")
+	sentences_parser.add_argument("--vowels",required=True,help="list of vowel letters")
+	sentences_parser.set_defaults(func=sentences)
+	prompts_parser=subparsers.add_parser("prompts")
+	prompts_parser.add_argument("--coverage-in-statements",type=int,default=2,help="how many instances of each bigram")
+	prompts_parser.add_argument("--coverage-in-questions",type=int,default=1,help="how many instances of each bigram")
+	prompts_parser.set_defaults(func=prompts)
+	stats_parser=subparsers.add_parser("stats")
+	stats_parser.set_defaults(func=stats)
+	args=parser.parse_args()
+	args.func(args)
