@@ -21,19 +21,18 @@ import os
 import os.path
 import subprocess
 import argparse
-import codecs
 import re
+import codecs
 import itertools
 import collections
-import decimal
+import xml.etree.ElementTree as xml
+from scipy import stats
 
 def run(*args):
 	subprocess.check_call(args,stdout=sys.stdout,stderr=sys.stderr)
 
 def setup(args):
-	os.mkdir("labels")
-	os.mkdir(os.path.join("labels","mono"))
-	os.mkdir(os.path.join("labels","full"))
+	os.mkdir("lab")
 	os.mkdir("ehmm")
 	for subdir in ["feat","mod","etc","lab"]:
 		os.mkdir(os.path.join("ehmm",subdir))
@@ -51,9 +50,7 @@ def setup(args):
 def phseq(args):
 	work_dir=os.path.join("ehmm","etc")
 	waves=sorted(name for name in os.listdir(args.wave_dir) if name.endswith(".wav"))
-	transcription_path=os.path.join(work_dir,"transcription.txt")
-	run("RHVoice-transcribe-sentences","-b","ssil",args.text,transcription_path)
-	with codecs.open(transcription_path,"rb","utf-8") as f_in:
+	with codecs.open(args.transcription,"rb","utf-8") as f_in:
 		with codecs.open(os.path.join(work_dir,"txt.phseq.data"),"wb","utf-8") as f_out:
 			for name,line in itertools.izip(waves,f_in):
 				f_out.write(os.path.splitext(name)[0])
@@ -89,48 +86,85 @@ def align(args):
 	run(os.path.join(bin_dir,"edec"),os.path.join(work_dir,"ph_list.int"),os.path.join(work_dir,"txt.phseq.data.int"),"1",feat_dir,"ft",os.path.join(work_dir,"mysp_settings"),mod_dir,"0",lab_dir)
 	run("perl",os.path.join(bin_dir,"sym2nm.pl"),lab_dir,os.path.join(work_dir,"ph_list.int"))
 
-def mono(args):
-	print("Writing monophone labels")
-	ehmm_lab_dir=os.path.join("ehmm","lab")
-	hts_lab_dir=os.path.join("labels","mono")
-	for fname in sorted(fname for fname in os.listdir(ehmm_lab_dir) if fname.endswith(".lab")):
-		prev_phone=None
-		labels=list()
-		with codecs.open(os.path.join(ehmm_lab_dir,fname),"rb","utf-8") as f:
-			f.readline()
-			for line in f:
-				tokens=line.split()
-				time=int(decimal.Decimal(tokens[0])*10000000)
-				phone=tokens[-1]
+def fix(args):
+	stops=set()
+	doc=xml.parse(args.phoneset)
+	for elem in doc.iterfind("phoneme"):
+		if elem.get("vc")=="-":
+			if elem.get("ctype") in ["s","a"]:
+				stops.add(elem.get("name"))
+	src_lab_dir=os.path.join("ehmm","lab")
+	lab_file_list=sorted(name for name in os.listdir(src_lab_dir) if name.endswith(".lab"))
+	labs=dict()
+	stop_durs=collections.defaultdict(list)
+	for base_name in lab_file_list:
+		labs[base_name]=list()
+		full_name=os.path.join(src_lab_dir,base_name)
+		with codecs.open(full_name,"r","utf-8") as f_in:
+			f_in.readline()
+			prev_time=0.0
+			for line in f_in:
+				fields=line.split()
+				if fields:
+					phone=fields[-1]
+					time=float(fields[0])
+					dur=time-prev_time
+					labs[base_name].append((phone,dur))
+					if phone in stops:
+						stop_durs[phone].append(dur)
+					prev_time=time
+	min_ssil_plus_stop=dict()
+	for phone,durs in stop_durs.iteritems():
+		min_ssil_plus_stop[phone]=stats.scoreatpercentile(durs,95)
+	for base_name,phones in labs.iteritems():
+		with codecs.open(os.path.join("lab",base_name),"w","utf-8") as f_out:
+			f_out.write("#\n")
+			time=0.0
+			n=len(phones)
+			for i,fields in enumerate(phones):
+				dur=fields[-1]
+				time+=dur
+				phone=fields[0]
+				next_phone = None if i==(n-1) else phones[i+1][0]
+				skip=False
 				if phone=="ssil":
-					phone="pau"
-				if phone=="pau" and prev_phone=="pau":
-					labels[-1][1]=time
-				else:
-					labels.append([phone,time])
-				prev_phone=phone
-		prev_time=0
-		with codecs.open(os.path.join(hts_lab_dir,fname),"wb","utf-8") as f:
-			for phone,time in labels:
-				f.write(u"{} {} {}\n".format(prev_time,time,phone))
-				prev_time=time
+					if next_phone in stops:
+						next_dur=phones[i+1][-1]
+						if (dur+next_dur) < min_ssil_plus_stop[next_phone]:
+							skip=True
+				elif phone=="pau" and next_phone=="pau":
+					skip=True
+				if not skip:
+					f_out.write(u"{} 125 {}\n".format(time,"pau" if phone=="ssil" else phone))
 
-def full(args):
-	print("Writing full context labels")
-	mono_lab_dir=os.path.join("labels","mono")
-	full_lab_dir=os.path.join("labels","full")
-	run("RHVoice-make-hts-labels","-l",mono_lab_dir,args.text,full_lab_dir)
-
-if __name__=="__main__":
-	arg_parser=argparse.ArgumentParser(description="Label a speech database using the Ehmm labeller")
-	arg_parser.add_argument("--ehmm-dir",required=True,help="the path to the Ehmm labeller")
-	arg_parser.add_argument("--text",required=True,help="the path to the recording script")
-	arg_parser.add_argument("--wave-dir",required=True,help="the path to the recordings")
-	args=arg_parser.parse_args()
+def all(args):
 	setup(args)
 	phseq(args)
 	feats(args)
 	bw(args)
 	align(args)
-	mono(args)
-	full(args)
+	fix(args)
+
+if __name__=="__main__":
+	parser=argparse.ArgumentParser(description="Label a speech database using the Ehmm labeller")
+	parser.add_argument("--ehmm-dir",required=True,help="the path to the Ehmm labeller")
+	parser.add_argument("--wave-dir",required=True,help="the path to the recordings")
+	parser.add_argument("--transcription",required=True,help="the path to the transcription")
+	parser.add_argument("--phoneset",required=True,help="phoneset")
+	subparsers=parser.add_subparsers()
+	setup_parser=subparsers.add_parser("setup")
+	setup_parser.set_defaults(func=setup)
+	phseq_parser=subparsers.add_parser("phseq")
+	phseq_parser.set_defaults(func=phseq)
+	feats_parser=subparsers.add_parser("feats")
+	feats_parser.set_defaults(func=feats)
+	bw_parser=subparsers.add_parser("bw")
+	bw_parser.set_defaults(func=bw)
+	align_parser=subparsers.add_parser("align")
+	align_parser.set_defaults(func=align)
+	fix_parser=subparsers.add_parser("fix")
+	fix_parser.set_defaults(func=fix)
+	all_parser=subparsers.add_parser("all")
+	all_parser.set_defaults(func=all)
+	args=parser.parse_args()
+	args.func(args)
