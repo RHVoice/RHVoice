@@ -60,6 +60,3 @@ personally, I fixed what I think was wrong with the old API:
   separate thread, and global settings don't make sense in this case.
 * There are now separate callbacks for different types of events, and
   most of them are optional.
-
-Windows support is also incomplete, but that should be fixed soon. The
-driver for NVDA is fully functional, but SAPI support is still missing.
