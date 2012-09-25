@@ -29,8 +29,12 @@ define InsertBillions
 define InsertTrillions 
 [..] -> trillion || Digit _ Digit^3 billion;
 
+define RemoveSkippedParts 
+%0 %0 %0 [thousand|million|billion|trillion] -> 0 ;
+
 define InsertHundreds 
-[..] -> hundred || Digit _ Digit^2;
+[..] -> hundred || NZDigit _ Digit^2 ,, 
+%0 -> 0 || _ Digit^2 ;
 
 define Units %0:0|1:one|2:two|3:three|4:four|5:five|6:six|7:seven|8:eight|9:nine;
 
@@ -49,5 +53,6 @@ InsertThousands .o.
 InsertMillions .o. 
 InsertBillions .o. 
 InsertTrillions .o. 
+RemoveSkippedParts .o. 
 InsertHundreds .o. 
 DigitsToWords;

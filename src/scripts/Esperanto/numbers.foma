@@ -29,6 +29,9 @@ define InsertBillions
 define InsertTrillions 
 [..] -> biliono || Digit _ Digit^3 miliardo;
 
+define RemoveSkippedParts 
+%0 %0 %0 [mil|miliono|miliardo|biliono] -> 0 ;
+
 define Units %0:0|1:unu|2:du|3:tri|4:kvar|5:kvin|6:ses|7:sep|8:ok|9:naŭ;
 
 define Tens %0:0|1:dek|2:dudek|3:tridek|4:kvardek|5:kvindek|6:sesdek|7:sepdek|8:okdek|9:naŭdek;
@@ -46,4 +49,5 @@ InsertThousands .o.
 InsertMillions .o. 
 InsertBillions .o. 
 InsertTrillions .o. 
+RemoveSkippedParts .o. 
 DigitsToWords ; 

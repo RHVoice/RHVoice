@@ -67,7 +67,7 @@ vars.Add("FLAGS","Additional compiler/linker flags")
 vars.Add("CCFLAGS","C compiler flags")
 vars.Add("LINKFLAGS","Linker flags")
 vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
-vars.Add("package_version","Package version","0.4-a1")
+vars.Add("package_version","Package version","0.4-a2")
 if sys.platform=="win32":
     env_args["tools"]=["msvc","mslink","mslib","newlines"]
     env_args["ENV"]=get_msvc_env_vars()
