@@ -135,12 +135,9 @@ def sentences(args):
 			f.write(sentence)
 			f.write("\n")
 
-def get_bigrams(sentence):
-	chars="#"+sentence.strip().lower()[:-1].replace(" ","").replace(",","#")+"#"
-	return [(chars[i-1],chars[i]) for i in xrange(1,len(chars))]
-
 class prompt_selector(object):
 	def __init__(self,args):
+		self.special_bigrams=set(b.decode("utf-8") for b in args.special_bigrams)
 		self.coverage_in_statements=args.coverage_in_statements
 		self.coverage_in_questions=args.coverage_in_questions
 		self.statements=set()
@@ -150,12 +147,28 @@ class prompt_selector(object):
 			for line in f:
 				sentence=line.strip()
 				if sentence:
-					bigrams=get_bigrams(sentence)
+					bigrams=self.get_bigrams(sentence)
 					self.sentences[sentence]=bigrams
 					if sentence.endswith("?"):
 						self.questions.add(sentence)
 					else:
 						self.statements.add(sentence)
+
+	def get_bigrams(self,sentence):
+		chars="#"+sentence.strip().lower()[:-1].replace(" ","").replace(",","#")+"#"
+		units=list()
+		i=0
+		while i < (len(chars)-1):
+			b=chars[i]+chars[i+1]
+			if b in self.special_bigrams:
+				units.append(b)
+				i+=2
+			else:
+				units.append(chars[i])
+				i+=1
+		if units and (len(units[-1])==1):
+			units.append(chars[-1])
+		return [(units[i-1]+units[i]) for i in xrange(1,len(units))]
 
 	def reduce(self,candidates,coverage):
 		result=set(candidates)
@@ -197,21 +210,6 @@ def prompts(args):
 		for word in sorted(words):
 			f.write(word)
 			f.write("\n")
-		
-def stats(args):
-	lengths=collections.Counter()
-	bigrams=collections.Counter()
-	with codecs.open("prompts","r","utf-8") as f:
-		for line in f:
-			sentence=line.strip()
-			if sentence:
-				lengths[len(sentence.split())]+=1
-				bigrams.update(get_bigrams(sentence))
-	for l,c in lengths.most_common():
-		print("{} sentences of length {}".format(c,l))
-	for i in xrange(1,11):
-		n=len([b for b in bigrams if bigrams[b]>=i])
-		print("{} bigrams with count>={}".format(n,i))
 
 if __name__=="__main__":
 	parser=argparse.ArgumentParser(description="Select sentences for recording")
@@ -229,8 +227,7 @@ if __name__=="__main__":
 	prompts_parser=subparsers.add_parser("prompts")
 	prompts_parser.add_argument("--coverage-in-statements",type=int,default=2,help="how many instances of each bigram")
 	prompts_parser.add_argument("--coverage-in-questions",type=int,default=1,help="how many instances of each bigram")
+	prompts_parser.add_argument("--special-bigrams",nargs="*",default=[],help="which bigrams must be processed as a single unit")
 	prompts_parser.set_defaults(func=prompts)
-	stats_parser=subparsers.add_parser("stats")
-	stats_parser.set_defaults(func=stats)
 	args=parser.parse_args()
 	args.func(args)
