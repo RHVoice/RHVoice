@@ -194,10 +194,13 @@ RHVoice_message_struct::RHVoice_message_struct(const smart_ptr<engine>& engine_p
   switch(message_type)
     {
     case RHVoice_message_text:
-      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,init_params);
+      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,false,init_params);
       break;
     case RHVoice_message_ssml:
       doc_ptr=document::create_from_ssml(engine_ptr,text,text+length,init_params);
+      break;
+    case RHVoice_message_characters:
+      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,true,init_params);
       break;
     default:
       throw std::invalid_argument("Unknown message type");
