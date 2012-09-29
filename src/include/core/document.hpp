@@ -276,12 +276,12 @@ namespace RHVoice
     }
 
     template<typename some_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,const init_params& params=init_params())
+    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,bool spell=false,const init_params& params=init_params())
     {
       #ifdef _MSC_VER
-      return create_from_plain_text(engine_ptr,text_start,text_end,params,std::iterator_traits<some_iterator>::iterator_category());
+      return create_from_plain_text(engine_ptr,text_start,text_end,spell,params,std::iterator_traits<some_iterator>::iterator_category());
             #else
-      return create_from_plain_text(engine_ptr,text_start,text_end,params,typename std::iterator_traits<some_iterator>::iterator_category());
+      return create_from_plain_text(engine_ptr,text_start,text_end,spell,params,typename std::iterator_traits<some_iterator>::iterator_category());
       #endif
     }
 
@@ -340,7 +340,7 @@ namespace RHVoice
     }
 
     template<typename input_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const init_params& params,std::input_iterator_tag)
+    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,bool spell,const init_params& params,std::input_iterator_tag)
     {
       #ifdef _MSC_VER
       typedef std::iterator_traits<input_iterator>::value_type char_type;
@@ -348,22 +348,28 @@ namespace RHVoice
       typedef typename std::iterator_traits<input_iterator>::value_type char_type;
       #endif
       std::vector<char_type> tmp_buf(text_start,text_end);
+      tts_markup m;
+      if(spell)
+        m.say_as=content_chars;
       std::auto_ptr<document> doc_ptr(new document(engine_ptr,params));
       #ifdef _MSC_VER
       typedef utf::text_iterator<std::vector<char_type>::const_iterator> char_iterator;
       #else
       typedef utf::text_iterator<typename std::vector<char_type>::const_iterator> char_iterator;
       #endif
-      doc_ptr->add_text(char_iterator(tmp_buf.begin(),tmp_buf.begin(),tmp_buf.end()),char_iterator(tmp_buf.end(),tmp_buf.begin(),tmp_buf.end()));
+      doc_ptr->add_text(char_iterator(tmp_buf.begin(),tmp_buf.begin(),tmp_buf.end()),char_iterator(tmp_buf.end(),tmp_buf.begin(),tmp_buf.end()),m);
       return doc_ptr;
     }
 
     template<typename forward_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,const init_params& params,std::forward_iterator_tag)
+    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,bool spell,const init_params& params,std::forward_iterator_tag)
     {
       std::auto_ptr<document> doc_ptr(new document(engine_ptr,params));
       typedef utf::text_iterator<forward_iterator> text_iterator;
-      doc_ptr->add_text(text_iterator(text_start,text_start,text_end),text_iterator(text_end,text_start,text_end));
+      tts_markup m;
+      if(spell)
+        m.say_as=content_chars;
+      doc_ptr->add_text(text_iterator(text_start,text_start,text_end),text_iterator(text_end,text_start,text_end),m);
       return doc_ptr;
     }
 

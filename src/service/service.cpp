@@ -495,7 +495,7 @@ namespace
 
   std::auto_ptr<RHVoice::document> text_task::create_document() const
   {
-    return RHVoice::document::create_from_plain_text(local_engine_ref,text.begin(),text.end(),document_init_params);
+    return RHVoice::document::create_from_plain_text(local_engine_ref,text.begin(),text.end(),false,document_init_params);
   }
 
   void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connection,const Glib::ustring& name)
