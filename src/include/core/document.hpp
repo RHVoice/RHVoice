@@ -29,6 +29,7 @@
 #include "tts_markup.hpp"
 #include "ssml.hpp"
 #include "client.hpp"
+#include "params.hpp"
 
 #ifndef RHVOICE_DOCUMENT_HPP
 #define RHVOICE_DOCUMENT_HPP
@@ -177,6 +178,11 @@ namespace RHVoice
     bool token_starts_new_sentence(const std::vector<utf8::uint32_t>& token,const tts_markup& markup_info) const;
     language_list::const_iterator determine_token_language(const std::vector<uint32_t>& token) const;
     language_voice_pair get_language_and_voice_from_markup(const tts_markup& markup_info) const;
+    std::auto_ptr<utterance> new_utterance() const;
+    void execute_commands(utterance& u) const;
+    void apply_speech_settings(utterance& u) const;
+    void apply_verbosity_settings(utterance& u) const;
+    void apply_language_processing(utterance& u) const;
   };
 
   class document
@@ -188,6 +194,7 @@ namespace RHVoice
     };
 
     speech_params speech_settings;
+    verbosity_params verbosity_settings;
 
     explicit document(const smart_ptr<engine>& engine_ptr_,const init_params& params=init_params()):
       engine_ptr(engine_ptr_),
@@ -200,6 +207,7 @@ namespace RHVoice
          has_extra_language()&&
          (get_main_language()->has_common_letters(*get_extra_language())))
         throw std::invalid_argument("Invalid language pair");
+      verbosity_settings.default_to(engine_ptr->verbosity_settings);
     }
 
     const engine& get_engine() const

@@ -22,4 +22,10 @@ typedef enum {
   RHVoice_voice_gender_female
 } RHVoice_voice_gender;
 
+typedef enum {
+  RHVoice_punctuation_default,
+  RHVoice_punctuation_none,
+  RHVoice_punctuation_all,
+  RHVoice_punctuation_some
+} RHVoice_punctuation_mode;
 #endif

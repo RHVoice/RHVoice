@@ -96,6 +96,7 @@ namespace RHVoice
   public:
     voice_params voice_settings;
     text_params text_settings;
+    verbosity_params verbosity_settings;
   };
 }
 #endif

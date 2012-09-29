@@ -209,6 +209,9 @@ RHVoice_message_struct::RHVoice_message_struct(const smart_ptr<engine>& engine_p
   doc_ptr->speech_settings.relative.rate=synth_params->relative_rate;
   doc_ptr->speech_settings.relative.pitch=synth_params->relative_pitch;
   doc_ptr->speech_settings.relative.volume=synth_params->relative_volume;
+  doc_ptr->verbosity_settings.punctuation_mode=synth_params->punctuation_mode;
+  if(synth_params->punctuation_list)
+    doc_ptr->verbosity_settings.punctuation_list.set_from_string(synth_params->punctuation_list);
 }
 
 event_mask RHVoice_message_struct::get_supported_events() const

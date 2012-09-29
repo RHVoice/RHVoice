@@ -98,4 +98,25 @@ namespace RHVoice
     pitch.default_to(other.pitch);
     volume.default_to(other.volume);
   }
+
+  verbosity_params::verbosity_params():
+    punctuation_mode("punctuation_mode",RHVoice_punctuation_none),
+    punctuation_list("punctuation_list","+=<>~@#$%^&*/\\|")
+  {
+    punctuation_mode.define("none",RHVoice_punctuation_none);
+    punctuation_mode.define("some",RHVoice_punctuation_some);
+    punctuation_mode.define("all",RHVoice_punctuation_all);
+  }
+
+  void verbosity_params::default_to(const verbosity_params& other)
+  {
+    punctuation_mode.default_to(other.punctuation_mode);
+    punctuation_list.default_to(other.punctuation_list);
+  }
+
+  void verbosity_params::register_self(config& cfg,const std::string& prefix)
+  {
+    cfg.register_setting(punctuation_mode,prefix);
+    cfg.register_setting(punctuation_list,prefix);
+  }
 }
