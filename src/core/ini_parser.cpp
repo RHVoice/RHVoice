@@ -13,6 +13,8 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <sstream>
+#include <iterator>
 #include "core/io.hpp"
 #include "core/str.hpp"
 #include "core/ini_parser.hpp"
@@ -53,15 +55,59 @@ namespace RHVoice
             std::size_t pos=line.find('=');
             if((pos==std::string::npos)||(pos==0)||(pos==(line.length()-1)))
               continue;
-            key=str::trim(line.substr(0,pos));
+            key=unescape(str::trim(line.substr(0,pos)));
             if(key.empty())
               continue;
-            value=str::trim(line.substr(pos+1,line.length()-pos-1));
+            value=unescape(str::trim(line.substr(pos+1,line.length()-pos-1)));
             if(value.empty())
               continue;
             return;
           }
       }
     instream.reset();
+  }
+
+  std::string ini_parser::unescape(const std::string& s) const
+  {
+    if(s.empty())
+      return s;
+    std::string result;
+    result.reserve(s.size());
+    std::istringstream strm;
+    utf8::uint32_t c;
+    std::string::size_type pos=0;
+    std::string::size_type next_pos;
+    while((pos!=std::string::npos)&&(pos!=s.size()))
+      {
+        next_pos=s.find('#',pos);
+        if(next_pos!=pos)
+          result.append(s,pos,(next_pos==std::string::npos)?std::string::npos:(next_pos-pos));
+        pos=next_pos;
+        if(pos!=std::string::npos)
+          {
+            strm.clear();
+            ++pos;
+            next_pos=s.find(';',pos);
+            if((next_pos==pos)||(next_pos==std::string::npos))
+              return std::string();
+            if(s[pos]=='x')
+              {
+                ++pos;
+                if(pos==next_pos)
+                  return std::string();
+                strm.setf(std::ios::hex,std::ios::basefield);
+              }
+            else
+              strm.setf(std::ios::dec,std::ios::basefield);
+            strm.str(s.substr(pos,next_pos-pos));
+            if(!(strm >> c))
+              return std::string();
+            if(!utf::is_valid(c))
+              return std::string();
+            utf8::append(c,std::back_inserter(result));
+            pos=next_pos+1;
+          }
+      }
+    return result;
   }
 }
