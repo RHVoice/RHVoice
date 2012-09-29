@@ -89,6 +89,10 @@ typedef struct
     /* Relative values, in case someone needs them. */
     /* If you don't, just set each of them to 1. */
     double relative_rate,relative_pitch,relative_volume;
+    /* Set to RHVoice_punctuation_default to allow the synthesizer to decide */
+    RHVoice_punctuation_mode punctuation_mode;
+    /* Optional */
+    const char* punctuation_list;
   } RHVoice_synth_params;
 
   const char* RHVoice_get_version();

@@ -151,7 +151,7 @@ namespace RHVoice
     return result;
   }
 
-  std::auto_ptr<utterance> sentence::create_utterance() const
+  std::auto_ptr<utterance> sentence::new_utterance() const
   {
     std::auto_ptr<utterance> u;
     const language_list& languages=parent->get_engine().get_languages();
@@ -191,23 +191,70 @@ namespace RHVoice
     u.reset(new utterance(language_ref));
     if(current_voice!=voices.end())
       u->set_voice(current_voice->get_instance());
-    u->set_absolute_rate(parent->speech_settings.absolute.rate);
-    u->set_relative_rate(parent->speech_settings.relative.rate*rate);
-    u->set_absolute_pitch(parent->speech_settings.absolute.pitch);
-    u->set_relative_pitch(parent->speech_settings.relative.pitch*pitch);
-    u->set_absolute_volume(parent->speech_settings.absolute.volume);
-    u->set_relative_volume(parent->speech_settings.relative.volume*volume);
+    return u;
+  }
+
+  void sentence::apply_speech_settings(utterance& u) const
+  {
+    u.set_absolute_rate(parent->speech_settings.absolute.rate);
+    u.set_relative_rate(parent->speech_settings.relative.rate*rate);
+    u.set_absolute_pitch(parent->speech_settings.absolute.pitch);
+    u.set_relative_pitch(parent->speech_settings.relative.pitch*pitch);
+    u.set_absolute_volume(parent->speech_settings.absolute.volume);
+    u.set_relative_volume(parent->speech_settings.relative.volume*volume);
+  }
+
+  void sentence::execute_commands(utterance& u) const
+  {
     for(std::list<command_ptr>::const_iterator it(commands.begin());it!=commands.end();++it)
       {
-        (*it)->execute(*u);
+        (*it)->execute(u);
       }
-    language_ref.do_text_analysis(*u);
-    language_ref.do_pos_tagging(*u);
-    language_ref.phrasify(*u);
-    language_ref.transcribe(*u);
-    language_ref.syllabify(*u);
-    language_ref.insert_pauses(*u);
-    language_ref.do_post_lexical_processing(*u);
+  }
+
+  void sentence::apply_language_processing(utterance& u) const
+  {
+    const language& language_ref=u.get_language();
+    language_ref.do_text_analysis(u);
+    language_ref.do_pos_tagging(u);
+    language_ref.phrasify(u);
+    language_ref.transcribe(u);
+    language_ref.syllabify(u);
+    language_ref.insert_pauses(u);
+    language_ref.do_post_lexical_processing(u);
+  }
+
+  void sentence::apply_verbosity_settings(utterance& u) const
+  {
+    if(parent->verbosity_settings.punctuation_mode!=RHVoice_punctuation_none)
+      {
+        relation& tokstruct_rel=u.get_relation("TokStructure");
+        for(relation::iterator parent_token_iter=tokstruct_rel.begin();parent_token_iter!=tokstruct_rel.end();++parent_token_iter)
+          {
+            for(item::iterator token_iter=parent_token_iter->begin();token_iter!=parent_token_iter->end();++token_iter)
+              {
+                const std::string& pos=token_iter->get("pos").as<std::string>();
+                const std::string& name=token_iter->get("name").as<std::string>();
+                if(pos=="sym")
+                  {
+                    utf8::uint32_t c=utf8::peek_next(name.begin(),name.end());
+                    if(((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_all)&&
+                        str::ispunct(c))||
+                       parent->verbosity_settings.punctuation_list.includes(c))
+                      token_iter->set<verbosity_t>("verbosity",verbosity_name);
+                  }
+              }
+          }
+      }
+  }
+
+  std::auto_ptr<utterance> sentence::create_utterance() const
+  {
+    std::auto_ptr<utterance> u=new_utterance();
+    apply_speech_settings(*u);
+    execute_commands(*u);
+    apply_verbosity_settings(*u);
+    apply_language_processing(*u);
     return u;
   }
 

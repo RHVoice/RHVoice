@@ -18,6 +18,7 @@
 
 #include "config.hpp"
 #include "property.hpp"
+#include "RHVoice_common.h"
 
 namespace RHVoice
 {
@@ -79,6 +80,21 @@ namespace RHVoice
   {
     absolute_speech_params absolute;
     relative_speech_params relative;
+  };
+
+  class verbosity_params
+  {
+  public:
+    c_enum_property<RHVoice_punctuation_mode> punctuation_mode;
+    charset_property punctuation_list;
+
+    verbosity_params();
+    void register_self(config& cfg,const std::string& prefix=std::string());
+    void default_to(const verbosity_params& other);
+
+  private:
+    verbosity_params(const verbosity_params&);
+    verbosity_params& operator=(const verbosity_params&);
   };
 }
 #endif

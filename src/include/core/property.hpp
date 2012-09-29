@@ -70,7 +70,19 @@ namespace RHVoice
     {
     }
 
-  public:
+    const T& get_value() const
+    {
+      if(value_set)
+        return current_value;
+      else
+        {
+          if(next)
+            return next->get_value();
+          else
+            return default_value;
+        }
+    }
+
     bool set_value(const T& val)
     {
       T tmp;
@@ -84,17 +96,10 @@ namespace RHVoice
         return false;
     }
 
+  public:
     operator T () const
     {
-      if(value_set)
-        return current_value;
-      else
-        {
-          if(next)
-            return next->operator T();
-          else
-            return default_value;
-        }
+      return get_value();
     }
 
     bool is_set(bool recursive=false) const
@@ -318,6 +323,52 @@ namespace RHVoice
     bool_property& operator=(bool val)
     {
       this->set_value(val);
+      return *this;
+    }
+  };
+
+  class charset_property: public property<std::set<utf8::uint32_t> >
+  {
+  private:
+    typedef std::set<utf8::uint32_t> charset;
+
+  public:
+    charset_property(const std::string& name,const std::string& chars):
+      property<charset>(name,charset(str::utf8_string_begin(chars),str::utf8_string_end(chars)))
+    {
+    }
+
+    bool set_from_string(const std::string& s)
+    {
+      charset val(str::utf8_string_begin(s),str::utf8_string_end(s));
+      return this->set_value(val);
+    }
+
+    bool includes(utf8::uint32_t c) const
+    {
+      const charset& val=get_value();
+      return (val.find(c)!=val.end());
+    }
+  };
+
+  // The enumeration must start from 0,
+  //   and the first value must mean "default",
+  // that is that the caller leaves the decision to the library.
+  template<typename T>
+  class c_enum_property: public enum_property<T>
+  {
+  public:
+    c_enum_property(const std::string& name,T default_value):
+      enum_property<T>(name,default_value)
+    {
+    }
+
+    c_enum_property& operator=(T val)
+    {
+      if(val==0)
+        this->reset();
+      else
+        this->set_value(val);
       return *this;
     }
   };

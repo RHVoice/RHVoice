@@ -81,6 +81,12 @@ class RHVoice_voice_info(Structure):
               ("name",c_char_p),
               ("gender",c_int)]
 
+class RHVoice_punctuation_mode:
+    default=0
+    none=1
+    all=2
+    some=3
+
 class RHVoice_synth_params(Structure):
     _fields_=[("main_voice",c_char_p),
               ("extra_voice",c_char_p),
@@ -89,7 +95,9 @@ class RHVoice_synth_params(Structure):
               ("absolute_volume",c_double),
               ("relative_rate",c_double),
               ("relative_pitch",c_double),
-              ("relative_volume",c_double)]
+              ("relative_volume",c_double),
+              ("punctuation_mode",c_int),
+              ("punctuation_list",c_char_p)]
 
 def load_tts_library():
     lib=ctypes.CDLL(lib_path.encode(sys.getfilesystemencoding()))
@@ -188,7 +196,9 @@ class speak_text(object):
                                                  absolute_pitch=0,
                                                  relative_pitch=1,
                                                  absolute_volume=0,
-                                                 relative_volume=1)
+                                                 relative_volume=1,
+                                                 punctuation_mode=RHVoice_punctuation_mode.default,
+                                                 punctuation_list=None)
 
     def set_rate(self,rate):
         self.__synth_params.absolute_rate=rate/50.0-1
