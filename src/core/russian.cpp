@@ -96,8 +96,8 @@ namespace RHVoice
           }
         for(item::iterator word_iter(phrase_iter->begin());word_iter!=phrase_iter->end();++word_iter)
           {
-            if((!(word_iter->as("TokStructure").parent().get("stress_marks",true).empty()))||
-               (word_iter->as("TokStructure").parent().get("pos").as<std::string>()=="lseq"))
+            if(word_iter->as("TokStructure").parent().has_feature("stress_marks")||
+               word_iter->has_feature("lseq"))
               {
                 word_iter->set<std::string>("clitic","host");
                 word_iter->set<std::string>("gpos","content");
@@ -147,7 +147,7 @@ namespace RHVoice
     chars.push_back('#');
     chars.insert(chars.end(),str::utf8_string_begin(name),str::utf8_string_end(name));
     chars.push_back('#');
-    if(word.as("TokStructure").parent().get("pos").as<std::string>()=="lseq")
+    if(word.has_feature("lseq"))
       {
         lseq_fst.translate(chars.begin()+1,chars.end()-1,word.back_inserter());
         return;
@@ -206,7 +206,7 @@ namespace RHVoice
     relation& sylstruct_rel=u.get_relation("SylStructure");
     for(relation::iterator word_iter(sylstruct_rel.begin());word_iter!=sylstruct_rel.end();++word_iter)
       {
-        if(word_iter->as("TokStructure").parent().get("pos").as<std::string>()=="lseq")
+        if(word_iter->has_feature("lseq"))
           continue;
         const std::string& clitic=word_iter->get("clitic").as<std::string>();
         for(item::iterator syl_iter(word_iter->begin());syl_iter!=word_iter->end();++syl_iter)

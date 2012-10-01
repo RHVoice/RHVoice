@@ -28,6 +28,7 @@ namespace RHVoice
     numeric_property<double> default_rate,min_rate,max_rate;
     numeric_property<double> default_pitch,min_pitch,max_pitch;
     numeric_property<double> default_volume,min_volume,max_volume;
+    numeric_property<double> cap_pitch_factor;
 
     voice_params();
     void register_self(config& cfg,const std::string& prefix=std::string());
@@ -87,6 +88,7 @@ namespace RHVoice
   public:
     c_enum_property<RHVoice_punctuation_mode> punctuation_mode;
     charset_property punctuation_list;
+    c_enum_property<RHVoice_capitals_mode> capitals_mode;
 
     verbosity_params();
     void register_self(config& cfg,const std::string& prefix=std::string());

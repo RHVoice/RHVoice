@@ -76,7 +76,7 @@ namespace RHVoice
   {
     const std::string& name=word.get("name").as<std::string>();
     std::vector<utf8::uint32_t> chars(str::utf8_string_begin(name),str::utf8_string_end(name));
-    if(word.as("TokStructure").parent().get("pos").as<std::string>()=="lseq")
+    if(word.has_feature("lseq"))
       lseq_fst.translate(chars.begin(),chars.end(),word.back_inserter());
     else
       {
@@ -114,7 +114,7 @@ namespace RHVoice
           {
             if((word_name=="a")&&
                ((!word_iter->as("Phrase").has_next())||
-                (word_iter->as("TokStructure").parent().get("pos").as<std::string>()=="lseq")))
+                word_iter->has_feature("lseq")))
               {
                 seg.set<std::string>("name","ey");
                 seg.as("SylStructure").parent().set<std::string>("stress","1");

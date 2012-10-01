@@ -487,7 +487,9 @@ namespace RHVoice
 
   void language::decode_as_letter_sequence(item& token) const
   {
-    return default_decode_as_word(token);
+    default_decode_as_word(token);
+    if(token.has_children())
+      token.first_child().set("lseq",true);
   }
 
   void language::decode_as_number(item& token) const
@@ -529,6 +531,29 @@ namespace RHVoice
       }
   }
 
+  void language::indicate_case_if_necessary(item& token) const
+  {
+    if(!token.has_children())
+      return;
+    if(!(token.get("verbosity").as<verbosity_t>()&verbosity_full_name))
+      return;
+    const std::string& token_name=token.get("name").as<std::string>();
+    std::string::const_iterator it=token_name.begin();
+    utf8::uint32_t c=utf8::next(it,token_name.end());
+    if(!((it==token_name.end())&&str::isupper(c)))
+      return;
+    bool prefix=true;
+    for(std::vector<std::string>::const_iterator pos(msg_cap_letter.begin());pos!=msg_cap_letter.end();++pos)
+      {
+        if(*pos=="%c")
+          prefix=false;
+        else if(prefix)
+          token.prepend_child().set("name",*pos);
+        else
+          token.append_child().set("name",*pos);
+      }
+  }
+
   void language::do_text_analysis(utterance& u) const
   {
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
@@ -537,29 +562,40 @@ namespace RHVoice
       {
         for(item::iterator token_iter(parent_token_iter->begin());token_iter!=parent_token_iter->end();++token_iter)
           {
+            bool known=true;
             verbosity_t verbosity_level=token_iter->get("verbosity").as<verbosity_t>();
             const std::string& token_pos=token_iter->get("pos").as<std::string>();
             if(token_pos=="word")
               decode_as_word(*token_iter);
             else if(token_pos=="lseq")
-              decode_as_letter_sequence(*token_iter);
+              {
+                decode_as_letter_sequence(*token_iter);
+                indicate_case_if_necessary(*token_iter);
+              }
             else if(token_pos=="num")
               decode_as_number(*token_iter);
             else if(token_pos=="dig")
               decode_as_digit_string(*token_iter);
             else if(token_pos=="sym")
               {
+                known=false;
                 if(verbosity_level!=verbosity_silent)
                   {
-                    if(!decode_as_known_character(*token_iter))
+                    if(decode_as_known_character(*token_iter))
                       {
-                        if(verbosity_level&verbosity_code)
+                        indicate_case_if_necessary(*token_iter);
+                        known=true;
+                      }
+                    else
+                      {
+                        if(verbosity_level&verbosity_spell)
                           decode_as_unknown_character(*token_iter);
                       }
                   }
               }
             std::copy(token_iter->begin(),token_iter->end(),word_rel.back_inserter());
             std::copy(token_iter->begin(),token_iter->end(),parent_token_iter->as("Token").back_inserter());
+            token_iter->set("known",known);
           }
       }
   }
@@ -570,7 +606,7 @@ namespace RHVoice
     gpos_fst.translate(word_rel.begin(),word_rel.end(),set_feature_iterator<std::string>("gpos",word_rel.begin(),word_rel.end()));
     for(relation::iterator word_iter(word_rel.begin());word_iter!=word_rel.end();++word_iter)
       {
-        if(word_iter->as("TokStructure").parent().get("pos").as<std::string>()=="lseq")
+        if(word_iter->has_feature("lseq"))
           word_iter->set<std::string>("gpos","content");
       }
   }

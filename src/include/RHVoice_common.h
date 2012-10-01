@@ -28,4 +28,12 @@ typedef enum {
   RHVoice_punctuation_all,
   RHVoice_punctuation_some
 } RHVoice_punctuation_mode;
+
+typedef enum {
+  RHVoice_capitals_default,
+  RHVoice_capitals_off,
+  RHVoice_capitals_word,
+  RHVoice_capitals_pitch,
+  RHVoice_capitals_sound
+} RHVoice_capitals_mode;
 #endif

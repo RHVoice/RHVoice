@@ -99,7 +99,7 @@ namespace RHVoice
     public:
       template<typename text_iterator>
       append_chars(text_iterator token_start,text_iterator token_end,const tts_markup& markup_info):
-        verbosity_level(verbosity_code|((markup_info.say_as==content_chars)?verbosity_name:verbosity_full_name))
+        verbosity_level(verbosity_spell|((markup_info.say_as==content_glyphs)?verbosity_full_name:verbosity_name))
     {
       init(token_start,token_end,markup_info);
     }

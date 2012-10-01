@@ -93,6 +93,9 @@ typedef struct
     RHVoice_punctuation_mode punctuation_mode;
     /* Optional */
     const char* punctuation_list;
+    /* This mode only applies to reading by characters. */
+    /* If your program doesn't support this setting, set to RHVoice_capitals_default. */
+    RHVoice_capitals_mode capitals_mode;
   } RHVoice_synth_params;
 
   const char* RHVoice_get_version();
