@@ -44,7 +44,9 @@ namespace RHVoice
       verbosity_silent=0,
       verbosity_name=1,
       verbosity_full_name=2,
-      verbosity_code=4
+      verbosity_spell=4,
+      verbosity_pitch=8,
+      verbosity_sound=16
     };
   typedef unsigned int verbosity_t;
 
@@ -191,6 +193,7 @@ namespace RHVoice
     void decode_as_digit_string(item& token) const;
     bool decode_as_known_character(item& token) const;
     void decode_as_unknown_character(item& token) const;
+    void indicate_case_if_necessary(item& token) const;
 
     const language_info& info;
     std::map<std::string,smart_ptr<feature_function> > feature_functions;

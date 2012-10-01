@@ -47,6 +47,43 @@ extern "C"
 
 namespace RHVoice
 {
+  hts_engine_call::sound_event::tone_map hts_engine_call::sound_event::generate_tones()
+  {
+    tone_map result;
+    std::vector<int> sample_rates;
+    sample_rates.push_back(16000);
+    double pi=std::acos(static_cast<double>(-1));
+    double freq=2000;
+    for(int i=0;i<sample_rates.size();++i)
+      {
+        int sample_rate=sample_rates[i];
+        int nsamples=0.05*sample_rate;
+        tone& samples=result[sample_rate];
+        samples.reserve(nsamples);
+        for(int j=0;j<nsamples;++j)
+          {
+            samples.push_back(0.5*std::sin(2*pi*freq*(static_cast<double>(j)/static_cast<double>(sample_rate))));
+          }
+      }
+    return result;
+  }
+
+  const hts_engine_call::sound_event::tone_map hts_engine_call::sound_event::tones(hts_engine_call::sound_event::generate_tones());
+
+  bool hts_engine_call::sound_event::notify(client& c) const
+  {
+    tone_map::const_iterator it=tones.find(sample_rate);
+    if(it==tones.end())
+      return true;
+    std::vector<short> samples;
+    samples.reserve(it->second.size());
+    for(int i=0;i<it->second.size();++i)
+      {
+        samples.push_back(32767.0*std::max<double>(-1,std::min<double>(1,volume*it->second[i])));
+      }
+    return c.play_speech(&samples[0],samples.size());
+  }
+
   hts_engine_call::hts_engine_call(hts_engine_pool& pool,const utterance& u,client& handler):
     utt(u),
     result_handler(handler),
@@ -151,9 +188,9 @@ namespace RHVoice
 
   void hts_engine_call::queue_events()
   {
+    double volume=engine->global.volume;
+    int sample_rate=HTS_Engine_get_sampling_rate(engine.get());
     event_mask mask=result_handler.get_supported_events();
-    if(mask==0)
-      return;
     int nstates=HTS_Engine_get_nstate(engine.get());
     int fperiod=HTS_Engine_get_fperiod(engine.get());
     int offset=0;
@@ -164,32 +201,42 @@ namespace RHVoice
     const relation& event_rel=utt.get_relation("Event");
     if(mask&event_sentence_starts)
       events.push(event_ptr(new sentence_starts_event(offset,utt)));
-    for(relation::const_iterator it(event_rel.begin());it!=event_rel.end();++it)
+    for(relation::const_iterator event_iter(event_rel.begin());event_iter!=event_rel.end();++event_iter)
       {
-        if(it->in("Token"))
+        if(event_iter->in("Token"))
           {
-            if(it->as("Token").has_children())
+            if(event_iter->as("Token").has_children())
               {
-                cur_seg=it->as("Token").first_child().as("Transcription").first_child().as("Segment").get_iterator();
+                const item& token=event_iter->as("TokStructure");
+                cur_seg=event_iter->as("Token").first_child().as("Transcription").first_child().as("Segment").get_iterator();
                 cur_state=prev_state+std::distance(prev_seg,cur_seg)*nstates;
                 if(cur_state!=prev_state)
                   offset+=get_part_duration(prev_state,cur_state-prev_state)*fperiod;
                 if(mask&event_word_starts)
-                  events.push(event_ptr(new word_starts_event(offset,*it)));
+                  events.push(event_ptr(new word_starts_event(offset,*event_iter)));
                 prev_seg=cur_seg;
                 prev_state=cur_state;
-                cur_seg=++(it->as("Token").last_child().as("Transcription").last_child().as("Segment").get_iterator());
-                cur_state=prev_state+std::distance(prev_seg,cur_seg)*nstates;
-                offset+=get_part_duration(prev_state,cur_state-prev_state)*fperiod;
+                for(item::const_iterator token_iter=token.begin();token_iter!=token.end();++token_iter)
+                  {
+                    if(token_iter->has_children())
+                      {
+                        if(token_iter->get("known").as<bool>()&&
+                           (token_iter->get("verbosity").as<verbosity_t>()&verbosity_sound))
+                          events.push(event_ptr(new sound_event(offset,sample_rate,volume)));
+                        cur_seg=++(token_iter->last_child().as("Transcription").last_child().as("Segment").get_iterator());
+                        cur_state=prev_state+std::distance(prev_seg,cur_seg)*nstates;
+                        offset+=get_part_duration(prev_state,cur_state-prev_state)*fperiod;
+                        prev_seg=cur_seg;
+                        prev_state=cur_state;
+                      }
+                  }
                 if(mask&event_word_ends)
-                  events.push(event_ptr(new word_ends_event(offset,*it)));
-                prev_seg=cur_seg;
-                prev_state=cur_state;
+                  events.push(event_ptr(new word_ends_event(offset,*event_iter)));
               }
           }
         else
           {
-            const value& mark_val=it->get("mark",true);
+            const value& mark_val=event_iter->get("mark",true);
             if(!mark_val.empty())
               {
                 if(mask&event_mark)
@@ -197,7 +244,7 @@ namespace RHVoice
               }
             else
               {
-                const value& audio_val=it->get("audio",true);
+                const value& audio_val=event_iter->get("audio",true);
                 if(!audio_val.empty())
                   {
                     if(mask&event_audio)
@@ -295,27 +342,47 @@ namespace RHVoice
     return rate;
   }
 
-  double hts_engine_call::calculate_pitch() const
+  std::pair<double,double> hts_engine_call::calculate_pitch() const
   {
+    std::pair<double,double> pitch_values;
     const voice_params&voice_settings=utt.get_voice().get_info().settings;
-    double pitch=calculate_speech_param(utt.get_absolute_pitch(),
+    pitch_values.first=calculate_speech_param(utt.get_absolute_pitch(),
                                    utt.get_relative_pitch(),
                                    voice_settings.default_pitch,
                                    voice_settings.min_pitch,
                                    voice_settings.max_pitch);
-    return pitch;
+    pitch_values.second=calculate_speech_param(utt.get_absolute_pitch(),
+                                   utt.get_relative_pitch()*voice_settings.cap_pitch_factor,
+                                   voice_settings.default_pitch,
+                                   voice_settings.min_pitch,
+                                   voice_settings.max_pitch);
+    return pitch_values;
   }
 
   void hts_engine_call::set_pitch()
   {
-    double pitch=calculate_pitch();
-    for(int i=0;i<HTS_SStreamSet_get_total_state(&engine->sss);++i)
+    std::pair<double,double> pitch_values=calculate_pitch();
+    int nstates=HTS_Engine_get_nstate(engine.get());
+    const relation& seg_rel=utt.get_relation("Segment");
+    int i=0;
+    for(relation::const_iterator seg_iter=seg_rel.begin();seg_iter!=seg_rel.end();++seg_iter,i+=nstates)
       {
-        double f0=std::exp(HTS_SStreamSet_get_mean(&engine->sss,1,i,0));
-        f0*=pitch;
-        if(f0<10)
-          f0=10;
-        HTS_SStreamSet_set_mean(&engine->sss,1,i,0,std::log(f0));
+        double pitch=pitch_values.first;
+        if(seg_iter->in("Transcription"))
+          {
+            const item& token=seg_iter->as("Transcription").parent().as("TokStructure").parent();
+            if(token.get("known").as<bool>()&&
+               (token.get("verbosity").as<verbosity_t>()&verbosity_pitch))
+              pitch=pitch_values.second;
+          }
+        for(int j=0;j<nstates;++j)
+          {
+            double f0=std::exp(HTS_SStreamSet_get_mean(&engine->sss,1,i+j,0));
+            f0*=pitch;
+            if(f0<10)
+              f0=10;
+            HTS_SStreamSet_set_mean(&engine->sss,1,i+j,0,std::log(f0));
+          }
       }
   }
 }

@@ -277,6 +277,12 @@ namespace RHVoice
         return it->second;
     }
 
+    bool has_feature(const std::string& name) const
+    {
+      feature_map::const_iterator it(data->features.find(name));
+      return (it!=data->features.end());
+    }
+
     value eval(const std::string& feature) const;
     value eval(const std::string& feature,const value& default_value) const;
 

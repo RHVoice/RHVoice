@@ -44,7 +44,7 @@ namespace RHVoice
         c=utf8::next(pos,name.end());
         item& token=parent_token.append_child();
         token.set("name",std::string(prev_pos,pos));
-        token.set<std::string>("pos",(lang_info.is_letter(c)?"lseq":"sym"));
+        token.set<std::string>("pos",lang_info.is_letter(c)?"lseq":"sym");
         token.set("verbosity",verbosity_level);
       }
   }
@@ -226,7 +226,8 @@ namespace RHVoice
 
   void sentence::apply_verbosity_settings(utterance& u) const
   {
-    if(parent->verbosity_settings.punctuation_mode!=RHVoice_punctuation_none)
+    if((parent->verbosity_settings.punctuation_mode!=RHVoice_punctuation_none)||
+       (parent->verbosity_settings.capitals_mode!=RHVoice_capitals_off))
       {
         relation& tokstruct_rel=u.get_relation("TokStructure");
         for(relation::iterator parent_token_iter=tokstruct_rel.begin();parent_token_iter!=tokstruct_rel.end();++parent_token_iter)
@@ -235,13 +236,28 @@ namespace RHVoice
               {
                 const std::string& pos=token_iter->get("pos").as<std::string>();
                 const std::string& name=token_iter->get("name").as<std::string>();
-                if(pos=="sym")
-                  {
-                    utf8::uint32_t c=utf8::peek_next(name.begin(),name.end());
-                    if(((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_all)&&
-                        str::ispunct(c))||
-                       parent->verbosity_settings.punctuation_list.includes(c))
+                utf8::uint32_t c=utf8::peek_next(name.begin(),name.end());
+                if((pos=="sym")&&
+                   (((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_all)&&
+                     str::ispunct(c))||
+                    ((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_some)&&
+                     parent->verbosity_settings.punctuation_list.includes(c))))
                       token_iter->set<verbosity_t>("verbosity",verbosity_name);
+                if(parent->verbosity_settings.capitals_mode!=RHVoice_capitals_off)
+                  {
+                    verbosity_t verbosity_level=token_iter->get("verbosity").as<verbosity_t>();
+                    if((verbosity_level&verbosity_spell)&&
+                       (!(verbosity_level&verbosity_full_name))&&
+                       str::isupper(c))
+                      {
+                        if(parent->verbosity_settings.capitals_mode==RHVoice_capitals_pitch)
+                          verbosity_level|=verbosity_pitch;
+                        else if(parent->verbosity_settings.capitals_mode==RHVoice_capitals_sound)
+                          verbosity_level|=verbosity_sound;
+                        else
+                          verbosity_level|=verbosity_full_name;
+                        token_iter->set("verbosity",verbosity_level);
+                      }
                   }
               }
           }

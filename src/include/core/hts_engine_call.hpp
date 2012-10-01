@@ -18,6 +18,8 @@
 
 #include <string>
 #include <queue>
+#include <vector>
+#include <map>
 #include "speech_stream.hpp"
 #include "exception.hpp"
 #include "smart_ptr.hpp"
@@ -58,7 +60,7 @@ namespace RHVoice
     bool fire_events(bool all_remaining=false);
     double calculate_speech_param(double absolute_change,double relative_change,double default_value,double min_value,double max_value) const;
     double calculate_rate() const;
-    double calculate_pitch() const;
+    std::pair<double,double> calculate_pitch() const;
     double calculate_volume() const;
     void set_pitch();
 
@@ -205,6 +207,30 @@ namespace RHVoice
 
     private:
       std::string src;
+    };
+
+    class sound_event: public event
+    {
+    public:
+      sound_event(int offset,int sample_rate_,double volume_):
+        event(offset),
+        sample_rate(sample_rate_),
+        volume(volume_)
+      {
+      }
+
+      bool notify(client& c) const;
+
+    private:
+      typedef std::vector<double> tone;
+      typedef std::map<int,tone> tone_map;
+
+      const static tone_map tones;
+
+      int sample_rate;
+      double volume;
+
+      static tone_map generate_tones();
     };
 
     const utterance& utt;
