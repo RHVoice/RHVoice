@@ -45,6 +45,12 @@ def get_msvc_env_vars():
                 vars[p[0]]=p[1]
     return vars
 
+def convert_flags(value):
+    return value.split()
+
+def convert_path(value):
+    return value.split(";" if sys.platform=="win32" else ":")
+
 BUILDDIR=os.path.join("build",sys.platform)
 Execute(Mkdir(BUILDDIR))
 SConsignFile(os.path.join(BUILDDIR,"scons"))
@@ -63,10 +69,13 @@ if sys.platform!="win32":
     vars.Add("servicedir",".service file installation directory","$datadir/dbus-1/services")
     vars.Add("DESTDIR","Support for staged installation","")
     vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
-vars.Add("FLAGS","Additional compiler/linker flags")
-vars.Add("CCFLAGS","C compiler flags")
-vars.Add("LINKFLAGS","Linker flags")
-vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
+vars.Add("CPPPATH","List of directories where to search for libraries",[],converter=convert_path)
+vars.Add("CPPFLAGS","C/C++ preprocessor flags",[],converter=convert_flags)
+vars.Add("CCFLAGS","C/C++ compiler flags",["/O2" if sys.platform=="win32" else "-O2"],converter=convert_flags)
+vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
+vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
+vars.Add("LIBPATH","List of directories where to search for headers",[],converter=convert_path)
+vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
 vars.Add("package_version","Package version","0.4-a2")
 if sys.platform=="win32":
     env_args["tools"]=["msvc","mslink","mslib","newlines"]
@@ -74,12 +83,11 @@ if sys.platform=="win32":
 else:
     env_args["tools"]=["default","textfile","installer"]
 env_args["variables"]=vars
-env_args["CPPPATH"]=[]
 env_args["LIBS"]=[]
-env_args["LIBPATH"]=[]
 env_args["package_name"]="RHVoice"
 env_args["CPPDEFINES"]=[]
 env=Environment(**env_args)
+vars.Save(var_cache,env)
 Help("Type 'scons' to build the package.\n")
 if sys.platform!="win32":
     Help("Then type 'scons install' to install it.\n")
@@ -93,23 +101,8 @@ if env["PLATFORM"]=="win32":
     env.Append(CPPDEFINES=("WIN32",1))
     env.Append(CPPDEFINES=("UNICODE",1))
     env.Append(CPPDEFINES=("NOMINMAX",1))
-    env.Append(CCFLAGS=["/MT"])
-    env.Append(CXXFLAGS=["/EHsc"])
-flags=env.get("FLAGS")
-if flags:
-    env.MergeFlags(flags)
-if env.get("debug")=="yes":
-    if env["PLATFORM"]=="win32":
-        env.AppendUnique(CCFLAGS="/Od",delete_existing=1)
-    else:
-        env.AppendUnique(CCFLAGS="-O0",delete_existing=1)
-        env.AppendUnique(CCFLAGS="-g",delete_existing=1)
-else:
-    if env["PLATFORM"]=="win32":
-        env.PrependUnique(CCFLAGS="/O2")
-    else:
-        env.PrependUnique(CCFLAGS="-O2")
-vars.Save(var_cache,env)
+    env.AppendUnique(CCFLAGS=["/MT"])
+    env.AppendUnique(CXXFLAGS=["/EHsc"])
 conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                    log_file=os.path.join(BUILDDIR,"configure.log"),
                    custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG})

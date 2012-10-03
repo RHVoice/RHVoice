@@ -21,11 +21,6 @@ local_env.Prepend(LIBS=["RHVoice_core","comsuppw","advapi32","shell32"])
 local_env.Prepend(LIBPATH=os.path.join("..","core"))
 
 dll_name="RHVoiceSvr"
-if env.get("debug")=="yes":
-    local_env["PDB"]=File(dll_name+".pdb").abspath
-    local_env["CCPDBFLAGS"]=["/Zi","/Fd"+File("symbols.pdb").abspath]
-else:
-    local_env["PDB"]=None
 dll_src=["com.cpp",
          "ISpDataKeyImpl.cpp",
          "IEnumSpObjectTokensImpl.cpp",
