@@ -53,13 +53,14 @@ def phseq(args):
 	with codecs.open(args.transcription,"rb","utf-8") as f_in:
 		with codecs.open(os.path.join(work_dir,"txt.phseq.data"),"wb","utf-8") as f_out:
 			for name,line in itertools.izip(waves,f_in):
-				f_out.write(os.path.splitext(name)[0])
-				f_out.write(" ")
-				f_out.write(line.strip())
-				f_out.write("\n")
+					basename=os.path.splitext(name)[0]
+					f_out.write(basename+" ")
+					phones=["ssil" if phone=="pau" else phone for phone in line.split()[1:-1]]
+					f_out.write("pau "+" ".join(phones)+" pau\n")
 	bin_dir=os.path.join(args.ehmm_dir,"bin")
 	run("perl",os.path.join(bin_dir,"phfromutt.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"ph_list"),"5")
 	run("perl",os.path.join(bin_dir,"getwavlist.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"mywavelist"))
+	run("perl",os.path.join(bin_dir,"seqproc.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"ph_list"),"2","2","13")
 
 def feats(args):
 	bin_dir=os.path.join(args.ehmm_dir,"bin")
@@ -68,7 +69,6 @@ def feats(args):
 	run(os.path.join(bin_dir,"FeatureExtraction"),os.path.join(work_dir,"mysp_settings"),os.path.join(work_dir,"mywavelist"))
 	run("perl",os.path.join(bin_dir,"comp_dcep.pl"),os.path.join(work_dir,"mywavelist"),feat_dir,"mfcc","ft","0","0")
 	run("perl",os.path.join(bin_dir,"scale_feat.pl"),os.path.join(work_dir,"mywavelist"),feat_dir,os.path.join("ehmm","mod"),"ft","4")
-	run("perl",os.path.join(bin_dir,"seqproc.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"ph_list"),"2","2","13")
 
 def bw(args):
 	bin_dir=os.path.join(args.ehmm_dir,"bin")
@@ -145,6 +145,44 @@ def all(args):
 	align(args)
 	fix(args)
 
+def lp(args):
+	work_dir=os.path.join("ehmm","etc")
+	waves=sorted(name for name in os.listdir(args.wave_dir) if name.endswith(".wav"))
+	with codecs.open(args.transcription,"rb","utf-8") as f_trans:
+		with codecs.open(os.path.join(work_dir,"txt.phseq.data"),"wb","utf-8") as f_out:
+			for name,line in itertools.izip(waves,f_trans):
+					basename=os.path.splitext(name)[0]
+					f_out.write(basename+" pau ")
+					phones=["ssil" if phone=="pau" else phone for phone in line.split()[1:-1]]
+					it=iter(phones)
+					with codecs.open(os.path.join("lab",basename+".lab"),"r","utf-8") as f_lab:
+						prev_time=0
+						phone1=next(it)
+						f_lab.readline()
+						f_lab.readline()
+						for line1 in f_lab:
+							if not phone1:
+								break
+							tokens=line1.split()
+							if tokens:
+								phone2=tokens[-1]
+								time=float(tokens[0])
+								if phone2=="pau":
+									if (time-prev_time) >= args.min:
+										f_out.write("pau ")
+									else:
+										f_out.write("ssil ")
+								else:
+									if phone1=="ssil":
+										f_out.write("ssil ")
+										phone1=next(it)
+									f_out.write(phone1+" ")
+								prev_time=time
+								phone1=next(it,None)
+					f_out.write("pau\n")
+	bin_dir=os.path.join(args.ehmm_dir,"bin")
+	run("perl",os.path.join(bin_dir,"seqproc.pl"),os.path.join(work_dir,"txt.phseq.data"),os.path.join(work_dir,"ph_list"),"2","2","13")
+
 if __name__=="__main__":
 	parser=argparse.ArgumentParser(description="Label a speech database using the Ehmm labeller")
 	parser.add_argument("--ehmm-dir",required=True,help="the path to the Ehmm labeller")
@@ -166,5 +204,8 @@ if __name__=="__main__":
 	fix_parser.set_defaults(func=fix)
 	all_parser=subparsers.add_parser("all")
 	all_parser.set_defaults(func=all)
+	lp_parser=subparsers.add_parser("lp")
+	lp_parser.add_argument("--min",required=False,type=float,default=0.1,help="minimum duration")
+	lp_parser.set_defaults(func=lp)
 	args=parser.parse_args()
 	args.func(args)
