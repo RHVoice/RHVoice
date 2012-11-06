@@ -328,6 +328,39 @@ namespace RHVoice
         return false;
       }
     };
+
+    template<typename ch>
+    class break_handler: public xml::element_handler<ch>
+    {
+    public:
+      break_handler():
+        xml::element_handler<ch>("break")
+      {
+      }
+
+      bool enter(xml::handler_args<ch>& args)
+      {
+        break_strength strength=break_phrase;
+        std::string str_strength=xml::get_attribute_value(args.node,"strength");
+        if(!str_strength.empty())
+          {
+            if(str_strength=="none")
+              strength=break_none;
+            else if(str_strength=="x-weak")
+              strength=break_default;
+            else if(str_strength=="weak")
+              strength=break_default;
+            else if(str_strength=="medium")
+              strength=break_phrase;
+            else if(str_strength=="strong")
+              strength=break_sentence;
+            else if(str_strength=="x-strong")
+              strength=break_sentence;
+          }
+          args.target_document.add_break(strength);
+        return false;
+      }
+    };
   }
 }
 #endif

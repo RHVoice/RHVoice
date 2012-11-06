@@ -50,6 +50,14 @@ namespace RHVoice
     };
   typedef unsigned int verbosity_t;
 
+  enum break_strength
+    {
+      break_default,
+      break_none,
+      break_phrase,
+      break_sentence
+    };
+
   class feature_function_not_found: public lookup_error
   {
   public:
@@ -194,6 +202,7 @@ namespace RHVoice
     bool decode_as_known_character(item& token) const;
     void decode_as_unknown_character(item& token) const;
     void indicate_case_if_necessary(item& token) const;
+    break_strength get_word_break(const item& word) const;
 
     const language_info& info;
     std::map<std::string,smart_ptr<feature_function> > feature_functions;

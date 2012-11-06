@@ -611,6 +611,22 @@ namespace RHVoice
       }
   }
 
+  break_strength language::get_word_break(const item& word) const
+  {
+    if(!word.as("Token").has_next())
+      {
+        const value& strength_val=word.as("Token").parent().get("break_strength",true);
+        if(!strength_val.empty())
+          {
+            break_strength strength=strength_val.as<break_strength>();
+            if(strength!=break_default)
+              return strength;
+          }
+      }
+    const std::string& brk=phrasing_dtree.predict(word).as<std::string>();
+    return ((brk=="NB")?break_none:break_phrase);
+  }
+
   void language::phrasify(utterance& u) const
   {
     relation& word_rel=u.get_relation("Word");
@@ -622,9 +638,9 @@ namespace RHVoice
         do
           {
             phrase_rel.last().append_child(*word_iter);
-            const std::string& brk=phrasing_dtree.predict(*word_iter).as<std::string>();
+            break_strength strength=get_word_break(*word_iter);
             ++word_iter;
-            if((brk!="NB")&&(word_iter!=word_rel.end()))
+            if((strength!=break_none)&&(word_iter!=word_rel.end()))
               phrase_rel.append();
           }
         while(word_iter!=word_rel.end());
