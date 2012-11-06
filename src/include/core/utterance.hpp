@@ -147,7 +147,7 @@ namespace RHVoice
     relation& add_relation(const std::string& name);
     void remove_relation(const std::string& name);
 
-    bool has_relation(std::string& name) const
+    bool has_relation(const std::string& name) const
     {
       return (relations.find(name)!=relations.end());
     }

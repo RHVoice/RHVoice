@@ -45,7 +45,8 @@ namespace RHVoice
       {
         command_token,
         command_mark,
-        command_audio
+        command_audio,
+        command_break
       };
 
     class abstract_command: public utterance_function
@@ -144,6 +145,24 @@ namespace RHVoice
       std::string src;
     };
 
+    class append_break: public command<command_break>
+    {
+    public:
+      explicit append_break(break_strength strength_):
+        strength(strength_)
+      {
+      }
+
+      void execute(utterance& u) const
+      {
+        if(u.has_relation("TokStructure"))
+          u.get_relation("TokStructure").last().set("break_strength",strength);
+      }
+
+    private:
+      break_strength strength;
+    };
+
     std::list<command_ptr> commands;
     std::vector<utf8::uint32_t> trailing_whitespace,last_token;
     const document* parent;
@@ -172,6 +191,11 @@ namespace RHVoice
     void add_audio(const std::string& src)
     {
       commands.push_back(command_ptr(new append_audio(src)));
+    }
+
+    void add_break(break_strength strength)
+    {
+      commands.push_back(command_ptr(new append_break(strength)));
     }
 
   private:
@@ -322,6 +346,14 @@ namespace RHVoice
     void add_audio(const std::string& src)
     {
       get_current_sentence().add_audio(src);
+    }
+
+    void add_break(break_strength strength)
+    {
+      if(strength==break_sentence)
+        finish_sentence();
+      else
+        get_current_sentence().add_break(strength);
     }
 
     void finish_sentence()
@@ -491,6 +523,8 @@ namespace RHVoice
     parser.add_element_handler(prosody_handler);
     ssml::audio_handler<char_type> audio_handler;
     parser.add_element_handler(audio_handler);
+    ssml::break_handler<char_type> break_handler;
+    parser.add_element_handler(break_handler);
     parser.parse(text_start,text_end,*doc_ptr);
     return doc_ptr;
   }
