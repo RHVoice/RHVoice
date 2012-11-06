@@ -35,6 +35,13 @@ namespace RHVoice
     void rename_unstressed_vowels(utterance& u) const;
 
     void decode_as_word(item& token) const;
+    bool transcribe_letter_sequence(item& word) const;
+    bool transcribe_word_with_stress_marks(item& word) const;
+    bool transcribe_word_from_dict(item& word) const;
+    bool transcribe_monosyllabic_word(item& word) const;
+    bool transcribe_word_from_stress_dict(item& word) const;
+    bool transcribe_word_applying_stress_rules(item& word) const;
+    bool transcribe_unknown_word(item& word) const;
     void transcribe_word(item& word) const;
     void post_lex(utterance& u) const;
 
@@ -43,6 +50,7 @@ namespace RHVoice
     const fst lseq_fst;
     const fst untranslit_fst;
     const fst dict_fst;
+    const fst stress_fst;
     const rules<uint8_t> stress_rules;
   };
 

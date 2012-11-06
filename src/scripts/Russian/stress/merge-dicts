@@ -1,0 +1,36 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import codecs
+
+if __name__=="__main__":
+	lex=dict()
+	for name in ["wiktionary/dict","festival/dict"]:
+		with codecs.open(name,"r","utf-8") as f_in:
+			for line in f_in:
+				entry=line.strip()
+				word=line.lower().replace(u"ё",u"е")
+				if word in lex:
+					if u"ё" not in entry:
+						lex[word]=entry
+				else:
+					lex[word]=entry
+	with codecs.open("dict","w","utf-8") as f_out:
+		for word,entry in sorted(lex.iteritems(),key=lambda p: p[0]):
+			f_out.write(entry)
+			f_out.write("\n")

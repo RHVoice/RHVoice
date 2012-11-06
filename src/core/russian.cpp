@@ -61,6 +61,7 @@ namespace RHVoice
     lseq_fst(path::join(info.get_data_path(),"lseq.fst")),
     untranslit_fst(path::join(info.get_data_path(),"untranslit.fst")),
     dict_fst(path::join(info.get_data_path(),"dict.fst")),
+    stress_fst(path::join(info.get_data_path(),"stress.fst")),
     stress_rules(path::join(info.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
   {
   }
@@ -140,63 +141,116 @@ namespace RHVoice
       }
   }
 
-  void russian::transcribe_word(item& word) const
+  bool russian::transcribe_letter_sequence(item& word) const
+  {
+    if(!word.has_feature("lseq"))
+      return false;
+    const std::string& name=word.get("name").as<std::string>();
+    lseq_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter());
+    return true;
+  }
+
+  bool russian::transcribe_word_with_stress_marks(item& word) const
+  {
+    const value& val_stress_marks=word.as("TokStructure").parent().get("stress_marks",true);
+    if(val_stress_marks.empty())
+      return false;
+    const std::string& name=word.get("name").as<std::string>();
+    utf8::uint32_t cp;
+    const std::vector<unsigned int>& stress_marks=val_stress_marks.as<std::vector<unsigned int> >();
+    std::vector<utf8::uint32_t> letters(str::utf8_string_begin(name),str::utf8_string_end(name));
+    bool stressed=false;
+    for(unsigned int i=0;i<letters.size();++i)
+      {
+        cp=letters[i];
+        if(is_vowel()(cp)&&
+           (std::find(stress_marks.begin(),stress_marks.end(),i)!=stress_marks.end()))
+          {
+            stressed=true;
+            if(cp!=1105)
+              letters[i]=str::toupper(cp);
+          }
+      }
+    if(!stressed)
+      return false;
+    g2p_fst.translate(letters.begin(),letters.end(),word.back_inserter());
+    return true;
+  }
+
+  bool russian::transcribe_word_from_dict(item& word) const
   {
     const std::string& name=word.get("name").as<std::string>();
-    std::vector<utf8::uint32_t> chars;
-    chars.push_back('#');
-    chars.insert(chars.end(),str::utf8_string_begin(name),str::utf8_string_end(name));
-    chars.push_back('#');
-    if(word.has_feature("lseq"))
+    if(dict_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter()))
+      return true;
+    else
+      return false;
+  }
+
+  bool russian::transcribe_monosyllabic_word(item& word) const
+  {
+    const std::string& name=word.get("name").as<std::string>();
+    str::utf8_string_iterator start=str::utf8_string_begin(name);
+    str::utf8_string_iterator end=str::utf8_string_end(name);
+    str::utf8_string_iterator first_vowel_pos=std::find_if(start,end,is_vowel());
+    if(first_vowel_pos==end)
+      return false;
+    str::utf8_string_iterator next_pos=first_vowel_pos;
+    ++next_pos;
+    if(std::find_if(next_pos,end,is_vowel())!=end)
+      return false;
+    std::vector<utf8::uint32_t> letters(start,first_vowel_pos);
+    utf8::uint32_t cp=*first_vowel_pos;
+    letters.push_back((cp==1105)?cp:str::toupper(cp));
+    letters.insert(letters.end(),next_pos,end);
+    g2p_fst.translate(letters.begin(),letters.end(),word.back_inserter());
+    return true;
+  }
+
+  bool russian::transcribe_word_from_stress_dict(item& word) const
+  {
+    const std::string& name=word.get("name").as<std::string>();
+    std::vector<std::string> stressed;
+    if(stress_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
       {
-        lseq_fst.translate(chars.begin()+1,chars.end()-1,word.back_inserter());
-        return;
+        g2p_fst.translate(stressed.begin(),stressed.end(),word.back_inserter());
+        return true;
       }
-    std::list<std::string> stressed_word;
-    bool explicit_stress=false;
-    const value& val_stress_marks=word.as("TokStructure").parent().get("stress_marks",true);
-    if(!val_stress_marks.empty())
-      {
-        utf8::uint32_t cp;
-        unsigned int i;
-        const std::vector<unsigned int>& stress_marks=val_stress_marks.as<std::vector<unsigned int> >();
-        for(std::vector<unsigned int>::const_iterator it(stress_marks.begin());it!=stress_marks.end();++it)
-          {
-            i=*it+1;
-            cp=chars.at(i);
-            if(is_vowel()(cp))
-              {
-                if(cp!=1105)
-                  chars[i]=str::toupper(cp);
-                explicit_stress=true;
-              }
-          }
-      }
-    if((!explicit_stress)&&(!dict_fst.translate(chars.begin()+1,chars.end()-1,std::back_inserter(stressed_word))))
-      {
-        if(std::find(chars.begin(),chars.end(),1105)==chars.end())
-          {
-            std::vector<utf8::uint32_t>::iterator first_vowel_pos=std::find_if(chars.begin(),chars.end(),is_vowel());
-            if(first_vowel_pos!=chars.end())
-              {
-                if(std::find_if(first_vowel_pos+1,chars.end(),is_vowel())==chars.end())
-                  *first_vowel_pos=str::toupper(*first_vowel_pos);
-                else
-                  {
-                    rules<uint8_t>::match m(stress_rules,chars.begin(),chars.end());
-                    if(!m.empty())
-                      {
-                        std::size_t pos=m.pos(m.size()-1)+m.value(m.size()-1);
-                        chars[pos]=str::toupper(chars[pos]);
-                      }
-                  }
-              }
-          }
-      }
-    if(stressed_word.empty())
-      g2p_fst.translate(chars.begin()+1,chars.end()-1,word.back_inserter());
-      else
-        g2p_fst.translate(stressed_word.begin(),stressed_word.end(),word.back_inserter());
+    else
+      return false;
+  }
+
+  bool russian::transcribe_word_applying_stress_rules(item& word) const
+  {
+    const std::string& name=word.get("name").as<std::string>();
+    std::vector<utf8::uint32_t> letters;
+    letters.push_back('#');
+    letters.insert(letters.end(),str::utf8_string_begin(name),str::utf8_string_end(name));
+    letters.push_back('#');
+    rules<uint8_t>::match m(stress_rules,letters.begin(),letters.end());
+    if(m.empty())
+      return false;
+    std::size_t pos=m.pos(m.size()-1)+m.value(m.size()-1);
+    letters.at(pos)=str::toupper(letters.at(pos));
+    g2p_fst.translate(letters.begin()+1,letters.end()-1,word.back_inserter());
+    return true;
+  }
+
+  bool russian::transcribe_unknown_word(item& word) const
+  {
+    const std::string& name=word.get("name").as<std::string>();
+    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter());
+    return true;
+  }
+
+  void russian::transcribe_word(item& word) const
+  {
+    transcribe_letter_sequence(word)||
+      transcribe_word_with_stress_marks(word)||
+      transcribe_word_from_dict(word)||
+      transcribe_word_from_stress_dict(word)||
+      transcribe_monosyllabic_word(word)||
+      transcribe_word_applying_stress_rules(word)||
+      transcribe_unknown_word(word);
   }
 
   void russian::reduce_vowels(utterance& u) const

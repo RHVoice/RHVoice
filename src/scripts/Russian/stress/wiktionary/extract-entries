@@ -1,0 +1,142 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import codecs
+import bz2
+import re
+import collections
+
+word_regex=re.compile(u"(?ui)[абвгдеёжзийклмнопрстуфхцчшщьыъэюя]+$")
+stressed_word_regex=re.compile(u"(?ui)(а́?|б|в|г|д|е́?|ё́?|ж|з|и́?|й|к|л|м|н|о́?|п|р|с|т|у́?|ф|х|ц|ч|ш|щ|ь|ы́?|ъ|э́?|ю́?|я́?)+$")
+
+def unescape(text):
+	return text.replace("&lt;","<").replace("&gt;",">").replace("&quot;","\"").replace("&apos;","'").replace("&amp;","&")
+
+def get_pages(file_path):
+	f=codecs.getreader("utf-8")(bz2.BZ2File(file_path,"r"))
+	on_page=False
+	text=list()
+	for line in f:
+		trimmed_line=line.strip()
+		if trimmed_line=="<page>":
+			on_page=True
+			text=list()
+		elif trimmed_line=="</page>":
+			on_page=False
+			yield u"".join(text)
+		elif on_page:
+			text.append(line)
+
+def get_title(page):
+	m=re.search(r"<title>([^<]+)</title>",page)
+	return (unescape(m.group(1)) if m else "")
+
+def get_text(page):
+	m=re.search(r'(?s)<text xml:space="preserve">(.+)</text>',page)
+	return (m.group(1) if m else "")
+
+def parse_template_call(title,text):
+	chars=list()
+	depth1=0
+	depth2=0
+	for i in xrange(0,len(text)):
+		if text[i]=="{":
+			depth1+=1
+			if depth2==0:
+				chars.append(text[i])
+		elif text[i]=="}":
+			depth1-=1
+			if depth2==0:
+				chars.append(text[i])
+			if depth1==0:
+				break
+		elif text[i]=="<":
+			depth2+=1
+		elif text[i]==">":
+			depth2-=1
+		elif depth2==0:
+			chars.append(text[i])
+	raw=u"".join(chars)
+	m=re.match(ur"{{(?:Шаблон:)?([^|{}]+)\|",raw)
+	if not m:
+		return
+	name=unescape(m.group(1).strip())
+	if not name:
+		return
+	word=""
+	m=re.search(ur"{{по[-\s]слогам([^{}]+)}}",raw)
+	if not m:
+		m=re.search(ur"\|([^|{}=]+)[|}]",raw)
+	if m:
+		word0=re.sub(ur"(?u)[^\ẃ]","",m.group(1)).replace("|-","").replace(".","")
+		if stressed_word_regex.match(word0):
+			word0=word0.replace(u"́","'").lower().replace(u"ё'",u"ё")
+			if word0.replace("'","")==title.lower():
+				word=word0
+	stems=collections.OrderedDict([(u"основа",""),(u"основа1",""),(u"основа2",""),(u"основа3",""),(u"основа4",""),(u"основа5","")])
+	for m in re.finditer(ur"(основа\d?)\s*=\s*([^|{}=\s]+)\s*[|}]",raw):
+		stem0=m.group(2)
+		if stressed_word_regex.match(stem0):
+			stem=stem0.replace(u"́","'").lower().replace(u"ё'",u"ё")
+			stems[m.group(1)]=stem
+	if not (word or any(stems.values())):
+		return
+	return (word,name,stems)
+
+def parse_morph_properties(title,text):
+	if re.match("{{[^{]",text):
+		return parse_template_call(title,text)
+	s=re.sub("<[^>]+>","",unescape(re.match(r"(?u)\S+",text).group(0).strip("'")))
+	word0=re.sub(ur"(?u)[^\ẃ]","",s.replace("-",""))
+	if stressed_word_regex.match(word0):
+		word=word0.lower().replace(u"́","'").replace(u"ё'",u"ё")
+		if word.replace("'","")==title.lower():
+			return (word,"",collections.OrderedDict())
+
+def get_entries(page_title,page_text):
+	m1=re.search(r"(?um)^\s*=\s*{{-ru-.*}}\s*=\s*$",page_text)
+	if m1:
+		text=page_text[m1.end(0):]
+		m2=re.search(r"(?um)^\s*=\s*{{-[a-zA-Z]+-.*}}\s*=\s*$",text)
+		if m2:
+			text=text[:m2.start(0)]
+		for m in re.finditer(ur"(?umi)^\s*(={2,3})\s*Морфологические\s+и\s+синтаксические\s+свойства\s*\1\s*$\s*^\s*(\S)",text):
+			res=parse_morph_properties(page_title,text[m.start(2):])
+			if res:
+				yield res
+
+def write_entry(f_out,title,entry):
+	f_out.write(title)
+	f_out.write("\t")
+	f_out.write(entry[1])
+	f_out.write("\t")
+	if entry[0]:
+		f_out.write(entry[0])
+	for stem in entry[2].values():
+		f_out.write("\t")
+		f_out.write(stem)
+	f_out.write("\n")
+
+if __name__=="__main__":
+	with codecs.open("entries","w","utf-8") as f_out:
+		for page in get_pages(sys.argv[1]):
+			title=get_title(page)
+			if word_regex.match(title.lower()):
+				for entry in get_entries(title,get_text(page)):
+					write_entry(f_out,title,entry)

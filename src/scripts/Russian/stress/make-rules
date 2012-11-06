@@ -1,0 +1,108 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import codecs
+import collections
+
+vowels=set(u"аАеЕёЁиИоОуУыЫэЭюЮяЯ")
+
+if __name__=="__main__":
+	lex=dict()
+	with codecs.open("dict","r","utf-8") as f:
+		for line in f:
+			pron=line.strip()
+			if u"ё" in pron:
+				continue
+			if "-" in pron:
+				continue
+			if sum(1 for c in pron if c.isupper())!=1:
+				continue
+			n=next(i for i in xrange(len(pron)) if pron[i].isupper())+1
+			lex["#"+pron.lower()+"#"]=n
+	print(u"Using {} words for creating rules".format(len(lex)))
+	data=dict()
+	for word,n in lex.iteritems():
+		for i in xrange(len(word)):
+			position=n-i
+			for j in xrange(i+1,len(word)+1):
+				substring=word[i:j]
+				if substring in data:
+					prev_position,prev_count=data[substring]
+					if prev_position is not None:
+						if position==prev_position:
+							data[substring]=(position,prev_count+1)
+						else:
+							data[substring]=(None,0)
+				else:
+					data[substring]=(position,1)
+	rules0=list()
+	for substring,info in data.iteritems():
+		if info[0] is None:
+			continue
+		if info[1]<2:
+			continue
+		if info[0]>=0 and info[0]<len(substring):
+			rules0.append((substring,info[0]))
+	print("{} initial rules".format(len(rules0)))
+	del data
+	rules0.sort(key=lambda p: len(p[0]))
+	rules1=dict()
+	for string,n in rules0:
+		accept=True
+		for i in xrange(n+1):
+			for j in xrange(n+1,len(string)+1):
+				substring=string[i:j]
+				if substring in rules1:
+					accept=False
+					break
+			if not accept:
+				break
+		if accept:
+			rules1[string]=n
+	print("{} rules after the first reduction".format(len(rules1)))
+	del rules0
+	print("Starting the second reduction")
+	rules2=dict()
+	words_to_rules=collections.defaultdict(set)
+	rules_to_words=collections.defaultdict(set)
+	active_words=set()
+	active_rules=collections.Counter()
+	for word,n in lex.iteritems():
+		for i in xrange(n+1):
+			for j in xrange(n+1,len(word)+1):
+				substring=word[i:j]
+				if rules1.get(substring,None)==n-i:
+					words_to_rules[word].add(substring)
+					active_words.add(word)
+					rules_to_words[substring].add(word)
+					active_rules[substring]+=1
+	while active_words:
+		best_rule,best_count =active_rules.most_common(1)[0]
+		rules2[best_rule]=rules1[best_rule]
+		words=rules_to_words[best_rule].intersection(active_words)
+		active_words.difference_update(words)
+		for word in words:
+			word_rules=words_to_rules[word]
+			active_rules.subtract(word_rules)
+	print("{} rules after the second reduction".format(len(rules2)))
+	with codecs.open("rules","w","utf-8") as f:
+		for string,n in sorted(rules2.iteritems()):
+			f.write(string[:n])
+			f.write(string[n].upper())
+			f.write(string[n+1:])
+			f.write("\n")

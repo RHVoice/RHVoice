@@ -1,0 +1,76 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import codecs
+import re
+
+vowels=set(u"аеёиоуыэюя")
+
+if __name__=="__main__":
+	templates=dict()
+	with codecs.open("templates","r","utf-8") as f_in:
+		for line in f_in:
+			tokens=line[:-1].split("\t")
+			templates[tokens[0]]=tokens[1:]
+			lex=dict()
+	with codecs.open("entries","r","utf-8") as f_in:
+		for line in f_in:
+			tokens=re.split("\t",line[:-1])
+			headword=tokens[0]
+			forms=list()
+			if tokens[2]:
+				forms.append(tokens[2])
+			if tokens[1]:
+				template=templates[tokens[1]]
+				stems=dict()
+				if tokens[3]:
+					stems[u"основа"]=tokens[3]
+				for i in xrange(4,len(tokens)):
+					if tokens[i]:
+						stems[u"основа{}".format(i-3)]=tokens[i]
+				for form_template in template:
+					try:
+						form=form_template.format(**stems)
+						forms.append(form)
+					except KeyError:
+						pass
+					except IndexError:
+						pass
+			for form in forms:
+				word=form.replace("'","").replace(u"ё",u"е")
+				num_vowels=len([c for c in form if c in vowels])
+				if num_vowels==0:
+					continue
+				elif num_vowels==1:
+					pron=re.sub(u"([аеиоуыэюя])'?",lambda m: m.group(1).upper(),form)
+				elif (u"ё" in form) or (form.count("'")==1):
+					pron=re.sub("(.)'",lambda m: m.group(1).upper(),form)
+				else:
+					continue
+				if word in lex:
+					entry=lex[word]
+					if (u"ё" in entry[0]) and (u"ё" not in pron):
+						lex[word]=(pron,headword)
+					elif entry[1][0].isupper() and headword[0].islower():
+						lex[word]=(pron,headword)
+				else:
+					lex[word]=(pron,headword)
+	with codecs.open("dict","w","utf-8") as f_out:
+		for word,entry in sorted(lex.iteritems(),key=lambda p: p[0]):
+			f_out.write(entry[0])
+			f_out.write("\n")
