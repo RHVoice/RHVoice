@@ -64,7 +64,7 @@ namespace
       }
   }
 
-  void rephrase(utterance& utt)
+  void rephrase(utterance& utt,unsigned int min_break_dur)
   {
     relation& phrase_rel=utt.get_relation("Phrase");
     phrase_rel.clear();
@@ -83,7 +83,7 @@ namespace
                 const item& seg=last_seg.next();
                 if(seg.get("name").as<std::string>()=="pau")
                   {
-                    if((seg.get("end").as<unsigned int>()-seg.get("start").as<unsigned int>())>800000)
+                    if((seg.get("end").as<unsigned int>()-seg.get("start").as<unsigned int>())>min_break_dur)
                       phrase_rel.append();
                   }
               }
@@ -92,7 +92,7 @@ namespace
       }
   }
 
-  void load_mono_labels(utterance& utt,const std::string& file_path)
+  void load_mono_labels(utterance& utt,const std::string& file_path,double min_break_dur)
   {
     std::cout << file_path << std::endl;
     relation& seg_rel=utt.get_relation("Segment");
@@ -105,23 +105,32 @@ namespace
         if(!(f >> start >> end >> phone))
           throw std::runtime_error("Error while reading a label file");
         name=seg_iter->get("name").as<std::string>();
+        if((name=="pau")&&(phone!="pau"))
+          {
+            item& seg=*seg_iter;
+            ++seg_iter;
+            if(seg_iter==seg_rel.end())
+              throw std::runtime_error("Label mismatch");
+            seg.remove();
+            name=seg_iter->get("name").as<std::string>();
+          }
         if(name==phone)
           {
             seg_iter->set("start",start);
             seg_iter->set("end",end);
             ++seg_iter;
           }
-        else
+        else if(phone=="pau")
           {
-            if(phone!="pau")
-              throw std::runtime_error("Label mismatch");
             item& seg=seg_iter->prepend();
             seg.set("name",phone);
             seg.set("start",start);
             seg.set("end",end);
           }
+        else
+          throw std::runtime_error("Label mismatch");
       }
-    rephrase(utt);
+    rephrase(utt,10000000*min_break_dur);
   }
 }
 
@@ -135,6 +144,7 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<std::string> labpath_arg("l","lab","the path to the mono labels",true,"lab","path");
       TCLAP::ValueArg<std::string> prefix_arg("p","prefix","output file names will start with this prefix",true,"test","string");
       cmd.xorAdd(labpath_arg,prefix_arg);
+      TCLAP::ValueArg<double> break_arg("b","break","minimum pause length to consider it a phrase break",false,0.1,"ms",cmd);
       cmd.parse(argc,argv);
       smart_ptr<engine> eng(new engine);
       std::ifstream f_in(inpath_arg.getValue().c_str());
@@ -152,7 +162,7 @@ int main(int argc,const char* argv[])
               if(sentence_iter==doc->end())
                 throw std::runtime_error("Sentence count mismatch");
               std::auto_ptr<utterance> utt=sentence_iter->create_utterance();
-              load_mono_labels(*utt,path::join(labpath_arg.getValue(),*it));
+              load_mono_labels(*utt,path::join(labpath_arg.getValue(),*it),break_arg.getValue());
               output_labels(*utt,path::join(outpath_arg.getValue(),*it));
               ++sentence_iter;
             }
