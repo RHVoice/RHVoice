@@ -28,23 +28,23 @@ praat_script=os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])),"print-p
 rapt_command="sox {f} -t raw -|x2x +sf|pitch -a 0 -o 1 -L {l} -H {h}"
 swipe_command="sox {f} -t raw -|x2x +sf|pitch -a 1 -o 1 -L {l} -H {h} -t {v}"
 
-def extract_with_praat(file_name,lower_f0,upper_f0,voicing_threshold):
-	return map(float,subprocess.check_output(["praat",praat_script,file_name,lower_f0,upper_f0,voicing_threshold,"no"]).split())
+def extract_with_praat(file_name,args):
+	return map(float,subprocess.check_output(["praat",praat_script,file_name,args.lower_f0,args.upper_f0,args.praat_voicing_threshold,"no"]).split())
 
-def extract_with_rapt(file_name,lower_f0,upper_f0):
-	output=subprocess.check_output(rapt_command.format(f=file_name,l=lower_f0,h=upper_f0),shell=True)
+def extract_with_rapt(file_name,args):
+	output=subprocess.check_output(rapt_command.format(f=file_name,l=args.lower_f0,h=args.upper_f0),shell=True)
 	count=len(output)/4
 	return struct.unpack("={}f".format(count),output)
 
-def extract_with_swipe(file_name,lower_f0,upper_f0,voicing_threshold):
-	output=subprocess.check_output(swipe_command.format(f=file_name,l=lower_f0,h=upper_f0,v=voicing_threshold),shell=True)
+def extract_with_swipe(file_name,args):
+	output=subprocess.check_output(swipe_command.format(f=file_name,l=args.lower_f0,h=args.upper_f0,v=args.swipe_voicing_threshold),shell=True)
 	count=len(output)/4
 	return struct.unpack("={}f".format(count),output)
 
-def extract_f0(file_name,lower_f0,upper_f0,praat_voicing_threshold,swipe_voicing_threshold):
-	values1=extract_with_praat(file_name,lower_f0,upper_f0,praat_voicing_threshold)
-	values2=extract_with_rapt(file_name,lower_f0,upper_f0)
-	values3=extract_with_swipe(file_name,lower_f0,upper_f0,swipe_voicing_threshold)
+def extract_and_vote(file_name,args):
+	values1=extract_with_praat(file_name,args)
+	values2=extract_with_rapt(file_name,args)
+	values3=extract_with_swipe(file_name,args)
 	values=list()
 	for candidates in zip(values1,values2,values3):
 		values.append(sorted(candidates)[1])
@@ -56,6 +56,7 @@ if __name__=="__main__":
 	arg_parser.add_argument("--out-dir",required=True,help="the output directory")
 	arg_parser.add_argument("--lower-f0",required=True,help="lower f0")
 	arg_parser.add_argument("--upper-f0",required=True,help="upper f0")
+	arg_parser.add_argument("--method",required=False,help="extraction method",choices=["praat","rapt","swipe","vote"],default="vote")
 	arg_parser.add_argument("--praat-voicing-threshold",required=False,help="praat voicing threshold",default="0.45")
 	arg_parser.add_argument("--swipe-voicing-threshold",required=False,help="swipe voicing threshold",default="0.3")
 	args=arg_parser.parse_args()
@@ -68,7 +69,14 @@ if __name__=="__main__":
 	for base_name in sorted(os.listdir(audio_dir)):
 		print base_name
 		full_name=os.path.join(audio_dir,base_name)
-		values=extract_f0(full_name,args.lower_f0,args.upper_f0,args.praat_voicing_threshold,args.swipe_voicing_threshold)
+		if args.method=="praat":
+			values=extract_with_praat(full_name,args)
+		elif args.method=="rapt":
+			values=extract_with_rapt(full_name,args)
+		elif args.method=="swipe":
+			values=extract_with_swipe(full_name,args)
+		else:
+			values=extract_and_vote(full_name,args)
 		with open(os.path.join(lf0_dir,os.path.splitext(base_name)[0]+".lf0"),"wb") as f:
 		 	for f0 in values:
 				if f0==0:
