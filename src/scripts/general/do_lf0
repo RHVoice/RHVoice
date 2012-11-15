@@ -25,19 +25,21 @@ import subprocess
 import math
 
 praat_script=os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])),"print-pitch.praat")
-rapt_command="sox {f} -t raw -|x2x +sf|pitch -a 0 -o 1 -L {l} -H {h}"
-swipe_command="sox {f} -t raw -|x2x +sf|pitch -a 1 -o 1 -L {l} -H {h} -t {v}"
+rapt_command="sox {f} -t raw -|x2x +sf|pitch -a 0 -o 1 -L {l} -H {h} -s {s} -p {p}"
+swipe_command="sox {f} -t raw -|x2x +sf|pitch -a 1 -o 1 -L {l} -H {h} -s {s} -p {p} -t {v}"
 
 def extract_with_praat(file_name,args):
 	return map(float,subprocess.check_output(["praat",praat_script,file_name,args.lower_f0,args.upper_f0,args.praat_voicing_threshold,"no"]).split())
 
 def extract_with_rapt(file_name,args):
-	output=subprocess.check_output(rapt_command.format(f=file_name,l=args.lower_f0,h=args.upper_f0),shell=True)
+	sr=int(subprocess.check_output(["soxi","-r",file_name]))
+	output=subprocess.check_output(rapt_command.format(f=file_name,l=args.lower_f0,h=args.upper_f0,s=sr/1000,p=sr/200),shell=True)
 	count=len(output)/4
 	return struct.unpack("={}f".format(count),output)
 
 def extract_with_swipe(file_name,args):
-	output=subprocess.check_output(swipe_command.format(f=file_name,l=args.lower_f0,h=args.upper_f0,v=args.swipe_voicing_threshold),shell=True)
+	sr=int(subprocess.check_output(["soxi","-r",file_name]))
+	output=subprocess.check_output(swipe_command.format(f=file_name,l=args.lower_f0,h=args.upper_f0,s=sr/1000,p=sr/200,v=args.swipe_voicing_threshold),shell=True)
 	count=len(output)/4
 	return struct.unpack("={}f".format(count),output)
 
