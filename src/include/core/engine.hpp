@@ -97,6 +97,7 @@ namespace RHVoice
     voice_params voice_settings;
     text_params text_settings;
     verbosity_params verbosity_settings;
+    bool_property prefer_primary_language;
   };
 }
 #endif

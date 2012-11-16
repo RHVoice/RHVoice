@@ -119,6 +119,11 @@ namespace RHVoice
             std::size_t count2=extra_language->count_letters_in_text(token.begin(),token.end());
             if(count1||count2)
               result=(count2>count1)?extra_language:main_language;
+            else
+              {
+                if(parent->get_engine().prefer_primary_language)
+                  result=main_language;
+              }
           }
         else
           result=main_language;
