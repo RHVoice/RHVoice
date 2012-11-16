@@ -30,7 +30,8 @@ namespace RHVoice
     config_path(p.config_path),
     version(VERSION),
     languages(path::join(data_path,"languages")),
-    voices(path::join(data_path,"voices"),languages)
+    voices(path::join(data_path,"voices"),languages),
+    prefer_primary_language("prefer_primary_language",false)
   {
     if(languages.empty())
       throw no_languages();
@@ -42,6 +43,7 @@ namespace RHVoice
     voice_settings.register_self(cfg);
     text_settings.register_self(cfg);
     verbosity_settings.register_self(cfg);
+    cfg.register_setting(prefer_primary_language);
     languages.register_settings(cfg);
     voices.register_settings(cfg);
     for(language_list::iterator it(languages.begin());it!=languages.end();++it)
