@@ -162,6 +162,8 @@ if enable_config:
         print "Error: cannot link with libsox"
         exit(1)
     env.PrependUnique(LIBS="sox")
+    if not conf.CheckDeclaration("SOX_OPTION_DEFAULT","#include <sox.h>"):
+        env.Append(CPPDEFINES=("SOX_OPTION_DEFAULT","sox_option_default"))
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     env=conf.Finish()

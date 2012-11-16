@@ -28,10 +28,6 @@
 #include "mutex.h"
 #include "settings.h"
 
-#ifndef SOX_OPTION_DEFAULT
-#define SOX_OPTION_DEFAULT sox_option_default
-#endif
-
 static const short sound_icon[]={ 1097, 9442, 15735, 15534, 9724, -62,
   -9598, -15669, -15573, -9695, 37, 9619, 15650, 15593, 9676, -20,
   -9636, -15633, -15608, -9662, 6, 9649, 15621, 15618, 9652, 3, -9657,
