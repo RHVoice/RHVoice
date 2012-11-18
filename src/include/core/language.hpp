@@ -38,6 +38,7 @@ namespace RHVoice
   class utterance;
   class item;
   class language_info;
+  class language_list;
 
   enum verbosity_flag
     {
@@ -137,10 +138,7 @@ namespace RHVoice
     {
     }
 
-    const language_info& get_info() const
-    {
-      return info;
-    }
+    virtual const language_info& get_info() const=0;
 
     const feature_function& get_feature_function(const std::string& name) const
     {
@@ -165,10 +163,12 @@ namespace RHVoice
     void do_text_analysis(utterance& u) const;
     void do_pos_tagging(utterance& u) const;
     void phrasify(utterance& u) const;
-    void transcribe(utterance& u) const;
+    void do_g2p(utterance& u) const;
     void syllabify(utterance& u) const;
     void insert_pauses(utterance& u) const;
     void do_post_lexical_processing(utterance& u) const;
+
+    virtual std::vector<std::string> get_word_transcription(const item& word) const=0;
 
   protected:
     explicit language(const language_info& info_);
@@ -183,28 +183,29 @@ namespace RHVoice
       return labeller;
     }
 
+    virtual void decode_as_word(item& token) const;
+    virtual void decode_as_letter_sequence(item& token) const;
+    virtual bool decode_as_known_character(item& token) const;
+
+    virtual void assign_pronunciation(item& word) const;
+
   private:
     language(const language&);
     language& operator=(const language&);
 
     void register_default_features();
 
-    virtual void transcribe_word(item& word) const=0;
     virtual void post_lex(utterance& u) const
     {
     }
 
     void default_decode_as_word(item& token) const;
-    virtual void decode_as_word(item& token) const;
-    virtual void decode_as_letter_sequence(item& token) const;
     void decode_as_number(item& token) const;
     void decode_as_digit_string(item& token) const;
-    bool decode_as_known_character(item& token) const;
     void decode_as_unknown_character(item& token) const;
     void indicate_case_if_necessary(item& token) const;
     break_strength get_word_break(const item& word) const;
 
-    const language_info& info;
     std::map<std::string,smart_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
     hts_labeller labeller;
@@ -223,6 +224,7 @@ namespace RHVoice
 
   class language_info: public resource_info<language>
   {
+    friend language_list;
   protected:
     language_info(const std::string& name,const std::string& data_path);
 
@@ -281,6 +283,19 @@ namespace RHVoice
       return result;
     }
 
+    template<typename input_iterator>
+    bool are_all_letters(input_iterator first,input_iterator last) const
+    {
+      if(first==last)
+        return false;
+      for(input_iterator iter=first;iter!=last;++iter)
+        {
+          if(!is_letter(*iter))
+            return false;
+        }
+      return true;
+    }
+
     const std::string& get_alpha2_code() const
     {
       return alpha2_code;
@@ -298,9 +313,10 @@ namespace RHVoice
   }
     #endif
 
-  private:
-    void do_register_settings(config& cfg,const std::string& prefix);
+  protected:
+    virtual void do_register_settings(config& cfg,const std::string& prefix);
 
+  private:
     std::string alpha2_code,alpha3_code;
     #ifdef WIN32
     unsigned short id;
@@ -321,12 +337,30 @@ namespace RHVoice
           letters.insert(cp+i);
         }
     }
+
+  public:
+    const language_list& get_all_languages() const
+    {
+      return *all_languages;
+    }
+
+  private:
+    const language_list* all_languages;
   };
 
   class language_list: public resource_list<language_info>
   {
   public:
     explicit language_list(const std::string& data_path);
+
+  private:
+    template<class T>
+    void register_language(const std::string& data_path)
+    {
+      smart_ptr<language_info> p(new T(data_path));
+      add(p);
+      p->all_languages=this;
+    }
   };
 
   class language_search_criteria: public std::unary_function<const language_info&,bool>

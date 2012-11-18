@@ -24,26 +24,6 @@
 
 namespace RHVoice
 {
-  class english: public language
-  {
-  public:
-    explicit english(const language_info& info);
-
-  private:
-    void transcribe_word(item& word) const;
-    void post_lex(utterance& u) const;
-
-    void predict_accents_and_tones(utterance& u) const;
-    void correct_pronunciation_of_articles(utterance& u) const;
-    void correct_pronunciation_of_contractions(utterance& u) const;
-
-    const fst cmulex_fst;
-    const lts cmulex_lts;
-    const fst lseq_fst;
-    const dtree accents_dtree;
-    const dtree tones_dtree;
-  };
-
   class english_info: public language_info
   {
   public:
@@ -61,6 +41,33 @@ namespace RHVoice
 
   private:
     smart_ptr<language> create_instance() const;
+  };
+
+  class english: public language
+  {
+  public:
+    explicit english(const english_info& info_);
+
+    const english_info& get_info() const
+    {
+      return info;
+    }
+
+    std::vector<std::string> get_word_transcription(const item& word) const;
+
+  private:
+    void post_lex(utterance& u) const;
+
+    void predict_accents_and_tones(utterance& u) const;
+    void correct_pronunciation_of_articles(utterance& u) const;
+    void correct_pronunciation_of_contractions(utterance& u) const;
+
+    const english_info& info;
+    const fst cmulex_fst;
+    const lts cmulex_lts;
+    const fst lseq_fst;
+    const dtree accents_dtree;
+    const dtree tones_dtree;
   };
 }
 #endif

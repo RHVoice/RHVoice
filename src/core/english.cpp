@@ -61,28 +61,31 @@ namespace RHVoice
     return smart_ptr<language>(new english(*this));
   }
 
-  english::english(const language_info& info):
-    language(info),
-    cmulex_fst(path::join(info.get_data_path(),"cmulex.fst")),
-    cmulex_lts(path::join(info.get_data_path(),"cmulex.lts")),
-    lseq_fst(path::join(info.get_data_path(),"lseq.fst")),
-    accents_dtree(path::join(info.get_data_path(),"accents.dt")),
-    tones_dtree(path::join(info.get_data_path(),"tones.dt"))
+  english::english(const english_info& info_):
+    language(info_),
+    info(info_),
+    cmulex_fst(path::join(info_.get_data_path(),"cmulex.fst")),
+    cmulex_lts(path::join(info_.get_data_path(),"cmulex.lts")),
+    lseq_fst(path::join(info_.get_data_path(),"lseq.fst")),
+    accents_dtree(path::join(info_.get_data_path(),"accents.dt")),
+    tones_dtree(path::join(info_.get_data_path(),"tones.dt"))
   {
     register_feature(smart_ptr<feature_function>(new feat_syl_in_question));
   }
 
-  void english::transcribe_word(item& word) const
+  std::vector<std::string> english::get_word_transcription(const item& word) const
   {
+    std::vector<std::string> transcription;
     const std::string& name=word.get("name").as<std::string>();
     std::vector<utf8::uint32_t> chars(str::utf8_string_begin(name),str::utf8_string_end(name));
     if(word.has_feature("lseq"))
-      lseq_fst.translate(chars.begin(),chars.end(),word.back_inserter());
+      lseq_fst.translate(chars.begin(),chars.end(),std::back_inserter(transcription));
     else
       {
-        if(!cmulex_fst.translate(chars.begin(),chars.end(),word.back_inserter()))
-          cmulex_lts.apply(chars.begin(),chars.end(),word.back_inserter());
+        if(!cmulex_fst.translate(chars.begin(),chars.end(),std::back_inserter(transcription)))
+          cmulex_lts.apply(chars.begin(),chars.end(),std::back_inserter(transcription));
       }
+    return transcription;
   }
 
   void english::predict_accents_and_tones(utterance& u) const
