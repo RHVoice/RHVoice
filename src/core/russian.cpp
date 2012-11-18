@@ -54,19 +54,27 @@ namespace RHVoice
     return smart_ptr<language>(new russian(*this));
   }
 
-  russian::russian(const language_info& info):
-    language(info),
-    clit_fst(path::join(info.get_data_path(),"clitics.fst")),
-    g2p_fst(path::join(info.get_data_path(),"g2p.fst")),
-    lseq_fst(path::join(info.get_data_path(),"lseq.fst")),
-    untranslit_fst(path::join(info.get_data_path(),"untranslit.fst")),
-    dict_fst(path::join(info.get_data_path(),"dict.fst")),
-    stress_fst(path::join(info.get_data_path(),"stress.fst")),
-    stress_rules(path::join(info.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
+  void russian_info::do_register_settings(config& cfg,const std::string& prefix)
+  {
+    language_info::do_register_settings(cfg,prefix);
+    cfg.register_setting(use_pseudo_english,prefix);
+  }
+
+  russian::russian(const russian_info& info_):
+    language(info_),
+    info(info_),
+    clit_fst(path::join(info_.get_data_path(),"clitics.fst")),
+    g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
+    lseq_fst(path::join(info_.get_data_path(),"lseq.fst")),
+    untranslit_fst(path::join(info_.get_data_path(),"untranslit.fst")),
+    dict_fst(path::join(info_.get_data_path(),"dict.fst")),
+    stress_fst(path::join(info_.get_data_path(),"stress.fst")),
+    stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>()),
+    english_phone_mapping(path::join(info_.get_data_path(),"english_phone_mapping.fst"))
   {
   }
 
-  void russian::decode_as_word(item& token) const
+  bool russian::decode_as_russian_word(item& token) const
   {
     const std::string& token_name=token.get("name").as<std::string>();
     std::list<std::string> lowercase_letters;
@@ -75,6 +83,47 @@ namespace RHVoice
     untranslit_fst.translate(lowercase_letters.begin(),lowercase_letters.end(),str::append_string_iterator(word_name));
     item& word=token.append_child();
     word.set("name",word_name);
+    return true;
+  }
+
+  bool russian::decode_as_english_word(item& token) const
+  {
+    if(!info.use_pseudo_english)
+      return false;
+    const language_list& languages=info.get_all_languages();
+    language_list::const_iterator lang_it=languages.find("English");
+    if(lang_it==languages.end())
+      return false;
+    const std::string& token_name=token.get("name").as<std::string>();
+    str::utf8_string_iterator start=str::utf8_string_begin(token_name);
+    str::utf8_string_iterator end=str::utf8_string_end(token_name);
+    if(!lang_it->are_all_letters(start,end))
+      return false;
+    std::string word_name;
+    downcase_fst.translate(start,end,str::append_string_iterator(word_name));
+    item& word=token.append_child();
+    word.set("name",word_name);
+    word.set("english",true);
+    return true;
+  }
+
+  void russian::decode_as_word(item& token) const
+  {
+    decode_as_english_word(token)||
+      decode_as_russian_word(token);
+  }
+
+  void russian::decode_as_letter_sequence(item& token) const
+  {
+    if(decode_as_english_word(token))
+      token.first_child().set("lseq",true);
+    else
+      language::decode_as_letter_sequence(token);
+  }
+
+  bool russian::decode_as_known_character(item& token) const
+  {
+    return (decode_as_english_word(token)||language::decode_as_known_character(token));
   }
 
   void russian::mark_clitics(utterance& u) const
@@ -108,6 +157,8 @@ namespace RHVoice
     relation& sylstruct_rel=u.get_relation("SylStructure");
     for(relation::iterator word_iter(sylstruct_rel.begin());word_iter!=sylstruct_rel.end();++word_iter)
       {
+        if(word_iter->has_feature("english"))
+          continue;
         if(word_iter->get("clitic").as<std::string>()=="host")
           {
             item&seg=word_iter->as("Transcription").first_child();
@@ -141,16 +192,16 @@ namespace RHVoice
       }
   }
 
-  bool russian::transcribe_letter_sequence(item& word) const
+  bool russian::transcribe_letter_sequence(const item& word,std::vector<std::string>& transcription) const
   {
     if(!word.has_feature("lseq"))
       return false;
     const std::string& name=word.get("name").as<std::string>();
-    lseq_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter());
+    lseq_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
     return true;
   }
 
-  bool russian::transcribe_word_with_stress_marks(item& word) const
+  bool russian::transcribe_word_with_stress_marks(const item& word,std::vector<std::string>& transcription) const
   {
     const value& val_stress_marks=word.as("TokStructure").parent().get("stress_marks",true);
     if(val_stress_marks.empty())
@@ -173,20 +224,20 @@ namespace RHVoice
       }
     if(!stressed)
       return false;
-    g2p_fst.translate(letters.begin(),letters.end(),word.back_inserter());
+    g2p_fst.translate(letters.begin(),letters.end(),std::back_inserter(transcription));
     return true;
   }
 
-  bool russian::transcribe_word_from_dict(item& word) const
+  bool russian::transcribe_word_from_dict(const item& word,std::vector<std::string>& transcription) const
   {
     const std::string& name=word.get("name").as<std::string>();
-    if(dict_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter()))
+    if(dict_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription)))
       return true;
     else
       return false;
   }
 
-  bool russian::transcribe_monosyllabic_word(item& word) const
+  bool russian::transcribe_monosyllabic_word(const item& word,std::vector<std::string>& transcription) const
   {
     const std::string& name=word.get("name").as<std::string>();
     str::utf8_string_iterator start=str::utf8_string_begin(name);
@@ -202,24 +253,24 @@ namespace RHVoice
     utf8::uint32_t cp=*first_vowel_pos;
     letters.push_back((cp==1105)?cp:str::toupper(cp));
     letters.insert(letters.end(),next_pos,end);
-    g2p_fst.translate(letters.begin(),letters.end(),word.back_inserter());
+    g2p_fst.translate(letters.begin(),letters.end(),std::back_inserter(transcription));
     return true;
   }
 
-  bool russian::transcribe_word_from_stress_dict(item& word) const
+  bool russian::transcribe_word_from_stress_dict(const item& word,std::vector<std::string>& transcription) const
   {
     const std::string& name=word.get("name").as<std::string>();
     std::vector<std::string> stressed;
     if(stress_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
       {
-        g2p_fst.translate(stressed.begin(),stressed.end(),word.back_inserter());
+        g2p_fst.translate(stressed.begin(),stressed.end(),std::back_inserter(transcription));
         return true;
       }
     else
       return false;
   }
 
-  bool russian::transcribe_word_applying_stress_rules(item& word) const
+  bool russian::transcribe_word_applying_stress_rules(const item& word,std::vector<std::string>& transcription) const
   {
     const std::string& name=word.get("name").as<std::string>();
     std::vector<utf8::uint32_t> letters;
@@ -231,26 +282,48 @@ namespace RHVoice
       return false;
     std::size_t pos=m.pos(m.size()-1)+m.value(m.size()-1);
     letters.at(pos)=str::toupper(letters.at(pos));
-    g2p_fst.translate(letters.begin()+1,letters.end()-1,word.back_inserter());
+    g2p_fst.translate(letters.begin()+1,letters.end()-1,std::back_inserter(transcription));
     return true;
   }
 
-  bool russian::transcribe_unknown_word(item& word) const
+  bool russian::transcribe_unknown_word(const item& word,std::vector<std::string>& transcription) const
   {
     const std::string& name=word.get("name").as<std::string>();
-    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter());
+    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
     return true;
   }
 
-  void russian::transcribe_word(item& word) const
+  std::vector<std::string> russian::get_word_transcription(const item& word) const
   {
-    transcribe_letter_sequence(word)||
-      transcribe_word_with_stress_marks(word)||
-      transcribe_word_from_dict(word)||
-      transcribe_word_from_stress_dict(word)||
-      transcribe_monosyllabic_word(word)||
-      transcribe_word_applying_stress_rules(word)||
-      transcribe_unknown_word(word);
+    std::vector<std::string> transcription;
+    transcribe_letter_sequence(word,transcription)||
+      transcribe_word_with_stress_marks(word,transcription)||
+      transcribe_word_from_dict(word,transcription)||
+      transcribe_word_from_stress_dict(word,transcription)||
+      transcribe_monosyllabic_word(word,transcription)||
+      transcribe_word_applying_stress_rules(word,transcription)||
+      transcribe_unknown_word(word,transcription);
+    return transcription;
+  }
+
+  void russian::assign_pronunciation(item& word) const
+  {
+    if(word.has_feature("english"))
+      {
+        const std::string& name=word.get("name").as<std::string>();
+        if(name=="a")
+          {
+            word.append_child().set<std::string>("name","e1");
+            word.append_child().set<std::string>("name","j");
+          }
+        else
+          {
+            std::vector<std::string> transcription(info.get_all_languages().find("English")->get_instance().get_word_transcription(word));
+            english_phone_mapping.translate(transcription.begin(),transcription.end(),word.back_inserter());
+          }
+      }
+    else
+      language::assign_pronunciation(word);
   }
 
   void russian::reduce_vowels(utterance& u) const
@@ -260,7 +333,8 @@ namespace RHVoice
     relation& sylstruct_rel=u.get_relation("SylStructure");
     for(relation::iterator word_iter(sylstruct_rel.begin());word_iter!=sylstruct_rel.end();++word_iter)
       {
-        if(word_iter->has_feature("lseq"))
+        if(word_iter->has_feature("lseq")||
+           word_iter->has_feature("english"))
           continue;
         const std::string& clitic=word_iter->get("clitic").as<std::string>();
         for(item::iterator syl_iter(word_iter->begin());syl_iter!=word_iter->end();++syl_iter)
@@ -310,6 +384,9 @@ namespace RHVoice
     relation& seg_rel=u.get_relation("Segment");
     for(relation::reverse_iterator seg_iter(seg_rel.rbegin());seg_iter!=seg_rel.rend();++seg_iter)
       {
+        if(seg_iter->in("Transcription")&&
+           seg_iter->as("Transcription").parent().has_feature("english"))
+          continue;
         std::string vpair=seg_iter->eval("ph_vpair").as<std::string>();
         if(vpair!="0")
           {

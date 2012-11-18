@@ -29,10 +29,11 @@ namespace RHVoice
     return smart_ptr<language>(new esperanto(*this));
   }
 
-  esperanto::esperanto(const language_info& info):
-    language(info),
-    g2p_fst(path::join(info.get_data_path(),"g2p.fst")),
-    untranslit_fst(path::join(info.get_data_path(),"untranslit.fst"))
+  esperanto::esperanto(const esperanto_info& info_):
+    language(info_),
+    info(info_),
+    g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
+    untranslit_fst(path::join(info_.get_data_path(),"untranslit.fst"))
   {
   }
 
@@ -64,10 +65,12 @@ namespace RHVoice
       }
   }
 
-  void esperanto::transcribe_word(item& word) const
+  std::vector<std::string> esperanto::get_word_transcription(const item& word) const
   {
+    std::vector<std::string> transcription;
     const std::string& name=word.get("name").as<std::string>();
-    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),word.back_inserter());
+    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
+    return transcription;
   }
 
   void esperanto::post_lex(utterance& u) const

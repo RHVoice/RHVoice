@@ -223,7 +223,7 @@ namespace RHVoice
     language_ref.do_text_analysis(u);
     language_ref.do_pos_tagging(u);
     language_ref.phrasify(u);
-    language_ref.transcribe(u);
+    language_ref.do_g2p(u);
     language_ref.syllabify(u);
     language_ref.insert_pauses(u);
     language_ref.do_post_lexical_processing(u);

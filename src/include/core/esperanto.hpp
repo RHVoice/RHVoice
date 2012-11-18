@@ -22,21 +22,6 @@
 
 namespace RHVoice
 {
-  class esperanto: public language
-  {
-  public:
-    explicit esperanto(const language_info& info);
-
-  private:
-    void decode_as_word(item& token) const;
-    void decode_as_letter_sequence(item& token) const;
-    void transcribe_word(item& word) const;
-    void post_lex(utterance& u) const;
-
-    const fst g2p_fst;
-    const fst untranslit_fst;
-  };
-
   class esperanto_info: public language_info
   {
   public:
@@ -57,6 +42,28 @@ namespace RHVoice
 
   private:
     smart_ptr<language> create_instance() const;
+  };
+
+  class esperanto: public language
+  {
+  public:
+    explicit esperanto(const esperanto_info& info);
+
+    const esperanto_info& get_info() const
+    {
+      return info;
+    }
+
+    std::vector<std::string> get_word_transcription(const item& word) const;
+
+  private:
+    void decode_as_word(item& token) const;
+    void decode_as_letter_sequence(item& token) const;
+    void post_lex(utterance& u) const;
+
+    const esperanto_info& info;
+    const fst g2p_fst;
+    const fst untranslit_fst;
   };
 }
 #endif

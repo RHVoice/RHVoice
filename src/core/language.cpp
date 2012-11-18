@@ -343,7 +343,6 @@ namespace RHVoice
   }
 
   language::language(const language_info& info_):
-    info(info_),
     phonemes(path::join(info_.get_data_path(),"phonemes.xml")),
     labeller(path::join(info_.get_data_path(),"labelling.xml")),
     tok_fst(path::join(info_.get_data_path(),"tok.fst")),
@@ -647,7 +646,13 @@ namespace RHVoice
       }
   }
 
-  void language::transcribe(utterance& u) const
+  void language::assign_pronunciation(item& word) const
+  {
+    std::vector<std::string> transcription(get_word_transcription(word));
+    std::copy(transcription.begin(),transcription.end(),word.back_inserter());
+  }
+
+  void language::do_g2p(utterance& u) const
   {
     relation& word_rel=u.get_relation("Word");
     relation& seg_rel=u.add_relation("Segment");
@@ -655,7 +660,7 @@ namespace RHVoice
     for(relation::iterator word_iter=word_rel.begin();word_iter!=word_rel.end();++word_iter)
       {
         item& word=trans_rel.append(*word_iter);
-        transcribe_word(word);
+        assign_pronunciation(word);
         if(!word.has_children())
           throw g2p_error();
         std::copy(word.begin(),word.end(),seg_rel.back_inserter());
@@ -725,7 +730,8 @@ namespace RHVoice
   }
 
   language_info::language_info(const std::string& name,const std::string& data_path):
-    enabled("enabled",true)
+    enabled("enabled",true),
+    all_languages(0)
   {
     set_name(name);
     set_data_path(path::join(data_path,name));
@@ -749,9 +755,9 @@ namespace RHVoice
 
   language_list::language_list(const std::string& data_path)
   {
-    add(smart_ptr<language_info>(new russian_info(data_path)));
-    add(smart_ptr<language_info>(new english_info(data_path)));
-    add(smart_ptr<language_info>(new esperanto_info(data_path)));
+    register_language<russian_info>(data_path);
+    register_language<english_info>(data_path);
+    register_language<esperanto_info>(data_path);
   }
 
   bool language_search_criteria::operator()(const language_info& info) const

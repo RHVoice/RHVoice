@@ -23,42 +23,12 @@
 
 namespace RHVoice
 {
-  class russian: public language
-  {
-  public:
-    explicit russian(const language_info& info);
-
-  private:
-    void mark_clitics(utterance& u) const;
-    void reduce_vowels(utterance& u) const;
-    void do_final_devoicing_and_voicing_assimilation(utterance& u) const;
-    void rename_unstressed_vowels(utterance& u) const;
-
-    void decode_as_word(item& token) const;
-    bool transcribe_letter_sequence(item& word) const;
-    bool transcribe_word_with_stress_marks(item& word) const;
-    bool transcribe_word_from_dict(item& word) const;
-    bool transcribe_monosyllabic_word(item& word) const;
-    bool transcribe_word_from_stress_dict(item& word) const;
-    bool transcribe_word_applying_stress_rules(item& word) const;
-    bool transcribe_unknown_word(item& word) const;
-    void transcribe_word(item& word) const;
-    void post_lex(utterance& u) const;
-
-    const fst clit_fst;
-    const fst g2p_fst;
-    const fst lseq_fst;
-    const fst untranslit_fst;
-    const fst dict_fst;
-    const fst stress_fst;
-    const rules<uint8_t> stress_rules;
-  };
-
   class russian_info: public language_info
   {
   public:
     explicit russian_info(const std::string& data_path):
-      language_info("Russian",data_path)
+      language_info("Russian",data_path),
+      use_pseudo_english("use_pseudo_english",true)
     {
       set_alpha2_code("ru");
       set_alpha3_code("rus");
@@ -71,8 +41,57 @@ namespace RHVoice
       register_letter(0x401);
     }
 
+    bool_property use_pseudo_english;
+
   private:
+    void do_register_settings(config& cfg,const std::string& prefix);
     smart_ptr<language> create_instance() const;
+  };
+
+  class russian: public language
+  {
+  public:
+    explicit russian(const russian_info& info);
+
+    const russian_info& get_info() const
+    {
+      return info;
+    }
+
+    std::vector<std::string> get_word_transcription(const item& word) const;
+
+  private:
+    void mark_clitics(utterance& u) const;
+    void reduce_vowels(utterance& u) const;
+    void do_final_devoicing_and_voicing_assimilation(utterance& u) const;
+    void rename_unstressed_vowels(utterance& u) const;
+
+    bool decode_as_russian_word(item& token) const;
+    bool decode_as_english_word(item& token) const;
+    void decode_as_word(item& token) const;
+    void decode_as_letter_sequence(item& token) const;
+    bool decode_as_known_character(item& token) const;
+
+    bool transcribe_letter_sequence(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_word_with_stress_marks(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_word_from_dict(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_monosyllabic_word(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_word_from_stress_dict(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_word_applying_stress_rules(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_unknown_word(const item& word,std::vector<std::string>& transcription) const;
+
+    void assign_pronunciation(item& word) const;
+    void post_lex(utterance& u) const;
+
+    const russian_info& info;
+    const fst clit_fst;
+    const fst g2p_fst;
+    const fst lseq_fst;
+    const fst untranslit_fst;
+    const fst dict_fst;
+    const fst stress_fst;
+    const rules<uint8_t> stress_rules;
+    const fst english_phone_mapping;
   };
 }
 #endif
