@@ -35,11 +35,7 @@ namespace RHVoice
   {
     if(languages.empty())
       throw no_languages();
-    #ifdef WIN32
-    config cfg(path::join(config_path,"RHVoice.ini"));
-    #else
-    config cfg(path::join(config_path,"RHVoice.conf"));
-    #endif
+    config cfg;
     voice_settings.register_self(cfg);
     text_settings.register_self(cfg);
     verbosity_settings.register_self(cfg);
@@ -51,7 +47,11 @@ namespace RHVoice
         it->voice_settings.default_to(voice_settings);
         it->text_settings.default_to(text_settings);
       }
-    cfg.load();
+    #ifdef WIN32
+    cfg.load(path::join(config_path,"RHVoice.ini"));
+    #else
+    cfg.load(path::join(config_path,"RHVoice.conf"));
+    #endif
     if(languages.empty())
       throw no_languages();
   }
