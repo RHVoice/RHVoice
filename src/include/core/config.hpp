@@ -25,15 +25,7 @@ namespace RHVoice
 {
   class config
   {
-  public:
-    explicit config(const std::string& file_path):
-      config_path(file_path)
-    {
-    }
-
   private:
-    std::string config_path;
-
     typedef std::map<std::string,abstract_property*,str::less> registration_map;
     registration_map registered_settings;
 
@@ -43,7 +35,9 @@ namespace RHVoice
       registered_settings.insert(registration_map::value_type(prefix.empty()?setting.get_name():(prefix+"."+setting.get_name()),&setting));
     }
 
-    void load();
+    bool set(const std::string& name,const std::string& value);
+
+    void load(const std::string& file_path);
   };
 }
 #endif 

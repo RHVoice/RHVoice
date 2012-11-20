@@ -30,11 +30,11 @@ namespace RHVoice
     beta("beta",0.4,-0.8,0.8),
     msd_threshold("msd_threshold",0.5,0,1.0)
   {
-    config cfg(path::join(data_path,"voice.params"));
+    config cfg;
     cfg.register_setting(use_gv);
     cfg.register_setting(beta);
     cfg.register_setting(msd_threshold);
-    cfg.load();
+    cfg.load(path::join(data_path,"voice.params"));
     switch(sample_rate)
       {
       case sample_rate_48k:

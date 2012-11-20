@@ -50,12 +50,12 @@ namespace RHVoice
       {
         language_name.define(it->get_name());
       }
-    config cfg(path::join(data_path,"voice.info"));
+    config cfg;
     cfg.register_setting(name);
     cfg.register_setting(language_name);
     cfg.register_setting(sample_rate);
     cfg.register_setting(gender);
-    cfg.load();
+    cfg.load(path::join(data_path,"voice.info"));
     if(!name.is_set())
       throw file_format_error("Voice name is not set");
     set_name(name);

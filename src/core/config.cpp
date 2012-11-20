@@ -19,17 +19,24 @@
 
 namespace RHVoice
 {
-  void config::load()
+  bool config::set(const std::string& name,const std::string& value)
+  {
+    registration_map::iterator it=registered_settings.find(name);
+                if(it==registered_settings.end())
+                  return false;
+                else
+                  return it->second->set_from_string(value);
+  }
+
+  void config::load(const std::string& file_path)
   {
     try
       {
-        for(ini_parser p(config_path);!p.done();p.next())
+        for(ini_parser p(file_path);!p.done();p.next())
           {
             if(p.get_section().empty())
               {
-                registration_map::iterator it=registered_settings.find(p.get_key());
-                if(it!=registered_settings.end())
-                  it->second->set_from_string(p.get_value());
+                set(p.get_key(),p.get_value());
               }
           }
       }
