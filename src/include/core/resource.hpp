@@ -21,7 +21,7 @@
 #include <iterator>
 #include <map>
 #include "smart_ptr.hpp"
-#include "mutex.hpp"
+#include "threading.hpp"
 #include "str.hpp"
 
 namespace RHVoice
@@ -80,13 +80,13 @@ namespace RHVoice
 
     std::string name,data_path;
     mutable smart_ptr<T> instance;
-    mutable mutex instance_mutex;
+    mutable threading::mutex instance_mutex;
   };
 
   template<class T>
   const T& resource_info<T>::get_instance() const
   {
-    lock instance_lock(instance_mutex);
+    threading::lock instance_lock(instance_mutex);
     if(instance.empty())
       instance=create_instance();
     return *instance;

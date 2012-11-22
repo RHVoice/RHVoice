@@ -112,6 +112,8 @@ if not conf.CheckCC():
 if not conf.CheckCXX():
     print "The C++ compiler is not working"
     exit(1)
+if conf.CheckLibWithHeader("pthread","pthread.h","C",call='pthread_create(NULL,NULL,NULL,NULL);',autoadd=0):
+    env.PrependUnique(LIBS="pthread")
 # has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
 # if not has_sox:
 #     print "Error: cannot link with libsox"

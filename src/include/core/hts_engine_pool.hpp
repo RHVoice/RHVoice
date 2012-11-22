@@ -22,7 +22,7 @@
 #include "HTS_engine.h"
 #include "smart_ptr.hpp"
 #include "exception.hpp"
-#include "mutex.hpp"
+#include "threading.hpp"
 
 namespace RHVoice
 {
@@ -57,7 +57,7 @@ namespace RHVoice
 
     void release(const smart_ptr<HTS_Engine>& engine)
     {
-      lock l(list_mutex);
+      threading::lock l(list_mutex);
       engine_list.push_back(engine);
     }
 
@@ -77,7 +77,7 @@ namespace RHVoice
     smart_ptr<HTS_Engine> get_instance()
     {
       smart_ptr<HTS_Engine> result;
-      lock l(list_mutex);
+      threading::lock l(list_mutex);
       if(!engine_list.empty())
         {
           result=engine_list.back();
@@ -89,7 +89,7 @@ namespace RHVoice
     smart_ptr<HTS_Engine> create_instance();
 
     std::vector<smart_ptr<HTS_Engine> > engine_list;
-    mutex list_mutex;
+    threading::mutex list_mutex;
     std::string data_path;
 
     sample_rate_t sample_rate;
