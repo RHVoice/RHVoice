@@ -103,6 +103,8 @@ if env["PLATFORM"]=="win32":
     env.Append(CPPDEFINES=("NOMINMAX",1))
     env.AppendUnique(CCFLAGS=["/MT"])
     env.AppendUnique(CXXFLAGS=["/EHsc"])
+if "gcc" in env["TOOLS"]:
+    env.MergeFlags("-pthread")
 conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                    log_file=os.path.join(BUILDDIR,"configure.log"),
                    custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG})
@@ -112,26 +114,32 @@ if not conf.CheckCC():
 if not conf.CheckCXX():
     print "The C++ compiler is not working"
     exit(1)
-if conf.CheckLibWithHeader("pthread","pthread.h","C",call='pthread_create(NULL,NULL,NULL,NULL);',autoadd=0):
-    env.PrependUnique(LIBS="pthread")
 # has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
 # if not has_sox:
 #     print "Error: cannot link with libsox"
 #     exit(1)
 # env.PrependUnique(LIBS="sox")
-has_ao=conf.CheckLibWithHeader("ao","ao/ao.h","C",call='ao_initialize();',autoadd=0)
+env["audio_libs"]=set()
+if conf.CheckLibWithHeader("ao","ao/ao.h","C",call='ao_initialize();',autoadd=0):
+    env["audio_libs"].add("libao")
 has_giomm=False
-if conf.CheckPKGConfig():
+has_pkg_config=conf.CheckPKGConfig()
+if has_pkg_config:
+    if conf.CheckPKG("libpulse-simple"):
+        env["audio_libs"].add("pulse")
+    if conf.CheckPKG("portaudio-2.0"):
+        env["audio_libs"].add("portaudio")
     has_giomm=conf.CheckPKG("giomm-2.4")
 if env["PLATFORM"]=="win32":
     env.AppendUnique(LIBS="kernel32")
 env=conf.Finish()
 Export(["env","BUILDDIR"])
 src_subdirs=["core","lib","utils"]
-if has_ao:
+if env["audio_libs"]:
+    src_subdirs.append("audio")
     src_subdirs.append("test")
-    if has_giomm:
-        src_subdirs.append("service")
+if has_giomm:
+    src_subdirs.append("service")
 if env["PLATFORM"]=="win32":
     src_subdirs.append("sapi")
 else:

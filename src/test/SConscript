@@ -19,8 +19,9 @@ import os.path
 Import("env")
 local_env=env.Clone()
 local_env.Prepend(LIBS="RHVoice_core")
-local_env.Prepend(LIBS="ao")
 local_env.Prepend(LIBPATH=os.path.join("..","core"))
+local_env.Prepend(LIBS="RHVoice_audio")
+local_env.Prepend(LIBPATH=os.path.join("..","audio"))
 
 test=local_env.Program("RHVoice-test","test.cpp")
 if local_env["PLATFORM"]!="win32":
