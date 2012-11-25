@@ -13,7 +13,6 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <ao/ao.h>
 #include <memory>
 #include <stdexcept>
 #include <iostream>
@@ -25,6 +24,7 @@
 #include "core/engine.hpp"
 #include "core/document.hpp"
 #include "core/client.hpp"
+#include "audio.hpp"
 
 using namespace RHVoice;
 
@@ -34,78 +34,63 @@ namespace
   {
   public:
     explicit audio_player(const std::string& path);
-    ~audio_player();
     bool play_speech(const short* samples,std::size_t count);
+    void finish();
     bool set_sample_rate(int sample_rate);
 
     int get_sample_rate() const
     {
-      return sample_format.rate;
+      return stream.get_sample_rate();
     }
 
   private:
-    std::string file_path;
-    ao_sample_format sample_format;
-    ao_device* device;
-
-    bool open_device();
+    audio::playback_stream stream;
   };
 
-  audio_player::audio_player(const std::string& path):
-    file_path(path),
-    device(0)
+  audio_player::audio_player(const std::string& path)
   {
-    ao_initialize();
-    sample_format.bits=16;
-    sample_format.rate=16000;
-    sample_format.channels=1;
-    sample_format.byte_format=AO_FMT_NATIVE;
-    sample_format.matrix=0;
-  }
-
-  audio_player::~audio_player()
-  {
-    if(device)
-      ao_close(device);
-    ao_shutdown();
+    if(!path.empty())
+      {
+        stream.set_backend(audio::backend_file);
+        stream.set_device(path);
+      }
   }
 
   bool audio_player::set_sample_rate(int sample_rate)
   {
-    if(device)
+    try
       {
-        ao_close(device);
-        device=0;
+        if(stream.is_open()&&(stream.get_sample_rate()!=sample_rate))
+          stream.close();
+        stream.set_sample_rate(sample_rate);
+        return true;
       }
-    sample_format.rate=sample_rate;
-    return open_device();
-  }
-
-  bool audio_player::open_device()
-  {
-    if(file_path.empty())
+    catch(...)
       {
-        int id=ao_default_driver_id();
-        if(id<0)
-          return false;
-        device=ao_open_live(id,&sample_format,0);
+        return false;
       }
-    else
-      {
-        int id=ao_driver_id("wav");
-        if(id<0)
-          return false;
-        device=ao_open_file(id,file_path.c_str(),1,&sample_format,0);
-      }
-    return device;
   }
 
   bool audio_player::play_speech(const short* samples,std::size_t count)
   {
-    if(!device&&!open_device())
-      return false;
-    else
-      return (ao_play(device,reinterpret_cast<char*>(const_cast<short*>(samples)),count*sizeof(short))!=0);
+    try
+      {
+        if(!stream.is_open())
+          stream.open();
+        stream.write(samples,count);
+        return true;
+      }
+    catch(...)
+      {
+        stream.close();
+        return false;
+      }
+  }
+
+  void audio_player::finish()
+  {
+    if(stream.is_open())
+      stream.drain();
   }
 }
 
@@ -125,7 +110,7 @@ int main(int argc,const char* argv[])
           if(!f_in.is_open())
             throw std::runtime_error("Cannot open the input file");
         }
-      std::auto_ptr<client> p(new audio_player(outpath_arg.getValue()));
+      audio_player player(outpath_arg.getValue());
       smart_ptr<engine> eng(new engine);
       std::istreambuf_iterator<char> text_start(f_in.is_open()?f_in:std::cin);
       std::istreambuf_iterator<char> text_end;
@@ -134,8 +119,9 @@ int main(int argc,const char* argv[])
         doc=document::create_from_ssml(eng,text_start,text_end);
       else
         doc=document::create_from_plain_text(eng,text_start,text_end);
-      doc->set_owner(*p);
+      doc->set_owner(player);
       doc->synthesize();
+      player.finish();
       return 0;
     }
   catch(const std::exception& e)
