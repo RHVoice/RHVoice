@@ -37,6 +37,8 @@ namespace RHVoice
 
     bool set(const std::string& name,const std::string& value);
 
+    void reset();
+
     void load(const std::string& file_path);
   };
 }

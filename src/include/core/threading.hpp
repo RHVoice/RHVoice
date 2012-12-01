@@ -245,18 +245,45 @@ namespace RHVoice
     class thread
     {
     public:
+      virtual ~thread()
+      {
+      }
+
       void start()
       {
+        prepare();
         if(pthread_create(&id,0,&do_start,this)!=0)
           throw thread_creation_error();
+        started=true;
       }
 
       void join()
       {
+        if(!started)
+          return;
         pthread_join(id,0);
+        started=false;
+      }
+
+      bool has_started() const
+      {
+        return started;
+      }
+
+    protected:
+      thread():
+        started(false)
+      {
       }
 
     private:
+      thread(const thread&);
+      thread& operator=(const thread&);
+
+      virtual void prepare()
+      {
+      }
+
       virtual void run()=0;
 
       static void* do_start(void* arg)
@@ -266,6 +293,7 @@ namespace RHVoice
       }
 
       pthread_t id;
+      bool started;
     };
 #endif
   }

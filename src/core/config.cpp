@@ -28,6 +28,14 @@ namespace RHVoice
                   return it->second->set_from_string(value);
   }
 
+  void config::reset()
+  {
+    for(registration_map::iterator it=registered_settings.begin();it!=registered_settings.end();++it)
+      {
+        it->second->reset();
+      }
+  }
+
   void config::load(const std::string& file_path)
   {
     try
