@@ -138,6 +138,7 @@ src_subdirs=["core","lib","utils"]
 if env["audio_libs"]:
     src_subdirs.append("audio")
     src_subdirs.append("test")
+    src_subdirs.append("sd_module")
 if has_giomm:
     src_subdirs.append("service")
 if env["PLATFORM"]=="win32":

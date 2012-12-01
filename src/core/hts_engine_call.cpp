@@ -90,7 +90,7 @@ namespace RHVoice
     engine_pool(pool),
     engine(pool.acquire()),
     total_samples(0),
-    buffer_size(20*HTS_Engine_get_fperiod(engine.get())),
+    buffer_size(static_cast<double>(handler.get_audio_buffer_size())/1000*HTS_Engine_get_sampling_rate(engine.get())),
     speaking(true),
     stream(HTS_Engine_get_sampling_rate(engine.get()),calculate_rate())
     {

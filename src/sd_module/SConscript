@@ -1,0 +1,44 @@
+quit# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os.path
+
+Import("env")
+local_env=env.Clone()
+local_env.Prepend(LIBS="RHVoice_core")
+local_env.Prepend(LIBPATH=os.path.join("..","core"))
+local_env.Prepend(LIBS="RHVoice_audio")
+local_env.Prepend(LIBPATH=os.path.join("..","audio"))
+src=["main.cpp",
+	 "base.cpp",
+	 "state.cpp",
+	 "io.cpp",
+	 "command.cpp",
+	 "module.cpp",
+	 "init.cpp",
+	 "config_command.cpp",
+	 "config_audio.cpp",
+	 "config_tts.cpp",
+	 "config_logger.cpp",
+	 "list_voices.cpp",
+	 "speak.cpp",
+	 "stop.cpp",
+	 "pause.cpp",
+	 "quit.cpp",
+	 "speech_synthesizer.cpp",
+	 "speech_player.cpp"]
+module=local_env.Program("sd_rhvoice",src)
+local_env.InstallProgram(module)

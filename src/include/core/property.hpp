@@ -61,15 +61,6 @@ namespace RHVoice
   class property: public abstract_property
   {
   protected:
-    property(const std::string& name,const T& default_val):
-      abstract_property(name),
-      default_value(default_val),
-      current_value(default_val),
-      value_set(false),
-      next(0)
-    {
-    }
-
     const T& get_value() const
     {
       if(value_set)
@@ -81,6 +72,15 @@ namespace RHVoice
           else
             return default_value;
         }
+    }
+
+    property(const std::string& name,const T& default_val):
+      abstract_property(name),
+      default_value(default_val),
+      current_value(default_val),
+      value_set(false),
+      next(0)
+    {
     }
 
     bool set_value(const T& val)
@@ -97,6 +97,11 @@ namespace RHVoice
     }
 
   public:
+    T get() const
+    {
+      return get_value();
+    }
+
     operator T () const
     {
       return get_value();
@@ -190,7 +195,7 @@ namespace RHVoice
     }
 
   private:
-    bool check_value(const utf8::uint32_t& given_value,utf8::uint32_t& correct_value)
+    bool check_value(const utf8::uint32_t& given_value,utf8::uint32_t& correct_value) const
     {
       if(utf::is_valid(given_value))
         {
@@ -270,7 +275,7 @@ namespace RHVoice
     value_set values;
 
   private:
-    bool check_value(const std::string& given_value,std::string& correct_value)
+    bool check_value(const std::string& given_value,std::string& correct_value) const
     {
       #ifdef _MSC_VER
       value_set::iterator it=values.find(given_value);

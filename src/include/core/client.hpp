@@ -38,6 +38,11 @@ namespace RHVoice
     {
     }
 
+    virtual unsigned int get_audio_buffer_size() const // in milliseconds
+    {
+      return 100;
+    }
+
     virtual bool play_speech(const short* samples,std::size_t count)
     {
       return true;
