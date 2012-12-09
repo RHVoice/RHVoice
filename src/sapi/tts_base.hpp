@@ -16,7 +16,7 @@
 #ifndef RHVOICE_SAPI_TTS_BASE_HPP
 #define RHVOICE_SAPI_TTS_BASE_HPP
 
-#include "core/mutex.hpp"
+#include "core/threading.hpp"
 #include "core/engine.hpp"
 
 namespace RHVoice
@@ -37,7 +37,7 @@ namespace RHVoice
       smart_ptr<engine> get_engine();
 
     private:
-      static mutex engine_mutex;
+      static threading::mutex engine_mutex;
       static smart_ptr<engine> engine_ptr;
     };
   }
