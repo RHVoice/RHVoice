@@ -23,12 +23,12 @@ namespace RHVoice
 {
   namespace sapi
   {
-    mutex tts_base::engine_mutex;
+    threading::mutex tts_base::engine_mutex;
     smart_ptr<engine> tts_base::engine_ptr;
 
     smart_ptr<engine> tts_base::get_engine()
     {
-      lock l(engine_mutex);
+      threading::lock l(engine_mutex);
       if(!engine_ptr.empty())
         return engine_ptr;
       engine::init_params p;
