@@ -500,7 +500,14 @@ namespace RHVoice
   void language::decode_as_digit_string(item& token) const
   {
     const std::string& token_name=token.get("name").as<std::string>();
-    spell_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),token.back_inserter());
+    str::utf8_string_iterator start=str::utf8_string_begin(token_name);
+    str::utf8_string_iterator end=str::utf8_string_end(token_name);
+    utf8::uint32_t cp;
+    for(str::utf8_string_iterator it=start;it!=end;++it)
+      {
+        cp=*it;
+        spell_fst.translate(&cp,&cp+1,token.back_inserter());
+      }
   }
 
   bool language::decode_as_known_character(item& token) const
