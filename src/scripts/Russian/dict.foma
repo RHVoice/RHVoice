@@ -21,105 +21,41 @@ define Dict
 {по-своему} : [p a0 s v o1 j i0 m u0] | 
 {сорок} : [s o1 r a0 k] | 
 {сорока} : [s a0 r a0 k a1] | 
-{сидя} : [ss i1 dd a0] | 
-{голову} : [g o1 l a0 v u0] | 
 {коротко} : [k o1 r a0 t k a0] | 
-{берет} : [b i0 rr e1 t] | 
-{буря} : [b u1 rr a0] | 
-{должны} : [d a0 l zh n y1] | 
-{должна} : [d a0 l zh n a1] | 
-{благодарен} : [b l a0 g a0 d a1 rr i0 n] | 
-{прошло} : [p r a0 sh l o1] | 
-{светел} : [s vv e1 tt i0 l] | 
-{тесно} : [tt e1 s n a0] | 
-{спина} : [s pp i0 n a1] | 
-{ужином} : [u1 zh y0 n a0 m] | 
-{поднятые} : [p o1 d nn a0 t y0 j e0] | 
 {лотка} : [l a0 t k a1] | 
 {уведена} : [u0 vv i0 dd i0 n a1] | 
-{черта} : [ch i0 r t a1] | 
-{замши} : [z a1 m sh y0] | 
-{оборвался}  : [a0 b a0 r v a1 l ss a0] | 
-{окунь} : [o1 k u0 nn] | 
 {весело} : [vv e1 ss i0 l a0] | 
-{хвою} : [h v o1 j u0] | 
-{пример} : [p rr i0 mm e1 r] | 
-{напился} : [n a0 pp i1 l ss a0] | 
-{пришла} : [p rr i0 sh l a1] | 
 {глядя} : [g ll a1 dd a0] | 
-{отозвался} : [a0 t a0 z v a1 l ss a0] | 
-{добрался} : [d a0 b r a1 l ss a0] | 
-{теплом} : [tt i0 p l o1 m] | 
-{отозвался} : [a0 t a0 z v a1 l ss a0] | 
-{сели} : [ss e1 ll i0] | 
-{максим} : [m a0 k ss i1 m] | 
-{гороху} : [g a0 r o1 h u0] | 
 {здоровы} : [z d a0 r o1 v y0] | 
-{киев} : [kk i1 j i0 v] | 
-{силу} : [ss i1 l u0] | 
-{светло} : [s vv i0 t l o1] | 
-{молод} : [m o1 l a0 d] | 
 {родился} : [r a0 dd i1 l ss a0] | 
-{дошла} : [d a0 sh l a1] | 
 {вымазал} : [v y1 m a0 z a0 l] | 
-{договор} : [d a0 g a0 v o1 r] | 
-{должностей} : [d a0 l zh n a0 s tt e1 j] | 
-{безудержно} : [bb i0 z u1 dd i0 r zh n a0] | 
-{скале} : [s k a0 ll e1] | 
-{выводить} : [v y0 v a0 dd i1 tt] | 
 {счастлив} : [sch a1 s ll i0 v] | 
-{впился} : [v pp i1 l ss a0] | 
 {спешил} : [s pp i0 sh y1 l] | 
-{свойствами} : [s v o1 j s t v a0 mm i0] | 
 {призвать} : [p rr i0 z v a1 tt] | 
 {поздравишь} : [p a0 z d r a1 vv i0 sh] | 
 {полон} : [p o1 l a0 n] | 
-{покровы} : [p a0 k r o1 v y0] | 
 {судя} : [s u1 dd a0] | 
 {шаровой} : [sh a0 r a0 v o1 j] | 
-{хватит} : [h v a1 tt i0 t] | 
-{сорвался} : [s a0 r v a1 l ss a0] | 
 {верхом} : [vv i0 r h o1 m] | 
-{коне} : [k a0 nn e1] | 
 {посудите} : [p a0 s u0 dd i1 tt e0] | 
 {обводные} : [a0 b v a0 d n y1 j e0] | 
-{базы} : [b a1 z y0] |
-{тиши}  : [tt i0 sh y1] | 
 {держитесь} : [dd i0 r zh y1 tt i0 ss] | 
-{парка} : [p a1 r k a0] | 
 {поважнее} : [p a0 v a0 zh nn e1 j e0] | 
-{поднялся} : [p a0 d nn a1 l ss a0] | 
-{гнался} : [g n a1 l ss a0] | 
-{помните} : [p o1 m nn i0 tt e0] | 
-{ступеням} : [s t u0 pp e1 nn a0 m] | 
-{волна} : [v a0 l n a1] | 
-{болен} : [b o1 ll i0 n] | 
 {велика} : [vv i0 ll i0 k a1] | 
-{выселок} : [v y1 ss i0 l a0 k] | 
 {сашка} : [s a1 sh k a0] | 
-{узами} : [u1 z a0 mm i0] | 
 {погодя} : [p a0 g a0 dd a1] | 
-{старше} : [s t a1 r sh e0] | 
-{протяжно} : [p r a0 tt a1 zh n a0] |
 {обманутая}  : [a0 b m a1 n u0 t a0 j a0] | 
 {своем} : [s v a0 j o1 m] | 
 {горюшка} : [g o1 rr u0 sh k a0] | 
-{большими} : [b a0 ll sh y1 mm i0] | 
 {заперлась} : [z a0 pp i0 r l a1 ss] | 
-{поле} : [p o1 ll e0] | 
 {весел} : [vv e1 ss i0 l] | 
 {коли} : [k o1 ll i0] | 
 {потупя} : [p a0 t u1 pp a0] | 
-{дождался} : [d a0 zh d a1 l ss a0] | 
 {поживаю} : [p a0 zh y0 v a1 j u0] | 
 {статью} : [s t a0 tt j u1] | 
-{хлопот} : [h l a0 p o1 t] | 
-{прибавлена} : [p rr i0 b a1 v ll i0 n a0] | 
-{жалованья} : [zh a1 l a0 v a nn j a0] | 
-{открою} : [a0 t k r o1 j u0] | 
 {колей} : [k o1 ll i0 j] | 
-{долги} : [d a0 l gg i1] | 
 {рысаки} : [r y0 s a0 kk i1] | 
-{приведено} : [p rr i0 vv i0 dd i0 n o1] ; 
+{приведено} : [p rr i0 vv i0 dd i0 n o1] | 
+{ничего} : [nn i0 ch i0 v o1] ; 
 
 regex Dict;

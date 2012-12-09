@@ -52,6 +52,8 @@ if __name__=="__main__":
 					except IndexError:
 						pass
 			for form in forms:
+				if len(form) < 2:
+					continue
 				word=form.replace("'","").replace(u"ё",u"е")
 				num_vowels=len([c for c in form if c in vowels])
 				if num_vowels==0:
