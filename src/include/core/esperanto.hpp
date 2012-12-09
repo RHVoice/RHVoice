@@ -17,6 +17,7 @@
 #define RHVOICE_ESPERANTO_HPP
 
 #include "str.hpp"
+#include "property.hpp"
 #include "fst.hpp"
 #include "language.hpp"
 
@@ -26,6 +27,9 @@ namespace RHVoice
   {
   public:
     explicit esperanto_info(const std::string& data_path):
+      #ifdef WIN32
+      present_as_english("present_as_english",false),
+      #endif
       language_info("Esperanto",data_path)
     {
       set_alpha2_code("eo");
@@ -40,7 +44,18 @@ namespace RHVoice
       register_letter_range(0x16c,2);
     }
 
+    #ifdef WIN32
+    unsigned short get_id() const
+    {
+      return (present_as_english?0x0409:0);
+    }
+    #endif
+
   private:
+    #ifdef WIN32
+    void do_register_settings(config& cfg,const std::string& prefix);
+    bool_property present_as_english;
+    #endif
     smart_ptr<language> create_instance() const;
   };
 

@@ -29,6 +29,14 @@ namespace RHVoice
     return smart_ptr<language>(new esperanto(*this));
   }
 
+  #ifdef WIN32
+  void esperanto_info::do_register_settings(config& cfg,const std::string& prefix)
+  {
+    language_info::do_register_settings(cfg,prefix);
+    cfg.register_setting(present_as_english,prefix);
+  }
+  #endif
+
   esperanto::esperanto(const esperanto_info& info_):
     language(info_),
     info(info_),

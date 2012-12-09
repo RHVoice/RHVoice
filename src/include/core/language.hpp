@@ -237,14 +237,6 @@ namespace RHVoice
     {
       alpha3_code=code;
     }
-
-    #ifdef WIN32
-    void set_id(unsigned short id_)
-    {
-      id=id_;
-    }
-    #endif
-
   public:
     voice_params voice_settings;
     text_params text_settings;
@@ -307,10 +299,7 @@ namespace RHVoice
     }
 
     #ifdef WIN32
-    unsigned short get_id() const
-    {
-    return id;
-  }
+    virtual unsigned short get_id() const=0;
     #endif
 
   protected:
@@ -318,9 +307,6 @@ namespace RHVoice
 
   private:
     std::string alpha2_code,alpha3_code;
-    #ifdef WIN32
-    unsigned short id;
-    #endif
     std::set<utf8::uint32_t> letters;
     bool_property enabled;
 
