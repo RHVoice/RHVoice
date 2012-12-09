@@ -72,6 +72,14 @@ namespace RHVoice
     stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>()),
     english_phone_mapping(path::join(info_.get_data_path(),"english_phone_mapping.fst"))
   {
+    try
+      {
+        rulex_dict_fst.reset(new fst(path::join(info.get_data_path(),"rulex_dict.fst")));
+        rulex_rules_fst.reset(new fst(path::join(info.get_data_path(),"rulex_rules.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   bool russian::decode_as_russian_word(item& token) const
@@ -293,12 +301,38 @@ namespace RHVoice
     return true;
   }
 
+  bool russian::transcribe_word_from_rulex(const item& word,std::vector<std::string>& transcription) const
+  {
+    if(rulex_dict_fst.get()==0)
+      return false;
+    const std::string& name=word.get("name").as<std::string>();
+    std::vector<std::string> stressed;
+    if(rulex_dict_fst->translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
+      {
+        g2p_fst.translate(stressed.begin(),stressed.end(),std::back_inserter(transcription));
+        return true;
+      }
+    else
+      {
+        if(rulex_rules_fst.get()==0)
+          return false;
+        if(rulex_rules_fst->translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
+          {
+            g2p_fst.translate(stressed.begin(),stressed.end(),std::back_inserter(transcription));
+            return true;
+          }
+        else
+          return false;
+      }
+  }
+
   std::vector<std::string> russian::get_word_transcription(const item& word) const
   {
     std::vector<std::string> transcription;
     transcribe_letter_sequence(word,transcription)||
       transcribe_word_with_stress_marks(word,transcription)||
       transcribe_word_from_dict(word,transcription)||
+      transcribe_word_from_rulex(word,transcription)||
       transcribe_word_from_stress_dict(word,transcription)||
       transcribe_monosyllabic_word(word,transcription)||
       transcribe_word_applying_stress_rules(word,transcription)||

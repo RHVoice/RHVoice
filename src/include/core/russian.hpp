@@ -16,6 +16,7 @@
 #ifndef RHVOICE_RUSSIAN_HPP
 #define RHVOICE_RUSSIAN_HPP
 
+#include <memory>
 #include "str.hpp"
 #include "fst.hpp"
 #include "rules.hpp"
@@ -79,6 +80,7 @@ namespace RHVoice
     bool transcribe_word_from_stress_dict(const item& word,std::vector<std::string>& transcription) const;
     bool transcribe_word_applying_stress_rules(const item& word,std::vector<std::string>& transcription) const;
     bool transcribe_unknown_word(const item& word,std::vector<std::string>& transcription) const;
+    bool transcribe_word_from_rulex(const item& word,std::vector<std::string>& transcription) const;
 
     void assign_pronunciation(item& word) const;
     void post_lex(utterance& u) const;
@@ -92,6 +94,7 @@ namespace RHVoice
     const fst stress_fst;
     const rules<uint8_t> stress_rules;
     const fst english_phone_mapping;
+    std::auto_ptr<fst> rulex_dict_fst,rulex_rules_fst;
   };
 }
 #endif
