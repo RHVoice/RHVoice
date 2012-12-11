@@ -1,0 +1,2 @@
+env=Environment(tools=["zip"])
+env.Zip("RHVoice_@version@.nvda-addon",["manifest.ini","installTasks.py","locale","synthDrivers"])
