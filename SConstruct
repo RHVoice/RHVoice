@@ -78,7 +78,7 @@ vars.Add("LIBPATH","List of directories where to search for headers",[],converte
 vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
 vars.Add("package_version","Package version","0.4-a2")
 if sys.platform=="win32":
-    env_args["tools"]=["msvc","mslink","mslib","newlines"]
+    env_args["tools"]=["msvc","mslink","mslib","textfile","newlines"]
     env_args["ENV"]=get_msvc_env_vars()
 else:
     env_args["tools"]=["default","textfile","installer"]
@@ -149,6 +149,10 @@ for subdir in src_subdirs:
     SConscript(os.path.join("src",subdir,"SConscript"),
                variant_dir=os.path.join(BUILDDIR,subdir),
                duplicate=0)
+if env["PLATFORM"]=="win32":
+    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
+               duplicate=1)
 if env["PLATFORM"]!="win32":
     SConscript(os.path.join("data","SConscript"))
     SConscript(os.path.join("config","SConscript"))

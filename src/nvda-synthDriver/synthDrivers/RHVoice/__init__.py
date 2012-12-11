@@ -29,10 +29,10 @@ from synthDriverHandler import SynthDriver,VoiceInfo
 import speech
 import languageHandler
 
-module_dir=os.path.join(config.getUserDefaultConfigPath(),"synthDrivers")
+module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 lib_path=os.path.join(module_dir,"RHVoice.dll")
-data_path=os.path.join(module_dir,"RHVoice-data")
-config_path=os.path.join(module_dir,"RHVoice-config")
+data_path=os.path.join(module_dir,"data")
+config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
 
 class RHVoice_tts_engine_struct(Structure):
     pass

@@ -26,7 +26,6 @@ if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]
 src=["lib.cpp"]
 if env["PLATFORM"]=="win32":
     dll=local_env.SharedLibrary(lib_name,src+["lib.def"])
-    local_env.Install(os.path.join("..","install"),dll)
 elif env["enable_shared"]=="yes":
     lib=local_env.SharedLibrary(lib_name,src)
     env.InstallSharedLibrary(lib,lib_version)

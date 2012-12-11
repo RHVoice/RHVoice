@@ -1,0 +1,32 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os.path
+Import(["env"])
+local_env=env.Clone()
+synthDriver_dir=os.path.join(".","synthDrivers","RHVoice")
+data_dir=os.path.join(synthDriver_dir,"data")
+config_dir=os.path.join(synthDriver_dir,"config")
+subst_dict={"@version@":"$package_version"}
+sconstruct=local_env.Substfile("SConstruct.in",SUBST_DICT=subst_dict)
+local_env.Depends(sconstruct,os.path.join(synthDriver_dir,"__init__.py"))
+local_env.Depends(sconstruct,"installTasks.py")
+manifest=local_env.Substfile("manifest.ini.in",SUBST_DICT=subst_dict)
+local_env.Depends(manifest,os.path.join("locale","ru","manifest.ini"))
+local_env.Install(synthDriver_dir,os.path.join("..","lib","RHVoice.dll"))
+for subdir in ["languages","voices"]:
+    local_env.InstallAs(os.path.join(data_dir,subdir),os.path.join("#data",subdir))
+local_env.Install(config_dir,os.path.join("..","RHVoice.ini"))
+local_env.Install(synthDriver_dir,os.path.join("..","COPYING.txt"))

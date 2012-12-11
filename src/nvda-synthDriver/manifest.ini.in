@@ -1,0 +1,6 @@
+name = RHVoice
+summary = RHVoice
+description = A speech synthesizer.
+author = Olga Yakovleva <yakovleva.o.v@gmail.com>
+url = http://github.com/Olga-Yakovleva/RHVoice
+version = @version@
