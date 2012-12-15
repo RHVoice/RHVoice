@@ -1,3 +1,25 @@
+                        New in version 0.4-a2
+
+A new Russian female voice has been included. It is trained on a
+larger speech database, recorded by Irina Vorobyova. As usual, it
+seems to have speech quality problems because of pitch extraction
+failures, which is especially noticable in utterance final syllables.
+I tried to model interrogative intonation explicitly by including many
+questions in the recording script, but the attempt seems to be only
+partially successful.
+
+Several new configuration settings have been added, including
+pseudo-english mode for Russian voices.
+
+I now use the following two sources of information about stress
+placement in Russian: a stress dictionary generated from RuLex, which
+is a Russian pronunciation dictionary by Igor Poretsky, and a stress
+dictionary extracted from Russian Wiktionary.
+
+This version of RHVoice introduces a native implementation of an
+output module for Speech Dispatcher. Though some features, such as reading of
+key presses, have not been implemented yet.
+
                           New in version 0.4-a1
 
 This is actually not an update, but a completely new synthesizer.
