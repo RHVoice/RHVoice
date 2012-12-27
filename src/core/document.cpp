@@ -58,33 +58,33 @@ namespace RHVoice
     {
     }
 
-  bool sentence::token_starts_new_sentence(const std::vector<utf8::uint32_t>& token,const tts_markup& markup_info) const
+  bool sentence::next_token_starts_new_sentence(const tts_markup& markup_info) const
   {
     if(empty())
       return false;
     if(!markup_info.autosplit_sentences)
       return false;
-    std::size_t newline_count=str::count_newlines(trailing_whitespace.begin(),trailing_whitespace.end());
+    std::size_t newline_count=str::count_newlines(prev_token.whitespace.begin(),prev_token.whitespace.end());
     if(newline_count>1)
       return true;
-    std::vector<utf8::uint32_t>::const_iterator final_punctuation_start=std::find_if(last_token.rbegin(),last_token.rend(),std::not1(str::is_punct())).base();
-    if(final_punctuation_start==last_token.end())
+    std::vector<utf8::uint32_t>::const_iterator final_punctuation_start=std::find_if(prev_token.text.rbegin(),prev_token.text.rend(),std::not1(str::is_punct())).base();
+    if(final_punctuation_start==prev_token.text.end())
       return false;
-    if(last_token.back()=='.')
+    if(prev_token.text.back()=='.')
       {
-        if(str::isalpha(token[0]))
+        if(str::isalpha(next_token.text[0]))
           {
-            if(final_punctuation_start==last_token.begin())
+            if(final_punctuation_start==prev_token.text.begin())
               return true;
             else
               {
                 std::vector<utf8::uint32_t>::const_iterator last_char_pos=final_punctuation_start-1;
                 if(str::isalpha(*last_char_pos))
                   {
-                    if(last_char_pos==last_token.begin())
+                    if(last_char_pos==prev_token.text.begin())
                       return false;
                     else
-                      return str::isupper(token[0]);
+                      return str::isupper(next_token.text[0]);
                   }
                 else
                   return true;
@@ -96,7 +96,7 @@ namespace RHVoice
     else
       {
         utf8::uint32_t cp;
-        for(std::vector<utf8::uint32_t>::const_iterator it(final_punctuation_start);it!=last_token.end();++it)
+        for(std::vector<utf8::uint32_t>::const_iterator it(final_punctuation_start);it!=prev_token.text.end();++it)
           {
             cp=*it;
             if((cp=='.')||(cp=='\?')||(cp=='!')||(cp==';')||(cp==':'))
@@ -106,7 +106,7 @@ namespace RHVoice
       }
   }
 
-  language_list::const_iterator sentence::determine_token_language(const std::vector<utf8::uint32_t>& token) const
+  language_list::const_iterator sentence::determine_next_token_language() const
   {
     language_list::const_iterator result;
     if(parent->has_main_language())
@@ -115,8 +115,8 @@ namespace RHVoice
         if(parent->has_extra_language())
           {
             language_list::const_iterator extra_language=parent->get_extra_language();
-            std::size_t count1=main_language->count_letters_in_text(token.begin(),token.end());
-            std::size_t count2=extra_language->count_letters_in_text(token.begin(),token.end());
+            std::size_t count1=main_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
+            std::size_t count2=extra_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
             if(count1||count2)
               result=(count2>count1)?extra_language:main_language;
             else

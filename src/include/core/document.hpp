@@ -38,6 +38,20 @@ namespace RHVoice
   typedef std::pair<language_list::const_iterator,voice_list::const_iterator> language_voice_pair;
   class document;
 
+  struct text_token
+  {
+    content_type type;
+    std::vector<utf8::uint32_t> text,whitespace;
+    std::size_t position,length;
+
+    text_token():
+      type(content_text),
+      position(0),
+      length(0)
+    {
+    }
+  };
+
   class sentence
   {
   private:
@@ -70,27 +84,16 @@ namespace RHVoice
     class append_token: public command<command_token>
     {
     public:
-      template<typename text_iterator>
-      append_token(text_iterator token_start,text_iterator token_end,const tts_markup& markup_info)
+      explicit append_token(const text_token& token):
+        position(token.position),
+        length(token.length)
     {
-      init(token_start,token_end,markup_info);
+      std::copy(token.text.begin(),token.text.end(),str::utf8_inserter(std::back_inserter(name)));
     }
 
       void execute(utterance& u) const;
 
     protected:
-      append_token()
-      {
-      }
-
-      template<typename text_iterator>
-      void init(text_iterator token_start,text_iterator token_end,const tts_markup& markup_info)
-      {
-        position=token_start.offset();
-        length=token_end.offset()-position;
-        std::copy(token_start,token_end,str::utf8_inserter(std::back_inserter(name)));
-      }
-
       std::string name;
       std::size_t position,length;
     };
@@ -98,11 +101,10 @@ namespace RHVoice
     class append_chars: public append_token
     {
     public:
-      template<typename text_iterator>
-      append_chars(text_iterator token_start,text_iterator token_end,const tts_markup& markup_info):
-        verbosity_level(verbosity_spell|((markup_info.say_as==content_glyphs)?verbosity_full_name:verbosity_name))
+      explicit append_chars(const text_token& token):
+        append_token(token),
+        verbosity_level(verbosity_spell|((token.type==content_glyphs)?verbosity_full_name:verbosity_name))
     {
-      init(token_start,token_end,markup_info);
     }
 
       void execute(utterance& u) const;
@@ -164,7 +166,7 @@ namespace RHVoice
     };
 
     std::list<command_ptr> commands;
-    std::vector<utf8::uint32_t> trailing_whitespace,last_token;
+    text_token prev_token,next_token;
     const document* parent;
     double rate,pitch,volume;
     language_voice_pair language_and_voice;
@@ -199,8 +201,12 @@ namespace RHVoice
     }
 
   private:
-    bool token_starts_new_sentence(const std::vector<utf8::uint32_t>& token,const tts_markup& markup_info) const;
-    language_list::const_iterator determine_token_language(const std::vector<uint32_t>& token) const;
+    template<typename text_iterator>
+    text_iterator skip_whitespace(text_iterator text_start,text_iterator text_end,const tts_markup& markup_info);
+    template<typename text_iterator>
+    text_iterator get_next_token(text_iterator text_start,text_iterator text_end,const tts_markup& markup_info);
+    bool next_token_starts_new_sentence(const tts_markup& markup_info) const;
+    language_list::const_iterator determine_next_token_language() const;
     language_voice_pair get_language_and_voice_from_markup(const tts_markup& markup_info) const;
     std::auto_ptr<utterance> new_utterance() const;
     void execute_commands(utterance& u) const;
@@ -413,9 +419,39 @@ namespace RHVoice
   };
 
   template<typename text_iterator>
+  text_iterator sentence::skip_whitespace(text_iterator text_start,text_iterator text_end,const tts_markup& markup_info)
+  {
+    if(markup_info.say_as!=content_text)
+      return text_start;
+    text_iterator whitespace_end=std::find_if(text_start,text_end,std::not1(str::is_space()));
+    if(whitespace_end!=text_start)
+      prev_token.whitespace.insert(prev_token.whitespace.end(),text_start,whitespace_end);
+    return whitespace_end;
+  }
+
+  template<typename text_iterator>
+  text_iterator sentence::get_next_token(text_iterator text_start,text_iterator text_end,const tts_markup& markup_info)
+  {
+    next_token.type=markup_info.say_as;
+    next_token.text.clear();
+    next_token.whitespace.clear();
+    next_token.position=text_start.offset();
+    next_token.length=0;
+    if(text_start==text_end)
+      return text_start;
+    text_iterator token_end=text_start;
+    if((markup_info.say_as!=content_text)&&str::isspace(*text_start))
+      ++token_end;
+    else
+      token_end=std::find_if(text_start,text_end,str::is_space());
+    next_token.text.assign(text_start,token_end);
+    next_token.length=token_end.offset()-next_token.position;
+    return token_end;
+  }
+
+  template<typename text_iterator>
   text_iterator sentence::add_text(const text_iterator& text_start,const text_iterator& text_end,const tts_markup& markup_info)
   {
-    bool spell=((markup_info.say_as==content_char)||(markup_info.say_as==content_chars)||(markup_info.say_as==content_glyphs));
     language_voice_pair markup_language_and_voice=get_language_and_voice_from_markup(markup_info);
     if((language_and_voice.first!=language_list::const_iterator())&&
        (markup_language_and_voice.first!=language_list::const_iterator()))
@@ -427,56 +463,41 @@ namespace RHVoice
            (markup_language_and_voice.second!=language_and_voice.second))
           return text_start;
       }
-    std::vector<utf8::uint32_t> token;
-    text_iterator token_start,token_end;
     text_iterator sentence_end=text_start;
+    text_iterator token_end;
     language_list::const_iterator token_language;
     std::size_t old_length=length;
-    while(sentence_end!=text_end)
+    do
       {
-        token_start=std::find_if(sentence_end,text_end,std::not1(str::is_space()));
-        if(token_start!=sentence_end)
-          {
-            trailing_whitespace.insert(trailing_whitespace.end(),sentence_end,token_start);
-            if(spell)
-              {
-                commands.push_back(command_ptr(new append_chars(sentence_end,token_start,markup_info)));
-                length+=std::distance(sentence_end,token_start);
-              }
-            sentence_end=token_start;
-            if(token_start==text_end)
-              break;
-          }
-        token_end=std::find_if(token_start,text_end,str::is_space());
-        token.assign(token_start,token_end);
-        if(token_starts_new_sentence(token,markup_info))
+        sentence_end=skip_whitespace(sentence_end,text_end,markup_info);
+        if(sentence_end==text_end)
           break;
-        else
+        token_end=get_next_token(sentence_end,text_end,markup_info);
+        if(next_token_starts_new_sentence(markup_info))
+          break;
+        if(markup_language_and_voice.first==language_list::const_iterator())
           {
-            if(markup_language_and_voice.first==language_list::const_iterator())
+            token_language=determine_next_token_language();
+            if(token_language!=language_list::const_iterator())
               {
-                token_language=determine_token_language(token);
-                if(token_language!=language_list::const_iterator())
+                if(language_and_voice.first==language_list::const_iterator())
+                  language_and_voice.first=token_language;
+                else
                   {
-                    if(language_and_voice.first==language_list::const_iterator())
-                      language_and_voice.first=token_language;
-                    else
-                      {
-                        if(language_and_voice.first!=token_language)
-                          break;
-                      }
+                    if(language_and_voice.first!=token_language)
+                      break;
                   }
               }
-            trailing_whitespace.clear();
-            if(spell)
-              commands.push_back(command_ptr(new append_chars(token_start,token_end,markup_info)));
-            else
-              commands.push_back(command_ptr(new append_token(token_start,token_end,markup_info)));
-            length+=token.size();
-            sentence_end=token_end;
-            last_token=token;
           }
+        if(next_token.type==content_text)
+          commands.push_back(command_ptr(new append_token(next_token)));
+        else
+          commands.push_back(command_ptr(new append_chars(next_token)));
+        prev_token=next_token;
+        length+=prev_token.text.size();
+        sentence_end=token_end;
       }
+    while(sentence_end!=text_end);
     if(length>old_length)
       {
         if(old_length==0)
