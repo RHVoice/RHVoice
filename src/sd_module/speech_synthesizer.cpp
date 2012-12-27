@@ -104,10 +104,10 @@ namespace RHVoice
               doc=document::create_from_ssml(tts_engine,msg.content.begin(),msg.content.end(),params);
               break;
             case tts_message_char:
-              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),true,params);
+              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_char,params);
               break;
             default:
-              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),false,params);
+              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_text,params);
               break;
             }
           if(cancelled())
