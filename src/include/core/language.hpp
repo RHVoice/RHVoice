@@ -224,7 +224,7 @@ namespace RHVoice
 
   class language_info: public resource_info<language>
   {
-    friend language_list;
+    friend class language_list;
   protected:
     language_info(const std::string& name,const std::string& data_path);
 
