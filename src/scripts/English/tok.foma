@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+define Apostrophe %'|’;
+
 define SmallLetter a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z;
 define CapitalLetter A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z;
 define Letter SmallLetter | CapitalLetter;
@@ -60,15 +62,15 @@ define LetterSequenceWithVowels
 define LetterSequence 
 [[{IT} | {US} | ConsonantLetterSequence | LetterSequenceWithVowels] .o. CaseVariants].l ; 
 
-define Am %' [m|M];
-define Are %' [r|R] [e|E];
-define Have %' [v|V] [e|E];
-define Has %' [s|S];
-define Had %' [d|D];
-define Will %' [l|L] [l|L];
+define Am Apostrophe [m|M];
+define Are Apostrophe [r|R] [e|E];
+define Have Apostrophe [v|V] [e|E];
+define Has Apostrophe [s|S];
+define Had Apostrophe [d|D];
+define Will Apostrophe [l|L] [l|L];
 define Is Has;
-define Not [n|N] %' [t|T];
-define Them %' [e|E] [m|M];
+define Not [n|N] Apostrophe [t|T];
+define Them Apostrophe [e|E] [m|M];
 
 define Contraction 
 Has|Had|Have|Will| 
@@ -97,7 +99,7 @@ Them |
 [[n|N] [e|E] [e|E] [d|D]] |
 [[o|O] [u|U] [g|G] [h|H] [t|T]] |
 [[s|S] [h|H] [a|A]]] Not] | 
-[[o|O] %' [c|C] [l|L] [o|O] [c|C] [k|K]] ; 
+[[o|O] Apostrophe [c|C] [l|L] [o|O] [c|C] [k|K]] ; 
 
 define Word Letter+ | Contraction ;
 
