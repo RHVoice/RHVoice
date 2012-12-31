@@ -106,6 +106,9 @@ namespace RHVoice
             case tts_message_char:
               doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_char,params);
               break;
+            case tts_message_key:
+              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_key,params);
+              break;
             default:
               doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_text,params);
               break;

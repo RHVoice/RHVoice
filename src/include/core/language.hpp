@@ -203,6 +203,8 @@ namespace RHVoice
     void decode_as_number(item& token) const;
     void decode_as_digit_string(item& token) const;
     void decode_as_unknown_character(item& token) const;
+    void decode_as_character(item& token) const;
+    void decode_as_key(item& token) const;
     void indicate_case_if_necessary(item& token) const;
     break_strength get_word_break(const item& word) const;
 
@@ -210,6 +212,7 @@ namespace RHVoice
     const phoneme_set phonemes;
     hts_labeller labeller;
     const fst tok_fst;
+    const fst key_fst;
     const fst numbers_fst;
     const fst gpos_fst;
     const dtree phrasing_dtree;

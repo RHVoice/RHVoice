@@ -49,6 +49,33 @@ namespace RHVoice
       }
   }
 
+  void sentence::append_key::execute(utterance& u) const
+  {
+    const language_info& lang_info=u.get_language().get_info();
+    item& parent_token=u.get_relation("TokStructure",true).append();
+    parent_token.set("name",name);
+    parent_token.set("position",position);
+    parent_token.set("length",length);
+    u.get_relation("Token",true).append(parent_token);
+    u.get_relation("Event",true).append(parent_token);
+    str::tokenizer<str::is_equal_to> tokenizer(parent_token.get("name").as<std::string>(),str::is_equal_to('_'));
+    for(str::tokenizer<str::is_equal_to>::iterator it=tokenizer.begin();it!=tokenizer.end();++it)
+      {
+        const std::string& name=*it;
+        item& token=parent_token.append_child();
+        token.set("name",name);
+        token.set<std::string>("pos","key");
+        token.set<verbosity_t>("verbosity",verbosity_name);
+        std::string::const_iterator pos=name.begin();
+        utf8::uint32_t cp=utf8::next(pos,name.end());
+        if(pos==name.end())
+          {
+            token.set<std::string>("pos",lang_info.is_letter(cp)?"lseq":"char");
+            token.set<verbosity_t>("verbosity",verbosity_name|verbosity_spell);
+          }
+      }
+  }
+
   sentence::sentence(const document* parent_):
     parent(parent_),
     rate(1),
@@ -67,12 +94,14 @@ namespace RHVoice
     std::size_t newline_count=str::count_newlines(prev_token.whitespace.begin(),prev_token.whitespace.end());
     if(newline_count>1)
       return true;
+    if(prev_token.type==content_key)
+      return false;
     std::vector<utf8::uint32_t>::const_iterator final_punctuation_start=std::find_if(prev_token.text.rbegin(),prev_token.text.rend(),std::not1(str::is_punct())).base();
     if(final_punctuation_start==prev_token.text.end())
       return false;
     if(prev_token.text.back()=='.')
       {
-        if(str::isalpha(next_token.text[0]))
+        if((next_token.type!=content_key)&&str::isalpha(next_token.text[0]))
           {
             if(final_punctuation_start==prev_token.text.begin())
               return true;
@@ -115,8 +144,23 @@ namespace RHVoice
         if(parent->has_extra_language())
           {
             language_list::const_iterator extra_language=parent->get_extra_language();
-            std::size_t count1=main_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
-            std::size_t count2=extra_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
+            std::size_t count1=0;
+            std::size_t count2=0;
+            if(next_token.type==content_key)
+              {
+                if((next_token.text.size()==1)||(*(next_token.text.end()-2)=='_'))
+                  {
+                    if(main_language->is_letter(next_token.text.back()))
+                      count1=1;
+                    if(extra_language->is_letter(next_token.text.back()))
+                      count2=1;
+                  }
+                }
+            else
+              {
+                count1=main_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
+                count2=extra_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
+              }
             if(count1||count2)
               result=(count2>count1)?extra_language:main_language;
             else

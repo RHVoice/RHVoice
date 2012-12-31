@@ -202,6 +202,8 @@ namespace RHVoice
           }
         else if(interpret_as=="tts:char")
           args.tts_markup_info.say_as=content_char;
+        else if(interpret_as=="tts:key")
+          args.tts_markup_info.say_as=content_key;
         return true;
       }
 

@@ -220,7 +220,7 @@ namespace RHVoice
                   {
                     if(token_iter->has_children())
                       {
-                        if(token_iter->get("known").as<bool>()&&
+                        if(!token_iter->has_feature("unknown")&&
                            (token_iter->get("verbosity").as<verbosity_t>()&verbosity_sound))
                           events.push(event_ptr(new sound_event(offset,sample_rate,volume)));
                         cur_seg=++(token_iter->last_child().as("Transcription").last_child().as("Segment").get_iterator());
@@ -371,7 +371,7 @@ namespace RHVoice
         if(seg_iter->in("Transcription"))
           {
             const item& token=seg_iter->as("Transcription").parent().as("TokStructure").parent();
-            if(token.get("known").as<bool>()&&
+            if(!token.has_feature("unknown")&&
                (token.get("verbosity").as<verbosity_t>()&verbosity_pitch))
               pitch=pitch_values.second;
           }

@@ -1,0 +1,85 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 
+1:unu | 
+2:du | 
+3:tri | 
+4:kvar | 
+5:kvin | 
+6:ses | 
+7:sep | 
+8:ok | 
+9:naŭ ;
+
+define Digit [%0 : nulo] | NZDigit;
+
+define Number 
+NZDigit | 
+[[1:dek|2:dudek] [%0:0|NZDigit]] ;
+
+define Plus %+ : plus;
+define Minus %- : minus;
+define Slash %/ : slesx;
+define BackSlash %\ : [bek slesx];
+define Star %* : asterisko;
+define Dot %. : punkto;
+define SpecialChar Plus | Minus | Slash | BackSlash | Star | Dot;
+
+define Enter {enter} : enter;
+
+define OtherKey 
+{underscore} : underscore | 
+{double-quote} : quote | 
+{alt} : alt | 
+{control} : control | 
+{hyper} : hyper | 
+{meta} : meta | 
+{shift} : shift | 
+{super} : super | 
+{backspace} : [back space] | 
+{break} : break | 
+{delete} : delete | 
+{down} : down | 
+{end} : end | 
+Enter | 
+{escape} : escape | 
+{home} : home | 
+{insert} : insert | 
+{left} : left | 
+{menu} : menu | 
+{next} : next | 
+{num-lock} : [num lock] | 
+{pause} : pause | 
+{print} : print | 
+{prior} : prior | 
+{return} : return | 
+{right} : right | 
+{scroll-lock} : [scroll lock] | 
+{space} : spaco | 
+{tab} : tabo | 
+{up} : up | 
+{window} : windows ; 
+
+define KPKey 
+[{kp-} : 0] [Digit | Plus | Minus | Star | Slash | Dot | Enter];
+
+define FKey 
+f:ef Number ;
+
+define Key 
+KPKey | FKey | SpecialChar | OtherKey;
+
+regex Key;
