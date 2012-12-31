@@ -81,7 +81,8 @@ namespace RHVoice
     rate(1),
     pitch(1),
     volume(1),
-    length(0)
+    length(0),
+    num_tokens(0)
     {
     }
 

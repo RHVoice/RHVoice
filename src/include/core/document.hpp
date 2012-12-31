@@ -181,7 +181,11 @@ namespace RHVoice
     const document* parent;
     double rate,pitch,volume;
     language_voice_pair language_and_voice;
-    std::size_t length;
+    std::size_t length,num_tokens;
+
+    static const std::size_t max_token_length=200;
+    static const std::size_t max_sentence_length=1000;
+    static const std::size_t max_tokens=100;
 
   public:
     explicit sentence(const document* parent_);
@@ -454,7 +458,7 @@ namespace RHVoice
     else if((markup_info.say_as!=content_text)&&str::isspace(*text_start))
       ++token_end;
     else
-      token_end=std::find_if(text_start,text_end,str::is_space());
+      for(std::size_t i=0;(token_end!=text_end)&&(i<max_token_length)&&!str::isspace(*token_end);++token_end,++i);
     next_token.text.assign(text_start,token_end);
     next_token.length=token_end.offset()-next_token.position;
     return token_end;
@@ -508,9 +512,10 @@ namespace RHVoice
           commands.push_back(command_ptr(new append_chars(next_token)));
         prev_token=next_token;
         length+=prev_token.text.size();
+        ++num_tokens;
         sentence_end=token_end;
       }
-    while(sentence_end!=text_end);
+    while((sentence_end!=text_end)&&(prev_token.text.size()<max_token_length)&&(length<max_sentence_length)&&(num_tokens<max_tokens));
     if(length>old_length)
       {
         if(old_length==0)
