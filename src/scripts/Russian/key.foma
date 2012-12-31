@@ -1,0 +1,96 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 
+1 : один | 
+2 : два | 
+3 : три | 
+4 : четыре | 
+5 : пять | 
+6 : шесть | 
+7 : семь | 
+8 : восемь | 
+9 : девять ;
+
+define Digit [%0 : ноль] | NZDigit;
+
+define Number 
+NZDigit | 
+[[1:0] [
+%0:десять | 
+1:одинадцать | 
+2:двенадцать | 
+3:тринадцать | 
+4:четырнадцать | 
+5:пятнадцать | 
+6:шестнадцать | 
+7:семнадцать | 
+8:восемьнадцать | 
+9:девятнадцать]] | 
+[[2:двадцать] [%0:0 | NZDigit]] ;
+
+define Plus %+ : плюс;
+define Minus %- : минус;
+define Slash %/ : слэш;
+define BackSlash %\ : бэк слэш;
+define Star %* : звёздочка;
+define Dot %. : точка;
+define SpecialChar Plus | Minus | Slash | BackSlash | Star | Dot;
+
+define Enter {enter} : энтэр;
+
+define OtherKey 
+{underscore} : подчёркивание | 
+{double-quote} : кавычка | 
+{alt} : альт | 
+{control} : контроль | 
+{hyper} : гипер | 
+{meta} : мэта | 
+{shift} : шифт | 
+{super} : супер | 
+{backspace} : [бэк спэйс] | 
+{break} : брэйк | 
+{delete} : дилит | 
+{down} : вниз | 
+{end} : энд | 
+Enter | 
+{escape} : эскейп | 
+{home} : хоум | 
+{insert} : инсэрт | 
+{left} : влево | 
+{menu} : меню | 
+{next} : следующая | 
+{num-lock} : [нам лок] | 
+{pause} : пауза | 
+{print} : печать | 
+{prior} : предыдущая | 
+{return} : возврат | 
+{right} : вправо | 
+{scroll-lock} : [скрол лок] | 
+{space} : пробел | 
+{tab} : таб | 
+{up} : вверх | 
+{window} : виндоуз ; 
+
+define KPKey 
+[{kp-} : 0] [Digit | Plus | Minus | Star | Slash | Dot | Enter];
+
+define FKey 
+f:эф Number ;
+
+define Key 
+KPKey | FKey | SpecialChar | OtherKey;
+
+regex Key;

@@ -113,6 +113,17 @@ namespace RHVoice
       verbosity_t verbosity_level;
     };
 
+    class append_key: public append_token
+    {
+    public:
+      explicit append_key(const text_token& token):
+        append_token(token)
+    {
+    }
+
+      void execute(utterance& u) const;
+    };
+
     class append_mark: public command<command_mark>
     {
     public:
@@ -438,7 +449,9 @@ namespace RHVoice
     if(text_start==text_end)
       return text_start;
     text_iterator token_end=text_start;
-    if((markup_info.say_as!=content_text)&&str::isspace(*text_start))
+    if(markup_info.say_as==content_key)
+      token_end=text_end;
+    else if((markup_info.say_as!=content_text)&&str::isspace(*text_start))
       ++token_end;
     else
       token_end=std::find_if(text_start,text_end,str::is_space());
@@ -489,6 +502,8 @@ namespace RHVoice
           }
         if(next_token.type==content_text)
           commands.push_back(command_ptr(new append_token(next_token)));
+        else if(next_token.type==content_key)
+          commands.push_back(command_ptr(new append_key(next_token)));
         else
           commands.push_back(command_ptr(new append_chars(next_token)));
         prev_token=next_token;

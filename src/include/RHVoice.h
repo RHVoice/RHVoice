@@ -58,7 +58,8 @@ typedef struct
   typedef enum {
     RHVoice_message_text,
     RHVoice_message_ssml,
-    RHVoice_message_characters
+    RHVoice_message_characters,
+    RHVoice_message_key
   } RHVoice_message_type;
 
   struct RHVoice_message_struct;

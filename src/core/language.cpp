@@ -346,6 +346,7 @@ namespace RHVoice
     phonemes(path::join(info_.get_data_path(),"phonemes.xml")),
     labeller(path::join(info_.get_data_path(),"labelling.xml")),
     tok_fst(path::join(info_.get_data_path(),"tok.fst")),
+    key_fst(path::join(info_.get_data_path(),"key.fst")),
     numbers_fst(path::join(info_.get_data_path(),"numbers.fst")),
     gpos_fst(path::join(info_.get_data_path(),"gpos.fst")),
     phrasing_dtree(path::join(info_.get_data_path(),"phrasing.dt")),
@@ -535,11 +536,14 @@ namespace RHVoice
         else
           token.append_child().set("name",*pos);
       }
+    token.set("unknown",true);
   }
 
   void language::indicate_case_if_necessary(item& token) const
   {
     if(!token.has_children())
+      return;
+    if(token.has_feature("unknown"))
       return;
     if(!(token.get("verbosity").as<verbosity_t>()&verbosity_full_name))
       return;
@@ -560,6 +564,21 @@ namespace RHVoice
       }
   }
 
+  void language::decode_as_character(item& token) const
+  {
+    if(!decode_as_known_character(token))
+      if(token.get("verbosity").as<verbosity_t>()&verbosity_spell)
+        decode_as_unknown_character(token);
+  }
+
+  void language::decode_as_key(item& token) const
+  {
+    const std::string& name=token.get("name").as<std::string>();
+    if(!key_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),token.back_inserter()))
+      if(token.get("pos").as<std::string>()=="char")
+        decode_as_character(token);
+  }
+
   void language::do_text_analysis(utterance& u) const
   {
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
@@ -568,40 +587,24 @@ namespace RHVoice
       {
         for(item::iterator token_iter(parent_token_iter->begin());token_iter!=parent_token_iter->end();++token_iter)
           {
-            bool known=true;
-            verbosity_t verbosity_level=token_iter->get("verbosity").as<verbosity_t>();
+            if(token_iter->get("verbosity").as<verbosity_t>()==verbosity_silent)
+              continue;
             const std::string& token_pos=token_iter->get("pos").as<std::string>();
             if(token_pos=="word")
               decode_as_word(*token_iter);
             else if(token_pos=="lseq")
-              {
                 decode_as_letter_sequence(*token_iter);
-                indicate_case_if_necessary(*token_iter);
-              }
             else if(token_pos=="num")
               decode_as_number(*token_iter);
             else if(token_pos=="dig")
               decode_as_digit_string(*token_iter);
             else if(token_pos=="sym")
-              {
-                known=false;
-                if(verbosity_level!=verbosity_silent)
-                  {
-                    if(decode_as_known_character(*token_iter))
-                      {
-                        indicate_case_if_necessary(*token_iter);
-                        known=true;
-                      }
-                    else
-                      {
-                        if(verbosity_level&verbosity_spell)
-                          decode_as_unknown_character(*token_iter);
-                      }
-                  }
-              }
+              decode_as_character(*token_iter);
+            else if((token_pos=="key")||(token_pos=="char"))
+              decode_as_key(*token_iter);
+            indicate_case_if_necessary(*token_iter);
             std::copy(token_iter->begin(),token_iter->end(),word_rel.back_inserter());
             std::copy(token_iter->begin(),token_iter->end(),parent_token_iter->as("Token").back_inserter());
-            token_iter->set("known",known);
           }
       }
   }

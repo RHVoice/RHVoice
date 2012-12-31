@@ -27,7 +27,8 @@ namespace RHVoice
       content_text,
       content_char,
       content_chars,
-      content_glyphs
+      content_glyphs,
+      content_key
     };
 
   struct prosodic_attributes
