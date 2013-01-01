@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -21,8 +21,9 @@
 
 namespace RHVoice
 {
-  ini_parser::ini_parser(const std::string& file_path):
-    instream(new std::ifstream)
+  ini_parser::ini_parser(const std::string& file_path,bool standard):
+    instream(new std::ifstream),
+    standard_format(standard)
   {
     io::open_ifstream(*instream,file_path);
     next();
@@ -52,15 +53,23 @@ namespace RHVoice
           }
         else
           {
-            std::size_t pos=line.find('=');
-            if((pos==std::string::npos)||(pos==0)||(pos==(line.length()-1)))
-              continue;
-            key=unescape(str::trim(line.substr(0,pos)));
-            if(key.empty())
-              continue;
-            value=unescape(str::trim(line.substr(pos+1,line.length()-pos-1)));
-            if(value.empty())
-              continue;
+            if(standard_format)
+              {
+                std::size_t pos=line.find('=');
+                if((pos==std::string::npos)||(pos==0)||(pos==(line.length()-1)))
+                  continue;
+                key=str::trim(line.substr(0,pos));
+                if(key.empty())
+                  continue;
+                value=unescape(str::trim(line.substr(pos+1,line.length()-pos-1)));
+                if(value.empty())
+                  continue;
+              }
+            else
+              {
+                key.clear();
+                value=line;
+              }
             return;
           }
       }

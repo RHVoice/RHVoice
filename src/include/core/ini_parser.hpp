@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -25,7 +25,7 @@ namespace RHVoice
   class ini_parser
   {
   public:
-    explicit ini_parser(const std::string& file_path);
+    explicit ini_parser(const std::string& file_path,bool standard=true);
     void next();
 
     bool done() const
@@ -54,6 +54,7 @@ namespace RHVoice
     std::string unescape(const std::string& s) const;
 
     std::auto_ptr<std::ifstream> instream;
+    bool standard_format;
     std::string section,key,value;
   };
 }
