@@ -25,6 +25,8 @@ namespace RHVoice
 {
   namespace
   {
+    char english_vowel_letters[10]={'a','A','e','E','i','I','o','O','u','U'};
+
     struct feat_syl_in_question: public feature_function
     {
       feat_syl_in_question():
@@ -54,6 +56,17 @@ namespace RHVoice
         return result;
       }
     };
+  }
+
+  english_info::english_info(const std::string& data_path):
+    language_info("English",data_path)
+  {
+    set_alpha2_code("en");
+    set_alpha3_code("eng");
+    register_letter_range('a',26);
+    register_letter_range('A',26);
+    for(std::size_t i=0;i<10;++i)
+      register_vowel_letter(english_vowel_letters[i]);
   }
 
   smart_ptr<language> english_info::create_instance() const

@@ -26,23 +26,7 @@ namespace RHVoice
   class esperanto_info: public language_info
   {
   public:
-    explicit esperanto_info(const std::string& data_path):
-      #ifdef WIN32
-      present_as_english("present_as_english",false),
-      #endif
-      language_info("Esperanto",data_path)
-    {
-      set_alpha2_code("eo");
-      set_alpha3_code("epo");
-      register_letter_range('a',26);
-      register_letter_range('A',26);
-      register_letter_range(0x108,2);
-      register_letter_range(0x11c,2);
-      register_letter_range(0x124,2);
-      register_letter_range(0x134,2);
-      register_letter_range(0x15c,2);
-      register_letter_range(0x16c,2);
-    }
+    explicit esperanto_info(const std::string& data_path);
 
     #ifdef WIN32
     unsigned short get_id() const
