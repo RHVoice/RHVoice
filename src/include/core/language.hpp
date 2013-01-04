@@ -291,6 +291,11 @@ namespace RHVoice
       return true;
     }
 
+    bool is_vowel_letter(utf8::uint32_t cp) const
+    {
+      return (vowel_letters.find(cp)!=vowel_letters.end());
+    }
+
     const std::string& get_alpha2_code() const
     {
       return alpha2_code;
@@ -305,12 +310,17 @@ namespace RHVoice
     virtual unsigned short get_id() const=0;
     #endif
 
+    virtual bool supports_stress_marks() const
+    {
+      return false;
+    }
+
   protected:
     virtual void do_register_settings(config& cfg,const std::string& prefix);
 
   private:
     std::string alpha2_code,alpha3_code;
-    std::set<utf8::uint32_t> letters;
+    std::set<utf8::uint32_t> letters,vowel_letters;
     bool_property enabled;
 
   protected:
@@ -325,6 +335,11 @@ namespace RHVoice
         {
           letters.insert(cp+i);
         }
+    }
+
+    void register_vowel_letter(utf8::uint32_t cp)
+    {
+      vowel_letters.insert(cp);
     }
 
   public:
@@ -384,6 +399,38 @@ namespace RHVoice
 
   private:
     std::string name,code;
+  };
+
+  struct is_letter: std::unary_function<utf8::uint32_t,bool>
+  {
+    explicit is_letter(const language_info& lang_):
+      lang(&lang_)
+    {
+    }
+
+    bool operator()(utf8::uint32_t cp) const
+    {
+      return lang->is_letter(cp);
+    }
+
+  private:
+    const language_info* lang;
+  };
+
+  struct is_vowel_letter: std::unary_function<utf8::uint32_t,bool>
+  {
+    explicit is_vowel_letter(const language_info& lang_):
+      lang(&lang_)
+    {
+    }
+
+    bool operator()(utf8::uint32_t cp) const
+    {
+      return lang->is_vowel_letter(cp);
+    }
+
+  private:
+    const language_info* lang;
   };
 }
 #endif

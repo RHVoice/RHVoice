@@ -24,6 +24,31 @@
 
 namespace RHVoice
 {
+  namespace
+  {
+    char esperanto_vowel_letters[10]={'a','A','e','E','i','I','o','O','u','U'};
+  }
+
+  esperanto_info::esperanto_info(const std::string& data_path):
+    #ifdef WIN32
+    present_as_english("present_as_english",false),
+    #endif
+    language_info("Esperanto",data_path)
+  {
+    set_alpha2_code("eo");
+    set_alpha3_code("epo");
+    register_letter_range('a',26);
+    register_letter_range('A',26);
+    register_letter_range(0x108,2);
+    register_letter_range(0x11c,2);
+    register_letter_range(0x124,2);
+    register_letter_range(0x134,2);
+    register_letter_range(0x15c,2);
+    register_letter_range(0x16c,2);
+    for(std::size_t i=0;i<10;++i)
+      register_vowel_letter(esperanto_vowel_letters[i]);
+  }
+
   smart_ptr<language> esperanto_info::create_instance() const
   {
     return smart_ptr<language>(new esperanto(*this));

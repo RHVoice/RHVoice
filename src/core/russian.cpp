@@ -36,18 +36,24 @@ namespace RHVoice
       }
     };
 
-    struct is_vowel: public std::unary_function<utf8::uint32_t,bool>
-    {
-      bool operator()(utf8::uint32_t c) const
-      {
-        return std::binary_search(vowels,vowels+10,c);
-      }
-    private:
-      static utf8::uint32_t vowels[10];
-    };
 
-    utf8::uint32_t is_vowel::vowels[10]={1072,1077,1080,1086,1091,1099,1101,1102,1103,1105};
+    utf8::uint32_t russian_vowel_letters[20]={1025,1040,1045,1048,1054,1059,1067,1069,1070,1071,1072,1077,1080,1086,1091,1099,1101,1102,1103,1105};
   }
+
+  russian_info::russian_info(const std::string& data_path):
+    language_info("Russian",data_path),
+    use_pseudo_english("use_pseudo_english",true)
+  {
+    set_alpha2_code("ru");
+    set_alpha3_code("rus");
+    register_letter_range(0x430,32);
+    register_letter_range(0x410,32);
+    register_letter(0x451);
+    register_letter(0x401);
+    for(std::size_t i=0;i<20;++i)
+      register_vowel_letter(russian_vowel_letters[i]);
+  }
+
 
   smart_ptr<language> russian_info::create_instance() const
   {
@@ -154,7 +160,7 @@ namespace RHVoice
           }
         for(item::iterator word_iter(phrase_iter->begin());word_iter!=phrase_iter->end();++word_iter)
           {
-            if(word_iter->as("TokStructure").parent().has_feature("stress_marks")||
+            if(word_iter->as("TokStructure").parent().has_feature("stress_pattern")||
                word_iter->has_feature("lseq"))
               {
                 word_iter->set<std::string>("clitic","host");
@@ -211,28 +217,10 @@ namespace RHVoice
 
   bool russian::transcribe_word_with_stress_marks(const item& word,std::vector<std::string>& transcription) const
   {
-    const value& val_stress_marks=word.as("TokStructure").parent().get("stress_marks",true);
-    if(val_stress_marks.empty())
+    if(!word.as("TokStructure").parent().has_feature("stress_pattern"))
       return false;
     const std::string& name=word.get("name").as<std::string>();
-    utf8::uint32_t cp;
-    const std::vector<unsigned int>& stress_marks=val_stress_marks.as<std::vector<unsigned int> >();
-    std::vector<utf8::uint32_t> letters(str::utf8_string_begin(name),str::utf8_string_end(name));
-    bool stressed=false;
-    for(unsigned int i=0;i<letters.size();++i)
-      {
-        cp=letters[i];
-        if(is_vowel()(cp)&&
-           (std::find(stress_marks.begin(),stress_marks.end(),i)!=stress_marks.end()))
-          {
-            stressed=true;
-            if(cp!=1105)
-              letters[i]=str::toupper(cp);
-          }
-      }
-    if(!stressed)
-      return false;
-    g2p_fst.translate(letters.begin(),letters.end(),std::back_inserter(transcription));
+    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
     return true;
   }
 
@@ -250,12 +238,12 @@ namespace RHVoice
     const std::string& name=word.get("name").as<std::string>();
     str::utf8_string_iterator start=str::utf8_string_begin(name);
     str::utf8_string_iterator end=str::utf8_string_end(name);
-    str::utf8_string_iterator first_vowel_pos=std::find_if(start,end,is_vowel());
+    str::utf8_string_iterator first_vowel_pos=std::find_if(start,end,is_vowel_letter(info));
     if(first_vowel_pos==end)
       return false;
     str::utf8_string_iterator next_pos=first_vowel_pos;
     ++next_pos;
-    if(std::find_if(next_pos,end,is_vowel())!=end)
+    if(std::find_if(next_pos,end,is_vowel_letter(info))!=end)
       return false;
     std::vector<utf8::uint32_t> letters(start,first_vowel_pos);
     utf8::uint32_t cp=*first_vowel_pos;

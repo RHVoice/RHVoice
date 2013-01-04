@@ -24,6 +24,7 @@
 #include "core/russian.hpp"
 #include "core/english.hpp"
 #include "core/esperanto.hpp"
+#include "core/stress_pattern.hpp"
 
 namespace RHVoice
 {
@@ -400,30 +401,29 @@ namespace RHVoice
 
   item& language::append_token(utterance& u,const std::string& text) const
   {
-    utf8::uint32_t stress_marker=get_info().text_settings.stress_marker;
-    bool process_stress_marks=get_info().text_settings.stress_marker.is_set(true);
+    const language_info& lang_info=get_info();
+    utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
+    bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
     std::vector<utf8::uint32_t> chars;
     std::vector<bool> stress_mask;
     utf8::uint32_t cp;
-    bool stress_flag=false;
     std::string::const_iterator it(text.begin());
     while(it!=text.end())
       {
         cp=utf8::next(it,text.end());
-        if(process_stress_marks&&(cp==stress_marker))
-          stress_flag=true;
+        if(process_stress_marks&&
+           (!chars.empty())&&
+           (chars.back()==stress_marker)&&
+           (lang_info.is_vowel_letter(cp)))
+          {
+            chars.back()=cp;
+            stress_mask.back()=true;
+          }
         else
           {
             chars.push_back(cp);
-            stress_mask.push_back(stress_flag);
-            stress_flag=false;
+            stress_mask.push_back(false);
           }
-      }
-    if(process_stress_marks&&chars.empty())
-      {
-        chars.assign(str::utf8_string_begin(text),str::utf8_string_end(text));
-        process_stress_marks=false;
-        stress_mask.assign(chars.size(),false);
       }
     std::vector<std::string> tokens;
     if(!tok_fst.translate(chars.begin(),chars.end(),std::back_inserter(tokens)))
@@ -435,7 +435,7 @@ namespace RHVoice
     std::string name,pos;
     std::vector<utf8::uint32_t>::const_iterator token_start=chars.begin();
     std::vector<utf8::uint32_t>::const_iterator token_end=token_start;
-    std::vector<unsigned int> stress_marks;
+    stress_pattern stress;
     for(std::vector<std::string>::const_iterator it(tokens.begin());it!=tokens.end();++it)
       {
         if(utf8::distance(it->begin(),it->end())>1)
@@ -447,12 +447,9 @@ namespace RHVoice
             pos=*it;
             token.set("pos",pos);
             token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
-            if(!stress_marks.empty())
-              {
-                if(pos=="word")
-                  token.set("stress_marks",stress_marks);
-                stress_marks.clear();
-              }
+            if((pos=="word")&&stress.defined())
+              token.set("stress_pattern",stress);
+            stress.reset();
             name.clear();
             token_start=token_end;
           }
@@ -461,7 +458,7 @@ namespace RHVoice
             if(token_end==chars.end())
               throw tokenization_error();
             if(stress_mask[token_end-chars.begin()])
-              stress_marks.push_back(token_end-token_start);
+              stress.stress_syllable_from_mark(token_start,token_end,lang_info);
             utf8::append(*token_end,std::back_inserter(name));
             ++token_end;
           }
@@ -716,6 +713,9 @@ namespace RHVoice
               }
           }
         std::copy(word_with_syls.begin(),word_with_syls.end(),syl_rel.back_inserter());
+        const value& stress_pattern_val=word_with_syls.as("TokStructure").parent().get("stress_pattern",true);
+        if(!stress_pattern_val.empty())
+          stress_pattern_val.as<stress_pattern>().apply(word_with_syls);
         result.clear();
       }
   }

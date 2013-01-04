@@ -27,17 +27,7 @@ namespace RHVoice
   class russian_info: public language_info
   {
   public:
-    explicit russian_info(const std::string& data_path):
-      language_info("Russian",data_path),
-      use_pseudo_english("use_pseudo_english",true)
-    {
-      set_alpha2_code("ru");
-      set_alpha3_code("rus");
-      register_letter_range(0x430,32);
-      register_letter_range(0x410,32);
-      register_letter(0x451);
-      register_letter(0x401);
-    }
+    explicit russian_info(const std::string& data_path);
 
     #ifdef WIN32
     unsigned short get_id() const
@@ -45,6 +35,11 @@ namespace RHVoice
       return 0x0419;
     }
     #endif
+
+    bool supports_stress_marks() const
+    {
+      return true;
+    }
 
     bool_property use_pseudo_english;
 

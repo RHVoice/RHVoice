@@ -27,14 +27,7 @@ namespace RHVoice
   class english_info: public language_info
   {
   public:
-    explicit english_info(const std::string& data_path):
-      language_info("English",data_path)
-    {
-      set_alpha2_code("en");
-      set_alpha3_code("eng");
-      register_letter_range('a',26);
-      register_letter_range('A',26);
-    }
+    explicit english_info(const std::string& data_path);
 
     #ifdef WIN32
     unsigned short get_id() const
