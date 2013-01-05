@@ -17,14 +17,16 @@
 #define RHVOICE_TRIE_HPP
 
 #include <vector>
+#include <stack>
 #include <algorithm>
 #include <utility>
 #include <memory>
 #include <stdexcept>
+#include "str.hpp"
 
 namespace RHVoice
 {
-  template<typename E,typename T>
+  template<typename E,typename T,class L=str::to_lower>
   class trie
   {
   public:
@@ -125,6 +127,14 @@ namespace RHVoice
         return result;
       }
 
+      template<typename forward_iterator,class to_lower>
+      std::pair<label_iterator,forward_iterator> get_common_prefix(forward_iterator first,forward_iterator last,const to_lower& l) const
+      {
+        std::pair<label_iterator,forward_iterator> result(label.begin(),first);
+        for(;(result.first!=label.end())&&(result.second!=last)&&((*result.first==*result.second)||(*result.first==l(*result.second)));++result.first,++result.second);
+        return result;
+      }
+
       template<typename forward_iterator>
       pointer add_child(forward_iterator first,forward_iterator last)
       {
@@ -145,14 +155,16 @@ namespace RHVoice
 
     node* root;
     bool sorted;
+    L tolower;
 
     template<typename forward_iterator>
     node* get_node(forward_iterator first,forward_iterator last);
 
   public:
-    trie():
+    explicit trie(const L& l=L()):
       root(new node),
-      sorted(false)
+      sorted(false),
+      tolower(l)
     {
     }
 
@@ -189,10 +201,12 @@ namespace RHVoice
 
     template<typename forward_iterator>
     std::pair<forward_iterator,value_type*> find(forward_iterator first,forward_iterator last) const;
+    template<typename forward_iterator>
+    std::pair<forward_iterator,value_type*> search(forward_iterator first,forward_iterator last) const;
   };
 
-  template<typename E,typename T>
-  trie<E,T>::node::~node()
+  template<typename E,typename T,class L>
+  trie<E,T,L>::node::~node()
   {
     for(child_iterator it=children.begin();it!=children.end();++it)
       {
@@ -201,8 +215,8 @@ namespace RHVoice
     delete value;
   }
 
-  template<typename E,typename T>
-  void trie<E,T>::node::sort()
+  template<typename E,typename T,class L>
+  void trie<E,T,L>::node::sort()
   {
     if(!children.empty())
       {
@@ -214,8 +228,8 @@ namespace RHVoice
       }
   }
 
-  template<typename E,typename T> template<typename forward_iterator>
-  std::pair<forward_iterator,T*> trie<E,T>::find(forward_iterator first,forward_iterator last) const
+  template<typename E,typename T,class L> template<typename forward_iterator>
+  std::pair<forward_iterator,T*> trie<E,T,L>::find(forward_iterator first,forward_iterator last) const
   {
     if(!sorted)
       throw std::logic_error("The trie must be sorted before searching");
@@ -242,11 +256,58 @@ namespace RHVoice
     return result;
   }
 
-  template<typename E,typename T> template<typename forward_iterator>
+  template<typename E,typename T,class L> template<typename forward_iterator>
+  std::pair<forward_iterator,T*> trie<E,T,L>::search(forward_iterator first,forward_iterator last) const
+  {
+    if(!sorted)
+      throw std::logic_error("The trie must be sorted before searching");
+    std::stack<std::pair<forward_iterator,node*> > alternatives;
+    std::pair<forward_iterator,value_type*> result(first,0);
+    node* current=root;
+    std::pair<label_iterator,forward_iterator> positions(current->label.begin(),first);
+    node* alternative=0;
+    element_type lower;
+    while(current)
+      {
+        positions=current->get_common_prefix(positions.second,last,tolower);
+        if(positions.first==current->label.end())
+          {
+            if(current->value)
+              {
+                result.first=positions.second;
+                result.second=current->value;
+              }
+            if(positions.second==last)
+              current=0;
+            else
+              {
+                lower=tolower(*positions.second);
+                if(lower!=*positions.second)
+                  {
+                    alternative=current->find_child_b(lower);
+                    if(alternative!=0)
+                      alternatives.push(std::make_pair(positions.second,alternative));
+                  }
+                current=current->find_child_b(*positions.second);
+              }
+          }
+        else
+          current=0;
+        if((current==0)&&(result.second==0)&&(!alternatives.empty()))
+          {
+            current=alternatives.top().second;
+            positions.second=alternatives.top().first;
+            alternatives.pop();
+          }
+      }
+    return result;
+  }
+
+  template<typename E,typename T,class L> template<typename forward_iterator>
   #ifdef _MSC_VER
-  trie<E,T>::node* trie<E,T>::get_node(forward_iterator first,forward_iterator last)
+  trie<E,T,L>::node* trie<E,T>::get_node(forward_iterator first,forward_iterator last)
   #else
-  typename trie<E,T>::node* trie<E,T>::get_node(forward_iterator first,forward_iterator last)
+    typename trie<E,T,L>::node* trie<E,T,L>::get_node(forward_iterator first,forward_iterator last)
   #endif
   {
     if(sorted)

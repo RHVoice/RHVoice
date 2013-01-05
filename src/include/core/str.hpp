@@ -470,6 +470,21 @@ namespace RHVoice
         }
       return n;
     }
+
+    struct to_lower
+    {
+      utf8::uint32_t operator()(utf8::uint32_t c) const
+      {
+        return tolower(c);
+      }
+
+      std::string operator()(const std::string& s) const
+      {
+        std::string result;
+        std::transform(utf8_string_begin(s),utf8_string_end(s),utf8_inserter(std::back_inserter(result)),tolower);
+        return result;
+      }
+    };
   }
 }
 #endif
