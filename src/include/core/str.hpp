@@ -429,30 +429,28 @@ namespace RHVoice
       };
 
       tokenizer(const std::string& s,delimiter_predicate pred=delimiter_predicate()):
-        first(utf8_string_begin(s)),
-        last(utf8_string_end(s)),
+        text(s),
         is_delimiter(pred)
       {
       }
 
       void assign(const std::string& s)
       {
-        first=utf8_string_begin(s);
-        last=utf8_string_end(s);
+        text=s;
       }
 
       iterator begin() const
       {
-        return iterator(first,last,is_delimiter);
+        return iterator(utf8_string_begin(text),utf8_string_end(text),is_delimiter);
       }
 
       iterator end() const
       {
-        return iterator(last,last,is_delimiter);
+        return iterator(utf8_string_end(text),utf8_string_end(text),is_delimiter);
       }
 
     private:
-      utf8_string_iterator first,last;
+      std::string text;
       delimiter_predicate is_delimiter;
     };
 
