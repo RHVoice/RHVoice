@@ -35,11 +35,7 @@ namespace RHVoice
 
   private:
     typedef std::vector<element_type> label_type;
-    #ifdef _MSC_VER
-    typedef label_type::const_iterator label_iterator;
-    #else
     typedef typename label_type::const_iterator label_iterator;
-    #endif
 
     trie(const trie&);
     trie& operator=(const trie&);
@@ -49,11 +45,7 @@ namespace RHVoice
     public:
       typedef node* pointer;
       typedef std::vector<pointer> child_list;
-      #ifdef _MSC_VER
-      typedef child_list::iterator child_iterator;
-      #else
       typedef typename child_list::iterator child_iterator;
-      #endif
 
       label_type label;
       child_list children;
@@ -266,7 +258,9 @@ namespace RHVoice
     if(!sorted)
       throw std::logic_error("The trie must be sorted before searching");
     std::stack<std::pair<forward_iterator,node*> > alternatives;
-    std::pair<forward_iterator,value_type*> result(first,0);
+    std::pair<forward_iterator,value_type*> result;
+    result.first=first;
+    result.second=0;
     node* current=root;
     std::pair<label_iterator,forward_iterator> positions(current->label.begin(),first);
     node* alternative=0;
@@ -308,11 +302,7 @@ namespace RHVoice
   }
 
   template<typename E,typename T,class L> template<typename forward_iterator>
-  #ifdef _MSC_VER
-  trie<E,T,L>::node* trie<E,T>::get_node(forward_iterator first,forward_iterator last)
-  #else
     typename trie<E,T,L>::node* trie<E,T,L>::get_node(forward_iterator first,forward_iterator last)
-  #endif
   {
     if(sorted)
       throw std::logic_error("Elements cannot be inserted into the trie after it has been sorted");
