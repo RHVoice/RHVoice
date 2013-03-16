@@ -27,7 +27,7 @@ namespace RHVoice
   class russian_info: public language_info
   {
   public:
-    explicit russian_info(const std::string& data_path);
+    russian_info(const std::string& data_path,const std::string& userdict_path);
 
     #ifdef WIN32
     unsigned short get_id() const
@@ -59,6 +59,8 @@ namespace RHVoice
     }
 
     std::vector<std::string> get_word_transcription(const item& word) const;
+    void decode_as_word(item& token,const std::string& token_name) const;
+    void decode_as_letter_sequence(item& token,const std::string& token_name) const;
 
   private:
     void mark_clitics(utterance& u) const;
@@ -66,11 +68,9 @@ namespace RHVoice
     void do_final_devoicing_and_voicing_assimilation(utterance& u) const;
     void rename_unstressed_vowels(utterance& u) const;
 
-    bool decode_as_russian_word(item& token) const;
-    bool decode_as_english_word(item& token) const;
-    void decode_as_word(item& token) const;
-    void decode_as_letter_sequence(item& token) const;
-    bool decode_as_known_character(item& token) const;
+    bool decode_as_russian_word(item& token,const std::string& token_name) const;
+    bool decode_as_english_word(item& token,const std::string& token_name) const;
+    bool decode_as_known_character(item& token,const std::string& token_name) const;
 
     bool transcribe_letter_sequence(const item& word,std::vector<std::string>& transcription) const;
     bool transcribe_word_with_stress_marks(const item& word,std::vector<std::string>& transcription) const;

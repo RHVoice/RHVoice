@@ -19,7 +19,7 @@
 !endif
 
 !ifndef VERSION
-!define VERSION "0.4-a2"
+!define VERSION "0.4-a3"
 !endif
 
 !ifndef NVDA

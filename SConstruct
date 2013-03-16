@@ -76,7 +76,7 @@ vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
 vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
 vars.Add("LIBPATH","List of directories where to search for headers",[],converter=convert_path)
 vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
-vars.Add("package_version","Package version","0.4-a2")
+vars.Add("package_version","Package version","0.4-a3")
 if sys.platform=="win32":
     env_args["tools"]=["msvc","mslink","mslib","textfile","newlines"]
     env_args["ENV"]=get_msvc_env_vars()
