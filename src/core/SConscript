@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import os.path
 
 Import("env")
 local_env=env.Clone()
@@ -45,6 +46,7 @@ src=["unicode.cpp",
 	 "russian.cpp",
 	 "english.cpp",
 	 "esperanto.cpp",
+	 "userdict.cpp",
 	 "voice.cpp",
 	 "hts_engine_pool.cpp",
 	 "hts_engine_call.cpp",

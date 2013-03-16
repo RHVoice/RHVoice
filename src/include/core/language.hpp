@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -32,6 +32,7 @@
 #include "hts_labeller.hpp"
 #include "fst.hpp"
 #include "dtree.hpp"
+#include "userdict.hpp"
 
 namespace RHVoice
 {
@@ -168,7 +169,17 @@ namespace RHVoice
     void insert_pauses(utterance& u) const;
     void do_post_lexical_processing(utterance& u) const;
 
+    virtual void decode_as_word(item& token,const std::string& name) const;
+    virtual void decode_as_letter_sequence(item& token,const std::string& name) const;
+
+
     virtual std::vector<std::string> get_word_transcription(const item& word) const=0;
+
+    template<typename forward_iterator,typename output_iterator>
+    void downcase(forward_iterator first,forward_iterator last,output_iterator output) const
+    {
+      downcase_fst.translate(first,last,output);
+    }
 
   protected:
     explicit language(const language_info& info_);
@@ -183,9 +194,7 @@ namespace RHVoice
       return labeller;
     }
 
-    virtual void decode_as_word(item& token) const;
-    virtual void decode_as_letter_sequence(item& token) const;
-    virtual bool decode_as_known_character(item& token) const;
+    virtual bool decode_as_known_character(item& token,const std::string& name) const;
 
     virtual void assign_pronunciation(item& word) const;
 
@@ -199,12 +208,13 @@ namespace RHVoice
     {
     }
 
-    void default_decode_as_word(item& token) const;
-    void decode_as_number(item& token) const;
-    void decode_as_digit_string(item& token) const;
-    void decode_as_unknown_character(item& token) const;
-    void decode_as_character(item& token) const;
-    void decode_as_key(item& token) const;
+    void decode(item& token) const;
+    void default_decode_as_word(item& token,const std::string& name) const;
+    void decode_as_number(item& token,const std::string& name) const;
+    void decode_as_digit_string(item& token,const std::string& name) const;
+    void decode_as_unknown_character(item& token,const std::string& name) const;
+    void decode_as_character(item& token,const std::string& name) const;
+    void decode_as_key(item& token,const std::string& name) const;
     void indicate_case_if_necessary(item& token) const;
     break_strength get_word_break(const item& word) const;
 
@@ -219,6 +229,7 @@ namespace RHVoice
     const fst syl_fst;
     std::vector<std::string> msg_cap_letter,msg_char_code;
     std::map<utf8::uint32_t,std::string> whitespace_symbols;
+    userdict::dict udict;
 
   protected:
     const fst spell_fst;
@@ -229,7 +240,7 @@ namespace RHVoice
   {
     friend class language_list;
   protected:
-    language_info(const std::string& name,const std::string& data_path);
+    language_info(const std::string& name,const std::string& data_path,const std::string& userdict_path);
 
     void set_alpha2_code(const std::string& code)
     {
@@ -348,20 +359,26 @@ namespace RHVoice
       return *all_languages;
     }
 
+    const std::string& get_userdict_path() const
+    {
+      return userdict_path;
+    }
+
   private:
     const language_list* all_languages;
+    std::string userdict_path;
   };
 
   class language_list: public resource_list<language_info>
   {
   public:
-    explicit language_list(const std::string& data_path);
+    language_list(const std::string& data_path,const std::string& userdict_path);
 
   private:
     template<class T>
-    void register_language(const std::string& data_path)
+    void register_language(const std::string& data_path,const std::string& userdict_path)
     {
-      smart_ptr<language_info> p(new T(data_path));
+      smart_ptr<language_info> p(new T(data_path,userdict_path));
       add(p);
       p->all_languages=this;
     }

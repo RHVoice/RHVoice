@@ -58,8 +58,8 @@ namespace RHVoice
     };
   }
 
-  english_info::english_info(const std::string& data_path):
-    language_info("English",data_path)
+  english_info::english_info(const std::string& data_path,const std::string& userdict_path):
+    language_info("English",data_path,userdict_path)
   {
     set_alpha2_code("en");
     set_alpha3_code("eng");

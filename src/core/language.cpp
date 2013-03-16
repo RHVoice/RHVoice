@@ -341,6 +341,29 @@ namespace RHVoice
     private:
       std::string feature_name;
     };
+
+    class feat_word_stress_pattern: public feature_function
+    {
+    public:
+      feat_word_stress_pattern():
+        feature_function("word_stress_pattern")
+      {
+      }
+
+      value eval(const item& word) const
+      {
+        stress_pattern default_pattern;
+        value default_result(default_pattern);
+        value result=word.get("stress_pattern",true);
+        if(!result.empty())
+          return result;
+        if(word.has_prev()||word.has_next())
+          return default_result;
+        const item& token=word.as("TokStructure").parent();
+        result =token.get("stress_pattern",true);
+        return (result.empty()?default_result:result);
+      }
+    };
   }
 
   language::language(const language_info& info_):
@@ -353,7 +376,8 @@ namespace RHVoice
     phrasing_dtree(path::join(info_.get_data_path(),"phrasing.dt")),
     syl_fst(path::join(info_.get_data_path(),"syl.fst")),
     spell_fst(path::join(info_.get_data_path(),"spell.fst")),
-    downcase_fst(path::join(info_.get_data_path(),"downcase.fst"))
+    downcase_fst(path::join(info_.get_data_path(),"downcase.fst")),
+    udict(info_)
   {
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
@@ -397,6 +421,7 @@ namespace RHVoice
     register_feature(smart_ptr<feature_function>(new feat_phrase_numsyls));
     register_feature(smart_ptr<feature_function>(new feat_phrase_numwords));
     register_feature(smart_ptr<feature_function>(new feat_syl_break));
+    register_feature(smart_ptr<feature_function>(new feat_word_stress_pattern));
   }
 
   item& language::append_token(utterance& u,const std::string& text) const
@@ -447,7 +472,7 @@ namespace RHVoice
             pos=*it;
             token.set("pos",pos);
             token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
-            if((pos=="word")&&stress.defined())
+            if((pos=="word")&&(stress.get_state()!=stress_pattern::undefined))
               token.set("stress_pattern",stress);
             stress.reset();
             name.clear();
@@ -458,7 +483,7 @@ namespace RHVoice
             if(token_end==chars.end())
               throw tokenization_error();
             if(stress_mask[token_end-chars.begin()])
-              stress.stress_syllable_from_mark(token_start,token_end,lang_info);
+              stress.stress_syllable(1+std::count_if(token_start,token_end,is_vowel_letter(lang_info)));
             utf8::append(*token_end,std::back_inserter(name));
             ++token_end;
           }
@@ -468,36 +493,53 @@ namespace RHVoice
     return parent_token.as("Token");
   }
 
-  void language::default_decode_as_word(item& token) const
+  void language::decode(item& token) const
   {
+    if(token.has_children())
+      return;
+    const std::string& token_pos=token.get("pos").as<std::string>();
     const std::string& token_name=token.get("name").as<std::string>();
+    if(token_pos=="word")
+      decode_as_word(token,token_name);
+    else if(token_pos=="lseq")
+                decode_as_letter_sequence(token,token_name);
+    else if(token_pos=="num")
+      decode_as_number(token,token_name);
+    else if(token_pos=="dig")
+      decode_as_digit_string(token,token_name);
+    else if(token_pos=="sym")
+      decode_as_character(token,token_name);
+    else if((token_pos=="key")||(token_pos=="char"))
+      decode_as_key(token,token_name);
+  }
+
+  void language::default_decode_as_word(item& token,const std::string& token_name) const
+  {
     std::string word_name;
     downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(word_name));
     item& word=token.append_child();
     word.set("name",word_name);
   }
 
-  void language::decode_as_word(item& token) const
+  void language::decode_as_word(item& token,const std::string& token_name) const
   {
-    return default_decode_as_word(token);
+    return default_decode_as_word(token,token_name);
   }
 
-  void language::decode_as_letter_sequence(item& token) const
+  void language::decode_as_letter_sequence(item& token,const std::string& token_name) const
   {
-    default_decode_as_word(token);
+    default_decode_as_word(token,token_name);
     if(token.has_children())
-      token.first_child().set("lseq",true);
+      token.last_child().set("lseq",true);
   }
 
-  void language::decode_as_number(item& token) const
+    void language::decode_as_number(item& token,const std::string& token_name) const
   {
-    const std::string& token_name=token.get("name").as<std::string>();
     numbers_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),token.back_inserter());
   }
 
-  void language::decode_as_digit_string(item& token) const
+  void language::decode_as_digit_string(item& token,const std::string& token_name) const
   {
-    const std::string& token_name=token.get("name").as<std::string>();
     str::utf8_string_iterator start=str::utf8_string_begin(token_name);
     str::utf8_string_iterator end=str::utf8_string_end(token_name);
     utf8::uint32_t cp;
@@ -508,9 +550,8 @@ namespace RHVoice
       }
   }
 
-  bool language::decode_as_known_character(item& token) const
+  bool language::decode_as_known_character(item& token,const std::string& token_name) const
   {
-    const std::string& token_name=token.get("name").as<std::string>();
     std::vector<std::string> input;
     utf8::uint32_t c=utf8::peek_next(token_name.begin(),token_name.end());
     std::map<utf8::uint32_t,std::string>::const_iterator it=whitespace_symbols.find(c);
@@ -518,9 +559,8 @@ namespace RHVoice
     return spell_fst.translate(input.begin(),input.end(),token.back_inserter());
   }
 
-  void language::decode_as_unknown_character(item& token) const
+  void language::decode_as_unknown_character(item& token,const std::string& token_name) const
   {
-    const std::string& token_name=token.get("name").as<std::string>();
     for(std::vector<std::string>::const_iterator pos(msg_char_code.begin());pos!=msg_char_code.end();++pos)
       {
         if(*pos=="%d")
@@ -561,23 +601,23 @@ namespace RHVoice
       }
   }
 
-  void language::decode_as_character(item& token) const
+  void language::decode_as_character(item& token,const std::string& token_name) const
   {
-    if(!decode_as_known_character(token))
+    if(!decode_as_known_character(token,token_name))
       if(token.get("verbosity").as<verbosity_t>()&verbosity_spell)
-        decode_as_unknown_character(token);
+        decode_as_unknown_character(token,token_name);
   }
 
-  void language::decode_as_key(item& token) const
+  void language::decode_as_key(item& token,const std::string& token_name) const
   {
-    const std::string& name=token.get("name").as<std::string>();
-    if(!key_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),token.back_inserter()))
+    if(!key_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),token.back_inserter()))
       if(token.get("pos").as<std::string>()=="char")
-        decode_as_character(token);
+        decode_as_character(token,token_name);
   }
 
   void language::do_text_analysis(utterance& u) const
   {
+    udict.apply_rules(u);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     relation& word_rel=u.add_relation("Word");
     for(relation::iterator parent_token_iter=tokstruct_rel.begin();parent_token_iter!=tokstruct_rel.end();++parent_token_iter)
@@ -586,19 +626,7 @@ namespace RHVoice
           {
             if(token_iter->get("verbosity").as<verbosity_t>()==verbosity_silent)
               continue;
-            const std::string& token_pos=token_iter->get("pos").as<std::string>();
-            if(token_pos=="word")
-              decode_as_word(*token_iter);
-            else if(token_pos=="lseq")
-                decode_as_letter_sequence(*token_iter);
-            else if(token_pos=="num")
-              decode_as_number(*token_iter);
-            else if(token_pos=="dig")
-              decode_as_digit_string(*token_iter);
-            else if(token_pos=="sym")
-              decode_as_character(*token_iter);
-            else if((token_pos=="key")||(token_pos=="char"))
-              decode_as_key(*token_iter);
+            decode(*token_iter);
             indicate_case_if_necessary(*token_iter);
             std::copy(token_iter->begin(),token_iter->end(),word_rel.back_inserter());
             std::copy(token_iter->begin(),token_iter->end(),parent_token_iter->as("Token").back_inserter());
@@ -713,9 +741,9 @@ namespace RHVoice
               }
           }
         std::copy(word_with_syls.begin(),word_with_syls.end(),syl_rel.back_inserter());
-        const value& stress_pattern_val=word_with_syls.as("TokStructure").parent().get("stress_pattern",true);
-        if(!stress_pattern_val.empty())
-          stress_pattern_val.as<stress_pattern>().apply(word_with_syls);
+        stress_pattern stress=word_with_syls.eval("word_stress_pattern").as<stress_pattern>();
+        if(stress.get_state()!=stress_pattern::undefined)
+          stress.apply(word_with_syls);
         result.clear();
       }
   }
@@ -739,9 +767,10 @@ namespace RHVoice
     post_lex(u);
   }
 
-  language_info::language_info(const std::string& name,const std::string& data_path):
+  language_info::language_info(const std::string& name,const std::string& data_path,const std::string& userdict_path_):
     enabled("enabled",true),
-    all_languages(0)
+    all_languages(0),
+    userdict_path(path::join(userdict_path_,name))
   {
     set_name(name);
     set_data_path(path::join(data_path,name));
@@ -763,11 +792,11 @@ namespace RHVoice
     text_settings.register_self(cfg,prefix);
   }
 
-  language_list::language_list(const std::string& data_path)
+  language_list::language_list(const std::string& data_path,const std::string& userdict_path)
   {
-    register_language<russian_info>(data_path);
-    register_language<english_info>(data_path);
-    register_language<esperanto_info>(data_path);
+    register_language<russian_info>(data_path,userdict_path);
+    register_language<english_info>(data_path,userdict_path);
+    register_language<esperanto_info>(data_path,userdict_path);
   }
 
   bool language_search_criteria::operator()(const language_info& info) const

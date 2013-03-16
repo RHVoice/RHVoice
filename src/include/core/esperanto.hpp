@@ -26,7 +26,7 @@ namespace RHVoice
   class esperanto_info: public language_info
   {
   public:
-    explicit esperanto_info(const std::string& data_path);
+    esperanto_info(const std::string& data_path,const std::string& userdict_path);
 
     #ifdef WIN32
     unsigned short get_id() const
@@ -54,10 +54,9 @@ namespace RHVoice
     }
 
     std::vector<std::string> get_word_transcription(const item& word) const;
-
+    void decode_as_word(item& token,const std::string& token_name) const;
+    void decode_as_letter_sequence(item& token,const std::string& token_name) const;
   private:
-    void decode_as_word(item& token) const;
-    void decode_as_letter_sequence(item& token) const;
     void post_lex(utterance& u) const;
 
     const esperanto_info& info;

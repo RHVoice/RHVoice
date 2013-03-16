@@ -29,7 +29,7 @@ namespace RHVoice
     data_path(p.data_path),
     config_path(p.config_path),
     version(VERSION),
-    languages(path::join(data_path,"languages")),
+    languages(path::join(data_path,"languages"),path::join(config_path,"dicts")),
     voices(path::join(data_path,"voices"),languages),
     prefer_primary_language("prefer_primary_language",false)
   {

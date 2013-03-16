@@ -29,11 +29,11 @@ namespace RHVoice
     char esperanto_vowel_letters[10]={'a','A','e','E','i','I','o','O','u','U'};
   }
 
-  esperanto_info::esperanto_info(const std::string& data_path):
+  esperanto_info::esperanto_info(const std::string& data_path,const std::string& userdict_path):
     #ifdef WIN32
     present_as_english("present_as_english",false),
     #endif
-    language_info("Esperanto",data_path)
+    language_info("Esperanto",data_path,userdict_path)
   {
     set_alpha2_code("eo");
     set_alpha3_code("epo");
@@ -70,9 +70,8 @@ namespace RHVoice
   {
   }
 
-  void esperanto::decode_as_word(item& token) const
+  void esperanto::decode_as_word(item& token,const std::string& token_name) const
   {
-    const std::string& token_name=token.get("name").as<std::string>();
     std::list<std::string> lowercase_letters;
     downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),std::back_inserter(lowercase_letters));
     std::string word_name;
@@ -81,9 +80,8 @@ namespace RHVoice
     word.set("name",word_name);
   }
 
-  void esperanto::decode_as_letter_sequence(item& token) const
+  void esperanto::decode_as_letter_sequence(item& token,const std::string& token_name) const
   {
-    const std::string& token_name=token.get("name").as<std::string>();
     std::list<std::string> lowercase_letters;
     downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),std::back_inserter(lowercase_letters));
     std::list<std::string> original_letters;

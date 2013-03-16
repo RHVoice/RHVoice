@@ -18,7 +18,6 @@
 
 #include <bitset>
 #include <string>
-#include "language.hpp"
 #include "item.hpp"
 
 namespace RHVoice
@@ -26,9 +25,21 @@ namespace RHVoice
   class stress_pattern
   {
   public:
-    bool defined() const
+    enum state_t
+      {
+        undefined,
+        stressed,
+        unstressed
+      };
+
+    stress_pattern():
+      state(undefined)
     {
-      return (fwmask.any()||bwmask.any());
+    }
+
+    state_t get_state() const
+    {
+      return state;
     }
 
     void stress_syllable(int n)
@@ -39,26 +50,27 @@ namespace RHVoice
         do_stress_syllable(bwmask,-n);
     }
 
-    template<typename forward_iterator>
-    void stress_syllable_from_mark(forward_iterator start,forward_iterator pos,const language_info& lang)
+    void unstress()
     {
-      if(lang.supports_stress_marks())
-        stress_syllable(1+std::count_if(start,pos,is_vowel_letter(lang)));
+      reset();
+      state=unstressed;
     }
 
     void reset()
     {
+      state=undefined;
       fwmask.reset();
       bwmask.reset();
     }
 
     void apply(item& word) const
     {
-      if(!defined())
+      if(state==undefined)
         return;
       item& word_with_syls=word.as("SylStructure");
-      for(item::iterator it=word_with_syls.begin();it!=word_with_syls.end();++it)
-        it->set<std::string>("stress","0");
+      clear_word_stress(word_with_syls);
+      if(state==unstressed)
+        return;
       do_apply(word_with_syls.begin(),word_with_syls.end(),fwmask);
       do_apply(word_with_syls.rbegin(),word_with_syls.rend(),bwmask);
     }
@@ -69,7 +81,16 @@ namespace RHVoice
     void do_stress_syllable(stress_mask& mask,int n)
     {
       if(n<=mask.size())
+        {
         mask.set(n-1);
+        state=stressed;
+        }
+    }
+
+    void clear_word_stress(item& word) const
+    {
+      for(item::iterator it=word.begin();it!=word.end();++it)
+        it->set<std::string>("stress","0");
     }
 
     template<typename forward_iterator>
@@ -86,6 +107,7 @@ namespace RHVoice
         }
     }
 
+  state_t state;
     stress_mask fwmask,bwmask;
   };
 }
