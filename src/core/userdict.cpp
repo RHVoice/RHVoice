@@ -298,9 +298,32 @@ namespace RHVoice
 
         bool match_symbol()
         {
-          next_token->append(*pos);
+          chars32::const_iterator end=pos+1;
+          utf8::uint32_t sym=*pos;
+          if(sym=='#')
+            {
+              chars32::const_iterator start=pos+1;
+              if(start!=input.end())
+                {
+                  sym=*start;
+                  end=std::find_if(start,input.end(),std::not1(str::is_adigit()));
+                  if(start==end)
+                    ++end;
+                  else
+                    {
+                      std::string s;
+                      utf8::utf32to8(start,end,std::back_inserter(s));
+                      std::istringstream strm(s);
+                      utf8::uint32_t c;
+                      if(strm>>c)
+                        if(utf::is_valid(c))
+                          sym=c;
+                    }
+                }
+            }
+          next_token->append(sym);
           next_token->set_type(UDTK_SYM);
-          ++pos;
+          pos=end;
           return true;
         }
 
@@ -475,7 +498,7 @@ namespace RHVoice
       if(tok.get("verbosity").as<verbosity_t>()==verbosity_silent)
         return true;
       const std::string& type=tok.get("pos").as<std::string>();
-      if((type=="word")||(type=="sym"))
+      if((type=="word")||(type=="sym")||(type=="char"))
         return false;
       return true;
     }

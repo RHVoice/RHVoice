@@ -375,7 +375,7 @@ namespace RHVoice
 
       void apply(word_editor& ed) const
       {
-        ed.forward_char();
+        ed.delete_char();
       }
 
       std::string describe() const
