@@ -146,10 +146,14 @@ namespace RHVoice
       void split(label_iterator pos)
       {
         label_type new_label(label_iterator(label.begin()),pos);
-        pointer child=add_child(pos,label_iterator(label.end()));
+        std::auto_ptr<node> child(new node(pos,label_iterator(label.end())));
+        child->children.reserve(1);
         child->value=value;
         value=0;
         label.swap(new_label);
+        children.swap(child->children);
+        children.push_back(child.get());
+        child.release();
       }
     };
 
