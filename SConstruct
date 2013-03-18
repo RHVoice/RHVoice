@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011, 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@ import sys
 import os
 import os.path
 import subprocess
+if sys.platform=="win32":
+    import _winreg
 
 def CheckPKGConfig(context):
     context.Message("Checking for pkg-config... ")
@@ -30,11 +32,14 @@ def CheckPKG(context,name):
     context.Result(result)
     return result
 
+def get_win_sdk_dir():
+    key=_winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1")
+    return _winreg.QueryValueEx(key,"InstallationFolder")[0]
+
 def get_msvc_env_vars():
     var_names=["path","lib","include","tmp"]
-    setenv_script=r"C:\Program^ Files\Microsoft^ SDKs\Windows\v7.1\Bin\SetEnv.cmd"
-    command='{} /x86 /release && set'.format(setenv_script)
-    output=subprocess.check_output(["cmd","/c",command])
+    setenv_script=os.path.join(get_win_sdk_dir(),"bin","setenv.cmd")
+    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,"/x86","/release","&&","set"])
     vars=dict()
     lines=output.split("\n")
     for line in lines:
