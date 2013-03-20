@@ -357,9 +357,10 @@ namespace RHVoice
         value result=word.get("stress_pattern",true);
         if(!result.empty())
           return result;
-        if(word.has_prev()||word.has_next())
+        const item& word_in_token=word.as("TokStructure");
+        if(word_in_token.has_prev()||word_in_token.has_next())
           return default_result;
-        const item& token=word.as("TokStructure").parent();
+        const item& token=word_in_token.parent();
         result =token.get("stress_pattern",true);
         return (result.empty()?default_result:result);
       }
