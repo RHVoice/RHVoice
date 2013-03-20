@@ -17,6 +17,7 @@ import sys
 import os
 import os.path
 import subprocess
+import platform
 if sys.platform=="win32":
     import _winreg
 
@@ -36,10 +37,10 @@ def get_win_sdk_dir():
     key=_winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1")
     return _winreg.QueryValueEx(key,"InstallationFolder")[0]
 
-def get_msvc_env_vars():
+def get_msvc_env_vars(arch):
     var_names=["path","lib","include","tmp"]
     setenv_script=os.path.join(get_win_sdk_dir(),"bin","setenv.cmd")
-    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,"/x86","/release","&&","set"])
+    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,"/"+arch,"/release","&&","set"])
     vars=dict()
     lines=output.split("\n")
     for line in lines:
@@ -56,7 +57,16 @@ def convert_flags(value):
 def convert_path(value):
     return value.split(";" if sys.platform=="win32" else ":")
 
-BUILDDIR=os.path.join("build",sys.platform)
+system=platform.system().lower()
+if system=="windows":
+    arch=ARGUMENTS.get("arch","x86")
+    if arch not in ["x86","x64"]:
+        print("Unrecognized architecture")
+        exit(1)
+else:
+    arch=platform.machine().lower()
+
+BUILDDIR=os.path.join("build",system+"_"+arch)
 Execute(Mkdir(BUILDDIR))
 SConsignFile(os.path.join(BUILDDIR,"scons"))
 var_cache=os.path.join(BUILDDIR,"user.conf")
@@ -84,7 +94,8 @@ vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
 vars.Add("package_version","Package version","0.4-a3")
 if sys.platform=="win32":
     env_args["tools"]=["msvc","mslink","mslib","textfile","newlines"]
-    env_args["ENV"]=get_msvc_env_vars()
+    env_args["ENV"]=get_msvc_env_vars(arch)
+    env_args["MSVC_BATCH"]=True
 else:
     env_args["tools"]=["default","textfile","installer"]
 env_args["variables"]=vars
@@ -98,6 +109,8 @@ if sys.platform!="win32":
     Help("Then type 'scons install' to install it.\n")
     Help("Type 'scons --clean install' to uninstall the software.\n")
 Help("You may use the following configuration variables:\n")
+if sys.platform=="win32":
+    Help(vars.FormatVariableHelpText(env,"arch","Built architecture (x86,x64)","x86",arch))
 Help(vars.GenerateHelpText(env))
 env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
 env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
@@ -154,7 +167,7 @@ for subdir in src_subdirs:
     SConscript(os.path.join("src",subdir,"SConscript"),
                variant_dir=os.path.join(BUILDDIR,subdir),
                duplicate=0)
-if env["PLATFORM"]=="win32":
+if (env["PLATFORM"]=="win32") and (arch=="x86"):
     SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
                variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
                duplicate=1)

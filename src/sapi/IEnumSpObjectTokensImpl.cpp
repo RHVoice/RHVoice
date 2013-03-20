@@ -100,7 +100,7 @@ namespace RHVoice
 
     STDMETHODIMP IEnumSpObjectTokensImpl::Skip(ULONG celt)
     {
-      unsigned long num_skipped=std::min(celt,sapi_voices.size()-index);
+      unsigned long num_skipped=std::min<unsigned long>(celt,sapi_voices.size()-index);
       index+=num_skipped;
       return ((num_skipped==celt)?S_OK:S_FALSE);
     }
