@@ -33,13 +33,20 @@ def CheckPKG(context,name):
     context.Result(result)
     return result
 
-def get_win_sdk_dir():
-    key=_winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1")
-    return _winreg.QueryValueEx(key,"InstallationFolder")[0]
+def CheckWinSDK(context):
+    context.Message("Checking for Windows SDK 7.1... ")
+    result=1
+    try:
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1") as key:
+            context.env["WinSDKDir"]=_winreg.QueryValueEx(key,"InstallationFolder")[0]
+    except WindowsError:
+        result=0
+    context.Result(result)
+    return result
 
-def get_msvc_env_vars(arch):
+def get_msvc_env_vars(env,arch):
     var_names=["path","lib","include","tmp"]
-    setenv_script=os.path.join(get_win_sdk_dir(),"bin","setenv.cmd")
+    setenv_script=os.path.join(env["WinSDKDir"],"bin","setenv.cmd")
     output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,"/"+arch,"/release","&&","set"])
     vars=dict()
     lines=output.split("\n")
@@ -57,125 +64,180 @@ def convert_flags(value):
 def convert_path(value):
     return value.split(";" if sys.platform=="win32" else ":")
 
-system=platform.system().lower()
-if system=="windows":
-    arch=ARGUMENTS.get("arch","x86")
-    if arch not in ["x86","x64"]:
-        print("Unrecognized architecture")
-        exit(1)
-else:
-    arch=platform.machine().lower()
+def setup():
+    global BUILDDIR,var_cache
+    system=platform.system().lower()
+    BUILDDIR=os.path.join("build",system)
+    var_cache=os.path.join(BUILDDIR,"user.conf")
+    Execute(Mkdir(BUILDDIR))
+    SConsignFile(os.path.join(BUILDDIR,"scons"))
 
-BUILDDIR=os.path.join("build",system+"_"+arch)
-Execute(Mkdir(BUILDDIR))
-SConsignFile(os.path.join(BUILDDIR,"scons"))
-var_cache=os.path.join(BUILDDIR,"user.conf")
-env_args={}
-args={"DESTDIR":""}
-args.update(ARGUMENTS)
-vars=Variables(var_cache,args)
-if sys.platform!="win32":
-    vars.Add("prefix","Installation prefix","/usr/local")
-    vars.Add("bindir","Program installation directory","$prefix/bin")
-    vars.Add("libdir","Library installation directory","$prefix/lib")
-    vars.Add("includedir","Header installation directory","$prefix/include")
-    vars.Add("datadir","Data installation directory","$prefix/share")
-    vars.Add("sysconfdir","A directory for configuration files","$prefix/etc")
-    vars.Add("servicedir",".service file installation directory","$datadir/dbus-1/services")
-    vars.Add("DESTDIR","Support for staged installation","")
-    vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
-vars.Add("CPPPATH","List of directories where to search for libraries",[],converter=convert_path)
-vars.Add("CPPFLAGS","C/C++ preprocessor flags",[],converter=convert_flags)
-vars.Add("CCFLAGS","C/C++ compiler flags",["/O2" if sys.platform=="win32" else "-O2"],converter=convert_flags)
-vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
-vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
-vars.Add("LIBPATH","List of directories where to search for headers",[],converter=convert_path)
-vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
-vars.Add("package_version","Package version","0.4-a3")
-if sys.platform=="win32":
-    env_args["tools"]=["msvc","mslink","mslib","textfile","newlines"]
-    env_args["ENV"]=get_msvc_env_vars(arch)
-    env_args["MSVC_BATCH"]=True
-else:
-    env_args["tools"]=["default","textfile","installer"]
-env_args["variables"]=vars
-env_args["LIBS"]=[]
-env_args["package_name"]="RHVoice"
-env_args["CPPDEFINES"]=[]
-env=Environment(**env_args)
-vars.Save(var_cache,env)
-Help("Type 'scons' to build the package.\n")
-if sys.platform!="win32":
-    Help("Then type 'scons install' to install it.\n")
-    Help("Type 'scons --clean install' to uninstall the software.\n")
-Help("You may use the following configuration variables:\n")
-if sys.platform=="win32":
-    Help(vars.FormatVariableHelpText(env,"arch","Built architecture (x86,x64)","x86",arch))
-Help(vars.GenerateHelpText(env))
-env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
-env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
-env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
-if env["PLATFORM"]=="win32":
-    env.Append(CPPDEFINES=("WIN32",1))
-    env.Append(CPPDEFINES=("UNICODE",1))
-    env.Append(CPPDEFINES=("NOMINMAX",1))
-    env.AppendUnique(CCFLAGS=["/MT"])
-    env.AppendUnique(CXXFLAGS=["/EHsc"])
-if "gcc" in env["TOOLS"]:
-    env.MergeFlags("-pthread")
-conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
-                   log_file=os.path.join(BUILDDIR,"configure.log"),
-                   custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG})
-if not conf.CheckCC():
-    print "The C compiler is not working"
-    exit(1)
-if not conf.CheckCXX():
-    print "The C++ compiler is not working"
-    exit(1)
+def create_user_vars():
+    args={"DESTDIR":""}
+    args.update(ARGUMENTS)
+    vars=Variables(var_cache,args)
+    if sys.platform=="win32":
+        vars.Add(EnumVariable("enable_x64","Additionally build 64-bit versions of all the libraries","no",["yes","no"],ignorecase=1))
+    else:
+        vars.Add("prefix","Installation prefix","/usr/local")
+        vars.Add("bindir","Program installation directory","$prefix/bin")
+        vars.Add("libdir","Library installation directory","$prefix/lib")
+        vars.Add("includedir","Header installation directory","$prefix/include")
+        vars.Add("datadir","Data installation directory","$prefix/share")
+        vars.Add("sysconfdir","A directory for configuration files","$prefix/etc")
+        vars.Add("servicedir",".service file installation directory","$datadir/dbus-1/services")
+        vars.Add("DESTDIR","Support for staged installation","")
+        vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
+    if sys.platform=="win32":
+        suffixes=["32","64"]
+    else:
+        suffixes=[""]
+    for suffix in suffixes:
+        vars.Add("CPPPATH"+suffix,"List of directories where to search for headers",[],converter=convert_path)
+        vars.Add("LIBPATH"+suffix,"List of directories where to search for libraries",[],converter=convert_path)
+    vars.Add("CPPFLAGS","C/C++ preprocessor flags",[],converter=convert_flags)
+    vars.Add("CCFLAGS","C/C++ compiler flags",["/O2" if sys.platform=="win32" else "-O2"],converter=convert_flags)
+    vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
+    vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
+    vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
+    vars.Add("package_version","Package version","0.4-a3")
+    return vars
+
+def create_base_env(vars):
+    env_args={}
+    if sys.platform=="win32":
+        env_args["tools"]=["msvc","mslink","mslib","textfile","newlines"]
+        env_args["MSVC_BATCH"]=True
+    else:
+        env_args["tools"]=["default","textfile","installer"]
+    env_args["variables"]=vars
+    env_args["LIBS"]=[]
+    env_args["package_name"]="RHVoice"
+    env_args["CPPDEFINES"]=[]
+    env=Environment(**env_args)
+    env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
+    env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
+    if env["PLATFORM"]=="win32":
+        env.Append(CPPDEFINES=("WIN32",1))
+        env.Append(CPPDEFINES=("UNICODE",1))
+        env.Append(CPPDEFINES=("NOMINMAX",1))
+        env.AppendUnique(CCFLAGS=["/MT"])
+        env.AppendUnique(CXXFLAGS=["/EHsc"])
+    if "gcc" in env["TOOLS"]:
+        env.MergeFlags("-pthread")
+    return env
+
+def display_help(env,vars):
+    Help("Type 'scons' to build the package.\n")
+    if sys.platform!="win32":
+        Help("Then type 'scons install' to install it.\n")
+        Help("Type 'scons --clean install' to uninstall the software.\n")
+    Help("You may use the following configuration variables:\n")
+    Help(vars.GenerateHelpText(env))
+
+def clone_base_env(base_env,arch=None):
+    env=base_env.Clone()
+    if sys.platform=="win32":
+        bits="64" if arch.endswith("64") else "32"
+        env["BUILDDIR"]=os.path.join(BUILDDIR,arch)
+        env["CPPPATH"]=env["CPPPATH"+bits]
+        env["LIBPATH"]=env["LIBPATH"+bits]
+        env["ENV"]=get_msvc_env_vars(env,arch)
+    else:
+        env["BUILDDIR"]=BUILDDIR
+    env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
+    return env
+
+def configure(env):
+    conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
+                       log_file=os.path.join(env["BUILDDIR"],"configure.log"),
+                       custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG})
+    if not conf.CheckCC():
+        print "The C compiler is not working"
+        exit(1)
+    if not conf.CheckCXX():
+        print "The C++ compiler is not working"
+        exit(1)
 # has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
 # if not has_sox:
 #     print "Error: cannot link with libsox"
 #     exit(1)
 # env.PrependUnique(LIBS="sox")
-env["audio_libs"]=set()
-if conf.CheckLibWithHeader("ao","ao/ao.h","C",call='ao_initialize();',autoadd=0):
-    env["audio_libs"].add("libao")
-has_giomm=False
-has_pkg_config=conf.CheckPKGConfig()
-if has_pkg_config:
-    if conf.CheckPKG("libpulse-simple"):
-        env["audio_libs"].add("pulse")
-    if conf.CheckPKG("portaudio-2.0"):
-        env["audio_libs"].add("portaudio")
-    has_giomm=conf.CheckPKG("giomm-2.4")
-if env["PLATFORM"]=="win32":
-    env.AppendUnique(LIBS="kernel32")
-env=conf.Finish()
-Export(["env","BUILDDIR"])
-src_subdirs=["core","lib","utils"]
-if env["audio_libs"]:
-    src_subdirs.append("audio")
-    src_subdirs.append("test")
-    src_subdirs.append("sd_module")
-if has_giomm:
-    src_subdirs.append("service")
-if env["PLATFORM"]=="win32":
-    src_subdirs.append("sapi")
-else:
-    src_subdirs.append("include")
-for subdir in src_subdirs:
-    SConscript(os.path.join("src",subdir,"SConscript"),
-               variant_dir=os.path.join(BUILDDIR,subdir),
-               duplicate=0)
-if (env["PLATFORM"]=="win32") and (arch=="x86"):
-    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
-               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
-               duplicate=1)
-if env["PLATFORM"]!="win32":
-    SConscript(os.path.join("data","SConscript"))
-    SConscript(os.path.join("config","SConscript"))
-if env["PLATFORM"]=="win32":
+    env["audio_libs"]=set()
+    if conf.CheckLibWithHeader("ao","ao/ao.h","C",call='ao_initialize();',autoadd=0):
+        env["audio_libs"].add("libao")
+    has_giomm=False
+    has_pkg_config=conf.CheckPKGConfig()
+    if has_pkg_config:
+        if conf.CheckPKG("libpulse-simple"):
+            env["audio_libs"].add("pulse")
+        if conf.CheckPKG("portaudio-2.0"):
+            env["audio_libs"].add("portaudio")
+        has_giomm=conf.CheckPKG("giomm-2.4")
+    if env["PLATFORM"]=="win32":
+        env.AppendUnique(LIBS="kernel32")
+    conf.Finish()
+    src_subdirs=["core","lib","utils"]
+    if env["audio_libs"]:
+        src_subdirs.append("audio")
+        src_subdirs.append("test")
+        src_subdirs.append("sd_module")
+    if has_giomm:
+        src_subdirs.append("service")
+    if env["PLATFORM"]=="win32":
+        src_subdirs.append("sapi")
+    else:
+        src_subdirs.append("include")
+    return src_subdirs
+
+def build_binaries(base_env,arch=None):
+    env=clone_base_env(base_env,arch)
+    if env["BUILDDIR"]!=BUILDDIR:
+        Execute(Mkdir(env["BUILDDIR"]))
+    if arch:
+        print("Configuring the build system for {}".format(arch))
+    src_subdirs=configure(env)
+    for subdir in src_subdirs:
+        SConscript(os.path.join("src",subdir,"SConscript"),
+                   variant_dir=os.path.join(env["BUILDDIR"],subdir),
+                   exports={"env":env},
+                   duplicate=0)
+
+def build_for_linux(base_env):
+    build_binaries(base_env)
+    for subdir in ["data","config"]:
+        SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env})
+
+def preconfigure_for_windows(env):
+    conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
+                       log_file=os.path.join(BUILDDIR,"configure.log"),
+                       custom_tests={"CheckWinSDK":CheckWinSDK})
+    if not conf.CheckWinSDK():
+        print("Error: Windows SDK 7.1 is not installed")
+        exit(1)
+    conf.Finish()
+
+def build_for_windows(base_env):
+    preconfigure_for_windows(base_env)
+    build_binaries(base_env,"x86")
+    if base_env["enable_x64"]=="yes":
+        build_binaries(base_env,"x64")
     for f in ["README","COPYING","COPYING.LESSER"]:
-        env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
+        base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
+    base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
     # env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
+#    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
+#               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
+#               exports={"env":base_env},
+#               duplicate=1)
+
+
+setup()
+vars=create_user_vars()
+base_env=create_base_env(vars)
+display_help(base_env,vars)
+vars.Save(var_cache,base_env)
+if sys.platform=="win32":
+    build_for_windows(base_env)
+else:
+    build_for_linux(base_env)
