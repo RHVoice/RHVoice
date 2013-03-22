@@ -1,8 +1,16 @@
+import sys
 import os.path
 
 Import("env")
 
-for language_path in Glob("languages/*",strings=True):
-    env.InstallData(Glob(language_path+"/*"),language_path)
-for voice_path in Glob("voices/*",strings=True):
-    env.InstallData(Glob(voice_path+"/*"),voice_path)
+data_files=dict()
+
+for dir_name in ["languages","voices"]:
+    data_files[dir_name]=dict()
+    for subdir_name in map(os.path.basename,Glob(os.path.join(dir_name,"*"),strings=True)):
+        subdir_path=os.path.join(dir_name,subdir_name)
+        data_files[dir_name][subdir_name]=Glob(os.path.join(subdir_path,"*"))
+        if sys.platform!="win32":
+            env.InstallData(data_files[dir_name][subdir_name],subdir_path)
+
+Export(["data_files"])

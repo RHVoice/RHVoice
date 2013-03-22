@@ -17,13 +17,9 @@
 !include "Library.nsh"
 !include "x64.nsh"
 
-!ifndef VERSION
-!define VERSION "0.4-a3"
-!endif
+!include "${BUILDDIR}\data.nsh"
 
-!define INSTDIR_REG_ROOT "HKLM"
-!define INSTDIR_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RHVoice"
-!include AdvUninstLog.nsh
+!define UNINSTALL_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\RHVoice"
 !define PROGRAM_REG_KEY "Software\RHVoice"
 !define SPTOKENENUMS_REG_KEY "SOFTWARE\Microsoft\Speech\Voices\TokenEnums"
 !define CLSID "{d7577808-7ade-4dea-a5b7-ee314d6ef3a1}"
@@ -31,8 +27,8 @@
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\English.nlf"
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Russian.nlf"
 
-LicenseLangString readmeFile ${LANG_ENGLISH} en.txt
-LicenseLangString readmeFile ${LANG_RUSSIAN} ru.txt
+LicenseLangString readmeFile ${LANG_ENGLISH} "${BUILDDIR}\en.txt"
+LicenseLangString readmeFile ${LANG_RUSSIAN} "${BUILDDIR}\ru.txt"
 LangString readmeCaption ${LANG_ENGLISH} ": Readme"
 LangString readmeCaption ${LANG_RUSSIAN} ": О программе"
 LangString readmeText ${LANG_ENGLISH} "General information about RHVoice"
@@ -47,11 +43,9 @@ ShowInstDetails show
 ShowUninstDetails show
 
 InstallDir "$PROGRAMFILES\RHVoice"
-InstallDirRegKey ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}" "InstallDir"
+InstallDirRegKey HKLM "${UNINSTALL_REG_KEY}" "InstallDir"
 Name "RHVoice v${VERSION}"
-OutFile "..\..\build\windows_x86\RHVoice-v${VERSION}-setup.exe"
 RequestExecutionLevel admin
-!insertmacro UNATTENDED_UNINSTALL
 
 PageEx license
 Caption $(readmeCaption)
@@ -65,74 +59,68 @@ UninstPage instfiles
 
 Section
 SetOutPath "$INSTDIR\lib"
-!insertmacro UNINSTALL.LOG_OPEN_INSTALL
-!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED ..\..\build\windows_x86\sapi\RHVoiceSvr.dll "$INSTDIR\lib\RHVoiceSvr32.dll" $INSTDIR
+!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED build\windows\x86\sapi\RHVoiceSvr.dll "RHVoiceSvr32.dll" $INSTDIR
+!ifdef WIN64
 !define LIBRARY_X64
 ${If} ${RunningX64}
-!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED ..\..\build\windows_x64\sapi\RHVoiceSvr.dll "$INSTDIR\lib\RHVoiceSvr64.dll" $INSTDIR
+!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED build\windows\x64\sapi\RHVoiceSvr.dll "RHVoiceSvr64.dll" $INSTDIR
 ${EndIf}
 !undef LIBRARY_X64      
-!insertmacro UNINSTALL.LOG_CLOSE_INSTALL
-SetOutPath "$INSTDIR\data"
-!insertmacro UNINSTALL.LOG_OPEN_INSTALL
-File /r /x .git* /x SConscript ..\..\data\*.*
-!insertmacro UNINSTALL.LOG_CLOSE_INSTALL
+!endif
+
+!insertmacro InstallData
+
 SetOutPath "$INSTDIR\doc"
-!insertmacro UNINSTALL.LOG_OPEN_INSTALL
-File ..\..\build\windows_x86\COPYING.txt
-!insertmacro UNINSTALL.LOG_CLOSE_INSTALL
+File build\windows\COPYING.txt
+
 SetOutPath "$INSTDIR\config-examples"
-!insertmacro UNINSTALL.LOG_OPEN_INSTALL
-File ..\..\build\windows_x86\RHVoice.ini
-!insertmacro UNINSTALL.LOG_CLOSE_INSTALL
-WriteRegStr ${INSTDIR_REG_ROOT} "${SPTOKENENUMS_REG_KEY}\RHVoice" "CLSID" ${CLSID}
-WriteRegStr ${INSTDIR_REG_ROOT} ${PROGRAM_REG_KEY} "data_path" "$INSTDIR\data"
+File build\windows\RHVoice.ini
+
+WriteRegStr HKLM "${SPTOKENENUMS_REG_KEY}\RHVoice" "CLSID" ${CLSID}
+WriteRegStr HKLM ${PROGRAM_REG_KEY} "data_path" "$INSTDIR\data"
+!ifdef WIN64
 ${If} ${RunningX64}
 SetRegView 64
-WriteRegStr ${INSTDIR_REG_ROOT} "${SPTOKENENUMS_REG_KEY}\RHVoice" "CLSID" ${CLSID}
-WriteRegStr ${INSTDIR_REG_ROOT} ${PROGRAM_REG_KEY} "data_path" "$INSTDIR\data"
+WriteRegStr HKLM "${SPTOKENENUMS_REG_KEY}\RHVoice" "CLSID" ${CLSID}
+WriteRegStr HKLM ${PROGRAM_REG_KEY} "data_path" "$INSTDIR\data"
 SetRegView 32
 ${EndIf}
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "INSTDIR" $INSTDIR
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "DisplayName" "RHVoice"
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "UninstallString" "${UNINST_EXE}"
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "Publisher" "Olga Yakovleva"
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "InstallLocation" $INSTDIR
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "DisplayVersion" ${VERSION}
-WriteRegStr ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "URLUpdateInfo" "http://github.com/Olga-Yakovleva/RHVoice/downloads"
-WriteRegDWORD ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "NoModify" 1
-WriteRegDWORD ${INSTDIR_REG_ROOT} ${INSTDIR_REG_KEY} "NoRepair" 1
+!endif
 
+  WriteUninstaller "$INSTDIR\uninstall.exe"
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "INSTDIR" $INSTDIR
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "DisplayName" "RHVoice"
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "UninstallString" '"$INSTDIR\uninstall.exe"'
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "Publisher" "Olga Yakovleva"
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "InstallLocation" $INSTDIR
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "DisplayVersion" ${VERSION}
+WriteRegStr HKLM ${UNINSTALL_REG_KEY} "URLUpdateInfo" "http://github.com/Olga-Yakovleva/RHVoice/downloads"
+WriteRegDWORD HKLM ${UNINSTALL_REG_KEY} "NoModify" 1
+WriteRegDWORD HKLM ${UNINSTALL_REG_KEY} "NoRepair" 1
 SectionEnd
 
-Function .onInit
-!insertmacro UNINSTALL.LOG_PREPARE_INSTALL
-FunctionEnd
-
-Function .onInstSuccess
-!insertmacro UNINSTALL.LOG_UPDATE_INSTALL
-FunctionEnd
-
 Section UnInstall
+!ifdef WIN64
 ${If} ${RunningX64}
 SetRegView 64
-DeleteRegKey ${INSTDIR_REG_ROOT} "${SPTOKENENUMS_REG_KEY}\RHVoice"
-DeleteRegKey ${INSTDIR_REG_ROOT} ${PROGRAM_REG_KEY}
+DeleteRegKey HKLM "${SPTOKENENUMS_REG_KEY}\RHVoice"
+DeleteRegKey HKLM ${PROGRAM_REG_KEY}
 SetRegView 32
 !define LIBRARY_X64
 !insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED "$INSTDIR\lib\RHVoiceSvr64.dll"
 !undef LIBRARY_X64      
 ${EndIf}
-DeleteRegKey ${INSTDIR_REG_ROOT} ${PROGRAM_REG_KEY}
-deleteRegKey ${INSTDIR_REG_ROOT} "${SPTOKENENUMS_REG_KEY}\RHVoice"
+!endif
+deleteRegKey HKLM "${SPTOKENENUMS_REG_KEY}\RHVoice"
+DeleteRegKey HKLM ${PROGRAM_REG_KEY}
 !insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED "$INSTDIR\lib\RHVoiceSvr32.dll"
-!insertmacro UNINSTALL.LOG_BEGIN_UNINSTALL
-!insertmacro UNINSTALL.LOG_UNINSTALL "$INSTDIR\config-examples"
-!insertmacro UNINSTALL.LOG_UNINSTALL "$INSTDIR\doc"
-!insertmacro UNINSTALL.LOG_UNINSTALL "$INSTDIR\data"
-!insertmacro UNINSTALL.LOG_UNINSTALL "$INSTDIR\lib"
-!insertmacro UNINSTALL.LOG_UNINSTALL "$INSTDIR"
-!insertmacro UNINSTALL.LOG_END_UNINSTALL
-DeleteRegKey ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}"
+Rmdir "$INSTDIR\lib"
+!insertmacro UninstallData
+Delete "$INSTDIR\doc\COPYING.txt"
+Rmdir "$INSTDIR\doc"
+Delete "$INSTDIR\config-examples\RHVoice.ini"
+Rmdir "$INSTDIR\config-examples"
+DeleteRegKey HKLM "${UNINSTALL_REG_KEY}"
+Delete "$INSTDIR\uninstall.exe"
 RMDIR "$INSTDIR"
 SectionEnd

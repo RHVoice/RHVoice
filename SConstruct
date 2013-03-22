@@ -44,6 +44,21 @@ def CheckWinSDK(context):
     context.Result(result)
     return result
 
+def CheckNSIS(context,unicode_nsis=False):
+    result=1
+    if unicode_nsis:
+        context.Message("Checking for Unicode NSIS... ")
+    else:
+        context.Message("Checking for NSIS... ")
+    key_name=r"SOFTWARE\NSIS"+(r"\Unicode" if unicode_nsis else "")
+    try:
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,key_name) as key:
+            context.env["makensis"]=File(os.path.join(_winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+    except WindowsError:
+        result=0
+    context.Result(result)
+    return result
+
 def get_msvc_env_vars(env,arch):
     var_names=["path","lib","include","tmp"]
     setenv_script=os.path.join(env["WinSDKDir"],"bin","setenv.cmd")
@@ -211,10 +226,12 @@ def build_for_linux(base_env):
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
-                       custom_tests={"CheckWinSDK":CheckWinSDK})
+                       custom_tests={"CheckWinSDK":CheckWinSDK,"CheckNSIS":CheckNSIS})
     if not conf.CheckWinSDK():
         print("Error: Windows SDK 7.1 is not installed")
         exit(1)
+    if not conf.CheckNSIS(True):
+        conf.CheckNSIS()
     conf.Finish()
 
 def build_for_windows(base_env):
@@ -222,6 +239,7 @@ def build_for_windows(base_env):
     build_binaries(base_env,"x86")
     if base_env["enable_x64"]=="yes":
         build_binaries(base_env,"x64")
+    SConscript(os.path.join("data","SConscript"),exports={"env":base_env})
     for f in ["README","COPYING","COPYING.LESSER"]:
         base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
     base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
@@ -230,7 +248,11 @@ def build_for_windows(base_env):
 #               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
 #               exports={"env":base_env},
 #               duplicate=1)
-
+    if "makensis" in base_env:
+        SConscript(os.path.join("src","wininst","SConscript"),
+                   variant_dir=os.path.join(BUILDDIR,"wininst"),
+                   exports={"env":base_env},
+                   duplicate=1)
 
 setup()
 vars=create_user_vars()
