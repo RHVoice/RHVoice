@@ -244,10 +244,10 @@ def build_for_windows(base_env):
         base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
     base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
     # env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
-#    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
-#               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
-#               exports={"env":base_env},
-#               duplicate=1)
+    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
+               exports={"env":base_env},
+               duplicate=0)
     if "makensis" in base_env:
         SConscript(os.path.join("src","wininst","SConscript"),
                    variant_dir=os.path.join(BUILDDIR,"wininst"),
