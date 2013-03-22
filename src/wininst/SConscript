@@ -1,0 +1,65 @@
+# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os.path
+
+Import(["env","data_files"])
+
+enabled_x64=(env["enable_x64"]=="yes")
+
+data_lines=["!macro InstallData"]
+for dir,subdirs in data_files.iteritems():
+    for subdir,files in subdirs.iteritems():
+        data_lines.append(r'SetOutPath "$$INSTDIR\data\{}\{}"'.format(dir,subdir))
+        for file in files:
+            data_lines.append("File {}".format(file.path))
+data_lines.append("!macroend")
+data_lines.append("!macro UninstallData")
+for dir,subdirs in data_files.iteritems():
+    for subdir,files in subdirs.iteritems():
+        for file in files:
+            data_lines.append(r"Delete $$INSTDIR\{}".format(file.path))
+        data_lines.append(r"Rmdir $$INSTDIR\data\{}\{}".format(dir,subdir))
+    data_lines.append(r"Rmdir $$INSTDIR\data\{}".format(dir))
+data_lines.append(r"Rmdir $$INSTDIR\data")
+data_lines.append("!macroend")
+
+data_nsh=env.Textfile("data.nsh",data_lines)
+
+for dir,subdirs in data_files.iteritems():
+    for subdir,files in subdirs.iteritems():
+        env.Depends(data_nsh,files)
+
+installer_sources=["setup.nsi",
+                   data_nsh,
+                   "ru.txt",
+                   "en.txt",
+                   os.path.join("..","COPYING.txt"),
+                   os.path.join("..","RHVoice.ini"),
+                   os.path.join("..","x86","sapi","RHVoiceSvr.dll")]
+
+if enabled_x64:
+    installer_sources.append(os.path.join("..","x64","sapi","RHVoiceSvr.dll"))
+
+nsis_args=list()
+nsis_args.append("/NOCD")
+nsis_args.append("/DBUILDDIR=${TARGET.dir}")
+nsis_args.append("/DVERSION=$package_version")
+if enabled_x64:
+    nsis_args.append("/DWIN64")
+nsis_args.append('"/XOutFile $TARGET"')
+nsis_args.append("$SOURCE")
+
+installer=env.Command("RHVoice-v$package_version-setup.exe",installer_sources,"$makensis "+" ".join(nsis_args))
