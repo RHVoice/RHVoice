@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,20 +13,48 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import os.path
-Import(["env"])
-local_env=env.Clone()
-synthDriver_dir=os.path.join(".","synthDrivers","RHVoice")
-data_dir=os.path.join(synthDriver_dir,"data")
-config_dir=os.path.join(synthDriver_dir,"config")
+import zipfile
+
+Import(["env","data_files"])
+
+def package_addon(env,target,source):
+    with zipfile.ZipFile(str(target[0]),"w",zipfile.ZIP_DEFLATED) as f:
+        for s,p in zip(source,env["file_paths"]):
+            f.write(str(s),p)
+    return None
+
+def shorten_path(path,level=1):
+    if level==0:
+        return path
+    components=[part for part in path.split(os.sep) if part]
+    return os.sep.join(components[-level:])
+
+addon_sources=list()
+file_paths=list()
+
+def add(source,level=1,dir=None):
+    short_path=shorten_path(str(source),level)
+    long_path=os.path.join(dir,short_path) if dir else short_path
+    addon_sources.append(source)
+    file_paths.append(long_path)
+
 subst_dict={"@version@":"$package_version"}
-sconstruct=local_env.Substfile("SConstruct.in",SUBST_DICT=subst_dict)
-local_env.Depends(sconstruct,os.path.join(synthDriver_dir,"__init__.py"))
-local_env.Depends(sconstruct,"installTasks.py")
-manifest=local_env.Substfile("manifest.ini.in",SUBST_DICT=subst_dict)
-local_env.Depends(manifest,os.path.join("locale","ru","manifest.ini"))
-local_env.Install(synthDriver_dir,os.path.join("..","lib","RHVoice.dll"))
-for subdir in ["languages","voices"]:
-    local_env.InstallAs(os.path.join(data_dir,subdir),os.path.join("#data",subdir))
-local_env.Install(config_dir,os.path.join("..","RHVoice.ini"))
-local_env.Install(synthDriver_dir,os.path.join("..","COPYING.txt"))
+manifest=env.Substfile("manifest.ini.in",SUBST_DICT=subst_dict)[0]
+
+synthDriver_dir=os.path.join("synthDrivers","RHVoice")
+
+add(manifest)
+add("installTasks.py")
+add(os.path.join("locale","ru","manifest.ini"),3)
+add(os.path.join(synthDriver_dir,"__init__.py"),3)
+add(os.path.join("..","x86","lib","RHVoice.dll"),1,synthDriver_dir)
+add(os.path.join("..","COPYING.txt"),1,synthDriver_dir)
+add(os.path.join("..","RHVoice.ini"),1,os.path.join(synthDriver_dir,"config"))
+for dir,subdirs in data_files.iteritems():
+        for subdir,files in subdirs.iteritems():
+            for file in files:
+                add(file,4,synthDriver_dir)
+
+env.Command("RHVoice_${package_version}.nvda-addon",addon_sources,package_addon,file_paths=file_paths)
