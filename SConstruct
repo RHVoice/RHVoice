@@ -92,7 +92,7 @@ def create_user_vars():
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
     if sys.platform=="win32":
-        vars.Add(EnumVariable("enable_x64","Additionally build 64-bit versions of all the libraries","no",["yes","no"],ignorecase=1))
+        vars.Add(EnumVariable("enable_x64","Additionally build 64-bit versions of all the libraries","yes",["yes","no"],ignorecase=1))
     else:
         vars.Add("prefix","Installation prefix","/usr/local")
         vars.Add("bindir","Program installation directory","$prefix/bin")
