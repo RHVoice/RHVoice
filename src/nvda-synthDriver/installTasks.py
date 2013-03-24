@@ -14,7 +14,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import os
 import os.path
 import shutil
 
@@ -23,10 +22,8 @@ import config
 def onInstall():
     module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
     config_dir=os.path.join(module_dir,"synthDrivers","RHVoice","config")
-    config_file=os.path.join(config_dir,"RHVoice.ini")
     user_config_dir=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
-    user_config_file=os.path.join(user_config_dir,"RHVoice.ini")
     if not os.path.isdir(user_config_dir):
-        os.mkdir(user_config_dir)
-    if not os.path.isfile(user_config_file):
-        shutil.copy(config_file,user_config_file)
+        shutil.move(config_dir,user_config_dir)
+    else:
+        shutil.rmtree(config_dir, ignore_errors=False, onerror=None)
