@@ -92,7 +92,7 @@ def create_user_vars():
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
     if sys.platform=="win32":
-        vars.Add(EnumVariable("enable_x64","Additionally build 64-bit versions of all the libraries","yes",["yes","no"],ignorecase=1))
+        vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
     else:
         vars.Add("prefix","Installation prefix","/usr/local")
         vars.Add("bindir","Program installation directory","$prefix/bin")
@@ -102,7 +102,7 @@ def create_user_vars():
         vars.Add("sysconfdir","A directory for configuration files","$prefix/etc")
         vars.Add("servicedir",".service file installation directory","$datadir/dbus-1/services")
         vars.Add("DESTDIR","Support for staged installation","")
-        vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
+        vars.Add(BoolVariable("enable_shared","Build a shared library",True))
     if sys.platform=="win32":
         suffixes=["32","64"]
     else:
@@ -237,7 +237,7 @@ def preconfigure_for_windows(env):
 def build_for_windows(base_env):
     preconfigure_for_windows(base_env)
     build_binaries(base_env,"x86")
-    if base_env["enable_x64"]=="yes":
+    if base_env["enable_x64"]:
         build_binaries(base_env,"x64")
     SConscript(os.path.join("data","SConscript"),exports={"env":base_env})
     for f in ["README","COPYING","COPYING.LESSER"]:

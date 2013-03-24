@@ -17,8 +17,6 @@ import os.path
 
 Import(["env","data_files"])
 
-enabled_x64=(env["enable_x64"]=="yes")
-
 data_lines=["!macro InstallData"]
 for dir,subdirs in data_files.iteritems():
     for subdir,files in subdirs.iteritems():
@@ -50,14 +48,14 @@ installer_sources=["setup.nsi",
                    os.path.join("..","RHVoice.ini"),
                    os.path.join("..","x86","sapi","RHVoiceSvr.dll")]
 
-if enabled_x64:
+if env["enable_x64"]:
     installer_sources.append(os.path.join("..","x64","sapi","RHVoiceSvr.dll"))
 
 nsis_args=list()
 nsis_args.append("/NOCD")
 nsis_args.append("/DBUILDDIR=${TARGET.dir}")
 nsis_args.append("/DVERSION=$package_version")
-if enabled_x64:
+if env["enable_x64"]:
     nsis_args.append("/DWIN64")
 nsis_args.append('"/XOutFile $TARGET"')
 nsis_args.append("$SOURCE")

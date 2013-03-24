@@ -20,7 +20,7 @@ Import("env")
 local_env=env.Clone()
 lib_name="RHVoice_audio"
 lib_version="0.0.0"
-if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]=="yes":
+if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]:
     local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
 
 src=["audio.cpp"]
@@ -40,7 +40,7 @@ local_env.Prepend(LIBS="RHVoice_core")
 local_env.Prepend(LIBPATH=os.path.join("..","core"))
 if env["PLATFORM"]=="win32":
 	lib=local_env.StaticLibrary(lib_name,src)
-elif env["enable_shared"]=="yes":
+elif env["enable_shared"]:
 	lib=local_env.SharedLibrary(lib_name,src)
 	env.InstallSharedLibrary(lib,lib_version)
 else:
