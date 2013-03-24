@@ -258,7 +258,7 @@ class SynthDriver(SynthDriver):
     name="RHVoice"
     description="RHVoice"
 
-    supportedSettings=(SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting(),SynthDriver.VoiceSetting())
+    supportedSettings=(SynthDriver.VoiceSetting(),SynthDriver.RateSetting(),SynthDriver.PitchSetting(),SynthDriver.VolumeSetting())
 
     @classmethod
     def check(cls):
