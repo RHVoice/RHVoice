@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -71,4 +71,7 @@ define Stage2
 word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
 num -> dig || Digit^15 _ ;
 
-regex Stage1 .o. Stage2;
+define Stage3 
+[l|L] lseq:0 %' sym:word -> || .#. | [\%' sym] _ .#. | Letter ; 
+
+regex Stage1 .o. Stage2 .o. Stage3;
