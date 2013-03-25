@@ -18,8 +18,17 @@ import os
 import os.path
 import subprocess
 import platform
+import datetime
 if sys.platform=="win32":
     import _winreg
+
+def get_version(is_release):
+    next_version="0.4-a3"
+    if is_release:
+        return next_version
+    else:
+        date=datetime.date.today()
+        return "{}-pre-{}{:02}{:02}".format(next_version,date.year,date.month,date.day)
 
 def CheckPKGConfig(context):
     context.Message("Checking for pkg-config... ")
@@ -91,6 +100,7 @@ def create_user_vars():
     args={"DESTDIR":""}
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
+    vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
     else:
@@ -115,7 +125,6 @@ def create_user_vars():
     vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
     vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
     vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
-    vars.Add("package_version","Package version","0.4-a3")
     return vars
 
 def create_base_env(vars):
@@ -130,6 +139,7 @@ def create_base_env(vars):
     env_args["package_name"]="RHVoice"
     env_args["CPPDEFINES"]=[]
     env=Environment(**env_args)
+    env["package_version"]=get_version(env["release"])
     env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
     env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
     if env["PLATFORM"]=="win32":
