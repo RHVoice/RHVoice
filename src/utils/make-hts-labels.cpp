@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -64,7 +64,7 @@ namespace
       }
   }
 
-  void rephrase(utterance& utt,unsigned int min_break_dur)
+  void rephrase(utterance& utt)
   {
     relation& phrase_rel=utt.get_relation("Phrase");
     phrase_rel.clear();
@@ -82,17 +82,14 @@ namespace
               {
                 const item& seg=last_seg.next();
                 if(seg.get("name").as<std::string>()=="pau")
-                  {
-                    if((seg.get("end").as<unsigned int>()-seg.get("start").as<unsigned int>())>min_break_dur)
-                      phrase_rel.append();
-                  }
+                  phrase_rel.append();
               }
           }
         while(word_iter!=word_rel.end());
       }
   }
 
-  void load_mono_labels(utterance& utt,const std::string& file_path,double min_break_dur)
+  void load_mono_labels(utterance& utt,const std::string& file_path)
   {
     std::cout << file_path << std::endl;
     relation& seg_rel=utt.get_relation("Segment");
@@ -130,7 +127,7 @@ namespace
         else
           throw std::runtime_error("Label mismatch");
       }
-    rephrase(utt,10000000*min_break_dur);
+    rephrase(utt);
   }
 }
 
@@ -144,7 +141,6 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<std::string> labpath_arg("l","lab","the path to the mono labels",true,"lab","path");
       TCLAP::ValueArg<std::string> prefix_arg("p","prefix","output file names will start with this prefix",true,"test","string");
       cmd.xorAdd(labpath_arg,prefix_arg);
-      TCLAP::ValueArg<double> break_arg("b","break","minimum pause length to consider it a phrase break",false,0.1,"ms",cmd);
       cmd.parse(argc,argv);
       smart_ptr<engine> eng(new engine);
       std::ifstream f_in(inpath_arg.getValue().c_str());
@@ -162,7 +158,7 @@ int main(int argc,const char* argv[])
               if(sentence_iter==doc->end())
                 throw std::runtime_error("Sentence count mismatch");
               std::auto_ptr<utterance> utt=sentence_iter->create_utterance();
-              load_mono_labels(*utt,path::join(labpath_arg.getValue(),*it),break_arg.getValue());
+              load_mono_labels(*utt,path::join(labpath_arg.getValue(),*it));
               output_labels(*utt,path::join(outpath_arg.getValue(),*it));
               ++sentence_iter;
             }
