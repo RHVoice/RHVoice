@@ -16,13 +16,10 @@
 
 import os
 
-Import("env")
+Import("env","libRHVoice_core")
 local_env=env.Clone()
-lib_name="RHVoice_audio"
-lib_version="0.0.0"
-if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]:
-    local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
-
+local_env["libversion"]="0.0.0"
+local_env["liblevel"]=1
 src=["audio.cpp"]
 if "libao" in local_env["audio_libs"]:
 	src.append("libao.cpp")
@@ -36,13 +33,8 @@ if "portaudio" in local_env["audio_libs"]:
 	src.append("portaudio.cpp")
 	local_env.Append(CPPDEFINES=("WITH_PORTAUDIO","1"))
 	local_env.MergeFlags(["!pkg-config --cflags --libs portaudio-2.0"])
-local_env.Prepend(LIBS="RHVoice_core")
-local_env.Prepend(LIBPATH=os.path.join("..","core"))
-if env["PLATFORM"]=="win32":
-	lib=local_env.StaticLibrary(lib_name,src)
-elif env["enable_shared"]:
-	lib=local_env.SharedLibrary(lib_name,src)
-	env.InstallSharedLibrary(lib,lib_version)
-else:
-	lib=local_env.StaticLibrary(lib_name,src)
-	env.InstallStaticLibrary(lib)
+local_env.Prepend(LIBS=libRHVoice_core)
+libRHVoice_audio=local_env.BuildLibrary("RHVoice_audio",src)
+if local_env["PLATFORM"]!="win32":
+	local_env.InstallLibrary(libRHVoice_audio)
+Export("libRHVoice_audio")

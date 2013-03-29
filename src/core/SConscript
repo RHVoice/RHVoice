@@ -17,16 +17,12 @@
 import os
 import os.path
 
-Import("env")
+Import("env","libsonic","libhts_engine")
 local_env=env.Clone()
+local_env["libversion"]="0.0.0"
+local_env["liblevel"]=1
 local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$datadir/$package_name\"')))
 local_env.Append(CPPDEFINES=("CONFIG_PATH",r'\"config\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$sysconfdir/$package_name\"')))
-
-lib_name="RHVoice_core"
-lib_version="0.0.0"
-if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]:
-    local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
-
 src=["unicode.cpp",
 	 "io.cpp",
 	 "path.cpp",
@@ -51,14 +47,10 @@ src=["unicode.cpp",
 	 "hts_engine_pool.cpp",
 	 "hts_engine_call.cpp",
 	 "hts_labeller.cpp",
-	 "sonic.c",
 	 "speech_stream.cpp"]
-src.extend(Glob("hts_engine/*.c",strings=True))
-if env["PLATFORM"]=="win32":
-	lib=local_env.StaticLibrary(lib_name,src)
-elif env["enable_shared"]:
-	lib=local_env.SharedLibrary(lib_name,src)
-	env.InstallSharedLibrary(lib,lib_version)
-else:
-	lib=local_env.StaticLibrary(lib_name,src)
-	env.InstallStaticLibrary(lib)
+for lib in [libhts_engine,libsonic]:
+	src.extend(lib)
+libRHVoice_core=local_env.BuildLibrary("RHVoice_core",src)
+if env["PLATFORM"]!="win32":
+	local_env.InstallLibrary(libRHVoice_core)
+Export("libRHVoice_core")

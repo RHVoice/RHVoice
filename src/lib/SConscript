@@ -15,20 +15,14 @@
 
 import os
 import os.path
-Import(["env"])
+Import(["env","libRHVoice_core"])
 local_env=env.Clone()
-local_env.Prepend(LIBS="RHVoice_core")
-local_env.Prepend(LIBPATH=os.path.join("..","core"))
-lib_name="RHVoice"
-lib_version="1.0.0"
-if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]:
-    local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
+local_env["libversion"]="1.0.0"
+local_env["liblevel"]=2
+local_env.Prepend(LIBS=libRHVoice_core)
 src=["lib.cpp"]
 if env["PLATFORM"]=="win32":
-    dll=local_env.SharedLibrary(lib_name,src+["lib.def"])
-elif env["enable_shared"]:
-    lib=local_env.SharedLibrary(lib_name,src)
-    env.InstallSharedLibrary(lib,lib_version)
-else:
-        lib=local_env.StaticLibrary(lib_name,src)
-        env.InstallStaticLibrary(lib)
+    src.append("lib.def")
+lib=local_env.BuildLibrary("RHVoice",src)
+if env["PLATFORM"]!="win32":
+    local_env.InstallLibrary(lib)

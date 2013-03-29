@@ -1,4 +1,4 @@
-quit# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 # Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -16,12 +16,10 @@ quit# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
 import os.path
 
-Import("env")
+Import("env","libRHVoice_core","libRHVoice_audio")
 local_env=env.Clone()
-local_env.Prepend(LIBS="RHVoice_core")
-local_env.Prepend(LIBPATH=os.path.join("..","core"))
-local_env.Prepend(LIBS="RHVoice_audio")
-local_env.Prepend(LIBPATH=os.path.join("..","audio"))
+for lib in [libRHVoice_core,libRHVoice_audio]:
+	local_env.Prepend(LIBS=lib)
 src=["main.cpp",
 	 "base.cpp",
 	 "state.cpp",

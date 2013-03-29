@@ -16,10 +16,9 @@
 
 import os.path
 
-Import("env")
+Import("env","libRHVoice_core")
 local_env=env.Clone()
-local_env.Prepend(LIBS="RHVoice_core")
-local_env.Prepend(LIBPATH=os.path.join("..","core"))
+local_env.Prepend(LIBS=libRHVoice_core)
 
 transcriptor=local_env.Program("RHVoice-transcribe-sentences","transcribe-sentences.cpp")
 hts_labeller=local_env.Program("RHVoice-make-hts-labels","make-hts-labels.cpp")

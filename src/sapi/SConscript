@@ -15,10 +15,11 @@
 
 import os.path
 
-Import(["env"])
+Import(["env","libRHVoice_core"])
 local_env=env.Clone()
-local_env.Prepend(LIBS=["RHVoice_core","comsuppw","advapi32","shell32"])
-local_env.Prepend(LIBPATH=os.path.join("..","core"))
+local_env["liblevel"]=2
+local_env.Prepend(LIBS=["comsuppw","advapi32","shell32"])
+local_env.Prepend(LIBS=libRHVoice_core)
 
 dll_name="RHVoiceSvr"
 dll_src=["com.cpp",
@@ -31,4 +32,4 @@ dll_src=["com.cpp",
          "tts_base.cpp",
          "voice_token.cpp",
          "dll.def"]
-local_env.SharedLibrary(dll_name,dll_src)
+local_env.BuildLibrary(dll_name,dll_src)

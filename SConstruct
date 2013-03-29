@@ -130,10 +130,10 @@ def create_user_vars():
 def create_base_env(vars):
     env_args={}
     if sys.platform=="win32":
-        env_args["tools"]=["msvc","mslink","mslib","textfile","newlines"]
+        env_args["tools"]=["msvc","mslink","mslib","textfile","library","newlines"]
         env_args["MSVC_BATCH"]=True
     else:
-        env_args["tools"]=["default","textfile","installer"]
+        env_args["tools"]=["default","textfile","library","installer"]
     env_args["variables"]=vars
     env_args["LIBS"]=[]
     env_args["package_name"]="RHVoice"
@@ -150,6 +150,8 @@ def create_base_env(vars):
         env.AppendUnique(CXXFLAGS=["/EHsc"])
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
+    if sys.platform.startswith("linux"):
+        env.Append(SHLINKFLAGS="-Wl,-soname,${TARGET.file}.${libversion.split('.')[0]}")
     return env
 
 def display_help(env,vars):
@@ -170,6 +172,10 @@ def clone_base_env(base_env,arch=None):
         env["ENV"]=get_msvc_env_vars(env,arch)
     else:
         env["BUILDDIR"]=BUILDDIR
+    third_party_dir=os.path.join("src","third-party")
+    for path in Glob(os.path.join(third_party_dir,"*"),strings=True):
+        if os.path.isdir(path):
+            env.Prepend(CPPPATH=("#"+path))
     env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
     return env
 
@@ -202,7 +208,7 @@ def configure(env):
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
-    src_subdirs=["core","lib","utils"]
+    src_subdirs=["third-party","core","lib","utils"]
     if env["audio_libs"]:
         src_subdirs.append("audio")
         src_subdirs.append("test")
