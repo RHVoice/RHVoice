@@ -66,6 +66,8 @@ HTS_MISC_C_START;
 #include "EST_walloc.h"
 #endif                          /* FESTIVAL */
 
+#include "endianness.h"
+
 /* HTS_byte_swap: byte swap */
 static int HTS_byte_swap(void *p, const int size, const int block)
 {
@@ -267,9 +269,8 @@ int HTS_fread_big_endian(void *p, const int size, const int num, HTS_File * fp)
 {
    const int block = HTS_fread(p, size, num, fp);
 
-#ifdef WORDS_LITTLEENDIAN
-   HTS_byte_swap(p, size, block);
-#endif                          /* WORDS_LITTLEENDIAN */
+   if(is_machine_little_endian())
+     HTS_byte_swap(p, size, block);
 
    return block;
 }
@@ -279,9 +280,8 @@ int HTS_fwrite_little_endian(void *p, const int size, const int num, HTS_File * 
 {
    const int block = num * size;
 
-#ifdef WORDS_BIGENDIAN
-   HTS_byte_swap(p, size, block);
-#endif                          /* WORDS_BIGENDIAN */
+   if(is_machine_big_endian())
+     HTS_byte_swap(p, size, block);
    HTS_fwrite(p, size, num, fp);
 
    return block;
