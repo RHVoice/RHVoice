@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import os.path
 import os
 from SCons.Script import *
@@ -55,9 +56,10 @@ def InstallConfig(env,src,dest=None):
 def InstallStaticLibrary(env,src):
     return Install(env,src,"$libdir")
 
-def InstallSharedLibrary(env,src,version):
-    if hasattr(os,"uname") and os.uname()[0]=="Linux":
+def InstallSharedLibrary(env,src):
+    if sys.platform.startswith("linux"):
         name=os.path.split(str(src[0]))[1]
+        version=env["libversion"]
         inst=Install(env,src,"$libdir",instname=name+"."+version,mode=0755)
         libpath=os.path.split(inst[0].path)[0]
         for s in [name+"."+version.split(".")[0],name]:
@@ -66,6 +68,12 @@ def InstallSharedLibrary(env,src,version):
     else:
         inst=Install(env,src,"$libdir",mode=0755)
     return inst
+
+def InstallLibrary(env,src):
+    if env.IsLibraryShared():
+        return InstallSharedLibrary(env,src)
+    else:
+        return InstallStaticLibrary(env,src)
 
 def InstallHeader(env,src):
     return Install(env,src,"$includedir")
@@ -78,7 +86,6 @@ def generate(env):
     env.AddMethod(InstallProgram)
     env.AddMethod(InstallData)
     env.AddMethod(InstallConfig)
-    env.AddMethod(InstallStaticLibrary)
-    env.AddMethod(InstallSharedLibrary)
+    env.AddMethod(InstallLibrary)
     env.AddMethod(InstallHeader)
     env.AddMethod(InstallServiceFile)

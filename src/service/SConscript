@@ -16,11 +16,10 @@
 
 import os.path
 
-Import("env")
+Import("env","libRHVoice_core")
 local_env=env.Clone()
 local_env.MergeFlags(["!pkg-config --cflags --libs giomm-2.4"])
-local_env.Prepend(LIBS="RHVoice_core")
-local_env.Prepend(LIBPATH=os.path.join("..","core"))
+local_env.Prepend(LIBS=libRHVoice_core)
 
 service=local_env.Program("RHVoice-service",["service.cpp","common.cpp"])
 client=local_env.Program("RHVoice-client",["client.cpp","common.cpp"])
