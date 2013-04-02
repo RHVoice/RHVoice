@@ -63,8 +63,6 @@ namespace
   template<typename O>
   O inline check(JNIEnv* env,const O& obj)
   {
-    if(obj!=0)
-      return obj;
     if(env->ExceptionCheck())
       throw java_exception();
     return obj;
@@ -90,6 +88,33 @@ namespace
     void* ptr=0;
     env->SetLongField(obj,field_id,reinterpret_cast<intptr_t>(ptr));
     check(env);
+  }
+
+  inline jclass find_class(JNIEnv* env,const char* name)
+  {
+    jclass local_cls=check(env,env->FindClass(name));
+    jclass global_cls=check(env,static_cast<jclass>(env->NewGlobalRef(local_cls)));
+    return global_cls;
+  }
+
+  inline jmethodID get_method(JNIEnv* env,jclass cls,const char* name,const char* sig)
+  {
+    return check(env,env->GetMethodID(cls,name,sig));
+  }
+
+  inline jmethodID get_default_constructor(JNIEnv* env,jclass cls)
+  {
+    return get_method(env,cls,"<init>","()V");
+  }
+
+  inline jmethodID get_string_setter(JNIEnv* env,jclass cls,const char* name)
+  {
+    return get_method(env,cls,name,"(Ljava/lang/String;)V");
+  }
+
+  inline jfieldID get_field(JNIEnv* env,jclass cls,const char* name,const char* sig)
+  {
+    return check(env,env->GetFieldID(cls,name,sig));
   }
 
   jstring string_to_jstring(JNIEnv* env,const std::string& cppstr)
@@ -135,12 +160,36 @@ namespace
     jstring_handle& operator=(const jstring_handle&);
   };
 
-  std::string inline jstring_to_string(JNIEnv* env,jstring jstr)
+  inline std::string jstring_to_string(JNIEnv* env,jstring jstr)
   {
     jstring_handle handle(env,jstr);
     std::string result;
     utf8::utf16to8(handle.str(),handle.str()+handle.length(),std::back_inserter(result));
     return result;
+  }
+
+  inline jobject new_object(JNIEnv* env,jclass cls,jmethodID default_constructor)
+  {
+    return check(env,env->NewObject(cls,default_constructor));
+  }
+
+  inline jobjectArray new_object_array(JNIEnv* env,jsize size,jclass cls,jmethodID default_constructor)
+  {
+    jobject default_value=new_object(env,cls,default_constructor);
+    return check(env,env->NewObjectArray(size,cls,default_value));
+  }
+
+  inline void set_object_array_element(JNIEnv* env,jobjectArray array,jsize index,jobject value)
+  {
+    env->SetObjectArrayElement(array,index,value);
+    check(env);
+  }
+
+  inline void call_string_setter(JNIEnv* env,jobject obj,jmethodID method_id,const std::string& str)
+  {
+    jstring jstr=string_to_jstring(env,str);
+    env->CallVoidMethod(obj,method_id,jstr);
+    check(env);
   }
 
   jclass RHVoiceException_class;
@@ -180,11 +229,11 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
   (JNIEnv *env, jclass TTSEngine_class)
 {
   TRY
-    RHVoiceException_class=check(env,env->FindClass("com/github/olga_yakovleva/rhvoice/RHVoiceException"));
-  data_field=check(env,env->GetFieldID(TTSEngine_class,"data","J"));
-  VoiceInfo_class=check(env,env->FindClass("com/github/olga_yakovleva/rhvoice/VoiceInfo"));
-  VoiceInfo_constructor=check(env,env->GetMethodID(VoiceInfo_class,"<init>","()V"));
-  VoiceInfo_setName_method=check(env,env->GetMethodID(VoiceInfo_class,"setName","(Ljava/lang/String;)V"));
+    RHVoiceException_class=find_class(env,"com/github/olga_yakovleva/rhvoice/RHVoiceException");
+  data_field=get_field(env,TTSEngine_class,"data","J");
+  VoiceInfo_class=find_class(env,"com/github/olga_yakovleva/rhvoice/VoiceInfo");
+  VoiceInfo_constructor=get_default_constructor(env,VoiceInfo_class);
+  VoiceInfo_setName_method=get_string_setter(env,VoiceInfo_class,"setName");
   CATCH1(env)
 }
 
@@ -218,18 +267,15 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
     Data* data=get_native_field<Data>(env,obj,data_field);
   const voice_list& voices=data->engine_ptr->get_voices();
   std::size_t count=std::distance(voices.begin(),voices.end());
-  jobject default_value=check(env,env->NewObject(VoiceInfo_class,VoiceInfo_constructor));
-  jobjectArray result=check(env,env->NewObjectArray(count,VoiceInfo_class,default_value));
+  jobjectArray result=new_object_array(env,count,VoiceInfo_class,VoiceInfo_constructor);
   std::size_t i=0;
   for(voice_list::const_iterator it=voices.begin();it!=voices.end();++it,++i)
     {
-      jobject jvoice=check(env,env->NewObject(VoiceInfo_class,VoiceInfo_constructor));
+      jobject jvoice=new_object(env,VoiceInfo_class,VoiceInfo_constructor);
       const std::string& name=it->get_name();
-      jstring jname=string_to_jstring(env,name);
-      env->CallVoidMethod(jvoice,VoiceInfo_setName_method,jname);
-      check(env);
-      env->SetObjectArrayElement(result,i,jvoice);
-      check(env);
+      call_string_setter(env,jvoice,VoiceInfo_setName_method,name);
+      set_object_array_element(env,result,i,jvoice);
+      env->DeleteLocalRef(jvoice);
     }
   return result;
   CATCH2(env,0)
