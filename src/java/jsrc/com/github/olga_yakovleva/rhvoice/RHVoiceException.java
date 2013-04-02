@@ -15,41 +15,10 @@
 
 package com.github.olga_yakovleva.rhvoice;
 
-import java.util.List;
-import java.util.Arrays;
-
-public final class TTSEngine
+public class RHVoiceException extends Exception
 {
-    private long data;
-
-    private static native void onClassInit();
-    private native void onInit(String data_path,String config_path) throws RHVoiceException;
-    private native void onShutdown();
-    private native VoiceInfo[] doGetVoices();
-
-    static
+    RHVoiceException(String message)
     {
-        System.loadLibrary("RHVoice_jni");
-        onClassInit();
-    }
-
-    public TTSEngine(String data_path,String config_path) throws RHVoiceException
-    {
-        onInit(data_path,config_path);
-    }
-
-    public TTSEngine() throws RHVoiceException
-    {
-        this("","");
-    }
-
-    public void shutdown()
-    {
-        onShutdown();
-    }
-
-    public List<VoiceInfo> getVoices()
-    {
-        return Arrays.asList(doGetVoices());
+        super(message);
     }
 }
