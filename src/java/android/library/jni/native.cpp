@@ -197,6 +197,12 @@ namespace
   jclass VoiceInfo_class;
   jmethodID VoiceInfo_constructor;
   jmethodID VoiceInfo_setName_method;
+  jmethodID VoiceInfo_setLanguage_method;
+  jclass LanguageInfo_class;
+  jmethodID LanguageInfo_constructor;
+  jmethodID LanguageInfo_setName_method;
+  jmethodID LanguageInfo_setAlpha2Code_method;
+  jmethodID LanguageInfo_setAlpha3Code_method;
 
   class Data
   {
@@ -230,10 +236,16 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
 {
   TRY
     RHVoiceException_class=find_class(env,"com/github/olga_yakovleva/rhvoice/RHVoiceException");
-  data_field=get_field(env,TTSEngine_class,"data","J");
+  LanguageInfo_class=find_class(env,"com/github/olga_yakovleva/rhvoice/LanguageInfo");
+  LanguageInfo_constructor=get_default_constructor(env,LanguageInfo_class);
+  LanguageInfo_setName_method=get_string_setter(env,LanguageInfo_class,"setName");
+  LanguageInfo_setAlpha2Code_method=get_string_setter(env,LanguageInfo_class,"setAlpha2Code");
+  LanguageInfo_setAlpha3Code_method=get_string_setter(env,LanguageInfo_class,"setAlpha3Code");
   VoiceInfo_class=find_class(env,"com/github/olga_yakovleva/rhvoice/VoiceInfo");
   VoiceInfo_constructor=get_default_constructor(env,VoiceInfo_class);
   VoiceInfo_setName_method=get_string_setter(env,VoiceInfo_class,"setName");
+  VoiceInfo_setLanguage_method=get_method(env,VoiceInfo_class,"setLanguage","(Lcom/github/olga_yakovleva/rhvoice/LanguageInfo;)V");
+  data_field=get_field(env,TTSEngine_class,"data","J");
   CATCH1(env)
 }
 
@@ -274,7 +286,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
       jobject jvoice=new_object(env,VoiceInfo_class,VoiceInfo_constructor);
       const std::string& name=it->get_name();
       call_string_setter(env,jvoice,VoiceInfo_setName_method,name);
+      const language_info& lang=*(it->get_language());
+      jobject jlanguage=new_object(env,LanguageInfo_class,LanguageInfo_constructor);
+      const std::string& language_name=lang.get_name();
+      call_string_setter(env,jlanguage,LanguageInfo_setName_method,language_name);
+      const std::string& alpha2_code=lang.get_alpha2_code();
+      if(!alpha2_code.empty())
+        call_string_setter(env,jlanguage,LanguageInfo_setAlpha2Code_method,alpha2_code);
+      const std::string& alpha3_code=lang.get_alpha3_code();
+      if(!alpha3_code.empty())
+        call_string_setter(env,jlanguage,LanguageInfo_setAlpha3Code_method,alpha3_code);
+      env->CallVoidMethod(jvoice,VoiceInfo_setLanguage_method,jlanguage);
+      check(env);
       set_object_array_element(env,result,i,jvoice);
+      env->DeleteLocalRef(jlanguage);
       env->DeleteLocalRef(jvoice);
     }
   return result;

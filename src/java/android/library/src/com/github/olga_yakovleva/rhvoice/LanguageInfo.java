@@ -15,10 +15,11 @@
 
 package com.github.olga_yakovleva.rhvoice;
 
-public final class VoiceInfo
+public final class LanguageInfo
 {
     private String name=null;
-    private LanguageInfo language=null;
+    private String alpha2_code=null;
+    private String alpha3_code=null;
 
     void setName(String name)
     {
@@ -30,13 +31,23 @@ public final class VoiceInfo
         return name;
     }
 
-    void setLanguage(LanguageInfo lang)
+    void setAlpha2Code(String code)
     {
-        language=lang;
+        alpha2_code=code;
     }
 
-    public LanguageInfo getLanguage()
+    public String getAlpha2Code()
     {
-        return language;
+        return alpha2_code;
+    }
+
+    void setAlpha3Code(String code)
+    {
+        alpha3_code=code;
+    }
+
+    public String getAlpha3Code()
+    {
+        return alpha3_code;
     }
 }
