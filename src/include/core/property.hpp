@@ -278,9 +278,9 @@ namespace RHVoice
     bool check_value(const std::string& given_value,std::string& correct_value) const
     {
       #ifdef _MSC_VER
-      value_set::iterator it=values.find(given_value);
+      value_set::const_iterator it=values.find(given_value);
       #else
-      typename value_set::iterator it=values.find(given_value);
+      typename value_set::const_iterator it=values.find(given_value);
       #endif
       if(it!=values.end())
         {
