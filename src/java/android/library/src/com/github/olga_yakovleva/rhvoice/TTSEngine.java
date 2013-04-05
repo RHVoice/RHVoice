@@ -26,6 +26,7 @@ public final class TTSEngine
     private native void onInit(String data_path,String config_path) throws RHVoiceException;
     private native void onShutdown();
     private native VoiceInfo[] doGetVoices();
+    private native void doSpeak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException;
 
     static
     {
@@ -51,5 +52,12 @@ public final class TTSEngine
     public List<VoiceInfo> getVoices()
     {
         return Arrays.asList(doGetVoices());
+    }
+
+    public void speak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException
+    {
+        if(params.getMainVoice()==null)
+            throw new RHVoiceException("Voice not set");
+        doSpeak(text,params,client);
     }
 }

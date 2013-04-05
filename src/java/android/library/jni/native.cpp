@@ -21,6 +21,9 @@
 #include <iterator>
 #include "utf8.h"
 #include "core/engine.hpp"
+#include "core/client.hpp"
+#include "core/utf.hpp"
+#include "core/document.hpp"
 #include "native.h"
 
 using namespace RHVoice;
@@ -50,6 +53,15 @@ namespace
   public:
     no_voices():
       internal_exception("No voices found")
+    {
+    }
+  };
+
+  class voice_not_found: public internal_exception
+  {
+  public:
+    voice_not_found():
+      internal_exception("Voice not found")
     {
     }
   };
@@ -110,6 +122,11 @@ namespace
   inline jmethodID get_string_setter(JNIEnv* env,jclass cls,const char* name)
   {
     return get_method(env,cls,name,"(Ljava/lang/String;)V");
+  }
+
+  inline jmethodID get_string_getter(JNIEnv* env,jclass cls,const char* name)
+  {
+    return get_method(env,cls,name,"()Ljava/lang/String;");
   }
 
   inline jfieldID get_field(JNIEnv* env,jclass cls,const char* name,const char* sig)
@@ -192,17 +209,33 @@ namespace
     check(env);
   }
 
+  inline std::string call_string_getter(JNIEnv* env,jobject obj,jmethodID method)
+  {
+    jobject jstr=check(env,env->CallObjectMethod(obj,method));
+    if(jstr==0)
+      return std::string();
+    return jstring_to_string(env,static_cast<jstring>(jstr));
+  }
+
   jclass RHVoiceException_class;
   jfieldID data_field;
   jclass VoiceInfo_class;
   jmethodID VoiceInfo_constructor;
   jmethodID VoiceInfo_setName_method;
+  jmethodID VoiceInfo_getName_method;
   jmethodID VoiceInfo_setLanguage_method;
   jclass LanguageInfo_class;
   jmethodID LanguageInfo_constructor;
   jmethodID LanguageInfo_setName_method;
   jmethodID LanguageInfo_setAlpha2Code_method;
   jmethodID LanguageInfo_setAlpha3Code_method;
+  jclass SynthesisParameters_class;
+  jmethodID SynthesisParameters_getMainVoice_method;
+  jmethodID SynthesisParameters_getExtraVoice_method;
+  jmethodID SynthesisParameters_getSSMLMode_method;
+  jmethodID SynthesisParameters_getRate_method;
+  jmethodID SynthesisParameters_getPitch_method;
+  jmethodID SynthesisParameters_getVolume_method;
 
   class Data
   {
@@ -217,6 +250,82 @@ namespace
     Data(const Data&);
     Data& operator=(const Data&);
   };
+
+  class speak_impl: public client
+  {
+  public:
+    speak_impl(JNIEnv*,jobject,jstring,jobject,jobject);
+    void operator()();
+
+    bool play_speech(const short*,std::size_t);
+
+  private:
+    JNIEnv* env;
+    Data* data;
+    jstring input;
+    jobject params;
+    jobject client_object;
+    jmethodID client_playSpeech_method;
+
+    voice_list::const_iterator find_voice(jobject jvoice) const;
+
+    speak_impl(const speak_impl&);
+    speak_impl& operator=(const speak_impl&);
+  };
+
+  speak_impl::speak_impl(JNIEnv* env_,jobject self,jstring text,jobject synth_params,jobject tts_client):
+    env(env_),
+    data(get_native_field<Data>(env,self,data_field)),
+    input(text),
+    params(synth_params),
+    client_object(tts_client)
+  {
+    jclass client_class=check(env,env->GetObjectClass(client_object));
+    client_playSpeech_method=get_method(env,client_class,"playSpeech","([S)Z");
+  }
+
+  voice_list::const_iterator speak_impl::find_voice(jobject jvoice) const
+  {
+    voice_list::const_iterator result;
+    if(jvoice!=0)
+      {
+        std::string name=call_string_getter(env,jvoice,VoiceInfo_getName_method);
+        const voice_list& voices=data->engine_ptr->get_voices();
+        voice_list::const_iterator found=voices.find(name);
+        if(found==voices.end())
+          throw voice_not_found();
+        result=found;
+      }
+    return result;
+  }
+
+  void speak_impl::operator()()
+  {
+    document::init_params doc_params;
+    doc_params.main_voice=find_voice(check(env,env->CallObjectMethod(params,SynthesisParameters_getMainVoice_method)));
+    doc_params.extra_voice=find_voice(check(env,env->CallObjectMethod(params,SynthesisParameters_getExtraVoice_method)));
+    jstring_handle hstr(env,input);
+    const jchar* text_start=hstr.str();
+    const jchar* text_end=text_start+hstr.length();
+    std::auto_ptr<document> doc;
+    if(check(env,env->CallBooleanMethod(params,SynthesisParameters_getSSMLMode_method)))
+      doc=document::create_from_ssml(data->engine_ptr,text_start,text_end,doc_params);
+    else
+      doc=document::create_from_plain_text(data->engine_ptr,text_start,text_end,content_text,doc_params);
+    doc->speech_settings.absolute.rate=check(env,env->CallDoubleMethod(params,SynthesisParameters_getRate_method));
+    doc->speech_settings.absolute.pitch=check(env,env->CallDoubleMethod(params,SynthesisParameters_getPitch_method));
+    doc->speech_settings.absolute.volume=check(env,env->CallDoubleMethod(params,SynthesisParameters_getVolume_method));
+    doc->set_owner(*this);
+    doc->synthesize();
+  }
+}
+
+bool speak_impl::play_speech(const short* samples,std::size_t count)
+{
+  jshortArray jsamples=check(env,env->NewShortArray(count));
+  env->SetShortArrayRegion(jsamples,0,count,samples);
+  check(env);
+  return check(env,env->CallBooleanMethod(client_object,client_playSpeech_method,jsamples));
 }
 
 #define TRY try {
@@ -244,7 +353,15 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
   VoiceInfo_class=find_class(env,"com/github/olga_yakovleva/rhvoice/VoiceInfo");
   VoiceInfo_constructor=get_default_constructor(env,VoiceInfo_class);
   VoiceInfo_setName_method=get_string_setter(env,VoiceInfo_class,"setName");
+  VoiceInfo_getName_method=get_string_getter(env,VoiceInfo_class,"getName");
   VoiceInfo_setLanguage_method=get_method(env,VoiceInfo_class,"setLanguage","(Lcom/github/olga_yakovleva/rhvoice/LanguageInfo;)V");
+    SynthesisParameters_class=find_class(env,"com/github/olga_yakovleva/rhvoice/SynthesisParameters");
+    SynthesisParameters_getMainVoice_method=get_method(env,SynthesisParameters_class,"getMainVoice","()Lcom/github/olga_yakovleva/rhvoice/VoiceInfo;");
+    SynthesisParameters_getExtraVoice_method=get_method(env,SynthesisParameters_class,"getExtraVoice","()Lcom/github/olga_yakovleva/rhvoice/VoiceInfo;");
+    SynthesisParameters_getSSMLMode_method=get_method(env,SynthesisParameters_class,"getSSMLMode","()Z");
+    SynthesisParameters_getRate_method=get_method(env,SynthesisParameters_class,"getRate","()D");
+    SynthesisParameters_getPitch_method=get_method(env,SynthesisParameters_class,"getPitch","()D");
+    SynthesisParameters_getVolume_method=get_method(env,SynthesisParameters_class,"getVolume","()D");
   data_field=get_field(env,TTSEngine_class,"data","J");
   CATCH1(env)
 }
@@ -304,4 +421,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
     }
   return result;
   CATCH2(env,0)
+}
+
+JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doSpeak
+  (JNIEnv *env, jobject self, jstring text, jobject synth_params, jobject tts_client)
+{
+  TRY
+  speak_impl(env,self,text,synth_params,tts_client)();
+  CATCH1(env);
 }
