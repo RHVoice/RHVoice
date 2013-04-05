@@ -26,6 +26,28 @@ extern "C" {
 }
 #endif
 #endif
+/* Header for class com_github_olga_yakovleva_rhvoice_SynthesisParameters */
+
+#ifndef _Included_com_github_olga_yakovleva_rhvoice_SynthesisParameters
+#define _Included_com_github_olga_yakovleva_rhvoice_SynthesisParameters
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+#endif
+/* Header for class com_github_olga_yakovleva_rhvoice_TTSClient */
+
+#ifndef _Included_com_github_olga_yakovleva_rhvoice_TTSClient
+#define _Included_com_github_olga_yakovleva_rhvoice_TTSClient
+#ifdef __cplusplus
+extern "C" {
+#endif
+#ifdef __cplusplus
+}
+#endif
+#endif
 /* Header for class com_github_olga_yakovleva_rhvoice_TTSEngine */
 
 #ifndef _Included_com_github_olga_yakovleva_rhvoice_TTSEngine
@@ -64,6 +86,14 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onShutd
  */
 JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doGetVoices
   (JNIEnv *, jobject);
+
+/*
+ * Class:     com_github_olga_yakovleva_rhvoice_TTSEngine
+ * Method:    doSpeak
+ * Signature: (Ljava/lang/String;Lcom/github/olga_yakovleva/rhvoice/SynthesisParameters;Lcom/github/olga_yakovleva/rhvoice/TTSClient;)V
+ */
+JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doSpeak
+  (JNIEnv *, jobject, jstring, jobject, jobject);
 
 #ifdef __cplusplus
 }
