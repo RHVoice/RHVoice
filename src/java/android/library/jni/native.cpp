@@ -304,14 +304,12 @@ namespace
     document::init_params doc_params;
     doc_params.main_voice=find_voice(check(env,env->CallObjectMethod(params,SynthesisParameters_getMainVoice_method)));
     doc_params.extra_voice=find_voice(check(env,env->CallObjectMethod(params,SynthesisParameters_getExtraVoice_method)));
-    jstring_handle hstr(env,input);
-    const jchar* text_start=hstr.str();
-    const jchar* text_end=text_start+hstr.length();
+    std::string text=jstring_to_string(env,input);
     std::auto_ptr<document> doc;
     if(check(env,env->CallBooleanMethod(params,SynthesisParameters_getSSMLMode_method)))
-      doc=document::create_from_ssml(data->engine_ptr,text_start,text_end,doc_params);
+      doc=document::create_from_ssml(data->engine_ptr,text.begin(),text.end(),doc_params);
     else
-      doc=document::create_from_plain_text(data->engine_ptr,text_start,text_end,content_text,doc_params);
+      doc=document::create_from_plain_text(data->engine_ptr,text.begin(),text.end(),content_text,doc_params);
     doc->speech_settings.absolute.rate=check(env,env->CallDoubleMethod(params,SynthesisParameters_getRate_method));
     doc->speech_settings.absolute.pitch=check(env,env->CallDoubleMethod(params,SynthesisParameters_getPitch_method));
     doc->speech_settings.absolute.volume=check(env,env->CallDoubleMethod(params,SynthesisParameters_getVolume_method));
@@ -372,7 +370,10 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
   TRY
   clear_native_field(env,obj,data_field);
   std::auto_ptr<Data> data(new Data);
-  data->engine_ptr=engine::create();
+  engine::init_params params;
+  params.data_path=jstring_to_string(env,data_path);
+  params.config_path=jstring_to_string(env,config_path);
+  data->engine_ptr=engine::create(params);
   if(data->engine_ptr->get_voices().empty())
     throw no_voices();
   set_native_field(env,obj,data_field,data.get());
