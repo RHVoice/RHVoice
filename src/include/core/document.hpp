@@ -30,6 +30,7 @@
 #include "ssml.hpp"
 #include "client.hpp"
 #include "params.hpp"
+#include "hts_engine_setting.hpp"
 
 #ifndef RHVOICE_DOCUMENT_HPP
 #define RHVOICE_DOCUMENT_HPP
@@ -240,6 +241,7 @@ namespace RHVoice
 
     speech_params speech_settings;
     verbosity_params verbosity_settings;
+    hts_engine_setting hts_engine;
 
     explicit document(const smart_ptr<engine>& engine_ptr_,const init_params& params=init_params()):
       engine_ptr(engine_ptr_),
@@ -253,6 +255,7 @@ namespace RHVoice
          (get_main_language()->has_common_letters(*get_extra_language())))
         throw std::invalid_argument("Invalid language pair");
       verbosity_settings.default_to(engine_ptr->verbosity_settings);
+      hts_engine.default_to(engine_ptr->hts_engine);
     }
 
     const engine& get_engine() const

@@ -81,6 +81,16 @@ namespace RHVoice
       return *voice_ptr;
     }
 
+    void set_hts_engine_impl(const std::string& name)
+    {
+      hts_engine_impl_name=name;
+    }
+
+    const std::string& get_hts_engine_impl() const
+    {
+      return hts_engine_impl_name;
+    }
+
     double get_absolute_rate() const
     {
       return absolute_rate;
@@ -182,6 +192,7 @@ namespace RHVoice
 
     const language& language_ref;
     const voice* voice_ptr;
+    std::string hts_engine_impl_name;
     relation_map relations;
     double absolute_rate,relative_rate,absolute_pitch,relative_pitch,absolute_volume,relative_volume;
   };

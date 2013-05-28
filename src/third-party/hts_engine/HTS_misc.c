@@ -66,7 +66,7 @@ HTS_MISC_C_START;
 #include "EST_walloc.h"
 #endif                          /* FESTIVAL */
 
-#include "endianness.h"
+#include "utils.h"
 
 /* HTS_byte_swap: byte swap */
 static int HTS_byte_swap(void *p, const int size, const int block)
@@ -114,7 +114,7 @@ void HTS_error(const int error, char *message, ...)
 /* HTS_fopen: wrapper for fopen */
 HTS_File *HTS_fopen(const char *name, const char *opt)
 {
-   HTS_File *fp = fopen(name, opt);
+   HTS_File *fp = utf8_fopen(name, opt);
 
    if (fp == NULL) {
       HTS_error(1, "HTS_fopen: Cannot open %s.\n", name);

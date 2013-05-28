@@ -40,6 +40,7 @@ namespace RHVoice
     text_settings.register_self(cfg);
     verbosity_settings.register_self(cfg);
     cfg.register_setting(prefer_primary_language);
+    cfg.register_setting(hts_engine);
     languages.register_settings(cfg);
     voices.register_settings(cfg);
     for(language_list::iterator it(languages.begin());it!=languages.end();++it)

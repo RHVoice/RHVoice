@@ -14,10 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os.path
-
 Import("env")
-
-for subdir in ["sonic","hts_engine","mage"]:
-	SConscript(os.path.join(subdir,"SConscript"),
-			   exports={"env":env})
+local_env=env.Clone()
+local_env["liblevel"]=0
+libmage=local_env.BuildLibrary("mage",Glob("*.cpp"))
+Export("libmage")

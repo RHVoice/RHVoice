@@ -22,7 +22,7 @@ namespace RHVoice
 {
   voice::voice(const voice_info& info_):
     info(info_),
-    engine_pool(info_)
+    engine_pool(info_.get_data_path())
   {
   }
 
@@ -33,14 +33,10 @@ namespace RHVoice
   }
 
   voice_info::voice_info(const std::string& data_path,language_list& languages):
-    sample_rate("sample_rate",sample_rate_16k),
     gender("gender",RHVoice_voice_gender_unknown),
     enabled("enabled",true),
     preferred("preferred",false)
   {
-    sample_rate.define("16k",sample_rate_16k);
-    sample_rate.define("44k",sample_rate_44k);
-    sample_rate.define("48k",sample_rate_48k);
     gender.define("male",RHVoice_voice_gender_male);
     gender.define("female",RHVoice_voice_gender_female);
     set_data_path(data_path);

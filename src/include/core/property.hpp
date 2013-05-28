@@ -74,6 +74,11 @@ namespace RHVoice
         }
     }
 
+    void set_default_value(const T& val)
+    {
+      default_value=val;
+    }
+
     property(const std::string& name,const T& default_val):
       abstract_property(name),
       default_value(default_val),

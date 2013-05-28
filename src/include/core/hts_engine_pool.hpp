@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -17,87 +17,74 @@
 #define RHVOICE_HTS_ENGINE_POOL_HPP
 
 #include <string>
-#include <vector>
-#include "property.hpp"
-#include "HTS_engine.h"
-#include "smart_ptr.hpp"
-#include "exception.hpp"
+#include <list>
 #include "threading.hpp"
+#include "std_hts_engine_impl.hpp"
+#include "mage_hts_engine_impl.hpp"
 
 namespace RHVoice
 {
-  class voice_info;
-
-  enum sample_rate_t
-    {
-      sample_rate_16k=16000,
-      sample_rate_44k=44100,
-      sample_rate_48k=48000
-    };
-
-  class hts_engine_initialization_error: public exception
-  {
-  public:
-    hts_engine_initialization_error():
-      exception("Hts engine initialization failed")
-    {
-    }
-  };
-
   class hts_engine_pool
   {
   public:
-    explicit hts_engine_pool(const voice_info& info);
-
-    smart_ptr<HTS_Engine> acquire()
+    explicit hts_engine_pool(const std::string& voice_path)
     {
-      smart_ptr<HTS_Engine> result(get_instance());
-      return (result.empty()?create_instance():result);
+      prototypes.push_back(hts_engine_impl::pointer(new std_hts_engine_impl(voice_path)));
+      prototypes.push_back(hts_engine_impl::pointer(new mage_hts_engine_impl(voice_path)));
     }
 
-    void release(const smart_ptr<HTS_Engine>& engine)
+    hts_engine_impl::pointer acquire(const std::string& name)
     {
-      threading::lock l(list_mutex);
-      engine_list.push_back(engine);
+      hts_engine_impl::pointer result(get_instance(name));
+      if(result.empty())
+        result=get_prototype(name)->create();
+      return result;
+    }
+
+    void release(const hts_engine_impl::pointer& engine)
+    {
+      threading::lock l(inst_mutex);
+      instances.push_front(engine);
     }
 
   private:
     hts_engine_pool(const hts_engine_pool&);
     hts_engine_pool& operator=(const hts_engine_pool&);
 
-    struct hts_engine_deleter
-    {
-      void operator()(HTS_Engine* p) const
-      {
-        HTS_Engine_clear(p);
-        delete p;
-      }
-    };
+    typedef std::list<hts_engine_impl::pointer> engine_list;
 
-    smart_ptr<HTS_Engine> get_instance()
+    hts_engine_impl::pointer get_instance(const std::string& name)
     {
-      smart_ptr<HTS_Engine> result;
-      threading::lock l(list_mutex);
-      if(!engine_list.empty())
+      hts_engine_impl::pointer result;
+      threading::lock l(inst_mutex);
+      for(engine_list::iterator it=instances.begin();it!=instances.end();++it)
         {
-          result=engine_list.back();
-          engine_list.pop_back();
+          if((*it)->get_name()==name)
+            {
+              result=*it;
+              instances.erase(it);
+              break;
+            }
         }
       return result;
     }
 
-    smart_ptr<HTS_Engine> create_instance();
+    hts_engine_impl::pointer get_prototype(const std::string& name) const
+    {
+      hts_engine_impl::pointer result;
+      for(engine_list::const_iterator it=prototypes.begin();it!=prototypes.end();++it)
+        {
+          if((*it)->get_name()==name)
+            {
+              result=*it;
+              break;
+            }
+        }
+      return result;
+    }
 
-    std::vector<smart_ptr<HTS_Engine> > engine_list;
-    threading::mutex list_mutex;
-    std::string data_path;
-
-    sample_rate_t sample_rate;
-    bool_property use_gv;
-    int fperiod;
-    double alpha;
-    numeric_property<double> beta;
-    numeric_property<double> msd_threshold;
+    engine_list prototypes,instances;
+    threading::mutex inst_mutex;
   };
 }
 #endif
