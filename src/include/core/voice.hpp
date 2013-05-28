@@ -26,6 +26,7 @@
 #include "resource.hpp"
 #include "params.hpp"
 #include "language.hpp"
+#include "sample_rate.hpp"
 #include "hts_engine_pool.hpp"
 #include "hts_engine_call.hpp"
 
@@ -96,7 +97,7 @@ private:
     }
 
     language_list::const_iterator voice_language;
-    enum_property<sample_rate_t> sample_rate;
+    sample_rate_property sample_rate;
     enum_property<RHVoice_voice_gender> gender;
     bool_property enabled,preferred;
   };

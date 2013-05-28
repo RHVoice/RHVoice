@@ -6,51 +6,41 @@
 /* (at your option) any later version. */
 
 /* This program is distributed in the hope that it will be useful, */
-/* but WITHOUT ANY WARRANTY; without even the structied warranty of */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
 /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
 /* GNU Lesser General Public License for more details. */
 
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef RHVOICE_ENDIANNESS_H
-#define RHVOICE_ENDIANNESS_H
+#ifndef RHVOICE_TONE_HPP
+#define RHVOICE_TONE_HPP
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <cmath>
+#include <vector>
 
-  #ifdef _MSC_VER
-__inline int is_machine_big_endian()
-  #else
-  inline int is_machine_big_endian()
-  #endif
+namespace RHVoice
+{
+  class tone
   {
-    union
+  public:
+    tone(double sample_rate,double freq,double dur)
     {
-      int i;
-      char c[sizeof(int)];
-    } u;
-    u.i=1;
-    return (u.c[0]==0);
-  }
+      double pi=std::acos(static_cast<double>(-1));
+      int n=dur*sample_rate;
+      samples.reserve(n);
+      for(int i=0;i<n;++i)
+        samples.push_back(0.5*std::sin(2*pi*freq*(static_cast<double>(i)/sample_rate)));
+    }
 
-  #ifdef _MSC_VER
-  __inline int is_machine_little_endian()
-  #else
-  inline int is_machine_little_endian()
-  #endif
-  {
-    union
+    const std::vector<double>& operator()() const
     {
-      int i;
-      char c[sizeof(int)];
-    } u;
-    u.i=1;
-    return (u.c[0]==1);
-  }
+      return samples;
+    }
 
-#ifdef __cplusplus
+  private:
+    std::vector<double> samples;
+  };
 }
-#endif
+
 #endif

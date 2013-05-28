@@ -21,6 +21,9 @@
 #include <iterator>
 #include <utility>
 #include <string>
+#include <sstream>
+#include <locale>
+#include "stdexcept"
 #include "unicode.hpp"
 #include "utf8.h"
 #include "utf.hpp"
@@ -483,6 +486,27 @@ namespace RHVoice
         return result;
       }
     };
+
+    template<typename T>
+    std::string to_string(const T& v)
+    {
+      std::ostringstream s;
+      s.imbue(std::locale::classic());
+      s << v;
+      return s.str();
+    }
+
+    template<typename T>
+    T from_string(const std::string& s)
+    {
+      std::istringstream strm(s);
+      strm.imbue(std::locale::classic());
+      T result;
+      if(strm>>result)
+        return result;
+      else
+        throw std::invalid_argument("Invalid type representation as a string");
+    }
   }
 }
 #endif

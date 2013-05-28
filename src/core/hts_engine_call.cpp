@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -13,376 +13,377 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <list>
+#include <memory>
+#include <new>
 #include <algorithm>
+#include <queue>
 #include <cmath>
+#include "sonic.h"
 #include "core/language.hpp"
 #include "core/voice.hpp"
-#include "core/hts_labeller.hpp"
+#include "core/tone.hpp"
 #include "core/hts_engine_call.hpp"
-
-extern "C"
-{
-  void HTS_Audio_initialize(HTS_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS_Audio_set_parameter(HTS_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS_Audio_write(HTS_Audio * audio, short data)
-  {
-    reinterpret_cast<RHVoice::hts_engine_call*>(audio->data)->write(data);
-  }
-
-  void HTS_Audio_flush(HTS_Audio * audio)
-  {
-  }
-
-  void HTS_Audio_clear(HTS_Audio * audio)
-  {
-  }
-}
 
 namespace RHVoice
 {
-  hts_engine_call::sound_event::tone_map hts_engine_call::sound_event::generate_tones()
+  namespace
   {
-    tone_map result;
-    std::vector<int> sample_rates;
-    sample_rates.push_back(16000);
-    double pi=std::acos(static_cast<double>(-1));
-    double freq=2000;
-    for(int i=0;i<sample_rates.size();++i)
+    class sink: public speech_processor
+    {
+    private:
+      void on_input();
+      bool accepts_insertions() const
       {
-        int sample_rate=sample_rates[i];
-        int nsamples=0.05*sample_rate;
-        tone& samples=result[sample_rate];
-        samples.reserve(nsamples);
-        for(int j=0;j<nsamples;++j)
+        return true;
+      }
+
+      std::size_t get_desired_input_size() const
+      {
+        return (player->get_audio_buffer_size()/1000.0*sample_rate);
+      }
+
+      std::vector<short> samples;
+    };
+
+    void sink::on_input()
+    {
+      samples.clear();
+      for(std::size_t i=0;i<input.size();++i)
+        {
+          short s=input[i]*32768;
+          samples.push_back(std::max<short>(-32768,std::min<short>(32767,s)));
+        }
+      bool should_continue=player->play_speech(&samples[0],samples.size());
+      if(!should_continue)
+        stop();
+    }
+
+    class notifier: public speech_processor
+    {
+    public:
+      notifier(event_sequence::const_iterator efirst,event_sequence::const_iterator elast):
+        enext(efirst),
+        eend(elast),
+        time(0)
+      {
+      }
+
+    private:
+      void on_input();
+      void on_end_of_input();
+
+      event_sequence::const_iterator enext,eend;
+      int time;
+    };
+
+    void notifier::on_input()
+    {
+      while((enext!=eend)&&((*enext)->get_time()!=-1)&&((*enext)->get_time()<=time))
+        {
+          if(!(*enext)->notify(*player))
+            {
+              stop();
+              return;
+            }
+          else
+            ++enext;
+        }
+      output=input;
+      time+=output.size();
+    }
+
+    void notifier::on_end_of_input()
+    {
+      while(enext!=eend)
+        {
+          if(!(*enext)->notify(*player))
+            {
+              stop();
+              break;
+            }
+          else
+            ++enext;
+        }
+    }
+  }
+
+    class trim: public speech_processor
+    {
+    public:
+      trim(label_sequence::const_iterator lstart,label_sequence::const_iterator lend):
+        lfirst(++lstart),
+        llast(--lend),
+        time(0)
+      {
+      }
+
+    private:
+      void on_input();
+
+      label_sequence::const_iterator lfirst,llast;
+      int time;
+    };
+
+  void trim::on_input()
+  {
+    int prev_time=time;
+    time+=input.size();
+    if((lfirst->get_time()==-1)||(prev_time<lfirst->get_time()))
+      return;
+    if((llast->get_time()!=-1)&&(time>llast->get_time()+0.3*sample_rate))
+      return;
+    output=input;
+  }
+
+  class volume_controller: public speech_processor
+  {
+  public:
+    explicit volume_controller(double volume_):
+      volume(volume_)
+    {
+    }
+
+  private:
+    void on_input();
+
+    bool accepts_insertions() const
+    {
+      return true;
+    }
+
+    double volume;
+  };
+
+  void volume_controller::on_input()
+  {
+    for(std::size_t i=0;i<input.size();++i)
+      output.push_back(input[i]*volume);
+  }
+
+  class rate_controller: public speech_processor
+  {
+  public:
+    explicit rate_controller(double rate_):
+      rate(rate_),
+      stream(0)
+    {
+    }
+
+    ~rate_controller()
+    {
+      if(stream)
+        sonicDestroyStream(stream);
+    }
+
+  private:
+    void do_initialize();
+    void on_input();
+    void on_end_of_input();
+    void on_output();
+
+    double rate;
+    sonicStream stream;
+    std::vector<float> samples;
+  };
+
+  void rate_controller::do_initialize()
+  {
+    stream=sonicCreateStream(sample_rate,1);
+    if(stream==0)
+      throw std::bad_alloc();
+    sonicSetSpeed(stream,rate);
+  }
+
+  void rate_controller::on_input()
+  {
+    samples.assign(input.begin(),input.end());
+    if(sonicWriteFloatToStream(stream,&samples[0],samples.size())==0)
+      throw std::bad_alloc();
+  }
+
+  void rate_controller::on_end_of_input()
+  {
+    sonicFlushStream(stream);
+  }
+
+  void rate_controller::on_output()
+  {
+    int n=sonicSamplesAvailable(stream);
+    if(n>0)
+      {
+        if(n>samples.size())
+          samples.resize(n,0);
+        sonicReadFloatFromStream(stream,&samples[0],n);
+        output.assign(samples.begin(),samples.begin()+n);
+      }
+  }
+
+  class sound_icon_inserter: public speech_processor
+  {
+  public:
+    sound_icon_inserter(label_sequence::const_iterator lstart,label_sequence::const_iterator lend);
+
+    ~sound_icon_inserter()
+    {
+      delete icon;
+    }
+
+    bool empty() const
+    {
+      return points.empty();
+    }
+
+  private:
+    void do_initialize();
+    void on_input();
+
+    std::queue<label_sequence::const_iterator> points;
+    int time;
+    tone* icon;
+  };
+
+  sound_icon_inserter::sound_icon_inserter(label_sequence::const_iterator lstart,label_sequence::const_iterator lend):
+    time(0),
+    icon(0)
+  {
+    for(label_sequence::const_iterator lab_iter=lstart;lab_iter!=lend;++lab_iter)
+      {
+        if(lab_iter->is_marked_by_sound_icon())
+          points.push(lab_iter);
+      }
+  }
+
+  void sound_icon_inserter::do_initialize()
+  {
+    icon=new tone(sample_rate,2000,0.05);
+  }
+
+  void sound_icon_inserter::on_input()
+  {
+    if(!points.empty())
+      {
+        int next_time=points.front()->get_time();
+        if((next_time!=-1)&&(next_time<=time))
           {
-            samples.push_back(0.5*std::sin(2*pi*freq*(static_cast<double>(j)/static_cast<double>(sample_rate))));
+            points.pop();
+            insertion=(*icon)();
           }
       }
-    return result;
+    output=input;
+    time+=input.size();
   }
 
-  const hts_engine_call::sound_event::tone_map hts_engine_call::sound_event::tones(hts_engine_call::sound_event::generate_tones());
-
-  bool hts_engine_call::sound_event::notify(client& c) const
-  {
-    tone_map::const_iterator it=tones.find(sample_rate);
-    if(it==tones.end())
-      return true;
-    std::vector<short> samples;
-    samples.reserve(it->second.size());
-    for(int i=0;i<it->second.size();++i)
-      {
-        samples.push_back(32767.0*std::max<double>(-1,std::min<double>(1,volume*it->second[i])));
-      }
-    return c.play_speech(&samples[0],samples.size());
-  }
-
-  hts_engine_call::hts_engine_call(hts_engine_pool& pool,const utterance& u,client& handler):
+  hts_engine_call::hts_engine_call(hts_engine_pool& pool,const utterance& u,client& player_):
     utt(u),
-    result_handler(handler),
+    player(player_),
     engine_pool(pool),
-    engine(pool.acquire()),
-    total_samples(0),
-    buffer_size(static_cast<double>(handler.get_audio_buffer_size())/1000*HTS_Engine_get_sampling_rate(engine.get())),
-    speaking(true),
-    stream(HTS_Engine_get_sampling_rate(engine.get()),calculate_rate())
-    {
-      engine->audio.data=this;
-      HTS_Engine_set_volume(engine.get(),calculate_volume());
-    }
+    engine_impl(pool.acquire(utt.get_hts_engine_impl()))
+  {
+  }
 
   hts_engine_call::~hts_engine_call()
   {
-    engine->audio.data=0;
-    HTS_Engine_set_stop_flag(engine.get(),false);
-    HTS_Engine_set_volume(engine.get(),1);
-    HTS_Engine_refresh(engine.get());
-    engine_pool.release(engine);
+    engine_impl->reset();
+    engine_pool.release(engine_impl);
   }
 
   bool hts_engine_call::execute()
   {
-    int sample_rate=HTS_Engine_get_sampling_rate(engine.get());
-    if(sample_rate!=result_handler.get_sample_rate())
-      {
-        if(!result_handler.set_sample_rate(sample_rate))
-          return false;
-      }
-    if(!load_labels())
-      return true;
-    if(!HTS_Engine_create_sstream(engine.get()))
-      throw hts_synthesis_error();
-    total_samples=HTS_Engine_get_fperiod(engine.get())*get_part_duration(0,HTS_Engine_get_total_state(engine.get()));
-    set_start_offset();
-    set_pitch();
-    queue_events();
-    if(!HTS_Engine_create_pstream(engine.get()))
-      throw hts_synthesis_error();
-    if(!fire_events())
-      return false;
-    if(!HTS_Engine_create_gstream(engine.get()))
-      throw hts_synthesis_error();
-    return speaking;
+    set_input();
+    set_output();
+    engine_impl->synthesize();
+    return !output.is_stopped();
   }
 
-  bool hts_engine_call::load_labels()
+  void hts_engine_call::set_input()
   {
-    int count=0;
-    const hts_labeller& labeller=utt.get_language().get_hts_labeller();
-    const relation& seg_rel=utt.get_relation("Segment");
-    std::list<std::string> labels;
-    for(relation::const_iterator seg_iter(seg_rel.begin());seg_iter!=seg_rel.end();++seg_iter,++count)
-      {
-        labels.push_back(labeller.eval_segment_label(*seg_iter));
-      }
-    if(labels.empty())
-      return false;
-    std::vector<char*> pointers;
-    pointers.reserve(count);
-    for(std::list<std::string>::const_iterator it(labels.begin());it!=labels.end();++it)
-      {
-        pointers.push_back(const_cast<char*>(it->c_str()));
-      }
-    HTS_Engine_load_label_from_string_list(engine.get(),&pointers[0],count);
-    return true;
-  }
-
-  int hts_engine_call::get_part_duration(int start_state,int count) const
-  {
-    int end_state=start_state+count;
-    int result=0;
-    for(int i=start_state;i<end_state;++i)
-      {
-        result+=HTS_Engine_get_state_duration(const_cast<HTS_Engine*>(engine.get()),i);
-      }
-    return result;
-  }
-
-  void hts_engine_call::set_start_offset()
-  {
-    int nstates=HTS_Engine_get_nstate(engine.get());
-    int fperiod=HTS_Engine_get_fperiod(engine.get());
-    int start_offset=fperiod*get_part_duration(0,nstates);
-    stream.set_start_offset(start_offset);
-  }
-
-  bool hts_engine_call::fire_events(bool all_remaining)
-  {
-    bool continue_flag=true;
-    while((!events.empty())&&
-          continue_flag&&
-          (all_remaining||(events.front()->get_offset()==stream.get_offset())))
-      {
-        continue_flag=events.front()->notify(result_handler);
-        events.pop();
-      }
-    return continue_flag;
-  }
-
-  void hts_engine_call::queue_events()
-  {
-    double volume=engine->global.volume;
-    int sample_rate=HTS_Engine_get_sampling_rate(engine.get());
-    event_mask mask=result_handler.get_supported_events();
-    int nstates=HTS_Engine_get_nstate(engine.get());
-    int fperiod=HTS_Engine_get_fperiod(engine.get());
-    int offset=0;
-    relation::const_iterator prev_seg=utt.get_relation("Segment").begin();
-    relation::const_iterator cur_seg;
-    int prev_state=0;
-    int cur_state;
+    event_mask events_of_interest=player.get_supported_events();
     const relation& event_rel=utt.get_relation("Event");
-    if(mask&event_sentence_starts)
-      events.push(event_ptr(new sentence_starts_event(offset,utt)));
-    for(relation::const_iterator event_iter(event_rel.begin());event_iter!=event_rel.end();++event_iter)
+    const relation& seg_rel=utt.get_relation("Segment");
+    const relation& tokstruct_rel=utt.get_relation("TokStructure");
+    relation::const_iterator seg_start=seg_rel.begin();
+    relation::const_iterator seg_end=seg_start;
+    if((!tokstruct_rel.empty())&&(events_of_interest&event_sentence_starts))
+      input.add_event<sentence_starts_event>(utt);
+    for(relation::const_iterator event_iter=event_rel.begin();event_iter!=event_rel.end();++event_iter)
       {
         if(event_iter->in("Token"))
           {
-            if(event_iter->as("Token").has_children())
+            const item& token=event_iter->as("Token");
+            if(token.has_children())
               {
-                const item& token=event_iter->as("TokStructure");
-                cur_seg=event_iter->as("Token").first_child().as("Transcription").first_child().as("Segment").get_iterator();
-                cur_state=prev_state+std::distance(prev_seg,cur_seg)*nstates;
-                if(cur_state!=prev_state)
-                  offset+=get_part_duration(prev_state,cur_state-prev_state)*fperiod;
-                if(mask&event_word_starts)
-                  events.push(event_ptr(new word_starts_event(offset,*event_iter)));
-                prev_seg=cur_seg;
-                prev_state=cur_state;
-                for(item::const_iterator token_iter=token.begin();token_iter!=token.end();++token_iter)
-                  {
-                    if(token_iter->has_children())
-                      {
-                        if(!token_iter->has_feature("unknown")&&
-                           (token_iter->get("verbosity").as<verbosity_t>()&verbosity_sound))
-                          events.push(event_ptr(new sound_event(offset,sample_rate,volume)));
-                        cur_seg=++(token_iter->last_child().as("Transcription").last_child().as("Segment").get_iterator());
-                        cur_state=prev_state+std::distance(prev_seg,cur_seg)*nstates;
-                        offset+=get_part_duration(prev_state,cur_state-prev_state)*fperiod;
-                        prev_seg=cur_seg;
-                        prev_state=cur_state;
-                      }
-                  }
-                if(mask&event_word_ends)
-                  events.push(event_ptr(new word_ends_event(offset,*event_iter)));
+                seg_end=token.first_child().as("Transcription").first_child().as("Segment").get_iterator();
+                add_labels(seg_start,seg_end);
+                seg_start=seg_end;
               }
-          }
-        else
-          {
-            const value& mark_val=event_iter->get("mark",true);
-            if(!mark_val.empty())
+            if(events_of_interest&event_word_starts)
+              input.add_event<word_starts_event>(token);
+            if(token.has_children())
               {
-                if(mask&event_mark)
-                  events.push(event_ptr(new mark_event(offset,mark_val.as<std::string>())));
+                seg_end=++(token.last_child().as("Transcription").last_child().as("Segment").get_iterator());
+                add_labels(seg_start,seg_end);
+                seg_start=seg_end;
               }
-            else
-              {
-                const value& audio_val=event_iter->get("audio",true);
-                if(!audio_val.empty())
-                  {
-                    if(mask&event_audio)
-                      events.push(event_ptr(new audio_event(offset,audio_val.as<std::string>())));
-                  }
-              }
+            if(events_of_interest&event_word_ends)
+              input.add_event<word_ends_event>(token);
+          }
+        else if(events_of_interest&event_mark)
+          {
+            const value& v=event_iter->get("mark",true);
+            if(!v.empty())
+              input.add_event<mark_event>(v.as<std::string>());
+          }
+        else if(events_of_interest&event_audio)
+          {
+            const value& v=event_iter->get("audio",true);
+            if(!v.empty())
+              input.add_event<audio_event>(v.as<std::string>());
           }
       }
-    if(mask&event_sentence_ends)
-      events.push(event_ptr(new sentence_ends_event(offset,utt)));
+    add_labels(seg_start,seg_rel.end());
+    if((!tokstruct_rel.empty())&&(events_of_interest&event_sentence_ends))
+      input.add_event<sentence_ends_event>(utt);
+    engine_impl->set_input(input);
   }
 
-  void hts_engine_call::write(short sample)
+  void hts_engine_call::add_label(const item& seg)
   {
-    if(!speaking)
-      return;
-    try
+    hts_label& lab=input.add_label(seg);
+  }
+
+  void hts_engine_call::set_output()
+  {
+    output.set_client(player);
+    output.set_sample_rate(engine_impl->get_sample_rate());
+    if(input.ebegin()!=input.eend())
       {
-        stream.write(sample);
-        speech_stream::buffer_type buffer;
-        bool buffer_filled=false;
-        int next_event_offset=events.empty()?total_samples:events.front()->get_offset();
-        int in_samples_to_next_event=next_event_offset-stream.get_offset();
-        if(in_samples_to_next_event==0)
-          {
-            if(next_event_offset==total_samples)
-              stream.flush();
-            buffer_filled=stream.read(buffer,0);
-          }
+        notifier* n=new notifier(input.ebegin(),input.eend());
+        output.append(n);
+      }
+    if(input.lbegin()!=input.lend())
+      {
+        sound_icon_inserter* sii=new sound_icon_inserter(input.lbegin(),input.lend());
+        if(sii->empty())
+          delete sii;
         else
+          output.append(sii);
+        trim* t=new trim(input.lbegin(),input.lend());
+        output.append(t);
+        double rate=input.lbegin()->get_rate();
+        if(rate!=1)
           {
-            int out_samples_to_next_event=in_samples_to_next_event/stream.get_rate();
-            if(out_samples_to_next_event>=buffer_size)
-              buffer_filled=stream.read(buffer,buffer_size);
+            rate_controller* rc=new rate_controller(rate);
+            output.append(rc);
           }
-        if(buffer_filled)
-          speaking=result_handler.play_speech(&buffer[0],buffer.size());
-        if(speaking)
-          speaking=fire_events();
-      }
-    catch(std::exception& e)
-      {
-        speaking=false;
-      }
-    if(!speaking)
-      HTS_Engine_set_stop_flag(engine.get(),true);
-  }
-
-  double hts_engine_call::calculate_speech_param(double absolute_change,double relative_change,double default_value,double min_value,double max_value) const
-  {
-    if(!((min_value<=default_value)&&(default_value<=max_value)))
-      return 1;
-    double result=default_value;
-    if(absolute_change>0)
-      {
-        if(absolute_change>=1)
-          result=max_value;
-        else
-          result+=absolute_change*(max_value-default_value);
-      }
-    else if(absolute_change<0)
-      {
-        if(absolute_change<=-1)
-          result=min_value;
-        else
-          result+=absolute_change*(default_value-min_value);
-      }
-    result*=relative_change;
-    if(result<min_value)
-      result=min_value;
-    else if(result>max_value)
-      result=max_value;
-    return result;
-  }
-
-  double hts_engine_call::calculate_volume() const
-  {
-    const voice_params&voice_settings=utt.get_voice().get_info().settings;
-    double volume=calculate_speech_param(utt.get_absolute_volume(),
-                                    utt.get_relative_volume(),
-                                    voice_settings.default_volume,
-                                    voice_settings.min_volume,
-                                    voice_settings.max_volume);
-    return volume;
-  }
-
-  double hts_engine_call::calculate_rate() const
-  {
-    const voice_params&voice_settings=utt.get_voice().get_info().settings;
-    double rate=calculate_speech_param(utt.get_absolute_rate(),
-                                  utt.get_relative_rate(),
-                                  voice_settings.default_rate,
-                                  voice_settings.min_rate,
-                                  voice_settings.max_rate);
-    return rate;
-  }
-
-  std::pair<double,double> hts_engine_call::calculate_pitch() const
-  {
-    std::pair<double,double> pitch_values;
-    const voice_params&voice_settings=utt.get_voice().get_info().settings;
-    pitch_values.first=calculate_speech_param(utt.get_absolute_pitch(),
-                                   utt.get_relative_pitch(),
-                                   voice_settings.default_pitch,
-                                   voice_settings.min_pitch,
-                                   voice_settings.max_pitch);
-    pitch_values.second=calculate_speech_param(utt.get_absolute_pitch(),
-                                   utt.get_relative_pitch()*voice_settings.cap_pitch_factor,
-                                   voice_settings.default_pitch,
-                                   voice_settings.min_pitch,
-                                   voice_settings.max_pitch);
-    return pitch_values;
-  }
-
-  void hts_engine_call::set_pitch()
-  {
-    std::pair<double,double> pitch_values=calculate_pitch();
-    int nstates=HTS_Engine_get_nstate(engine.get());
-    const relation& seg_rel=utt.get_relation("Segment");
-    int i=0;
-    for(relation::const_iterator seg_iter=seg_rel.begin();seg_iter!=seg_rel.end();++seg_iter,i+=nstates)
-      {
-        double pitch=pitch_values.first;
-        if(seg_iter->in("Transcription"))
+        double volume=input.lbegin()->get_volume();
+        if(volume!=1)
           {
-            const item& token=seg_iter->as("Transcription").parent().as("TokStructure").parent();
-            if(!token.has_feature("unknown")&&
-               (token.get("verbosity").as<verbosity_t>()&verbosity_pitch))
-              pitch=pitch_values.second;
+            volume_controller* vc=new volume_controller(volume);
+            output.append(vc);
           }
-        for(int j=0;j<nstates;++j)
-          {
-            double f0=std::exp(HTS_SStreamSet_get_mean(&engine->sss,1,i+j,0));
-            f0*=pitch;
-            if(f0<10)
-              f0=10;
-            HTS_SStreamSet_set_mean(&engine->sss,1,i+j,0,std::log(f0));
-          }
+        sink* s=new sink;
+        output.append(s);
       }
+    engine_impl->set_output(output);
   }
 }

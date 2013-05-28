@@ -145,7 +145,7 @@ def create_base_env(vars):
     env_args["variables"]=vars
     env_args["LIBS"]=[]
     env_args["package_name"]="RHVoice"
-    env_args["CPPDEFINES"]=[]
+    env_args["CPPDEFINES"]=[("RHVOICE","1")]
     env=Environment(**env_args)
     env["package_version"]=get_version(env["release"])
     env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))

@@ -22,6 +22,7 @@
 #include "params.hpp"
 #include "language.hpp"
 #include "voice.hpp"
+#include "hts_engine_setting.hpp"
 
 namespace RHVoice
 {
@@ -98,6 +99,7 @@ namespace RHVoice
     text_params text_settings;
     verbosity_params verbosity_settings;
     bool_property prefer_primary_language;
+    hts_engine_setting hts_engine;
   };
 }
 #endif

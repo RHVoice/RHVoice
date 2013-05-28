@@ -321,6 +321,7 @@ namespace RHVoice
     execute_commands(*u);
     apply_verbosity_settings(*u);
     apply_language_processing(*u);
+    u->set_hts_engine_impl(parent->hts_engine);
     return u;
   }
 
