@@ -131,6 +131,7 @@ def create_user_vars():
     vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
     vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
     vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
+    vars.Add(BoolVariable("build_java_binding","Whether we should build the java binding",False))
     return vars
 
 def create_base_env(vars):
@@ -213,9 +214,10 @@ def configure(env):
             env["audio_libs"].add("portaudio")
         has_giomm=conf.CheckPKG("giomm-2.4")
     has_jdk=False
-    if conf.CheckJavac():
-        if conf.CheckCXXHeader("jni.h"):
-            has_jdk=True
+    if env["build_java_binding"]:
+        if conf.CheckJavac():
+            if conf.CheckCXXHeader("jni.h"):
+                has_jdk=True
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
