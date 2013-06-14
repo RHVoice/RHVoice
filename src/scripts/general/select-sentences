@@ -28,7 +28,7 @@ class word_extractor(object):
 	def __init__(self,args):
 		alphabet=args.alphabet.decode("utf-8")
 		self.alphabet=set(alphabet)
-		self.word_regex=re.compile(ur"(?u)\b[{a}]+\b".format(a=alphabet))
+		self.word_regex=re.compile(ur"(?ui)\b[{a}]+\b".format(a=alphabet))
 		self.words=collections.Counter()
 
 	def __call__(self,arg,dirname,filenames):
@@ -37,27 +37,32 @@ class word_extractor(object):
 			if os.path.isfile(path):
 				with codecs.open(path,"r","utf-8") as f:
 					for word in (m.group(0).lower() for m in self.word_regex.finditer(tag_regex.sub(" ",f.read()))):
-						letters=set(c for c in word if c.isalpha())
-						if letters.issubset(self.alphabet):
-							self.words[word]+=1
+#						letters=set(c for c in word if c.isalpha())
+#						if letters.issubset(self.alphabet):
+						self.words[word]+=1
 
 def words(args):
 	ext=word_extractor(args)
 	os.path.walk(args.source,ext,None)
 	with codecs.open("words","w","utf-8") as f:
 		for w,c in ext.words.most_common():
-			f.write(w)
-			f.write("\n")
+			f.write(u"{} {}\n".format(w,c))
 
 class sentence_selector(object):
 	def __init__(self,args):
 		self.count=0
 		self.sentences=dict()
+		self.words=set()
 		with codecs.open("words","r","utf-8") as f:
-			self.words=set(f.read().split()[:args.word_count])
+			for line in f:
+				w,n=line.split()
+				if int(n)<args.min_word_frequency:
+					break
+				self.words.add(w)
 			self.min_length=args.min_length
 			self.max_length=args.max_length
 			self.vowels=set(args.vowels.decode("utf-8"))
+			self.ignore_case=args.ignore_case
 			self.delim_regex=re.compile(u"(?u)\s*(?:</?doc(?:\s+[^<>]+)?>\s*)+")
 
 	def add_paragraph(self,paragraph):
@@ -78,8 +83,9 @@ class sentence_selector(object):
 			return False
 		if not remaining_tokens:
 			return True
-		if not remaining_tokens[0].istitle():
-			return False
+		if not self.ignore_case:
+			if not remaining_tokens[0].istitle():
+				return False
 		last_token=sentence_tokens[-1]
 		if (last_token[-1]==".") and (len(last_token)>1) and last_token[-2].isalpha() and ((len(last_token)==2) or (not last_token[-3].isalpha())):
 			return False
@@ -95,11 +101,12 @@ class sentence_selector(object):
 			return False
 		if len(tokens) > self.max_length:
 			return False
-		if not tokens[0].istitle():
-			return False
-		for token in tokens[1:]:
-			if not token.islower():
+		if not self.ignore_case:
+			if not tokens[0].istitle():
 				return False
+			for token in tokens[1:]:
+				if not token.islower():
+					return False
 		for token in tokens[:-1]:
 			word=token[:-1].lower() if token[-1]=="," else token.lower()
 			if word not in self.words:
@@ -143,10 +150,11 @@ if __name__=="__main__":
 	words_parser.add_argument("--alphabet",required=True,help="alphabet")
 	words_parser.set_defaults(func=words)
 	sentences_parser=subparsers.add_parser("sentences")
-	sentences_parser.add_argument("--word-count",type=int,default=5000,help="consider only most frequent words")
+	sentences_parser.add_argument("--min-word-frequency",type=int,default=10,help="consider only most frequent words")
 	sentences_parser.add_argument("--min-length",type=int,default=2,help="Minimum sentence length")
 	sentences_parser.add_argument("--max-length",type=int,default=20,help="maximum sentence length")
 	sentences_parser.add_argument("--vowels",required=True,help="list of vowel letters")
+	sentences_parser.add_argument("--ignore-case",help="ignore case",action="store_true")
 	sentences_parser.set_defaults(func=sentences)
 	args=parser.parse_args()
 	args.func(args)
