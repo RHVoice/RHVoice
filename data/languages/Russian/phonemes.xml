@@ -23,7 +23,7 @@
 <phoneme name="gg" vc="-" ctype="s" cplace="v" cvox="+" cpal="+" vpair="kk"/>
 <phoneme name="h" vc="-" ctype="f" cplace="v" cvox="-" cpal="-"/>
 <phoneme name="hh" vc="-" ctype="f" cplace="v" cvox="-" cpal="+"/>
-<phoneme name="j" vc="-" ctype="f" cplace="p" cvox="+" cpal="+"/>
+<phoneme name="j" vc="-" ctype="g" cplace="p" cvox="+" cpal="+"/>
 <phoneme name="k" vc="-" ctype="s" cplace="v" cvox="-" cpal="-" vpair="g"/>
 <phoneme name="kk" vc="-" ctype="s" cplace="v" cvox="-" cpal="+" vpair="gg"/>
 <phoneme name="l" vc="-" ctype="l" cplace="d" cvox="+" cpal="-"/>
@@ -35,8 +35,8 @@
 <phoneme name="p" vc="-" ctype="s" cplace="b" cvox="-" cpal="-" vpair="b"/>
 <phoneme name="pau"/>
 <phoneme name="pp" vc="-" ctype="s" cplace="b" cvox="-" cpal="+" vpair="bb"/>
-<phoneme name="r" vc="-" ctype="l" cplace="a" cvox="+" cpal="-"/>
-<phoneme name="rr" vc="-" ctype="l" cplace="a" cvox="+" cpal="+"/>
+<phoneme name="r" vc="-" ctype="t" cplace="a" cvox="+" cpal="-"/>
+<phoneme name="rr" vc="-" ctype="t" cplace="a" cvox="+" cpal="+"/>
 <phoneme name="s" vc="-" ctype="f" cplace="d" cvox="-" cpal="-" vpair="z"/>
 <phoneme name="sch" vc="-" ctype="f" cplace="a" cvox="-" cpal="+"/>
 <phoneme name="sh" vc="-" ctype="f" cplace="a" cvox="-" cpal="-" vpair="zh"/>
