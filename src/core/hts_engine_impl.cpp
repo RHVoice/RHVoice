@@ -70,6 +70,7 @@ namespace RHVoice
     alpha(0.42),
     msd_threshold("msd_threshold",0.5,0,1.0),
     beta("beta",0.4,-0.8,0.8),
+    gain("gain",1.0,0.5,2.0),
     input(0),
     output(0),
     name(impl_name)
@@ -101,6 +102,7 @@ namespace RHVoice
     config cfg2;
     cfg2.register_setting(msd_threshold);
     cfg2.register_setting(beta);
+    cfg2.register_setting(gain);
     cfg2.load(path::join(data_path,"voice.params"));
   }
 
@@ -164,7 +166,7 @@ namespace RHVoice
   {
     if(output->is_stopped())
       return;
-    double s=sample/32768.0;
+    double s=(sample/32768.0)*gain;
     try
       {
         output->process(&s,1);
