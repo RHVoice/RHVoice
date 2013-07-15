@@ -100,6 +100,7 @@ namespace RHVoice
     double alpha;
     numeric_property<double> msd_threshold;
     numeric_property<double> beta;
+    numeric_property<double> gain;
 
     hts_input* input;
     speech_processing_chain* output;
