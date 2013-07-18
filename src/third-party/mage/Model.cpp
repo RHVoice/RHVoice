@@ -350,9 +350,9 @@ void MAGE::Model::computeGlobalVariances( MAGE::Engine * engine, MAGE::Label * l
 	//TODO :: fix this
 	// 1. one gv_switch per stream
 	// 2. one gv_switch for nstates, not nstates gv_switch
-	if( HTS_ModelSet_have_gv_switch( &ms ) == true )
+	if( HTS_ModelSet_have_gv_switch( &ms ) )
 	{
-		if( HTS_ModelSet_get_gv_switch( &ms, strQuery ) == false )
+		if( !HTS_ModelSet_get_gv_switch( &ms, strQuery ) )
 			gv_switch = false;
 		else 
 			gv_switch = true;

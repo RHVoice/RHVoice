@@ -280,7 +280,9 @@ bool MAGE::Mage::popLabel( void )
 		return( true );
 	}
 	else
-		usleep( 100 );
+        #ifndef WIN32
+          usleep( 100 );
+        #endif
 	
 	return( false );
 }

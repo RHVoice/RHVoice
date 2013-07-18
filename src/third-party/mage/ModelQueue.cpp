@@ -168,7 +168,9 @@ void MAGE::ModelQueue::generate( MAGE::Engine * engine, FrameQueue * frameQueue,
 		for( q = 0; q < rawData[head].getState( s ).duration; q++ )
 		{
 			while( frameQueue->isFull() )
-				usleep( 1000 );
+                          #ifndef WIN32
+                          usleep( 1000 );
+                          #endif
 			
 			frame = frameQueue->next();
 			
