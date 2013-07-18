@@ -30,9 +30,10 @@
 
 #define HTS 0 // HTS 
 
-#define mode HTS 
+// #define mode HTS 
 
-#if mode == HTS
+// #if mode == HTS
+#if 1
 	#define Alpha 0.42
 	#define PadeOrder 5
 	#define NumberOfStreams 3 

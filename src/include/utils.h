@@ -64,10 +64,11 @@ __inline int is_machine_big_endian()
   inline wchar_t* utf8_to_utf16(const char* str)
   #endif
   {
+    wchar_t* wstr=NULL;
     int size=MultiByteToWideChar(CP_UTF8,0,str,-1,NULL,0);
     if(size==0)
       return NULL;
-    wchar_t* wstr=malloc(size*sizeof(wchar_t));
+    wstr=(wchar_t*)malloc(size*sizeof(wchar_t));
     if(wstr==NULL)
       return NULL;
     if(MultiByteToWideChar(CP_UTF8,0,str,-1,wstr,size)==0)
@@ -87,16 +88,18 @@ __inline int is_machine_big_endian()
   #endif
   {
   #ifdef WIN32
+    FILE* fp=NULL;
+    wchar_t* wpath=NULL;
     wchar_t* wmode=utf8_to_utf16(mode);
     if(wmode==NULL)
       return NULL;
-    wchar_t* wpath=utf8_to_utf16(path);
+    wpath=utf8_to_utf16(path);
     if(wpath==NULL)
       {
     free(wmode);
     return NULL;
   }
-    FILE* fp=_wfopen(wpath,wmode);
+    fp=_wfopen(wpath,wmode);
     free(wmode);
     free(wpath);
     return fp;

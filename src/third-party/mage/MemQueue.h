@@ -34,7 +34,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 namespace MAGE 
 {
