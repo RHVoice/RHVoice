@@ -1,0 +1,37 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+import sys
+import mwclient
+import collections
+import codecs
+
+if __name__=="__main__":
+	function_words=collections.OrderedDict()
+	site=mwclient.Site("en.wiktionary.org")
+	for i in xrange(1,len(sys.argv),2):
+		catname=sys.argv[i]
+		tag=sys.argv[i+1]
+		if tag not in function_words:
+			function_words[tag]=set()
+		category=site.categories[catname]
+		for page in category:
+			if isinstance(page,mwclient.listing.Category):
+				continue
+			word=page.page_title.lower()
+			if " " in word:
+				continue
+			function_words[tag].add(word)
+	with codecs.open("gpos.foma","w","utf-8") as f:
+		f.write("define TagContentWord ? : content;\n\n")
+		for tag,words in function_words.iteritems():
+			f.write("define Tag{} \n".format(tag.title()))
+			for i,word in enumerate(sorted(words)):
+				f.write(u'["{}" : {}] '.format(word,tag))
+				f.write("; \n" if (i==(len(words)-1)) else "| \n")
+			f.write("\n")
+		f.write("define TagWord \n")
+		for tag in function_words.iterkeys():
+			f.write("Tag{} .P. \n".format(tag.title()))
+		f.write("TagContentWord ; \n\n")
+		f.write("regex \nTagWord -> ; \n")
