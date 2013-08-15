@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -15,46 +17,17 @@
 
 import os
 import os.path
-import zipfile
 
-Import(["env","data_files"])
+Import(["env"])
 
-def package_addon(env,target,source):
-    with zipfile.ZipFile(str(target[0]),"w",zipfile.ZIP_DEFLATED) as f:
-        for s,p in zip(source,env["file_paths"]):
-            f.write(str(s),p)
-    return None
-
-def shorten_path(path,level=1):
-    if level==0:
-        return path
-    components=[part for part in path.split(os.sep) if part]
-    return os.sep.join(components[-level:])
-
-addon_sources=list()
-file_paths=list()
-
-def add(source,level=1,dir=None):
-    short_path=shorten_path(str(source),level)
-    long_path=os.path.join(dir,short_path) if dir else short_path
-    addon_sources.append(source)
-    file_paths.append(long_path)
-
-subst_dict={"@version@":"$package_version"}
-manifest=env.Substfile("manifest.ini.in",SUBST_DICT=subst_dict)[0]
+from packaging.nvda import addon_packager
 
 synthDriver_dir=os.path.join("synthDrivers","RHVoice")
-
-add(manifest)
-add("installTasks.py")
-add(os.path.join("locale","ru","manifest.ini"),3)
-add(os.path.join(synthDriver_dir,"__init__.py"),3)
-add(os.path.join("..","x86","lib","RHVoice.dll"),1,synthDriver_dir)
-add(os.path.join("..","COPYING.txt"),1,synthDriver_dir)
-add(os.path.join("..","RHVoice.ini"),1,os.path.join(synthDriver_dir,"config"))
-for dir,subdirs in data_files.iteritems():
-        for subdir,files in subdirs.iteritems():
-            for file in files:
-                add(file,4,synthDriver_dir)
-
-env.Command("RHVoice_${package_version}.nvda-addon",addon_sources,package_addon,file_paths=file_paths)
+packager=addon_packager("RHVoice",env,"RHVoice","RHVoice","A speech synthesizer.",env["package_version"])
+packager.translate_string("description","ru",u"Синтезатор речи.")
+packager.add("installTasks.py")
+packager.add("__init__.py",synthDriver_dir)
+packager.add(os.path.join("..","x86","lib","RHVoice.dll"),synthDriver_dir)
+packager.add(os.path.join("..","COPYING.txt"),synthDriver_dir)
+packager.add(os.path.join("..","RHVoice.ini"),os.path.join(synthDriver_dir,"config"))
+packager.package()

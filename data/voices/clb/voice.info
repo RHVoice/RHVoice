@@ -2,3 +2,5 @@ name=CLB
 language=English
 sample_rate=16k
 gender=female
+format=1
+revision=0

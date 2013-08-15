@@ -252,7 +252,9 @@ def build_binaries(base_env,arch=None):
 def build_for_linux(base_env):
     build_binaries(base_env)
     for subdir in ["data","config"]:
-        SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env})
+        SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env},
+                   variant_dir=os.path.join(BUILDDIR,subdir),
+                   duplicate=0)
 
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
@@ -270,7 +272,10 @@ def build_for_windows(base_env):
     build_binaries(base_env,"x86")
     if base_env["enable_x64"]:
         build_binaries(base_env,"x64")
-    SConscript(os.path.join("data","SConscript"),exports={"env":base_env})
+    SConscript(os.path.join("data","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"data"),
+               exports={"env":base_env},
+               duplicate=0)
     for f in ["README","COPYING","COPYING.LESSER"]:
         base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
     base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
@@ -283,7 +288,7 @@ def build_for_windows(base_env):
         SConscript(os.path.join("src","wininst","SConscript"),
                    variant_dir=os.path.join(BUILDDIR,"wininst"),
                    exports={"env":base_env},
-                   duplicate=1)
+                   duplicate=0)
 
 setup()
 vars=create_user_vars()

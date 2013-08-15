@@ -2,3 +2,5 @@ name=Alan
 language=English
 sample_rate=16k
 gender=male
+format=1
+revision=0

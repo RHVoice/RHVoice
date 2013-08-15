@@ -4,7 +4,6 @@ import os.path
 Import("env")
 
 data_files=dict()
-
 for dir_name in ["languages","voices"]:
     data_files[dir_name]=dict()
     for subdir_name in map(os.path.basename,Glob(os.path.join(dir_name,"*"),strings=True)):
@@ -12,5 +11,4 @@ for dir_name in ["languages","voices"]:
         data_files[dir_name][subdir_name]=Glob(os.path.join(subdir_path,"*"))
         if sys.platform!="win32":
             env.InstallData(data_files[dir_name][subdir_name],subdir_path)
-
 Export(["data_files"])
