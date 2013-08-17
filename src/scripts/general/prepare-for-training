@@ -275,10 +275,10 @@ class segmenter(task):
 	def setup(self):
 		self.phoneset=self.get_phoneset()
 		self.wavedir=os.path.join("data","wav")
-		self.workdir=os.path.join("data","ehmm")
+		self.workdir="ehmm"
 		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavedir))]
 		subdirs=[self.workdir]
-		for name in ["feat","etc","lab","mod"+str(self.stage),"align"+str(self.stage)]:
+		for name in ["feat","binfeat","etc","lab","mod"+str(self.stage),"align"+str(self.stage)]:
 			subdirs.append(os.path.join(self.workdir,name))
 		hts_labdir=os.path.join("data","labels")
 		subdirs.append(hts_labdir)
@@ -335,30 +335,34 @@ class segmenter(task):
 		bindir=os.path.join(self.settings["ehmmdir"],"bin")
 		etcdir=os.path.join(self.workdir,"etc")
 		featdir=os.path.join(self.workdir,"feat")
+		binfeatdir=os.path.join(self.workdir,"binfeat")
 		mod1dir=os.path.join(self.workdir,"mod1")
 		subprocess.check_call([os.path.join(bindir,"FeatureExtraction"),os.path.join(etcdir,"mysp_settings"),os.path.join(etcdir,"mywavelist")])
-		subprocess.check_call(["perl",os.path.join(bindir,"comp_dcep.pl"),os.path.join(etcdir,"mywavelist"),featdir,"mfcc","ft","0","0"])
-		subprocess.check_call(["perl",os.path.join(bindir,"scale_feat.pl"),os.path.join(etcdir,"mywavelist"),featdir,mod1dir,"ft","4"])
+		for fname in os.listdir(featdir):
+			if not fname.endswith(".mfcc"):
+				continue
+			subprocess.check_call([os.path.join(bindir,"ConvertFeatsFileToBinaryFormat"),os.path.join(featdir,fname),os.path.join(binfeatdir,fname[:-4]+"ft")])
+		subprocess.check_call([os.path.join(bindir,"ScaleBinaryFeats"),os.path.join(etcdir,"mywavelist"),"4","1"])
 
 	def bw(self):
 		bindir=os.path.join(self.settings["ehmmdir"],"bin")
 		etcdir=os.path.join(self.workdir,"etc")
-		featdir=os.path.join(self.workdir,"feat")
+		binfeatdir=os.path.join(self.workdir,"binfeat")
 		moddir=os.path.join(self.workdir,"mod"+str(self.stage))
 		if self.stage>1:
 			mod1dir=os.path.join(self.workdir,"mod1")
 			shutil.copy(os.path.join(mod1dir,"global_mn_vr.txt"),moddir)
-		subprocess.check_call([os.path.join(bindir,"ehmm"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.train.{}.int".format(self.stage)),"1","0",featdir,"ft",moddir,"0","0","0"])
+		subprocess.check_call([os.path.join(bindir,"ehmm"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.train.{}.int".format(self.stage)),"1","0",binfeatdir,"scaledft",moddir,"0","0","0","30","1"])
 
 	def align(self):
 		bindir=os.path.join(self.settings["ehmmdir"],"bin")
 		etcdir=os.path.join(self.workdir,"etc")
-		featdir=os.path.join(self.workdir,"feat")
+		binfeatdir=os.path.join(self.workdir,"binfeat")
 		moddir=os.path.join(self.workdir,"mod"+str(self.stage))
 		aligndir=os.path.join(self.workdir,"align"+str(self.stage))
 		labdir1=os.path.join(self.workdir,"lab")
 		labdir2=os.path.join("data","labels","mono")
-		subprocess.check_call([os.path.join(bindir,"edec"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.align.{}.int".format(self.stage)),"1",featdir,"ft",os.path.join(etcdir,"mysp_settings"),moddir,"0",aligndir])
+		subprocess.check_call([os.path.join(bindir,"edec"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.align.{}.int".format(self.stage)),"1",binfeatdir,"scaledft",os.path.join(etcdir,"mysp_settings"),moddir,"0",aligndir,"1"])
 		subprocess.check_call(["perl",os.path.join(bindir,"sym2nm.pl"),aligndir,os.path.join(etcdir,"ph_list.int")])
 		labs=self.get_labs(self.stage)
 		for name,phones in labs.iteritems():
