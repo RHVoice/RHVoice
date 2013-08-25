@@ -28,7 +28,7 @@ namespace RHVoice
     {
       define("standard");
       define("mage");
-      set_default_value("standard");
+      set_default_value("mage");
     }
   };
 }
