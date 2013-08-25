@@ -1,0 +1,18 @@
+QS name==zh { "*-zh+*" }
+
+{*}[2]
+   "lpf_s2_6"
+{*}[3]
+{
+ 0 name==zh "lpf_s3_6" "lpf_s3_1"
+}
+{*}[4]
+{
+ 0 name==zh "lpf_s4_6" "lpf_s4_1"
+}
+{*}[5]
+{
+ 0 name==zh "lpf_s5_6" "lpf_s5_1"
+}
+{*}[6]
+   "lpf_s6_6"
