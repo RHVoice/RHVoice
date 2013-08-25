@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<labelling>
+<format>
+<feature name="prev_prev_name"/>
+^
+<feature name="prev_name"/>
+-
+<feature name="name"/>
++
+<feature name="next_name"/>
+=
+<feature name="next_next_name"/>
+@
+<feature name="initial_in_harmonic_cluster"/>
+_
+<feature name="final_in_harmonic_cluster"/>
+/A:
+<feature name="num_consonants_to_prev_vowel"/>
+_
+<feature name="num_consonants_to_start_of_cluster"/>
+/B:
+<feature name="num_intervocalic_consonants"/>
+-
+<feature name="num_consonants_in_cluster"/>
+@
+<feature name="num_vowels_to_start_of_word"/>
+-
+<feature name="num_vowels_to_end_of_word"/>
+&amp;
+<feature name="num_vowels_to_start_of_phrase"/>
+-
+<feature name="num_vowels_to_end_of_phrase"/>
+#
+<feature name="pos_in_word_fw"/>
+-
+<feature name="none"/>
+$
+<feature name="pos_in_word_bw"/>
+-
+<feature name="none"/>
+;
+<feature name="none"/>
+/C:
+<feature name="num_consonants_to_next_vowel"/>
++
+<feature name="num_consonants_to_end_of_cluster"/>
+/D:
+<feature name="prev_word_gpos"/>
+_
+<feature name="num_syls_in_prev_word"/>
+/E:
+<feature name="word_gpos"/>
++
+<feature name="num_syls_in_word"/>
+@
+<feature name="word_pos_in_phrase_fw"/>
++
+<feature name="word_pos_in_phrase_bw"/>
+&amp;
+<feature name="num_content_words_in_phrase_before_this_word"/>
++
+<feature name="num_content_words_in_phrase_after_this_word"/>
+#
+<feature name="dist_to_prev_content_word_in_phrase"/>
++
+<feature name="dist_to_next_content_word_in_phrase"/>
+/F:
+<feature name="next_word_gpos"/>
+_
+<feature name="num_syls_in_next_word"/>
+/G:
+<feature name="num_syls_in_prev_phrase"/>
+_
+<feature name="num_words_in_prev_phrase"/>
+/H:
+<feature name="num_syls_in_phrase"/>
+=
+<feature name="num_words_in_phrase"/>
+^
+<feature name="phrase_pos_in_utt_fw"/>
+=
+<feature name="phrase_pos_in_utt_bw"/>
+|
+<feature name="utt_is_question"/>
+/I:
+<feature name="num_syls_in_next_phrase"/>
+=
+<feature name="num_words_in_next_phrase"/>
+/J:
+<feature name="num_syls_in_utt"/>
++
+<feature name="num_words_in_utt"/>
+-
+<feature name="num_phrases_in_utt"/>
+</format>
+</labelling>

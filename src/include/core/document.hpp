@@ -507,6 +507,8 @@ namespace RHVoice
                   }
               }
           }
+        else if(language_and_voice.first==language_list::const_iterator())
+          language_and_voice=markup_language_and_voice;
         if(next_token.type==content_text)
           commands.push_back(command_ptr(new append_token(next_token)));
         else if(next_token.type==content_key)
@@ -526,12 +528,6 @@ namespace RHVoice
             rate=markup_info.prosody.rate;
             pitch=markup_info.prosody.pitch;
             volume=markup_info.prosody.volume;
-          }
-        if(markup_language_and_voice.first!=language_list::const_iterator())
-          {
-            language_and_voice.first=markup_language_and_voice.first;
-            if(markup_language_and_voice.second!=voice_list::const_iterator())
-              language_and_voice.second=markup_language_and_voice.second;
           }
       }
     return sentence_end;

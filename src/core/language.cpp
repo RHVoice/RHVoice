@@ -24,6 +24,7 @@
 #include "core/russian.hpp"
 #include "core/english.hpp"
 #include "core/esperanto.hpp"
+#include "core/georgian.hpp"
 #include "core/stress_pattern.hpp"
 
 namespace RHVoice
@@ -798,6 +799,7 @@ namespace RHVoice
     register_language<russian_info>(data_path,userdict_path);
     register_language<english_info>(data_path,userdict_path);
     register_language<esperanto_info>(data_path,userdict_path);
+    register_language<georgian_info>(data_path,userdict_path);
   }
 
   bool language_search_criteria::operator()(const language_info& info) const

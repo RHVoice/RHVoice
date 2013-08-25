@@ -307,6 +307,11 @@ namespace RHVoice
       return (vowel_letters.find(cp)!=vowel_letters.end());
     }
 
+    virtual bool has_unicase_alphabet() const
+    {
+      return false;
+    }
+
     const std::string& get_alpha2_code() const
     {
       return alpha2_code;
