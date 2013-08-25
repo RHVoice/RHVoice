@@ -114,7 +114,12 @@ namespace RHVoice
                     if(last_char_pos==prev_token.text.begin())
                       return false;
                     else
-                      return str::isupper(next_token.text[0]);
+                      {
+                        bool unicase=false;
+                        if(language_and_voice.first!=language_list::const_iterator())
+                          unicase=language_and_voice.first->has_unicase_alphabet();
+                        return (unicase||str::isupper(next_token.text[0]));
+                      }
                   }
                 else
                   return true;

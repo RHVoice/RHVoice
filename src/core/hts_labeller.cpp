@@ -37,6 +37,19 @@ namespace RHVoice
 
     const value x(std::string("x"));
     const value zero(std::string("0"));
+    struct hts_none: public feature_function
+    {
+      hts_none():
+        feature_function("none")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return x;
+      }
+    };
+
 
     struct hts_prev_prev_name: public feature_function
     {
@@ -911,6 +924,240 @@ namespace RHVoice
         return result;
       }
     };
+
+    struct hts_num_consonants_to_end_of_cluster: public feature_function
+    {
+      hts_num_consonants_to_end_of_cluster():
+        feature_function("num_consonants_to_end_of_cluster")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        unsigned int count=0;
+        item::const_iterator it=seg.as("Transcription").get_iterator();
+        while(it->has_next())
+          {
+            ++it;
+            if(it->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        return count;
+      }
+    };
+
+    struct hts_num_consonants_to_start_of_cluster: public feature_function
+    {
+      hts_num_consonants_to_start_of_cluster():
+        feature_function("num_consonants_to_start_of_cluster")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        unsigned int count=0;
+        item::const_iterator it=seg.as("Transcription").get_iterator();
+        while(it->has_prev())
+          {
+            --it;
+            if(it->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        return count;
+      }
+    };
+
+    struct hts_num_consonants_in_cluster: public feature_function
+    {
+      hts_num_consonants_in_cluster():
+        feature_function("num_consonants_in_cluster")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(seg.eval("ph_vc").as<std::string>()!="-")
+          return x;
+        unsigned int count=1;
+        item::const_iterator it1=seg.as("Transcription").get_iterator();
+        item::const_iterator it2=it1;
+        while(it1->has_next())
+          {
+            ++it1;
+            if(it1->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        while(it2->has_prev())
+          {
+            --it2;
+            if(it2->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        return count;
+      }
+    };
+
+    struct hts_num_consonants_to_next_vowel: public feature_function
+    {
+      hts_num_consonants_to_next_vowel():
+        feature_function("num_consonants_to_next_vowel")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        unsigned int count=0;
+        item::const_iterator it=seg.get_iterator();
+        while(it->has_next())
+          {
+            ++it;
+            if(it->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        return count;
+      }
+    };
+
+    struct hts_num_consonants_to_prev_vowel: public feature_function
+    {
+      hts_num_consonants_to_prev_vowel():
+        feature_function("num_consonants_to_prev_vowel")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        unsigned int count=0;
+        item::const_iterator it=seg.get_iterator();
+        while(it->has_prev())
+          {
+            --it;
+            if(it->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        return count;
+      }
+    };
+
+    struct hts_num_intervocalic_consonants: public feature_function
+    {
+      hts_num_intervocalic_consonants():
+        feature_function("num_intervocalic_consonants")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(seg.eval("ph_vc").as<std::string>()!="-")
+          return x;
+        unsigned int count=1;
+        item::const_iterator it1=seg.get_iterator();
+        item::const_iterator it2=it1;
+        while(it1->has_next())
+          {
+            ++it1;
+            if(it1->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        while(it2->has_prev())
+          {
+            --it2;
+            if(it2->eval("ph_vc").as<std::string>()!="-")
+              break;
+            ++count;
+          }
+        return count;
+      }
+    };
+
+    struct hts_num_vowels_to_start_of_word: public feature_function
+    {
+      hts_num_vowels_to_start_of_word():
+        feature_function("num_vowels_to_start_of_word")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        const item& s=seg.as("Transcription");
+        item::const_iterator it1=s.parent().begin();
+        item::const_iterator it2=s.get_iterator();
+        unsigned int count=std::count_if(it1,it2,feature_equals<std::string>("ph_vc","+"));
+        return count;
+      }
+    };
+
+    struct hts_num_vowels_to_end_of_word: public feature_function
+    {
+      hts_num_vowels_to_end_of_word():
+        feature_function("num_vowels_to_end_of_word")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        const item& s=seg.as("Transcription");
+        item::const_iterator it2=s.parent().end();
+        item::const_iterator it1=++(s.get_iterator());
+        unsigned int count=std::count_if(it1,it2,feature_equals<std::string>("ph_vc","+"));
+        return count;
+      }
+    };
+
+    struct hts_num_vowels_to_start_of_phrase: public feature_function
+    {
+      hts_num_vowels_to_start_of_phrase():
+        feature_function("num_vowels_to_start_of_phrase")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        item::const_iterator it1=seg.as("Transcription").parent().as("Phrase").parent().first_child().as("Transcription").first_child().as("Segment").get_iterator();
+        item::const_iterator it2=seg.get_iterator();
+        unsigned int count=std::count_if(it1,it2,feature_equals<std::string>("ph_vc","+"));
+        return count;
+      }
+    };
+
+    struct hts_num_vowels_to_end_of_phrase: public feature_function
+    {
+      hts_num_vowels_to_end_of_phrase():
+        feature_function("num_vowels_to_end_of_phrase")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        item::const_iterator it1=++(seg.get_iterator());
+        item::const_iterator it2=++(seg.as("Transcription").parent().as("Phrase").parent().last_child().as("Transcription").last_child().as("Segment").get_iterator());
+        unsigned int count=std::count_if(it1,it2,feature_equals<std::string>("ph_vc","+"));
+        return count;
+      }
+    };
   }
 
   void hts_labeller::load_label_format_description(const std::string& file_path)
@@ -980,6 +1227,7 @@ namespace RHVoice
 
   void hts_labeller::define_default_features()
   {
+    define_feature(smart_ptr<feature_function>(new hts_none));
     define_feature(smart_ptr<feature_function>(new hts_prev_prev_name));
     define_feature(smart_ptr<feature_function>(new hts_prev_name));
     define_feature(smart_ptr<feature_function>(new hts_name));
@@ -1041,5 +1289,15 @@ namespace RHVoice
     define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_stressed_syl_in_word));
     define_feature(smart_ptr<feature_function>(new hts_dist_to_next_stressed_syl_in_word));
     define_feature(smart_ptr<feature_function>(new hts_utt_is_question));
+    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_end_of_cluster));
+    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_start_of_cluster));
+    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_next_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_prev_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_num_consonants_in_cluster));
+    define_feature(smart_ptr<feature_function>(new hts_num_intervocalic_consonants));
+    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_start_of_word));
+    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_end_of_word));
+    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_start_of_phrase));
+    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_end_of_phrase));
   }
 }
