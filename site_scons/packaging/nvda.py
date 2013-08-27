@@ -20,7 +20,7 @@ from archiving import archiver
 
 class addon_packager(archiver):
 	def __init__(self,name,env,display_name,summary,description,version):
-		package_name="{}_{}".format(name,version)
+		package_name="{}-{}".format(name,version)
 		super(addon_packager,self).__init__(package_name,env,"nvda-addon")
 		self.set_string("name",display_name)
 		self.set_string("summary",summary)

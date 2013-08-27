@@ -1,14 +1,37 @@
 import sys
+import os
 import os.path
+from SimpleConfigParser import SimpleConfigParser
+import packaging.nvda
+import packaging.windows
 
 Import("env")
+local_env=env.Clone()
 
-data_files=dict()
 for dir_name in ["languages","voices"]:
-    data_files[dir_name]=dict()
-    for subdir_name in map(os.path.basename,Glob(os.path.join(dir_name,"*"),strings=True)):
-        subdir_path=os.path.join(dir_name,subdir_name)
-        data_files[dir_name][subdir_name]=Glob(os.path.join(subdir_path,"*"))
+    type=dir_name[:-1]
+    dir=Dir(dir_name).srcnode()
+    for subdir_name in os.listdir(dir.abspath):
+        subdir=dir.Dir(subdir_name)
+        data_files=[subdir.File(name) for name in os.listdir(subdir.abspath)]
+        cp=SimpleConfigParser()
+        cp.read(subdir.File(type+".info").abspath)
+        props=dict((name,cp.getoption(name)) for name in cp.getoptionslist())
+        props["type"]=type
+        version="{format}.{revision}".format(**props)
+        name_format_string="RHVoice-voice-{language}-{name}" if type=="voice" else "RHVoice-language-{name}"
+        name=name_format_string.format(**props)
+        description_format_string="{language} voice {name} for RHVoice" if type=="voice" else "{name} language pack for RHVoice"
+        description=description_format_string.format(**props)
         if sys.platform!="win32":
-            env.InstallData(data_files[dir_name][subdir_name],subdir_path)
-Export(["data_files"])
+            local_env.InstallData(data_files,os.path.join(dir_name,subdir_name))
+        packagers=dict()
+        if sys.platform=="win32":
+            packagers["nvda"]=packaging.nvda.addon_packager(name,local_env,name,description,description,version)
+            packagers["nvda"].add(data_files,r"RHVoice-data\{type}s\{name}".format(**props))
+            it=local_env.Substfile(Dir(dir_name).Dir(subdir_name).File("installTasks.py"),"installTasks.py.in",SUBST_DICT=dict(("@"+k+"@",v) for k,v in props.iteritems()))[0]
+            packagers["nvda"].add(it)
+            packagers["sapi"]=packaging.windows.app_packager(name,local_env,description,version,True)
+            packagers["sapi"].add(data_files,r"data\{type}s\{name}".format(**props))
+        for p in packagers.itervalues():
+            p.package()
