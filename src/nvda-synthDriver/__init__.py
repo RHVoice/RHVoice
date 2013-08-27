@@ -31,8 +31,8 @@ import languageHandler
 
 module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 lib_path=os.path.join(module_dir,"RHVoice.dll")
-data_path=os.path.join(module_dir,"data")
 config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
+data_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-data")
 
 class RHVoice_tts_engine_struct(Structure):
     pass

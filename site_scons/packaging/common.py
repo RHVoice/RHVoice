@@ -29,6 +29,9 @@ class file_info(object):
 		for name,value in attrs.iteritems():
 			setattr(self,name,value)
 
+	def get(self,name):
+		return getattr(self,name,None)
+
 class packager(object):
 	def __init__(self,name,env,ext=None):
 		self.name=name

@@ -16,30 +16,52 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+from collections import OrderedDict
 from common import *
 
 class app_packager(packager):
-	def __init__(self,name,env,display_name,version):
+	def __init__(self,name,env,display_name,version,data_package=False):
 		package_name="{}-v{}-setup".format(name,version)
 		super(app_packager,self).__init__(package_name,env,"exe")
 		self.product_name=name
 		self.display_name=display_name
 		self.version=version
 		self.script=self.outdir.File("script.nsi")
-		self.data_package=False
+		self.data_package=data_package
 		self.reg_values=list()
+		self.uninstaller="uninstall-{}.exe".format(name)
+		i=self.get_uninstall_info()
+		k=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
+		for n,v in i.iteritems():
+			self.add_reg_value("HKLM",k,n,v)
 
-	def add_reg_value(root_key,key,name,value,x64=False):
+	def add_reg_value(self,root_key,key,name,value,x64=False):
 		self.reg_values.append((root_key,key,name,value,x64))
 
 	def add_line(self,*args):
 		self.lines.append(" ".join(args))
+
+	def get_uninstall_info(self):
+		i=OrderedDict()
+		i["DisplayName"]=self.display_name
+		i["UninstallString"]=r'$$INSTDIR\uninstall\{}'.format(self.uninstaller)
+		i["Publisher"]="Olga Yakovleva"
+		i["InstallLocation"]="$$INSTDIR"
+		i["DisplayVersion"]=self.version
+		i["URLUpdateInfo"]="http://github.com/Olga-Yakovleva/RHVoice"
+		i["NoModify"]=1
+		i["NoRepair"]=1
+		return i
 
 	def gen_includes(self):
 		if not self.data_package:
 			self.add_line('!include "LogicLib.nsh"')
 			self.add_line('!include "Library.nsh"')
 			self.add_line('!include "x64.nsh"')
+
+	def gen_language_includes(self):
+		for lang in ["English","Russian"]:
+			self.add_line(r'LoadLanguageFile "$${{NSISDIR}}\Contrib\Language files\{}.nlf"'.format(lang))
 
 	def gen_settings(self):
 		self.add_line("SetCompressor /solid lzma")
@@ -50,6 +72,7 @@ class app_packager(packager):
 		self.add_line("ShowInstDetails show")
 		self.add_line("ShowUninstDetails show")
 		self.add_line(r'InstallDir "$$PROGRAMFILES\RHVoice"')
+		self.add_line(r'InstallDirRegKey HKLM "Software\RHVoice" "path"')
 		self.add_line('Name','"{} v{}"'.format(self.display_name,self.version))
 		self.add_line('OutFile','"..\\'+os.path.basename(self.outfile.path)+'"')
 		self.add_line('RequestExecutionLevel admin')
@@ -64,10 +87,19 @@ class app_packager(packager):
 	def gen_inst_section(self):
 		self.add_line('Section')
 		for f in self.files:
-			dir=os.path.dirname(f.outpath)
+			dir,basename=os.path.split(f.outpath)
 			outdir=os.path.join('$$INSTDIR',dir) if dir else '$$INSTDIR'
 			self.add_line('SetOutPath','"'+outdir+'"')
-			self.add_line('File',f.outpath)
+			if f.get("regdll"):
+				if f.get("x64"):
+					self.add_line('!define LIBRARY_X64')
+					self.add_line('$${If} $${RunningX64}')
+				self.add_line('!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED {} "{}" $$INSTDIR'.format(f.outpath,basename))
+				if f.get("x64"):
+					self.add_line('$${EndIf}')
+					self.add_line('!undef LIBRARY_X64')
+			else:
+				self.add_line('File',f.outpath)
 		for root_key,key,name,value,x64 in self.reg_values:
 			if isinstance(value,int):
 				cmd='WriteRegDWORD {} "{}" "{}" {}'.format(root_key,key,name,value)
@@ -80,23 +112,40 @@ class app_packager(packager):
 				self.add_line(cmd)
 				self.add_line('SetRegView 32')
 				self.add_line('$${EndIf}')
+		self.add_line(r'SetOutPath $$INSTDIR\uninstall')
+		self.add_line(r'WriteUninstaller "uninstall\{}"'.format(self.uninstaller))
 		self.add_line('SectionEnd')
 
 	def gen_uninst_section(self):
+		self.add_line("Function un.onInit")
+		self.add_line(r'ReadRegStr $$INSTDIR HKLM "Software\RHVoice" "path"')
+		self.add_line("FunctionEnd")
 		self.add_line('Section UnInstall')
-		dirs=set(['$$INSTDIR'])
+		dirs=set(['$$INSTDIR',r'$$INSTDIR\uninstall'])
 		for f in self.files:
-			self.add_line('Delete','"'+os.path.join('$$INSTDIR',f.outpath)+'"')
+			if f.get("regdll"):
+				if f.get("x64"):
+					self.add_line('!define LIBRARY_X64')
+					self.add_line('$${If} $${RunningX64}')
+				self.add_line(r'!insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED "$$INSTDIR\{}"'.format(f.outpath))
+				if f.get("x64"):
+					self.add_line('$${EndIf}')
+					self.add_line('!undef LIBRARY_X64')
+			else:
+				self.add_line('Delete','"'+os.path.join('$$INSTDIR',f.outpath)+'"')
 			dir=os.path.dirname(f.outpath)
-			if dir:
+			while dir:
 				dirs.add(os.path.join('$$INSTDIR',dir))
+				dir=os.path.dirname(dir)
+		self.add_line(r'Delete "$$INSTDIR\uninstall\{}"'.format(self.uninstaller))
 		for dir in reversed(sorted(dirs)):
 			self.add_line('Rmdir','"'+dir+'"')
-		reg_keys=set([(r[0],r[1],r[-1]) for r in self.reg_values])
-		for root_key,key,x64 in reversed(sorted(reg_keys)):
+		reg_keys=set([(r[0],r[1]) for r in self.reg_values])
+		reg_keys_x64=set([(r[0],r[1]) for r in self.reg_values if r[-1]])
+		for root_key,key in reversed(sorted(reg_keys)):
 			cmd='DeleteRegKey {} "{}"'.format(root_key,key)
 			self.add_line(cmd)
-			if self.env["enable_x64"] and x64:
+			if self.env["enable_x64"] and ((root_key,key) in reg_keys_x64):
 				self.add_line('$${If} $${RunningX64}')
 				self.add_line('SetRegView 64')
 				self.add_line(cmd)
@@ -107,8 +156,10 @@ class app_packager(packager):
 	def package(self):
 		self.lines=list()
 		self.gen_includes()
+		self.gen_language_includes()
 		self.gen_settings()
 		self.gen_pages()
 		self.gen_inst_section()
 		self.gen_uninst_section()
-		self.env.Textfile(self.script,self.lines,TEXTFILESUFFIX=".nsi")
+		s=self.env.Textfile(self.script,self.lines,TEXTFILESUFFIX=".nsi")
+		self.env.Command(self.outfile,s,"$makensis $SOURCE")
