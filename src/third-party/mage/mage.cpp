@@ -28,6 +28,10 @@
 
 #include "mage.h"
 
+#ifdef WIN32
+extern "C" __declspec(dllimport) void __stdcall Sleep(unsigned long);
+#endif
+
 #define printf(...) fprintf(stderr,__VA_ARGS__)
 
 //	Constructor that allocates the required memory for a Mage instance  
@@ -280,7 +284,9 @@ bool MAGE::Mage::popLabel( void )
 		return( true );
 	}
 	else
-        #ifndef WIN32
+        #ifdef WIN32
+          Sleep(1);
+        #else
           usleep( 100 );
         #endif
 	
