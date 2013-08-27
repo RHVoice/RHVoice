@@ -28,6 +28,10 @@
 
 #include "ModelQueue.h"
 
+#ifdef WIN32
+extern "C" __declspec(dllimport) void __stdcall Sleep(unsigned long);
+#endif
+
 //	Constructor that allocates the required memory for a Model queue.
 MAGE::ModelQueueMemory::ModelQueueMemory()
 {
@@ -168,9 +172,11 @@ void MAGE::ModelQueue::generate( MAGE::Engine * engine, FrameQueue * frameQueue,
 		for( q = 0; q < rawData[head].getState( s ).duration; q++ )
 		{
 			while( frameQueue->isFull() )
-                          #ifndef WIN32
+                        #ifdef WIN32
+                          Sleep(1);
+                        #else
                           usleep( 1000 );
-                          #endif
+                        #endif
 			
 			frame = frameQueue->next();
 			
