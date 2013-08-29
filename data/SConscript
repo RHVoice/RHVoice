@@ -28,9 +28,7 @@ for dir_name in ["languages","voices"]:
         packagers=dict()
         if sys.platform=="win32":
             packagers["nvda"]=packaging.nvda.addon_packager(name,local_env,name,description,description,version)
-            packagers["nvda"].add(data_files,r"RHVoice-data\{type}s\{name}".format(**props))
-            it=local_env.Substfile(Dir(dir_name).Dir(subdir_name).File("installTasks.py"),"installTasks.py.in",SUBST_DICT=dict(("@"+k+"@",v) for k,v in props.iteritems()))[0]
-            packagers["nvda"].add(it)
+            packagers["nvda"].add(data_files,"data")
             packagers["sapi"]=packaging.windows.app_packager(name,local_env,description,version,True)
             packagers["sapi"].add(data_files,r"data\{type}s\{name}".format(**props))
         for p in packagers.itervalues():

@@ -25,12 +25,36 @@ namespace RHVoice
   {
   }
 
+  std::vector<std::string> engine::init_params::get_resource_paths(const std::string& type) const
+  {
+    std::vector<std::string> result;
+    if(!data_path.empty()&&path::isdir(data_path))
+      {
+        std::string parent_path(path::join(data_path,type+"s"));
+        if(path::isdir(parent_path))
+          {
+            for(path::directory dir(parent_path);!dir.done();dir.next())
+              {
+                std::string resource_path(path::join(parent_path,dir.get()));
+                if(path::isdir(resource_path))
+                  result.push_back(resource_path);
+              }
+          }
+      }
+    for(std::vector<std::string>::const_iterator it=resource_paths.begin();it!=resource_paths.end();++it)
+      {
+        if(path::isdir(*it)&&path::isfile(path::join(*it,type+".info")))
+          result.push_back(*it);
+      }
+    return result;
+  }
+
   engine::engine(const init_params& p):
     data_path(p.data_path),
     config_path(p.config_path),
     version(VERSION),
-    languages(path::join(data_path,"languages"),path::join(config_path,"dicts")),
-    voices(path::join(data_path,"voices"),languages),
+    languages(p.get_language_paths(),path::join(config_path,"dicts")),
+    voices(p.get_voice_paths(),languages),
     prefer_primary_language("prefer_primary_language",false)
   {
     if(languages.empty())

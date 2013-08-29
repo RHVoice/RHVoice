@@ -377,16 +377,47 @@ namespace RHVoice
   class language_list: public resource_list<language_info>
   {
   public:
-    language_list(const std::string& data_path,const std::string& userdict_path);
+    language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path);
 
   private:
-    template<class T>
-    void register_language(const std::string& data_path,const std::string& userdict_path)
+    class creator
     {
-      smart_ptr<language_info> p(new T(data_path,userdict_path));
-      add(p);
-      p->all_languages=this;
+    public:
+      creator()
+      {
+      }
+
+      virtual ~creator()
+      {
+      }
+
+      virtual smart_ptr<language_info> create(const std::string& data_path,const std::string& userdict_path) const=0;
+
+    private:
+      creator(const creator&);
+      creator& operator=(const creator&);
+    };
+
+    template<class T>
+    class concrete_creator: public creator
+    {
+    public:
+      smart_ptr<language_info> create(const std::string& data_path,const std::string& userdict_path) const
+      {
+        return smart_ptr<language_info>(new T(data_path,userdict_path));
+      }
+    };
+
+    typedef std::pair<std::string,unsigned int> language_id;
+    typedef std::map<language_id,smart_ptr<creator> > Creators;
+
+    template<class T>
+    void register_language(const std::string& name,unsigned int format)
+    {
+      creators[language_id(name,format)]=smart_ptr<creator>(new concrete_creator<T>);
     }
+
+    Creators creators;
   };
 
   class language_search_criteria: public std::unary_function<const language_info&,bool>

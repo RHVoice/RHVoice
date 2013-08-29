@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010, 2011, 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,11 +28,11 @@ from logHandler import log
 from synthDriverHandler import SynthDriver,VoiceInfo
 import speech
 import languageHandler
+import addonHandler
 
 module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 lib_path=os.path.join(module_dir,"RHVoice.dll")
 config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
-data_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-data")
 
 class RHVoice_tts_engine_struct(Structure):
     pass
@@ -63,6 +63,7 @@ class RHVoice_callbacks(Structure):
 class RHVoice_init_params(Structure):
     _fields_=[("data_path",c_char_p),
               ("config_path",c_char_p),
+              ("resource_paths",POINTER(c_char_p)),
               ("callbacks",RHVoice_callbacks),
               ("options",c_uint)]
 
@@ -276,8 +277,11 @@ class SynthDriver(SynthDriver):
         self.__c_speech_callback=RHVoice_callback_types.play_speech(self.__speech_callback)
         self.__mark_callback=mark_callback(self.__lib)
         self.__c_mark_callback=RHVoice_callback_types.process_mark(self.__mark_callback)
-        init_params=RHVoice_init_params(data_path.encode("utf-8"),
+        resource_paths=[os.path.join(addon.path,"data").encode("UTF-8") for addon in addonHandler.getRunningAddons() if (addon.name.startswith("RHVoice-language") or addon.name.startswith("RHVoice-voice"))]
+        c_resource_paths=(c_char_p*(len(resource_paths)+1))(*(resource_paths+[None]))
+        init_params=RHVoice_init_params(None,
                                         config_path.encode("utf-8"),
+                                        c_resource_paths,
                                         RHVoice_callbacks(self.__c_speech_callback,
                                                           self.__c_mark_callback,
                                                           cast(None,RHVoice_callback_types.word_starts),

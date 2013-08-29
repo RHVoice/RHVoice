@@ -131,6 +131,15 @@ RHVoice_tts_engine_struct::RHVoice_tts_engine_struct(const RHVoice_init_params* 
     engine_params.data_path.assign(init_params->data_path);
   if(init_params->config_path)
     engine_params.config_path.assign(init_params->config_path);
+  if(init_params->resource_paths)
+    {
+      const char** p=init_params->resource_paths;
+      while(*p)
+        {
+          engine_params.resource_paths.push_back(std::string(*p));
+          ++p;
+        }
+    }
   engine_ptr=engine::create(engine_params);
   if(engine_ptr->get_voices().empty())
     throw std::runtime_error("No voices");

@@ -1,4 +1,4 @@
-/* Copyright (C) 2010, 2011, 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -51,6 +51,10 @@ typedef struct
   {
     /* The paths should be encoded as utf-8 strings. */
     const char *data_path,*config_path;
+    /* A list of paths to language and voice data. */
+    /* It should be used when it is not possible to collect all the data in one place. */
+    /* The last item in the array should be NULL. */
+    const char** resource_paths;
     RHVoice_callbacks callbacks;
     RHVoice_init_options options;
   } RHVoice_init_params;
