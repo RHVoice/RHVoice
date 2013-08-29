@@ -42,6 +42,20 @@ namespace RHVoice
     {
       init_params();
       std::string data_path,config_path;
+      std::vector<std::string> resource_paths;
+
+      std::vector<std::string> get_language_paths() const
+      {
+        return get_resource_paths("language");
+      }
+
+      std::vector<std::string> get_voice_paths() const
+      {
+        return get_resource_paths("voice");
+      }
+
+    private:
+      std::vector<std::string> get_resource_paths(const std::string& type) const;
     };
 
     explicit engine(const init_params& p=init_params());

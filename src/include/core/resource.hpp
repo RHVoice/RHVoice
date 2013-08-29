@@ -23,11 +23,11 @@
 #include "smart_ptr.hpp"
 #include "threading.hpp"
 #include "str.hpp"
+#include "config.hpp"
+#include "path.hpp"
 
 namespace RHVoice
 {
-  class config;
-
   template<class T>
   class resource_info
   {
@@ -293,6 +293,34 @@ namespace RHVoice
     resource_list& operator=(const resource_list&);
 
     container elements;
+  };
+
+  class resource_description
+  {
+  public:
+    std::string type;
+    std::string data_path;
+    string_property name;
+    numeric_property<unsigned int> format;
+    numeric_property<unsigned int> revision;
+
+    resource_description(const std::string& type_,const std::string& data_path_):
+      type(type_),
+      data_path(data_path_),
+      name("name"),
+      format("format",0,0,100),
+      revision("revision",0,0,100)
+    {
+      config conf;
+      conf.register_setting(name);
+      conf.register_setting(format);
+      conf.register_setting(revision);
+      conf.load(path::join(data_path,type+".info"));
+    }
+
+  private:
+    resource_description(const resource_description&);
+    resource_description& operator=(const resource_description&);
   };
 }
 #endif

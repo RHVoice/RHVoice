@@ -769,13 +769,13 @@ namespace RHVoice
     post_lex(u);
   }
 
-  language_info::language_info(const std::string& name,const std::string& data_path,const std::string& userdict_path_):
+  language_info::language_info(const std::string& name,const std::string& data_path_,const std::string& userdict_path_):
     enabled("enabled",true),
     all_languages(0),
-    userdict_path(path::join(userdict_path_,name))
+    userdict_path(userdict_path_)
   {
     set_name(name);
-    set_data_path(path::join(data_path,name));
+    set_data_path(data_path_);
   }
 
   void language_info::register_settings(config& cfg)
@@ -794,12 +794,22 @@ namespace RHVoice
     text_settings.register_self(cfg,prefix);
   }
 
-  language_list::language_list(const std::string& data_path,const std::string& userdict_path)
+  language_list::language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path)
   {
-    register_language<russian_info>(data_path,userdict_path);
-    register_language<english_info>(data_path,userdict_path);
-    register_language<esperanto_info>(data_path,userdict_path);
-    register_language<georgian_info>(data_path,userdict_path);
+    register_language<russian_info>("Russian",1);
+    register_language<english_info>("English",1);
+    register_language<esperanto_info>("Esperanto",1);
+    register_language<georgian_info>("Georgian",1);
+    for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
+      {
+        resource_description desc("language",*it1);
+        Creators::const_iterator it2=creators.find(language_id(desc.name,desc.format));
+        if(it2==creators.end())
+          continue;
+        smart_ptr<language_info> lang=(it2->second)->create(*it1,path::join(userdict_path,desc.name));
+        lang->all_languages=this;
+        add(lang);
+      }
   }
 
   bool language_search_criteria::operator()(const language_info& info) const

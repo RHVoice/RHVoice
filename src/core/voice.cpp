@@ -70,17 +70,18 @@ namespace RHVoice
     cfg.register_setting(preferred,prefix);
   }
 
-  voice_list::voice_list(const std::string& data_path,language_list& languages)
+  voice_list::voice_list(const std::vector<std::string>& voice_paths,language_list& languages)
   {
-    for(path::directory dir(data_path);!dir.done();dir.next())
+    for(std::vector<std::string>::const_iterator it=voice_paths.begin();it!=voice_paths.end();++it)
       {
-        std::string voice_path(path::join(data_path,dir.get()));
-        if(path::isdir(voice_path))
+        if(path::isdir(*it))
           {
             smart_ptr<voice_info> v;
             try
               {
-                v.reset(new voice_info(voice_path,languages));
+                resource_description desc("voice",*it);
+                if(desc.format==1)
+                  v.reset(new voice_info(*it,languages));
               }
             catch(...)
               {

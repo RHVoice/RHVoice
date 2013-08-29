@@ -105,7 +105,7 @@ private:
   class voice_list: public resource_list<voice_info>
   {
   public:
-    voice_list(const std::string& data_path,language_list& languages);
+    voice_list(const std::vector<std::string>& voice_paths,language_list& languages);
   };
 
   class voice_search_criteria: public std::unary_function<const voice_info&,bool>
