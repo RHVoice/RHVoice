@@ -18,14 +18,19 @@
 from collections import defaultdict,OrderedDict
 import os
 import os.path
-from SCons.Script import File,Dir,Entry
+from SCons.Script import File,Dir,Entry,Value
 
 class file_info(object):
-	def __init__(self,infile,outdir,attrs):
-		inpath=infile.path
-		filename=os.path.basename(inpath)
+	def __init__(self,infile,outdir,contents,attrs):
+		if contents is not None:
+			self.infile=Value(contents,contents)
+			self.on_disk=False
+			filename=infile
+		else:
+			self.infile=File(infile) if isinstance(infile,basestring) else infile
+			self.on_disk=True
+			filename=os.path.basename(self.infile.path)
 		self.outpath=os.path.join(outdir,filename) if outdir else filename
-		self.infile=infile
 		for name,value in attrs.iteritems():
 			setattr(self,name,value)
 
@@ -33,30 +38,29 @@ class file_info(object):
 		return getattr(self,name,None)
 
 class packager(object):
-	def __init__(self,name,env,ext=None):
+	def __init__(self,name,outdir,env,ext=None):
 		self.name=name
 		self.ext=ext
 		self.env=env
-		self.outdir=Dir(name)
-		self.outfile =File(name+"."+ext) if ext else None
+		if ext:
+			self.outdir=outdir
+			self.outfile=self.outdir.File(name+"."+ext)
+		else:
+			self.outdir=outdir.Dir(name)
+			self.outfile=None
 		self.config=OrderedDict()
 		self.strings=OrderedDict()
 		self.translations=defaultdict(OrderedDict)
 		self.files=list()
 
-	def add(self,obj,outdir=None,**attrs):
+	def add(self,obj,outdir=None,contents=None,**attrs):
 		if isinstance(obj,list):
 			for obj0 in obj:
-				self.add(obj0,outdir,**attrs)
+				self.add(obj0,outdir,None,**attrs)
 			return
-		if isinstance(obj,basestring):
-			infile=File(obj)
-		else:
-			infile=obj
-		f=file_info(infile,outdir,attrs)
-		c=self.env.InstallAs(os.path.join(str(self.outdir),f.outpath),f.infile)
+		f=file_info(obj,outdir,contents,attrs)
 		if self.outfile:
-			self.env.Depends(self.outfile,c)
+			self.env.Depends(self.outfile,f.infile)
 		self.files.append(f)
 
 	def configure(self,key,value):

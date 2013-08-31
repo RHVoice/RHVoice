@@ -27,9 +27,10 @@ for dir_name in ["languages","voices"]:
             local_env.InstallData(data_files,os.path.join(dir_name,subdir_name))
         packagers=dict()
         if sys.platform=="win32":
-            packagers["nvda"]=packaging.nvda.addon_packager(name,local_env,name,description,description,version)
+            pkgdir=Dir("..").Dir("packages")
+            packagers["nvda"]=packaging.nvda.addon_packager(name,pkgdir.Dir("nvda"),local_env,name,description,description,version)
             packagers["nvda"].add(data_files,"data")
-            packagers["sapi"]=packaging.windows.app_packager(name,local_env,description,version,True)
+            packagers["sapi"]=packaging.windows.app_packager(name,pkgdir.Dir("sapi"),local_env,description,version,True)
             packagers["sapi"].add(data_files,r"data\{type}s\{name}".format(**props))
         for p in packagers.itervalues():
             p.package()
