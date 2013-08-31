@@ -19,9 +19,9 @@ import os.path
 from archiving import archiver
 
 class addon_packager(archiver):
-	def __init__(self,name,env,display_name,summary,description,version):
+	def __init__(self,name,outdir,env,display_name,summary,description,version):
 		package_name="{}-{}".format(name,version)
-		super(addon_packager,self).__init__(package_name,env,"nvda-addon")
+		super(addon_packager,self).__init__(package_name,outdir,env,"nvda-addon")
 		self.set_string("name",display_name)
 		self.set_string("summary",summary)
 		self.set_string("description",description)
@@ -32,15 +32,12 @@ class addon_packager(archiver):
 	def build_manifest(self,lang=None):
 		if lang:
 			properties=self.translations[lang]
-			outfile=self.outdir.Dir("locale").Dir(lang).File("manifest.ini")
+			outdir=os.path.join("locale",lang)
 		else:
 			properties=self.strings
-			outfile=self.outdir.File("manifest.ini")
-		lines=list()
-		for key,value in properties.iteritems():
-			lines.append("{} = {}".format(key,value.encode("utf-8")))
-		manifest=self.env.Textfile(outfile,lines,TEXTFILESUFFIX=".ini")
-		self.env.Depends(self.outfile,manifest)
+			outdir=None
+		contents="".join("{} = {}\n".format(k,v.encode("UTF-8")) for k,v in properties.iteritems())
+		self.add("manifest.ini",outdir,contents)
 
 	def package(self):
 		self.build_manifest()

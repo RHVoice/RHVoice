@@ -20,13 +20,13 @@ from collections import OrderedDict
 from common import *
 
 class app_packager(packager):
-	def __init__(self,name,env,display_name,version,data_package=False):
+	def __init__(self,name,outdir,env,display_name,version,data_package=False):
 		package_name="{}-v{}-setup".format(name,version)
-		super(app_packager,self).__init__(package_name,env,"exe")
+		super(app_packager,self).__init__(package_name,outdir,env,"exe")
 		self.product_name=name
 		self.display_name=display_name
 		self.version=version
-		self.script=self.outdir.File("script.nsi")
+		self.script=self.outdir.File(name+".nsi")
 		self.data_package=data_package
 		self.reg_values=list()
 		self.uninstaller="uninstall-{}.exe".format(name)
@@ -74,7 +74,7 @@ class app_packager(packager):
 		self.add_line(r'InstallDir "$$PROGRAMFILES\RHVoice"')
 		self.add_line(r'InstallDirRegKey HKLM "Software\RHVoice" "path"')
 		self.add_line('Name','"{} v{}"'.format(self.display_name,self.version))
-		self.add_line('OutFile','"..\\'+os.path.basename(self.outfile.path)+'"')
+		self.add_line('OutFile','"'+os.path.basename(self.outfile.path)+'"')
 		self.add_line('RequestExecutionLevel admin')
 
 	def gen_pages(self):
@@ -87,6 +87,7 @@ class app_packager(packager):
 	def gen_inst_section(self):
 		self.add_line('Section')
 		for f in self.files:
+			srcpath=os.path.relpath(f.infile.path,self.outdir.path)
 			dir,basename=os.path.split(f.outpath)
 			outdir=os.path.join('$$INSTDIR',dir) if dir else '$$INSTDIR'
 			self.add_line('SetOutPath','"'+outdir+'"')
@@ -94,12 +95,12 @@ class app_packager(packager):
 				if f.get("x64"):
 					self.add_line('!define LIBRARY_X64')
 					self.add_line('$${If} $${RunningX64}')
-				self.add_line('!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED {} "{}" $$INSTDIR'.format(f.outpath,basename))
+				self.add_line('!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED {} "{}" $$INSTDIR'.format(srcpath,basename))
 				if f.get("x64"):
 					self.add_line('$${EndIf}')
 					self.add_line('!undef LIBRARY_X64')
 			else:
-				self.add_line('File',f.outpath)
+				self.add_line('File',srcpath)
 		for root_key,key,name,value,x64 in self.reg_values:
 			if isinstance(value,int):
 				cmd='WriteRegDWORD {} "{}" "{}" {}'.format(root_key,key,name,value)

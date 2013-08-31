@@ -16,20 +16,29 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
-from distutils.archive_util import make_archive
+import zipfile
+from SCons.Script import Value
 from common import *
 
 def archive(target,source,env):
-	full_name=str(target[0])
-	name,ext=os.path.splitext(full_name)
-	dir=str(source[0])
-	make_archive(name,"zip",dir)
-	if ext!="zip":
-		os.rename(name+".zip",full_name)
+	with zipfile.ZipFile(str(target[0]),"w",zipfile.ZIP_DEFLATED) as f:
+		for src in source:
+			infile,outfile,on_disk=src.read()
+			if on_disk:
+				f.write(infile,outfile)
+			else:
+				f.writestr(outfile,infile)
 
 class archiver(packager):
-	def __init__(self,name,env,ext="zip"):
-		super(archiver,self).__init__(name,env,ext)
+	def __init__(self,name,outdir,env,ext="zip"):
+		super(archiver,self).__init__(name,outdir,env,ext)
 
 	def package(self):
-		return self.env.Command(self.outfile,self.outdir,archive)[0]
+		sources=list()
+		for f in self.files:
+			if f.on_disk:
+				src=(f.infile.path,f.outpath,True)
+			else:
+				src=(f.infile.read(),f.outpath,False)
+			sources.append(Value(src,src))
+		return self.env.Command(self.outfile,sources,archive)[0]
