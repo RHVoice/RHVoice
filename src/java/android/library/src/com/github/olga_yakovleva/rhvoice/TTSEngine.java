@@ -23,7 +23,7 @@ public final class TTSEngine
     private long data;
 
     private static native void onClassInit();
-    private native void onInit(String data_path,String config_path) throws RHVoiceException;
+    private native void onInit(String data_path,String config_path,String[] resource_paths) throws RHVoiceException;
     private native void onShutdown();
     private native VoiceInfo[] doGetVoices();
     private native void doSpeak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException;
@@ -34,14 +34,14 @@ public final class TTSEngine
         onClassInit();
     }
 
-    public TTSEngine(String data_path,String config_path) throws RHVoiceException
+    public TTSEngine(String data_path,String config_path,String[] resource_paths) throws RHVoiceException
     {
-        onInit(data_path,config_path);
+        onInit(data_path,config_path,resource_paths);
     }
 
     public TTSEngine() throws RHVoiceException
     {
-        this("","");
+        this("","",new String[0]);
     }
 
     public void shutdown()

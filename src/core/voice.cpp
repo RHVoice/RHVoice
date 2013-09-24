@@ -35,7 +35,8 @@ namespace RHVoice
   voice_info::voice_info(const std::string& data_path,language_list& languages):
     gender("gender",RHVoice_voice_gender_unknown),
     enabled("enabled",true),
-    preferred("preferred",false)
+    preferred("preferred",false),
+    country("country")
   {
     gender.define("male",RHVoice_voice_gender_male);
     gender.define("female",RHVoice_voice_gender_female);
@@ -49,6 +50,7 @@ namespace RHVoice
     config cfg;
     cfg.register_setting(name);
     cfg.register_setting(language_name);
+    cfg.register_setting(country);
     cfg.register_setting(sample_rate);
     cfg.register_setting(gender);
     cfg.load(path::join(data_path,"voice.info"));

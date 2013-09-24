@@ -229,6 +229,8 @@ namespace
   jmethodID LanguageInfo_setName_method;
   jmethodID LanguageInfo_setAlpha2Code_method;
   jmethodID LanguageInfo_setAlpha3Code_method;
+  jmethodID LanguageInfo_setAlpha2CountryCode_method;
+  jmethodID LanguageInfo_setAlpha3CountryCode_method;
   jclass SynthesisParameters_class;
   jmethodID SynthesisParameters_getMainVoice_method;
   jmethodID SynthesisParameters_getExtraVoice_method;
@@ -310,9 +312,9 @@ namespace
       doc=document::create_from_ssml(data->engine_ptr,text.begin(),text.end(),doc_params);
     else
       doc=document::create_from_plain_text(data->engine_ptr,text.begin(),text.end(),content_text,doc_params);
-    doc->speech_settings.absolute.rate=check(env,env->CallDoubleMethod(params,SynthesisParameters_getRate_method));
-    doc->speech_settings.absolute.pitch=check(env,env->CallDoubleMethod(params,SynthesisParameters_getPitch_method));
-    doc->speech_settings.absolute.volume=check(env,env->CallDoubleMethod(params,SynthesisParameters_getVolume_method));
+    doc->speech_settings.relative.rate=check(env,env->CallDoubleMethod(params,SynthesisParameters_getRate_method));
+    doc->speech_settings.relative.pitch=check(env,env->CallDoubleMethod(params,SynthesisParameters_getPitch_method));
+    doc->speech_settings.relative.volume=check(env,env->CallDoubleMethod(params,SynthesisParameters_getVolume_method));
     doc->set_owner(*this);
     doc->synthesize();
   }
@@ -348,6 +350,8 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
   LanguageInfo_setName_method=get_string_setter(env,LanguageInfo_class,"setName");
   LanguageInfo_setAlpha2Code_method=get_string_setter(env,LanguageInfo_class,"setAlpha2Code");
   LanguageInfo_setAlpha3Code_method=get_string_setter(env,LanguageInfo_class,"setAlpha3Code");
+  LanguageInfo_setAlpha2CountryCode_method=get_string_setter(env,LanguageInfo_class,"setAlpha2CountryCode");
+  LanguageInfo_setAlpha3CountryCode_method=get_string_setter(env,LanguageInfo_class,"setAlpha3CountryCode");
   VoiceInfo_class=find_class(env,"com/github/olga_yakovleva/rhvoice/VoiceInfo");
   VoiceInfo_constructor=get_default_constructor(env,VoiceInfo_class);
   VoiceInfo_setName_method=get_string_setter(env,VoiceInfo_class,"setName");
@@ -365,7 +369,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
 }
 
 JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
-  (JNIEnv *env, jobject obj, jstring data_path, jstring config_path)
+(JNIEnv *env, jobject obj, jstring data_path, jstring config_path, jobjectArray resource_paths)
 {
   TRY
   clear_native_field(env,obj,data_field);
@@ -373,6 +377,16 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
   engine::init_params params;
   params.data_path=jstring_to_string(env,data_path);
   params.config_path=jstring_to_string(env,config_path);
+  if(resource_paths!=0)
+    {
+      const jsize n=env->GetArrayLength(resource_paths);
+      for(jsize i=0;i<n;++i)
+        {
+          jobject jstr=env->GetObjectArrayElement(resource_paths,i);
+          check(env);
+          params.resource_paths.push_back(jstring_to_string(env,static_cast<jstring>(jstr)));
+        }
+    }
   data->engine_ptr=engine::create(params);
   if(data->engine_ptr->get_voices().empty())
     throw no_voices();
@@ -414,6 +428,13 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
       const std::string& alpha3_code=lang.get_alpha3_code();
       if(!alpha3_code.empty())
         call_string_setter(env,jlanguage,LanguageInfo_setAlpha3Code_method,alpha3_code);
+      std::string country=it->get_country();
+      if(country.length()>=3)
+        {
+          call_string_setter(env,jlanguage,LanguageInfo_setAlpha3CountryCode_method,country.substr(0,3));
+          if(country.length()==6)
+            call_string_setter(env,jlanguage,LanguageInfo_setAlpha2CountryCode_method,country.substr(4));
+        }
       env->CallVoidMethod(jvoice,VoiceInfo_setLanguage_method,jlanguage);
       check(env);
       set_object_array_element(env,result,i,jvoice);

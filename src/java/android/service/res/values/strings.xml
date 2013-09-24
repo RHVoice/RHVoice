@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">RHVoice</string>
-    <string name="installing_voices">Installing voices</string>
+    <string name="unpacking_data">Unpacking data</string>
+    <string name="checking_data">Checking data</string>
+    <string name="loading_data">Loading data</string>
+    <string name="rhvoice_settings">RHVoice settings</string>
+    <string name="preferred_voices_title">Preferred voices</string>
+    <string name="preferred_voices_summary">Which voices to use if a program specifies only a language.</string>
+    <string name="preferred_voices_dialog_title">Select voices</string>
 </resources>

@@ -15,16 +15,44 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+
 import android.app.Activity;
 import android.os.Bundle;
+import android.content.Intent;
 
-public final class RHVoiceActivity extends Activity
+public final class RHVoiceActivity extends Activity implements FutureDataResult.Receiver
 {
+    static private final String TAG="RHVoiceInstallDataActivity";
+    private FutureDataResult dataResult;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        startActivity(new android.content.Intent(this,CheckTTSData.class));
+        dataResult=DataService.prepareData(this,this);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        if(dataResult!=null)
+            dataResult.unregisterReceiver();
+        super.onDestroy();
+    }
+
+    public void onDataSuccess(String[] paths)
+    {
+        final Intent intent=new Intent(this,SettingsActivity.class);
+        intent.putExtra("paths",paths);
+        startActivity(intent);
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    public void onDataFailure()
+    {
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

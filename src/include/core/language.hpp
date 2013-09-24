@@ -251,6 +251,7 @@ namespace RHVoice
     {
       alpha3_code=code;
     }
+
   public:
     voice_params voice_settings;
     text_params text_settings;
@@ -325,6 +326,11 @@ namespace RHVoice
     #ifdef WIN32
     virtual unsigned short get_id() const=0;
     #endif
+
+    virtual std::string get_country() const
+    {
+      return std::string();
+    }
 
     virtual bool supports_stress_marks() const
     {

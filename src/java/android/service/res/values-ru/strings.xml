@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="installing_voices">Установка голосов</string>
+    <string name="app_name">RHVoice</string>
+    <string name="unpacking_data">Распаковка данных</string>
+    <string name="checking_data">Проверка данных</string>
+    <string name="loading_data">Загрузка данных</string>
+    <string name="rhvoice_settings">Настройки RHVoice</string>
+    <string name="preferred_voices_title">Предпочитаемые голоса</string>
+    <string name="preferred_voices_summary">Какие голоса использовать, если программа указывает только язык.</string>
+    <string name="preferred_voices_dialog_title">Выберите голоса</string>
 </resources>

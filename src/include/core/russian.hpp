@@ -36,6 +36,11 @@ namespace RHVoice
     }
     #endif
 
+    std::string get_country() const
+    {
+      return "RUS/RU";
+    }
+
     bool supports_stress_marks() const
     {
       return true;

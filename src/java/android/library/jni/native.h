@@ -66,10 +66,10 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
 /*
  * Class:     com_github_olga_yakovleva_rhvoice_TTSEngine
  * Method:    onInit
- * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
-  (JNIEnv *, jobject, jstring, jstring);
+  (JNIEnv *, jobject, jstring, jstring, jobjectArray);
 
 /*
  * Class:     com_github_olga_yakovleva_rhvoice_TTSEngine

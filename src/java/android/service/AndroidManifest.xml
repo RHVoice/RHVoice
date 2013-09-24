@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.github.olga_yakovleva.rhvoice.android"
+      android:sharedUserId="com.github.olga_yakovleva.rhvoice"
           android:versionCode="1"
           android:versionName="0.4-a3">
   <uses-sdk
@@ -15,12 +16,16 @@
         <action android:name="android.intent.action.TTS_SERVICE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
+      <meta-data android:name="android.speech.tts" android:resource="@xml/tts_engine"/>
     </service>
     <activity
-        android:name="RHVoiceActivity">
+        android:name="RHVoiceActivity"
+        android:label="@string/rhvoice_settings"
+        android:theme="@android:style/Theme.Dialog"
+        android:noHistory="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
     <activity
@@ -33,11 +38,26 @@
     </activity>
     <activity
         android:name=".CheckTTSData"
-        android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        android:theme="@android:style/Theme.Dialog">
       <intent-filter>
         <action android:name="android.speech.tts.engine.CHECK_TTS_DATA"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
+    </activity>
+    <service
+        android:name=".DataService">
+    </service>
+    <activity
+        android:name=".SampleTextActivity"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar">
+      <intent-filter>
+        <action android:name="android.speech.tts.engine.GET_SAMPLE_TEXT"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
+    <activity
+        android:name=".SettingsActivity"
+        android:label="@string/rhvoice_settings">
     </activity>
   </application>
 </manifest>
