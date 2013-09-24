@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="russian_language_label">Russian language pack for RHVoice</string>
+  <string name="russian_voice_label">Russian voice __Name__ for RHVoice</string>
+</resources>

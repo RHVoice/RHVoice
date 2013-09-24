@@ -15,39 +15,53 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.BroadcastReceiver;
-import android.support.v4.content.LocalBroadcastManager;
 import android.media.AudioFormat;
+import android.preference.PreferenceManager;
+import android.speech.tts.SynthesisCallback;
+import android.speech.tts.SynthesisRequest;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeechService;
-import android.speech.tts.SynthesisRequest;
-import android.speech.tts.SynthesisCallback;
 import android.util.Log;
+
 import com.github.olga_yakovleva.rhvoice.*;
 
-public final class RHVoiceService extends TextToSpeechService
+public final class RHVoiceService extends TextToSpeechService implements FutureDataResult.Receiver
 {
-    private static final String TAG="RHVoice";
-    private static final int[] language_support_constants={TextToSpeech.LANG_NOT_SUPPORTED,TextToSpeech.LANG_AVAILABLE,TextToSpeech.LANG_COUNTRY_AVAILABLE,TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE};
-    private BroadcastReceiver reloader=null;
+    private static final String TAG="RHVoiceTTSService";
+    private static final int[] languageSupportConstants={TextToSpeech.LANG_NOT_SUPPORTED,TextToSpeech.LANG_AVAILABLE,TextToSpeech.LANG_COUNTRY_AVAILABLE,TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE};
+
+    private class OnPackageAddedReceiver extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context,Intent intent)
+        {
+            onPackageAdded(intent);
+        }
+    }
+
+    private static class TtsState
+    {
+        public TTSEngine engine=null;
+        public List<AndroidVoiceInfo> voices=new ArrayList<AndroidVoiceInfo>();
+        public AndroidVoiceInfo voice=null;
+    }
+
+    private volatile TtsState ttsState;
+        private OnPackageAddedReceiver onPackageAddedReceiver;
+    private FutureDataResult dataResult;
     private volatile boolean speaking=false;
-    private final ReentrantReadWriteLock engine_lock=new ReentrantReadWriteLock();
-    private final Lock engine_read_lock=engine_lock.readLock();
-    private final Lock engine_write_lock=engine_lock.writeLock();
-    private TTSEngine engine=null;
-    private final List<AndroidVoiceInfo> voices=new ArrayList<AndroidVoiceInfo>();
-    private volatile AndroidVoiceInfo current_voice=null;
 
     private class Player implements TTSClient
     {
@@ -82,24 +96,10 @@ public final class RHVoiceService extends TextToSpeechService
         }
     };
 
-    private class Reloader extends BroadcastReceiver
+    static private class Candidate
     {
-        @Override
-        public void onReceive(Context context,Intent intent)
-        {
-            Log.i(TAG,"The service is notified that voice data has been updated and will try to reload the engine");
-            onStop();
-            if(initialize())
-                Log.i(TAG,"The engine has been reloaded");
-            else
-                Log.e(TAG,"Unable to reload the engine");
-        }
-    };
-
-    private static class Candidate
-    {
-        final AndroidVoiceInfo voice;
-        final int score;
+        public final AndroidVoiceInfo voice;
+        public final int score;
 
         Candidate()
         {
@@ -114,146 +114,135 @@ public final class RHVoiceService extends TextToSpeechService
         }
     };
 
-    private Candidate find_best_voice(String language,String country,String variant)
+    private Set<String> getPreferredVoices()
+    {
+        return PreferenceManager.getDefaultSharedPreferences(this).getStringSet("preferred_voices",null);
+    }
+
+    private Candidate findBestVoice(TtsState state,String language,String country,String variant,Set<String> preferredVoices)
     {
         Candidate best=new Candidate();
-        for(AndroidVoiceInfo voice: voices)
+        Candidate bestPreferred=new Candidate();
+        for(AndroidVoiceInfo voice: state.voices)
             {
                 Candidate candidate=new Candidate(voice,language,country,variant);
                 if(candidate.score>best.score)
                     best=candidate;
+                if((preferredVoices!=null)&&preferredVoices.contains(candidate.voice.getSource().getName()))
+                    {
+                        if(candidate.score>bestPreferred.score)
+                    bestPreferred=candidate;
+                    }
             }
-        return best;
+        return bestPreferred.score>=best.score?bestPreferred:best;
     }
 
-    private boolean initialize()
+    public void onDataFailure()
     {
-        TTSEngine new_engine=null;
+    }
+
+    public void onDataSuccess(String[] paths)
+    {
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Initializing the engine");
+        TtsState newState=new TtsState();
         try
             {
-                File data_dir=TTSData.getDir(this);
-                File config_dir=getDir("config",0);
-                new_engine=new TTSEngine(data_dir.getCanonicalPath(),config_dir.getCanonicalPath());
+                File configDir=getDir("config",0);
+                newState.engine=new TTSEngine("",configDir.getAbsolutePath(),paths);
             }
         catch(Exception e)
             {
-                Log.e(TAG,"Error during engine initialization",e);
+                if(BuildConfig.DEBUG)
+                    Log.e(TAG,"Error during engine initialization",e);
+                return;
             }
-        if(new_engine==null)
-            return false;
-        engine_write_lock.lock();
-        try
+        AndroidVoiceInfo firstVoice=null;
+        List<VoiceInfo> engineVoices=newState.engine.getVoices();
+        for(VoiceInfo engineVoice: engineVoices)
             {
-                if(engine!=null)
-                    {
-                        voices.clear();
-                        engine.shutdown();
-                    }
-                engine=new_engine;
-                AndroidVoiceInfo first_voice=null;
-                List<VoiceInfo> engine_voices=engine.getVoices();
-                for(VoiceInfo engine_voice: engine_voices)
-                    {
-                        AndroidVoiceInfo voice=new AndroidVoiceInfo(engine_voice);
-                        voices.add(voice);
-                        if(first_voice==null)
-                            first_voice=voice;
-                    }
-                Locale locale=Locale.getDefault();
-                Candidate best_match=find_best_voice(locale.getISO3Language(),locale.getISO3Country(),"");
-                if(best_match.voice!=null)
-                    current_voice=best_match.voice;
-                else
-                    current_voice=first_voice;
+                AndroidVoiceInfo nextVoice=new AndroidVoiceInfo(engineVoice);
+                newState.voices.add(nextVoice);
+                if(firstVoice==null)
+                    firstVoice=nextVoice;
             }
-        finally
-            {
-                engine_write_lock.unlock();
-            }
-        return true;
+        Locale locale=Locale.getDefault();
+        Candidate bestMatch=findBestVoice(newState,locale.getISO3Language(),locale.getISO3Country(),"",getPreferredVoices());
+        if(bestMatch.voice!=null)
+            newState.voice=bestMatch.voice;
+        else
+            newState.voice=firstVoice;
+        ttsState=newState;
     }
 
-    private void uninitialize()
-    {
-        engine_write_lock.lock();
-        try
-            {
-                if(engine!=null)
-                    {
-                        engine.shutdown();
-                        engine=null;
-                    }
-            }
-        finally
-            {
-                engine_write_lock.unlock();
-            }
-    }
-    
     @Override
     public void onCreate()
     {
-        Log.i(TAG,"Initializing the service");
-        final IntentFilter filter=new IntentFilter(InstallTTSData.BROADCAST_TTS_DATA_UPDATED);
-        reloader=new Reloader();
-        LocalBroadcastManager.getInstance(this).registerReceiver(reloader,filter);
-        if(TTSData.isInstalled(this))
-        {
-            if(initialize())
-                {
-                    Log.i(TAG,"Service initialized successfully");
-                    super.onCreate();
-                }
-            else
-                Log.e(TAG,"Unable to initialize the service");
-        }
-        else
-            {
-                Log.i(TAG,"The service has found no voices and will try to install them");
-                Intent intent=new Intent(this,InstallTTSData.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Starting the service");
+        dataResult=DataService.prepareData(this,this);
+        IntentFilter filter=new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addDataScheme("package");
+        onPackageAddedReceiver=this.new OnPackageAddedReceiver();
+        registerReceiver(onPackageAddedReceiver,filter);
+        super.onCreate();
     }
 
     @Override
     public void onDestroy()
     {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(reloader);
+        if(dataResult!=null)
+            dataResult.unregisterReceiver();
+        if(onPackageAddedReceiver!=null)
+            unregisterReceiver(onPackageAddedReceiver);
         onStop();
         super.onDestroy();
-        uninitialize();
+        TtsState state=ttsState;
+        if(state.engine!=null)
+            state.engine.shutdown();
+    }
+
+    private void onPackageAdded(Intent intent)
+    {
+        int uid=getApplicationInfo().uid;
+        if(intent.getIntExtra(Intent.EXTRA_UID,uid)!=uid)
+            return;
+        String packageName=intent.getData().getSchemeSpecificPart();
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Package "+packageName+" has been installed/updated");
+        if(packageName==getPackageName())
+            return;
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Trying to reload the data");
+        if(dataResult!=null)
+            {
+                dataResult.unregisterReceiver();
+                dataResult=null;
+            }
+        dataResult=DataService.prepareData(this,this);
     }
 
     @Override
     protected String[] onGetLanguage()
     {
         String[] result={"rus","RUS",""};
-        AndroidVoiceInfo voice=current_voice;
-        if(voice!=null)
-            {
-                result[0]=voice.getLanguage();
-                result[1]=voice.getCountry();
-                result[2]=voice.getVariant();
-            }
+        TtsState state=ttsState;
+        if(state==null)
+            return result;
+        result[0]=state.voice.getLanguage();
+        result[1]=state.voice.getCountry();
+        result[2]=state.voice.getVariant();
         return result;
     }
 
     @Override
     protected int onIsLanguageAvailable(String language,String country,String variant)
     {
-        Candidate best_match=new Candidate();
-        engine_read_lock.lock();
-        try
-            {
-                if(engine!=null)
-                    best_match=find_best_voice(language,country,variant);
-            }
-        finally
-            {
-                engine_read_lock.unlock();
-            }
-        return language_support_constants[best_match.score];
+        TtsState state=ttsState;
+        if(state==null)
+            return TextToSpeech.LANG_NOT_SUPPORTED;
+        Candidate bestMatch=findBestVoice(state,language,country,variant,null);
+        return languageSupportConstants[bestMatch.score];
     }
 
     @Override
@@ -271,42 +260,53 @@ public final class RHVoiceService extends TextToSpeechService
     @Override
     protected void onSynthesizeText(SynthesisRequest request,SynthesisCallback callback)
     {
-        engine_read_lock.lock();
+        TtsState state=ttsState;
+        if(state==null)
+            {
+                callback.error();
+                return;
+            }
         try
             {
                 speaking=true;
-                if(engine==null)
+                String langDesc="language="+request.getLanguage()+"&&country="+request.getCountry()+"&&variant="+request.getVariant();
+                Set<String> preferredVoices=getPreferredVoices();
+                final Candidate bestMatch=findBestVoice(state,request.getLanguage(),request.getCountry(),request.getVariant(),preferredVoices);
+                if(bestMatch.voice==null)
                     {
-                        Log.e(TAG,"onSynthesizeText has been called, but the service has not been initialized yet");
+                        if(BuildConfig.DEBUG)
+                            Log.e(TAG,"Unsupported language: "+langDesc);
                         callback.error();
                         return;
                     }
-                String language_description="language="+request.getLanguage()+"&&country="+request.getCountry()+"&&variant="+request.getVariant();
-                final Candidate best_match=find_best_voice(request.getLanguage(),request.getCountry(),request.getVariant());
-                if(best_match.voice==null)
-                    {
-                        Log.e(TAG,"Unsupported language: "+language_description);
-                        callback.error();
-                        return;
-                    }
-                Log.v(TAG,"Requested language: "+language_description+", selected voice: "+best_match.voice.getSource().getName());
-                current_voice=best_match.voice;
-                Log.v(TAG,"Synthesizing the following text: "+request.getText());
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Requested language: "+langDesc+", selected voice: "+bestMatch.voice.getSource().getName());
+                state.voice=bestMatch.voice;
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Synthesizing the following text: "+request.getText());
+                int rate=request.getSpeechRate();
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"rate="+rate);
+                int pitch=request.getPitch();
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"pitch="+pitch);
                 final SynthesisParameters params=new SynthesisParameters();
-                params.setMainVoice(best_match.voice.getSource());
+                params.setMainVoice(bestMatch.voice.getSource());
+                params.setRate(((double)rate)/100.0);
+                params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);
                 callback.start(16000,AudioFormat.ENCODING_PCM_16BIT,1);
-                engine.speak(request.getText(),params,player);
+                state.engine.speak(request.getText(),params,player);
                 callback.done();
             }
         catch(RHVoiceException e)
             {
-                Log.e(TAG,"Synthesis error",e);
+                if(BuildConfig.DEBUG)
+                    Log.e(TAG,"Synthesis error",e);
                 callback.error();
             }
         finally
             {
-                engine_read_lock.unlock();
                 speaking=false;
             }
     }

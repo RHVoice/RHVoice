@@ -20,9 +20,9 @@ public final class SynthesisParameters
     private VoiceInfo main_voice=null;
     private VoiceInfo extra_voice=null;
     private boolean ssml_mode=false;
-    private double rate=0;
-    private double pitch=0;
-    private double volume=0;
+    private double rate=1;
+    private double pitch=1;
+    private double volume=1;
 
     public void setMainVoice(VoiceInfo voice)
     {
@@ -56,7 +56,7 @@ public final class SynthesisParameters
 
     public void setRate(double value)
     {
-        rate=Math.max(-1,Math.min(1,value));
+        rate=value;
     }
 
     public double getRate()
@@ -66,7 +66,7 @@ public final class SynthesisParameters
 
     public void setPitch(double value)
     {
-        pitch=Math.max(-1,Math.min(1,value));
+        pitch=value;
     }
 
     public double getPitch()
@@ -76,7 +76,7 @@ public final class SynthesisParameters
 
     public void setVolume(double value)
     {
-        volume=Math.max(-1,Math.min(1,value));
+        volume=value;
     }
 
     public double getVolume()

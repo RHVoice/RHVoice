@@ -10,8 +10,8 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"/>
   <TextView
-      android:id="@+id/installing_voices"
+      android:id="@+id/unpacking_data"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="@string/installing_voices"/>
+      android:text="@string/unpacking_data"/>
 </LinearLayout>

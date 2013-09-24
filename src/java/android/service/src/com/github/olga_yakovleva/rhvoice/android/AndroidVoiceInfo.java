@@ -33,12 +33,12 @@ public final class AndroidVoiceInfo
 
     public String getLanguage()
     {
-        return "rus";
+        return source.getLanguage().getAlpha3Code();
     }
 
     public String getCountry()
     {
-        return "RUS";
+        return source.getLanguage().getAlpha3CountryCode();
     }
 
     public String getVariant()

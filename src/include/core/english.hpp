@@ -36,6 +36,11 @@ namespace RHVoice
     }
     #endif
 
+    std::string get_country() const
+    {
+      return "USA/US";
+    }
+
   private:
     smart_ptr<language> create_instance() const;
   };

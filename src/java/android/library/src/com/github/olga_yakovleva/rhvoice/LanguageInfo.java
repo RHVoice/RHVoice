@@ -20,6 +20,8 @@ public final class LanguageInfo
     private String name=null;
     private String alpha2_code=null;
     private String alpha3_code=null;
+    private String alpha2_country_code=null;
+    private String alpha3_country_code=null;
 
     void setName(String name)
     {
@@ -49,5 +51,25 @@ public final class LanguageInfo
     public String getAlpha3Code()
     {
         return alpha3_code;
+    }
+
+    void setAlpha2CountryCode(String code)
+    {
+        alpha2_country_code=code;
+    }
+
+    public String getAlpha2CountryCode()
+    {
+        return alpha2_country_code;
+    }
+
+    void setAlpha3CountryCode(String code)
+    {
+        alpha3_country_code=code;
+    }
+
+    public String getAlpha3CountryCode()
+    {
+        return alpha3_country_code;
     }
 }

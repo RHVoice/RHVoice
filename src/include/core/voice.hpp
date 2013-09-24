@@ -76,6 +76,14 @@ private:
       return gender;
     }
 
+    std::string get_country() const
+    {
+      if(country.is_set())
+        return country;
+      else
+        return voice_language->get_country();
+    }
+
     voice_params settings;
 
     void register_settings(config& cfg);
@@ -100,6 +108,7 @@ private:
     sample_rate_property sample_rate;
     enum_property<RHVoice_voice_gender> gender;
     bool_property enabled,preferred;
+    string_property country;
   };
 
   class voice_list: public resource_list<voice_info>
