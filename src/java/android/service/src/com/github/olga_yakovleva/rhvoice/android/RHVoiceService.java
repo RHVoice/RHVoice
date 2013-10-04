@@ -19,14 +19,18 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.preference.PreferenceManager;
 import android.speech.tts.SynthesisCallback;
@@ -55,6 +59,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
     {
         public TTSEngine engine=null;
         public List<AndroidVoiceInfo> voices=new ArrayList<AndroidVoiceInfo>();
+        public Set<String> languages=new HashSet<String>();
         public AndroidVoiceInfo voice=null;
     }
 
@@ -112,15 +117,49 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
             this.voice=voice;
             score=voice.getSupportLevel(language,country,variant);
         }
-    };
-
-    private Set<String> getPreferredVoices()
-    {
-        return PreferenceManager.getDefaultSharedPreferences(this).getStringSet("preferred_voices",null);
     }
 
-    private Candidate findBestVoice(TtsState state,String language,String country,String variant,Set<String> preferredVoices)
+    private static class LanguageSettings
     {
+        public String voice;
+        public boolean detect;
+    }
+
+    private Map<String,LanguageSettings> getLanguageSettings(TtsState state)
+    {
+        Map<String,LanguageSettings> result=new HashMap<String,LanguageSettings>();
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(this);
+        for(String language: state.languages)
+            {
+                LanguageSettings settings=new LanguageSettings();
+                String prefVoice=prefs.getString("language."+language+".voice",null);
+                for(AndroidVoiceInfo voice: state.voices)
+                    {
+                        if(!voice.getSource().getLanguage().getAlpha3Code().equals(language))
+                            continue;
+                        String voiceName=voice.getSource().getName();
+                        if(settings.voice==null)
+                            {
+                                settings.voice=voiceName;
+                                if(prefVoice==null)
+                                    break;
+                            }
+                        if(voiceName.equals(prefVoice))
+                            {
+                                settings.voice=voiceName;
+                                break;
+                            }
+                    }
+                result.put(language,settings);
+            }
+        return result;
+    }
+
+    private Candidate findBestVoice(TtsState state,String language,String country,String variant,Map<String,LanguageSettings> languageSettings)
+    {
+        LanguageSettings settings=null;
+        if(languageSettings!=null)
+            settings=languageSettings.get(language);
         Candidate best=new Candidate();
         Candidate bestPreferred=new Candidate();
         for(AndroidVoiceInfo voice: state.voices)
@@ -128,7 +167,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 Candidate candidate=new Candidate(voice,language,country,variant);
                 if(candidate.score>best.score)
                     best=candidate;
-                if((preferredVoices!=null)&&preferredVoices.contains(candidate.voice.getSource().getName()))
+                if((settings!=null)&&settings.voice.equals(voice.getSource().getName()))
                     {
                         if(candidate.score>bestPreferred.score)
                     bestPreferred=candidate;
@@ -163,11 +202,12 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
             {
                 AndroidVoiceInfo nextVoice=new AndroidVoiceInfo(engineVoice);
                 newState.voices.add(nextVoice);
+                newState.languages.add(engineVoice.getLanguage().getAlpha3Code());
                 if(firstVoice==null)
                     firstVoice=nextVoice;
             }
         Locale locale=Locale.getDefault();
-        Candidate bestMatch=findBestVoice(newState,locale.getISO3Language(),locale.getISO3Country(),"",getPreferredVoices());
+        Candidate bestMatch=findBestVoice(newState,locale.getISO3Language(),locale.getISO3Country(),"",getLanguageSettings(newState));
         if(bestMatch.voice!=null)
             newState.voice=bestMatch.voice;
         else
@@ -270,8 +310,8 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
             {
                 speaking=true;
                 String langDesc="language="+request.getLanguage()+"&&country="+request.getCountry()+"&&variant="+request.getVariant();
-                Set<String> preferredVoices=getPreferredVoices();
-                final Candidate bestMatch=findBestVoice(state,request.getLanguage(),request.getCountry(),request.getVariant(),preferredVoices);
+                Map<String,LanguageSettings> languageSettings=getLanguageSettings(state);
+                final Candidate bestMatch=findBestVoice(state,request.getLanguage(),request.getCountry(),request.getVariant(),languageSettings);
                 if(bestMatch.voice==null)
                     {
                         if(BuildConfig.DEBUG)

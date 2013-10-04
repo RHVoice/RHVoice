@@ -18,18 +18,32 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.MultiSelectListPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
-
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
+import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
 
 public final class SettingsActivity extends PreferenceActivity
 {
     private static final String TAG="RHVoiceSettingsActivity";
+
+    private Preference.OnPreferenceChangeListener onVoiceChange=new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference pref,Object obj)
+            {
+                pref.setSummary(obj.toString());
+                return true;
+            }
+        };
 
     private List<VoiceInfo> getVoices()
     {
@@ -54,6 +68,53 @@ public final class SettingsActivity extends PreferenceActivity
             }
     }
 
+    private Map<String,List<VoiceInfo>> groupVoicesByLanguage(List<VoiceInfo> voices)
+    {
+        Map<String,List<VoiceInfo>> result=new TreeMap<String,List<VoiceInfo>>();
+        for(VoiceInfo voice:voices)
+            {
+                LanguageInfo language=voice.getLanguage();
+                String code=language.getAlpha2Code();
+                List<VoiceInfo> languageVoices=result.get(code);
+                if(languageVoices==null)
+                    {
+                        languageVoices=new ArrayList<VoiceInfo>();
+                        result.put(code,languageVoices);
+                    }
+                languageVoices.add(voice);
+            }
+        return result;
+    }
+
+    private void buildLanguagePreferenceCategory(List<VoiceInfo> voices)
+    {
+        PreferenceCategory cat=new PreferenceCategory(this);
+        getPreferenceScreen().addPreference(cat);
+        LanguageInfo language=voices.get(0).getLanguage();
+        String firstVoiceName=voices.get(0).getName();
+        String code2=language.getAlpha2Code();
+        String code3=language.getAlpha3Code();
+        cat.setKey("language."+code3);
+        Locale locale=new Locale(code2);
+        cat.setTitle(locale.getDisplayName());
+        ListPreference voicePref=new ListPreference(this);
+        voicePref.setOnPreferenceChangeListener(onVoiceChange);
+        cat.addPreference(voicePref);
+        voicePref.setKey("language."+code3+".voice");
+        voicePref.setTitle(R.string.default_voice_title);
+        voicePref.setSummary(firstVoiceName);
+        voicePref.setDialogTitle(R.string.default_voice_dialog_title);
+        int voiceCount=voices.size();
+        String[] voiceNames=new String[voiceCount];
+        for(int i=0;i<voiceCount;++i)
+            {
+                voiceNames[i]=voices.get(i).getName();
+            }
+        voicePref.setEntries(voiceNames);
+        voicePref.setEntryValues(voiceNames);
+        voicePref.setDefaultValue(firstVoiceName);
+    }
+
     @Override
     protected void onCreate(Bundle bundle)
     {
@@ -62,16 +123,10 @@ public final class SettingsActivity extends PreferenceActivity
         List<VoiceInfo> voices=getVoices();
         if(voices==null)
             return;
-        List<String> voiceNames=new ArrayList<String>();
-        for(VoiceInfo voice: voices)
+        Map<String,List<VoiceInfo>> voiceGroups=groupVoicesByLanguage(voices);
+        for(Map.Entry<String,List<VoiceInfo>> entry: voiceGroups.entrySet())
             {
-                voiceNames.add(voice.getName());
+                buildLanguagePreferenceCategory(entry.getValue());
             }
-        MultiSelectListPreference voicePref=(MultiSelectListPreference)findPreference("preferred_voices");
-        String[] voiceValues=new String[voiceNames.size()];
-        voiceNames.toArray(voiceValues);
-        voicePref.setEntries(voiceValues);
-        voicePref.setEntryValues(voiceValues);
-        voicePref.setEnabled(true);
     }
 }
