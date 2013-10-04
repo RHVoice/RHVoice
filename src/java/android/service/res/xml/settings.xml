@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
-  <MultiSelectListPreference
-      android:enabled="false"
-      android:key="preferred_voices"
-      android:title="@string/preferred_voices_title"
-      android:summary="@string/preferred_voices_summary"
-      android:dialogTitle="@string/preferred_voices_dialog_title"/>
 </PreferenceScreen>
