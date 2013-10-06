@@ -33,9 +33,6 @@ namespace RHVoice
       attributes[L"Language"]=attr.get_language();
       attributes[L"Gender"]=attr.get_gender();
       attributes[L"Name"]=name;
-      attributes[L"MainSpeaker"]=attr.get_main_speaker();
-      if(!attr.is_monolingual())
-        attributes[L"ExtraSpeaker"]=attr.get_extra_speaker();
     }
 
     STDMETHODIMP voice_token::OpenKey(LPCWSTR pszSubKeyName,ISpDataKey **ppSubKey)

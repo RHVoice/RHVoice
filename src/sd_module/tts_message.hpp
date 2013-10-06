@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -17,7 +17,7 @@
 #define RHVOICE_SD_TTS_MESSAGE_HPP
 
 #include "tts_params.hpp"
-#include "voice_description.hpp"
+#include "core/voice_profile.hpp"
 
 namespace RHVoice
 {
@@ -44,12 +44,6 @@ namespace RHVoice
       {
       }
 
-      void set_voice(const voice_description& voice_desc)
-      {
-        main_voice=voice_desc.get_main_voice();
-        extra_voice=voice_desc.get_extra_voice();
-      }
-
       void set_synthesis_params(const tts_params& p)
       {
         rate=0.01*p.rate;
@@ -62,7 +56,7 @@ namespace RHVoice
 
       tts_message_type type;
       std::string content;
-      voice_list::const_iterator main_voice,extra_voice;
+      voice_profile profile;
       double rate,pitch,volume;
       RHVoice_punctuation_mode punctuation_mode;
       bool spelling_mode;

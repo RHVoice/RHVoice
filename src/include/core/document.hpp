@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include "smart_ptr.hpp"
 #include "engine.hpp"
+#include "voice_profile.hpp"
 #include "utterance.hpp"
 #include "utf.hpp"
 #include "str.hpp"
@@ -222,7 +223,7 @@ namespace RHVoice
     template<typename text_iterator>
     text_iterator get_next_token(text_iterator text_start,text_iterator text_end,const tts_markup& markup_info);
     bool next_token_starts_new_sentence(const tts_markup& markup_info) const;
-    language_list::const_iterator determine_next_token_language() const;
+    voice_list::const_iterator determine_next_token_voice() const;
     language_voice_pair get_language_and_voice_from_markup(const tts_markup& markup_info) const;
     std::auto_ptr<utterance> new_utterance() const;
     void execute_commands(utterance& u) const;
@@ -234,26 +235,16 @@ namespace RHVoice
   class document
   {
   public:
-    struct init_params
-    {
-      voice_list::const_iterator main_voice,extra_voice;
-    };
-
     speech_params speech_settings;
     verbosity_params verbosity_settings;
     hts_engine_setting hts_engine;
 
-    explicit document(const smart_ptr<engine>& engine_ptr_,const init_params& params=init_params()):
+    explicit document(const smart_ptr<engine>& engine_ptr_,const voice_profile& profile_=voice_profile()):
       engine_ptr(engine_ptr_),
+      profile(profile_),
       owner(0),
-      current_sentence(sentences.end()),
-      main_voice(params.main_voice),
-      extra_voice(params.extra_voice)
+      current_sentence(sentences.end())
     {
-      if(has_main_language()&&
-         has_extra_language()&&
-         (get_main_language()->has_common_letters(*get_extra_language())))
-        throw std::invalid_argument("Invalid language pair");
       verbosity_settings.default_to(engine_ptr->verbosity_settings);
       hts_engine.default_to(engine_ptr->hts_engine);
     }
@@ -283,58 +274,28 @@ namespace RHVoice
       return *owner;
     }
 
-    bool has_main_language() const
+    voice_profile& get_voice_profile()
     {
-      return has_main_voice();
+      return profile;
     }
 
-    language_list::const_iterator get_main_language() const
+    const voice_profile& get_voice_profile() const
     {
-      return main_voice->get_language();
-    }
-
-    bool has_main_voice() const
-    {
-      return (main_voice!=voice_list::const_iterator());
-    }
-
-    voice_list::const_iterator get_main_voice() const
-    {
-      return main_voice;
-    }
-
-    bool has_extra_language() const
-    {
-      return has_extra_voice();
-    }
-
-    language_list::const_iterator get_extra_language() const
-    {
-      return extra_voice->get_language();
-    }
-
-    bool has_extra_voice() const
-    {
-      return (extra_voice!=voice_list::const_iterator());
-    }
-
-    voice_list::const_iterator get_extra_voice() const
-    {
-      return extra_voice;
+      return profile;
     }
 
     template<typename some_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const init_params& params=init_params())
+    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const voice_profile& profile=voice_profile())
     {
       #ifdef _MSC_VER
-      return create_from_plain_text(engine_ptr,text_start,text_end,say_as,params,std::iterator_traits<some_iterator>::iterator_category());
+      return create_from_plain_text(engine_ptr,text_start,text_end,say_as,profile,std::iterator_traits<some_iterator>::iterator_category());
             #else
-      return create_from_plain_text(engine_ptr,text_start,text_end,say_as,params,typename std::iterator_traits<some_iterator>::iterator_category());
+      return create_from_plain_text(engine_ptr,text_start,text_end,say_as,profile,typename std::iterator_traits<some_iterator>::iterator_category());
       #endif
     }
 
     template<typename input_iterator>
-    static std::auto_ptr<document> create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const init_params& params=init_params());
+    static std::auto_ptr<document> create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile=voice_profile());
 
     typedef std::list<sentence>::iterator iterator;
     typedef std::list<sentence>::const_iterator const_iterator;
@@ -396,7 +357,7 @@ namespace RHVoice
     }
 
     template<typename input_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,content_type say_as,const init_params& params,std::input_iterator_tag)
+    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,content_type say_as,const voice_profile& profile,std::input_iterator_tag)
     {
       #ifdef _MSC_VER
       typedef std::iterator_traits<input_iterator>::value_type char_type;
@@ -406,7 +367,7 @@ namespace RHVoice
       std::vector<char_type> tmp_buf(text_start,text_end);
       tts_markup m;
       m.say_as=say_as;
-      std::auto_ptr<document> doc_ptr(new document(engine_ptr,params));
+      std::auto_ptr<document> doc_ptr(new document(engine_ptr,profile));
       #ifdef _MSC_VER
       typedef utf::text_iterator<std::vector<char_type>::const_iterator> char_iterator;
       #else
@@ -417,9 +378,9 @@ namespace RHVoice
     }
 
     template<typename forward_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const init_params& params,std::forward_iterator_tag)
+    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const voice_profile& profile,std::forward_iterator_tag)
     {
-      std::auto_ptr<document> doc_ptr(new document(engine_ptr,params));
+      std::auto_ptr<document> doc_ptr(new document(engine_ptr,profile));
       typedef utf::text_iterator<forward_iterator> text_iterator;
       tts_markup m;
       m.say_as=say_as;
@@ -431,7 +392,7 @@ namespace RHVoice
     client* owner;
     std::list<sentence> sentences;
     std::list<sentence>::iterator current_sentence;
-    voice_list::const_iterator main_voice,extra_voice;
+    voice_profile profile;
   };
 
   template<typename text_iterator>
@@ -483,7 +444,7 @@ namespace RHVoice
       }
     text_iterator sentence_end=text_start;
     text_iterator token_end;
-    language_list::const_iterator token_language;
+    voice_list::const_iterator token_voice;
     std::size_t old_length=length;
     do
       {
@@ -495,14 +456,17 @@ namespace RHVoice
           break;
         if(markup_language_and_voice.first==language_list::const_iterator())
           {
-            token_language=determine_next_token_language();
-            if(token_language!=language_list::const_iterator())
+            token_voice=determine_next_token_voice();
+            if(token_voice!=voice_list::const_iterator())
               {
                 if(language_and_voice.first==language_list::const_iterator())
-                  language_and_voice.first=token_language;
+                  {
+                    language_and_voice.first=token_voice->get_language();
+                    language_and_voice.second=token_voice;
+                  }
                 else
                   {
-                    if(language_and_voice.first!=token_language)
+                    if(language_and_voice.first!=token_voice->get_language())
                       break;
                   }
               }
@@ -534,9 +498,9 @@ namespace RHVoice
   }
 
   template<typename input_iterator>
-  std::auto_ptr<document> document::create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const init_params& params)
+  std::auto_ptr<document> document::create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile)
   {
-    std::auto_ptr<document> doc_ptr(new document(engine_ptr,params));
+    std::auto_ptr<document> doc_ptr(new document(engine_ptr,profile));
     #ifdef _MSC_VER
     typedef std::iterator_traits<input_iterator>::value_type char_type;
     #else

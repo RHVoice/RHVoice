@@ -84,4 +84,14 @@ public final class AndroidVoiceInfo
     {
         return (getLanguage()+"-"+getCountry()+"-"+getVariant());
     }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(this==other)
+            return true;
+        if(!(other instanceof AndroidVoiceInfo))
+            return false;
+        return (source.getName().equals(((AndroidVoiceInfo)other).source.getName()));
+    }
 }

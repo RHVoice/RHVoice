@@ -5,6 +5,8 @@ RHVoice_new_tts_engine
 RHVoice_delete_tts_engine
 RHVoice_get_number_of_voices
 RHVoice_get_voices
+RHVoice_get_number_of_voice_profiles
+RHVoice_get_voice_profiles
 RHVoice_are_languages_compatible
 RHVoice_new_message
 RHVoice_new_message_w

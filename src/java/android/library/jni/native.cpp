@@ -232,8 +232,7 @@ namespace
   jmethodID LanguageInfo_setAlpha2CountryCode_method;
   jmethodID LanguageInfo_setAlpha3CountryCode_method;
   jclass SynthesisParameters_class;
-  jmethodID SynthesisParameters_getMainVoice_method;
-  jmethodID SynthesisParameters_getExtraVoice_method;
+  jmethodID SynthesisParameters_getVoiceProfile_method;
   jmethodID SynthesisParameters_getSSMLMode_method;
   jmethodID SynthesisParameters_getRate_method;
   jmethodID SynthesisParameters_getPitch_method;
@@ -269,8 +268,6 @@ namespace
     jobject client_object;
     jmethodID client_playSpeech_method;
 
-    voice_list::const_iterator find_voice(jobject jvoice) const;
-
     speak_impl(const speak_impl&);
     speak_impl& operator=(const speak_impl&);
   };
@@ -286,32 +283,18 @@ namespace
     client_playSpeech_method=get_method(env,client_class,"playSpeech","([S)Z");
   }
 
-  voice_list::const_iterator speak_impl::find_voice(jobject jvoice) const
-  {
-    voice_list::const_iterator result;
-    if(jvoice!=0)
-      {
-        std::string name=call_string_getter(env,jvoice,VoiceInfo_getName_method);
-        const voice_list& voices=data->engine_ptr->get_voices();
-        voice_list::const_iterator found=voices.find(name);
-        if(found==voices.end())
-          throw voice_not_found();
-        result=found;
-      }
-    return result;
-  }
-
   void speak_impl::operator()()
   {
-    document::init_params doc_params;
-    doc_params.main_voice=find_voice(check(env,env->CallObjectMethod(params,SynthesisParameters_getMainVoice_method)));
-    doc_params.extra_voice=find_voice(check(env,env->CallObjectMethod(params,SynthesisParameters_getExtraVoice_method)));
+    std::string profile_spec=call_string_getter(env,params,SynthesisParameters_getVoiceProfile_method);
+    voice_profile profile=data->engine_ptr->create_voice_profile(profile_spec);
+    if(profile.empty())
+      throw voice_not_found();
     std::string text=jstring_to_string(env,input);
     std::auto_ptr<document> doc;
     if(check(env,env->CallBooleanMethod(params,SynthesisParameters_getSSMLMode_method)))
-      doc=document::create_from_ssml(data->engine_ptr,text.begin(),text.end(),doc_params);
+      doc=document::create_from_ssml(data->engine_ptr,text.begin(),text.end(),profile);
     else
-      doc=document::create_from_plain_text(data->engine_ptr,text.begin(),text.end(),content_text,doc_params);
+      doc=document::create_from_plain_text(data->engine_ptr,text.begin(),text.end(),content_text,profile);
     doc->speech_settings.relative.rate=check(env,env->CallDoubleMethod(params,SynthesisParameters_getRate_method));
     doc->speech_settings.relative.pitch=check(env,env->CallDoubleMethod(params,SynthesisParameters_getPitch_method));
     doc->speech_settings.relative.volume=check(env,env->CallDoubleMethod(params,SynthesisParameters_getVolume_method));
@@ -358,8 +341,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
   VoiceInfo_getName_method=get_string_getter(env,VoiceInfo_class,"getName");
   VoiceInfo_setLanguage_method=get_method(env,VoiceInfo_class,"setLanguage","(Lcom/github/olga_yakovleva/rhvoice/LanguageInfo;)V");
     SynthesisParameters_class=find_class(env,"com/github/olga_yakovleva/rhvoice/SynthesisParameters");
-    SynthesisParameters_getMainVoice_method=get_method(env,SynthesisParameters_class,"getMainVoice","()Lcom/github/olga_yakovleva/rhvoice/VoiceInfo;");
-    SynthesisParameters_getExtraVoice_method=get_method(env,SynthesisParameters_class,"getExtraVoice","()Lcom/github/olga_yakovleva/rhvoice/VoiceInfo;");
+    SynthesisParameters_getVoiceProfile_method=get_string_getter(env,SynthesisParameters_class,"getVoiceProfile");
     SynthesisParameters_getSSMLMode_method=get_method(env,SynthesisParameters_class,"getSSMLMode","()Z");
     SynthesisParameters_getRate_method=get_method(env,SynthesisParameters_class,"getRate","()D");
     SynthesisParameters_getPitch_method=get_method(env,SynthesisParameters_class,"getPitch","()D");

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -28,8 +28,6 @@
 
 namespace
 {
-  typedef std::pair<Glib::ustring,Glib::ustring> speaker_pair;
-  typedef std::pair<RHVoice::voice_list::const_iterator,RHVoice::voice_list::const_iterator> voice_pair;
   typedef std::vector<gint16> speech_fragment;
   class session;
   typedef RHVoice::smart_ptr<session> session_ptr;
@@ -50,7 +48,6 @@ namespace
                       const Glib::VariantContainerBase& params,
                       const Glib::RefPtr<Gio::DBus::MethodInvocation>& invocation);
   session_ptr get_session(const Glib::RefPtr<Gio::DBus::Connection>& connection,const Glib::ustring& name,bool if_exists=true);
-  bool get_voice_pair(const speaker_pair& speakers,voice_pair& voices);
 
   const Glib::ustring introspection_xml(
                                         "<node>"
@@ -77,8 +74,7 @@ namespace
                                         "<arg name='volume' type='d' direction='out'/>"
                                         "</method>"
                                         "<method name='SetSpeakers'>"
-                                        "<arg name='main_speaker' type='s' direction='in'/>"
-                                        "<arg name='extra_speaker' type='s' direction='in'/>"
+                                        "<arg name='speakers' type='s' direction='in'/>"
                                         "</method>"
                                         "<signal name='SpeechAvailable'>"
                                         "<arg name='samples' type='an' direction='out'/>"
@@ -224,11 +220,10 @@ namespace
       return volume;
     }
 
-    bool set_speakers(const Glib::ustring& main_speaker,const Glib::ustring& extra_speaker)
+    bool set_speakers(const Glib::ustring& spec)
     {
-      speaker_pair new_speakers(main_speaker,extra_speaker);
-      voice_pair voices;
-      if(get_voice_pair(new_speakers,voices))
+      std::string new_speakers=global_engine_ref->create_voice_profile(spec).get_name();
+      if(!new_speakers.empty())
         {
           speakers=new_speakers;
           return true;
@@ -237,7 +232,7 @@ namespace
         return false;
     }
 
-    speaker_pair get_speakers() const
+    std::string get_speakers() const
     {
       return speakers;
     }
@@ -282,7 +277,7 @@ namespace
     volatile gint stopping;
     bool closing;
     double pitch,rate,volume;
-    speaker_pair speakers;
+    std::string speakers;
   };
 
   class clear_session
@@ -314,8 +309,8 @@ namespace
 
     session& parent;
     RHVoice::smart_ptr<RHVoice::engine> local_engine_ref;
+    RHVoice::voice_profile speakers;
     Glib::ustring text;
-    RHVoice::document::init_params document_init_params;
 
   private:
     virtual std::auto_ptr<RHVoice::document> create_document() const=0;
@@ -423,30 +418,6 @@ namespace
     return new_session;
   }
 
-  bool get_voice_pair(const speaker_pair& speakers,voice_pair& voices)
-  {
-    if(speakers.first.empty())
-      return false;
-    const RHVoice::voice_list& all_voices=global_engine_ref->get_voices();
-    RHVoice::voice_list::const_iterator main_voice=all_voices.find(speakers.first);
-    if(main_voice==all_voices.end())
-      return false;
-    RHVoice::voice_list::const_iterator extra_voice;
-    if(!speakers.second.empty())
-      {
-        extra_voice=all_voices.find(speakers.second);
-        if(extra_voice==all_voices.end())
-          return false;
-        RHVoice::language_list::const_iterator main_language=main_voice->get_language();
-        RHVoice::language_list::const_iterator extra_language=extra_voice->get_language();
-        if(main_language->has_common_letters(*extra_language))
-          return false;
-      }
-    voices.first=main_voice;
-    voices.second=extra_voice;
-    return true;
-  }
-
   task::task(session& parent_session,const Glib::ustring& text_):
     parent(parent_session),
     local_engine_ref(global_engine_ref),
@@ -455,10 +426,7 @@ namespace
     rate(parent_session.get_rate()),
     volume(parent_session.get_volume())
   {
-    voice_pair voices;
-    get_voice_pair(parent.get_speakers(),voices);
-    document_init_params.main_voice=voices.first;
-    document_init_params.extra_voice=voices.second;
+    speakers=local_engine_ref->create_voice_profile(parent.get_speakers());
   }
 
   void task::run()
@@ -495,7 +463,7 @@ namespace
 
   std::auto_ptr<RHVoice::document> text_task::create_document() const
   {
-    return RHVoice::document::create_from_plain_text(local_engine_ref,text.begin(),text.end(),RHVoice::content_text,document_init_params);
+    return RHVoice::document::create_from_plain_text(local_engine_ref,text.begin(),text.end(),RHVoice::content_text,speakers);
   }
 
   void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connection,const Glib::ustring& name)
@@ -581,10 +549,9 @@ namespace
       result=Glib::VariantContainerBase::create_tuple(Glib::Variant<double>::create(current_session->get_volume()));
     else if(method_name=="SetSpeakers")
       {
-        if(!current_session->set_speakers(extract_child<Glib::ustring>(params,0),
-                                          extract_child<Glib::ustring>(params,1)))
+        if(!current_session->set_speakers(extract_child<Glib::ustring>(params,0)))
           {
-            Gio::DBus::Error error(Gio::DBus::Error::INVALID_ARGS,"The voices are unknown or incompatible");
+            Gio::DBus::Error error(Gio::DBus::Error::INVALID_ARGS,"No voices found");
             invocation->return_error(error);
           }
       }

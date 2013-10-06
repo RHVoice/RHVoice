@@ -18,10 +18,12 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include "exception.hpp"
 #include "params.hpp"
 #include "language.hpp"
 #include "voice.hpp"
+#include "voice_profile.hpp"
 #include "hts_engine_setting.hpp"
 
 namespace RHVoice
@@ -90,6 +92,11 @@ namespace RHVoice
       return voices;
     }
 
+    const std::set<voice_profile>& get_voice_profiles() const
+    {
+      return voice_profiles;
+    }
+
     const std::string& get_version() const
     {
       return version;
@@ -100,13 +107,19 @@ namespace RHVoice
       return smart_ptr<engine>(new engine(p));
     }
       
+    voice_profile create_voice_profile(const std::string& spec) const;
+
   private:
     engine(const engine&);
     engine& operator=(const engine&);
 
+    string_property voice_profiles_spec;
     std::string data_path,config_path,version;
     language_list languages;
     voice_list voices;
+    std::set<voice_profile> voice_profiles;
+
+    void create_voice_profiles();
 
   public:
     voice_params voice_settings;

@@ -79,14 +79,19 @@ typedef struct
 
   typedef struct
   {
-    /* The main voice must not be 0, but the extra voice is optional. */
-    /* If the extra voice is defined, */
-    /* the automatic language switching will be enabled. */
-    /* Use the information about the compatible languages to form pairs of voices. */
-    /* Only languages without common letters can be used this way. */
-    /* If RHVoice is unable to determine the language of the sentence, e.g. it is just one number, */
-    /* the synthesizer will speak it with the main voice. */
-    const char* main_voice,*extra_voice;
+    /* One of the predefined voice profiles or a custom one, e.g. */
+    /* Aleksandr+Alan. Voice names should be ordered according to their */
+    /* priority, but they must not speak the same language. If the */
+    /* combination includes more than one voice, automatic language */
+    /* switching may be used. The voice which speaks the primary language */
+    /* should be placed first. RHVoice will use one of the other voices */
+    /* from the list, if it detects the corresponding language. The */
+    /* detection algorithm is not very smart at the moment. It will not */
+    /* handle languages with common letters. For example, if you set this */
+    /* field to "CLB+Spomenka", it will always choose CLB for latin */
+    /* letters. Spomenka might still be used, if Esperanto is requested */
+    /* through SSML. */
+    const char* voice_profile;
     /* The values must be between -1 and 1. */
     /*     They are normalized this way, because users can set different */
     /* parameters for different voices in the configuration file. */
@@ -110,6 +115,8 @@ typedef struct
 
   unsigned int RHVoice_get_number_of_voices(RHVoice_tts_engine tts_engine);
   const RHVoice_voice_info* RHVoice_get_voices(RHVoice_tts_engine tts_engine);
+  unsigned int RHVoice_get_number_of_voice_profiles(RHVoice_tts_engine tts_engine);
+  char const * const * RHVoice_get_voice_profiles(RHVoice_tts_engine tts_engine);
   int RHVoice_are_languages_compatible(RHVoice_tts_engine tts_engine,const char* language1,const char* language2);
 
   /* Text should be a valid utf-8 string */

@@ -56,7 +56,7 @@ public final class TTSEngine
 
     public void speak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException
     {
-        if(params.getMainVoice()==null)
+        if(params.getVoiceProfile()==null)
             throw new RHVoiceException("Voice not set");
         doSpeak(text,params,client);
     }

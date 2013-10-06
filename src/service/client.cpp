@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -27,7 +27,7 @@ namespace
   {
   public:
     double pitch,rate,volume;
-    Glib::ustring main_speaker,extra_speaker;
+    Glib::ustring speakers;
 
     params()
     {
@@ -88,14 +88,12 @@ namespace
     TCLAP::ValueArg<double> pitch_arg("p","pitch","Speech pitch",false,0,&speech_param_range,cmd);
     TCLAP::ValueArg<double> rate_arg("r","rate","Speech rate",false,0,&speech_param_range,cmd);
     TCLAP::ValueArg<double> volume_arg("v","volume","Speech volume",false,0,&speech_param_range,cmd);
-    TCLAP::ValueArg<std::string> main_speaker_arg("m","main","Main voice",true,"","voice name",cmd);
-    TCLAP::ValueArg<std::string> extra_speaker_arg("e","extra","Extra voice",false,"","voice name",cmd);
+    TCLAP::ValueArg<std::string> speakers_arg("s","speakers","Speakers",true,"","spec",cmd);
     cmd.parse(argc,argv);
     pitch=pitch_arg.getValue();
     rate=rate_arg.getValue();
     volume=volume_arg.getValue();
-    main_speaker=main_speaker_arg.getValue();
-    extra_speaker=extra_speaker_arg.getValue();
+    speakers=speakers_arg.getValue();
   }
 
   void call_method(const Glib::ustring& name)
@@ -134,7 +132,7 @@ namespace
     call_method("SetPitch",user_prefs.pitch);
     call_method("SetRate",user_prefs.rate);
     call_method("SetVolume",user_prefs.volume);
-    call_method("SetSpeakers",user_prefs.main_speaker,user_prefs.extra_speaker);
+    call_method("SetSpeakers",user_prefs.speakers);
   }
 
   // FIXME: This should take into account the platform endianness

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -14,6 +14,7 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <exception>
+#include <set>
 #include "config_tts.hpp"
 #include "io.hpp"
 
@@ -39,7 +40,7 @@ namespace RHVoice
         r("203 OK RECEIVING SETTINGS");
         read_settings();
         set_voice();
-        if(current_voice.is_empty())
+        if(current_voice.empty())
           r("303 ERROR NO VOICE HAS BEEN SET");
         else
           r("203 OK SETTINGS RECEIVED");
@@ -48,14 +49,15 @@ namespace RHVoice
 
       void config_tts::set_voice()
       {
-        voice_description new_voice;
+        const std::set<voice_profile>& profiles=tts_engine->get_voice_profiles();
+        voice_profile new_voice;
         if(tts_settings.voice_name.is_set())
-          new_voice=voices[tts_settings.voice_name];
+          new_voice=tts_engine->create_voice_profile(tts_settings.voice_name.get());
         else
           {
             if(tts_settings.language_code.is_set())
               {
-                voice_description voice1,voice2,voice3;
+                voice_profile voice1,voice2,voice3;
                 RHVoice_voice_gender gender=RHVoice_voice_gender_unknown;
                 unsigned int index=0;
                 voice_id_t id=tts_settings.voice_id;
@@ -70,27 +72,27 @@ namespace RHVoice
                     index=-id;
                   }
                 unsigned int count=0;
-                for(voice_map::const_iterator it=voices.begin();it!=voices.end();++it)
+                for(std::set<voice_profile>::const_iterator it=profiles.begin();it!=profiles.end();++it)
                   {
-                    if(it->second.is_monolingual()&&(it->second.get_language_code()==tts_settings.language_code.get()))
+                    if((it->voice_count()==1)&&(it->primary()->get_language()->get_alpha2_code()==tts_settings.language_code.get()))
                       {
-                        if(voice3.is_empty())
-                          voice3=it->second;
-                        if((gender!=RHVoice_voice_gender_unknown)&&(it->second.get_main_voice()->get_gender()==gender))
+                        if(voice3.empty())
+                          voice3=*it;
+                        if((gender!=RHVoice_voice_gender_unknown)&&(it->primary()->get_gender()==gender))
                           {
                             ++count;
-                            if(voice2.is_empty())
-                              voice2=it->second;
+                            if(voice2.empty())
+                              voice2=*it;
                             if(count==index)
-                              voice1=it->second;
+                              voice1=*it;
                           }
                       }
                   }
-                if(voice1.is_empty())
+                if(voice1.empty())
                   {
-                    if(voice2.is_empty())
+                    if(voice2.empty())
                       {
-                        if(!voice3.is_empty())
+                        if(!voice3.empty())
                           new_voice=voice3;
                       }
                     else
@@ -100,7 +102,7 @@ namespace RHVoice
                   new_voice=voice1;
               }
           }
-        if(!new_voice.is_empty())
+        if(!new_voice.empty())
           {
             current_voice=new_voice;
             logger::log(4,"Will speak using voice ",current_voice.get_name());

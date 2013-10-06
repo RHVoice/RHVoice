@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -31,22 +31,13 @@ namespace RHVoice
           ISpDataKeyPtr attr;
           if(FAILED(pToken->OpenKey(L"Attributes",&attr)))
             return E_INVALIDARG;
-          const voice_list& voices=get_engine()->get_voices();
-          voice_list::const_iterator v;
           utils::out_ptr<wchar_t> name(CoTaskMemFree);
-          if(FAILED(attr->GetStringValue(L"MainSpeaker",name.address())))
+          if(FAILED(attr->GetStringValue(L"Name",name.address())))
             return E_INVALIDARG;
-          v=voices.find(utils::wstring_to_string(name.get()));
-          if(v==voices.end())
+          voice_profile new_profile=get_engine()->create_voice_profile(utils::wstring_to_string(name.get()));
+          if(new_profile.empty())
             return E_INVALIDARG;
-          main_voice=v;
-          extra_voice=voice_list::const_iterator();
-          if(SUCCEEDED(attr->GetStringValue(L"ExtraSpeaker",name.address())))
-            {
-              v=voices.find(utils::wstring_to_string(name.get()));
-              if(v!=voices.end())
-                extra_voice=v;
-            }
+          profile=new_profile;
           token=pToken;
           return S_OK;
         }
@@ -108,8 +99,7 @@ namespace RHVoice
           SpeakImpl::init_params p;
           p.input=pTextFragList;
           p.caller=pOutputSite;
-          p.document_params.main_voice=main_voice;
-          p.document_params.extra_voice=extra_voice;
+          p.profile=profile;
           SpeakImpl s(p);
           s();
           return S_OK;

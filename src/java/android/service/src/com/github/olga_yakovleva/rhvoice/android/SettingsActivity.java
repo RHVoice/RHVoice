@@ -24,6 +24,7 @@ import java.util.TreeMap;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -113,6 +114,11 @@ public final class SettingsActivity extends PreferenceActivity
         voicePref.setEntries(voiceNames);
         voicePref.setEntryValues(voiceNames);
         voicePref.setDefaultValue(firstVoiceName);
+        CheckBoxPreference detectPref=new CheckBoxPreference(this);
+        cat.addPreference(detectPref);
+        detectPref.setKey("language."+code3+".detect");
+        detectPref.setTitle(R.string.detect_language_title);
+        detectPref.setDefaultValue(false);
     }
 
     @Override

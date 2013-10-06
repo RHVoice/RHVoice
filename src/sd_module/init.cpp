@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -14,6 +14,9 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <exception>
+#include <set>
+#include "core/engine.hpp"
+#include "core/voice_profile.hpp"
 #include "init.hpp"
 #include "io.hpp"
 
@@ -70,25 +73,11 @@ namespace RHVoice
 
       void init::register_voices()
       {
-        voice_description voice_desc;
-        const voice_list& available_voices=tts_engine->get_voices();
-        for(voice_list::const_iterator it1=available_voices.begin();it1!=available_voices.end();++it1)
+        const std::set<voice_profile>& profiles=tts_engine->get_voice_profiles();
+        for(std::set<voice_profile>::const_iterator it=profiles.begin();it!=profiles.end();++it)
           {
-            logger::log(4,"Found ",it1->get_language()->get_name()," speaker ",it1->get_name());
-            voice_desc=voice_description(it1);
-            voices[voice_desc.get_name()]=voice_desc;
-            for(voice_list::const_iterator it2=available_voices.begin();it2!=available_voices.end();++it2)
-              {
-                if(!(it1->get_language()->has_common_letters(*(it2->get_language()))))
-                  {
-                    voice_desc=voice_description(it1,it2);
-                    voices[voice_desc.get_name()]=voice_desc;
-                  }
-              }
-          }
-        for(voice_map::const_iterator it=voices.begin();it!=voices.end();++it)
-          {
-            tts_settings.voice_name.define(it->first);
+            logger::log(4,"Found ",it->get_name());
+            tts_settings.voice_name.define(it->get_name());
           }
       }
     }

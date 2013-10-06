@@ -121,7 +121,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
 
     private static class LanguageSettings
     {
-        public String voice;
+        public AndroidVoiceInfo voice;
         public boolean detect;
     }
 
@@ -140,16 +140,17 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                         String voiceName=voice.getSource().getName();
                         if(settings.voice==null)
                             {
-                                settings.voice=voiceName;
+                                settings.voice=voice;
                                 if(prefVoice==null)
                                     break;
                             }
                         if(voiceName.equals(prefVoice))
                             {
-                                settings.voice=voiceName;
+                                settings.voice=voice;
                                 break;
                             }
                     }
+                settings.detect=prefs.getBoolean("language."+language+".detect",false);
                 result.put(language,settings);
             }
         return result;
@@ -167,11 +168,8 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 Candidate candidate=new Candidate(voice,language,country,variant);
                 if(candidate.score>best.score)
                     best=candidate;
-                if((settings!=null)&&settings.voice.equals(voice.getSource().getName()))
-                    {
-                        if(candidate.score>bestPreferred.score)
+                if((settings!=null)&&settings.voice.equals(voice))
                     bestPreferred=candidate;
-                    }
             }
         return bestPreferred.score>=best.score?bestPreferred:best;
     }
@@ -322,6 +320,18 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Requested language: "+langDesc+", selected voice: "+bestMatch.voice.getSource().getName());
                 state.voice=bestMatch.voice;
+                StringBuilder voiceProfileSpecBuilder=new StringBuilder();
+                voiceProfileSpecBuilder.append(bestMatch.voice.getSource().getName());
+                for(Map.Entry<String,LanguageSettings> entry: languageSettings.entrySet())
+                    {
+                        if(entry.getKey().equals(request.getLanguage()))
+                            continue;
+                        if(entry.getValue().detect)
+                            {
+                                String name=entry.getValue().voice.getSource().getName();
+                                voiceProfileSpecBuilder.append("+").append(name);
+                            }
+                    }
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Synthesizing the following text: "+request.getText());
                 int rate=request.getSpeechRate();
@@ -331,7 +341,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"pitch="+pitch);
                 final SynthesisParameters params=new SynthesisParameters();
-                params.setMainVoice(bestMatch.voice.getSource());
+                params.setVoiceProfile(voiceProfileSpecBuilder.toString());
                 params.setRate(((double)rate)/100.0);
                 params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);

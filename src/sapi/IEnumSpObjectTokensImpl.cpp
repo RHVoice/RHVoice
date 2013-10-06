@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -31,18 +31,10 @@ namespace RHVoice
       id+=L"\\TokenEnums\\RHVoice";
       if(!initialize)
         return;
-      const voice_list& voices=get_engine()->get_voices();
-      for(voice_list::const_iterator v1=voices.begin();v1!=voices.end();++v1)
+      const std::set<voice_profile>& profiles=get_engine()->get_voice_profiles();
+      for(std::set<voice_profile>::const_iterator it=profiles.begin();it!=profiles.end();++it)
         {
-          sapi_voices.push_back(voice_attributes(v1));
-          language_list::const_iterator l1=v1->get_language();
-          for(voice_list::const_iterator v2=voices.begin();v2!=voices.end();++v2)
-            {
-              language_list::const_iterator l2=v2->get_language();
-              if(l1!=l2)
-                if(!(l1->has_common_letters(*l2)))
-                  sapi_voices.push_back(voice_attributes(v1,v2));
-            }
+          sapi_voices.push_back(voice_attributes(*it));
         }
     }
 
