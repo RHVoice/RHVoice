@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -33,7 +33,7 @@ namespace RHVoice
 
     SpeakImpl::SpeakImpl(const init_params& p):
       caller(p.caller),
-      doc(get_engine(),p.document_params),
+      doc(get_engine(),p.profile),
       bytes_written(0)
     {
       doc.speech_settings.relative.rate=get_rate();

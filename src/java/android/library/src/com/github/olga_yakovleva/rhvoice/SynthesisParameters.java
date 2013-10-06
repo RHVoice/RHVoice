@@ -17,31 +17,20 @@ package com.github.olga_yakovleva.rhvoice;
 
 public final class SynthesisParameters
 {
-    private VoiceInfo main_voice=null;
-    private VoiceInfo extra_voice=null;
+    private String voiceProfile;
     private boolean ssml_mode=false;
     private double rate=1;
     private double pitch=1;
     private double volume=1;
 
-    public void setMainVoice(VoiceInfo voice)
+    public void setVoiceProfile(String profile)
     {
-        main_voice=voice;
+        voiceProfile=profile;
     }
 
-    public VoiceInfo getMainVoice()
+    public String getVoiceProfile()
     {
-        return main_voice;
-    }
-
-    public void setExtraVoice(VoiceInfo voice)
-    {
-        extra_voice=voice;
-    }
-
-    public VoiceInfo getExtraVoice()
-    {
-        return extra_voice;
+        return voiceProfile;
     }
 
     public void setSSMLMode(boolean mode)

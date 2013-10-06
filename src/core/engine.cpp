@@ -50,6 +50,7 @@ namespace RHVoice
   }
 
   engine::engine(const init_params& p):
+    voice_profiles_spec("voice_profiles"),
     data_path(p.data_path),
     config_path(p.config_path),
     version(VERSION),
@@ -60,6 +61,7 @@ namespace RHVoice
     if(languages.empty())
       throw no_languages();
     config cfg;
+    cfg.register_setting(voice_profiles_spec);
     voice_settings.register_self(cfg);
     text_settings.register_self(cfg);
     verbosity_settings.register_self(cfg);
@@ -79,5 +81,41 @@ namespace RHVoice
     #endif
     if(languages.empty())
       throw no_languages();
+    create_voice_profiles();
+  }
+
+  voice_profile engine::create_voice_profile(const std::string& spec) const
+  {
+    voice_profile profile;
+    std::string name;
+    voice_list::const_iterator v;
+    str::tokenizer<str::is_equal_to> tok(spec,str::is_equal_to('+'));
+    for(str::tokenizer<str::is_equal_to>::iterator it=tok.begin();it!=tok.end();++it)
+      {
+        name=str::trim(*it);
+        v=voices.find(name);
+        if(v!=voices.end())
+          profile.add(v);
+      }
+    return profile;
+  }
+
+  void engine::create_voice_profiles()
+  {
+    for(voice_list::const_iterator it=voices.begin();it!=voices.end();++it)
+      {
+        voice_profiles.insert(voice_profile(it));
+      }
+    if(!voice_profiles_spec.is_set())
+      return;
+    std::string list_spec_string=voice_profiles_spec.get();
+    str::tokenizer<str::is_equal_to> tok(list_spec_string,str::is_equal_to(','));
+    for(str::tokenizer<str::is_equal_to>::iterator it=tok.begin();it!=tok.end();++it)
+      {
+        std::string profile_spec_string=str::trim(*it);
+        voice_profile profile=create_voice_profile(profile_spec_string);
+        if(!profile.empty())
+          voice_profiles.insert(profile);
+      }
   }
 }

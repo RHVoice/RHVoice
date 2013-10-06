@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -21,6 +21,7 @@
 #include <sapi.h>
 #include <sapiddk.h>
 #include "core/client.hpp"
+#include "core/voice_profile.hpp"
 #include "core/document.hpp"
 #include "tts_base.hpp"
 
@@ -35,7 +36,7 @@ namespace RHVoice
       {
         const SPVTEXTFRAG* input;
         ISpTTSEngineSite* caller;
-        document::init_params document_params;
+        voice_profile profile;
       };
 
       SpeakImpl(const init_params& p);

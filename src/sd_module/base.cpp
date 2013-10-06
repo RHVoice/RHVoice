@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -21,8 +21,7 @@ namespace RHVoice
   {
     tts_params base::tts_settings;
     smart_ptr<engine> base::tts_engine;
-    base::voice_map base::voices;
-    voice_description base::current_voice;
+    voice_profile base::current_voice;
     audio_params base::audio_settings;
     audio::playback_stream base::playback_stream;
   }

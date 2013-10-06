@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -16,15 +16,13 @@
 #ifndef RHVOICE_SD_BASE_HPP
 #define RHVOICE_SD_BASE_HPP
 
-#include <map>
 #include "core/smart_ptr.hpp"
-#include "core/str.hpp"
 #include "core/engine.hpp"
+#include "core/voice_profile.hpp"
 #include "state.hpp"
 #include "audio.hpp"
 #include "tts_params.hpp"
 #include "audio_params.hpp"
-#include "voice_description.hpp"
 
 namespace RHVoice
 {
@@ -48,12 +46,9 @@ namespace RHVoice
                 s.test(state::paused));
       }
 
-      typedef std::map<std::string,voice_description,str::less> voice_map;
-
       static tts_params tts_settings;
       static smart_ptr<engine> tts_engine;
-      static voice_map voices;
-      static voice_description current_voice;
+      static voice_profile current_voice;
       static audio_params audio_settings;
       static audio::playback_stream playback_stream;
 

@@ -141,44 +141,28 @@ namespace RHVoice
       }
   }
 
-  language_list::const_iterator sentence::determine_next_token_language() const
+  voice_list::const_iterator sentence::determine_next_token_voice() const
   {
-    language_list::const_iterator result;
-    if(parent->has_main_language())
+    voice_list::const_iterator no_result;
+    const voice_profile& profile=parent->get_voice_profile();
+    if(profile.empty())
+      return no_result;
+    if(profile.voice_count()==1)
+      return profile.primary();
+    voice_list::const_iterator result;
+    if(next_token.type==content_key)
       {
-        language_list::const_iterator main_language=parent->get_main_language();
-        if(parent->has_extra_language())
-          {
-            language_list::const_iterator extra_language=parent->get_extra_language();
-            std::size_t count1=0;
-            std::size_t count2=0;
-            if(next_token.type==content_key)
-              {
-                if((next_token.text.size()==1)||(*(next_token.text.end()-2)=='_'))
-                  {
-                    if(main_language->is_letter(next_token.text.back()))
-                      count1=1;
-                    if(extra_language->is_letter(next_token.text.back()))
-                      count2=1;
-                  }
-                }
-            else
-              {
-                count1=main_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
-                count2=extra_language->count_letters_in_text(next_token.text.begin(),next_token.text.end());
-              }
-            if(count1||count2)
-              result=(count2>count1)?extra_language:main_language;
-            else
-              {
-                if(parent->get_engine().prefer_primary_language)
-                  result=main_language;
-              }
-          }
-        else
-          result=main_language;
+        if((next_token.text.size()==1)||(*(next_token.text.end()-2)=='_'))
+          result=profile.voice_for_text(next_token.text.end()-1,next_token.text.end());
       }
-    return result;
+    else
+      result=profile.voice_for_text(next_token.text.begin(),next_token.text.end());
+    if(result!=no_result)
+      return result;
+    else if(parent->get_engine().prefer_primary_language)
+      return profile.primary();
+    else
+      return no_result;
   }
 
   language_voice_pair sentence::get_language_and_voice_from_markup(const tts_markup& markup_info) const
@@ -208,6 +192,7 @@ namespace RHVoice
 
   std::auto_ptr<utterance> sentence::new_utterance() const
   {
+    const voice_profile& profile=parent->get_voice_profile();
     std::auto_ptr<utterance> u;
     const language_list& languages=parent->get_engine().get_languages();
     language_list::const_iterator current_language=language_and_voice.first;
@@ -215,20 +200,15 @@ namespace RHVoice
     voice_list::const_iterator current_voice=language_and_voice.second;
     if(current_language==language_list::const_iterator())
       {
-        if(parent->has_main_language())
-          current_language=parent->get_main_language();
+        if(!profile.empty())
+          current_language=profile.primary()->get_language();
         else
           current_language=languages.begin();
       }
     if(current_voice==voice_list::const_iterator())
       {
-        if(parent->has_main_voice())
-          {
-            if(current_language==parent->get_main_language())
-              current_voice=parent->get_main_voice();
-            else if(parent->has_extra_voice()&&(current_language==parent->get_extra_language()))
-              current_voice=parent->get_extra_voice();
-          }
+        if(!profile.empty())
+          current_voice=profile.voice_for_language(current_language);
         if(current_voice==voice_list::const_iterator())
           {
             voice_search_criteria c;

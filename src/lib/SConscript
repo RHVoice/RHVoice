@@ -17,7 +17,7 @@ import os
 import os.path
 Import(["env","libRHVoice_core"])
 local_env=env.Clone()
-local_env["libversion"]="1.0.0"
+local_env["libversion"]="2.0.0"
 local_env["liblevel"]=2
 local_env.Prepend(LIBS=libRHVoice_core)
 src=["lib.cpp"]

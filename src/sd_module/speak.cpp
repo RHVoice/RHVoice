@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -27,7 +27,7 @@ namespace RHVoice
       bool speak::get_message(tts_message& msg) const
       {
         reply r;
-        if(current_voice.is_empty())
+        if(current_voice.empty())
           {
             r("300 ERROR NO VOICE IS SET");
             return false;
@@ -73,7 +73,7 @@ namespace RHVoice
             return false;
           }
         msg.type=message_type;
-        msg.set_voice(current_voice);
+        msg.profile=current_voice;
         msg.set_synthesis_params(tts_settings);
         r("200 OK SPEAKING");
         return true;

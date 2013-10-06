@@ -94,23 +94,20 @@ namespace RHVoice
     {
       try
         {
-          document::init_params params;
-          params.main_voice=msg.main_voice;
-          params.extra_voice=msg.extra_voice;
           std::auto_ptr<document> doc;
           switch(msg.type)
             {
             case tts_message_text:
-              doc=document::create_from_ssml(tts_engine,msg.content.begin(),msg.content.end(),params);
+              doc=document::create_from_ssml(tts_engine,msg.content.begin(),msg.content.end(),msg.profile);
               break;
             case tts_message_char:
-              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_char,params);
+              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_char,msg.profile);
               break;
             case tts_message_key:
-              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_key,params);
+              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_key,msg.profile);
               break;
             default:
-              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_text,params);
+              doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_text,msg.profile);
               break;
             }
           if(cancelled())

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -21,7 +21,7 @@
 #include <sapiddk.h>
 #include <comdef.h>
 #include <comip.h>
-#include "core/voice.hpp"
+#include "core/voice_profile.hpp"
 #include "com.hpp"
 #include "tts_base.hpp"
 
@@ -49,7 +49,7 @@ namespace RHVoice
       _COM_SMARTPTR_TYPEDEF(ISpObjectToken,__uuidof(ISpObjectToken));
       _COM_SMARTPTR_TYPEDEF(ISpDataKey,__uuidof(ISpDataKey));
       ISpObjectTokenPtr token;
-      voice_list::const_iterator main_voice,extra_voice;
+      voice_profile profile;
     };
   }
 }

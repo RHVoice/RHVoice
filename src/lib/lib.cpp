@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -24,6 +24,7 @@
 #include "core/client.hpp"
 #include "core/language.hpp"
 #include "core/voice.hpp"
+#include "core/voice_profile.hpp"
 #include "RHVoice.h"
 
 using namespace RHVoice;
@@ -98,6 +99,16 @@ struct RHVoice_tts_engine_struct
     return (voice_info_array.empty()?0:&voice_info_array[0]);
   }
 
+  unsigned int get_number_of_voice_profiles() const
+  {
+    return voice_profile_names_array.size();
+  }
+
+  char const * const * get_voice_profiles() const
+  {
+    return (voice_profile_names_array.empty()?0:&voice_profile_names_array[0]);
+  }
+
   bool are_languages_compatible(const char* language1,const char* language2) const;
 
   template<typename ch>
@@ -115,9 +126,18 @@ private:
     RHVoice_voice_info operator()(const voice_info& info) const;
   };
 
+  struct get_voice_profile_name: public std::unary_function<const voice_profile&,const char*>
+  {
+    const char* operator()(const voice_profile& p) const
+    {
+      return p.get_name().c_str();
+    }
+  };
+
   smart_ptr<engine> engine_ptr;
   RHVoice_callbacks callbacks;
   std::vector<RHVoice_voice_info> voice_info_array;
+  std::vector<const char*> voice_profile_names_array;
 };
 
 RHVoice_tts_engine_struct::RHVoice_tts_engine_struct(const RHVoice_init_params* init_params)
@@ -144,6 +164,8 @@ RHVoice_tts_engine_struct::RHVoice_tts_engine_struct(const RHVoice_init_params* 
   if(engine_ptr->get_voices().empty())
     throw std::runtime_error("No voices");
   std::transform(engine_ptr->get_voices().begin(),engine_ptr->get_voices().end(),std::back_inserter(voice_info_array),convert_voice_info());
+  const std::set<voice_profile>& profiles=engine_ptr->get_voice_profiles();
+  std::transform(profiles.begin(),profiles.end(),std::back_inserter(voice_profile_names_array),get_voice_profile_name());
   callbacks=init_params->callbacks;
 }
 
@@ -185,34 +207,24 @@ RHVoice_message_struct::RHVoice_message_struct(const smart_ptr<engine>& engine_p
     throw std::invalid_argument("Text is an empty string");
   if(!synth_params)
     throw std::invalid_argument("No synthesis parameters");
-  if(!synth_params->main_voice)
+  if(!synth_params->voice_profile)
     throw std::invalid_argument("The main voice name is mandatory");
-  const voice_list& voices=engine_ptr->get_voices();
-  document::init_params init_params;
-  voice_list::const_iterator main_voice=voices.find(synth_params->main_voice);
-  if(main_voice==voices.end())
+  voice_profile profile=engine_ptr->create_voice_profile(synth_params->voice_profile);
+  if(profile.empty())
     throw std::invalid_argument("The voice with this name does not exist or has been disabled by the user");
-  init_params.main_voice=main_voice;
-  if(synth_params->extra_voice)
-    {
-      voice_list::const_iterator extra_voice=voices.find(synth_params->extra_voice);
-      if(extra_voice==voices.end())
-        throw std::invalid_argument("The voice with this name does not exist or has been disabled by the user");
-      init_params.extra_voice=extra_voice;
-    }
   switch(message_type)
     {
     case RHVoice_message_text:
-      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,content_text,init_params);
+      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,content_text,profile);
       break;
     case RHVoice_message_ssml:
-      doc_ptr=document::create_from_ssml(engine_ptr,text,text+length,init_params);
+      doc_ptr=document::create_from_ssml(engine_ptr,text,text+length,profile);
       break;
     case RHVoice_message_characters:
-      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,content_chars,init_params);
+      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,content_chars,profile);
       break;
     case RHVoice_message_key:
-      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,content_key,init_params);
+      doc_ptr=document::create_from_plain_text(engine_ptr,text,text+length,content_key,profile);
       break;
     default:
       throw std::invalid_argument("Unknown message type");
@@ -277,6 +289,16 @@ unsigned int RHVoice_get_number_of_voices(RHVoice_tts_engine tts_engine)
 const RHVoice_voice_info* RHVoice_get_voices(RHVoice_tts_engine tts_engine)
 {
   return (tts_engine?(tts_engine->get_voices()):0);
+}
+
+unsigned int RHVoice_get_number_of_voice_profiles(RHVoice_tts_engine tts_engine)
+{
+  return(tts_engine?(tts_engine->get_number_of_voice_profiles()):0);
+}
+
+char const * const * RHVoice_get_voice_profiles(RHVoice_tts_engine tts_engine)
+{
+  return (tts_engine?(tts_engine->get_voice_profiles()):0);
 }
 
 int RHVoice_are_languages_compatible(RHVoice_tts_engine tts_engine,const char* language1,const char* language2)

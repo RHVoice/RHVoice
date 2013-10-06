@@ -96,8 +96,7 @@ class RHVoice_capitals_mode:
     sound=4
 
 class RHVoice_synth_params(Structure):
-    _fields_=[("main_voice",c_char_p),
-              ("extra_voice",c_char_p),
+    _fields_=[("voice_profile",c_char_p),
               ("absolute_rate",c_double),
               ("absolute_pitch",c_double),
               ("absolute_volume",c_double),
@@ -119,6 +118,10 @@ def load_tts_library():
     lib.RHVoice_get_number_of_voices.restype=c_uint
     lib.RHVoice_get_voices.argtypes=(RHVoice_tts_engine,)
     lib.RHVoice_get_voices.restype=POINTER(RHVoice_voice_info)
+    lib.RHVoice_get_number_of_voice_profiles.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_get_number_of_voice_profiles.restype=c_uint
+    lib.RHVoice_get_voice_profiles.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_get_voice_profiles.restype=POINTER(c_char_p)
     lib.RHVoice_are_languages_compatible.argtypes=(RHVoice_tts_engine,c_char_p,c_char_p)
     lib.RHVoice_are_languages_compatible.restype=c_int
     lib.RHVoice_new_message.argtypes=(RHVoice_tts_engine,c_char_p,c_uint,c_int,POINTER(RHVoice_synth_params),c_void_p)
@@ -198,8 +201,7 @@ class speak_text(object):
         self.__tts_engine=tts_engine
         self.__text=text.encode("utf-8")
         self.__cancel_flag=cancel_flag
-        self.__synth_params=RHVoice_synth_params(main_voice=None,
-                                                 extra_voice=None,
+        self.__synth_params=RHVoice_synth_params(voice_profile=None,
                                                  absolute_rate=0,
                                                  relative_rate=1,
                                                  absolute_pitch=0,
@@ -219,11 +221,8 @@ class speak_text(object):
     def set_volume(self,volume):
         self.__synth_params.absolute_volume=volume/50.0-1
 
-    def set_main_voice(self,name):
-        self.__synth_params.main_voice=name
-
-    def set_extra_voice(self,name):
-        self.__synth_params.extra_voice=name
+    def set_voice_profile(self,name):
+        self.__synth_params.voice_profile=name
 
     def __call__(self):
         if self.__cancel_flag.is_set():
@@ -260,7 +259,6 @@ class SynthDriver(SynthDriver):
     description="RHVoice"
 
     supportedSettings=(SynthDriver.VoiceSetting(),
-                       SynthDriver.VariantSetting(),
                        SynthDriver.RateSetting(),
                        SynthDriver.PitchSetting(),
                        SynthDriver.VolumeSetting())
@@ -294,18 +292,25 @@ class SynthDriver(SynthDriver):
         if not self.__tts_engine:
             raise RuntimeError("RHVoice: initialization error")
         nvda_language=languageHandler.getLanguage().split("_")[0]
-        self.__voice=None
         number_of_voices=self.__lib.RHVoice_get_number_of_voices(self.__tts_engine)
         native_voices=self.__lib.RHVoice_get_voices(self.__tts_engine)
-        self.__voices=OrderedDict()
+        self.__voice_languages=dict()
         self.__languages=set()
         for i in xrange(number_of_voices):
             native_voice=native_voices[i]
-            self.__voices[native_voice.name]=native_voice.language
+            self.__voice_languages[native_voice.name]=native_voice.language
             self.__languages.add(native_voice.language)
-            if (self.__voice is None) or ((native_voice.language==nvda_language) and (self.__voices[self.__voice]!=nvda_language)):
-                self.__voice=native_voice.name
-                self.__variant=self.__voice
+        self.__profile=None
+        self.__profiles=list()
+        number_of_profiles=self.__lib.RHVoice_get_number_of_voice_profiles(self.__tts_engine)
+        native_profile_names=self.__lib.RHVoice_get_voice_profiles(self.__tts_engine)
+        for i in xrange(number_of_profiles):
+            name=native_profile_names[i]
+            self.__profiles.append(name)
+            if (self.__profile is None) and (nvda_language==self.__voice_languages[name.split("+")[0]]):
+                self.__profile=name
+        if self.__profile is None:
+            self.__profile=self.__profiles[0]
         self.__rate=50
         self.__pitch=50
         self.__volume=50
@@ -346,7 +351,7 @@ class SynthDriver(SynthDriver):
                 new_language=item.lang.split("_")[0]
                 if new_language not in self.__languages:
                     continue
-                elif new_language==self.__voices[self.__voice]:
+                elif new_language==self.__voice_languages[self.__profile.split("+")[0]]:
                     continue
                 text_list.append(u'<voice xml:lang="{}">'.format(new_language))
                 language_changed=True
@@ -359,9 +364,7 @@ class SynthDriver(SynthDriver):
         text_list.append(u"</speak>")
         text=u"".join(text_list)
         task=speak_text(self.__lib,self.__tts_engine,text,self.__cancel_flag)
-        task.set_main_voice(self.__voice)
-        if self.__voice!=self.__variant:
-            task.set_extra_voice(self.__variant)
+        task.set_voice_profile(self.__profile)
         task.set_rate(self.__rate)
         task.set_pitch(self.__pitch)
         task.set_volume(self.__volume)
@@ -383,15 +386,10 @@ class SynthDriver(SynthDriver):
         return self.__mark_callback.index
 
     def _get_availableVoices(self):
-        return OrderedDict((voice,VoiceInfo(voice,voice,language)) for voice,language in self.__voices.iteritems())
-
-    def _get_availableVariants(self):
-        voice=self.__voice
-        language=self.__voices[voice]
-        return OrderedDict((other_voice,VoiceInfo(other_voice,other_voice,other_language)) for other_voice,other_language in self.__voices.iteritems() if (voice==other_voice) or self.__lib.RHVoice_are_languages_compatible(self.__tts_engine,language,other_language))
+        return OrderedDict((profile,VoiceInfo(profile,profile,self.__voice_languages[profile.split("+")[0]])) for profile in self.__profiles)
 
     def _get_language(self):
-        return self.__voices[self.__voice]
+        return self.__voice_languages[self.__profile.split("+")[0]]
 
     def _get_rate(self):
         return self.__rate
@@ -412,20 +410,10 @@ class SynthDriver(SynthDriver):
         self.__volume=max(0,min(100,volume))
 
     def _get_voice(self):
-        return self.__voice
+        return self.__profile
 
     def _set_voice(self,voice):
         try:
-            self.__voice=self.availableVoices[voice].ID
-            self.__variant=self.__voice
-        except:
-            pass
-
-    def _get_variant(self):
-        return self.__variant
-
-    def _set_variant(self,variant):
-        try:
-            self.__variant=self.availableVariants[variant].ID
+            self.__profile=self.availableVoices[voice].ID
         except:
             pass
