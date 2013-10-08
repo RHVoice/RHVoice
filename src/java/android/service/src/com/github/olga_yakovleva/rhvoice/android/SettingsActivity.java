@@ -90,7 +90,7 @@ public final class SettingsActivity extends PreferenceActivity
     private void buildLanguagePreferenceCategory(List<VoiceInfo> voices)
     {
         PreferenceCategory cat=new PreferenceCategory(this);
-        getPreferenceScreen().addPreference(cat);
+        cat.setPersistent(false);
         LanguageInfo language=voices.get(0).getLanguage();
         String firstVoiceName=voices.get(0).getName();
         String code2=language.getAlpha2Code();
@@ -98,9 +98,9 @@ public final class SettingsActivity extends PreferenceActivity
         cat.setKey("language."+code3);
         Locale locale=new Locale(code2);
         cat.setTitle(locale.getDisplayName());
+        getPreferenceScreen().addPreference(cat);
         ListPreference voicePref=new ListPreference(this);
         voicePref.setOnPreferenceChangeListener(onVoiceChange);
-        cat.addPreference(voicePref);
         voicePref.setKey("language."+code3+".voice");
         voicePref.setTitle(R.string.default_voice_title);
         voicePref.setSummary(firstVoiceName);
@@ -114,11 +114,13 @@ public final class SettingsActivity extends PreferenceActivity
         voicePref.setEntries(voiceNames);
         voicePref.setEntryValues(voiceNames);
         voicePref.setDefaultValue(firstVoiceName);
+        cat.addPreference(voicePref);
+        voicePref.setSummary(voicePref.getEntry());
         CheckBoxPreference detectPref=new CheckBoxPreference(this);
-        cat.addPreference(detectPref);
         detectPref.setKey("language."+code3+".detect");
         detectPref.setTitle(R.string.detect_language_title);
         detectPref.setDefaultValue(false);
+        cat.addPreference(detectPref);
     }
 
     @Override
