@@ -185,7 +185,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         TtsState newState=new TtsState();
         try
             {
-                File configDir=getDir("config",0);
+                File configDir=Config.getDir(this);
                 newState.engine=new TTSEngine("",configDir.getAbsolutePath(),paths);
             }
         catch(Exception e)
