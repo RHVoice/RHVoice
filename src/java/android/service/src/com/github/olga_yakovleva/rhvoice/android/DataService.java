@@ -184,7 +184,7 @@ public final class DataService extends IntentService
             return;
         try
             {
-                TTSEngine engine=new TTSEngine("",getDir("config",0).getAbsolutePath(),upToDatePaths.toArray(new String[upToDatePaths.size()]));
+                TTSEngine engine=new TTSEngine("",Config.getDir(this).getAbsolutePath(),upToDatePaths.toArray(new String[upToDatePaths.size()]));
                 hasVoices=!(engine.getVoices().isEmpty());
                 engine.shutdown();
             }
