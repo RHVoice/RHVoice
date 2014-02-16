@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -25,6 +25,7 @@
 #include "voice.hpp"
 #include "voice_profile.hpp"
 #include "hts_engine_setting.hpp"
+#include "event_logger.hpp"
 
 namespace RHVoice
 {
@@ -45,6 +46,7 @@ namespace RHVoice
       init_params();
       std::string data_path,config_path;
       std::vector<std::string> resource_paths;
+      smart_ptr<event_logger> logger;
 
       std::vector<std::string> get_language_paths() const
       {
@@ -109,6 +111,11 @@ namespace RHVoice
       
     voice_profile create_voice_profile(const std::string& spec) const;
 
+    const smart_ptr<event_logger>& get_logger() const
+    {
+      return logger;
+    }
+
   private:
     engine(const engine&);
     engine& operator=(const engine&);
@@ -118,6 +125,7 @@ namespace RHVoice
     language_list languages;
     voice_list voices;
     std::set<voice_profile> voice_profiles;
+    smart_ptr<event_logger> logger;
 
     void create_voice_profiles();
 

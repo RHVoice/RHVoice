@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -36,4 +36,13 @@ typedef enum {
   RHVoice_capitals_pitch,
   RHVoice_capitals_sound
 } RHVoice_capitals_mode;
+
+typedef enum
+  {
+    RHVoice_log_level_trace,
+    RHVoice_log_level_debug,
+    RHVoice_log_level_info,
+    RHVoice_log_level_warning,
+    RHVoice_log_level_error
+  } RHVoice_log_level;
 #endif

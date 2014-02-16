@@ -55,7 +55,7 @@ public final class SettingsActivity extends PreferenceActivity
                 final String[] paths=intent.getStringArrayExtra("paths");
                 if(paths==null)
                     return null;
-                engine=new TTSEngine("",Config.getDir(this).getAbsolutePath(),paths);
+                engine=new TTSEngine("",Config.getDir(this).getAbsolutePath(),paths,CoreLogger.instance);
                 return engine.getVoices();
             }
         catch(Exception e)

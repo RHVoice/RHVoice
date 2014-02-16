@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -19,11 +19,13 @@
 #include <string>
 #include <vector>
 #include <iterator>
+#include <map>
 #include "utf8.h"
 #include "core/engine.hpp"
 #include "core/client.hpp"
 #include "core/utf.hpp"
 #include "core/document.hpp"
+#include "core/event_logger.hpp"
 #include "native.h"
 
 using namespace RHVoice;
@@ -134,6 +136,11 @@ namespace
     return check(env,env->GetFieldID(cls,name,sig));
   }
 
+  inline jfieldID get_static_field(JNIEnv* env,jclass cls,const char* name,const char* sig)
+  {
+    return check(env,env->GetStaticFieldID(cls,name,sig));
+  }
+
   jstring string_to_jstring(JNIEnv* env,const std::string& cppstr)
   {
     std::vector<jchar> jchars;
@@ -237,6 +244,8 @@ namespace
   jmethodID SynthesisParameters_getRate_method;
   jmethodID SynthesisParameters_getPitch_method;
   jmethodID SynthesisParameters_getVolume_method;
+  jclass LogLevel_enum;
+  std::map<RHVoice_log_level,jfieldID> log_level_map;
 
   class Data
   {
@@ -301,14 +310,59 @@ namespace
     doc->set_owner(*this);
     doc->synthesize();
   }
-}
 
-bool speak_impl::play_speech(const short* samples,std::size_t count)
-{
-  jshortArray jsamples=check(env,env->NewShortArray(count));
-  env->SetShortArrayRegion(jsamples,0,count,samples);
-  check(env);
-  return check(env,env->CallBooleanMethod(client_object,client_playSpeech_method,jsamples));
+  bool speak_impl::play_speech(const short* samples,std::size_t count)
+  {
+    jshortArray jsamples=check(env,env->NewShortArray(count));
+    env->SetShortArrayRegion(jsamples,0,count,samples);
+    check(env);
+    return check(env,env->CallBooleanMethod(client_object,client_playSpeech_method,jsamples));
+  }
+
+  class java_logger_wrapper: public event_logger
+  {
+  private:
+    JavaVM* jvm;
+    jobject jlogger;
+    jmethodID Logger_log_method;
+
+    JNIEnv* get_env() const
+    {
+      JNIEnv* env=0;
+      jvm->GetEnv(reinterpret_cast<void**>(&env),JNI_VERSION_1_6);
+      return env;
+    }
+
+  public:
+    java_logger_wrapper(JNIEnv* env,jobject jimpl):
+      jvm(0),
+      jlogger(env->NewGlobalRef(jimpl)),
+      Logger_log_method(get_method(env,check(env,env->GetObjectClass(jimpl)),"log","(Ljava/lang/String;Lcom/github/olga_yakovleva/rhvoice/LogLevel;Ljava/lang/String;)V"))
+    {
+      env->GetJavaVM(&jvm);
+      check(env);
+    }
+
+    ~java_logger_wrapper()
+    {
+      JNIEnv* env=get_env();
+      env->DeleteGlobalRef(jlogger);
+    }
+
+    void log(const std::string& tag,RHVoice_log_level level,const std::string& message) const
+    {
+      JNIEnv* env=get_env();
+      std::map<RHVoice_log_level,jfieldID>::const_iterator it=log_level_map.find(level);
+      if(it==log_level_map.end())
+        throw internal_exception("Unknown logging level");
+      jstring jtag=string_to_jstring(env,tag);
+      jstring jmessage=string_to_jstring(env,message);
+      jobject jlevel=env->GetStaticObjectField(LogLevel_enum,it->second);
+      check(env);
+      env->CallVoidMethod(jlogger,Logger_log_method,jtag,jlevel,jmessage);
+      check(env);
+    }
+  };
 }
 
 #define TRY try {
@@ -347,11 +401,18 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
     SynthesisParameters_getPitch_method=get_method(env,SynthesisParameters_class,"getPitch","()D");
     SynthesisParameters_getVolume_method=get_method(env,SynthesisParameters_class,"getVolume","()D");
   data_field=get_field(env,TTSEngine_class,"data","J");
+    LogLevel_enum=find_class(env,"com/github/olga_yakovleva/rhvoice/LogLevel");
+    const char* sig="Lcom/github/olga_yakovleva/rhvoice/LogLevel;";
+    log_level_map[RHVoice_log_level_trace]=get_static_field(env,LogLevel_enum,"TRACE",sig);
+    log_level_map[RHVoice_log_level_debug]=get_static_field(env,LogLevel_enum,"DEBUG",sig);
+    log_level_map[RHVoice_log_level_info]=get_static_field(env,LogLevel_enum,"INFO",sig);
+    log_level_map[RHVoice_log_level_warning]=get_static_field(env,LogLevel_enum,"WARNING",sig);
+    log_level_map[RHVoice_log_level_error]=get_static_field(env,LogLevel_enum,"ERROR",sig);
   CATCH1(env)
 }
 
 JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
-(JNIEnv *env, jobject obj, jstring data_path, jstring config_path, jobjectArray resource_paths)
+(JNIEnv *env, jobject obj, jstring data_path, jstring config_path, jobjectArray resource_paths, jobject logger)
 {
   TRY
   clear_native_field(env,obj,data_field);
@@ -369,6 +430,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
           params.resource_paths.push_back(jstring_to_string(env,static_cast<jstring>(jstr)));
         }
     }
+  params.logger=smart_ptr<event_logger>(new java_logger_wrapper(env,logger));
   data->engine_ptr=engine::create(params);
   if(data->engine_ptr->get_voices().empty())
     throw no_voices();

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -17,11 +17,17 @@
 #include "core/config.hpp"
 #include "core/engine.hpp"
 
+namespace
+{
+  const std::string tag("engine");
+}
+
 namespace RHVoice
 {
   engine::init_params::init_params():
     data_path(DATA_PATH),
-    config_path(CONFIG_PATH)
+    config_path(CONFIG_PATH),
+    logger(new event_logger)
   {
   }
 
@@ -56,11 +62,14 @@ namespace RHVoice
     version(VERSION),
     languages(p.get_language_paths(),path::join(config_path,"dicts")),
     voices(p.get_voice_paths(),languages),
-    prefer_primary_language("prefer_primary_language",false)
+    prefer_primary_language("prefer_primary_language",false),
+    logger(p.logger)
   {
+    logger->log(tag,RHVoice_log_level_info,"creating a new engine");
     if(languages.empty())
       throw no_languages();
     config cfg;
+    cfg.set_logger(logger);
     cfg.register_setting(voice_profiles_spec);
     voice_settings.register_self(cfg);
     text_settings.register_self(cfg);
@@ -82,6 +91,7 @@ namespace RHVoice
     if(languages.empty())
       throw no_languages();
     create_voice_profiles();
+    logger->log(tag,RHVoice_log_level_info,"engine created");
   }
 
   voice_profile engine::create_voice_profile(const std::string& spec) const
