@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -13,9 +13,15 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <exception>
 #include "core/ini_parser.hpp"
 #include "core/io.hpp"
 #include "core/config.hpp"
+
+namespace
+{
+  const std::string tag("config");
+}
 
 namespace RHVoice
 {
@@ -40,19 +46,24 @@ namespace RHVoice
   {
     try
       {
+        logger->log(tag,RHVoice_log_level_info,"trying to load configuration file "+file_path);
         for(ini_parser p(file_path);!p.done();p.next())
           {
             if(p.get_section().empty())
               {
+                logger->log(tag,RHVoice_log_level_trace,p.get_key()+"="+p.get_value());
                 set(p.get_key(),p.get_value());
               }
           }
+        logger->log(tag,RHVoice_log_level_info,"configuration file processed");
       }
-    catch(const io::open_error&)
+    catch(const io::open_error& e)
       {
+        logger->log(tag,RHVoice_log_level_warning,e.what());
       }
-    catch(...)
+    catch(const std::exception& e)
       {
+        logger->log(tag,RHVoice_log_level_warning,e.what());
         throw;
       }
   }

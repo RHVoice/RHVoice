@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -23,7 +23,7 @@ public final class TTSEngine
     private long data;
 
     private static native void onClassInit();
-    private native void onInit(String data_path,String config_path,String[] resource_paths) throws RHVoiceException;
+    private native void onInit(String data_path,String config_path,String[] resource_paths,Logger logger) throws RHVoiceException;
     private native void onShutdown();
     private native VoiceInfo[] doGetVoices();
     private native void doSpeak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException;
@@ -34,14 +34,14 @@ public final class TTSEngine
         onClassInit();
     }
 
-    public TTSEngine(String data_path,String config_path,String[] resource_paths) throws RHVoiceException
+    public TTSEngine(String data_path,String config_path,String[] resource_paths,Logger logger) throws RHVoiceException
     {
-        onInit(data_path,config_path,resource_paths);
+        onInit(data_path,config_path,resource_paths,logger);
     }
 
     public TTSEngine() throws RHVoiceException
     {
-        this("","",new String[0]);
+        this("","",new String[0],null);
     }
 
     public void shutdown()

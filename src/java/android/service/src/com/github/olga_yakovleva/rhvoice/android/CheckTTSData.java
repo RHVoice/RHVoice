@@ -35,7 +35,7 @@ public final class CheckTTSData extends Activity implements FutureDataResult.Rec
 
     private List<AndroidVoiceInfo> listVoices(String[] paths) throws RHVoiceException,IOException
     {
-        TTSEngine engine=new TTSEngine("",Config.getDir(this).getAbsolutePath(),paths);
+        TTSEngine engine=new TTSEngine("",Config.getDir(this).getAbsolutePath(),paths,CoreLogger.instance);
         List<VoiceInfo> voices=engine.getVoices();
         engine.shutdown();
         List<AndroidVoiceInfo> result=new ArrayList(voices.size());
