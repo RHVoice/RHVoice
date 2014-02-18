@@ -299,11 +299,34 @@ namespace RHVoice
       }
   }
 
-  std::auto_ptr<utterance> sentence::create_utterance() const
+  void sentence::set_spell_single_symbol(utterance& u) const
+  {
+    relation& tokstruct=u.get_relation("TokStructure");
+    if(tokstruct.empty())
+      return;
+    item& token=tokstruct.first();
+    if(token.has_next())
+      return;
+    item& subtoken=token.first_child();
+    if(subtoken.has_next())
+      return;
+    const std::string& pos=subtoken.get("pos").as<std::string>();
+    if(pos!="sym")
+      return;
+    verbosity_t level=subtoken.get("verbosity").as<verbosity_t>();
+    if(level!=verbosity_silent)
+      return;
+    level=verbosity_spell|verbosity_name;
+    subtoken.set("verbosity",level);
+  }
+
+  std::auto_ptr<utterance> sentence::create_utterance(sentence_position pos) const
   {
     std::auto_ptr<utterance> u=new_utterance();
     apply_speech_settings(*u);
     execute_commands(*u);
+    if(pos==sentence_position_single)
+      set_spell_single_symbol(*u);
     apply_verbosity_settings(*u);
     apply_language_processing(*u);
     u->set_hts_engine_impl(parent->hts_engine);
@@ -315,12 +338,23 @@ namespace RHVoice
     if(!has_owner())
       return;
     std::auto_ptr<utterance> u;
+    sentence_position pos=sentence_position_initial;
     for(const_iterator it(begin());it!=end();++it)
       {
-        u=it->create_utterance();
+        const_iterator tmp_it=it;
+        ++tmp_it;
+        if(tmp_it==end())
+          {
+            if(pos==sentence_position_initial)
+              pos=sentence_position_single;
+            else
+              pos=sentence_position_final;
+          }
+        u=it->create_utterance(pos);
         if((u.get()!=0)&&(u->has_voice()))
           if(!(u->get_voice().synthesize(*u,get_owner())))
             break;
+        pos=sentence_position_middle;
       }
   }
 }
