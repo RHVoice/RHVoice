@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -214,6 +214,11 @@ namespace RHVoice
     inline bool isadigit(utf8::uint32_t c)
     {
       return ((c>='0')&&(c<='9'));
+    }
+
+    inline bool issym(utf8::uint32_t c)
+    {
+      return (unicode::category(c).major_class=='S');
     }
 
     struct is_space: public std::unary_function<utf8::uint32_t,bool>
