@@ -46,7 +46,7 @@ int main(int argc,const char* argv[])
         throw std::runtime_error("Cannot open the output file");
       for(document::iterator it(doc->begin());it!=doc->end();++it)
         {
-          std::auto_ptr<utterance> utt=it->create_utterance();
+          std::auto_ptr<utterance> utt=it->create_utterance(sentence_position_single);
           const relation& seg_rel=utt->get_relation("Segment");
           for(relation::const_iterator seg_iter(seg_rel.begin());seg_iter!=seg_rel.end();++seg_iter)
             {

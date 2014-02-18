@@ -54,6 +54,14 @@ namespace RHVoice
     }
   };
 
+  enum sentence_position
+    {
+      sentence_position_initial,
+      sentence_position_final,
+      sentence_position_middle,
+      sentence_position_single
+    };
+
   class sentence
   {
   private:
@@ -197,7 +205,7 @@ namespace RHVoice
       return commands.empty();
     }
 
-    std::auto_ptr<utterance> create_utterance() const;
+    std::auto_ptr<utterance> create_utterance(sentence_position position) const;
 
     template<typename text_iterator>
     text_iterator add_text(const text_iterator& text_start,const text_iterator& text_end,const tts_markup& markup_info);
@@ -228,6 +236,7 @@ namespace RHVoice
     std::auto_ptr<utterance> new_utterance() const;
     void execute_commands(utterance& u) const;
     void apply_speech_settings(utterance& u) const;
+    void set_spell_single_symbol(utterance& u) const;
     void apply_verbosity_settings(utterance& u) const;
     void apply_language_processing(utterance& u) const;
   };
