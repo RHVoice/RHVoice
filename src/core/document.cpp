@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -274,7 +274,7 @@ namespace RHVoice
                 utf8::uint32_t c=utf8::peek_next(name.begin(),name.end());
                 if((pos=="sym")&&
                    (((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_all)&&
-                     str::ispunct(c))||
+                     (str::ispunct(c)||str::issym(c)))||
                     ((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_some)&&
                      parent->verbosity_settings.punctuation_list.includes(c))))
                       token_iter->set<verbosity_t>("verbosity",verbosity_name);
