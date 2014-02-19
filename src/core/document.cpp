@@ -316,7 +316,7 @@ namespace RHVoice
     verbosity_t level=subtoken.get("verbosity").as<verbosity_t>();
     if(level!=verbosity_silent)
       return;
-    level=verbosity_spell|verbosity_name;
+    level=verbosity_name;
     subtoken.set("verbosity",level);
   }
 
