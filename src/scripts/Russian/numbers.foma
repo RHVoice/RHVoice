@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -15,7 +15,8 @@
 
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
-define Number %0|[NZDigit Digit^<15];
+define PlusOrMinus %+|%-;
+define Number (PlusOrMinus) [%0|[NZDigit Digit^<15]];
 
 define InsertThousands 
 [..] -> тысяч || Digit _ Digit^3 .#.;
@@ -43,7 +44,9 @@ define Hundreds %0:0|1:сто|2:двести|3:триста|4:четыреста
 define UpToThousand %0:ноль .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
 
 define DigitsToWords 
-UpToThousand @->;
+UpToThousand @-> ,, 
+%+ @-> плюс ,, 
+%- @-> минус ; 
 
 define FixCase 
 тысяч:тысяча|миллионов:миллион|миллиардов:миллиард|триллионов:триллион -> || один _ ,, 

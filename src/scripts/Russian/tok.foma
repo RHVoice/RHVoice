@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -91,6 +91,8 @@ a|A|b|B|c|C|d|D|e|E|f|F|g|G|h|H|i|I|j|J|k|K|l|L|m|M|n|N|o|O|p|P|q|Q|r|R|s|S|t|T|
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
 
+define PlusOrMinus %+|%-;
+
 define Number %0 | [NZDigit Digit*];
 
 define UnseparableWord 
@@ -115,6 +117,10 @@ Word @-> ... word || _ .#. | \Letter ,,
 
 define Stage2 
 word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
-num -> dig || Digit^15 _ ;
+num -> dig || Digit^15 _ ,, 
+sym -> 0 || [.#.|sym] PlusOrMinus _ Digit ; 
 
-regex Stage1 .o. Stage2;
+define Stage3 
+PlusOrMinus Digit -> ... num || _ Digit+ dig;
+
+regex Stage1 .o. Stage2 .o. Stage3;
