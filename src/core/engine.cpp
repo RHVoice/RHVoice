@@ -62,7 +62,7 @@ namespace RHVoice
     version(VERSION),
     languages(p.get_language_paths(),path::join(config_path,"dicts")),
     voices(p.get_voice_paths(),languages),
-    prefer_primary_language("prefer_primary_language",false),
+    prefer_primary_language("prefer_primary_language",true),
     logger(p.logger)
   {
     logger->log(tag,RHVoice_log_level_info,"creating a new engine");
