@@ -316,7 +316,9 @@ namespace
     jshortArray jsamples=check(env,env->NewShortArray(count));
     env->SetShortArrayRegion(jsamples,0,count,samples);
     check(env);
-    return check(env,env->CallBooleanMethod(client_object,client_playSpeech_method,jsamples));
+    jboolean res=check(env,env->CallBooleanMethod(client_object,client_playSpeech_method,jsamples));
+    env->DeleteLocalRef(jsamples);
+    return res;
   }
 
   class java_logger_wrapper: public event_logger
