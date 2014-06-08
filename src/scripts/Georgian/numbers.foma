@@ -64,7 +64,7 @@ ths:ათასი|mln:მილიონი|bln:მილიარდი @-> |
 ths:ათას|mln:მილიონ|bln:მილიარდ @-> || _ \.#.;
 
 define RemoveOne 
-1 -> 0 || .#. _ ths ; 
+1 -> 0 || .#.|GroupName _ ths ; 
 
 regex 
 [%0:ნული] | 
