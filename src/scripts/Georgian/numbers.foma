@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -63,7 +63,9 @@ define TranslateGroupNames
 ths:ათასი|mln:მილიონი|bln:მილიარდი @-> || _ .#. ,, 
 ths:ათას|mln:მილიონ|bln:მილიარდ @-> || _ \.#.;
 
+define RemoveOne 
+1 -> 0 || .#. _ ths ; 
 
 regex 
 [%0:ნული] | 
-[PositiveNumber .o. InsertThousand .o. InsertMillion .o. InsertBillion .o. RemoveZeros .o. TranslateDigits .o. TranslateGroupNames] ; 
+[PositiveNumber .o. InsertThousand .o. InsertMillion .o. InsertBillion .o. RemoveZeros .o. RemoveOne .o. TranslateDigits .o. TranslateGroupNames] ; 
