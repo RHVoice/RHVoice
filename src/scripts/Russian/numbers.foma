@@ -16,10 +16,11 @@
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
 define PlusOrMinus %+|%-;
-define Number (PlusOrMinus) [%0|[NZDigit Digit^<15]];
+define Number (PlusOrMinus) [%0|[NZDigit Digit^<15]] (%%);
+define RB (%%) .#. ;
 
 define InsertThousands 
-[..] -> тысяч || Digit _ Digit^3 .#.;
+[..] -> тысяч || Digit _ Digit^3 RB;
 
 define InsertMillions 
 [..] -> миллионов || Digit _ Digit^3 тысяч;
@@ -46,11 +47,12 @@ define UpToThousand %0:ноль .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Uni
 define DigitsToWords 
 UpToThousand @-> ,, 
 %+ @-> плюс ,, 
-%- @-> минус ; 
+%- @-> минус ,, 
+%% @-> процентов ; 
 
 define FixCase 
-тысяч:тысяча|миллионов:миллион|миллиардов:миллиард|триллионов:триллион -> || один _ ,, 
-тысяч:тысячи|миллионов:миллиона|миллиардов:миллиарда|триллионов:триллиона -> || два|три|четыре _ ;
+тысяч:тысяча|миллионов:миллион|миллиардов:миллиард|триллионов:триллион|процентов:процент -> || один _ ,, 
+тысяч:тысячи|миллионов:миллиона|миллиардов:миллиарда|триллионов:триллиона|процентов:процента -> || два|три|четыре _ ;
 
 define FixGender 
 один -> одна || _ тысяча ,, 

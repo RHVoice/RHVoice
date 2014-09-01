@@ -121,4 +121,7 @@ sym -> 0 || [.#.|sym] PlusOrMinus _ Digit ;
 define Stage4 
 PlusOrMinus Digit -> ... num || _ Digit+ dig;
 
-regex Stage1 .o. Stage2 .o. Stage3 .o. Stage4;
+define Stage5 
+num %% sym @-> %% num ; 
+
+regex Stage1 .o. Stage2 .o. Stage3 .o. Stage4 .o. Stage5;
