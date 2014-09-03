@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -28,7 +28,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
@@ -89,7 +88,7 @@ public final class SettingsActivity extends PreferenceActivity
 
     private void buildLanguagePreferenceCategory(List<VoiceInfo> voices)
     {
-        PreferenceCategory cat=new PreferenceCategory(this);
+        PreferenceScreen cat=getPreferenceManager().createPreferenceScreen(this);
         cat.setPersistent(false);
         LanguageInfo language=voices.get(0).getLanguage();
         String firstVoiceName=voices.get(0).getName();
