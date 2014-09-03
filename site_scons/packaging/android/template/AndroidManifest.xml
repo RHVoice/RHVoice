@@ -8,6 +8,7 @@
       android:minSdkVersion="14"
       android:targetSdkVersion="14"/>
   <application
-      android:label="@string/__language_____type___label">
+      android:label="@string/__language_____type___label"
+      android:icon="@drawable/ic_launcher">
   </application>
 </manifest>

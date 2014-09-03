@@ -33,6 +33,7 @@ class data_packager(packager):
 			self.project_name="RHVoice-voice-{}-{}".format(language,name)
 		self.template_dir=Dir("#"+template_path)
 		self.res_template_dir=self.template_dir.Dir("res")
+		self.main_pkg_res_dir=Dir("#"+os.path.join("src","java","android","service","res"))
 		super(data_packager,self).__init__(self.project_name,outdir.Dir(self.type+"s"),env)
 		self.res_outdir=self.outdir.Dir("res")
 		self.arch=archiver("data",self.outdir.Dir("res").Dir("raw"),env)
@@ -57,4 +58,11 @@ class data_packager(packager):
 				outfile=self.res_outdir.Dir(res_subpath).File(filename)
 				if os.path.isfile(infile.abspath):
 					self.env.Substfile(outfile,infile,SUBST_DICT=self.params)
+		for res_subpath in os.listdir(self.main_pkg_res_dir.abspath):
+			if res_subpath.startswith("drawable") and os.path.isdir(os.path.join(self.main_pkg_res_dir.abspath,res_subpath)):
+				filename="ic_launcher.png"
+				infile=self.main_pkg_res_dir.Dir(res_subpath).File(filename)
+				outfile=self.res_outdir.Dir(res_subpath).File(filename)
+				if os.path.isfile(infile.abspath):
+					self.env.Command(outfile,infile,Copy("$TARGET","$SOURCE"))
 		self.arch.package()
