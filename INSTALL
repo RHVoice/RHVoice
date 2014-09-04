@@ -7,7 +7,7 @@ Requirements:
 * GNU libunistring 0.9.3 or later
 * expat
 * pcre
-* libsox
+* libsox 14.3.2
 To compile the package type 'scons'. Then type 'scons install'. If you
 want to change the installation prefix, then the first command should
 be 'scons prefix=<path>'. Type 'scons -h' for help.
