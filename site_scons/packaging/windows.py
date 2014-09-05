@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@ class app_packager(packager):
 		self.data_package=data_package
 		self.reg_values=list()
 		self.uninstaller="uninstall-{}.exe".format(name)
-		i=self.get_uninstall_info()
-		k=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
-		for n,v in i.iteritems():
-			self.add_reg_value("HKLM",k,n,v)
+		self.uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
+		uninst_info=self.get_uninstall_info()
+		for n,v in uninst_info.iteritems():
+			self.add_reg_value("HKLM",self.uninst_reg_key,n,v)
 
 	def add_reg_value(self,root_key,key,name,value,x64=False):
 		self.reg_values.append((root_key,key,name,value,x64))
@@ -54,8 +54,8 @@ class app_packager(packager):
 		return i
 
 	def gen_includes(self):
+		self.add_line('!include "LogicLib.nsh"')
 		if not self.data_package:
-			self.add_line('!include "LogicLib.nsh"')
 			self.add_line('!include "Library.nsh"')
 			self.add_line('!include "x64.nsh"')
 
@@ -84,8 +84,19 @@ class app_packager(packager):
 		self.add_line("UninstPage uninstConfirm")
 		self.add_line("UninstPage instfiles")
 
+	def gen_uninst_prev(self):
+		self.add_line('ReadRegStr $$R0 HKLM "{}" "UninstallString"'.format(self.uninst_reg_key))
+		self.add_line('$${If} $$R0 != ""')
+		self.add_line('ReadRegStr $$R1 HKLM "{}" "InstallLocation"'.format(self.uninst_reg_key))
+		self.add_line('$${If} $$R1 != ""')
+		self.add_line("ExecWait '\"$$R0\" /S _?=$$R1'")
+		self.add_line('Delete "$$R0"')
+		self.add_line('$${EndIf}')
+		self.add_line('$${EndIf}')
+
 	def gen_inst_section(self):
 		self.add_line('Section')
+		self.gen_uninst_prev()
 		for f in self.files:
 			srcpath=os.path.relpath(f.infile.path,self.outdir.path)
 			dir,basename=os.path.split(f.outpath)
