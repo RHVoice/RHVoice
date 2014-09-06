@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="russian_voice_label">Русский голос __Name__ для RHVoice</string>
+  <string name="russian_voice_label">__Name__ - русский голос для RHVoice</string>
 </resources>
