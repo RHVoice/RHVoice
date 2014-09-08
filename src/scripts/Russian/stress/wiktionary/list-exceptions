@@ -1,0 +1,47 @@
+#!/usr/bin/python2 -B
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import codecs
+import rules
+
+vowels=set(u"аеёиоуыэюя")
+
+if __name__=="__main__":
+	r=rules.rules("rules")
+	lex=dict()
+	with codecs.open("dict","r","utf-8") as f_in:
+		for line in f_in:
+			entry=line.strip()
+			word=entry.lower().replace(u"ё",u"е")
+			if (u"ё" in entry) or (len([c for c in word if c in vowels])>1):
+				lex[word]=entry
+	with codecs.open("exceptions","w","utf-8") as f_out:
+		for word,entry in sorted(lex.iteritems(),key=lambda p: p[0]):
+			if u"ё" in entry:
+				f_out.write(entry)
+				f_out.write("\n")
+			elif sum(1 for c in entry if c.isupper())==1:
+				n=next(i for i in xrange(len(entry)) if entry[i].isupper())+1
+				m=r.match("#"+entry.lower()+"#")
+				if (len(m)!=1) or (m[0][0]+m[0][2]!=n):
+					f_out.write(entry)
+					f_out.write("\n")
+			else:
+				f_out.write(entry)
+				f_out.write("\n")

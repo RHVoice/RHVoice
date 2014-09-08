@@ -1,0 +1,39 @@
+# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+source g2p.foma
+clear
+define Vowel TranscribeVowel.u;
+define Consonant TranscribeConsonant.u;
+define Letter Vowel|Consonant;
+define LetterSequence Consonant+;
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define Number %0 | [NZDigit Digit*];
+
+define Word Letter+ ;
+
+define Stage1 
+Number @-> ... num || _ ,, 
+Word @-> ... word || _ .#. | \Letter ,, 
+\[Letter | Digit] @-> ... sym || _ ; 
+
+define Stage2 
+word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
+num -> dig || Digit^12 _ ;
+
+regex Stage1 .o. Stage2;

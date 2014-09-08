@@ -1,0 +1,61 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Dict 
+{чтоб} : [sh t o1 b] | 
+{чтобы} : [sh t o1 b y0] | 
+{по-моему} : [p a0 m o1 j i0 m u0] | 
+{по-твоему} : [p a0 t v o1 j i0 m u0] | 
+{по-своему} : [p a0 s v o1 j i0 m u0] | 
+{сорок} : [s o1 r a0 k] | 
+{сорока} : [s a0 r a0 k a1] | 
+{коротко} : [k o1 r a0 t k a0] | 
+{лотка} : [l a0 t k a1] | 
+{уведена} : [u0 vv i0 dd i0 n a1] | 
+{весело} : [vv e1 ss i0 l a0] | 
+{глядя} : [g ll a1 dd a0] | 
+{здоровы} : [z d a0 r o1 v y0] | 
+{родился} : [r a0 dd i1 l ss a0] | 
+{вымазал} : [v y1 m a0 z a0 l] | 
+{счастлив} : [sch a1 s ll i0 v] | 
+{спешил} : [s pp i0 sh y1 l] | 
+{призвать} : [p rr i0 z v a1 tt] | 
+{поздравишь} : [p a0 z d r a1 vv i0 sh] | 
+{полон} : [p o1 l a0 n] | 
+{судя} : [s u1 dd a0] | 
+{шаровой} : [sh a0 r a0 v o1 j] | 
+{верхом} : [vv i0 r h o1 m] | 
+{посудите} : [p a0 s u0 dd i1 tt e0] | 
+{обводные} : [a0 b v a0 d n y1 j e0] | 
+{держитесь} : [dd i0 r zh y1 tt i0 ss] | 
+{поважнее} : [p a0 v a0 zh nn e1 j e0] | 
+{велика} : [vv i0 ll i0 k a1] | 
+{сашка} : [s a1 sh k a0] | 
+{погодя} : [p a0 g a0 dd a1] | 
+{обманутая}  : [a0 b m a1 n u0 t a0 j a0] | 
+{своем} : [s v a0 j o1 m] | 
+{горюшка} : [g o1 rr u0 sh k a0] | 
+{заперлась} : [z a0 pp i0 r l a1 ss] | 
+{весел} : [vv e1 ss i0 l] | 
+{коли} : [k o1 ll i0] | 
+{потупя} : [p a0 t u1 pp a0] | 
+{поживаю} : [p a0 zh y0 v a1 j u0] | 
+{статью} : [s t a0 tt j u1] | 
+{колей} : [k o1 ll i0 j] | 
+{рысаки} : [r y0 s a0 kk i1] | 
+{приведено} : [p rr i0 vv i0 dd i0 n o1] | 
+{ничего} : [nn i0 ch i0 v o1] ; 
+
+regex Dict;

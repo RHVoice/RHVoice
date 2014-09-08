@@ -1,0 +1,3 @@
+use_gv=false
+msd_threshold=0.4
+gain=0.7

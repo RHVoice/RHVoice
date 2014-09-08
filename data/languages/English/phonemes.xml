@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<phonemes>
+  <phoneme name="aa" vc="+" vfront="3" vheight="3" vlng="l" vrnd="-"
+         />
+  <phoneme name="ae" vc="+" vfront="1" vheight="3" vlng="s" vrnd="-"
+         />
+  <phoneme name="ah" vc="+" vfront="2" vheight="2" vlng="s" vrnd="-"
+         />
+  <phoneme name="ao" vc="+" vfront="3" vheight="3" vlng="l" vrnd="+"
+         />
+  <phoneme name="aw" vc="+" vfront="2" vheight="3" vlng="d" vrnd="-"
+         />
+  <phoneme name="ax" vc="+" vfront="2" vheight="2" vlng="a" vrnd="-"
+         />
+  <phoneme cplace="a" ctype="r" cvox="+" name="axr" vc="+" vfront="2"
+           vheight="2" vlng="a" vrnd="-" />
+  <phoneme name="ay" vc="+" vfront="2" vheight="3" vlng="d" vrnd="-"
+         />
+  <phoneme cplace="l" ctype="s" cvox="+" name="b" vc="-" />
+  <phoneme cplace="p" ctype="a" cvox="-" name="ch" vc="-" />
+  <phoneme cplace="a" ctype="s" cvox="+" name="d" vc="-" />
+  <phoneme cplace="d" ctype="f" cvox="+" name="dh" vc="-" />
+  <phoneme cplace="a" ctype="s" cvox="+" name="dx" vc="-" vlng="a" />
+  <phoneme name="eh" vc="+" vfront="1" vheight="2" vlng="s" vrnd="-"
+         />
+  <phoneme cplace="a" ctype="l" cvox="+" name="el" vc="+" vlng="s" />
+  <phoneme cplace="l" ctype="n" cvox="+" name="em" vc="+" vlng="s" />
+  <phoneme cplace="a" ctype="n" cvox="+" name="en" vc="+" vlng="s" />
+  <phoneme ctype="r" name="er" vc="+" vfront="2" vheight="2" vlng="a"
+           vrnd="-" />
+  <phoneme name="ey" vc="+" vfront="1" vheight="2" vlng="d" vrnd="-"
+         />
+  <phoneme cplace="b" ctype="f" cvox="-" name="f" vc="-" />
+  <phoneme cplace="v" ctype="s" cvox="+" name="g" vc="-" />
+  <phoneme cplace="g" ctype="f" cvox="-" name="hh" vc="-" />
+  <phoneme cplace="g" ctype="f" cvox="+" name="hv" vc="-" />
+  <phoneme name="ih" vc="+" vfront="1" vheight="1" vlng="s" vrnd="-"
+         />
+  <phoneme name="iy" vc="+" vfront="1" vheight="1" vlng="l" vrnd="-"
+         />
+  <phoneme cplace="p" ctype="a" cvox="+" name="jh" vc="-" />
+  <phoneme cplace="v" ctype="s" cvox="-" name="k" vc="-" />
+  <phoneme cplace="a" ctype="l" cvox="+" name="l" vc="-" />
+  <phoneme cplace="l" ctype="n" cvox="+" name="m" vc="-" />
+  <phoneme cplace="a" ctype="n" cvox="+" name="n" vc="-" />
+  <phoneme cplace="d" ctype="n" cvox="+" name="nx" vc="-" />
+  <phoneme cplace="v" ctype="n" cvox="+" name="ng" vc="-" />
+  <phoneme name="ow" vc="+" vfront="3" vheight="2" vlng="d" vrnd="+"
+         />
+  <phoneme name="oy" vc="+" vfront="3" vheight="2" vlng="d" vrnd="+"
+         />
+  <phoneme cplace="l" ctype="s" cvox="-" name="p" vc="-" />
+  <phoneme cplace="a" ctype="r" cvox="+" name="r" vc="-" />
+  <phoneme cplace="a" ctype="f" cvox="-" name="s" vc="-" />
+  <phoneme cplace="p" ctype="f" cvox="-" name="sh" vc="-" />
+  <phoneme cplace="a" ctype="s" cvox="-" name="t" vc="-" />
+  <phoneme cplace="d" ctype="f" cvox="-" name="th" vc="-" />
+  <phoneme name="uh" vc="+" vfront="3" vheight="1" vlng="s" vrnd="+"
+         />
+  <phoneme name="uw" vc="+" vfront="3" vheight="1" vlng="l" vrnd="+"
+         />
+  <phoneme cplace="b" ctype="f" cvox="+" name="v" vc="-" />
+  <phoneme cplace="l" ctype="r" cvox="+" name="w" vc="-" />
+  <phoneme cplace="p" ctype="r" cvox="+" name="y" vc="-" />
+  <phoneme cplace="a" ctype="f" cvox="+" name="z" vc="-" />
+  <phoneme cplace="p" ctype="f" cvox="+" name="zh" vc="-" />
+  <phoneme cvox="-" name="pau" vc="-" />
+  <phoneme cvox="-" name="h#" vc="-" />
+  <phoneme cvox="-" name="brth" vc="-" />
+</phonemes>

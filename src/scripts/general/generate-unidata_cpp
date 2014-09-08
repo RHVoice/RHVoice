@@ -1,0 +1,69 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import os.path
+import re
+
+class record:
+	def __init__(self,line):
+		parts=re.split("\s*;\s*",line.strip())
+		self.code=int(parts[0],16)
+		self.category=parts[2]
+		self.upper=int(parts[12],16) if parts[12] else self.code
+		self.lower=int(parts[13],16) if parts[13] else self.code
+		self.properties=set()
+
+if __name__=="__main__":
+	data={}
+	with open(os.path.join(sys.argv[1],"UnicodeData.txt"),"rb") as f:
+		for line in f:
+			if line:
+				r=record(line)
+				data[r.code]=r
+	important_properties=["white_space",
+						  "dash",
+						  "quotation_mark",
+						  "lowercase",
+						  "uppercase",
+						  "alphabetic",
+						  "terminal_punctuation",
+						  "sterm"]
+	for name in ["PropList.txt","DerivedCoreProperties.txt"]:
+		with open(os.path.join(sys.argv[1],name),"rb") as f:
+			for line in f:
+				m=re.match(r"([0-9a-fA-F]+)(?:\.\.([0-9a-fA-F]+))?\s*;\s*([^\s#]+)",line)
+				if m:
+					start=int(m.group(1),16)
+					end=(int(m.group(2),16)+1) if m.group(2) else (start+1)
+					property=m.group(3).lower()
+					if property in important_properties:
+						for code in xrange(start,end):
+							if code in data:
+								data[code].properties.add("property_"+property)
+	output=[]
+	fmt_str="{{{},{{'{}','{}'}},{},{},{}}}"
+	for r in sorted(data.itervalues(),key=lambda r: r.code):
+		output.append(fmt_str.format(r.code,
+									 r.category[0],
+									 r.category[1],
+									 r.upper,
+									 r.lower,
+									 u"|".join(sorted(r.properties)) if r.properties else 0))
+	with open(sys.argv[2],"wb") as f:
+		f.write(u"const record records[]={{\n{}}};\n".format(u",\n".join(output)))

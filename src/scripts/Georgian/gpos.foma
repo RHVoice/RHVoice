@@ -1,0 +1,104 @@
+define TagContentWord ? : content;
+
+define TagConj 
+["ან" : conj] | 
+["ანუ" : conj] | 
+["არამედ" : conj] | 
+["და" : conj] | 
+["ვიდრე" : conj] | 
+["თუ" : conj] | 
+["თუმცა" : conj] | 
+["იმიტომ" : conj] | 
+["მაგრამ" : conj] | 
+["მითამ" : conj] | 
+["რადგან" : conj] | 
+["რადგანაც" : conj] | 
+["როგორც" : conj] | 
+["როდესაც" : conj] | 
+["რომ" : conj] ; 
+
+define TagPost 
+["-გან" : post] | 
+["-დან" : post] | 
+["-ებრ" : post] | 
+["-ვით" : post] | 
+["-ზე" : post] | 
+["-თან" : post] | 
+["-თვის" : post] | 
+["-კენ" : post] | 
+["-მდე" : post] | 
+["-ურთ" : post] | 
+["-ში" : post] | 
+["ადგილას" : post] | 
+["აქეთ" : post] | 
+["გამო" : post] | 
+["განმავლობაში" : post] | 
+["გარეშე" : post] | 
+["გარშემო" : post] | 
+["გასწვრივ" : post] | 
+["ზემოთ" : post] | 
+["ირგვლივ" : post] | 
+["იქით" : post] | 
+["მაგიერ" : post] | 
+["მაგივრად" : post] | 
+["მეტი" : post] | 
+["მიერ" : post] | 
+["მიმართ" : post] | 
+["მიუხედავად" : post] | 
+["მიხედვით" : post] | 
+["ნაცვლად" : post] | 
+["პირდაპირ" : post] | 
+["უკან" : post] | 
+["ქვეშ" : post] | 
+["შემდეგ" : post] | 
+["შესახებ" : post] | 
+["შორის" : post] | 
+["შუა" : post] | 
+["წინ" : post] | 
+["წინათ" : post] ; 
+
+define TagPrep 
+["გარდა" : prep] | 
+["გარეშე" : prep] | 
+["თან" : prep] | 
+["თანახმად" : prep] | 
+["მიუხედავად" : prep] ; 
+
+define TagPart 
+["-ო" : part] | 
+["-ოდე" : part] | 
+["-ღა" : part] | 
+["-ც" : part] | 
+["აი" : part] | 
+["არ" : part] | 
+["არა" : part] | 
+["არც" : part] | 
+["ბარემ" : part] | 
+["განა" : part] | 
+["ვერა" : part] | 
+["მოდი" : part] | 
+["ნეტა" : part] | 
+["ნეტავ" : part] | 
+["ნეტავი" : part] | 
+["ნუ" : part] | 
+["ნუთუ" : part] | 
+["ნუღარ" : part] | 
+["რაღა" : part] | 
+["უნდა" : part] | 
+["შეიძლება" : part] | 
+["ხო" : part] | 
+["ხოლმე" : part] | 
+["ხოლო" : part] | 
+["ხომ" : part] | 
+["ჰა" : part] | 
+["ჰო" : part] ; 
+
+define TagWord 
+TagConj .P. 
+TagPost .P. 
+TagPrep .P. 
+TagPart .P. 
+TagContentWord ; 
+
+regex 
+TagWord -> ; 

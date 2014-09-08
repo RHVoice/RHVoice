@@ -1,0 +1,70 @@
+# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define PlusOrMinus %+|%-;
+define Number (PlusOrMinus) [%0|[NZDigit Digit^<15]] (%%);
+define RB (%%) .#. ;
+
+define InsertThousands 
+[..] -> тысяч || Digit _ Digit^3 RB;
+
+define InsertMillions 
+[..] -> миллионов || Digit _ Digit^3 тысяч;
+
+define InsertBillions 
+[..] -> миллиардов || Digit _ Digit^3 миллионов;
+
+define InsertTrillions 
+[..] -> триллионов || Digit _ Digit^3 миллиардов;
+
+define RemoveSkippedParts 
+%0 %0 %0 [тысяч|миллионов|миллиардов|триллионов] -> 0 ;
+
+define Units %0:0|1:один|2:два|3:три|4:четыре|5:пять|6:шесть|7:семь|8:восемь|9:девять;
+
+define Teens 1:0 [%0:десять|1:одинадцать|2:двенадцать|3:тринадцать|4:четырнадцать|5:пятнадцать|6:шестнадцать|7:семнадцать|8:восемнадцать|9:девятнадцать];
+
+define Tens %0:0|2:двадцать|3:тридцать|4:сорок|5:пятьдесят|6:шестьдесят|7:семьдесят|8:восемьдесят|9:девяносто;
+
+define Hundreds %0:0|1:сто|2:двести|3:триста|4:четыреста|5:пятьсот|6:шестьсот|7:семьсот|8:восемьсот|9:девятьсот;
+
+define UpToThousand %0:ноль .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
+
+define DigitsToWords 
+UpToThousand @-> ,, 
+%+ @-> плюс ,, 
+%- @-> минус ,, 
+%% @-> процентов ; 
+
+define FixCase 
+тысяч:тысяча|миллионов:миллион|миллиардов:миллиард|триллионов:триллион|процентов:процент -> || один _ ,, 
+тысяч:тысячи|миллионов:миллиона|миллиардов:миллиарда|триллионов:триллиона|процентов:процента -> || два|три|четыре _ ;
+
+define FixGender 
+один -> одна || _ тысяча ,, 
+два -> две || _ тысячи ; 
+
+regex 
+Number .o. 
+InsertThousands .o. 
+InsertMillions .o. 
+InsertBillions .o. 
+InsertTrillions .o. 
+RemoveSkippedParts .o. 
+DigitsToWords .o. 
+FixCase .o. 
+FixGender;

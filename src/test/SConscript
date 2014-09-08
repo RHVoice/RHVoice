@@ -1,0 +1,26 @@
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os.path
+
+Import("env","libRHVoice_core","libRHVoice_audio")
+local_env=env.Clone()
+for lib in [libRHVoice_core,libRHVoice_audio]:
+	local_env.Prepend(LIBS=lib)
+
+test=local_env.Program("RHVoice-test","test.cpp")
+if local_env["PLATFORM"]!="win32":
+    local_env.InstallProgram(test)

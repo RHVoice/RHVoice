@@ -1,0 +1,47 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Extra 
+[%':0 [s:s|d:d|{ve}:v|{ll}:l]] | 
+[i:ay1 %':0 [m:m|d:d|{ll}:l|{ve}:v]] | 
+[w:w e:iy1 %':0 [{re}:r|d:d|{ll}:l|{ve}:v]] | 
+[y:y {ou}:uw1 %':0 [{re}:r|d:d|{ll}:l|{ve}:v]] | 
+[{th}:dh {ey}:ey1 %':0 [d:d|{ll}:l|{ve}:v]] | 
+[{they're}:[dh er1]] | 
+[h:hh e:iy1 %':0 [s:z|d:d|{ll}:l]] | 
+[{sh}:sh e:iy1 %':0 [s:z|d:d|{ll}:l]] | 
+[{it's}:[ih1 t s]] | 
+[i:ih1 t:t %':ah0 [{ll}:l|d:d]] | 
+[[[a:ae1 {re}:r] | 
+[c:k a:ae1] | 
+[[{sh}:sh | c:k | w:w] {ou}:uh1 {ld}:d] | 
+[d:d a:eh1 [re]:r] | 
+[d:d i:ih1 d:d] | 
+[d:d o:ow1] | 
+[d:d o:ah1 {es}:z] | 
+[h:hh a:ae1 [d:d|s:z|{ve}:v]] | 
+[i:ih1 s:z] | 
+[w:w a:aa1 s:z] | 
+[w:w {ere}:er1] | 
+[w:w o:ow1] | 
+[{ai}:ey1] | 
+[m:m {ay}:ey1] | 
+[m:m {igh}:ay1] |
+[m:m u:ah1 s:s t:0] |
+[n:n {ee}:iy1 d:d] |
+[{ough}:ao1 t:t] |
+[{sh}:sh a:ae1]] n:n %':0 t:t] | 
+[%':0 e:ax0 m:m] | 
+[o:ax0 %':0 c:k l:l o:aa1 {ck}:k] ; 

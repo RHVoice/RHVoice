@@ -1,0 +1,40 @@
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+
+Import("env","libRHVoice_core")
+local_env=env.Clone()
+local_env["libversion"]="0.0.0"
+local_env["liblevel"]=1
+src=["audio.cpp"]
+if "libao" in local_env["audio_libs"]:
+	src.append("libao.cpp")
+	local_env.Append(CPPDEFINES=("WITH_LIBAO","1"))
+	local_env.Prepend(LIBS="ao")
+if "pulse" in local_env["audio_libs"]:
+	src.append("pulse.cpp")
+	local_env.Append(CPPDEFINES=("WITH_PULSE","1"))
+	local_env.MergeFlags(["!pkg-config --cflags --libs libpulse-simple"])
+if "portaudio" in local_env["audio_libs"]:
+	src.append("portaudio.cpp")
+	local_env.Append(CPPDEFINES=("WITH_PORTAUDIO","1"))
+	local_env.MergeFlags(["!pkg-config --cflags --libs portaudio-2.0"])
+local_env.Prepend(LIBS=libRHVoice_core)
+libRHVoice_audio=local_env.BuildLibrary("RHVoice_audio",src)
+if local_env["PLATFORM"]!="win32":
+	local_env.InstallLibrary(libRHVoice_audio)
+Export("libRHVoice_audio")

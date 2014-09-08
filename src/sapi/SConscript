@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,14 +15,21 @@
 
 import os.path
 
-Import(["env","sapi_env","BUILDDIR"])
+Import(["env","libRHVoice_core"])
+local_env=env.Clone()
+local_env["liblevel"]=2
+local_env.Prepend(LIBS=["comsuppw","advapi32","shell32"])
+local_env.Prepend(LIBS=libRHVoice_core)
+
 dll_name="RHVoiceSvr"
-sapi_env.Append(LIBPATH=".")
-if env.get("debug")=="yes":
-    sapi_env["PDB"]=File(dll_name+".pdb").abspath
-    sapi_env["CCPDBFLAGS"]=["/Zi","/Fd"+File("symbols.pdb").abspath]
-else:
-    sapi_env["PDB"]=None
-dll_src=["dll.cpp","ClassFactoryImpl.cpp","SpTTSEngineImpl.cpp",
-         "util.cpp","dll.def"]
-sapi_env.SharedLibrary(dll_name,dll_src)
+dll_src=["com.cpp",
+         "ISpDataKeyImpl.cpp",
+         "IEnumSpObjectTokensImpl.cpp",
+         "ISpTTSEngineImpl.cpp",
+         "main.cpp",
+         "registry.cpp",
+         "SpeakImpl.cpp",
+         "tts_base.cpp",
+         "voice_token.cpp",
+         "dll.def"]
+local_env.BuildLibrary(dll_name,dll_src)

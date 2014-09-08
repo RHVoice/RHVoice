@@ -15,46 +15,14 @@
 
 import os
 import os.path
-Import(["env","lib_objects"])
+Import(["env","libRHVoice_core"])
 local_env=env.Clone()
-local_env.Append(CPPPATH=os.path.join("..","hts_engine_api","include"))
-if "gcc" in local_env["TOOLS"] or "mingw" in local_env["TOOLS"]:
-    local_env.Append(CPPFLAGS="-finput-charset=UTF-8")
-    local_env.Append(CFLAGS="-Wno-unused-function")
-if os.path.sep=="\\":
-    local_env.Append(CPPDEFINES=("path_sep",(r'\"\\\%s\"' % os.path.sep)))
-else:
-    local_env.Append(CPPDEFINES=("path_sep",(r'\"\%s\"' % os.path.sep)))
-local_env.Append(CPPDEFINES=("SONIC_USE_SIN",1))
-local_env.Append(CPPDEFINES=("AUDIO_PLAY_NONE","1"))
-if local_env["PLATFORM"]!="win32":
-    local_env.Append(CPPDEFINES=("DATADIR",(r'\"%s\"' % local_env.subst("$datadir/$package_name"))))
-    local_env.Append(CPPDEFINES=("CONFDIR",(r'\"%s\"' % local_env.subst("$sysconfdir/$package_name"))))
-lib_name="RHVoice"
-lib_version="0.0.0"
-if hasattr(os,"uname") and os.uname()[0]=="Linux" and local_env["enable_shared"]=="yes":
-    local_env.Append(SHLINKFLAGS=("-Wl,-soname,${TARGET.file}."+lib_version.split(".")[0]))
-src=Glob("*.c")
-if env["PLATFORM"]=="win32" or env["enable_shared"]=="yes":
-    objects=local_env.SharedObject(src)
-else:
-    objects=local_env.StaticObject(src)
-lib_objects.extend(objects)
+local_env["libversion"]="2.0.0"
+local_env["liblevel"]=2
+local_env.Prepend(LIBS=libRHVoice_core)
+src=["lib.cpp"]
 if env["PLATFORM"]=="win32":
-    dll=local_env.SharedLibrary(lib_name,lib_objects+["lib.def"])
-    local_env.Install(os.path.join("..","install"),dll)
-    Import("sapi_env")
-    if sapi_env["enabled"]:
-        if sapi_env["TARGET_ARCH"].endswith("64"):
-            machine="x64"
-        else:
-            machine="x86"
-        sapi_env.Command(os.path.join("..","sapi",lib_name+".lib"),["lib.def",dll],"lib /machine:$MACHINE /def:${SOURCES[0]} /out:$TARGET",MACHINE=machine)
-        sapi_env.Prepend(LIBS=lib_name)
-else:
-    if env["enable_shared"]=="yes":
-        lib=local_env.SharedLibrary(lib_name,lib_objects)
-        env.InstallSharedLibrary(lib,lib_version)
-    else:
-        lib=local_env.StaticLibrary(lib_name,lib_objects)
-        env.InstallStaticLibrary(lib)
+    src.append("lib.def")
+lib=local_env.BuildLibrary("RHVoice",src)
+if env["PLATFORM"]!="win32":
+    local_env.InstallLibrary(lib)

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="sample_languages">
+  <item>eng</item>
+  <item>rus</item>
+</string-array>
+<string-array name="sample_messages">
+  <item>
+    Hello. This is a test sentence.
+    I hope you would like to hear me read something else.
+</item>
+  <item>
+    Здравствуйте. Это тестовое предложение.
+Надеюсь, вы захотите услышать, как я читаю и другие предложения.
+  </item>
+</string-array>
+</resources>

@@ -35,4 +35,4 @@ program=local_env.Program("RHVoice",["main.cpp"])
 if local_env["PLATFORM"]!="win32":
     local_env.InstallProgram(program)
 else:
-    local_env.Install(os.path.join("..","install"),program)
+    local_env.Install(os.path.join("..","..","install"),program)

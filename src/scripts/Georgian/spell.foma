@@ -1,0 +1,55 @@
+# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+source g2p.foma
+clear
+
+define SpellVowel TranscribeVowel.u;
+define SpellConsonant TranscribeConsonant.u 0:ე;
+define SpellDigit %0:ნული | 1:ერთი | 2:ორი | 3:სამი | 4: ოთხი | 5:ხუთი |6:ექვსი | 7:შვიდი | 8:რვა | 9:ცხრა;
+
+define SpellPunctuation 
+[ %! : ძახილის ნიშანი] | 
+[ %@ : ძაღლუკა] | 
+[ %# : ნომერი] | 
+[ %$ : დოლარი] | 
+[ %% : პროცენტი] | 
+[ %& : და] | 
+[ %* : ვარსკვლავი] | 
+[ %( : მარცხენა მრგვალი ფრჩხილი] | 
+[ %) : მარჯვენა მრგვალი ფრჩხილი] | 
+[ %- : მინუსი] | 
+[ %_ : ხაზგასმა] | 
+[ %= : ტოლობა] | 
+[ %+ : პლიუსი] | 
+[ %[ : მარცხენა ოთხკუთხედი ფრჩხილი] | 
+[ %] : მარჯვენა ოთხკუთხედი ფრჩხილი] | 
+[ %{ : მარცხენა ფიგურული ფრჩხილი] | 
+[ %} : მარჯვენა ფიგურული ფრჩხილი] | 
+[ %; : წერტილმძიმე] | 
+[ %' : აპოსტროფი] | 
+[ %" : ბრჭყალები] | 
+[ %, : მზიმე] | 
+[ %. : წერტილი] | 
+[ %/ : დახრილი ხაზი] | 
+[ %< : ნაკლებობა] | 
+[ %> : მეტობა] | 
+[ %? : კითხვის ნიშანი] | 
+[ %: : ორწერტილი] | 
+[ %\ : პირიქით დახრილი ხაზი] | 
+[ %` : პირიქით აპოსტროფი] ; 
+
+regex 
+SpellVowel|SpellConsonant|SpellDigit | SpellPunctuation ;

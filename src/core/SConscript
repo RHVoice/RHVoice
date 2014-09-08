@@ -1,0 +1,60 @@
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import os.path
+
+Import("env","libsonic","libhts_engine","libmage")
+local_env=env.Clone()
+local_env["libversion"]="0.0.0"
+local_env["liblevel"]=1
+local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$datadir/$package_name\"')))
+local_env.Append(CPPDEFINES=("CONFIG_PATH",r'\"config\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$sysconfdir/$package_name\"')))
+src=["unicode.cpp",
+	 "io.cpp",
+	 "path.cpp",
+	 "fst.cpp",
+	 "dtree.cpp",
+	 "lts.cpp",
+	 "item.cpp",
+	 "relation.cpp",
+	 "utterance.cpp",
+	 "document.cpp",
+	 "ini_parser.cpp",
+	 "config.cpp",
+	 "engine.cpp",
+	 "params.cpp",
+	 "phoneme_set.cpp",
+	 "language.cpp",
+	 "russian.cpp",
+	 "english.cpp",
+	 "esperanto.cpp",
+	 "georgian.cpp",
+	 "userdict.cpp",
+	 "voice.cpp",
+	 "hts_engine_impl.cpp",
+	 "std_hts_engine_impl.cpp",
+	 "mage_hts_engine_impl.cpp",
+	 "hts_engine_call.cpp",
+	 "hts_label.cpp",
+	 "hts_labeller.cpp",
+	 "speech_processor.cpp"]
+for lib in [libhts_engine,libsonic,libmage]:
+	src.extend(lib)
+libRHVoice_core=local_env.BuildLibrary("RHVoice_core",src)
+if env["PLATFORM"]!="win32":
+	local_env.InstallLibrary(libRHVoice_core)
+Export("libRHVoice_core")

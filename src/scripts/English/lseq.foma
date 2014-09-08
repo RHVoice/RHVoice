@@ -1,0 +1,52 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define TranscribeLetterSequence 
+a -> ey0 || _ \.#. ,, 
+a -> ey1 || _ .#. ,, 
+[b|d|p|t|v|z] -> ... iy0 || _ \.#. ,, 
+[b|d|p|t|v|z] -> ... iy1 || _ .#. ,, 
+c -> s iy0 || _ \.#. ,, 
+c -> s iy1 || _ .#. ,, 
+e -> iy0 || _ \.#. ,, 
+e -> iy1 || _ .#. ,, 
+[f|l|m|n|s] -> eh0 ... || _ \.#. ,, 
+[f|l|m|n|s] -> eh1 ... || _ .#. ,, 
+g -> jh iy0 || _ \.#. ,, 
+g -> jh iy1 || _ .#. ,, 
+h -> ey0 ch || _ \.#. ,, 
+h -> ey1 ch || _ .#. ,, 
+i -> ay0 || _ \.#. ,, 
+i -> ay1 || _ .#. ,, 
+j -> jh ey0 || _ \.#. ,, 
+j -> jh ey1 || _ .#. ,, 
+k -> k ey0 || _ \.#. ,, 
+k -> k ey1 || _ .#. ,, 
+o -> ow0 || _ \.#. ,, 
+o -> ow1 || _ .#. ,, 
+q -> k y uw0 || _ \.#. ,, 
+q -> k y uw1 || _ .#. ,, 
+r -> aa0 r || _ \.#. ,, 
+r -> aa1 r || _ .#. ,, 
+u -> y uw0 || _ \.#. ,, 
+u -> y uw1 || _ .#. ,, 
+w -> d ah1 b ax0 l y uw0 || _ ,, 
+x -> eh0 k s || _ \.#. ,, 
+x -> eh1 k s || _ .#. ,, 
+y -> w ay0 || _ \.#. ,, 
+y -> w ay1  || _ .#. ; 
+
+regex 
+TranscribeLetterSequence ; 

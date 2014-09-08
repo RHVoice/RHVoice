@@ -1,0 +1,105 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+define La la ; 
+
+define Determiner 
+ia | iaj | ian | iajn | 
+iom | 
+iu | iuj | iun | iujn | 
+kelka | kelkaj | kelkan | kelkajn | 
+nenia | neniaj | nenian | neniajn | 
+tia | tiaj | tian | tiajn | 
+ties | 
+tiu | tiuj | tiun | tiujn | 
+ĉia | ĉiaj | ĉian | ĉiajn | 
+ĉiu | ĉiuj | ĉiun | ĉiujn ; 
+
+define PossessivePronoun 
+cia | ciaj | cian | ciajn | 
+ilia | iliaj | ilian | iliajn | 
+lia | liaj | lian | liajn | 
+mia | miaj | mian | miajn | 
+nia | niaj | nian | niajn | 
+onia | oniaj | onian | oniajn | 
+sia | siaj | sian | siajn | 
+via | viaj | vian | viajn | 
+ĝia | ĝiaj | ĝian | ĝiajn | 
+ŝia | ŝiaj | ŝian | ŝiajn ; 
+
+define ToBe 
+esti | estas | estis | estos | estus | estu ; 
+
+define Conjunction 
+aŭ | kaj | kaŭ | ke | kvankam | kvazaŭ | nek | ol | se | sed | tial | ĉar ; 
+
+define Particle 
+ajn | des | for | jen | ju | mem | ne | ĉi | ĉu ; 
+
+define Preposition 
+al | anstataŭ | antaŭ | apud | 
+cis | cit | 
+da | de | disde | dum | 
+ekde | ekster | el | en | 
+far | 
+graŭ | 
+inter | 
+je | 
+kontraŭ | krom | kun | 
+laŭ | 
+malantaŭ | malgraŭ | 
+na | 
+per | po | por | post | preter | pri | pro | 
+samkiel | sen | sob | sub | super | sur | 
+tra | trans | tutĉirkaŭ | 
+ĉe | ĉirkaŭ | 
+ĝis ; 
+
+define Interogative 
+kia | kiaj | kian | kiajn | 
+kie | kien | 
+kial | 
+kiel |
+kiom | 
+kiam | 
+kies | 
+kio | kioj | kion | kiojn | 
+kiu | kiuj | kiun | kiujn ; 
+
+define PersonalPronoun 
+ci | cin | 
+ili | ilin | 
+li | lin | 
+mi | min | 
+ni | nin | 
+oni | onin | 
+vi | vin | 
+ĝi | ĝin | 
+ŝi | ŝin ; 
+
+define FunctionWord La | Determiner | ToBe | Conjunction | Particle | Preposition | Interogative | PersonalPronoun | PossessivePronoun ; 
+
+regex 
+La -> la || _ ,, 
+Determiner -> det || _ ,, 
+ToBe -> be || _ ,, 
+Conjunction -> conj || _ ,, 
+Particle -> part || _ ,, 
+Preposition -> prep || _ ,, 
+Interogative -> int || _ ,, 
+PersonalPronoun -> pers || _ ,, 
+PossessivePronoun -> pos || _ ,, 
+\FunctionWord -> content || _ ;

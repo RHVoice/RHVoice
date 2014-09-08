@@ -1,2 +1,6 @@
 *.pdf binary
 *.inf binary
+*.fst binary
+*.fsm binary
+*.dt binary
+*.lts binary
