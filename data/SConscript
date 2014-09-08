@@ -24,7 +24,7 @@ for dir_name in ["languages","voices"]:
         version="{format}.{revision}".format(**props)
         name_format_string="RHVoice-voice-{language}-{name}" if type=="voice" else "RHVoice-language-{name}"
         name=name_format_string.format(**props)
-        description_format_string="{language} voice {name} for RHVoice" if type=="voice" else "{name} language pack for RHVoice"
+        description_format_string="{name} - {language} voice for RHVoice" if type=="voice" else "{name} language pack for RHVoice"
         description=description_format_string.format(**props)
         if sys.platform!="win32":
             local_env.InstallData(data_files,os.path.join(dir_name,subdir_name))
