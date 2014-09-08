@@ -1,36 +1,4 @@
-                RHVoice - a Russian speech synthesizer
-
-RHVoice uses the following free software components:
-* Russian speech database and Russian language description for
-  Festival by Nickolay V. Shmyrev (https://developer.berlios.de/projects/festlang)
-  The phoneset and almost all of the main lts rules are used as is,
-  but I've made changes in other parts, either to simplify conversion
-  to the flite format, or to add new features, or just to understand
-  how it all works.
-* The voices have been trained with The HMM-based Speech Synthesis
-  System (HTS) (http://hts.sp.nitech.ac.jp)
-* The hts_engine API is used for runtime speech generation
-  (http://hts-engine.sourceforge.net/)
-* The C implementation of the Russian text analyzer uses Flite
-  (http://www.speech.cs.cmu.edu/flite)
-  I used the flite's implementation of English language support as an
-  example, some functions were used as a starting point.
-* the stress information for the stress dictionary has been extracted
-  from the test dictionary in the RuLex package by Igor B. Poretsky
-  (http://poretsky.homelinux.net/packages/)
-* GNU libunistring is used for working with unicode text
-  (http://www.gnu.org/software/libunistring/)
-* The sonic library by Bill Cox is used for generation of fast speech
-  (git://vinuxproject.org/sonic)
-* The expat XML parser is used to implement SSML support
-  (http://expat.sourceforge.net)
-* the PCRE library (version 8.10 or newer) is used for regular expressions support in
-  pronunciation dictionaries (http://pcre.org)
-* libsox is used for some post-processing tasks
-  (http://sox.sourceforge.net)
-
-                      Getting the latest sources
+RHVoice is a free and open source speech synthesizer
 The latest release can be found at http://github.com/Olga-Yakovleva/RHVoice/downloads
 You can also use git to get the development code.
 The git repository address is git://github.com/Olga-Yakovleva/RHVoice.git
-

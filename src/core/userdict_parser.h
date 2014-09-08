@@ -1,0 +1,17 @@
+#define UDTK_NEWLINE                         1
+#define UDTK_EQUALS                          2
+#define UDTK_SPACE                           3
+#define UDTK_STAR                            4
+#define UDTK_AND                             5
+#define UDTK_LPAREN                          6
+#define UDTK_RPAREN                          7
+#define UDTK_LBRACE                          8
+#define UDTK_RBRACE                          9
+#define UDTK_COMMA                          10
+#define UDTK_NATIVE_LETTERS                 11
+#define UDTK_ENGLISH_LETTERS                12
+#define UDTK_SYM                            13
+#define UDTK_PLUS                           14
+#define UDTK_STRESSED_SYL_NUMBER            15
+#define UDTK_UNSTRESSED                     16
+#define UDTK_INITIALISM                     17

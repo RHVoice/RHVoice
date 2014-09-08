@@ -1,0 +1,125 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define RussianLetter 
+[[а|А]:а] | 
+[[б|Б]:бэ] | 
+[[в|В]:вэ] | 
+[[г|Г]:гэ] | 
+[[д|Д]:дэ] | 
+[[е|Е]:е] | 
+[[ж|Ж]:жэ] | 
+[[з|З]:зэ] | 
+[[и|И]:и] | 
+[[й|Й]:[и краткое]] | 
+[[к|К]:ка] | 
+[[л|Л]:эль] | 
+[[м|М]:эм] | 
+[[н|Н]:эн] | 
+[[о|О]:о] | 
+[[п|П]:пэ] | 
+[[р|Р]:эр] | 
+[[с|С]:эс] | 
+[[т|Т]:тэ] | 
+[[у|У]:у] | 
+[[ф|Ф]:эф] | 
+[[х|Х]:ха] | 
+[[ц|Ц]:цэ] | 
+[[ч|Ч]:чэ] | 
+[[ш|Ш]:ша] | 
+[[щ|Щ]:ща] | 
+[[ъ|Ъ]:[твёрдый знак]] | 
+[[ы|Ы]:ы] | 
+[[ь|Ь]:[мягкий знак]] | 
+[[э|Э]:э] | 
+[[ю|Ю]:ю] | 
+[[я|Я]:я] | 
+[[Ё|ё]:ё] ; 
+
+define EnglishLetter 
+[[a|A]:а] | 
+[[b|B]:бэ] | 
+[[c|C]:цэ] | 
+[[d|D]:дэ] | 
+[[e|E]:е] | 
+[[f|F]:эф] | 
+[[g|G]:гэ] | 
+[[h|H]:ха] | 
+[[i|I]:и] | 
+[[j|J]:ёт] | 
+[[k|K]:ка] | 
+[[l|L]:эль] | 
+[[m|M]:эн] | 
+[[n|N]:эн] | 
+[[o|O]:о] | 
+[[p|P]:пэ] | 
+[[q|Q]:ку] | 
+[[r|R]:эр] | 
+[[s|S]:эс] | 
+[[t|T]:тэ] | 
+[[u|U]:у] | 
+[[v|V]:вэ] | 
+[[w|W]:[дубль вэ]] | 
+[[x|X]:икс] | 
+[[y|Y]:игрек] | 
+[[z|Z]:зэд] ; 
+
+define Digit %0:ноль|1:один|2:два|3:три|4:четыре|5:пять|6:шесть|7:семь|8:восемь|9:девять;
+
+define Whitespace 
+tab:таб | 
+nl:[новая строка] | 
+cr:[перевод каретки] | 
+sp:пробел | 
+nbsp:[неразрывный пробел] ; 
+
+define Punctuation 
+%,:запятая | 
+%.:точка | 
+%?:[вопросительный знак] | 
+%!:[восклицательный знак] | 
+%::двоеточие | 
+%;:[точка с запятой] | 
+%":кавычка | 
+%':апостроф | 
+%(:[левая круглая] | 
+%):[правая круглая] | 
+%-:тире | 
+%[:[левая квадратная] | 
+%]:[правая квадратная] | 
+%{:[левая фигурная] | 
+%}:[правая фигурная] ; 
+
+define Symbol 
+%$:доллар | 
+%%:процент | 
+%#:решётка | 
+%&:амперсанд | 
+%*:звёздочка | 
+%+:плюс | 
+%/:[косая черта] | 
+%<:меньше | 
+%=:равно | 
+%>:больше | 
+%@:собачка | 
+%\:[обратная косая черта] | 
+%^:крышка | 
+%_:подчёркивание | 
+%`:[обратная кавычка] | 
+%|:[вертикальная черта] | 
+%~:тильда ; 
+
+regex 
+RussianLetter | EnglishLetter | Digit | Whitespace | Punctuation | Symbol ; 

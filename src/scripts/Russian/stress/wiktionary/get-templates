@@ -1,0 +1,48 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import codecs
+import re
+import subprocess
+import time
+import urllib
+
+if __name__=="__main__":
+	old_template_names=set()
+	try:
+		with codecs.open("templates","r","utf-8") as f_in:
+			old_template_names=set(line[:-1].split("\t")[0] for line in f_in)
+	except IOError:
+		pass
+	with codecs.open("entries","r","utf-8") as f_in:
+		new_template_names=sorted(set(re.split("\t",line[:-1])[1] for line in f_in).difference(old_template_names).difference([""]))
+	with codecs.open("templates","a","utf-8") as f_out:
+		for i,template_name in enumerate(new_template_names):
+			if i>0:
+				time.sleep(10)
+			url="http://ru.wiktionary.org/wiki/{}?action=render".format(urllib.quote(u"шаблон:{}".format(template_name.replace(" ","_")).encode("utf-8")))
+			text=subprocess.check_output(["elinks","-dump","-dump-charset","UTF-8","-no-numbering","-no-references",url]).decode("utf-8")
+			words=set()
+			f_out.write(template_name)
+			for m in re.finditer(ur"(?u)\*?[́\w]*{{{основа\d?}}}[́\w]*",text):
+				word=m.group(0).replace("{{{","{").replace("}}}","}").replace(u"́","'").lower().replace(u"ё'",u"ё")
+				if not ((word.startswith("*")) or (word in words)):
+					words.add(word)
+					f_out.write("\t")
+					f_out.write(word)
+			f_out.write("\n")

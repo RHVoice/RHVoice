@@ -1,0 +1,96 @@
+# Copyright (C) 2013  Beqa Gozalishvili <beqaprogger@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 
+1:ერთი | 
+2:ორი | 
+3:სამი | 
+4:ოთხი | 
+5:ხუთი | 
+6:ექვსი | 
+7:შვიდი | 
+8:რვა | 
+9:ცხრა ;
+
+define Digit [%0 : ნული] | NZDigit;
+
+define Number 
+NZDigit | 
+[[1:0] [
+%0:ათი | 
+1:თერთმეტი | 
+2:თორმეტი | 
+3:ცამეტი | 
+4:თოთხმეტი | 
+5:თხუთმეტი | 
+6:თექვსმეტი | 
+7:ჩვიდმეტი | 
+8:თვრამეტი | 
+9:ცხრამეტი]] | 
+[[2:ოცი] [%0:0 | NZDigit]] ;
+
+define Plus %+ : პლიუსი;
+define Minus %- : მინუსი;
+define Slash %/ : [დახრილი ხაზი];
+define BackSlash %\ : [პირიქით დახრილი ხაზი];
+define Star %* : ვარსკვლავი;
+define Dot %. : წერტილი;
+define SpecialChar Plus | Minus | Slash | BackSlash | Star | Dot;
+
+define Enter {enter} : ენტერი;
+
+define OtherKey 
+{underscore} : ხაზგასმა | 
+{double-quote} : ბრჭყალი | 
+{alt} : ალტი | 
+{control} : კონტროლი | 
+{hyper} : ჰიპერ | 
+{meta} : მეტა | 
+{shift} : შიფტი | 
+{super} : სუპერი | 
+{backspace} : [back space] | 
+{break} : break | 
+{delete} : წაშლა | 
+{down} : ქვევით | 
+{end} : end | 
+Enter | 
+{escape} : ესკეიპი | 
+{home} : home | 
+{insert} : ინსერტი | 
+{left} : მარცხნივ | 
+{menu} : მენიუ | 
+{next} : შემდეგი | 
+{num-lock} : [num lock] | 
+{pause} : პაუზა | 
+{print} : ბეჭვდა | 
+{prior} : წინა | 
+{return} : დაბრუნება | 
+{right} : მარჯვნივ | 
+{scroll-lock} : [სკროლ ლოკი] | 
+{space} : ჰარი | 
+{tab} : ტაბი | 
+{up} : ზევით | 
+{window} : ვინდოუსი ; 
+
+define KPKey 
+[{kp-} : 0] [Digit | Plus | Minus | Star | Slash | Dot | Enter];
+
+define FKey 
+f:ef Number ;
+
+define Key 
+KPKey | FKey | SpecialChar | OtherKey;
+
+regex Key;

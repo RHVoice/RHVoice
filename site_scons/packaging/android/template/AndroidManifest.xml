@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.github.olga_yakovleva.rhvoice.android.__type__.__name__"
+      android:sharedUserId="com.github.olga_yakovleva.rhvoice"
+          android:versionCode="__version_code__"
+          android:versionName="__version_name__">
+  <uses-sdk
+      android:minSdkVersion="14"
+      android:targetSdkVersion="14"/>
+  <application
+      android:label="@string/__language_____type___label"
+      android:icon="@drawable/ic_launcher">
+  </application>
+</manifest>

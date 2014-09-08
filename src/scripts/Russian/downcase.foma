@@ -1,0 +1,78 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Downcase 
+А -> а || _ ,, 
+Б -> б || _ ,, 
+В -> в || _ ,, 
+Г -> г || _ ,, 
+Д -> д || _ ,, 
+Е -> е || _ ,, 
+Ё -> ё || _ ,, 
+Ж -> ж || _ ,, 
+З -> з || _ ,, 
+И -> и || _ ,, 
+Й -> й || _ ,, 
+К -> к || _ ,, 
+Л -> л || _ ,, 
+М -> м || _ ,, 
+Н -> н || _ ,, 
+О -> о || _ ,, 
+П -> п || _ ,, 
+Р -> р || _ ,, 
+С -> с || _ ,, 
+Т -> т || _ ,, 
+У -> у || _ ,, 
+Ф -> ф || _ ,, 
+Х -> х || _ ,, 
+Ц -> ц || _ ,, 
+Ч -> ч || _ ,, 
+Ш -> ш || _ ,, 
+Щ -> щ || _ ,, 
+Ъ -> ъ || _ ,, 
+Ы -> ы || _ ,, 
+Ь -> ь || _ ,, 
+Э -> э || _ ,, 
+Ю -> ю || _ ,, 
+Я -> я || _ ,, 
+A -> a || _ ,, 
+B -> b || _ ,, 
+C -> c || _ ,, 
+D -> d || _ ,, 
+E -> e || _ ,, 
+F -> f || _ ,, 
+G -> g || _ ,, 
+H -> h || _ ,, 
+I -> i || _ ,, 
+J -> j || _ ,, 
+K -> k || _ ,, 
+L -> l || _ ,, 
+M -> m || _ ,, 
+N -> n || _ ,, 
+O -> o || _ ,, 
+P -> p || _ ,, 
+Q -> q || _ ,, 
+R -> r || _ ,, 
+S -> s || _ ,, 
+T -> t || _ ,, 
+U -> u || _ ,, 
+V -> v || _ ,, 
+W -> w || _ ,, 
+X -> x || _ ,, 
+Y -> y || _ ,, 
+Z -> z || _ ; 
+
+regex 
+Downcase ; 

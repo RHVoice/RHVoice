@@ -1,161 +1,136 @@
-/* Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
-/* it under the terms of the GNU General Public License as published by */
+/* it under the terms of the GNU Lesser General Public License as published by */
 /* the Free Software Foundation, either version 3 of the License, or */
 /* (at your option) any later version. */
 
 /* This program is distributed in the hope that it will be useful, */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* but WITHOUT ANY WARRANTY; without even the structied warranty of */
 /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-/* GNU General Public License for more details. */
+/* GNU Lesser General Public License for more details. */
 
-/* You should have received a copy of the GNU General Public License */
+/* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #ifndef RHVOICE_H
 #define RHVOICE_H
-#ifdef _MSC_VER
-typedef unsigned __int8 uint8_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int32 uint32_t;
-#else
-#include <stdint.h>
-#endif
+
+#include "RHVoice_common.h"
 
 #ifdef __cplusplus
 extern "C" {
+#else
+#include <stddef.h>
 #endif
 
-  struct RHVoice_message_s;
-  typedef struct RHVoice_message_s *RHVoice_message;
+  struct RHVoice_tts_engine_struct;
+  typedef struct RHVoice_tts_engine_struct* RHVoice_tts_engine;
+
+typedef struct
+{
+  /* This is the only function the caller is *required* to provide. */
+  /* Return 0 to stop synthesis. */
+  int (*play_speech)(const short* samples,unsigned int count,void* user_data);
+  /* These functions are optional, */
+  /* but please make sure to set unused function pointers to 0. */
+  int (*process_mark)(const char* name,void* user_data);
+  int (*word_starts)(unsigned int position,unsigned int length,void* user_data);
+  int (*word_ends)(unsigned int position,unsigned int length,void* user_data);
+  int (*sentence_starts)(unsigned int position,unsigned int length,void* user_data);
+  int (*sentence_ends)(unsigned int position,unsigned int length,void* user_data);
+  int(*play_audio)(const char* src,void *user_data);
+} RHVoice_callbacks;
 
   typedef enum {
     RHVoice_preload_voices=1
   } RHVoice_init_option;
+  typedef unsigned int RHVoice_init_options;
+
+  typedef struct
+  {
+    /* The paths should be encoded as utf-8 strings. */
+    const char *data_path,*config_path;
+    /* A list of paths to language and voice data. */
+    /* It should be used when it is not possible to collect all the data in one place. */
+    /* The last item in the array should be NULL. */
+    const char** resource_paths;
+    RHVoice_callbacks callbacks;
+    RHVoice_init_options options;
+  } RHVoice_init_params;
 
   typedef enum {
     RHVoice_message_text,
     RHVoice_message_ssml,
-    RHVoice_message_characters
+    RHVoice_message_characters,
+    RHVoice_message_key
   } RHVoice_message_type;
 
-  typedef enum {
-    RHVoice_event_word_start,
-    RHVoice_event_word_end,
-    RHVoice_event_sentence_start,
-    RHVoice_event_sentence_end,
-    RHVoice_event_mark,
-    RHVoice_event_play
-  } RHVoice_event_type;
+  struct RHVoice_message_struct;
+  typedef struct RHVoice_message_struct* RHVoice_message;
 
-  typedef struct {
-    RHVoice_message message;
-    RHVoice_event_type type;
-    int text_position;          /* in unicode characters */
-    int text_length;            /* in unicode characters */
-    int audio_position;
-    union {
-      const char *name;         /* For marks and audio elements */
-      int number;               /* For words and sentences */
-    } id;
-  } RHVoice_event;
+  typedef struct
+  {
+    /* Language code. */
+    const char* language;
+    const char* name;
+    RHVoice_voice_gender gender;
+  } RHVoice_voice_info;
 
-  typedef int (*RHVoice_callback)(const short *samples,int num_samples,const RHVoice_event *events,int num_events,RHVoice_message message);
+  typedef struct
+  {
+    /* One of the predefined voice profiles or a custom one, e.g. */
+    /* Aleksandr+Alan. Voice names should be ordered according to their */
+    /* priority, but they must not speak the same language. If the */
+    /* combination includes more than one voice, automatic language */
+    /* switching may be used. The voice which speaks the primary language */
+    /* should be placed first. RHVoice will use one of the other voices */
+    /* from the list, if it detects the corresponding language. The */
+    /* detection algorithm is not very smart at the moment. It will not */
+    /* handle languages with common letters. For example, if you set this */
+    /* field to "CLB+Spomenka", it will always choose CLB for latin */
+    /* letters. Spomenka might still be used, if Esperanto is requested */
+    /* through SSML. */
+    const char* voice_profile;
+    /* The values must be between -1 and 1. */
+    /*     They are normalized this way, because users can set different */
+    /* parameters for different voices in the configuration file. */
+    double absolute_rate,absolute_pitch,absolute_volume;
+    /* Relative values, in case someone needs them. */
+    /* If you don't, just set each of them to 1. */
+    double relative_rate,relative_pitch,relative_volume;
+    /* Set to RHVoice_punctuation_default to allow the synthesizer to decide */
+    RHVoice_punctuation_mode punctuation_mode;
+    /* Optional */
+    const char* punctuation_list;
+    /* This mode only applies to reading by characters. */
+    /* If your program doesn't support this setting, set to RHVoice_capitals_default. */
+    RHVoice_capitals_mode capitals_mode;
+  } RHVoice_synth_params;
 
-  typedef enum {
-    RHVoice_position_word,
-    RHVoice_position_sentence,
-    RHVoice_position_mark
-  } RHVoice_position_type;
+  const char* RHVoice_get_version();
 
-  typedef struct {
-    RHVoice_position_type type;
-    union {
-      int number;
-      const char *name;
-    } id;
-  } RHVoice_position;
+  RHVoice_tts_engine RHVoice_new_tts_engine(const RHVoice_init_params* init_params);
+  void RHVoice_delete_tts_engine(RHVoice_tts_engine tts_engine);
 
-  typedef enum {
-    RHVoice_punctuation_none,
-    RHVoice_punctuation_all,
-    RHVoice_punctuation_some
-  } RHVoice_punctuation_mode;
+  unsigned int RHVoice_get_number_of_voices(RHVoice_tts_engine tts_engine);
+  const RHVoice_voice_info* RHVoice_get_voices(RHVoice_tts_engine tts_engine);
+  unsigned int RHVoice_get_number_of_voice_profiles(RHVoice_tts_engine tts_engine);
+  char const * const * RHVoice_get_voice_profiles(RHVoice_tts_engine tts_engine);
+  int RHVoice_are_languages_compatible(RHVoice_tts_engine tts_engine,const char* language1,const char* language2);
 
-  typedef enum {
-    RHVoice_voice_gender_unknown,
-    RHVoice_voice_gender_male,
-    RHVoice_voice_gender_female
-  } RHVoice_voice_gender;
+  /* Text should be a valid utf-8 string */
+  RHVoice_message RHVoice_new_message(RHVoice_tts_engine tts_engine,const char* text,unsigned int length,RHVoice_message_type message_type,const RHVoice_synth_params* synth_params,void* user_data);
 
-  /* This mode applies to reading by characters. */
-  typedef enum {
-    RHVoice_capitals_off,
-    RHVoice_capitals_pitch,
-    RHVoice_capitals_sound
-  } RHVoice_capitals_mode;
+  /* On Windows the library is now built with MSVC instead of Mingw, */
+  /* so wchar_t will always mean utf-16 there */
+  RHVoice_message RHVoice_new_message_w(RHVoice_tts_engine tts_engine,const wchar_t* text,unsigned int length,RHVoice_message_type message_type,const RHVoice_synth_params* synth_params,void* user_data);
 
-  /* Under Windows we assume that the paths are in UTF-8 */
-  /* This function returns sample rate on success and 0 on error */
-  int RHVoice_initialize(const char *data_path,RHVoice_callback callback,const char *cfg_path,unsigned int options);
-  void RHVoice_terminate();
-  /* The following three functions accept only valid unicode strings */
-  RHVoice_message RHVoice_new_message_utf8(const uint8_t *text,int length,RHVoice_message_type type);
-  RHVoice_message RHVoice_new_message_utf16(const uint16_t *text,int length,RHVoice_message_type type);
-  RHVoice_message RHVoice_new_message_utf32(const uint32_t *text,int length,RHVoice_message_type type);
   void RHVoice_delete_message(RHVoice_message message);
+
   int RHVoice_speak(RHVoice_message message);
-  const char *RHVoice_get_xml_base(RHVoice_message message);
-  int RHVoice_set_position(RHVoice_message message,const RHVoice_position *position);
-  int RHVoice_get_word_count(RHVoice_message message);
-  int RHVoice_get_sentence_count(RHVoice_message message);
-  void RHVoice_set_rate(float rate);
-  float RHVoice_get_rate();
-  void RHVoice_set_pitch(float pitch);
-  float RHVoice_get_pitch();
-  void RHVoice_set_volume(float volume);
-  float RHVoice_get_volume();
-  float RHVoice_get_min_rate();
-  float RHVoice_get_default_rate();
-  float RHVoice_get_max_rate();
-  float RHVoice_get_min_pitch();
-  float RHVoice_get_default_pitch();
-  float RHVoice_get_max_pitch();
-  float RHVoice_get_default_volume();
-  float RHVoice_get_max_volume();
-
-  void RHVoice_set_variant(int variant);
-  int RHVoice_get_variant();
-  int RHVoice_get_variant_count();
-  const char *RHVoice_get_variant_name(int variant);
-  int RHVoice_find_variant(const char *name);
-
-  int RHVoice_get_voice_count();
-  const char *RHVoice_get_voice_name(int id);
-  RHVoice_voice_gender RHVoice_get_voice_gender(int id);
-  int RHVoice_find_voice(const char *name);
-  void RHVoice_set_voice(int id);
-  int RHVoice_get_voice();
-
-  void RHVoice_set_punctuation_mode(RHVoice_punctuation_mode mode);
-  RHVoice_punctuation_mode RHVoice_get_punctuation_mode();
-  void RHVoice_set_punctuation_list(const char *list);
-
-  void RHVoice_set_capitals_mode(RHVoice_capitals_mode mode);
-  RHVoice_capitals_mode RHVoice_get_capitals_mode();
-
-  void RHVoice_set_user_data(RHVoice_message message,void *data);
-  void *RHVoice_get_user_data(RHVoice_message message);
-
-  void RHVoice_set_message_rate(RHVoice_message message,float rate);
-  void RHVoice_set_message_pitch(RHVoice_message message,float pitch);
-  void RHVoice_set_message_volume(RHVoice_message message,float volume);
-
-  const char *RHVoice_get_version();
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

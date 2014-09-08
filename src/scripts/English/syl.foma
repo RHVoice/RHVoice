@@ -1,0 +1,109 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# We use the list of allowable onsets defined in festival/lib/dicts/cmu/cmulex.scm
+
+define Vowel 
+aa | aa0 | aa1 | 
+ae | ae0 | ae1 | 
+ah | ah0 | ah1 | 
+ao | ao0 | ao1 | 
+aw | aw0 | aw1 | 
+ax | ax0 | ax1 | 
+ay | ay0 | ay1 | 
+eh | eh0 | eh1 | 
+er | er0 | er1 | 
+ey | ey0 | ey1 | 
+ih | ih0 | ih1 | 
+iy | iy0 | iy1 | 
+ow | ow0 | ow1 | 
+oy | oy0 | oy1 | 
+uh | uh0 | uh1 | 
+uw | uw0 | uw1 ;
+
+define Onset1 b | ch | d | dh | f | g | hh | jh | k | l | m | n | p | r | s | sh | t | th | v | w | y | z | zh ;
+
+define Cons Onset1 | ng ;
+
+define Onset2 
+{zw} | 
+{zl} | 
+{vy} | 
+{vr} | 
+{vl} | 
+[th w] | 
+[th r] | 
+{ty} | 
+{tw} | 
+{tr} | 
+[sh w] | 
+[sh r] | 
+[sh n] | 
+[sh m] | 
+[sh l] | 
+{sw} | 
+{sv} | 
+{st} | 
+{sr} | 
+{sp} | 
+{sn} | 
+{sm} | 
+{sl} | 
+{sk} | 
+{sf} | 
+{py} | 
+{pw} | 
+{pr} | 
+{pl} | 
+{ny} | 
+{my} | 
+{mr} | 
+{ly} | 
+{ky} | 
+{kw} | 
+{kr} | 
+{kl} | 
+[hh y] | 
+[hh w] | 
+[hh r] | 
+[hh l] | 
+{gy} | 
+{gw} | 
+{gr} | 
+{gl} | 
+{fy} | 
+{fr} | 
+{fl} | 
+{dy} | 
+{dw} | 
+{dr} | 
+{by} | 
+{bw} | 
+{br} | 
+{bl} ;
+
+define Onset3 
+{str} | 
+{spy} | 
+{spr} | 
+{spl} | 
+{sky} | 
+{skw} | 
+{skr} | 
+{skl} ;
+
+define Onset 0 | Onset1 | Onset2 | Onset3 ;
+
+regex [Vowel Cons*] @> ... "." || _ [Onset Vowel];

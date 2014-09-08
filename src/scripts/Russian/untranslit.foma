@@ -1,0 +1,59 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Untransliterate 
+a @-> а || _ ,, 
+b @-> б || _ ,, 
+{ch} @-> ч || _ ,, 
+c @-> ц || _ ,, 
+d @-> д || _ ,, 
+e @-> е || _ ,, 
+f @-> ф || _ ,, 
+g @-> г || _ ,, 
+h @-> х || _ ,, 
+i @-> и || _ ,, 
+{ja} @-> я || _ ,, 
+{je} @-> е || _ ,, 
+{jo} @-> ё || _ ,, 
+{ju} @-> ю || _ ,, 
+j @-> й || _ ,, 
+{kh} @-> х || _ ,, 
+k @-> к || _ ,, 
+l @->л || _ ,, 
+m @-> м || _ ,, 
+n @-> н || _ ,, 
+o @-> о || _ ,, 
+p @-> п || _ ,, 
+q @-> к || _ ,, 
+r @-> р || _ ,, 
+{sh} @-> ш || _ ,, 
+{shch} @-> щ || _ ,, 
+s @-> с || _ ,, 
+t @-> т || _ ,, 
+u @-> у || _ ,, 
+v @-> в || _ ,, 
+w @-> в || _ ,, 
+x @-> к с || _ ,, 
+{ya} @-> я || _ ,, 
+{ye} @-> е || _ ,, 
+{yo} @-> ё || _ ,, 
+{yu} @-> ю || _ ,, 
+y @-> й || [.#.|a|e|i|o|u|y] _ ,, 
+y @-> ы || \[.#.|a|e|i|o|u|y] _ ,, 
+{zh} @-> ж || _ ,, 
+z @-> з || _ ; 
+
+regex 
+[y:{игрек}] .P. Untransliterate;

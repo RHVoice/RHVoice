@@ -1,0 +1,38 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; -*-
+
+import os
+import os.path
+import sys
+import subprocess
+
+def get_build_tools_dir():
+	android_home=os.environ["ANDROID_HOME"]
+	base_build_tools_dir=os.path.join(android_home,"build-tools")
+	for name in reversed(sorted(os.listdir(base_build_tools_dir))):
+		path=os.path.join(base_build_tools_dir,name)
+		if os.path.isdir(path):
+			return path
+	raise RuntimeError("No build tools directory")
+
+if __name__=="__main__":
+ 	unsigned_apk=sys.argv[1]
+	key_store=sys.argv[2]
+	key_alias=sys.argv[3]
+	if unsigned_apk.endswith("-release-unsigned.apk"):
+		base=unsigned_apk[:-13]
+	else:
+		base=unsigned_apk[:-4]
+	signed_apk=base+"-signed.apk"
+	final_apk=base+".apk"
+	build_tools_dir=get_build_tools_dir()
+	aapt=os.path.join(build_tools_dir,"aapt")
+	for path in subprocess.check_output([aapt,"list",unsigned_apk]).strip().split("\n"):
+		if path.startswith("META-INF/"):
+			print("Removing {}".format(path))
+			subprocess.check_call([aapt,"remove",unsigned_apk,path])
+	sign_cmd=["jarsigner","-verbose","-sigalg","SHA1withRSA","-digestalg","SHA1","-keystore",key_store,"-signedjar",signed_apk,unsigned_apk,key_alias]
+	subprocess.check_call(sign_cmd)
+	zipalign=os.path.join(build_tools_dir,"zipalign")
+	align_cmd=[zipalign,"-f","-v","4",signed_apk,final_apk]
+	subprocess.check_call(align_cmd)

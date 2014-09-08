@@ -1,0 +1,71 @@
+# Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define PositiveNumber NZDigit Digit^<12;
+
+define From1to9 1:ერთი|2:ორი|3:სამი|4:ოთხი|5:ხუთი|6:ექვსი|7:შვიდი|8:რვა|9:ცხრა;
+define Teen %0:ათი|1:თერთმეტი|2:თორმეტი|3:ცამეტი|4:თოთხმეტი|5:თხუთმეტი|6:თექვსმეტი|7:ჩვიდმეტი|8:თვრამეტი|9:ცხრამეტი;
+define From10to19 1:0 Teen;
+
+define From20to99 
+[{20}:ოცი] | 
+[{40}:ორმოცი] | 
+[{60}:სამოცი] | 
+[{80}:ოთხმოცი] | 
+[[2:ოც|4:ორმოც|6:სამოც|8:ოთხმოც] 0:და From1to9] | 
+[[3:ოც|5:ორმოც|7:სამოც|9:ოთხმოც] 0:და Teen] ; 
+
+define From10to99 From10to19 | From20to99;
+
+define Hundred 1:ასი|2:ორასი|3:სამასი|4:ოთხასი|5:ხუთასი|6:ექვსასი|7:შვიდასი|8:რვაასი|9:ცხრაასი;
+define HundredStem 1:ას|2:ორას|3:სამას|4:ოთხას|5:ხუთას|6:ექვსას|7:შვიდას|8:რვაას|9:ცხრაას;
+
+
+define From100to999 
+[Hundred [{00}:0]] | 
+[HundredStem [[[%0:0] From1to9] | From10to99]];
+
+define From1to999 
+From1to9 | From10to99 | From100to999;
+
+define InsertThousand 
+[..] -> ths || Digit _ Digit^3 .#. ; 
+
+define InsertMillion 
+[..] -> mln || Digit _ Digit^3 ths ; 
+
+define InsertBillion 
+[..] -> bln || Digit _ Digit^3 mln ; 
+
+define GroupName ths|mln|bln;
+
+define RemoveZeros 
+%0+ (GroupName) @-> 0 || GroupName _ ;
+
+define TranslateDigits 
+From1to999 @-> ; 
+
+define TranslateGroupNames 
+ths:ათასი|mln:მილიონი|bln:მილიარდი @-> || _ .#. ,, 
+ths:ათას|mln:მილიონ|bln:მილიარდ @-> || _ \.#.;
+
+define RemoveOne 
+1 -> 0 || .#.|GroupName _ ths ; 
+
+regex 
+[%0:ნული] | 
+[PositiveNumber .o. InsertThousand .o. InsertMillion .o. InsertBillion .o. RemoveZeros .o. RemoveOne .o. TranslateDigits .o. TranslateGroupNames] ; 

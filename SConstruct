@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,206 +12,290 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import sys
 import os
 import os.path
 import subprocess
+import platform
+import datetime
+if sys.platform=="win32":
+    import _winreg
 
-BUILDDIR=os.path.join("build",sys.platform)
-if sys.platform=="win32":
-    msvc_target_arch="x86"
-    if subprocess.check_output(["gcc","-dumpmachine"]).startswith("x86_64-"):
-        BUILDDIR=os.path.join("build","win64")
-        msvc_target_arch="x86_64"
-Execute(Mkdir(BUILDDIR))
-SConsignFile(os.path.join(BUILDDIR,"scons"))
-var_cache=os.path.join(BUILDDIR,"user.conf")
-env_args={}
-args={"DESTDIR":""}
-args.update(ARGUMENTS)
-vars=Variables(var_cache,args)
-if sys.platform!="win32":
-    vars.Add("prefix","Installation prefix","/usr/local")
-    vars.Add("bindir","Program installation directory","$prefix/bin")
-    vars.Add("libdir","Library installation directory","$prefix/lib")
-    vars.Add("includedir","Header installation directory","$prefix/include")
-    vars.Add("datadir","Data installation directory","$prefix/share")
-    vars.Add("sysconfdir","A directory for configuration files","$prefix/etc")
-    vars.Add("DESTDIR","Support for staged installation","")
-    vars.Add(EnumVariable("enable_shared","Build a shared library","yes",["yes","no"],ignorecase=1))
-vars.Add("FLAGS","Additional compiler/linker flags")
-vars.Add("CCFLAGS","C compiler flags")
-vars.Add("LINKFLAGS","Linker flags")
-if sys.platform=="win32":
-    vars.Add("MSVC_FLAGS","MSVC flags")
-vars.Add(EnumVariable("debug","Build debug variant","no",["yes","no"],ignorecase=1))
-vars.Add("package_version","Package version","0.3")
-if sys.platform=="win32":
-    env_args["tools"]=["mingw","newlines"]
-    env_args["ENV"]={"PATH":os.environ["PATH"]}
-    sapi_env=Environment(tools=["msvc","mslink"],TARGET_ARCH=msvc_target_arch,enabled=False)
-    sapi_env["CPPPATH"]=[".",os.path.join("#src","include")]
-    sapi_env["CPPDEFINES"]=[("UNICODE","1")]
-    sapi_env.Prepend(CCFLAGS="/MT")
-    sapi_env.Prepend(CCFLAGS="/EHa")
-else:
-    env_args["tools"]=["default","installer"]
-env_args["variables"]=vars
-env_args["CPPPATH"]=[]
-env_args["LIBPATH"]=[]
-env_args["package_name"]="RHVoice"
-env_args["CPPDEFINES"]=[]
-env=Environment(**env_args)
-Help("Type 'scons' to build the package.\n")
-if sys.platform!="win32":
-    Help("Then type 'scons install' to install it.\n")
-    Help("Type 'scons --clean install' to uninstall the software.\n")
-Help("You may use the following configuration variables:\n")
-Help(vars.GenerateHelpText(env))
-env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
-env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
-if env["PLATFORM"]=="win32":
-    env.Append(CPPDEFINES=("WIN32",1))
-flags=env.get("FLAGS")
-if flags:
-    env.MergeFlags(flags)
-if env.get("debug")=="yes":
-    env.AppendUnique(CCFLAGS="-O0",delete_existing=1)
-    env.AppendUnique(CCFLAGS="-g",delete_existing=1)
-else:
-    env.PrependUnique(CCFLAGS="-O2")
-if env["PLATFORM"]=="win32":
-    if env.get("debug")=="yes":
-        sapi_env.AppendUnique(CCFLAGS="/Od",delete_existing=1)
+def get_version(is_release):
+    next_version="0.5"
+    if is_release:
+        return next_version
     else:
-        sapi_env.PrependUnique(CCFLAGS="/O2")
-    flags=env.get("MSVC_FLAGS")
-    if flags:
-        sapi_env.MergeFlags(flags)
-env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
-vars.Save(var_cache,env)
-if env["PLATFORM"]=="win32":
-    env.Append(CPPDEFINES={"PCRE_STATIC":"1"})
-if GetOption("clean"):
-    enable_config=False
-elif GetOption("help"):
-    enable_config=False
-else:
-    enable_config=True
-if enable_config:
-    conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),log_file=os.path.join(BUILDDIR,"configure.log"))
+        date=datetime.date.today()
+        return "{}-pre-{}{:02}{:02}".format(next_version,date.year,date.month,date.day)
+
+def CheckPKGConfig(context):
+    context.Message("Checking for pkg-config... ")
+    result=context.TryAction("pkg-config --version")[0]
+    context.Result(result)
+    return result
+
+def CheckPKG(context,name):
+    context.Message("Checking for {}... ".format(name))
+    result=context.TryAction("pkg-config --exists '{}'".format(name))[0]
+    context.Result(result)
+    return result
+
+def CheckWinSDK(context):
+    context.Message("Checking for Windows SDK 7.1... ")
+    result=1
+    try:
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1") as key:
+            context.env["WinSDKDir"]=_winreg.QueryValueEx(key,"InstallationFolder")[0]
+    except WindowsError:
+        result=0
+    context.Result(result)
+    return result
+
+def CheckNSIS(context,unicode_nsis=False):
+    result=1
+    if unicode_nsis:
+        context.Message("Checking for Unicode NSIS... ")
+    else:
+        context.Message("Checking for NSIS... ")
+    key_name=r"SOFTWARE\NSIS"+(r"\Unicode" if unicode_nsis else "")
+    try:
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,key_name) as key:
+            context.env["makensis"]=File(os.path.join(_winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+    except WindowsError:
+        result=0
+    context.Result(result)
+    return result
+
+def CheckJavac(context):
+    context.Message("Checking for javac... ")
+    result=context.TryAction("javac -version")[0]
+    context.Result(result)
+    return result
+
+def get_msvc_env_vars(env,arch):
+    var_names=["path","lib","include","tmp"]
+    setenv_script=os.path.join(env["WinSDKDir"],"bin","setenv.cmd")
+    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,"/"+arch,"/release","&&","set"])
+    vars=dict()
+    lines=output.split("\n")
+    for line in lines:
+        trimmed_line=line.strip()
+        if trimmed_line:
+            p=trimmed_line.split("=",1)
+            if p[0].lower() in var_names:
+                vars[p[0]]=p[1]
+    return vars
+
+def convert_flags(value):
+    return value.split()
+
+def convert_path(value):
+    return value.split(";" if sys.platform=="win32" else ":")
+
+def setup():
+    global BUILDDIR,var_cache
+    system=platform.system().lower()
+    BUILDDIR=os.path.join("build",system)
+    var_cache=os.path.join(BUILDDIR,"user.conf")
+    Execute(Mkdir(BUILDDIR))
+    SConsignFile(os.path.join(BUILDDIR,"scons"))
+
+def create_user_vars():
+    args={"DESTDIR":""}
+    args.update(ARGUMENTS)
+    vars=Variables(var_cache,args)
+    vars.Add(BoolVariable("release","Whether we are building a release",True))
+    if sys.platform=="win32":
+        vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
+    else:
+        vars.Add("prefix","Installation prefix","/usr/local")
+        vars.Add("bindir","Program installation directory","$prefix/bin")
+        vars.Add("libdir","Library installation directory","$prefix/lib")
+        vars.Add("includedir","Header installation directory","$prefix/include")
+        vars.Add("datadir","Data installation directory","$prefix/share")
+        vars.Add("sysconfdir","A directory for configuration files","$prefix/etc")
+        vars.Add("servicedir",".service file installation directory","$datadir/dbus-1/services")
+        vars.Add("DESTDIR","Support for staged installation","")
+        vars.Add(BoolVariable("enable_shared","Build a shared library",True))
+    if sys.platform=="win32":
+        suffixes=["32","64"]
+    else:
+        suffixes=[""]
+    for suffix in suffixes:
+        vars.Add("CPPPATH"+suffix,"List of directories where to search for headers",[],converter=convert_path)
+        vars.Add("LIBPATH"+suffix,"List of directories where to search for libraries",[],converter=convert_path)
+    vars.Add("CPPFLAGS","C/C++ preprocessor flags",[],converter=convert_flags)
+    vars.Add("CCFLAGS","C/C++ compiler flags",["/O2" if sys.platform=="win32" else "-O2"],converter=convert_flags)
+    vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
+    vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
+    vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
+    vars.Add(BoolVariable("build_java_binding","Whether we should build the java binding",False))
+    return vars
+
+def create_base_env(vars):
+    env_args={}
+    if sys.platform=="win32":
+        env_args["tools"]=["msvc","mslink","mslib","newlines"]
+        env_args["MSVC_BATCH"]=True
+    else:
+        env_args["tools"]=["default","installer"]
+    env_args["tools"].extend(["textfile","library","javac"])
+    env_args["variables"]=vars
+    env_args["LIBS"]=[]
+    env_args["package_name"]="RHVoice"
+    env_args["CPPDEFINES"]=[("RHVOICE","1")]
+    env=Environment(**env_args)
+    env["package_version"]=get_version(env["release"])
+    env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
+    env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
+    if env["PLATFORM"]=="win32":
+        env.Append(CPPDEFINES=("WIN32",1))
+        env.Append(CPPDEFINES=("UNICODE",1))
+        env.Append(CPPDEFINES=("NOMINMAX",1))
+        env.AppendUnique(CCFLAGS=["/MT"])
+        env.AppendUnique(CXXFLAGS=["/EHsc"])
+    if "gcc" in env["TOOLS"]:
+        env.MergeFlags("-pthread")
+    if sys.platform.startswith("linux"):
+        env.Append(SHLINKFLAGS="-Wl,-soname,${TARGET.file}.${libversion.split('.')[0]}")
+    return env
+
+def display_help(env,vars):
+    Help("Type 'scons' to build the package.\n")
+    if sys.platform!="win32":
+        Help("Then type 'scons install' to install it.\n")
+        Help("Type 'scons --clean install' to uninstall the software.\n")
+    Help("You may use the following configuration variables:\n")
+    Help(vars.GenerateHelpText(env))
+
+def clone_base_env(base_env,arch=None):
+    env=base_env.Clone()
+    if sys.platform=="win32":
+        bits="64" if arch.endswith("64") else "32"
+        env["BUILDDIR"]=os.path.join(BUILDDIR,arch)
+        env["CPPPATH"]=env["CPPPATH"+bits]
+        env["LIBPATH"]=env["LIBPATH"+bits]
+        env["ENV"]=get_msvc_env_vars(env,arch)
+    else:
+        env["BUILDDIR"]=BUILDDIR
+    third_party_dir=os.path.join("src","third-party")
+    for path in Glob(os.path.join(third_party_dir,"*"),strings=True):
+        if os.path.isdir(path):
+            env.Prepend(CPPPATH=("#"+path))
+    env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
+    return env
+
+def configure(env):
+    conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
+                       log_file=os.path.join(env["BUILDDIR"],"configure.log"),
+                       custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG,"CheckJavac":CheckJavac})
     if not conf.CheckCC():
         print "The C compiler is not working"
         exit(1)
-    conf.CheckLib("m",autoadd=1)
-    has_flite_h=conf.CheckCHeader("flite.h")
-    if (not has_flite_h) and (env["PLATFORM"]!="win32"):
-        for prefix in ["/usr/local","/usr"]:
-            flite_cpppath=os.path.join(prefix,"include","flite")
-            if os.path.isdir(flite_cpppath):
-                if not GetOption("silent"):
-                    print "trying to search in %s" % flite_cpppath
-                env.Prepend(CPPPATH=flite_cpppath)
-                has_flite_h=conf.CheckCHeader("flite.h")
-                break
-    if not has_flite_h:
-        print "Error: cannot find flite.h"
+    if not conf.CheckCXX():
+        print "The C++ compiler is not working"
         exit(1)
-    has_libflite=conf.CheckLibWithHeader("flite","flite.h","C",call="flite_init();",autoadd=0)
-    if not has_libflite:
-        if hasattr(os,"uname"):
-            if os.uname()[0]=="Linux":
-                if not GetOption("silent"):
-                    print "Perhaps this version of flite depends on alsa"
-                if conf.CheckLib("asound",autoadd=1):
-                    has_libflite=conf.CheckLibWithHeader("flite","flite.h","C",call="flite_init();",autoadd=0)
-    if not has_libflite:
-        print "error: cannot link with the flite library"
-        exit(1)
-    env.PrependUnique(LIBS="flite")
-    if not conf.CheckLib("flite","cst_utf8_explode",autoadd=0):
-        print "This version of flite is too old, please install flite 1.4 or later"
-        exit(1)
-    if not conf.CheckLib("flite_cmulex",autoadd=0):
-        print "error: cannot link with the flite_cmulex library"
-        exit(1)
-    env.PrependUnique(LIBS="flite_cmulex")
-    has_libunistring=conf.CheckLibWithHeader("unistring","uniconv.h","C",call="u8_strconv_to_locale((const uint8_t*)\"a\");",autoadd=0)
-    if not has_libunistring:
-        if not GetOption("silent"):
-            print "Perhaps libunistring requires libiconv on this platform"
-        if conf.CheckLib("iconv",autoadd=0):
-            env.PrependUnique(LIBS="iconv")
-            has_libunistring=conf.CheckLibWithHeader("unistring","unistr.h","C",call="u8_strchr((const uint8_t*)\"a\",'a');",autoadd=0)
-    if not has_libunistring:
-        print "Error: cannot link with libunistring"
-        exit(1)
-    env.PrependUnique(LIBS="unistring")
-    has_expat=conf.CheckLibWithHeader("expat","expat.h","C",call='XML_ParserCreate("UTF-8");',autoadd=0)
-    if not has_expat:
-        print "Error: cannot link with expat"
-        exit(1)
-    env.PrependUnique(LIBS="expat")
-    has_pcre=conf.CheckLibWithHeader("pcre","pcre.h","C",call='pcre_compile("^$",0,NULL,NULL,NULL);',autoadd=0)
-    if not has_pcre:
-        print "Error: cannot link with pcre"
-        exit(1)
-    env.PrependUnique(LIBS="pcre")
-    has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
-    if not has_sox:
-        print "Error: cannot link with libsox"
-        exit(1)
-    env.PrependUnique(LIBS="sox")
-    if not conf.CheckDeclaration("SOX_OPTION_DEFAULT","#include <sox.h>"):
-        env.Append(CPPDEFINES=("SOX_OPTION_DEFAULT","sox_option_default"))
+# has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
+# if not has_sox:
+#     print "Error: cannot link with libsox"
+#     exit(1)
+# env.PrependUnique(LIBS="sox")
+    env["audio_libs"]=set()
+    if conf.CheckLibWithHeader("ao","ao/ao.h","C",call='ao_initialize();',autoadd=0):
+        env["audio_libs"].add("libao")
+    has_giomm=False
+    has_pkg_config=conf.CheckPKGConfig()
+    if has_pkg_config:
+        if conf.CheckPKG("libpulse-simple"):
+            env["audio_libs"].add("pulse")
+        if conf.CheckPKG("portaudio-2.0"):
+            env["audio_libs"].add("portaudio")
+        has_giomm=conf.CheckPKG("giomm-2.4")
+    has_jdk=False
+    if env["build_java_binding"]:
+        if conf.CheckJavac():
+            if conf.CheckCXXHeader("jni.h"):
+                has_jdk=True
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
-    env=conf.Finish()
+    conf.Finish()
+    src_subdirs=["third-party","core","lib","utils"]
+    if env["audio_libs"]:
+        src_subdirs.append("audio")
+        src_subdirs.append("test")
+        src_subdirs.append("sd_module")
+    if has_giomm:
+        src_subdirs.append("service")
     if env["PLATFORM"]=="win32":
-        sapi_conf=sapi_env.Configure(conf_dir=os.path.join(BUILDDIR,"sapi_configure_tests"),
-                                     log_file=os.path.join(BUILDDIR,"sapi_configure.log"))
-        if sapi_conf.CheckCXX():
-            found=False
-            headers=["windows.h","shlobj.h","sapi.h","sapiddk.h",
-                     "string","stdexcept","new","map","algorithm",
-                     "sstream","locale","eh.h","comdef.h"]
-            for header in headers:
-                found=sapi_conf.CheckCXXHeader(header)
-                if not found:
-                    break
-            if found:
-                for lib in ["kernel32","advapi32","shell32","ole32","sapi","comsuppw"]:
-                    found=sapi_conf.CheckLib(lib,language="C++",autoadd=0)
-                    if not found:
-                        break
-                    sapi_env.PrependUnique(LIBS=lib)    
-                if found:
-                    sapi_env["enabled"]=True
-                if not GetOption("silent") and not sapi_env["enabled"]:
-                        print "Sapi 5 support cannot be compiled"
-        sapi_env=sapi_conf.Finish()
-
-Export(["env","BUILDDIR"])
-if env["PLATFORM"]=="win32":
-    Export("sapi_env")
-lib_objects=[]
-Export("lib_objects")
-src_subdirs=["hts_engine_api","lib","bin"]
-if env["PLATFORM"]=="win32":
-    if sapi_env["enabled"]:
         src_subdirs.append("sapi")
-else:
-    src_subdirs.append("include")
-for subdir in src_subdirs:
-    SConscript(os.path.join("src",subdir,"SConscript"),
-               variant_dir=os.path.join(BUILDDIR,subdir),
+    else:
+        src_subdirs.append("include")
+    if has_jdk:
+        src_subdirs.append("java")
+    return src_subdirs
+
+def build_binaries(base_env,arch=None):
+    env=clone_base_env(base_env,arch)
+    if env["BUILDDIR"]!=BUILDDIR:
+        Execute(Mkdir(env["BUILDDIR"]))
+    if arch:
+        print("Configuring the build system for {}".format(arch))
+    src_subdirs=configure(env)
+    for subdir in src_subdirs:
+        SConscript(os.path.join("src",subdir,"SConscript"),
+                   variant_dir=os.path.join(env["BUILDDIR"],subdir),
+                   exports={"env":env},
+                   duplicate=0)
+
+def build_for_linux(base_env):
+    build_binaries(base_env)
+    for subdir in ["data","config"]:
+        SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env},
+                   variant_dir=os.path.join(BUILDDIR,subdir),
+                   duplicate=0)
+
+def preconfigure_for_windows(env):
+    conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
+                       log_file=os.path.join(BUILDDIR,"configure.log"),
+                       custom_tests={"CheckWinSDK":CheckWinSDK,"CheckNSIS":CheckNSIS})
+    if not conf.CheckWinSDK():
+        print("Error: Windows SDK 7.1 is not installed")
+        exit(1)
+    if not conf.CheckNSIS(True):
+        conf.CheckNSIS()
+    conf.Finish()
+
+def build_for_windows(base_env):
+    preconfigure_for_windows(base_env)
+    build_binaries(base_env,"x86")
+    if base_env["enable_x64"]:
+        build_binaries(base_env,"x64")
+    SConscript(os.path.join("data","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"data"),
+               exports={"env":base_env},
                duplicate=0)
-if env["PLATFORM"]!="win32":
-    SConscript(os.path.join("data","SConscript"))
-    SConscript(os.path.join("config","SConscript"))
-if env["PLATFORM"]=="win32":
-    for f in ["README","COPYING"]:
-        env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
-    env.ConvertNewlinesB(os.path.join(BUILDDIR,"Pseudo-Esperanto.txt"),os.path.join("config","variants","Pseudo-Esperanto.txt"))
+    for f in ["README","COPYING","COPYING.LESSER"]:
+        base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
+    base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
+    # env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
+    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
+               exports={"env":base_env},
+               duplicate=0)
+    if "makensis" in base_env:
+        SConscript(os.path.join("src","wininst","SConscript"),
+                   variant_dir=os.path.join(BUILDDIR,"wininst"),
+                   exports={"env":base_env},
+                   duplicate=0)
+
+setup()
+vars=create_user_vars()
+base_env=create_base_env(vars)
+display_help(base_env,vars)
+vars.Save(var_cache,base_env)
+if sys.platform=="win32":
+    build_for_windows(base_env)
+else:
+    build_for_linux(base_env)
