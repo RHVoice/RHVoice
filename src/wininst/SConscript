@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ packager=packaging.windows.app_packager("RHVoice",Dir("..").Dir("packages").Dir(
 packager.add(Dir("..").Dir("x86").Dir("sapi").File("RHVoiceSvr.dll"),"lib32",regdll=True)
 if env["enable_x64"]:
     packager.add(Dir("..").Dir("x64").Dir("sapi").File("RHVoiceSvr.dll"),"lib64",regdll=True,x64=True)
+packager.add(Dir("..").File("RHVoice.ini"),"config-examples")
 packager.add_reg_value("HKLM",r"Software\RHVoice","path","$$INSTDIR")
 packager.add_reg_value("HKLM",r"Software\RHVoice","data_path",r'$$INSTDIR\data',True)
 packager.add_reg_value("HKLM",r"Software\Microsoft\Speech\Voices\TokenEnums\RHVoice","CLSID","{d7577808-7ade-4dea-a5b7-ee314d6ef3a1}",True)
