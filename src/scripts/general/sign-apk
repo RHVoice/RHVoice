@@ -5,6 +5,7 @@ import os
 import os.path
 import sys
 import subprocess
+import xml.etree.ElementTree as et
 
 def get_build_tools_dir():
 	android_home=os.environ["ANDROID_HOME"]
@@ -15,16 +16,24 @@ def get_build_tools_dir():
 			return path
 	raise RuntimeError("No build tools directory")
 
+def get_version_string(apk):
+	project_path=os.path.dirname(os.path.dirname(apk))
+	manifest_path=os.path.join(project_path,"AndroidManifest.xml")
+	manifest=et.parse(manifest_path)
+	return manifest.getroot().get("{http://schemas.android.com/apk/res/android}versionName")
+
 if __name__=="__main__":
  	unsigned_apk=sys.argv[1]
 	key_store=sys.argv[2]
 	key_alias=sys.argv[3]
-	if unsigned_apk.endswith("-release-unsigned.apk"):
-		base=unsigned_apk[:-13]
+	version_string=get_version_string(unsigned_apk)
+	suffix="-release-unsigned.apk"
+	if unsigned_apk.endswith(suffix):
+		base=unsigned_apk[:-len(suffix)]
 	else:
 		base=unsigned_apk[:-4]
 	signed_apk=base+"-signed.apk"
-	final_apk=base+".apk"
+	final_apk="{}-v{}.apk".format(base,version_string)
 	build_tools_dir=get_build_tools_dir()
 	aapt=os.path.join(build_tools_dir,"aapt")
 	for path in subprocess.check_output([aapt,"list",unsigned_apk]).strip().split("\n"):
