@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
-
 import com.github.olga_yakovleva.rhvoice.*;
 
 public final class CheckTTSData extends Activity implements FutureDataResult.Receiver
@@ -79,14 +79,16 @@ public final class CheckTTSData extends Activity implements FutureDataResult.Rec
                 final ArrayList<String> requestedVoices=getIntent().getStringArrayListExtra(TextToSpeech.Engine.EXTRA_CHECK_VOICE_DATA_FOR);
                 if((requestedVoices==null)||requestedVoices.isEmpty())
                     {
+                        Set<String> locales=new LinkedHashSet<String>();
                         for(AndroidVoiceInfo voice: voices)
                             {
-                                availableVoices.add(voice.toString());
+                                locales.add(voice.getLanguage()+"-"+voice.getCountry());
                             }
+                        availableVoices.addAll(locales);
                     }
                 else
                     {
-                        LinkedHashSet<String> matchingVoices=new LinkedHashSet<String>();
+                        Set<String> matchingVoices=new LinkedHashSet<String>();
                         for(String name: requestedVoices)
                             {
                                 boolean found=false;
