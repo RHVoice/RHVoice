@@ -105,20 +105,26 @@ namespace RHVoice
 
     bool SpeakImpl::play_speech(const short* samples,std::size_t count)
     {
-      if(check_actions())
+      const BYTE *ptr=reinterpret_cast<const BYTE*>(samples);
+      ULONG size=count*sizeof(short);
+      ULONG remaining=size;
+      ULONG written=0;
+      while(remaining>0)
         {
-          ULONG size=count*sizeof(short);
-          ULONG written=0;
-          if(FAILED(caller->Write(samples,size,&written)))
+          if(!check_actions())
             return false;
-          if(size!=written)
+          if(FAILED(caller->Write(ptr,remaining,&written)))
+            return false;
+          if(written>remaining)
             return false;
           bytes_written+=written;
-          return true;
+          remaining-=written;
+          ptr+=written;
+          written=0;
         }
-      else
-        return false;      
+      return true;
     }
+
     bool SpeakImpl::process_mark(const std::string& name)
     {
       if(check_actions())
