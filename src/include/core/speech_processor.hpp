@@ -49,6 +49,10 @@ namespace RHVoice
     {
     }
 
+    virtual void on_finished()
+    {
+    }
+
     virtual std::size_t get_desired_input_size() const
     {
       return 0.005*sample_rate;

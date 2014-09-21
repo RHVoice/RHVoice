@@ -90,7 +90,10 @@ namespace RHVoice
     if(is_stopped())
       return;
     if(!next)
-      return;
+      {
+        on_finished();
+        return;
+      }
     if(!insertion.empty())
       {
         next->insert(&insertion[0],insertion.size());
@@ -109,6 +112,9 @@ namespace RHVoice
     if(is_stopped())
       return;
     next->finish();
+    if(is_stopped())
+      return;
+    on_finished();
   }
 
   void speech_processor::insert(sample_ptr samples,std::size_t count)
