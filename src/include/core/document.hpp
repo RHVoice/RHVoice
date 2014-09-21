@@ -77,6 +77,16 @@ namespace RHVoice
     {
     public:
       virtual command_type get_type() const=0;
+
+      virtual bool has_text() const
+      {
+        return true;
+      }
+
+      virtual bool notify_client(client& c) const
+      {
+        return true;
+      }
     };
 
     typedef smart_ptr<abstract_command> command_ptr;
@@ -147,6 +157,19 @@ namespace RHVoice
         u.get_relation("Event",true).append().set("mark",name);
       }
 
+      bool has_text() const
+      {
+        return false;
+      }
+
+      bool notify_client(client& c) const
+      {
+        if(c.get_supported_events()&event_mark)
+          return c.process_mark(name);
+        else
+          return true;
+      }
+
     private:
       std::string name;
     };
@@ -162,6 +185,16 @@ namespace RHVoice
       void execute(utterance& u) const
       {
         u.get_relation("Event",true).append().set("audio",src);
+      }
+
+      bool has_text() const
+      {
+        return false;
+      }
+
+      bool notify_client(client& c) const
+      {
+        return c.play_audio(src);
       }
 
     private:
@@ -188,7 +221,7 @@ namespace RHVoice
 
     std::list<command_ptr> commands;
     text_token prev_token,next_token;
-    const document* parent;
+    document* parent;
     double rate,pitch,volume;
     language_voice_pair language_and_voice;
     std::size_t length,num_tokens;
@@ -198,7 +231,7 @@ namespace RHVoice
     static const std::size_t max_tokens=100;
 
   public:
-    explicit sentence(const document* parent_);
+    explicit sentence(document* parent_);
 
     bool empty() const
     {
@@ -224,6 +257,9 @@ namespace RHVoice
     {
       commands.push_back(command_ptr(new append_break(strength)));
     }
+
+    bool has_text() const;
+    bool notify_client();
 
   private:
     template<typename text_iterator>

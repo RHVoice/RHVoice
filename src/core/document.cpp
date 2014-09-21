@@ -76,7 +76,7 @@ namespace RHVoice
       }
   }
 
-  sentence::sentence(const document* parent_):
+  sentence::sentence(document* parent_):
     parent(parent_),
     rate(1),
     pitch(1),
@@ -333,14 +333,41 @@ namespace RHVoice
     return u;
   }
 
+  bool sentence::has_text() const
+  {
+    for(std::list<command_ptr>::const_iterator it(commands.begin());it!=commands.end();++it)
+      {
+        if((*it)->has_text())
+          return true;
+      }
+    return false;
+  }
+
+  bool sentence::notify_client()
+  {
+    for(std::list<command_ptr>::const_iterator it(commands.begin());it!=commands.end();++it)
+      {
+        if(!((*it)->notify_client(parent->get_owner())))
+          return false;
+      }
+    return true;
+  }
+
   void document::synthesize()
   {
     if(!has_owner())
       return;
     std::auto_ptr<utterance> u;
     sentence_position pos=sentence_position_initial;
-    for(const_iterator it(begin());it!=end();++it)
+    for(iterator it(begin());it!=end();++it)
       {
+        if(!(it->has_text()))
+          {
+            if(it->notify_client())
+              continue;
+            else
+              break;
+          }
         const_iterator tmp_it=it;
         ++tmp_it;
         if(tmp_it==end())
