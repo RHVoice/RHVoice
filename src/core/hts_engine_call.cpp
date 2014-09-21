@@ -70,7 +70,7 @@ namespace RHVoice
 
     private:
       void on_input();
-      void on_end_of_input();
+      void on_finished();
 
       event_sequence::const_iterator enext,eend;
       int time;
@@ -92,7 +92,7 @@ namespace RHVoice
       time+=output.size();
     }
 
-    void notifier::on_end_of_input()
+    void notifier::on_finished()
     {
       while(enext!=eend)
         {
