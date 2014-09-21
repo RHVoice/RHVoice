@@ -326,6 +326,12 @@ namespace RHVoice
               }
             if(events_of_interest&event_word_ends)
               input.add_event<word_ends_event>(token);
+            if(token.has_children()&&seg_end!=seg_rel.end()&&seg_end->get("name").as<std::string>()=="pau")
+              {
+                add_label(*seg_end);
+                ++seg_end;
+                seg_start=seg_end;
+              }
           }
         else if(events_of_interest&event_mark)
           {
