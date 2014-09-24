@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -203,13 +203,13 @@ def configure(env):
 #     exit(1)
 # env.PrependUnique(LIBS="sox")
     env["audio_libs"]=set()
-    if conf.CheckLibWithHeader("ao","ao/ao.h","C",call='ao_initialize();',autoadd=0):
-        env["audio_libs"].add("libao")
     has_giomm=False
     has_pkg_config=conf.CheckPKGConfig()
     if has_pkg_config:
         if conf.CheckPKG("libpulse-simple"):
             env["audio_libs"].add("pulse")
+        if conf.CheckPKG("ao"):
+            env["audio_libs"].add("libao")
         if conf.CheckPKG("portaudio-2.0"):
             env["audio_libs"].add("portaudio")
         has_giomm=conf.CheckPKG("giomm-2.4")

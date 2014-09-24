@@ -1,5 +1,5 @@
 # -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ src=["audio.cpp"]
 if "libao" in local_env["audio_libs"]:
 	src.append("libao.cpp")
 	local_env.Append(CPPDEFINES=("WITH_LIBAO","1"))
-	local_env.Prepend(LIBS="ao")
+	local_env.MergeFlags(["!pkg-config --cflags --libs ao"])
 if "pulse" in local_env["audio_libs"]:
 	src.append("pulse.cpp")
 	local_env.Append(CPPDEFINES=("WITH_PULSE","1"))
