@@ -50,6 +50,9 @@ define TranscribeConsonant
 [ჯ : j] | 
 [ჰ : h] ; 
 
+define TranscribeSingleConsonant 
+TranscribeConsonant 0:e ; 
+
 define TranscribeEnglishLetter 
 [a : a] | 
 [b : b] | 
@@ -77,6 +80,34 @@ define TranscribeEnglishLetter
 [x : [kh s]] | 
 [y : i] | 
 [z : z] ; 
+
+define TranscribeSingleEnglishLetter 
+[a : [e i]] | 
+[b : [b i]] | 
+[c : [s i]] | 
+[d : [d i]] | 
+[e : [e]] | 
+[f : [e ph]] | 
+[g : [j i]] | 
+[h : [e i chh]] | 
+[i : [a i]] | 
+[j : [j e i]] | 
+[k : [k e i]] | 
+[l : [e l]] | 
+[m : [e m]] | 
+[n : [e n]] | 
+[o : [o]] | 
+[p : [p i]] | 
+[q : [kh u]] | 
+[r : [a r]] | 
+[s : [e s]] | 
+[t : [t i]] | 
+[u : [u]] | 
+[v : [v i]] | 
+[w : [v]] | 
+[x : [e kh s]] | 
+[y : [v a i]] | 
+[z : [z e d]] ; 
 
 define TranscribeRussianLetter 
 [а : a] | 
@@ -107,13 +138,51 @@ define TranscribeRussianLetter
 [ш : sh] | 
 [щ : sh] | 
 [ъ : 0] | 
-[ы : b] | 
+[ы : i] | 
 [ь : 0] | 
 [э : e] | 
-[ю : iu] | 
-[я : ia] ; 
+[ю : [i u]] | 
+[я : [i a]] ; 
+
+define TranscribeSingleRussianLetter 
+[а : [a]] | 
+[б : [b e]] | 
+[в : [v e]] | 
+[г : [g e]] | 
+[д : [d e]] | 
+[е : [i e]] | 
+[ё : [i o]] | 
+[ж : [zh e]] | 
+[з : [z e]] | 
+[и : [i]] | 
+[й : [i]] | 
+[к : [k a]] | 
+[л : [e l]] | 
+[м : [e m]] | 
+[н : [e n]] | 
+[о : [o]] | 
+[п : [p e]] | 
+[р : [e r]] | 
+[с : [e s]] | 
+[т : [t e]] | 
+[у : [u]] | 
+[ф : [e ph]] | 
+[х : [hh a]] | 
+[ц : [tsh e]] | 
+[ч : [chh e]] | 
+[ш : [sh a]] | 
+[щ : [sh a]] | 
+[ъ : [0]] | 
+[ы : [i]] | 
+[ь : [0]] | 
+[э : [e]] | 
+[ю : [i u]] | 
+[я : [i a]] ; 
+
+define TranscribeSingleLetter 
+TranscribeSingleConsonant | TranscribeSingleEnglishLetter | TranscribeSingleRussianLetter ; 
 
 define G2P 
-[TranscribeVowel | TranscribeConsonant | TranscribeEnglishLetter | TranscribeRussianLetter ->] ; 
+TranscribeSingleLetter .P. [TranscribeVowel | TranscribeConsonant | TranscribeEnglishLetter | TranscribeRussianLetter ->] ; 
 
 regex G2P;

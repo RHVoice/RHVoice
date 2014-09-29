@@ -13,11 +13,15 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+source ../Russian/letters.foma
+source ../English/letters.foma
+source ../Russian/downcase.foma
+clear
 source g2p.foma
 clear
 
 define SpellVowel TranscribeVowel.u;
-define SpellConsonant TranscribeConsonant.u 0:ე;
+define SpellConsonant TranscribeConsonant.u;
 define SpellDigit %0:ნული | 1:ერთი | 2:ორი | 3:სამი | 4: ოთხი | 5:ხუთი |6:ექვსი | 7:შვიდი | 8:რვა | 9:ცხრა;
 
 define SpellPunctuation 
@@ -52,4 +56,11 @@ define SpellPunctuation
 [ %` : პირიქით აპოსტროფი] ; 
 
 regex 
-SpellVowel|SpellConsonant|SpellDigit | SpellPunctuation ;
+SpellVowel | 
+SpellConsonant | 
+SmallEnglishLetter | 
+[CapitalEnglishLetter .o. EnglishDowncase] | 
+SmallRussianLetter | 
+[CapitalRussianLetter .o. RussianDowncase] | 
+SpellDigit | 
+SpellPunctuation ;
