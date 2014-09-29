@@ -14,11 +14,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 source ../English/letters.foma
+clear
+source ../Russian/letters.foma
+clear
 source g2p.foma
 clear
 define Vowel TranscribeVowel.u;
 define Consonant TranscribeConsonant.u;
-define Letter Vowel|Consonant|SmallEnglishLetter|CapitalEnglishLetter;
+define Letter Vowel|Consonant|SmallEnglishLetter|CapitalEnglishLetter|SmallRussianLetter|CapitalRussianLetter;
 define LetterSequence Consonant+;
 
 define NZDigit 1|2|3|4|5|6|7|8|9;

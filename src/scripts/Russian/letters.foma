@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -13,34 +13,5 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-define EnglishDowncase 
-[A : a] | 
-[B : b] | 
-[C : c] | 
-[D : d] | 
-[E : e] | 
-[F : f] | 
-[G : g] | 
-[H : h] | 
-[I : i] | 
-[J : j] | 
-[K : k] | 
-[L : l] | 
-[M : m] | 
-[N : n] | 
-[O : o] | 
-[P : p] | 
-[Q : q] | 
-[R : r] | 
-[S : s] | 
-[T : t] | 
-[V : v] | 
-[U : u] | 
-[W : w] | 
-[X : x] | 
-[Y : y] | 
-[Z : z] | 
-[’ : %'] ; 
-
-regex 
-EnglishDowncase -> ; 
+define SmallRussianLetter а|б|в|г|д|е|ё|ж|з|и|й|к|л|м|н|о|п|р|с|т|у|ф|х|ц|ч|ш|щ|ь|ы|ъ|э|ю|я;
+define CapitalRussianLetter А|Б|В|Г|Д|Е|Ё|Ж|З|И|Й|К|Л|М|Н|О|П|Р|С|Т|У|Ф|Х|Ц|Ч|Ш|Щ|Ь|Ы|Ъ|Э|Ю|Я;

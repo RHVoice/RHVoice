@@ -56,21 +56,21 @@ define TranscribeEnglishLetter
 [c : tsh] | 
 [d : d] | 
 [e : e] | 
-[f : v] | 
+[f : ph] | 
 [g : g] | 
 [h : h] | 
 [i : i] | 
 [j : j] | 
-[k : kh] | 
+[k : k] | 
 [l : l] | 
 [m : m] | 
 [n : n] | 
 [o : o] | 
-[p : ph] | 
+[p : p] | 
 [q : kh] | 
 [r : r] | 
 [s : s] | 
-[t : th] | 
+[t : t] | 
 [u : u] | 
 [v : v] | 
 [w : v] | 
@@ -78,7 +78,42 @@ define TranscribeEnglishLetter
 [y : i] | 
 [z : z] ; 
 
+define TranscribeRussianLetter 
+[а : a] | 
+[б : b] | 
+[в : v] | 
+[г : g] | 
+[д : d] | 
+[е : e] | 
+[ё : e] | 
+[ж : zh] | 
+[з : z] | 
+[и : i] | 
+[й : i] | 
+[к : k] | 
+[л : l] | 
+[м : m] | 
+[н : n] | 
+[о : o] | 
+[п : p] | 
+[р : r] | 
+[с : s] | 
+[т : t] | 
+[у : u] | 
+[ф : ph] | 
+[х : hh] | 
+[ц : tsh] | 
+[ч : chh] | 
+[ш : sh] | 
+[щ : sh] | 
+[ъ : 0] | 
+[ы : b] | 
+[ь : 0] | 
+[э : e] | 
+[ю : iu] | 
+[я : ia] ; 
+
 define G2P 
-[TranscribeVowel | TranscribeConsonant | TranscribeEnglishLetter ->] ; 
+[TranscribeVowel | TranscribeConsonant | TranscribeEnglishLetter | TranscribeRussianLetter ->] ; 
 
 regex G2P;
