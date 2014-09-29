@@ -13,66 +13,10 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-define Downcase 
-ა -> ა || _ ,, 
-ბ -> ბ || _ ,, 
-გ -> გ || _ ,, 
-დ -> დ || _ ,, 
-ე -> ე || _ ,, 
-ვ -> ვ || _ ,, 
-ზ -> ზ || _ ,, 
-თ -> თ || _ ,, 
-ი -> ი || _ ,, 
-კ -> კ || _ ,, 
-ლ -> ლ || _ ,, 
-მ -> მ || _ ,, 
-ნ -> ნ || _ ,, 
-ო -> ო || _ ,, 
-პ -> პ || _ ,, 
-ჟ -> ჟ || _ ,, 
-რ -> რ || _ ,, 
-ს -> ს || _ ,, 
-ტ -> ტ || _ ,, 
-უ -> უ || _ ,, 
-ფ -> ფ || _ ,, 
-ქ -> ქ || _ ,, 
-ღ -> ღ || _ ,, 
-ყ -> ყ || _ ,, 
-შ -> შ || _ ,, 
-ჩ -> ჩ || _ ,, 
-ც -> ც || _ ,, 
-ძ -> ძ || _ ,, 
-წ -> წ || _ ,, 
-ჭ -> ჭ || _ ,, 
-ხ -> ხ || _ ,, 
-ჯ -> ჯ || _ ,, 
-ჰ -> ჰ || _ ,, 
-A -> a || _ ,, 
-B -> b || _ ,, 
-C -> c || _ ,, 
-D -> d || _ ,, 
-E -> e || _ ,, 
-F -> f || _ ,, 
-G -> g || _ ,, 
-H -> h || _ ,, 
-I -> i || _ ,, 
-J -> j || _ ,, 
-K -> k || _ ,, 
-L -> l || _ ,, 
-M -> m || _ ,, 
-N -> n || _ ,, 
-O -> o || _ ,, 
-P -> p || _ ,, 
-Q -> q || _ ,, 
-R -> r || _ ,, 
-S -> s || _ ,, 
-T -> t || _ ,, 
-U -> u || _ ,, 
-V -> v || _ ,, 
-W -> w || _ ,, 
-X -> x || _ ,, 
-Y -> y || _ ,, 
-Z -> z || _ ; 
+source ../Russian/downcase.foma
+clear
+source g2p.foma
+clear
 
 regex 
-Downcase ; 
+[TranscribeVowel.u | TranscribeConsonant.u | EnglishDowncase | RussianDowncase] -> ; 
