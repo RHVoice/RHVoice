@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -215,6 +215,11 @@ namespace RHVoice
     void decode_as_unknown_character(item& token,const std::string& name) const;
     void decode_as_character(item& token,const std::string& name) const;
     void decode_as_key(item& token,const std::string& name) const;
+
+    virtual void decode_as_special_symbol(item& token,const std::string& name,const std::string& type) const
+    {
+    }
+
     void indicate_case_if_necessary(item& token) const;
     break_strength get_word_break(const item& word) const;
 

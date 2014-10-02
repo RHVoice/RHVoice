@@ -104,24 +104,46 @@ Them |
 
 define Word Letter+ | Contraction ;
 
-define Stage1 
-[..] -> word || SmallLetter _ CapitalLetter ;
+define FormattedPositiveInteger NZDigit Digit^<3 [%, Digit^3]^{1,4} ; 
 
-define Stage2 
-Number @-> ... num || _ ,, 
-Word @-> ... word || _ .#. | \Letter ,, 
-\[Letter | Digit | word] @-> ... sym || _ ,, 
-word -> 0 || _ ; 
+define BasicTokenizer 
+Word @-> ... word || _ \Letter | .#. ,, 
+FormattedPositiveInteger @-> ... num || _ .#. | \Digit ,, 
+NZDigit Digit* @-> ... num ,, 
+%0 Digit+ @-> ... dig ,, 
+%0 @-> ... num ,, 
+\[Letter | Digit] @-> ... sym ; 
 
-define Stage3 
-word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
-num -> dig || Digit^15 _ ,, 
-sym -> 0 || [.#.|sym] PlusOrMinus _ Digit ; 
+define CamelCaseTokenizer 
+[..] -> word || SmallLetter _ CapitalLetter ; 
 
-define Stage4 
-PlusOrMinus Digit -> ... num || _ Digit+ dig;
+define TagLetterSequences 
+word -> lseq || [.#.|word|num|dig|sym] LetterSequence _ ; 
 
-define Stage5 
-num %% sym @-> %% num ; 
+define UntagLargeNumbers 
+num -> dig || Digit^16 _ ; 
 
-regex Stage1 .o. Stage2 .o. Stage3 .o. Stage4 .o. Stage5;
+define TagDecimalSeparators 
+%. sym:dsep Digit+ [[num:dig]|dig] -> || num|dig _ ; 
+
+define TagOrdinalNumbers 
+[[1 num:0 {st}] | [2 num:0 {nd}] | [3 num:0 {rd}]] lseq:num -> || .#. | \1 _ ,, 
+[%0|4|5|6|7|8|9|[1 [1|2|3]]] num:0 {th} lseq:num -> ; 
+
+define TagPercentSigns 
+sym -> sign || [dig|num] %% _ ; 
+
+define TagPlusOrMinusSigns 
+sym -> sign || PlusOrMinus _ Digit ; 
+
+define Tokenizer 
+BasicTokenizer .o. 
+CamelCaseTokenizer .o. 
+TagLetterSequences .o. 
+UntagLargeNumbers .o. 
+TagDecimalSeparators .o. 
+TagOrdinalNumbers .o. 
+TagPercentSigns .o. 
+TagPlusOrMinusSigns ; 
+
+regex Tokenizer ; 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -84,6 +84,27 @@ namespace RHVoice
     tones_dtree(path::join(info_.get_data_path(),"tones.dt"))
   {
     register_feature(smart_ptr<feature_function>(new feat_syl_in_question));
+  }
+
+  void english::decode_as_special_symbol(item& token,const std::string& token_name,const std::string& token_type) const
+  {
+    std::string word_name;
+    if(token_type=="dsep")
+      {
+        if(token_name==".")
+          word_name="point";
+      }
+    else if(token_type=="sign")
+      {
+        if(token_name=="%")
+          word_name="percent";
+        else if(token_name=="+")
+          word_name="plus";
+        else if(token_name=="-")
+          word_name="minus";
+      }
+    if(!word_name.empty())
+      token.append_child().set("name",word_name);
   }
 
   std::vector<std::string> english::get_word_transcription(const item& word) const
