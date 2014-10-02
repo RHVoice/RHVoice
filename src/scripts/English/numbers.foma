@@ -15,9 +15,23 @@
 
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
-define PlusOrMinus %+|%-;
-define Number (PlusOrMinus) [%0|[NZDigit Digit^<15]] (%%);
-define RB (%%) .#.;
+
+define RB ({st}|{nd}|{rd}|{th}) .#.;
+
+define UnformattedCardinalNumber %0|[NZDigit Digit^<15] ; 
+define FormattedCardinalNumber NZDigit Digit^<3 [%, Digit^3]^{1,4} ; 
+define CardinalNumber UnformattedCardinalNumber | FormattedCardinalNumber ; 
+
+define OrdinalNumber 
+[[[CardinalNumber & [?* 1]] - [?* 1 1]] {st}] | 
+[[[CardinalNumber & [?* 2]] - [?* 1 2]] {nd}] | 
+[[[CardinalNumber & [?* 3]] - [?* 1 3]] {rd}] | 
+[[CardinalNumber & [?* [%0|4|5|6|7|8|9|{11}|{12}|{13}]]] {th}] ; 
+
+define Number CardinalNumber | OrdinalNumber ; 
+
+define RemoveThousandsSeparator 
+%, -> 0 ; 
 
 define InsertThousands 
 [..] -> thousand || Digit _ Digit^3 RB.;
@@ -47,17 +61,54 @@ define Tens %0:0|2:twenty|3:thirty|4:forty|5:fifty|6:sixty|7:seventy|8:eighty|9:
 define UpToHundred %0:zero .P. [Teens | [(Tens) Units]];
 
 define DigitsToWords 
-UpToHundred @-> ,, 
-%+ @-> plus ,, 
-%- @-> minus ,, 
-%% @-> percent ; 
+UpToHundred @-> ; 
+
+define CardinalsToOrdinals 
+[zero : zeroth] | 
+[one : first] | 
+[two : second] | 
+[three : third] | 
+[four : fourth] | 
+[five : fifth] | 
+[six : sixth] | 
+[seven : seventh] | 
+[eight : eighth] | 
+[nine : ninth] | 
+[ten : tenth] | 
+[eleven : eleventh] | 
+[twelve : twelfth] | 
+[thirteen : thirteenth] | 
+[fourteen : fourteenth] | 
+[fifteen : fifteenth] | 
+[sixteen : sixteenth] | 
+[seventeen : seventeenth] | 
+[eighteen : eighteenth] | 
+[nineteen : nineteenth] | 
+[twenty : twentieth] | 
+[thirty : thirtieth] | 
+[forty : fortieth] | 
+[fifty : fiftieth] | 
+[sixty : sixtieth] | 
+[seventy : seventieth] | 
+[eighty : eightieth] | 
+[ninety : ninetieth] | 
+[hundred : hundredth] | 
+[thousand : thousandth] | 
+[million : millionth] | 
+[billion : billionth] | 
+[trillion : trillionth] ; 
+
+define FixOrdinals 
+CardinalsToOrdinals [[{st}|{nd}|{rd}|{th}]:0] -> || _ .#. ; 
 
 regex 
 Number .o. 
+RemoveThousandsSeparator .o. 
 InsertThousands .o. 
 InsertMillions .o. 
 InsertBillions .o. 
 InsertTrillions .o. 
 RemoveSkippedParts .o. 
 InsertHundreds .o. 
-DigitsToWords;
+DigitsToWords .o. 
+FixOrdinals ; 

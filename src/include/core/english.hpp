@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -58,6 +58,7 @@ namespace RHVoice
     std::vector<std::string> get_word_transcription(const item& word) const;
 
   private:
+    void decode_as_special_symbol(item& token,const std::string& name,const std::string& type) const;
     void post_lex(utterance& u) const;
 
     void predict_accents_and_tones(utterance& u) const;
