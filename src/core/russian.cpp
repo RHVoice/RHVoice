@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -73,6 +73,7 @@ namespace RHVoice
     g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
     lseq_fst(path::join(info_.get_data_path(),"lseq.fst")),
     untranslit_fst(path::join(info_.get_data_path(),"untranslit.fst")),
+    split_fst(path::join(info_.get_data_path(),"split.fst")),
     dict_fst(path::join(info_.get_data_path(),"dict.fst")),
     stress_fst(path::join(info_.get_data_path(),"stress.fst")),
     stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>()),
@@ -92,10 +93,29 @@ namespace RHVoice
   {
     std::list<std::string> lowercase_letters;
     downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),std::back_inserter(lowercase_letters));
+    std::list<std::string> untranslit_result;
+    untranslit_fst.translate(lowercase_letters.begin(),lowercase_letters.end(),std::back_inserter(untranslit_result));
+    std::list<std::string> split_result;
+    split_fst.translate(untranslit_result.begin(),untranslit_result.end(),std::back_inserter(split_result));
+    if(split_result.empty())
+      return true;
     std::string word_name;
-    untranslit_fst.translate(lowercase_letters.begin(),lowercase_letters.end(),str::append_string_iterator(word_name));
-    item& word=token.append_child();
-    word.set("name",word_name);
+    std::list<std::string>::const_iterator it=split_result.begin();
+    std::string chr;
+    do
+      {
+        chr=*it;
+        if(chr!=".")
+          word_name+=chr;
+        ++it;
+        if(it==split_result.end()||chr==".")
+          {
+            item& word=token.append_child();
+            word.set("name",word_name);
+            word_name.clear();
+          }
+      }
+    while(it!=split_result.end());
     return true;
   }
 

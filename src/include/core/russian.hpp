@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -94,6 +94,7 @@ namespace RHVoice
     const fst g2p_fst;
     const fst lseq_fst;
     const fst untranslit_fst;
+    const fst split_fst;
     const fst dict_fst;
     const fst stress_fst;
     const rules<uint8_t> stress_rules;
