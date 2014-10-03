@@ -134,7 +134,7 @@ define TagPercentSigns
 sym -> sign || [dig|num] %% _ ; 
 
 define TagPlusOrMinusSigns 
-sym -> sign || PlusOrMinus _ Digit ; 
+sym -> sign || [sym|.#.] PlusOrMinus _ Digit ; 
 
 define Tokenizer 
 BasicTokenizer .o. 
@@ -143,7 +143,7 @@ TagLetterSequences .o.
 UntagLargeNumbers .o. 
 TagDecimalSeparators .o. 
 TagOrdinalNumbers .o. 
-TagPercentSigns .o. 
-TagPlusOrMinusSigns ; 
+TagPlusOrMinusSigns .o. 
+TagPercentSigns ; 
 
 regex Tokenizer ; 
