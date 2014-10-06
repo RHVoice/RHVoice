@@ -3,9 +3,10 @@
 
 import sys
 import os.path
+import datetime
 
 license="""\
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) {year}  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -133,6 +134,7 @@ if __name__=="__main__":
 	args["alpha2code"]=sys.argv[6] if (len(sys.argv)>6) else ""
 	args["alphabet_registration"]="".join("    register_letter_range({},{});\n".format(first,last+1-first) for first,last in letter_ranges)
 	args["vowel_registration"]="".join("    register_vowel_letter({});\n".format(ord(v)) for v in vowels)
+	args["year"]=datetime.date.today().year
 	with open(os.path.join("src","include","core",args["name"]+".hpp"),"wb") as f:
 		f.write(hpp.format(**args))
 	with open(os.path.join("src","core",args["name"]+".cpp"),"wb") as f:
