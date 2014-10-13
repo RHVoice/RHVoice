@@ -4,3 +4,4 @@ gen/
 obj/
 libs/
 *.zip
+signing.properties

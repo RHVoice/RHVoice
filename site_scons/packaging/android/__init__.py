@@ -50,6 +50,11 @@ class data_packager(packager):
 	def package(self):
 		self.env.Substfile(self.outdir.File("AndroidManifest.xml"),self.template_dir.File("AndroidManifest.xml"),SUBST_DICT=self.params)
 		self.env.Command(self.outdir.File("project.properties"),self.template_dir.File("project.properties"),Copy("$TARGET","$SOURCE"))
+		custom_rules=['<?xml version="1.0" encoding="UTF-8"?>',
+					  '<project name="custom_rules" default="help">',
+					  '<property file="{}"/>'.format(os.path.join('..','..','..','..','..','..','src','java','android','service','signing.properties')),
+					  '</project>']
+		self.env.Textfile(self.outdir.File("custom_rules.xml"),custom_rules)
 		self.env.Command(self.outdir.Dir("src"),[],Mkdir("$TARGET"))
 		for res_subpath in os.listdir(self.res_template_dir.abspath):
 			if res_subpath.startswith("values") and os.path.isdir(os.path.join(self.res_template_dir.abspath,res_subpath)):
