@@ -378,8 +378,13 @@ namespace RHVoice
         double rate=input.lbegin()->get_rate();
         if(rate!=1)
           {
-            rate_controller* rc=new rate_controller(rate);
-            output.append(rc);
+            if(rate<utt.get_voice().get_info().settings.min_sonic_rate)
+              engine_impl->set_rate(rate);
+            else
+              {
+                rate_controller* rc=new rate_controller(rate);
+                output.append(rc);
+              }
           }
         double volume=input.lbegin()->get_volume();
         if(volume!=1)

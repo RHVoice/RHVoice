@@ -784,7 +784,7 @@ double mHTS_set_duration( int * duration, double * mean, double * vari, int size
 		if( target_length > sum )
 		{
 			j = -1;
-			for( i = 1; i < size; i++ )
+			for( i = 0; i < size; i++ )
 			{
 				temp2 = abs( rho -( ( double )duration[i] + 1 - mean[i] )/ vari[i] );
 				
@@ -801,7 +801,7 @@ double mHTS_set_duration( int * duration, double * mean, double * vari, int size
 		{
 			j = -1;
 			
-			for( i = 1; i < size; i++ )
+			for( i = 0; i < size; i++ )
 			{
 				if( duration[i] > 1 )
 				{

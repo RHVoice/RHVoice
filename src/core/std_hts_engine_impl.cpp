@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -107,6 +107,8 @@ namespace RHVoice
         pointers.push_back(const_cast<char*>(it->get_name().c_str()));
       }
     HTS_Engine_load_label_from_string_list(engine.get(),&pointers[0],pointers.size());
+    if(rate!=1)
+      HTS_Label_set_speech_speed(&(engine->label),rate);
   }
 
   void std_hts_engine_impl::set_time_info()
