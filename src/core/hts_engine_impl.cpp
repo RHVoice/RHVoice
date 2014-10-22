@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -73,6 +73,7 @@ namespace RHVoice
     gain("gain",1.0,0.5,2.0),
     input(0),
     output(0),
+    rate(1.0),
     name(impl_name)
   {
     config cfg1;
@@ -120,6 +121,7 @@ namespace RHVoice
       do_reset();
     output=0;
     input=0;
+    rate=1.0;
   }
 
   void hts_engine_impl::load_configs()

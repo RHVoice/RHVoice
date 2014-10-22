@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -91,6 +91,11 @@ namespace RHVoice
       return sample_rate;
     }
 
+    void set_rate(double value)
+    {
+      rate=value;
+    }
+
   protected:
     explicit hts_engine_impl(const std::string& name,const std::string& voice_path);
 
@@ -104,6 +109,7 @@ namespace RHVoice
 
     hts_input* input;
     speech_processing_chain* output;
+    double rate;
 
     class model_file_list
     {

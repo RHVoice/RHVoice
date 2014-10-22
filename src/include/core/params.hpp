@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -29,6 +29,7 @@ namespace RHVoice
     numeric_property<double> default_pitch,min_pitch,max_pitch;
     numeric_property<double> default_volume,min_volume,max_volume;
     numeric_property<double> cap_pitch_factor;
+    numeric_property<double> min_sonic_rate;
 
     voice_params();
     void register_self(config& cfg,const std::string& prefix=std::string());

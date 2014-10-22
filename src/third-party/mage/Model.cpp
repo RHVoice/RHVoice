@@ -196,6 +196,8 @@ void MAGE::Model::computeDuration( MAGE::Engine * engine, MAGE::Label * label, d
 				temp += this->modelMemory.duration_mean[i];
 			
 			frame_length = temp / label->getSpeed();
+                        if(frame_length<nOfStates)
+                          frame_length=nOfStates;
 		}
 		else
 			frame_length = 0;

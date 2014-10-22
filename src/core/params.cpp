@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -27,7 +27,8 @@ namespace RHVoice
     default_volume("default_volume",1,0.25,2),
     min_volume("min_volume",0.25,0.25,1),
     max_volume("max_volume",2,1,2),
-    cap_pitch_factor("cap_pitch_factor",1.3,0.5,2)
+    cap_pitch_factor("cap_pitch_factor",1.3,0.5,2),
+    min_sonic_rate("min_sonic_rate",2.5,0.2,5)
   {
   }
 
@@ -43,6 +44,7 @@ namespace RHVoice
     min_volume.default_to(other.min_volume);
     max_volume.default_to(other.max_volume);
     cap_pitch_factor.default_to(other.cap_pitch_factor);
+    min_sonic_rate.default_to(other.min_sonic_rate);
   }
 
   void voice_params::register_self(config& cfg,const std::string& prefix)
@@ -57,6 +59,7 @@ namespace RHVoice
     cfg.register_setting(min_volume,prefix);
     cfg.register_setting(max_volume,prefix);
     cfg.register_setting(cap_pitch_factor,prefix);
+    cfg.register_setting(min_sonic_rate,prefix);
   }
 
   text_params::text_params():
