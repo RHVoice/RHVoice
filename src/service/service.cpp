@@ -566,6 +566,7 @@ namespace
 
 int main()
 {
+  std::locale::global(std::locale::classic());
   try
     {
       global_engine_ref=RHVoice::engine::create();
@@ -575,7 +576,6 @@ int main()
       std::cerr << "Engine initialization error: '" << e.what() << "'" << std::endl;
       return 1;
     }
-  std::locale::global(std::locale(""));
   Gio::init();
   try
     {
