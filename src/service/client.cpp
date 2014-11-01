@@ -211,7 +211,7 @@ namespace
 
 int main(int argc,const char* argv[])
 {
-  std::locale::global(std::locale(""));
+  std::locale::global(std::locale::classic());
   Gio::init();
   try
     {
