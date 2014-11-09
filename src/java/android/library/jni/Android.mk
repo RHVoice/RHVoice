@@ -1,7 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 
 MY_PACKAGE := RHVoice
-MY_VERSION := 0.4-a3
+MY_VERSION := 0.5.1
 MY_DEFINES := -DPACKAGE=\"$(MY_PACKAGE)\" -DVERSION=\"$(MY_VERSION)\" -DDATA_PATH=\"\" -DCONFIG_PATH=\"\"
 
 MY_SRC_DIR := ../../../..
