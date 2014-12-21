@@ -42,12 +42,12 @@ def CheckPKG(context,name):
     context.Result(result)
     return result
 
-def CheckWinSDK(context):
-    context.Message("Checking for Windows SDK 7.1... ")
+def CheckVS(context):
+    context.Message("Checking for Visual Studio 2013... ")
     result=1
     try:
-        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1") as key:
-            context.env["WinSDKDir"]=_winreg.QueryValueEx(key,"InstallationFolder")[0]
+        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\VisualStudio\12.0\Setup\VC",_winreg.KEY_READ|_winreg.KEY_WOW64_32KEY) as key:
+            context.env["VCDir"]=_winreg.QueryValueEx(key,"ProductDir")[0]
     except WindowsError:
         result=0
     context.Result(result)
@@ -75,9 +75,9 @@ def CheckJavac(context):
     return result
 
 def get_msvc_env_vars(env,arch):
-    var_names=["path","lib","include","tmp"]
-    setenv_script=os.path.join(env["WinSDKDir"],"bin","setenv.cmd")
-    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,"/"+arch,"/release","&&","set"])
+    var_names=["path","lib","libpath","include","tmp"]
+    setenv_script=os.path.join(env["VCDir"],"vcvarsall.bat")
+    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,arch,"&&","set"])
     vars=dict()
     lines=output.split("\n")
     for line in lines:
@@ -95,6 +95,8 @@ def convert_path(value):
     return value.split(";" if sys.platform=="win32" else ":")
 
 def setup():
+    if sys.platform=="win32":
+        SetOption("warn","no-visual-c-missing")
     global BUILDDIR,var_cache
     system=platform.system().lower()
     BUILDDIR=os.path.join("build",system)
@@ -127,16 +129,17 @@ def create_user_vars():
         vars.Add("CPPPATH"+suffix,"List of directories where to search for headers",[],converter=convert_path)
         vars.Add("LIBPATH"+suffix,"List of directories where to search for libraries",[],converter=convert_path)
     vars.Add("CPPFLAGS","C/C++ preprocessor flags",[],converter=convert_flags)
-    vars.Add("CCFLAGS","C/C++ compiler flags",["/O2" if sys.platform=="win32" else "-O2"],converter=convert_flags)
+    vars.Add("CCFLAGS","C/C++ compiler flags",["/O2","/GL","/Gw"] if sys.platform=="win32" else ["-O2"],converter=convert_flags)
     vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
     vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
-    vars.Add("LINKFLAGS","Linker flags",[],converter=convert_flags)
+    vars.Add("LINKFLAGS","Linker flags",["/LTCG","/OPT:REF","/OPT:ICF"] if sys.platform=="win32" else [],converter=convert_flags)
     vars.Add(BoolVariable("build_java_binding","Whether we should build the java binding",False))
     return vars
 
 def create_base_env(vars):
     env_args={}
     if sys.platform=="win32":
+        env_args["MSVC_USE_SCRIPT"]=None
         env_args["tools"]=["msvc","mslink","mslib","newlines"]
         env_args["MSVC_BATCH"]=True
     else:
@@ -259,9 +262,9 @@ def build_for_linux(base_env):
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
-                       custom_tests={"CheckWinSDK":CheckWinSDK,"CheckNSIS":CheckNSIS})
-    if not conf.CheckWinSDK():
-        print("Error: Windows SDK 7.1 is not installed")
+                       custom_tests={"CheckVS":CheckVS,"CheckNSIS":CheckNSIS})
+    if not conf.CheckVS():
+        print("Error: Visual Studio 2013 is not installed")
         exit(1)
     if not conf.CheckNSIS(True):
         conf.CheckNSIS()
