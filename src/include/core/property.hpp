@@ -276,17 +276,13 @@ namespace RHVoice
   class enum_string_property: public string_property
   {
   private:
-    typedef std::set<std::string,str::less> value_set;
-    value_set values;
+    typedef std::set<std::string,str::less> range;
+    range values;
 
   private:
     bool check_value(const std::string& given_value,std::string& correct_value) const
     {
-      #ifdef _MSC_VER
-      value_set::const_iterator it=values.find(given_value);
-      #else
-      typename value_set::const_iterator it=values.find(given_value);
-      #endif
+      range::const_iterator it=values.find(given_value);
       if(it!=values.end())
         {
           correct_value=given_value;
