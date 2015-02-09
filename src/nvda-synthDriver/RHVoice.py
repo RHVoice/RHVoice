@@ -17,7 +17,8 @@
 import os
 import sys
 
-from ctypes import POINTER, Structure
+from ctypes import CFUNCTYPE, POINTER, Structure, c_char_p, c_int, c_uint
+from ctypes import c_short, c_void_p
 
 
 # --- bindings ---
@@ -30,6 +31,31 @@ class RHVoice_message_struct(Structure):
     pass
 RHVoice_message=POINTER(RHVoice_message_struct)
 
+
+class RHVoice_callback_types:
+    play_speech=CFUNCTYPE(c_int,POINTER(c_short),c_uint,c_void_p)
+    process_mark=CFUNCTYPE(c_int,c_char_p,c_void_p)
+    word_starts=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
+    word_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
+    sentence_starts=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
+    sentence_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
+    play_audio=CFUNCTYPE(c_int,c_char_p,c_void_p)
+
+class RHVoice_callbacks(Structure):
+    _fields_=[("play_speech",RHVoice_callback_types.play_speech),
+              ("process_mark",RHVoice_callback_types.process_mark),
+              ("word_starts",RHVoice_callback_types.word_starts),
+              ("word_ends",RHVoice_callback_types.word_ends),
+              ("sentence_starts",RHVoice_callback_types.sentence_starts),
+              ("sentence_ends",RHVoice_callback_types.sentence_ends),
+              ("play_audio",RHVoice_callback_types.play_audio)]
+
+class RHVoice_init_params(Structure):
+    _fields_=[("data_path",c_char_p),
+              ("config_path",c_char_p),
+              ("resource_paths",POINTER(c_char_p)),
+              ("callbacks",RHVoice_callbacks),
+              ("options",c_uint)]
 
 # --- main code ---
 
