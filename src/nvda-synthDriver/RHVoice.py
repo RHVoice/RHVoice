@@ -17,8 +17,8 @@
 import os
 import sys
 
-from ctypes import CFUNCTYPE, POINTER, Structure, c_char_p, c_int, c_uint
-from ctypes import c_short, c_void_p
+from ctypes import CFUNCTYPE, POINTER, Structure, c_char_p, c_double
+from ctypes import c_int, c_uint, c_short, c_void_p
 
 
 # --- bindings ---
@@ -56,6 +56,24 @@ class RHVoice_init_params(Structure):
               ("resource_paths",POINTER(c_char_p)),
               ("callbacks",RHVoice_callbacks),
               ("options",c_uint)]
+
+
+class RHVoice_voice_info(Structure):
+    _fields_=[("language",c_char_p),
+              ("name",c_char_p),
+              ("gender",c_int)]
+
+class RHVoice_synth_params(Structure):
+    _fields_=[("voice_profile",c_char_p),
+              ("absolute_rate",c_double),
+              ("absolute_pitch",c_double),
+              ("absolute_volume",c_double),
+              ("relative_rate",c_double),
+              ("relative_pitch",c_double),
+              ("relative_volume",c_double),
+              ("punctuation_mode",c_int),
+              ("punctuation_list",c_char_p),
+              ("capitals_mode",c_int)]
 
 # --- main code ---
 
