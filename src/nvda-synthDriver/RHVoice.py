@@ -18,7 +18,7 @@ import os
 import sys
 
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_double
-from ctypes import c_int, c_uint, c_short, c_void_p
+from ctypes import c_int, c_uint, c_short, c_void_p, byref
 
 
 # --- bindings ---
@@ -128,9 +128,57 @@ def load_tts_library():
     lib.RHVoice_speak.restype=c_int
     return lib
 
+
+class SpeechCallback(object):
+    def __init__(self,lib,player,cancel_flag):
+        self.__lib=lib
+        self.__player=player
+        self.__cancel_flag=cancel_flag
+
+    def __call__(self,samples,count,user_data):
+        """try:
+            if self.__cancel_flag.is_set():
+                return 0
+            try:
+                self.__player.feed(string_at(samples,count*sizeof(c_short)))
+            except:
+                log.debugWarning("Error feeding audio to nvWave",exc_info=True)
+            return 1
+        except:
+            log.error("RHVoice speech callback",exc_info=True)
+            return 0"""
+        print("callback called")
+
 def main():
     lib = load_tts_library()
     print("RHVoice %s" % lib.RHVoice_get_version())
+
+    init_params = RHVoice_init_params()
+    # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
+    callbacks = RHVoice_callbacks()
+    # self.__speech_callback=speech_callback(self.__lib,self.__player,self.__cancel_flag)
+    # self.__c_speech_callback=RHVoice_callback_types.play_speech(self.__speech_callback)
+    speech_callback = SpeechCallback(lib,None,None)
+    c_speech_callback = RHVoice_callback_types.play_speech(speech_callback)
+
+    callbacks.play_speech = c_speech_callback
+    init_params.callbacks = callbacks
+
+    """
+    RHVoice_callbacks(self.__c_speech_callback,
+        self.__c_mark_callback,
+        cast(None,RHVoice_callback_types.word_starts),
+        cast(None,RHVoice_callback_types.word_ends),
+        cast(None,RHVoice_callback_types.sentence_starts),
+        cast(None,RHVoice_callback_types.sentence_ends),
+        cast(None,RHVoice_callback_types.play_audio)),
+    """
+
+    engine = lib.RHVoice_new_tts_engine(byref(init_params))
+    print(engine)
+    if not engine:
+        raise RuntimeError("RHVoice: initialization error")
+    print(lib.RHVoice_get_number_of_voices(engine))
 
 if __name__ == '__main__':
     main()
