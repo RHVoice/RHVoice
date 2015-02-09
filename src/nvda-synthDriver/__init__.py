@@ -34,6 +34,7 @@ except ImportError:
 	from StringIO import StringIO
 
 from RHVoice import RHVoice_tts_engine, RHVoice_message, RHVoice_lib_path
+from RHVoice import RHVoice_init_params, RHVoice_callback_types, RHVoice_callbacks
 
 import config
 import globalVars
@@ -86,35 +87,6 @@ nvda_notification_synthIndexReached=nvda_notification_wrapper("synthIndexReached
 nvda_notification_synthDoneSpeaking=nvda_notification_wrapper("synthDoneSpeaking",nvda_notifications)
 
 data_addon_name_pattern=re.compile("^RHVoice-.*(voice|language).*")
-
-class RHVoice_callback_types:
-	set_sample_rate=CFUNCTYPE(c_int,c_int,c_void_p)
-	play_speech=CFUNCTYPE(c_int,POINTER(c_short),c_uint,c_void_p)
-	process_mark=CFUNCTYPE(c_int,c_char_p,c_void_p)
-	word_starts=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
-	word_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
-	sentence_starts=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
-	sentence_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
-	play_audio=CFUNCTYPE(c_int,c_char_p,c_void_p)
-	done=CFUNCTYPE(None,c_void_p)
-
-class RHVoice_callbacks(Structure):
-	_fields_=[("set_sample_rate",RHVoice_callback_types.set_sample_rate),
-				  ("play_speech",RHVoice_callback_types.play_speech),
-			  ("process_mark",RHVoice_callback_types.process_mark),
-			  ("word_starts",RHVoice_callback_types.word_starts),
-			  ("word_ends",RHVoice_callback_types.word_ends),
-			  ("sentence_starts",RHVoice_callback_types.sentence_starts),
-			  ("sentence_ends",RHVoice_callback_types.sentence_ends),
-			  ("play_audio",RHVoice_callback_types.play_audio),
-			  ("done",RHVoice_callback_types.done)]
-
-class RHVoice_init_params(Structure):
-	_fields_=[("data_path",c_char_p),
-			  ("config_path",c_char_p),
-			  ("resource_paths",POINTER(c_char_p)),
-			  ("callbacks",RHVoice_callbacks),
-			  ("options",c_uint)]
 
 class RHVoice_message_type:
 	text=0
