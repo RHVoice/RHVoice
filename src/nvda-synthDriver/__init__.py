@@ -34,6 +34,7 @@ except ImportError:
 from RHVoice import RHVoice_tts_engine, RHVoice_lib_path
 from RHVoice import RHVoice_init_params, RHVoice_callback_types, RHVoice_callbacks
 from RHVoice import RHVoice_synth_params
+from RHVoice import RHVoice_message_type, RHVoice_punctuation_mode, RHVoice_capitals_mode
 from RHVoice import load_tts_library
 
 import config
@@ -87,29 +88,6 @@ nvda_notification_synthIndexReached=nvda_notification_wrapper("synthIndexReached
 nvda_notification_synthDoneSpeaking=nvda_notification_wrapper("synthDoneSpeaking",nvda_notifications)
 
 data_addon_name_pattern=re.compile("^RHVoice-.*(voice|language).*")
-
-class RHVoice_message_type:
-	text=0
-	ssml=1
-	characters=2
-
-class RHVoice_voice_gender:
-	unknown=0
-	male=1
-	female=2
-
-class RHVoice_punctuation_mode:
-	default=0
-	none=1
-	all=2
-	some=3
-
-class RHVoice_capitals_mode:
-	default=0
-	off=1
-	word=2
-	pitch=3
-	sound=4
 
 class RHVoice_synth_flag:
 	dont_clip_rate=1

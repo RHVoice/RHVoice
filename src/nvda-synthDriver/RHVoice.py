@@ -81,6 +81,29 @@ class RHVoice_synth_params(Structure):
               ("capitals_mode",c_int),
               ("flags",c_int)]
 
+class RHVoice_message_type:
+    text=0
+    ssml=1
+    characters=2
+
+class RHVoice_voice_gender:
+    unknown=0
+    male=1
+    female=2
+
+class RHVoice_punctuation_mode:
+    default=0
+    none=1
+    all=2
+    some=3
+
+class RHVoice_capitals_mode:
+    default=0
+    off=1
+    word=2
+    pitch=3
+    sound=4
+
 # --- main code ---
 
 try:
