@@ -17,7 +17,7 @@
 import os
 import sys
 
-from ctypes import CFUNCTYPE, POINTER, Structure, c_char_p, c_double
+from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_double
 from ctypes import c_int, c_uint, c_short, c_void_p
 
 
@@ -88,3 +88,31 @@ try:
 except AttributeError:
 	module_dir=os.path.dirname(__file__)
 RHVoice_lib_path=os.path.join(module_dir,"RHVoice.dll")
+
+def load_tts_library():
+    try:
+        lib=ctypes.CDLL(RHVoice_lib_path.encode("mbcs"))
+    except TypeError:
+        lib=ctypes.CDLL(RHVoice_lib_path)
+    lib.RHVoice_get_version.restype=c_char_p
+    lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
+    lib.RHVoice_new_tts_engine.restype=RHVoice_tts_engine
+    lib.RHVoice_delete_tts_engine.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_delete_tts_engine.restype=None
+    lib.RHVoice_get_number_of_voices.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_get_number_of_voices.restype=c_uint
+    lib.RHVoice_get_voices.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_get_voices.restype=POINTER(RHVoice_voice_info)
+    lib.RHVoice_get_number_of_voice_profiles.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_get_number_of_voice_profiles.restype=c_uint
+    lib.RHVoice_get_voice_profiles.argtypes=(RHVoice_tts_engine,)
+    lib.RHVoice_get_voice_profiles.restype=POINTER(c_char_p)
+    lib.RHVoice_are_languages_compatible.argtypes=(RHVoice_tts_engine,c_char_p,c_char_p)
+    lib.RHVoice_are_languages_compatible.restype=c_int
+    lib.RHVoice_new_message.argtypes=(RHVoice_tts_engine,c_char_p,c_uint,c_int,POINTER(RHVoice_synth_params),c_void_p)
+    lib.RHVoice_new_message.restype=RHVoice_message
+    lib.RHVoice_delete_message.arg_types=(RHVoice_message,)
+    lib.RHVoice_delete_message.restype=None
+    lib.RHVoice_speak.argtypes=(RHVoice_message,)
+    lib.RHVoice_speak.restype=c_int
+    return lib
