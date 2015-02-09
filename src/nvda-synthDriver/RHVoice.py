@@ -14,9 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import sys
 
 from ctypes import POINTER, Structure
 
+
+# --- bindings ---
 
 class RHVoice_tts_engine_struct(Structure):
     pass
@@ -25,3 +29,12 @@ RHVoice_tts_engine=POINTER(RHVoice_tts_engine_struct)
 class RHVoice_message_struct(Structure):
     pass
 RHVoice_message=POINTER(RHVoice_message_struct)
+
+
+# --- main code ---
+
+try:
+	module_dir=os.path.dirname(__file__.decode("mbcs"))
+except AttributeError:
+	module_dir=os.path.dirname(__file__)
+RHVoice_lib_path=os.path.join(module_dir,"RHVoice.dll")
