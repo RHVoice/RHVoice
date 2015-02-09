@@ -22,7 +22,7 @@ import threading
 import ctypes
 from ctypes import c_char_p,c_wchar_p,c_void_p,c_short,c_int,c_uint,c_double,POINTER,Structure,sizeof,string_at,CFUNCTYPE,byref,cast
 
-from RHVoice import RHVoice_tts_engine, RHVoice_message
+from RHVoice import RHVoice_tts_engine, RHVoice_message, RHVoice_lib_path
 
 import config
 import nvwave
@@ -32,8 +32,6 @@ import speech
 import languageHandler
 import addonHandler
 
-module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
-lib_path=os.path.join(module_dir,"RHVoice.dll")
 config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
 
 class RHVoice_callback_types:
@@ -102,7 +100,7 @@ class RHVoice_synth_params(Structure):
               ("capitals_mode",c_int)]
 
 def load_tts_library():
-    lib=ctypes.CDLL(lib_path.encode(sys.getfilesystemencoding()))
+    lib=ctypes.CDLL(RHVoice_lib_path.encode(sys.getfilesystemencoding()))
     lib.RHVoice_get_version.restype=c_char_p
     lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
     lib.RHVoice_new_tts_engine.restype=RHVoice_tts_engine
@@ -259,7 +257,7 @@ class SynthDriver(SynthDriver):
 
     @classmethod
     def check(cls):
-        return os.path.isfile(lib_path)
+        return os.path.isfile(RHVoice_lib_path)
 
     def __init__(self):
         self.__lib=load_tts_library()
