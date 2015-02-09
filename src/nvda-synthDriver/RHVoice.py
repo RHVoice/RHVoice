@@ -22,3 +22,6 @@ class RHVoice_tts_engine_struct(Structure):
     pass
 RHVoice_tts_engine=POINTER(RHVoice_tts_engine_struct)
 
+class RHVoice_message_struct(Structure):
+    pass
+RHVoice_message=POINTER(RHVoice_message_struct)

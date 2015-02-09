@@ -22,7 +22,7 @@ import threading
 import ctypes
 from ctypes import c_char_p,c_wchar_p,c_void_p,c_short,c_int,c_uint,c_double,POINTER,Structure,sizeof,string_at,CFUNCTYPE,byref,cast
 
-from RHVoice import RHVoice_tts_engine
+from RHVoice import RHVoice_tts_engine, RHVoice_message
 
 import config
 import nvwave
@@ -35,10 +35,6 @@ import addonHandler
 module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 lib_path=os.path.join(module_dir,"RHVoice.dll")
 config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
-
-class RHVoice_message_struct(Structure):
-    pass
-RHVoice_message=POINTER(RHVoice_message_struct)
 
 class RHVoice_callback_types:
     play_speech=CFUNCTYPE(c_int,POINTER(c_short),c_uint,c_void_p)
