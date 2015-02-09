@@ -104,3 +104,10 @@ def load_tts_library():
     lib.RHVoice_speak.argtypes=(RHVoice_message,)
     lib.RHVoice_speak.restype=c_int
     return lib
+
+def main():
+    lib = load_tts_library()
+    print("RHVoice %s" % lib.RHVoice_get_version())
+
+if __name__ == '__main__':
+    main()
