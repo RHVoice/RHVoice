@@ -1,6 +1,7 @@
 LIBRARY RHVoice
 EXPORTS
 RHVoice_get_version
+RHVoice_set_logging
 RHVoice_new_tts_engine
 RHVoice_delete_tts_engine
 RHVoice_get_number_of_voices

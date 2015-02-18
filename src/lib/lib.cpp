@@ -29,6 +29,8 @@
 
 using namespace RHVoice;
 
+int LOGGING = 0;
+
 struct RHVoice_message_struct: public client
 {
   template<typename ch>
@@ -282,6 +284,11 @@ const char* RHVoice_get_version()
   return VERSION;
 }
 
+void RHVoice_set_logging(int level)
+{
+  LOGGING = level;
+}
+
 RHVoice_tts_engine RHVoice_new_tts_engine(const RHVoice_init_params* init_params)
 {
   try
@@ -290,6 +297,8 @@ RHVoice_tts_engine RHVoice_new_tts_engine(const RHVoice_init_params* init_params
     }
   catch(const std::exception& e)
     {
+      if (LOGGING)
+        std::cerr << "RHVoice_tts_engine_struct: " << e.what() << '\n';
       return 0;
     }
 }
