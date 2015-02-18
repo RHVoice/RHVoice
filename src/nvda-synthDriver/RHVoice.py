@@ -50,7 +50,7 @@ class RHVoice_callbacks(Structure):
               ("sentence_ends",RHVoice_callback_types.sentence_ends),
               ("play_audio",RHVoice_callback_types.play_audio)]
 
-class RHVoice_init_params(Structure):
+class RHVoice_init_params(Structure):  # from RHVoice.h
     _fields_=[("data_path",c_char_p),
               ("config_path",c_char_p),
               ("resource_paths",POINTER(c_char_p)),
@@ -151,7 +151,7 @@ class SpeechCallback(object):
 
 def main():
     lib = load_tts_library()
-    lib.RHVoice_set_logging(True)
+    #lib.RHVoice_set_logging(True)
     print("RHVoice %s" % lib.RHVoice_get_version())
 
     init_params = RHVoice_init_params()
@@ -176,10 +176,14 @@ def main():
     """
 
     engine = lib.RHVoice_new_tts_engine(byref(init_params))
-    print(engine)
     if not engine:
         raise RuntimeError("RHVoice: initialization error")
-    print(lib.RHVoice_get_number_of_voices(engine))
+    print("Number of voices: %s" % lib.RHVoice_get_number_of_voices(engine))
+    first_voice = lib.RHVoice_get_voices(engine)
+    print("    Voice     Language  Gender")
+    for voiceno in range(9):
+        vi = first_voice[voiceno]
+        print(" %-16s  %2s    %2s " % (vi.name, vi.language, vi.gender))
 
 if __name__ == '__main__':
     main()
