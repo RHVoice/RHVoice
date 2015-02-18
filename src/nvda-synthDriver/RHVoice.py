@@ -163,6 +163,7 @@ class SpeechCallback(object):
 
 def main():
     lib = load_tts_library()
+    lib.RHVoice_set_logging(True)
     print("RHVoice %s" % lib.RHVoice_get_version())
 
     init_params = RHVoice_init_params()
