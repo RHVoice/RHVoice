@@ -178,22 +178,36 @@ def main():
     engine = lib.RHVoice_new_tts_engine(byref(init_params))
     if not engine:
         raise RuntimeError("RHVoice: engine initialization error")
-    print("Number of voices: %s" % lib.RHVoice_get_number_of_voices(engine))
+    voices_total = lib.RHVoice_get_number_of_voices(engine)
+    print("Number of voices: %s" % voices_total)
     first_voice = lib.RHVoice_get_voices(engine)
     print("    Voice     Language  Gender")
-    for voiceno in range(9):
+    for voiceno in range(voices_total):
         vi = first_voice[voiceno]
         print(" %-16s  %2s    %2s " % (vi.name, vi.language, vi.gender))
 
+    profiles_total = lib.RHVoice_get_number_of_voice_profiles(engine)
+    profiles = []
+    first_profile = lib.RHVoice_get_voice_profiles(engine)
+    print("Voice Profiles")
+    for profno in range(profiles_total):
+        print(" %s" % first_profile[profno])
+        profiles.append(first_profile[profno])
+
     # transform text to RHVoice_message for RHVoice_speak 
+    # RHVoice_new_message is a function to do so. Its parameters:
     # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
     # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
     text = "text".encode("utf-8")
+    # message also specifies voice parameters, which are obligatory
+    synth_params = RHVoice_synth_params()
+    #synth_params.voice_profile = profiles[0]
+
     message = lib.RHVoice_new_message(engine,
                                       text,
                                       len(text),
                                       RHVoice_message_type.text,
-                                      None, #byref(synth_params),
+                                      byref(synth_params),
                                       None)
 
     if not message:
