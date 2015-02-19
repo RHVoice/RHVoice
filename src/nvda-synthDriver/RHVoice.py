@@ -134,8 +134,11 @@ class SpeechCallback(object):
         self.__lib=lib
         self.__player=player
         self.__cancel_flag=cancel_flag
+        self.counter = 0
 
     def __call__(self,samples,count,user_data):
+        """Should return False to stop synthesis"""
+
         """try:
             if self.__cancel_flag.is_set():
                 return 0
@@ -147,7 +150,10 @@ class SpeechCallback(object):
         except:
             log.error("RHVoice speech callback",exc_info=True)
             return 0"""
-        print("callback called")
+        self.counter += 1
+        print("callback called %s time(s)" % self.counter)
+        #print samples, count, user_data
+        return True
 
 def main():
     lib = load_tts_library()
@@ -201,7 +207,7 @@ def main():
     text = "text".encode("utf-8")
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
-    #synth_params.voice_profile = profiles[0]
+    synth_params.voice_profile = profiles[0]
 
     message = lib.RHVoice_new_message(engine,
                                       text,
