@@ -151,7 +151,7 @@ class SpeechCallback(object):
 
 def main():
     lib = load_tts_library()
-    #lib.RHVoice_set_logging(True)
+    lib.RHVoice_set_logging(True)
     print("RHVoice %s" % lib.RHVoice_get_version())
 
     init_params = RHVoice_init_params()
@@ -177,13 +177,29 @@ def main():
 
     engine = lib.RHVoice_new_tts_engine(byref(init_params))
     if not engine:
-        raise RuntimeError("RHVoice: initialization error")
+        raise RuntimeError("RHVoice: engine initialization error")
     print("Number of voices: %s" % lib.RHVoice_get_number_of_voices(engine))
     first_voice = lib.RHVoice_get_voices(engine)
     print("    Voice     Language  Gender")
     for voiceno in range(9):
         vi = first_voice[voiceno]
         print(" %-16s  %2s    %2s " % (vi.name, vi.language, vi.gender))
+
+    # transform text to RHVoice_message for RHVoice_speak 
+    # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
+    # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
+    text = "text".encode("utf-8")
+    message = lib.RHVoice_new_message(engine,
+                                      text,
+                                      len(text),
+                                      RHVoice_message_type.text,
+                                      None, #byref(synth_params),
+                                      None)
+
+    if not message:
+        raise RuntimeError("RHVoice: message building error")
+    lib.RHVoice_speak(message)
+    lib.RHVoice_delete_message(message)  # free the memory (check when message is stored)
 
 if __name__ == '__main__':
     main()

@@ -336,6 +336,8 @@ int RHVoice_are_languages_compatible(RHVoice_tts_engine tts_engine,const char* l
     }
   catch(const std::exception& e)
     {
+      if (LOGGING)
+        std::cerr << "RHVoice_new_message: " << e.what() << '\n';
       return 0;
     }
 }
