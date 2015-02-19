@@ -330,6 +330,8 @@ RHVoice_message RHVoice_new_message(RHVoice_tts_engine tts_engine,const char* te
     }
   catch(const std::exception& e)
     {
+      if (LOGGING)
+        std::cerr << "RHVoice_new_message: " << e.what() << '\n';
       return 0;
     }
 }
