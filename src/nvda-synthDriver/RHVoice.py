@@ -18,7 +18,7 @@ import os
 import sys
 
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_double
-from ctypes import c_int, c_uint, c_short, c_void_p, byref
+from ctypes import c_int, c_uint, c_short, c_void_p, byref, sizeof
 
 
 # --- bindings ---
@@ -130,30 +130,16 @@ def load_tts_library():
 
 
 class SpeechCallback(object):
-    def __init__(self,lib,player,cancel_flag):
-        self.__lib=lib
-        self.__player=player
-        self.__cancel_flag=cancel_flag
+    sample_size = sizeof(c_short)
+    def __init__(self):
         self.counter = 0
 
-    def __call__(self,samples,count,user_data):
+    def __call__(self, samples, count, user_data):
         """Should return False to stop synthesis"""
-
-        """try:
-            if self.__cancel_flag.is_set():
-                return 0
-            try:
-                self.__player.feed(string_at(samples,count*sizeof(c_short)))
-            except:
-                log.debugWarning("Error feeding audio to nvWave",exc_info=True)
-            return 1
-        except:
-            log.error("RHVoice speech callback",exc_info=True)
-            return 0"""
         self.counter += 1
-        print("callback called %s time(s)" % self.counter)
-        #print samples, count, user_data
+        print("speech callback %s time(s) samples: %s, size: %s" % (self.counter, count, count*self.sample_size))
         return True
+
 
 def main():
     lib = load_tts_library()
@@ -162,12 +148,9 @@ def main():
 
     init_params = RHVoice_init_params()
     # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
-    callbacks = RHVoice_callbacks()
-    # self.__speech_callback=speech_callback(self.__lib,self.__player,self.__cancel_flag)
-    # self.__c_speech_callback=RHVoice_callback_types.play_speech(self.__speech_callback)
-    speech_callback = SpeechCallback(lib,None,None)
+    speech_callback = SpeechCallback()
     c_speech_callback = RHVoice_callback_types.play_speech(speech_callback)
-
+    callbacks = RHVoice_callbacks()
     callbacks.play_speech = c_speech_callback
     init_params.callbacks = callbacks
 
@@ -204,7 +187,7 @@ def main():
     # RHVoice_new_message is a function to do so. Its parameters:
     # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
     # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
-    text = "text".encode("utf-8")
+    text = "this is a test text phrase".encode("utf-8")
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
     synth_params.voice_profile = profiles[0]
