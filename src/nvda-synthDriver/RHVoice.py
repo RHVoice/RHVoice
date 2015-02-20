@@ -16,6 +16,7 @@
 
 import os
 import sys
+import time
 
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_double
 from ctypes import c_int, c_uint, c_short, c_void_p, byref, sizeof
@@ -145,12 +146,21 @@ class SpeechCallback(object):
     sample_size = sizeof(c_short)
     def __init__(self):
         self.counter = 0
+        self.datasize = 0
+        self.starttime = time.clock()
 
     def __call__(self, samples, count, user_data):
         """Should return False to stop synthesis"""
         self.counter += 1
-        print("speech callback %s time(s) samples: %s, size: %s" % (self.counter, count, count*self.sample_size))
+        size = count*self.sample_size
+        self.datasize += size
+        kbps = self.datasize / (time.clock() - self.starttime) / 1024
+        self.debug(count, size, kbps)
         return True
+
+    def debug(self, count, size, kbps):
+        print("speech callback %s time(s) samples: %s, size: %s, %.2f kBps" % (self.counter, count, size, kbps))
+
 
 
 def main():
