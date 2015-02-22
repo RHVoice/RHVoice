@@ -17,9 +17,10 @@
 import os
 import sys
 import time
+import wave
 
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_double
-from ctypes import c_int, c_uint, c_short, c_void_p, byref, sizeof
+from ctypes import c_int, c_uint, c_short, c_void_p, byref, sizeof, string_at
 
 
 # --- bindings ---
@@ -131,7 +132,12 @@ def load_tts_library():
 
 
 class SpeechCallback(object):
+    """
+    This is a callable object for using in RHVoice speech_callback. The
+    only obligatory part is __call__() method with its parameters.
+    """
     sample_size = sizeof(c_short)
+
     def __init__(self):
         self.counter = 0
         self.datasize = 0
@@ -149,7 +155,19 @@ class SpeechCallback(object):
     def debug(self, count, size, kbps):
         print("speech callback %s time(s) samples: %s, size: %s, %.2f kBps" % (self.counter, count, size, kbps))
 
+class WaveWriteCallback(SpeechCallback):
+    def __init__(self, filename, ):
+        super(WaveWriteCallback, self).__init__()
+        self.wavefile = wave.open(filename, 'wb')
+        self.wavefile.setnchannels(1)
+        self.wavefile.setsampwidth(self.sample_size)
+        self.wavefile.setframerate(16000)
 
+    def __call__(self, samples, count, user_data):
+        """Should return False to stop synthesis"""
+        self.wavefile.writeframes(string_at(samples, count*self.sample_size))
+        return True
+      
 
 def main():
     lib = load_tts_library()
@@ -158,7 +176,8 @@ def main():
 
     init_params = RHVoice_init_params()
     # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
-    speech_callback = SpeechCallback()
+    #speech_callback = SpeechCallback()
+    speech_callback = WaveWriteCallback("output.wav")
     c_speech_callback = RHVoice_callback_types.play_speech(speech_callback)
     callbacks = RHVoice_callbacks()
     callbacks.play_speech = c_speech_callback
@@ -198,6 +217,7 @@ def main():
     # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
     # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
     text = "this is a test text phrase".encode("utf-8")
+
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
     synth_params.voice_profile = profiles[0]
