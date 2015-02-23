@@ -216,11 +216,16 @@ def main():
     # RHVoice_new_message is a function to do so. Its parameters:
     # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
     # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
-    text = "this is a test text phrase".encode("utf-8")
+
+    text = "this is a test text phrase"
+    text_ru = "Значит так, короче, в общем, я считаю дело к ночи"
+    #text = open("people_-_save", "rb").read().encode("utf-8")
 
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
     synth_params.voice_profile = profiles[0]
+    synth_params.relative_pitch = 1.0
+    synth_params.relative_rate = 1.0
 
     message = lib.RHVoice_new_message(engine,
                                       text,
