@@ -179,9 +179,23 @@ class WaveWriteCallback(SpeechCallback):
         """Should return False to stop synthesis"""
         self.wavefile.writeframes(string_at(samples, count*self.sample_size))
         return True
-      
 
 def main():
+    usage = "RHVoice.py [-o filename] \"text\""
+
+    # --- process params ---
+    import optparse
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option("-o", "--output", default="output.wav",
+                      help="output filename (default: output.wav)")
+    opts, args = parser.parse_args()
+    if not args:
+        parser.print_help()
+        print("\nError: No input text")
+        sys.exit(-1)
+
+    # --- setup synthesizer and main ---
+
     lib = load_tts_library()
     lib.RHVoice_set_logging(True)
     print("RHVoice %s" % lib.RHVoice_get_version())
@@ -189,7 +203,7 @@ def main():
     init_params = RHVoice_init_params()
     # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
     #speech_callback = SpeechCallback()
-    speech_callback = WaveWriteCallback("output.wav")
+    speech_callback = WaveWriteCallback(opts.output)
     c_speech_callback = RHVoice_callback_types.play_speech(speech_callback)
     callbacks = RHVoice_callbacks()
     callbacks.play_speech = c_speech_callback
@@ -232,6 +246,7 @@ def main():
     text = "this is a test text phrase"
     text_ru = "Значит так, короче, в общем, я считаю дело к ночи"
     #text = open("people_-_save", "rb").read().encode("utf-8")
+    text = args[0]
 
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
