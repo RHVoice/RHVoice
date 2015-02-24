@@ -186,10 +186,12 @@ def main():
     # --- process params ---
     import optparse
     parser = optparse.OptionParser(usage=usage)
+    parser.add_option("-i", "--input",
+                      help="file with text encoded in UTF-8")
     parser.add_option("-o", "--output", default="output.wav",
                       help="output filename (default: output.wav)")
     opts, args = parser.parse_args()
-    if not args:
+    if not args and not opts.input:
         parser.print_help()
         print("\nError: No input text")
         sys.exit(-1)
@@ -243,10 +245,14 @@ def main():
     # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
     # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
 
-    text = "this is a test text phrase"
+    text_en = "this is a test text phrase"
     text_ru = "Значит так, короче, в общем, я считаю дело к ночи"
-    #text = open("people_-_save", "rb").read().encode("utf-8")
-    text = args[0]
+
+    text = ""
+    if args:
+        text += args[0]
+    else:
+        text += open(opts.input, "rb").read()
 
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
