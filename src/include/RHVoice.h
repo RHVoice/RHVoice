@@ -110,6 +110,8 @@ typedef struct
 
   const char* RHVoice_get_version();
 
+  void RHVoice_set_logging(int level);
+
   RHVoice_tts_engine RHVoice_new_tts_engine(const RHVoice_init_params* init_params);
   void RHVoice_delete_tts_engine(RHVoice_tts_engine tts_engine);
 
