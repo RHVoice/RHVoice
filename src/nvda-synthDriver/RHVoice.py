@@ -22,6 +22,7 @@ import wave
 from ctypes import CDLL, CFUNCTYPE, POINTER, Structure, c_char_p, c_double
 from ctypes import c_int, c_uint, c_short, c_void_p, byref, sizeof, string_at
 
+DEBUG=0
 
 # --- bindings ---
 
@@ -108,17 +109,31 @@ class RHVoice_capitals_mode:
 
 # --- main code ---
 
-try:
-	module_dir=os.path.dirname(__file__.decode("mbcs"))
-except AttributeError:
-	module_dir=os.path.dirname(__file__)
-RHVoice_lib_path=os.path.join(module_dir,"RHVoice.dll")
+def get_library_location():
+    try:
+        root=os.path.dirname(__file__.decode("mbcs"))
+    except AttributeError:
+        root=os.path.dirname(__file__)
+    if os.name == 'nt':
+        libname = 'RHVoice.dll'
+    else:
+        libname = 'libRHVoice.so'
+    lookup_paths = [root, os.path.join(root, "../../build/linux/lib")]
+    for p in lookup_paths:
+        libpath = os.path.abspath(os.path.join(p, libname))
+        if os.path.exists(libpath):
+            break
+    else:
+        libpath = libname
+    if DEBUG:
+        print("detected dll/so path: %s " % libpath)
+    return libpath
 
 def load_tts_library():
     try:
-        lib=ctypes.CDLL(RHVoice_lib_path.encode("mbcs"))
+        lib=ctypes.CDLL(get_library_location().encode("mbcs"))
     except TypeError:
-        lib=ctypes.CDLL(RHVoice_lib_path)
+        lib=ctypes.CDLL(get_library_location())
     lib.RHVoice_get_version.restype=c_char_p
     lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
     lib.RHVoice_new_tts_engine.restype=RHVoice_tts_engine
@@ -181,6 +196,8 @@ class WaveWriteCallback(SpeechCallback):
         return True
 
 def main():
+    global DEBUG
+
     usage = "RHVoice.py [-o filename] \"text\""
 
     # --- process params ---
@@ -190,11 +207,15 @@ def main():
                       help="file with text encoded in UTF-8")
     parser.add_option("-o", "--output", default="output.wav",
                       help="output filename (default: output.wav)")
+    parser.add_option("--debug", help="show debug info", action="store_true")
     opts, args = parser.parse_args()
     if not args and not opts.input:
         parser.print_help()
         print("\nError: No input text")
         sys.exit(-1)
+
+    if opts.debug:
+        DEBUG = 1
 
     # --- setup synthesizer and main ---
 
