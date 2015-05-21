@@ -282,7 +282,10 @@ def main():
     synth_params.voice_profile = profiles[0]  # 0 - english
     synth_params.relative_pitch = 1.0
     synth_params.relative_rate = 1.0
-    synth_params.relative_volume = 1.0        # -9 dB in Audacity, or -21 dB by default
+    # setting volume is tricky, relative_volume value 1.0 produces
+    # -4 dB with voice Alan, and -16 dB if setting is not set
+    # (measured with in Audacity)
+    synth_params.relative_volume = 1.0
 
     message = lib.RHVoice_new_message(engine,
                                       text,
