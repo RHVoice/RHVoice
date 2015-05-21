@@ -183,6 +183,7 @@ class WaveWriteCallback(SpeechCallback):
         self.wavefile.writeframes(string_at(samples, count*self.sample_size))
         return True
 
+
 def main():
     global DEBUG
 
@@ -209,7 +210,8 @@ def main():
 
     lib = load_tts_library()
     lib.RHVoice_set_logging(True)
-    print("RHVoice %s" % lib.RHVoice_get_version())
+    if DEBUG:
+        print("RHVoice %s" % lib.RHVoice_get_version())
 
     init_params = RHVoice_init_params()
     # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
@@ -265,9 +267,10 @@ def main():
 
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
-    synth_params.voice_profile = profiles[0]
+    synth_params.voice_profile = profiles[0]  # 0 - english
     synth_params.relative_pitch = 1.0
     synth_params.relative_rate = 1.0
+    synth_params.relative_volume = 1.0        # -9 dB in Audacity, or -21 dB by default
 
     message = lib.RHVoice_new_message(engine,
                                       text,
