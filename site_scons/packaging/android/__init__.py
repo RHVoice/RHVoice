@@ -41,7 +41,7 @@ class data_packager(packager):
 					 "__Name__":name,
 					 "__type__":self.type,
 					 "__language__":language.lower(),
-					 "__version_code__":str(100*int(format)+int(revision)),
+					 "__version_code__":str(1000*int(format)+10*int(revision)),
 					 "__version_name__":"{}.{}".format(format,revision)}
 
 	def add(self,obj,outdir=None):
