@@ -3,7 +3,7 @@
           package="com.github.olga_yakovleva.rhvoice.android"
       android:sharedUserId="com.github.olga_yakovleva.rhvoice"
       android:sharedUserLabel="@string/app_name"
-          android:versionCode="2"
+          android:versionCode="6"
           android:versionName="0.5.1">
   <uses-sdk
       android:minSdkVersion="14"
@@ -27,6 +27,7 @@
         android:noHistory="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
