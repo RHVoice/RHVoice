@@ -150,7 +150,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                                 break;
                             }
                     }
-                settings.detect=prefs.getBoolean("language."+language+".detect",false);
+                settings.detect=prefs.getBoolean("language."+language+".detect",true);
                 result.put(language,settings);
             }
         return result;
@@ -298,9 +298,13 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
     @Override
     protected void onSynthesizeText(SynthesisRequest request,SynthesisCallback callback)
     {
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onSynthesize called");
         TtsState state=ttsState;
         if(state==null)
             {
+                if(BuildConfig.DEBUG)
+                    Log.w(TAG,"Not initialized yet");
                 callback.error();
                 return;
             }
@@ -332,6 +336,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                                 voiceProfileSpecBuilder.append("+").append(name);
                             }
                     }
+                String profileSpec=voiceProfileSpecBuilder.toString();
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Synthesizing the following text: "+request.getText());
                 int rate=request.getSpeechRate();
@@ -340,8 +345,10 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 int pitch=request.getPitch();
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"pitch="+pitch);
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Profile: "+profileSpec);
                 final SynthesisParameters params=new SynthesisParameters();
-                params.setVoiceProfile(voiceProfileSpecBuilder.toString());
+                params.setVoiceProfile(profileSpec);
                 params.setRate(((double)rate)/100.0);
                 params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);
