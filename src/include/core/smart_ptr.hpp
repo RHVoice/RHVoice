@@ -103,11 +103,11 @@ namespace RHVoice
     template <typename D>
     smart_ptr(T* p,D d);
 
-    smart_ptr(const smart_ptr& other):
-    ptr(other.ptr),
-    rm(other.rm)
+    smart_ptr(const smart_ptr& other)
     {
-      add_ref();
+      const_cast<smart_ptr<T>&>(other).add_ref();
+      ptr=other.ptr;
+      rm=other.rm;
     }
 
     smart_ptr& operator=(const smart_ptr& other);
@@ -133,35 +133,35 @@ namespace RHVoice
       return (ptr==0);
     }
 
-  T& operator*()
+    T& operator*()
   {
     return *ptr;
   }
 
-  const T& operator*() const
+    const T& operator*() const
   {
     return *ptr;
   }
 
-  T* operator->()
+    T* operator->()
   {
     return ptr;
   }
 
-  const T* operator->() const
+    const T* operator->() const
+    {
+      return ptr;
+    }
+
+    T* get()
   {
     return ptr;
   }
 
-  T* get()
-  {
-    return ptr;
-  }
-
-  const T* get() const
-  {
-    return ptr;
-  }
+    const T* get() const
+    {
+      return ptr;
+    }
   private:
     void add_ref()
     {
@@ -225,9 +225,9 @@ namespace RHVoice
     if(this==&other)
       return *this;
     release();
+    const_cast<smart_ptr<T>&>(other).add_ref();
     ptr=other.ptr;
     rm=other.rm;
-    add_ref();
     return *this;
   }
 
