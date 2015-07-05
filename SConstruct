@@ -68,12 +68,6 @@ def CheckNSIS(context,unicode_nsis=False):
     context.Result(result)
     return result
 
-def CheckJavac(context):
-    context.Message("Checking for javac... ")
-    result=context.TryAction("javac -version")[0]
-    context.Result(result)
-    return result
-
 def get_msvc_env_vars(env,arch):
     var_names=["path","lib","libpath","include","tmp"]
     setenv_script=os.path.join(env["VCDir"],"vcvarsall.bat")
@@ -133,7 +127,6 @@ def create_user_vars():
     vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
     vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
     vars.Add("LINKFLAGS","Linker flags",["/LTCG","/OPT:REF","/OPT:ICF"] if sys.platform=="win32" else [],converter=convert_flags)
-    vars.Add(BoolVariable("build_java_binding","Whether we should build the java binding",False))
     return vars
 
 def create_base_env(vars):
@@ -144,7 +137,7 @@ def create_base_env(vars):
         env_args["MSVC_BATCH"]=True
     else:
         env_args["tools"]=["default","installer"]
-    env_args["tools"].extend(["textfile","library","javac"])
+    env_args["tools"].extend(["textfile","library"])
     env_args["variables"]=vars
     env_args["LIBS"]=[]
     env_args["package_name"]="RHVoice"
@@ -194,7 +187,7 @@ def clone_base_env(base_env,arch=None):
 def configure(env):
     conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
                        log_file=os.path.join(env["BUILDDIR"],"configure.log"),
-                       custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG,"CheckJavac":CheckJavac})
+                       custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG})
     if not conf.CheckCC():
         print "The C compiler is not working"
         exit(1)
@@ -217,11 +210,6 @@ def configure(env):
         if conf.CheckPKG("portaudio-2.0"):
             env["audio_libs"].add("portaudio")
         has_giomm=conf.CheckPKG("giomm-2.4")
-    has_jdk=False
-    if env["build_java_binding"]:
-        if conf.CheckJavac():
-            if conf.CheckCXXHeader("jni.h"):
-                has_jdk=True
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
@@ -236,8 +224,6 @@ def configure(env):
         src_subdirs.append("sapi")
     else:
         src_subdirs.append("include")
-    if has_jdk:
-        src_subdirs.append("java")
     return src_subdirs
 
 def build_binaries(base_env,arch=None):
