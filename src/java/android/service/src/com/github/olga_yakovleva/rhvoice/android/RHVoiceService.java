@@ -199,6 +199,8 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         for(VoiceInfo engineVoice: engineVoices)
             {
                 AndroidVoiceInfo nextVoice=new AndroidVoiceInfo(engineVoice);
+                if(BuildConfig.DEBUG)
+                    Log.i(TAG,"Found voice "+nextVoice.toString());
                 newState.voices.add(nextVoice);
                 newState.languages.add(engineVoice.getLanguage().getAlpha3Code());
                 if(firstVoice==null)

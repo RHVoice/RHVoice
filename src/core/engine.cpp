@@ -60,8 +60,8 @@ namespace RHVoice
     data_path(p.data_path),
     config_path(p.config_path),
     version(VERSION),
-    languages(p.get_language_paths(),path::join(config_path,"dicts")),
-    voices(p.get_voice_paths(),languages),
+    languages(p.get_language_paths(),path::join(config_path,"dicts"),*p.logger),
+    voices(p.get_voice_paths(),languages,*p.logger),
     prefer_primary_language("prefer_primary_language",true),
     logger(p.logger)
   {

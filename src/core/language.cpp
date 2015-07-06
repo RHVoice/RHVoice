@@ -26,6 +26,7 @@
 #include "core/esperanto.hpp"
 #include "core/georgian.hpp"
 #include "core/stress_pattern.hpp"
+#include "core/event_logger.hpp"
 
 namespace RHVoice
 {
@@ -796,18 +797,24 @@ namespace RHVoice
     text_settings.register_self(cfg,prefix);
   }
 
-  language_list::language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path)
+  language_list::language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path,const event_logger& logger)
   {
+    const std::string tag="language_list";
     register_language<russian_info>("Russian",2);
     register_language<english_info>("English",1);
     register_language<esperanto_info>("Esperanto",1);
     register_language<georgian_info>("Georgian",1);
     for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
+        logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));
         resource_description desc("language",*it1);
+        logger.log(tag,RHVoice_log_level_info,std::string("Language resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
         Creators::const_iterator it2=creators.find(language_id(desc.name,desc.format));
         if(it2==creators.end())
-          continue;
+          {
+            logger.log(tag,RHVoice_log_level_warning,"Unsupported language format");
+            continue;
+          }
         smart_ptr<language_info> lang=(it2->second)->create(*it1,path::join(userdict_path,desc.name));
         lang->all_languages=this;
         add(lang);
