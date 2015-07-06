@@ -82,6 +82,7 @@ namespace RHVoice
     pitch(1),
     volume(1),
     length(0),
+    language_and_voice(parent->get_engine().get_languages().end(),parent->get_engine().get_voices().end()),
     num_tokens(0)
     {
     }
@@ -116,7 +117,7 @@ namespace RHVoice
                     else
                       {
                         bool unicase=false;
-                        if(language_and_voice.first!=language_list::const_iterator())
+                        if(language_and_voice.first!=parent->get_engine().get_languages().end())
                           unicase=language_and_voice.first->has_unicase_alphabet();
                         return (unicase||str::isupper(next_token.text[0]));
                       }
@@ -143,22 +144,22 @@ namespace RHVoice
 
   voice_list::const_iterator sentence::determine_next_token_voice() const
   {
-    voice_list::const_iterator no_result;
+    voice_list::const_iterator no_result=parent->get_engine().get_voices().end();
     const voice_profile& profile=parent->get_voice_profile();
     if(profile.empty())
       return no_result;
     if(profile.voice_count()==1)
       return profile.primary();
-    voice_list::const_iterator result;
+    voice_profile::iterator voice_in_profile=profile.end();
     if(next_token.type==content_key)
       {
         if((next_token.text.size()==1)||(*(next_token.text.end()-2)=='_'))
-          result=profile.voice_for_text(next_token.text.end()-1,next_token.text.end());
+          voice_in_profile=profile.voice_for_text(next_token.text.end()-1,next_token.text.end());
       }
     else
-      result=profile.voice_for_text(next_token.text.begin(),next_token.text.end());
-    if(result!=no_result)
-      return result;
+      voice_in_profile=profile.voice_for_text(next_token.text.begin(),next_token.text.end());
+    if(voice_in_profile!=profile.end())
+      return *voice_in_profile;
     else if(parent->get_engine().prefer_primary_language)
       return profile.primary();
     else
@@ -170,6 +171,8 @@ namespace RHVoice
     language_voice_pair result;
     const language_list& languages=parent->get_engine().get_languages();
     const voice_list& voices=parent->get_engine().get_voices();
+    result.first=languages.end();
+    result.second=voices.end();
     if(!markup_info.language_criteria.empty())
       {
         language_list::const_iterator requested_language=std::find_if(languages.begin(),languages.end(),markup_info.language_criteria);
@@ -179,7 +182,8 @@ namespace RHVoice
     if(!markup_info.voice_criteria.empty())
       {
         voice_search_criteria voice_criteria=markup_info.voice_criteria;
-        voice_criteria.set_language(result.first);
+        if(result.first!=languages.end())
+          voice_criteria.set_language(*(result.first));
         voice_list::const_iterator requested_voice=std::find_if(voices.begin(),voices.end(),voice_criteria);
         if(requested_voice!=voices.end())
           {
@@ -198,21 +202,25 @@ namespace RHVoice
     language_list::const_iterator current_language=language_and_voice.first;
     const voice_list& voices=parent->get_engine().get_voices();
     voice_list::const_iterator current_voice=language_and_voice.second;
-    if(current_language==language_list::const_iterator())
+    if(current_language==languages.end())
       {
         if(!profile.empty())
           current_language=profile.primary()->get_language();
         else
           current_language=languages.begin();
       }
-    if(current_voice==voice_list::const_iterator())
+    if(current_voice==voices.end())
       {
         if(!profile.empty())
-          current_voice=profile.voice_for_language(current_language);
-        if(current_voice==voice_list::const_iterator())
+          {
+            voice_profile::iterator voice_in_profile=profile.voice_for_language(current_language);
+            if(voice_in_profile!=profile.end())
+              current_voice=*voice_in_profile;
+          }
+        if(current_voice==voices.end())
           {
             voice_search_criteria c;
-            c.set_language(current_language);
+            c.set_language(*current_language);
             c.set_preferred();
             current_voice=std::find_if(voices.begin(),voices.end(),c);
             if(current_voice==voices.end())

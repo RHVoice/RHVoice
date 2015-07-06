@@ -476,20 +476,22 @@ namespace RHVoice
   template<typename text_iterator>
   text_iterator sentence::add_text(const text_iterator& text_start,const text_iterator& text_end,const tts_markup& markup_info)
   {
+    const language_list& languages=parent->get_engine().get_languages();
+    const voice_list& voices=parent->get_engine().get_voices();
     language_voice_pair markup_language_and_voice=get_language_and_voice_from_markup(markup_info);
-    if((language_and_voice.first!=language_list::const_iterator())&&
-       (markup_language_and_voice.first!=language_list::const_iterator()))
+    if((language_and_voice.first!=languages.end())&&
+       (markup_language_and_voice.first!=languages.end()))
       {
         if(markup_language_and_voice.first!=language_and_voice.first)
           return text_start;
-        if((markup_language_and_voice.second!=voice_list::const_iterator())&&
-           (language_and_voice.second!=voice_list::const_iterator())&&
+        if((markup_language_and_voice.second!=voices.end())&&
+           (language_and_voice.second!=voices.end())&&
            (markup_language_and_voice.second!=language_and_voice.second))
           return text_start;
       }
     text_iterator sentence_end=text_start;
     text_iterator token_end;
-    voice_list::const_iterator token_voice;
+    voice_list::const_iterator token_voice=voices.end();
     std::size_t old_length=length;
     do
       {
@@ -499,12 +501,12 @@ namespace RHVoice
         token_end=get_next_token(sentence_end,text_end,markup_info);
         if(next_token_starts_new_sentence(markup_info))
           break;
-        if(markup_language_and_voice.first==language_list::const_iterator())
+        if(markup_language_and_voice.first==languages.end())
           {
             token_voice=determine_next_token_voice();
-            if(token_voice!=voice_list::const_iterator())
+            if(token_voice!=voices.end())
               {
-                if(language_and_voice.first==language_list::const_iterator())
+                if(language_and_voice.first==languages.end())
                   {
                     language_and_voice.first=token_voice->get_language();
                     language_and_voice.second=token_voice;
@@ -516,7 +518,7 @@ namespace RHVoice
                   }
               }
           }
-        else if(language_and_voice.first==language_list::const_iterator())
+        else if(language_and_voice.first==languages.end())
           language_and_voice=markup_language_and_voice;
         if(next_token.type==content_text)
           commands.push_back(command_ptr(new append_token(next_token)));

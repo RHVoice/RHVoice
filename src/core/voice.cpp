@@ -96,7 +96,8 @@ namespace RHVoice
 
   bool voice_search_criteria::operator()(const voice_info& info) const
   {
-    if((voice_language==language_list::const_iterator())||(voice_language==info.get_language()))
+    const language_info& lang=*(info.get_language());
+    if((voice_language==0)||(voice_language==&lang))
       if(names.empty()||(names.find(info.get_name())!=names.end()))
         if(!preferred||info.is_preferred())
           return true;
