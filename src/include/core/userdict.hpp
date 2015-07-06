@@ -68,7 +68,13 @@ namespace RHVoice
 
       bool operator==(const position& other) const
       {
-        return ((token==other.token)&&(pos==other.pos));
+        if(token!=other.token)
+          return false;
+        if(token==0)
+          return true;
+        if(pos!=other.pos)
+          return false;
+        return (character==other.character);
       }
 
       bool operator!=(const position& other) const
@@ -85,7 +91,6 @@ namespace RHVoice
         else if(pos==text->end())
           {
             character=token_end;
-            pos=std::string::const_iterator();
           }
         else
           character=utf8::next(pos,text->end());

@@ -36,7 +36,7 @@ namespace RHVoice
     voice_profile()
     {
     }
-    
+
     explicit voice_profile(voice_list::const_iterator only_voice)
     {
       voices.push_back(only_voice);
@@ -97,24 +97,24 @@ namespace RHVoice
       return voices.at(0);
     }
 
-    voice_list::const_iterator voice_for_language(language_list::const_iterator lang) const
+    iterator voice_for_language(language_list::const_iterator lang) const
     {
       for(iterator it=begin();it!=end();++it)
         {
           voice_list::const_iterator v=*it;
           if(v->get_language()==lang)
-            return v;
+            return it;
         }
-      return voice_list::const_iterator();
+      return end();
     }
 
-    template<typename text_iterator> voice_list::const_iterator voice_for_text(text_iterator text_start,text_iterator text_end) const;
+    template<typename text_iterator> iterator voice_for_text(text_iterator text_start,text_iterator text_end) const;
   };
 
   template<typename text_iterator>
-  voice_list::const_iterator voice_profile::voice_for_text(text_iterator text_start,text_iterator text_end) const
+  voice_profile::iterator voice_profile::voice_for_text(text_iterator text_start,text_iterator text_end) const
   {
-    voice_list::const_iterator best;
+    iterator best=end();
     voice_list::const_iterator v;
     language_list::const_iterator lang;
     std::size_t max_count=0;
@@ -123,12 +123,12 @@ namespace RHVoice
       {
         v=*it;
         lang=v->get_language();
-        if((best!=voice_list::const_iterator())&&lang->has_common_letters(*(best->get_language())))
+        if((best!=end())&&lang->has_common_letters(*((*best)->get_language())))
           continue;
         count=lang->count_letters_in_text(text_start,text_end);
         if(count>max_count)
           {
-            best=v;
+            best=it;
             max_count=count;
           }
       }
