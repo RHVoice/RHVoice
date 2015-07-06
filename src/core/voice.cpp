@@ -17,6 +17,7 @@
 #include "core/exception.hpp"
 #include "core/config.hpp"
 #include "core/voice.hpp"
+#include "core/event_logger.hpp"
 
 namespace RHVoice
 {
@@ -72,21 +73,27 @@ namespace RHVoice
     cfg.register_setting(preferred,prefix);
   }
 
-  voice_list::voice_list(const std::vector<std::string>& voice_paths,language_list& languages)
+  voice_list::voice_list(const std::vector<std::string>& voice_paths,language_list& languages,const event_logger& logger)
   {
+    std::string tag("voice_list");
     for(std::vector<std::string>::const_iterator it=voice_paths.begin();it!=voice_paths.end();++it)
       {
         if(path::isdir(*it))
           {
+            logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it));
             smart_ptr<voice_info> v;
             try
               {
                 resource_description desc("voice",*it);
+                logger.log(tag,RHVoice_log_level_info,std::string("Voice resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
                 if(desc.format==1)
                   v.reset(new voice_info(*it,languages));
+                else
+                  logger.log(tag,RHVoice_log_level_error,"Unsupported voice format");
               }
             catch(...)
               {
+                logger.log(tag,RHVoice_log_level_error,"Voice info creation failed");
               }
             if(!v.empty())
               add(v);
