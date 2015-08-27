@@ -2,9 +2,9 @@ import sys
 import os
 import os.path
 from SimpleConfigParser import SimpleConfigParser
-import packaging.nvda
-import packaging.windows
-import packaging.android
+import RHVoicePackaging.nvda
+import RHVoicePackaging.windows
+import RHVoicePackaging.android
 
 Import("env")
 local_env=env.Clone()
@@ -31,11 +31,11 @@ for dir_name in ["languages","voices"]:
         packagers=dict()
         if sys.platform=="win32":
             pkgdir=Dir("..").Dir("packages")
-            packagers["nvda"]=packaging.nvda.addon_packager(name,pkgdir.Dir("nvda"),local_env,name,description,description,version)
+            packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(name,pkgdir.Dir("nvda"),local_env,name,description,description,version)
             packagers["nvda"].add(data_files,"data")
-            packagers["sapi"]=packaging.windows.app_packager(name,pkgdir.Dir("sapi"),local_env,description,version,True)
+            packagers["sapi"]=RHVoicePackaging.windows.app_packager(name,pkgdir.Dir("sapi"),local_env,description,version,True)
             packagers["sapi"].add(data_files,r"data\{type}s\{name}".format(**props))
-        packagers["android"]=packaging.android.data_packager(props["name"],Dir("android"),local_env,props["language"],props["format"],props["revision"])
+        packagers["android"]=RHVoicePackaging.android.data_packager(props["name"],Dir("android"),local_env,props["language"],props["format"],props["revision"])
         packagers["android"].add(data_files)
         for p in packagers.itervalues():
             p.package()
