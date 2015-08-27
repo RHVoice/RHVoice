@@ -18,8 +18,8 @@
 import os
 import os.path
 from SCons.Script import Copy,Mkdir
-from packaging.common import *
-from packaging.archiving import archiver
+from RHVoicePackaging.common import *
+from RHVoicePackaging.archiving import archiver
 
 package_path=os.path.dirname(__file__)
 template_path=os.path.relpath(os.path.join(package_path,"template"),os.path.join(package_path,"..","..",".."))
