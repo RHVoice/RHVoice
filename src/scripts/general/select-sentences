@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
-# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2014, 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,14 +21,26 @@ import argparse
 import re
 import codecs
 import collections
+import json
 
 tag_regex=re.compile("<[^<]+>")
 
-class word_extractor(object):
-	def __init__(self,args):
-		alphabet=args.alphabet.decode("utf-8")
-		self.alphabet=set(alphabet)
-		self.word_regex=re.compile(ur"(?ui)\b[{a}]+\b".format(a=alphabet))
+class base(object):
+	def __init__(self,conf):
+		self.replacements=conf["replace"]
+
+	def replace(self,text):
+		res=text
+		for k,v in self.replacements.iteritems():
+			res=res.replace(k,v)
+		return res
+
+class word_extractor(base):
+	def __init__(self,conf):
+		base.__init__(self,conf)
+		self.alphabet=set(conf["alphabet"])
+		alphabet_string=u"".join(sorted(self.alphabet))
+		self.word_regex=re.compile(ur"(?ui)\b[{a}]+\b".format(a=alphabet_string))
 		self.words=collections.Counter()
 
 	def __call__(self,arg,dirname,filenames):
@@ -39,36 +51,37 @@ class word_extractor(object):
 					for word in (m.group(0).lower() for m in self.word_regex.finditer(tag_regex.sub(" ",f.read()))):
 #						letters=set(c for c in word if c.isalpha())
 #						if letters.issubset(self.alphabet):
-						self.words[word]+=1
+						self.words[self.replace(word)]+=1
 
-def words(args):
-	ext=word_extractor(args)
-	os.path.walk(args.source,ext,None)
+def words(conf):
+	ext=word_extractor(conf)
+	os.path.walk(conf["source"],ext,None)
 	with codecs.open("words","w","utf-8") as f:
 		for w,c in ext.words.most_common():
 			f.write(u"{} {}\n".format(w,c))
 
-class sentence_selector(object):
-	def __init__(self,args):
+class sentence_selector(base):
+	def __init__(self,conf):
+		base.__init__(self,conf)
 		self.count=0
 		self.sentences=dict()
 		self.words=set()
 		with codecs.open("words","r","utf-8") as f:
 			for line in f:
 				w,n=line.split()
-				if int(n)<args.min_word_frequency:
+				if int(n)<conf["min_word_frequency"]:
 					break
 				self.words.add(w)
-			self.min_length=args.min_length
-			self.max_length=args.max_length
-			self.vowels=set(args.vowels.decode("utf-8"))
-			self.ignore_case=args.ignore_case
-			self.allow_initialisms=args.allow_initialisms
-			self.plain=args.plain
+			self.min_length=conf["min_length"]
+			self.max_length=conf["max_length"]
+			self.vowels=set(conf["vowels"])
+			self.ignore_case=conf["ignore_case"]
+			self.allow_initialisms=conf["allow_initialisms"]
+			self.plain=conf["plain"]
 			self.wp_delim_regex=re.compile(u"(?u)\s*(?:</?doc(?:\s+[^<>]+)?>\s*)+")
 
 	def add_paragraph(self,paragraph):
-		remaining_tokens=collections.deque(paragraph.split())
+		remaining_tokens=collections.deque(self.replace(paragraph).split())
 		sentence_tokens=list()
 		while remaining_tokens:
 			sentence_tokens.append(remaining_tokens.popleft())
@@ -150,9 +163,9 @@ class sentence_selector(object):
 					else:
 						self.process_wikipedia_text(contents)
 
-def sentences(args):
-	sel=sentence_selector(args)
-	os.path.walk(args.source,sel,None)
+def sentences(conf):
+	sel=sentence_selector(conf)
+	os.path.walk(conf["source"],sel,None)
 	with codecs.open("sentences","w","utf-8") as f:
 		for sentence,id in sorted(sel.sentences.iteritems(),key=lambda p: p[1]):
 			f.write(sentence)
@@ -160,19 +173,13 @@ def sentences(args):
 
 if __name__=="__main__":
 	parser=argparse.ArgumentParser(description="Select nice sentences for recording")
-	parser.add_argument("--source",required=True,help="the path to the text files")
-	parser.add_argument("--plain",help="plain text",action="store_true")
+	parser.add_argument("--config",required=True,help="the path to the configuration file")
 	subparsers=parser.add_subparsers()
 	words_parser=subparsers.add_parser("words")
-	words_parser.add_argument("--alphabet",required=True,help="alphabet")
 	words_parser.set_defaults(func=words)
 	sentences_parser=subparsers.add_parser("sentences")
-	sentences_parser.add_argument("--min-word-frequency",type=int,default=10,help="consider only most frequent words")
-	sentences_parser.add_argument("--min-length",type=int,default=2,help="Minimum sentence length")
-	sentences_parser.add_argument("--max-length",type=int,default=20,help="maximum sentence length")
-	sentences_parser.add_argument("--vowels",required=True,help="list of vowel letters")
-	sentences_parser.add_argument("--ignore-case",help="ignore case",action="store_true")
-	sentences_parser.add_argument("--allow-initialisms",help="allow initialisms",action="store_true")
 	sentences_parser.set_defaults(func=sentences)
 	args=parser.parse_args()
-	args.func(args)
+	with open(args.config,"r") as f:
+		conf=json.load(f)
+	args.func(conf)

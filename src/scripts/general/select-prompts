@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,15 +20,16 @@ import argparse
 import codecs
 import collections
 import subprocess
+import json
 
 class prompt_selector(object):
-	def __init__(self,args):
-		self.coverage_in_statements=args.coverage_in_statements
-		self.coverage_in_questions=args.coverage_in_questions
+	def __init__(self,conf):
+		self.coverage_in_statements=conf["coverage_in_statements"]
+		self.coverage_in_questions=conf["coverage_in_questions"]
 		self.statements=set()
 		self.questions=set()
 		self.sentences=collections.OrderedDict()
-		with codecs.open(args.sentences,"r","utf-8") as f:
+		with codecs.open("sentences","r","utf-8") as f:
 			for line in f:
 				sentence=line.strip()
 				if sentence:
@@ -68,9 +69,9 @@ class prompt_selector(object):
 		return result
 
 class bigram_prompt_selector(prompt_selector):
-	def __init__(self,args):
-		self.special_bigrams=set(b.decode("utf-8") for b in args.special_bigrams)
-		prompt_selector.__init__(self,args)
+	def __init__(self,conf):
+		self.digraphs=set(conf["digraphs"])
+		prompt_selector.__init__(self,conf)
 
 	def determine_units(self):
 		for sentence,units in self.sentences.iteritems():
@@ -79,7 +80,7 @@ class bigram_prompt_selector(prompt_selector):
 			i=0
 			while i < (len(chars)-1):
 				b=chars[i]+chars[i+1]
-				if b in self.special_bigrams:
+				if b in self.digraphs:
 					atoms.append(b)
 					i+=2
 				else:
@@ -91,10 +92,10 @@ class bigram_prompt_selector(prompt_selector):
 			units.extend(atoms[i-1]+atoms[i] for i in xrange(1,len(atoms)))
 
 class diphone_prompt_selector(prompt_selector):
-	def __init__(self,args):
-		self.language=args.language
-		self.infile=args.sentences
-		prompt_selector.__init__(self,args)
+	def __init__(self,conf):
+		self.language=conf["language"]
+		self.infile="sentences"
+		prompt_selector.__init__(self,conf)
 
 	def determine_units(self):
 		with codecs.open("ssml","w","utf-8") as f_out:
@@ -108,8 +109,8 @@ class diphone_prompt_selector(prompt_selector):
 				phones=l.split()
 				p[1].extend(phones[i-1]+"+"+phones[i] for i in xrange(1,len(phones)))
 
-def select_prompts(args):
-	sel=diphone_prompt_selector(args) if args.language else bigram_prompt_selector(args)
+def select_prompts(conf):
+	sel=diphone_prompt_selector(conf) if conf["language"] else bigram_prompt_selector(conf)
 	prompts=sel()
 	with codecs.open("prompts","w","utf-8") as f:
 		for prompt in prompts:
@@ -125,10 +126,8 @@ def select_prompts(args):
 
 if __name__=="__main__":
 	parser=argparse.ArgumentParser(description="Select prompts for recording")
-	parser.add_argument("--sentences",help="Path to sentence list",default="sentences")
-	parser.add_argument("--coverage-in-statements",type=int,default=2,help="how many instances of each unit in statements")
-	parser.add_argument("--coverage-in-questions",type=int,default=1,help="how many instances of each unit in questions")
-	parser.add_argument("--language",default="",help="The language of the sentences (only if it is already supported by RHVoice)")
-	parser.add_argument("--special-bigrams",nargs="*",default=[],help="which bigrams must be processed as a single unit")
+	parser.add_argument("--config",required=True,help="the path to the configuration file")
 	args=parser.parse_args()
-	select_prompts(args)
+	with open(args.config,"r") as f:
+		conf=json.load(f)
+	select_prompts(conf)
