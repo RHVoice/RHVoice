@@ -73,23 +73,57 @@ class bigram_prompt_selector(prompt_selector):
 		self.digraphs=set(conf["digraphs"])
 		prompt_selector.__init__(self,conf)
 
-	def determine_units(self):
-		for sentence,units in self.sentences.iteritems():
-			chars=sentence.strip().lower()[:-1].replace(" ","").replace(",","#")
-			atoms=["#"]
-			i=0
-			while i < (len(chars)-1):
-				b=chars[i]+chars[i+1]
+	def get_word(self,token):
+		ltoken=token.lower()
+		if(ltoken[-1]).isalpha():
+			return ltoken
+		else:
+			return ltoken[0:-1]
+
+	def get_word_symbols(self,word):
+		symbols=[]
+		n=len(word)
+		l=n-1
+		i=0
+		while (i<n):
+			if i<l:
+				b=word[i:i+2]
 				if b in self.digraphs:
-					atoms.append(b)
+					symbols.append(b)
 					i+=2
 				else:
-					atoms.append(chars[i])
+					symbols.append(word[i])
 					i+=1
-			if atoms and (len(atoms[-1])==1):
-				atoms.append(chars[-1])
-			atoms.append("#")
-			units.extend(atoms[i-1]+atoms[i] for i in xrange(1,len(atoms)))
+			else:
+				symbols.append(word[i])
+				i+=1
+		return symbols
+
+	def get_sentence_symbols(self,sentence):
+			symbols=["#"]
+			for token in sentence.split():
+					word=self.get_word(token)
+					symbols.extend(self.get_word_symbols(word))
+					if not token[-1].isalpha():
+							symbols.append("#")
+			if symbols[-1]!="#":
+					symbols.append("#")
+			return symbols
+
+	def get_n_grams(self,symbols,n):
+		if len(symbols)<n:
+			return []
+		n_grams=[]
+		for i in xrange(len(symbols)-n+1):
+				n_grams.append(u"".join(symbols[i:i+n]))
+		return n_grams
+
+	def get_sentence_units(self,sentence):
+		return self.get_n_grams(self.get_sentence_symbols(sentence),2)
+
+	def determine_units(self):
+		for sentence,units in self.sentences.iteritems():
+			units.extend(self.get_sentence_units(sentence))
 
 class diphone_prompt_selector(prompt_selector):
 	def __init__(self,conf):
