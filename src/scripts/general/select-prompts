@@ -275,10 +275,11 @@ class diphone_prompt_selector(prompt_selector):
 def select_prompts(conf):
 	sel=diphone_prompt_selector(conf) if conf["language"] else bigram_prompt_selector(conf)
 	prompts=sel()
-	with codecs.open("prompts","w","utf-8") as f:
+	with codecs.open("script.txt","w","utf-8") as f:
+		f.write(u"\ufeff")
 		for prompt in prompts:
 			f.write(prompt.text)
-			f.write("\n\n")
+			f.write("\r\n\r\n")
 	words=set()
 	for prompt in prompts:
 		words.update((word[:-1].lower() if word[-1] in [",",".","?"] else word).lower() for word in prompt.text.split())
