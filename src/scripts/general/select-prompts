@@ -22,51 +22,180 @@ import collections
 import subprocess
 import json
 
+class unit_indexer(object):
+	def __init__(self):
+		self.next_index=0
+		self.cache=dict()
+
+	def add(self,unit):
+		index=self.cache.get(unit,None)
+		if index is None:
+			index=self.next_index
+			self.next_index+=1
+			self.cache[unit]=index
+		return index
+
+	def count(self):
+		return self.next_index
+
+class sentence(object):
+	def __init__(self,text,order):
+		self.text=text
+		self.order=order
+		self.prev=None
+		self.next=None
+		self.units=[]
+
+class sentence_list(object):
+	def __init__(self):
+		self.head=None
+		self.tail=None
+
+	def append(self,sent):
+		if self.head is None:
+			self.head=sent
+			self.tail=sent
+		else:
+			sent.prev=self.tail
+			self.tail.next=sent
+			self.tail=sent
+
+	def remove(self,sent):
+		if self.head is sent:
+			self.head=sent.next
+		if self.tail is sent:
+			self.tail=sent.prev
+		if sent.next is not None:
+			sent.next.prev=sent.prev
+		if sent.prev is not None:
+			sent.prev.next=sent.next
+		sent.prev=None
+		sent.next=None
+		return sent
+
+	def empty(self):
+		return self.head is None
+
+	def first(self):
+		return self.head
+
+	def last(self):
+		return self.tail
+
+	def __iter__(self):
+		return sentence_list_iterator(self)
+
+class sentence_list_iterator(object):
+	def __init__(self,sentences):
+		self.item=sentences.head
+
+	def __iter__(self):
+		return self
+
+	def next(self):
+		if self.item is None:
+			raise StopIteration
+		result=self.item
+		self.item=self.item.next
+		return result
+
 class prompt_selector(object):
 	def __init__(self,conf):
+		self.unit_idx=unit_indexer()
 		self.coverage_in_statements=conf["coverage_in_statements"]
 		self.coverage_in_questions=conf["coverage_in_questions"]
-		self.statements=set()
-		self.questions=set()
-		self.sentences=collections.OrderedDict()
+		self.statements=sentence_list()
+		self.questions=sentence_list()
+		self.prompts=[]
+		order=0
+		print("Loading sentences")
 		with codecs.open("sentences","r","utf-8") as f:
 			for line in f:
-				sentence=line.strip()
-				if sentence:
-					self.sentences[sentence]=list()
-					if sentence.endswith("?") and self.coverage_in_questions>0:
-						self.questions.add(sentence)
+				text=line.strip()
+				if text:
+					sent=sentence(text,order)
+					order+=1
+					if sent.text.endswith("?") and self.coverage_in_questions>0:
+						self.questions.append(sent)
 					else:
-						self.statements.add(sentence)
-   		self.determine_units()
+						self.statements.append(sent)
+		print("Determining units")
+		self.determine_units(self.statements)
+		self.determine_units(self.questions)
+		print("Normalizing units")
+		self.normalize_all_sentence_units()
 
-	def reduce(self,candidates,coverage):
-		if coverage==0:
-			return set()
-		result=set(candidates)
-		cover=collections.Counter()
-		for candidate in candidates:
-			cover.update(self.sentences[candidate])
-		target_cover=collections.Counter()
-		for unit,count in cover.iteritems():
-			target_cover[unit]=min(count,coverage)
-		for candidate in candidates:
-			units=self.sentences[candidate]
-			cover.subtract(units)
-			if (target_cover-cover):
-				cover.update(units)
-			else:
-				result.remove(candidate)
-		return result
+	def normalize_all_sentence_units(self):
+		for sent in self.statements:
+			self.normalize_sentence_units(sent)
+		for sent in self.questions:
+			self.normalize_sentence_units(sent)
+
+	def normalize_sentence_units(self,sent):
+		sent.cost=len(sent.units)
+		counter=collections.Counter()
+		for u in sent.units:
+			i=self.unit_idx.add(u)
+			counter[i]+=1
+		sent.units=list(counter.iteritems())
+
+	def order_prompts(self):
+		self.prompts.extend(self.statements)
+		self.prompts.extend(self.questions)
+		self.prompts.sort(key=lambda s: s.order)
+
+	def get_initial_state(self,sentences):
+		initial_state=[0]*self.unit_idx.count()
+		for sent in sentences:
+			for i,n in sent.units:
+				initial_state[i]+=n
+		return initial_state
+
+	def get_target_state(self,initial_state,target_coverage):
+		state=list(initial_state)
+		for i in xrange(len(state)):
+			if state[i]>target_coverage:
+				state[i]=target_coverage
+		return state
+
+	def is_useless_sentence(self,sent,state,target_state):
+		for i,n in sent.units:
+			k=state[i]-n
+			if k<target_state[i]:
+				return False
+		return True
+
+	def update_state(self,state,sent):
+		for i,n in sent.units:
+			state[i]-=n
+
+	def remove_sentence(self,sentences,sent,state):
+		print("Removing sentence with cost {}".format(sent.cost))
+		sentences.remove(sent)
+		self.update_state(state,sent)
+
+	def process(self,sentences,target_coverage):
+		if sentences.empty():
+			return
+		state=self.get_initial_state(sentences)
+		target_state=self.get_target_state(state,target_coverage)
+		sent=sentences.last()
+		i=0
+		while sent:
+			i+=1
+			print("Sentence {}".format(i))
+			next_sent=sent.prev
+			if self.is_useless_sentence(sent,state,target_state):
+				self.remove_sentence(sentences,sent,state)
+			sent=next_sent
 
 	def __call__(self):
-		statements=self.reduce(self.statements,self.coverage_in_statements)
-		questions=self.reduce(self.questions,self.coverage_in_questions)
-		result=list()
-		for sentence in self.sentences.iterkeys():
-			if (sentence in statements) or (sentence in questions):
-				result.append(sentence)
-		return result
+		print("Processing statements")
+		self.process(self.statements,self.coverage_in_statements)
+		print("Processing questions")
+		self.process(self.questions,self.coverage_in_questions)
+		self.order_prompts()
+		return self.prompts
 
 class bigram_prompt_selector(prompt_selector):
 	def __init__(self,conf):
@@ -101,7 +230,7 @@ class bigram_prompt_selector(prompt_selector):
 
 	def get_sentence_symbols(self,sentence):
 			symbols=["#"]
-			for token in sentence.split():
+			for token in sentence.text.split():
 					word=self.get_word(token)
 					symbols.extend(self.get_word_symbols(word))
 					if not token[-1].isalpha():
@@ -121,9 +250,9 @@ class bigram_prompt_selector(prompt_selector):
 	def get_sentence_units(self,sentence):
 		return self.get_n_grams(self.get_sentence_symbols(sentence),2)
 
-	def determine_units(self):
-		for sentence,units in self.sentences.iteritems():
-			units.extend(self.get_sentence_units(sentence))
+	def determine_units(self,sentences):
+		for sent in sentences:
+			sent.units.extend(self.get_sentence_units(sent))
 
 class diphone_prompt_selector(prompt_selector):
 	def __init__(self,conf):
@@ -131,28 +260,28 @@ class diphone_prompt_selector(prompt_selector):
 		self.infile="sentences"
 		prompt_selector.__init__(self,conf)
 
-	def determine_units(self):
+	def determine_units(self,sentences):
 		with codecs.open("ssml","w","utf-8") as f_out:
 			f_out.write('<speak xml:lang="{}">\n'.format(self.language))
-			for sentence in self.sentences.iterkeys():
-				f_out.write(u"<s>{}</s>\n".format(sentence))
+			for sent in sentences:
+				f_out.write(u"<s>{}</s>\n".format(sent))
 			f_out.write("</speak>\n")
 		subprocess.check_call(["RHVoice-transcribe-sentences","ssml","transcription"])
 		with codecs.open("transcription","r","utf-8") as f_in:
-			for p,l in zip(self.sentences.iteritems(),f_in):
+			for s,l in zip(sentences,f_in):
 				phones=l.split()
-				p[1].extend(phones[i-1]+"+"+phones[i] for i in xrange(1,len(phones)))
+				s.extend(phones[i-1]+"+"+phones[i] for i in xrange(1,len(phones)))
 
 def select_prompts(conf):
 	sel=diphone_prompt_selector(conf) if conf["language"] else bigram_prompt_selector(conf)
 	prompts=sel()
 	with codecs.open("prompts","w","utf-8") as f:
 		for prompt in prompts:
-			f.write(prompt)
+			f.write(prompt.text)
 			f.write("\n\n")
 	words=set()
 	for prompt in prompts:
-		words.update((word[:-1] if word[-1] in [",",".","?"] else word).lower() for word in prompt.split())
+		words.update((word[:-1].lower() if word[-1] in [",",".","?"] else word).lower() for word in prompt.text.split())
 	with codecs.open("vocab","w","utf-8") as f:
 		for word in sorted(words):
 			f.write(word)
