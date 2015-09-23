@@ -114,14 +114,15 @@ private:
   class voice_list: public resource_list<voice_info>
   {
   public:
-    voice_list(const std::vector<std::string>& voice_paths,language_list& languages);
+    voice_list(const std::vector<std::string>& voice_paths,language_list& languages,const event_logger& logger);
   };
 
   class voice_search_criteria: public std::unary_function<const voice_info&,bool>
   {
   public:
     voice_search_criteria():
-      preferred(false)
+      preferred(false),
+      voice_language(0)
     {
     }
 
@@ -141,14 +142,14 @@ private:
       names.clear();
     }
 
-    void set_language(language_list::const_iterator lang)
+    void set_language(const language_info& lang)
     {
-      voice_language=lang;
+      voice_language=&lang;
     }
 
     void clear_language()
     {
-      voice_language=language_list::const_iterator();
+      voice_language=0;
     }
 
     void set_preferred()
@@ -166,13 +167,13 @@ private:
     bool empty() const
     {
       return (names.empty()&&
-              (voice_language==language_list::const_iterator())&&
+              (voice_language==0)&&
               (!preferred));
     }
 
   private:
     std::set<std::string,str::less> names;
-    language_list::const_iterator voice_language;
+    const language_info* voice_language;
     bool preferred;
   };
 }

@@ -118,7 +118,7 @@ public final class SettingsActivity extends PreferenceActivity
         CheckBoxPreference detectPref=new CheckBoxPreference(this);
         detectPref.setKey("language."+code3+".detect");
         detectPref.setTitle(R.string.detect_language_title);
-        detectPref.setDefaultValue(false);
+        detectPref.setDefaultValue(true);
         cat.addPreference(detectPref);
     }
 

@@ -388,7 +388,7 @@ namespace RHVoice
   class language_list: public resource_list<language_info>
   {
   public:
-    language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path);
+    language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path,const event_logger& logger);
 
   private:
     class creator

@@ -20,7 +20,7 @@ import os.path
 
 Import(["env"])
 
-from packaging.nvda import addon_packager
+from RHVoicePackaging.nvda import addon_packager
 
 synthDriver_dir=os.path.join("synthDrivers","RHVoice")
 curdir=Dir(".").srcnode()

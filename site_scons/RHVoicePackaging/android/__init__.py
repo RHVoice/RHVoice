@@ -18,8 +18,8 @@
 import os
 import os.path
 from SCons.Script import Copy,Mkdir
-from packaging.common import *
-from packaging.archiving import archiver
+from RHVoicePackaging.common import *
+from RHVoicePackaging.archiving import archiver
 
 package_path=os.path.dirname(__file__)
 template_path=os.path.relpath(os.path.join(package_path,"template"),os.path.join(package_path,"..","..",".."))
@@ -41,7 +41,7 @@ class data_packager(packager):
 					 "__Name__":name,
 					 "__type__":self.type,
 					 "__language__":language.lower(),
-					 "__version_code__":str(100*int(format)+int(revision)),
+					 "__version_code__":str(1000*int(format)+10*int(revision)),
 					 "__version_name__":"{}.{}".format(format,revision)}
 
 	def add(self,obj,outdir=None):
