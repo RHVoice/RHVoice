@@ -21,6 +21,7 @@ import codecs
 import collections
 import subprocess
 import json
+import bisect
 
 class unit_indexer(object):
 	def __init__(self):
@@ -137,63 +138,139 @@ class prompt_selector(object):
 		for u in sent.units:
 			i=self.unit_idx.add(u)
 			counter[i]+=1
-		sent.units=list(counter.iteritems())
+		sent.instances=list(counter.iteritems())
+		sent.units=[i for i,n in sent.instances]
+		sent.units.sort()
 
 	def order_prompts(self):
 		self.prompts.extend(self.statements)
 		self.prompts.extend(self.questions)
 		self.prompts.sort(key=lambda s: s.order)
 
-	def get_initial_state(self,sentences):
-		initial_state=[0]*self.unit_idx.count()
-		for sent in sentences:
-			for i,n in sent.units:
-				initial_state[i]+=n
-		return initial_state
+	def find_rarest_unit(self,total_state,state,target_state):
+		min_count=0
+		unit=None
+		for i in xrange(len(state)):
+			if state[i]>=target_state[i]:
+				continue
+			if min_count==0 or total_state[i]<min_count:
+				min_count=total_state[i]
+				unit=i
+		return unit
 
-	def get_target_state(self,initial_state,target_coverage):
-		state=list(initial_state)
+	def sentence_contains_unit(self,sent,u):
+		i=bisect.bisect_left(sent.units,u)
+		return ((i<len(sent.units)) and (sent.units[i]==u))
+
+	def count_useful_instances(self,sent,state,target_state):
+		count=0
+		for u,n in sent.instances:
+			r=target_state[u]-state[u]
+			if r>0:
+				count+=min(n,r)
+		return count
+
+	def find_most_useful_sentence(self,sentences,total_state,state,target_state):
+		unit=self.find_rarest_unit(total_state,state,target_state)
+		if unit is None:
+			return None
+		max_count=0
+		min_cost=0
+		res=None
+		sent=sentences.first()
+		next_sent=None
+		while sent:
+			next_sent=sent.next
+			if self.sentence_contains_unit(sent,unit):
+				count=self.count_useful_instances(sent,state,target_state)
+				if count==0:
+					sentences.remove(sent)
+				elif (count>max_count) or ((count==max_count) and (sent.cost<min_cost)):
+					res=sent
+					max_count=count
+					min_cost=sent.cost
+			sent=next_sent
+		return res
+
+	def select(self,sentences,total_state,state,target_state):
+		selected=sentence_list()
+		it=0
+		while True:
+			it+=1
+			print("Iteration {}".format(it))
+			sent=self.find_most_useful_sentence(sentences,total_state,state,target_state)
+			if sent is None:
+				break
+			sentences.remove(sent)
+			selected.append(sent)
+			self.update_state(state,sent,True)
+		return selected
+
+	def get_total_state(self,sentences):
+		state=[0]*self.unit_idx.count()
+		for sent in sentences:
+			for i,n in sent.instances:
+				state[i]+=n
+		return state
+
+	def get_target_state(self,total_state,target_coverage):
+		state=list(total_state)
 		for i in xrange(len(state)):
 			if state[i]>target_coverage:
 				state[i]=target_coverage
 		return state
 
 	def is_useless_sentence(self,sent,state,target_state):
-		for i,n in sent.units:
+		for i,n in sent.instances:
 			k=state[i]-n
 			if k<target_state[i]:
 				return False
 		return True
 
-	def update_state(self,state,sent):
-		for i,n in sent.units:
-			state[i]-=n
+	def find_least_useful_sentence(self,sentences,state,target_state):
+		max_cost=0
+		res=None
+		for sent in sentences:
+			if self.is_useless_sentence(sent,state,target_state) and sent.cost>max_cost:
+				res=sent
+				max_cost=sent.cost
+		return res
 
-	def remove_sentence(self,sentences,sent,state):
-		print("Removing sentence with cost {}".format(sent.cost))
-		sentences.remove(sent)
-		self.update_state(state,sent)
+	def update_state(self,state,sent,add):
+		for i,n in sent.instances:
+			if add:
+				state[i]+=n
+			else:
+				state[i]-=n
+
+	def reduce(self,sentences,state,target_state):
+		it=0
+		while True:
+			it+=1
+			print("Iteration {}".format(it))
+			sent=self.find_least_useful_sentence(sentences,state,target_state)
+			if sent is None:
+				return
+			sentences.remove(sent)
+			self.update_state(state,sent,False)
 
 	def process(self,sentences,target_coverage):
 		if sentences.empty():
 			return
-		state=self.get_initial_state(sentences)
-		target_state=self.get_target_state(state,target_coverage)
-		sent=sentences.last()
-		i=0
-		while sent:
-			i+=1
-			print("Sentence {}".format(i))
-			next_sent=sent.prev
-			if self.is_useless_sentence(sent,state,target_state):
-				self.remove_sentence(sentences,sent,state)
-			sent=next_sent
+		total_state=self.get_total_state(sentences)
+		state=[0]*self.unit_idx.count()
+		target_state=self.get_target_state(total_state,target_coverage)
+		print("Selecting")
+		selected=self.select(sentences,total_state,state,target_state)
+		print("Reducing")
+		self.reduce(selected,state,target_state)
+		return selected
 
 	def __call__(self):
 		print("Processing statements")
-		self.process(self.statements,self.coverage_in_statements)
+		self.statements=self.process(self.statements,self.coverage_in_statements)
 		print("Processing questions")
-		self.process(self.questions,self.coverage_in_questions)
+		self.questions=self.process(self.questions,self.coverage_in_questions)
 		self.order_prompts()
 		return self.prompts
 
