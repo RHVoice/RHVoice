@@ -500,6 +500,58 @@ class f0_stats_computer(f0_extracter):
 			v=stats.scoreatpercentile(all_values,p)
 			print("p{}={}".format(p,v))
 
+class synthesizer(task):
+	def register(self):
+		subparser=subparsers.add_parser("synth")
+		subparser.set_defaults(func=self)
+
+	def read_bytes(self,f,n):
+		while(True):
+			bytes=f.read(n)
+			if not bytes:
+				return
+			yield bytes
+
+	def create_pitch_file(self,name):
+		outpath="utt.pitch"
+		sample_rate=float(self.settings["sample_rate"])
+		with open(os.path.join("data","lf0",name+".lf0"),"rb") as f_in:
+			with open(outpath,"wb") as f_out:
+				for bytes in self.read_bytes(f_in,4):
+					lf0=struct.unpack("=f",bytes)[0]
+					period=0
+					if lf0!=-10000000000:
+						f0=numpy.exp(lf0)
+						period=sample_rate/f0
+					f_out.write(struct.pack("=f",period))
+		return outpath
+
+	def process(self,name):
+		print("Processing {}".format(name))
+		params=self.get_analysis_params()
+		bindir=self.settings["bindir"]
+		excite=os.path.join(bindir,"excite")
+		x2x=os.path.join(bindir,"x2x")
+		mlsadf=os.path.join(bindir,"mlsadf")
+		mgc_path=os.path.join("data","mgc",name+".mgc")
+		wav_path=os.path.join("data","synth",name+".wav")
+		pitch_path=self.create_pitch_file(name)
+		cmd=[excite,"-p",str(params["FRAMESHIFT"]),pitch_path,"|",
+			 mlsadf,"-m",str(params["MGCORDER"]),"-a",str(params["FREQWARP"]),"-p",str(params["FRAMESHIFT"]),mgc_path,"|",
+			 x2x,"-o","+fs","|",
+			 "sox","-t","raw","-e","signed","-b","16","-r",str(self.settings["sample_rate"]),"-",wav_path]
+		subprocess.check_call(" ".join(cmd),shell=True)
+		os.remove(pitch_path)
+
+	def __call__(self,args):
+		synth_dir=os.path.join("data","synth")
+		if not os.path.isdir(synth_dir):
+			os.mkdir(synth_dir)
+		raw_dir=os.path.join("data","raw")
+		for name in sorted(os.listdir(raw_dir)):
+			base,ext=os.path.splitext(name)
+			self.process(base)
+
 class phonetic_feature_table(object):
 	def __init__(self):
 		self._tier_names=list()
@@ -702,7 +754,7 @@ class questions_maker(task):
 				self.write_feature_questions(f_out,feature,values)
 
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer]:
+	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
