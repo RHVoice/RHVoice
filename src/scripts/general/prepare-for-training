@@ -32,6 +32,7 @@ import weakref
 import xml.etree.ElementTree as xml
 from scipy import stats
 import multiprocessing as mp
+import numpy
 
 scriptdir=os.path.abspath(os.path.dirname(__file__))
 workdir=os.path.abspath(".")
@@ -386,7 +387,8 @@ class f0_extracter(task):
 		subparser=subparsers.add_parser("extract-f0")
 		subparser.set_defaults(func=self)
 
-	def extract_with_praat(self,filepath):
+	def extract_with_praat(self,filepath,method):
+		assert(method in ["praat_ac","praat_cc"])
 		command=["praat"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
 		command.append(os.path.abspath(filepath))
@@ -394,6 +396,7 @@ class f0_extracter(task):
 		command.append(str(self.settings["lower_f0"]))
 		command.append(str(self.settings["upper_f0"]))
 		command.append(str(self.settings["praat_voicing_threshold"]))
+		command.append("1" if method.endswith("_ac") else "0")
 		output=subprocess.check_output(command)
 		return map(float,output.split())
 
@@ -414,41 +417,66 @@ class f0_extracter(task):
 		output=process.communicate(data)[0]
 		count=len(output)/4
 		return list(struct.unpack("={}f".format(count),output))
-		
-	def extract_with(self,filepath,method):
-		if method=="praat":
-			return self.extract_with_praat(filepath)
-		else:
-			return self.extract_with_sptk(filepath,method)
 
-	def extract_and_vote(self,filepath):
+	def extract_with_reaper(self,file_path):
+		f0_path="utt.f0"
+		extra_opts=[]
+		if "reaper_options" in self.settings:
+			extra_opts=self.settings["reaper_options"].split()
+		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(self.settings["lower_f0"]),"-x",str(self.settings["upper_f0"]),"-i",file_path,"-f",f0_path]+extra_opts)
+		f0s=[]
+		with open(f0_path,"rt") as f_in:
+			for line in f_in:
+				if line.strip()=="EST_Header_End":
+					break
+			for line in f_in:
+				f0=float(line.split()[-1])
+				if f0<0:
+					f0=0
+				f0s.append(f0)
+		os.remove(f0_path)
+		return f0s
+
+	def extract_with(self,raw_path,wav_path,method):
+		if method.startswith("praat_"):
+			return self.extract_with_praat(raw_path,method)
+		elif method=="reaper":
+			return self.extract_with_reaper(wav_path)
+		else:
+			return self.extract_with_sptk(raw_path,method)
+
+	def extract_and_vote(self,raw_path,wav_path,methods):
 		extracted=list()
-		for method in ["praat","rapt","swipe"]:
-			extracted.append(self.extract_with(filepath,method))
+		for method in sorted(set(methods)):
+			extracted.append(self.extract_with(raw_path,wav_path,method))
 		result=list()
 		for values in zip(*extracted):
-			result.append(sorted(values)[1])
+			result.append(numpy.median(values))
 		return result
 
-	def extract(self,filepath):
+	def extract(self,name):
+		raw_dir=os.path.join("data","raw")
+		wav_dir=os.path.join("data","wav")
+		base,ext=os.path.splitext(name)
+		print("Processing {}".format(base))
+		raw_path=os.path.join(raw_dir,name)
+		wav_path=os.path.join(wav_dir,base+".wav")
 		method=self.settings["f0_method"]
-		if method=="vote":
-			return self.extract_and_vote(filepath)
+		if isinstance(method,basestring):
+			return self.extract_with(raw_path,wav_path,method)
 		else:
-			return self.extract_with(filepath,method)
+			return self.extract_and_vote(raw_path,wav_path,method)
 
 	def __call__(self,args):
-		rawdir=os.path.join("data","raw")
-		f0dir=os.path.join("data","lf0")
-		if not os.path.isdir(f0dir):
-			os.mkdir(f0dir)
+		raw_dir=os.path.join("data","raw")
+		f0_dir=os.path.join("data","lf0")
+		if not os.path.isdir(f0_dir):
+			os.mkdir(f0_dir)
 		print("Extracting f0")
-		for name in sorted(os.listdir(rawdir)):
-			base,ext=os.path.splitext(name)
-			if ext==".raw":
-				print("Processing {}".format(base))
-				values=self.extract(os.path.join(rawdir,name))
-				with open(os.path.join(f0dir,base+".lf0"),"wb") as f:
+		for name in sorted(os.listdir(raw_dir)):
+				values=self.extract(name)
+				base,ext=os.path.splitext(name)
+				with open(os.path.join(f0_dir,base+".lf0"),"wb") as f:
 					for f0 in values:
 						if f0==0:
 							lf0=-10000000000.0
