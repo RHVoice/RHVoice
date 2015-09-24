@@ -484,6 +484,22 @@ class f0_extracter(task):
 							lf0=math.log(f0)
 						f.write(struct.pack("=f",lf0))
 
+class f0_stats_computer(f0_extracter):
+	def register(self):
+		subparser=subparsers.add_parser("f0-stats")
+		subparser.set_defaults(func=self)
+
+	def __call__(self,args):
+		raw_dir=os.path.join("data","raw")
+		all_values=list()
+		for name in sorted(os.listdir(raw_dir)):
+			print("Processing {}".format(name))
+			values=self.extract(name)
+			all_values.extend([v for v in values if v!=0])
+		for p in [1,2,3,4,5,10,15,25,35,50,65,75,90,95,96,97,98,99]:
+			v=stats.scoreatpercentile(all_values,p)
+			print("p{}={}".format(p,v))
+
 class phonetic_feature_table(object):
 	def __init__(self):
 		self._tier_names=list()
@@ -686,7 +702,7 @@ class questions_maker(task):
 				self.write_feature_questions(f_out,feature,values)
 
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker]:
+	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
