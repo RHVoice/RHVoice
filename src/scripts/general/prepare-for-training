@@ -753,8 +753,65 @@ class questions_maker(task):
 				values=all_values[name]
 				self.write_feature_questions(f_out,feature,values)
 
+class realigner(task):
+	def register(self):
+		subparser=subparsers.add_parser("realign")
+		subparser.set_defaults(func=self)
+
+	def copy_models(self):
+		for type in ["cmp","dur"]:
+			inpath=os.path.join("models","qst001","ver1",type,"re_clustered.mmf.embedded.gz")
+			outpath=os.path.join(self.moddir,type+".mmf.gz")
+			subprocess.check_call(["cp",inpath,outpath])
+			subprocess.check_call(["gunzip",outpath])
+
+	def align(self):
+		cmd=[os.path.join(self.settings["bindir"],"HSMMAlign")]
+		cmd.extend(["-A","-D","-T","1"])
+		cmd.extend(["-C",os.path.join("configs","trn.cnf")])
+		cmd.extend(["-S",os.path.join("data","scp","train.scp")])
+		cmd.extend(["-I",os.path.join("data","labels","full.mlf")])
+		cmd.extend(["-t","1500","100","5000"])
+		cmd.extend(["-w","1.0"])
+		cmd.extend(["-H",os.path.join(self.moddir,"cmp.mmf")])
+		cmd.extend(["-N",os.path.join(self.moddir,"dur.mmf")])
+		cmd.extend(["-m",self.fulldir])
+		lst=os.path.join("data","lists","full.list")
+		cmd.extend([lst,lst])
+		subprocess.check_call(cmd)
+
+	def save_mono(self):
+		print("Saving mono labels")
+		name_regex=re.compile(r"^[a-z0-9]+\^[a-z0-9]+\-([a-z0-9]+)\+.+$")
+		for filename in sorted(os.listdir(self.fulldir)):
+			print(filename)
+			with open(os.path.join(self.fulldir,filename),"r") as f_in:
+				with open(os.path.join(self.monodir,filename),"w") as f_out:
+					for line in f_in:
+						start,end,lab=line.split()
+						name=name_regex.match(lab).group(1)
+						f_out.write("{} {} {}\n".format(start,end,name))
+
+	def cleanup(self):
+		os.remove(os.path.join(self.moddir,"cmp.mmf"))
+		os.remove(os.path.join(self.moddir,"dur.mmf"))
+		os.rmdir(self.moddir)
+
+	def __call__(self,args):
+		self.workdir="realigned"
+		self.moddir=os.path.join(self.workdir,"mod")
+		self.monodir=os.path.join(self.workdir,"mono")
+		self.fulldir=os.path.join(self.workdir,"full")
+		for dir in [self.workdir,self.moddir,self.monodir,self.fulldir]:
+			if not os.path.isdir(dir):
+				os.mkdir(dir)
+		self.copy_models()
+		self.align()
+		self.save_mono()
+		self.cleanup()
+
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer]:
+	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
