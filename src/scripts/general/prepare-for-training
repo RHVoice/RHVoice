@@ -121,61 +121,44 @@ class recordings_importer(task):
 		subparser=subparsers.add_parser("import-recordings")
 		subparser.set_defaults(func=self)
 
+	def get_file_list(self):
+		regex=re.compile(r"([^0-9]*)([0-9]+)[^0-9]?.*\.wav")
+		wavedir=self.settings["wavedir"]
+		files=[]
+		for inname in sorted(os.listdir(wavedir)):
+			m=regex.match(inname)
+			if not m:
+				continue
+			n=int(m.group(2))
+			p=m.group(1)
+			key=(p,n)
+			inpath=os.path.abspath(os.path.join(wavedir,inname))
+			files.append([inpath,inname,key])
+		files.sort(key=lambda x: x[-1])
+		for i,item in enumerate(files):
+			item[-1]="{}_{}_{:04}".format(self.settings["dataset"],self.settings["speaker"],i+1)
+		return files
+
+	def process(self,inpath,inname,outname):
+		print("Processing {}".format(inname))
+		cmd=["praat",
+			 os.path.join(scriptdir,"import.praat"),
+			 inpath,
+			 os.path.join(workdir,"data","wav",outname+".wav"),
+			 os.path.join(workdir,"data","raw",outname+".raw"),
+			 str(self.settings["sample_rate"]),
+			 "1" if self.settings["invert"] else "0"]
+		subprocess.check_call(cmd)
+
 	def __call__(self,args):
 		subdirs=["raw","wav"]
-		if self.settings["uttdir"]:
-			subdirs.append("src_utts")
-			subdirs.append("utts")
 		for subdir in subdirs:
 			dir=os.path.join(workdir,"data",subdir)
 			if not os.path.isdir(dir):
 				os.mkdir(dir)
-		regex=re.compile(self.settings["wavename"])
-		wavedir=os.path.abspath(self.settings["wavedir"])
-		uttdir= os.path.abspath(self.settings["uttdir"]) if self.settings["uttdir"] else None
-		for name in sorted(os.listdir(wavedir)):
-			full_name=os.path.join(wavedir,name)
-			if os.path.isfile(full_name):
-				match=regex.match(name)
-				if match:
-					new_name="{}_{}_{}".format(self.settings["dataset"],self.settings["speaker"],match.group(1))
-					print("Processing {}".format(name))
-					if self.settings["trim_silences"]:
-						end_points=map(float,subprocess.check_output(["praat",os.path.join(scriptdir,"trim.praat"),full_name]).split())
-					sox=subprocess.Popen(["sox",full_name,"-n","remix","1","stats"],stderr=subprocess.PIPE)
-					out,err=sox.communicate()
-					for line in err.split("\n"):
-						if line.startswith("RMS lev dB"):
-							rms=float(line.split()[-1])
-						elif line.startswith("Pk lev dB"):
-							peak=float(line.split()[-1])
-						elif line.startswith("Bit-depth"):
-							bit_depth=int(line.split()[-1].split("/")[0])
-					gain=-20-rms
-					limit=-1-peak
-					if gain>limit:
-						gain=limit
-					q="-v" if bit_depth>16 else "-h"
-					command1=["sox",full_name,"-b","16",os.path.join("data","raw",new_name+".raw"),"remix","1"]
-					command2=["sox",full_name,"-b","16",os.path.join("data","wav",new_name+".wav"),"remix","1"]
-					if self.settings["trim_silences"]:
-						start=end_points[0]
-						length=end_points[1]-start
-						effect=["trim",str(start),str(length)]
-						command1.extend(effect)
-						command2.extend(effect)
-					if gain!=0:
-						effect=["gain",str(gain)]
-						command1.extend(effect)
-						command2.extend(effect)
-					command1.extend(["rate",q,str(self.settings["sample_rate"])])
-					command2.extend(["rate",q,"16000"])
-					subprocess.check_call(command1)
-					subprocess.check_call(command2)
-					if uttdir:
-						src=os.path.join(uttdir,os.path.splitext(name)[0]+".utt")
-						dst=os.path.join("data","src_utts",new_name+".utt")
-						shutil.copyfile(src,dst)
+		files=self.get_file_list()
+		for inpath,inname,outname in files:
+			self.process(inpath,inname,outname)
 
 class segmenter(task):
 	def register(self):
@@ -411,12 +394,11 @@ class labeller(task):
 		subparser.set_defaults(func=self)
 
 	def __call__(self,args):
-		if self.settings["uttdir"] is None:
-			labdir=os.path.join("data","labels","full")
-			testdir=os.path.join("data","labels","gen")
-			for dir in [labdir,testdir]:
-				if not os.path.isdir(dir):
-					os.mkdir(dir)
+		labdir=os.path.join("data","labels","full")
+		testdir=os.path.join("data","labels","gen")
+		for dir in [labdir,testdir]:
+			if not os.path.isdir(dir):
+				os.mkdir(dir)
 		subprocess.check_call(["RHVoice-make-hts-labels","-l",os.path.join("data","labels","mono"),self.settings["text"],labdir])
 		subprocess.check_call(["RHVoice-make-hts-labels","-p","test",self.settings["test"],testdir])
 		os.chdir("data")
