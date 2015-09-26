@@ -20,11 +20,11 @@ from collections import OrderedDict,defaultdict
 import threading
 from ctypes import c_char_p,c_short,sizeof,string_at,byref,cast
 
-from RHVoice import RHVoice_tts_engine, RHVoice_lib_path
+from RHVoice import RHVoice_tts_engine
 from RHVoice import RHVoice_init_params, RHVoice_callback_types, RHVoice_callbacks
 from RHVoice import RHVoice_synth_params
 from RHVoice import RHVoice_message_type, RHVoice_punctuation_mode, RHVoice_capitals_mode
-from RHVoice import load_tts_library
+from RHVoice import load_tts_library, get_library_location
 
 import config
 import nvwave
@@ -169,7 +169,7 @@ class SynthDriver(SynthDriver):
 
     @classmethod
     def check(cls):
-        return os.path.isfile(RHVoice_lib_path)
+        return os.path.isfile(get_library_location())
 
     def __init__(self):
         self.__lib=load_tts_library()
