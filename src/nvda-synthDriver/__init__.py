@@ -31,11 +31,11 @@ try:
 except ImportError:
 	from StringIO import StringIO
 
-from RHVoice import RHVoice_tts_engine, RHVoice_lib_path
+from RHVoice import RHVoice_tts_engine
 from RHVoice import RHVoice_init_params, RHVoice_callback_types, RHVoice_callbacks
 from RHVoice import RHVoice_synth_params
 from RHVoice import RHVoice_message_type, RHVoice_punctuation_mode, RHVoice_capitals_mode
-from RHVoice import load_tts_library
+from RHVoice import load_tts_library, get_library_location
 
 import config
 import globalVars
@@ -622,7 +622,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 
 	@classmethod
 	def check(cls):
-		return os.path.isfile(RHVoice_lib_path)
+		return os.path.isfile(get_library_location())
 
 	def __languages_match(self,code1,code2,full=True):
 		lang1=code1.split("_")
