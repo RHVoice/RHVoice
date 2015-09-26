@@ -810,8 +810,52 @@ class realigner(task):
 		self.save_mono()
 		self.cleanup()
 
+class retrainer(task):
+	def register(self):
+		subparser=subparsers.add_parser("retrain")
+		subparser.set_defaults(func=self)
+
+	def get_backup_dir(self):
+		verdir="versions"
+		if not os.path.isdir(verdir):
+			os.mkdir(verdir)
+		ver=len(os.listdir(verdir))+1
+		bkdir=os.path.join(verdir,str(ver))
+		if not os.path.isdir(bkdir):
+			os.mkdir(bkdir)
+		return bkdir
+
+	def backup(self):
+		backup_dir=self.get_backup_dir()
+		backup_list=["voices","gen","log",os.path.join("data","labels","mono"),os.path.join("data","labels","full"),"realigned"]
+		for what in backup_list:
+			if os.path.isdir(what):
+				shutil.copytree(what,os.path.join(backup_dir,what))
+			else:
+				shutil.copy2(what,backup_dir)
+
+	def replace_labels(self):
+		for type in ["mono","full"]:
+			src_dir=os.path.join("realigned",type)
+			dst_dir=os.path.join("data","labels",type)
+			shutil.rmtree(dst_dir,True)
+			shutil.copytree(src_dir,dst_dir)
+
+	def cleanup(self):
+		subprocess.check_call(["make","clean-voice"])
+		shutil.rmtree("realigned")
+
+	def train(self):
+		subprocess.check_call(["make","voice"])
+
+	def __call__(self,args):
+		self.backup()
+		self.replace_labels()
+		self.cleanup()
+		self.train()
+
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner]:
+	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
