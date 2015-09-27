@@ -637,7 +637,7 @@ class phonetic_class(object):
 				self.children.append(child)
 
 class hts_feature(object):
-	def __init__(self,name,prefix,suffix):
+	def __init__(self,name,prefix,suffix,value_pattern):
 		self.name=name
 		self.prefix=prefix
 		self.suffix=suffix
@@ -648,7 +648,7 @@ class hts_feature(object):
 			format_string=""
 			pattern="^"
 		format_string+="{}"
-		pattern+="([a-zA-Z0-9]+)"
+		pattern+="({})".format(value_pattern)
 		if suffix:
 			format_string+=(suffix+"*")
 			pattern+=(re.escape(suffix)+".+")
@@ -697,8 +697,9 @@ class questions_maker(task):
 		prefix=""
 		for elem in doc.find("format").iterfind("feature"):
 			name=elem.get("name")
+			value_pattern=elem.get("value_pattern","[a-zA-Z0-9]+")
 			suffix=elem.tail.strip()
-			features[name]=hts_feature(name,prefix,suffix)
+			features[name]=hts_feature(name,prefix,suffix,value_pattern)
 			prefix=suffix
 		return features
 
@@ -720,10 +721,15 @@ class questions_maker(task):
 		return values
 
 	def write_feature_questions(self,f_out,feature,values,phonetic_questions=None):
-		m=re.match("^((?:prev_)*|(?:next_)*)name$",feature.name)
+		m=re.match("^(?:(?:prev_)*|(?:next_)*)(?:name|(?:syl_vowel(?:_in_word)?))$",feature.name)
 		if m:
 			for phonemes,question in phonetic_questions.iteritems():
-				f_out.write('QS "{}{}"\t{{{}}}\n'.format(m.group(1),question,",".join(feature.format_string.format(phoneme) for phoneme in phonemes)))
+				if set(phonemes).intersection(set(values)):
+					if feature.name.endswith("name"):
+						prefix=feature.name[:-4]
+					else:
+						prefix=feature.name+"_"
+					f_out.write('QS "{}{}"\t{{{}}}\n'.format(prefix,question,",".join(feature.format_string.format(phoneme) for phoneme in phonemes)))
 			f_out.write("\n")
 		for value in sorted(values):
 			f_out.write('QS "{}=={}"\t{{{}}}\n'.format(feature.name,value,feature.format_string.format(value)))
