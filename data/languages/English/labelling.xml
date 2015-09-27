@@ -95,7 +95,7 @@ _
 =
 <feature name="phrase_pos_in_utt_bw"/>
 |
-<feature name="phrase_end_tone"/>
+<feature name="phrase_end_tone" value_pattern="0|NONE|[LH]\-[LH]\%"/>
 /I:
 <feature name="num_syls_in_next_phrase"/>
 =
