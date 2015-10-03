@@ -49,6 +49,21 @@ namespace RHVoice
       }
     };
 
+    struct feat_pos_in_syl_bw: public feature_function
+    {
+      feat_pos_in_syl_bw():
+        feature_function("pos_in_syl_bw")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        const item& seg_in_syl(seg.as("Segment").as("SylStructure"));
+        unsigned int result=std::distance(seg_in_syl.get_iterator(),seg_in_syl.parent().end())-1;
+        return result;
+      }
+    };
+
     struct feat_syl_numphones: public feature_function
     {
       feat_syl_numphones():
@@ -74,6 +89,51 @@ namespace RHVoice
       {
         const item& syl_in_word=syl.as("Syllable").as("SylStructure");
         unsigned int result=std::distance(syl_in_word.parent().begin(),syl_in_word.get_iterator());
+        return result;
+      }
+    };
+
+    struct feat_seg_pos_in_word: public feature_function
+    {
+      feat_seg_pos_in_word():
+        feature_function("seg_pos_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        const item& seg_in_word(seg.as("Transcription"));
+        unsigned int result=std::distance(seg_in_word.parent().begin(),seg_in_word.get_iterator());
+        return result;
+      }
+    };
+
+    struct feat_seg_pos_in_word_bw: public feature_function
+    {
+      feat_seg_pos_in_word_bw():
+        feature_function("seg_pos_in_word_bw")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        const item& seg_in_word(seg.as("Transcription"));
+        unsigned int result=std::distance(seg_in_word.get_iterator(),seg_in_word.parent().end())-1;
+        return result;
+      }
+    };
+
+    struct feat_pos_in_word_bw: public feature_function
+    {
+      feat_pos_in_word_bw():
+        feature_function("pos_in_word_bw")
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& syl_in_word=syl.as("Syllable").as("SylStructure");
+        unsigned int result=std::distance(syl_in_word.get_iterator(),syl_in_word.parent().end())-1;
         return result;
       }
     };
@@ -229,7 +289,7 @@ namespace RHVoice
       value eval(const item& word) const
       {
         const item& phrase=word.as("Word").as("Phrase").parent();
-        unsigned int result=std::distance(word.as("Phrase").get_iterator(),phrase.end());
+        unsigned int result=std::distance(word.as("Phrase").get_iterator(),phrase.end())-1;
         return result;
       }
     };
@@ -303,23 +363,55 @@ namespace RHVoice
 
       value eval(const item& syl) const
       {
-        std::string result;
+        unsigned int result;
         const item& syl_in_utt=syl.as("Syllable");
         if(syl_in_utt.has_next())
           {
             const item& syl_in_word=syl.as("SylStructure");
             if(syl_in_word.has_next())
-              result="0";
+              result=0;
             else
               {
                 if(syl_in_word.parent().as("Phrase").has_next())
-                  result="1";
+                  result=1;
                 else
-                  result="3";
+                  result=3;
               }
           }
         else
-          result="4";
+          result=4;
+        return result;
+      }
+    };
+
+    struct feat_phrases_in: public feature_function
+    {
+      feat_phrases_in():
+        feature_function("phrases_in")
+      {
+      }
+
+      value eval(const item& phrase) const
+      {
+        const item& phrase0=phrase.as("Phrase");
+        const relation& rel=phrase0.get_relation();
+        unsigned int result=std::distance(rel.begin(),phrase0.get_iterator());
+        return result;
+      }
+    };
+
+    struct feat_phrases_out: public feature_function
+    {
+      feat_phrases_out():
+        feature_function("phrases_out")
+      {
+      }
+
+      value eval(const item& phrase) const
+      {
+        const item& phrase0=phrase.as("Phrase");
+        const relation& rel=phrase0.get_relation();
+        unsigned int result=std::distance(phrase0.get_iterator(),rel.end())-1;
         return result;
       }
     };
@@ -338,6 +430,27 @@ namespace RHVoice
         const std::string& name=seg.as("Segment").get("name").as<std::string>();
         const phoneme_set& phs=seg.get_relation().get_utterance().get_language().get_phoneme_set();
         return phs.get_phoneme(name)[feature_name];
+      }
+
+    private:
+      std::string feature_name;
+    };
+
+    class syl_vowel_feature_function: public feature_function
+    {
+    public:
+      explicit syl_vowel_feature_function(const std::string& name):
+        feature_function("syl_vowel_"+name),
+        feature_name(name)
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const phoneme_set& phs=syl.get_relation().get_utterance().get_language().get_phoneme_set();
+        const item& syl_in_word=syl.as("Syllable").as("SylStructure");
+        item::const_iterator vowel_pos=std::find_if(syl_in_word.begin(),syl_in_word.end(),feature_equals<std::string>("ph_vc","+"));
+        return ((vowel_pos==syl_in_word.end())?zero:(phs.get_phoneme(vowel_pos->get("name").as<std::string>())[feature_name]));
       }
 
     private:
@@ -405,10 +518,15 @@ namespace RHVoice
     for(phoneme_feature_set::const_iterator it(phfs.begin());it!=phfs.end();++it)
       {
         register_feature(smart_ptr<feature_function>(new phoneme_feature_function(*it)));
+        register_feature(smart_ptr<feature_function>(new syl_vowel_feature_function(*it)));
       }
     register_feature(smart_ptr<feature_function>(new feat_pos_in_syl));
+    register_feature(smart_ptr<feature_function>(new feat_pos_in_syl_bw));
     register_feature(smart_ptr<feature_function>(new feat_syl_numphones));
     register_feature(smart_ptr<feature_function>(new feat_pos_in_word));
+    register_feature(smart_ptr<feature_function>(new feat_pos_in_word_bw));
+    register_feature(smart_ptr<feature_function>(new feat_seg_pos_in_word));
+    register_feature(smart_ptr<feature_function>(new feat_seg_pos_in_word_bw));
     register_feature(smart_ptr<feature_function>(new feat_word_numsyls));
     register_feature(smart_ptr<feature_function>(new feat_syl_in));
     register_feature(smart_ptr<feature_function>(new feat_syl_out));
@@ -425,6 +543,8 @@ namespace RHVoice
     register_feature(smart_ptr<feature_function>(new feat_phrase_numwords));
     register_feature(smart_ptr<feature_function>(new feat_syl_break));
     register_feature(smart_ptr<feature_function>(new feat_word_stress_pattern));
+    register_feature(smart_ptr<feature_function>(new feat_phrases_in));
+    register_feature(smart_ptr<feature_function>(new feat_phrases_out));
   }
 
   item& language::append_token(utterance& u,const std::string& text) const
