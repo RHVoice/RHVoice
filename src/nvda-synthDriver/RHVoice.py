@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Olga Yakovleva <yakovleva.o.v@gmail.com>"
-__version__ = "0.5.1.2"
+__version__ = "0.5.1.3"
 # version decoded:
 #
 #              ^^^^^    -- RHVoice.dll (RHVoice.so) version that was
@@ -208,6 +208,8 @@ class WaveWriteCallback(SpeechCallback):
 
 # Reference to loaded library
 LIB = None
+# This dir is used for distributing voices in Python Wheel
+DATADIR = "RHVoice-%s.langdata" % __version__
 
 def get_rhvoice_version():
     global LIB
@@ -216,7 +218,7 @@ def get_rhvoice_version():
     return LIB.RHVoice_get_version()
 
 def main():
-    global DEBUG
+    global DATADIR, DEBUG
 
     usage = """
   1. RHVoice.py <version>
@@ -250,14 +252,25 @@ Commands:
     if opts.debug:
         DEBUG = 1
 
+    root_path = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
+    data_path = os.path.join(root_path, DATADIR)
+
     # --- setup synthesizer and main ---
 
     lib = load_tts_library()
     lib.RHVoice_set_logging(True)
     if DEBUG:
-        print("RHVoice %s" % lib.RHVoice_get_version())
+        print("RHVoice Python %s" % __version__)
+        print("Data Path: %s" % data_path)
+        print("")
+    if not os.path.exists(data_path):
+        print("WARNING: Language resource dir does not exist")
+        print("       : %s" % data_path)
+        print("")
+
 
     init_params = RHVoice_init_params()
+    init_params.data_path = data_path
     # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
     #speech_callback = SpeechCallback()
     speech_callback = WaveWriteCallback(opts.output)
@@ -278,7 +291,10 @@ Commands:
 
     engine = lib.RHVoice_new_tts_engine(byref(init_params))
     if not engine:
-        raise RuntimeError("RHVoice: engine initialization error")
+        if DEBUG:
+            raise RuntimeError("RHVoice: engine initialization error")
+        else:
+            sys.exit("RuntimeError: RHVoice: engine initialization error")
     voices_total = lib.RHVoice_get_number_of_voices(engine)
     print("Number of voices: %s" % voices_total)
     first_voice = lib.RHVoice_get_voices(engine)
