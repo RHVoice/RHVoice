@@ -230,6 +230,8 @@ Commands:
                       help="file with text encoded in UTF-8")
     parser.add_option("-o", "--output", default="output.wav",
                       help="output filename (default: output.wav)")
+    parser.add_option("--datadir",
+                      help="path to language data (default: %s/)" % DATADIR)
     parser.add_option("--debug", help="show debug info", action="store_true")
     opts, args = parser.parse_args()
     if not args and not opts.input:
@@ -242,6 +244,8 @@ Commands:
 
     root_path = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
     data_path = os.path.join(root_path, DATADIR)
+    if opts.datadir:
+        data_path = opts.datadir
 
     # --- setup synthesizer and main ---
 
@@ -252,8 +256,8 @@ Commands:
         print("Data Path: %s" % data_path)
         print("")
     if not os.path.exists(data_path):
-        print("WARNING: Language resource dir does not exist")
-        print("       : %s" % data_path)
+        print("WARNING: Language resource dir does not exist - ")
+        print("    %s" % data_path)
         print("")
 
 
