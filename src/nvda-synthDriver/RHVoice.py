@@ -14,6 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+__author__ = "Olga Yakovleva <yakovleva.o.v@gmail.com>"
+__version__ = "0.5.1.2"
+# version decoded:
+#
+#              ^^^^^    -- RHVoice.dll (RHVoice.so) version that was
+#                          tested with this module
+#                   ^^  -- RHVoice.py module version
+
 import os
 import sys
 import time
@@ -196,12 +204,36 @@ class WaveWriteCallback(SpeechCallback):
         return True
 
 
+### Global state
+
+# Reference to loaded library
+LIB = None
+
+def get_rhvoice_version():
+    global LIB
+    if not LIB:
+        LIB = load_tts_library()
+    return LIB.RHVoice_get_version()
+
 def main():
     global DEBUG
 
-    usage = "RHVoice.py [-o filename] \"text\""
+    usage = """
+  1. RHVoice.py <version>
+  2. RHVoice.py [--debug] [-o output.wav] \"text\"
+  3. RHVoice.py [--debug] [-o output.wav] -i input.txt
 
-    # --- process params ---
+Commands:
+  version       - show version of C module and Python API\
+"""
+    # --- process commands ---
+    possible_command = sys.argv[1:2]
+    if possible_command == ['version']:
+        print("RHVoice %s" % get_rhvoice_version())
+        print("Python API %s" % __version__)
+        sys.exit(0)
+
+    # --- process options ---
     import optparse
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-i", "--input",
