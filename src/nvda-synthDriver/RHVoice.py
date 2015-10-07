@@ -223,15 +223,40 @@ def get_rhvoice_version():
         LIB = load_tts_library()
     return LIB.RHVoice_get_version()
 
-def init_rhvoice():
+def init_rhvoice(datadir=DATADIR, callback=DebugCallback()):
     """
-    Load DLL if not loaded and enables logging.
+    Load DLL and initialize speech engine - load language data
+    and set callbacks.
     """
        
     global LIB
+    global init_params  # need to preserve reference for ctypes
     if not LIB:
         LIB = load_tts_library()
     LIB.RHVoice_set_logging(True)
+
+    # creating obligatory callback with .play_speech()
+    # RHVoice_new_tts_engine fails without callback
+    c_speech_callback = RHVoice_callback_types.play_speech(callback)
+    callbacks = RHVoice_callbacks()
+    callbacks.play_speech = c_speech_callback
+    # possible callbacks
+    """
+    RHVoice_callbacks(self.__c_speech_callback,
+        self.__c_mark_callback,
+        cast(None,RHVoice_callback_types.word_starts),
+        cast(None,RHVoice_callback_types.word_ends),
+        cast(None,RHVoice_callback_types.sentence_starts),
+        cast(None,RHVoice_callback_types.sentence_ends),
+        cast(None,RHVoice_callback_types.play_audio)),
+    """
+
+    init_params = RHVoice_init_params()
+    init_params.data_path = datadir
+    init_params.callbacks = callbacks
+
+    return LIB.RHVoice_new_tts_engine(byref(init_params))
+
 
 def main():
     global DATADIR, DEBUG
@@ -286,35 +311,14 @@ Commands:
         print("    %s" % data_path)
         print("")
 
-    init_rhvoice()
-    lib = LIB
-
-    init_params = RHVoice_init_params()
-    init_params.data_path = data_path
-    # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
-    #speech_callback = DebugCallback()
-    speech_callback = WaveWriteCallback(opts.output)
-    c_speech_callback = RHVoice_callback_types.play_speech(speech_callback)
-    callbacks = RHVoice_callbacks()
-    callbacks.play_speech = c_speech_callback
-    init_params.callbacks = callbacks
-
-    """
-    RHVoice_callbacks(self.__c_speech_callback,
-        self.__c_mark_callback,
-        cast(None,RHVoice_callback_types.word_starts),
-        cast(None,RHVoice_callback_types.word_ends),
-        cast(None,RHVoice_callback_types.sentence_starts),
-        cast(None,RHVoice_callback_types.sentence_ends),
-        cast(None,RHVoice_callback_types.play_audio)),
-    """
-
-    engine = lib.RHVoice_new_tts_engine(byref(init_params))
+    engine = init_rhvoice(datadir=data_path, callback=WaveWriteCallback(opts.output))
     if not engine:
         if DEBUG:
             raise RuntimeError("RHVoice: engine initialization error")
         else:
             sys.exit("RuntimeError: RHVoice: engine initialization error")
+
+    lib = LIB
     voices_total = lib.RHVoice_get_number_of_voices(engine)
     print("Number of voices: %s" % voices_total)
     first_voice = lib.RHVoice_get_voices(engine)
