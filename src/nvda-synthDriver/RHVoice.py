@@ -161,13 +161,18 @@ class SpeechCallback(object):
     """
     sample_size = sizeof(c_short)
 
+    def __call__(self, samples, count, user_data):
+        """Should return False to stop synthesis"""
+        return True
+
+class DebugCallback(SpeechCallback):
+    """ Callback that prints info about generated samples. """
     def __init__(self):
         self.counter = 0
         self.datasize = 0
         self.starttime = time.clock()
 
     def __call__(self, samples, count, user_data):
-        """Should return False to stop synthesis"""
         self.counter += 1
         size = count*self.sample_size
         self.datasize += size
@@ -179,6 +184,7 @@ class SpeechCallback(object):
         print("speech callback %s time(s) samples: %s, size: %s, %.2f kBps" % (self.counter, count, size, kbps))
 
 class WaveWriteCallback(SpeechCallback):
+    """ Callback that writes sound to wave file. """
     def __init__(self, filename, ):
         super(WaveWriteCallback, self).__init__()
         self.wavefile = wave.open(filename, 'wb')
@@ -274,7 +280,7 @@ Commands:
     init_params = RHVoice_init_params()
     init_params.data_path = data_path
     # need to set callbacks with .play_speech set, or RHVoice_new_tts_engine will fail
-    #speech_callback = SpeechCallback()
+    #speech_callback = DebugCallback()
     speech_callback = WaveWriteCallback(opts.output)
     c_speech_callback = RHVoice_callback_types.play_speech(speech_callback)
     callbacks = RHVoice_callbacks()
