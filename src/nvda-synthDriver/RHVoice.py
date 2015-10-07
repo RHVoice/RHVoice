@@ -250,11 +250,12 @@ def main():
     global DATADIR, DEBUG
 
     usage = """
-  1. RHVoice.py <version>
+  1. RHVoice.py <command>
   2. RHVoice.py [--debug] [-o output.wav] \"text\"
   3. RHVoice.py [--debug] [-o output.wav] -i input.txt
 
 Commands:
+  list          - list voices loaded from datadir
   version       - show version of C module and Python API\
 """
     # --- process commands ---
@@ -306,14 +307,21 @@ Commands:
         else:
             sys.exit("RuntimeError: RHVoice: engine initialization error")
 
+    # --- list ---
+    voices_total = LIB.RHVoice_get_number_of_voices(engine)
+    first_voice = LIB.RHVoice_get_voices(engine)
+    if possible_command == ['list']:
+        if DEBUG:
+            print("    Voice     Language  Gender")
+        genders = {1: 'male', 2:'female'}
+        for voiceno in range(voices_total):
+            vi = first_voice[voiceno]
+            print("  %-16s  %2s    %2s " % (vi.name, vi.language, genders[vi.gender]))
+        if DEBUG:
+            print("Number of voices: %s" % voices_total)
+        sys.exit(0)
+
     lib = LIB
-    voices_total = lib.RHVoice_get_number_of_voices(engine)
-    print("Number of voices: %s" % voices_total)
-    first_voice = lib.RHVoice_get_voices(engine)
-    print("    Voice     Language  Gender")
-    for voiceno in range(voices_total):
-        vi = first_voice[voiceno]
-        print(" %-16s  %2s    %2s " % (vi.name, vi.language, vi.gender))
 
     profiles_total = lib.RHVoice_get_number_of_voice_profiles(engine)
     profiles = []
