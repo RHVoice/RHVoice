@@ -204,7 +204,7 @@ class WaveWriteCallback(SpeechCallback):
         return True
 
 
-### Global state
+# --- Global state. High level API ---
 
 # Reference to loaded library
 LIB = None
@@ -216,6 +216,16 @@ def get_rhvoice_version():
     if not LIB:
         LIB = load_tts_library()
     return LIB.RHVoice_get_version()
+
+def init_rhvoice():
+    """
+    Load DLL if not loaded and enables logging.
+    """
+       
+    global LIB
+    if not LIB:
+        LIB = load_tts_library()
+    LIB.RHVoice_set_logging(True)
 
 def main():
     global DATADIR, DEBUG
@@ -261,8 +271,6 @@ Commands:
 
     # --- setup synthesizer and main ---
 
-    lib = load_tts_library()
-    lib.RHVoice_set_logging(True)
     if DEBUG:
         print("RHVoice Python %s" % __version__)
         print("Data Path: %s" % data_path)
@@ -272,6 +280,8 @@ Commands:
         print("    %s" % data_path)
         print("")
 
+    init_rhvoice()
+    lib = LIB
 
     init_params = RHVoice_init_params()
     init_params.data_path = data_path
