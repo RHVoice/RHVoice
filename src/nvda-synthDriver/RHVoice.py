@@ -257,6 +257,24 @@ def init_rhvoice(datadir=DATADIR, callback=DebugCallback()):
 
     return LIB.RHVoice_new_tts_engine(byref(init_params))
 
+def get_voices(engine):
+    """ Returns dictionary with data about available voices. """
+    global LIB
+    genders = {1: 'male', 2:'female'}
+    voices = dict()
+    voices_total = LIB.RHVoice_get_number_of_voices(engine)
+    first_voice = LIB.RHVoice_get_voices(engine)
+    for voiceno in range(voices_total):
+        vi = first_voice[voiceno]
+        key = vi.name.lower()
+        voices[key] = dict(
+            no = voiceno,
+            name = vi.name,
+            lang = vi.language,
+            gender = genders[vi.gender]
+        )
+    return voices
+
 
 def main():
     global DATADIR, DEBUG
@@ -320,17 +338,23 @@ Commands:
             sys.exit("RuntimeError: RHVoice: engine initialization error")
 
     # --- list ---
-    voices_total = LIB.RHVoice_get_number_of_voices(engine)
-    first_voice = LIB.RHVoice_get_voices(engine)
     if possible_command == ['list']:
         if DEBUG:
             print("    Voice     Language  Gender")
-        genders = {1: 'male', 2:'female'}
-        for voiceno in range(voices_total):
-            vi = first_voice[voiceno]
-            print("  %-16s  %2s    %2s " % (vi.name, vi.language, genders[vi.gender]))
+        voices = get_voices(engine)
+        #from pprint import pprint
+        #pprint(voices)
+        #  {'alan': {'gender': 'male', 'lang': 'en', 'name': 'Alan', 'no': 0},
+        #   'aleksandr': {'gender': 'male', 'lang': 'ru', 'name': 'Aleksandr', 'no': 1},
+        #  ...
+        # sort voices by their no, which is id to select them
+        voice_order = sorted(voices.items(), key=lambda x: x[1]["no"])
+        voice_order = [v[0] for v in voice_order]
+        for i in range(len(voices)):
+            voice = voices[voice_order[i]]
+            print("  %(name)-16s  %(lang)2s    %(gender)2s " % voice)
         if DEBUG:
-            print("Number of voices: %s" % voices_total)
+            print("Number of voices: %s" % len(voices))
         sys.exit(0)
 
     lib = LIB
