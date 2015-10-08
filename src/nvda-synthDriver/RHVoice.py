@@ -60,11 +60,15 @@ def win32_utf8_argv():
     cmd = GetCommandLineW()
     argc = c_int(0)
     argv = CommandLineToArgvW(cmd, byref(argc))
-    if argc.value > 0:
+    argnum = argc.value
+    sysnum = len(sys.argv)
+    result = []
+    if argnum > 0:
         # Remove Python executable and commands if present
-        start = argc.value - len(sys.argv)
-        return [argv[i].encode('utf-8') for i in
-                xrange(start, argc.value)]
+        start = argnum - sysnum
+        for i in range(start, argnum):
+            result.append(argv[i].encode('utf-8'))
+    return result
 
 # --- bindings ---
 
