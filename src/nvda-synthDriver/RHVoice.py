@@ -268,14 +268,23 @@ def main():
     global DATADIR, DEBUG
 
     usage = """
+Usage:
   1. RHVoice.py <command>
   2. RHVoice.py [--debug] [-o output.wav] \"text\"
   3. RHVoice.py [--debug] [-o output.wav] -i input.txt
 
 Commands:
   list          - list voices loaded from datadir
-  version       - show version of C module and Python API\
-"""
+  version       - show version of C module and Python API
+
+Options:
+  -i --input FILE       file with text encoded in UTF-8
+  -o --output FILE      output filename (default: output.wav)
+  --datadir DATADIR     path to language data
+                        (default: %(datadir)s)
+  --debug               show debug info
+""" % dict(datadir=DATADIR)
+
     # --- process commands ---
     possible_command = sys.argv[1:2]
     if possible_command == ['version']:
@@ -285,17 +294,19 @@ Commands:
 
     # --- process options ---
     import optparse
-    parser = optparse.OptionParser(usage=usage)
+    parser = optparse.OptionParser()
     parser.add_option("-i", "--input",
                       help="file with text encoded in UTF-8")
     parser.add_option("-o", "--output", default="output.wav",
                       help="output filename (default: output.wav)")
+
     parser.add_option("--datadir",
                       help="path to language data (default: %s/)" % DATADIR)
     parser.add_option("--debug", help="show debug info", action="store_true")
     opts, args = parser.parse_args()
     if not args and not opts.input:
-        parser.print_help()
+        #parser.print_help()
+        print(usage)
         print("\nError: No input text")
         sys.exit(-1)
 
