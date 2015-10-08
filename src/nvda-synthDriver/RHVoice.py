@@ -258,7 +258,11 @@ def init_rhvoice(datadir=DATADIR, callback=DebugCallback()):
     return LIB.RHVoice_new_tts_engine(byref(init_params))
 
 def get_voices(engine):
-    """ Returns dictionary with data about available voices. """
+    """
+    Returns nested dictionary with voice information. First
+    level key is voice name in lowercase, second level keys
+    are voice properties.
+    """
     global LIB
     genders = {1: 'male', 2:'female'}
     voices = dict()
@@ -294,6 +298,7 @@ Options:
   -o --output FILE      output filename (default: output.wav)
   --datadir DATADIR     path to language data
                         (default: %(datadir)s)
+  --voice NAME[,NAME]   choose voices
   --debug               show debug info
 """ % dict(datadir=DATADIR)
 
@@ -311,9 +316,11 @@ Options:
                       help="file with text encoded in UTF-8")
     parser.add_option("-o", "--output", default="output.wav",
                       help="output filename (default: output.wav)")
-
     parser.add_option("--datadir",
                       help="path to language data (default: %s/)" % DATADIR)
+    parser.add_option("--voice",
+                      help="choose voices")
+
     parser.add_option("--debug", help="show debug info", action="store_true")
     opts, args = parser.parse_args()
     if not args and not opts.input:
@@ -348,11 +355,29 @@ Options:
         else:
             sys.exit("RuntimeError: RHVoice: engine initialization error")
 
+    # --- voice ---
+    # [ ] multiple voice selection (profile) is not there yet
+    voices = get_voices(engine)
+    voice_selected = []
+    if opts.voice:
+        for v in opts.voice.split(','):
+            if v.lower() not in voices:
+                print("\nError: Voice %s is unknown." % v)
+                sys.exit(-1)
+            else:
+                if DEBUG:
+                    print("Selecting voice: %s" % v)
+                voice_selected.append(voices[v.lower()]["no"])
+    if not voice_selected:
+        # choose the first voice (doesn't depend on language)
+        voice_selected = [0]
+    elif len(voice_selected) > 1:
+        print("\nNote: Sorry, multiple language selection doesn't work yet")
+
     # --- list ---
     if possible_command == ['list']:
         if DEBUG:
             print("    Voice     Language  Gender")
-        voices = get_voices(engine)
         #from pprint import pprint
         #pprint(voices)
         #  {'alan': {'gender': 'male', 'lang': 'en', 'name': 'Alan', 'no': 0},
@@ -367,6 +392,8 @@ Options:
         if DEBUG:
             print("Number of voices: %s" % len(voices))
         sys.exit(0)
+
+
 
     lib = LIB
 
@@ -394,7 +421,11 @@ Options:
 
     # message also specifies voice parameters, which are obligatory
     synth_params = RHVoice_synth_params()
-    synth_params.voice_profile = profiles[0]  # 0 - english
+    # choosing voice. profile is a set of voices for multi-language text.
+    # there are default profiles with single voice selected, so for now
+    # we just use them.
+    # [ ] multiple voice selection
+    synth_params.voice_profile = profiles[voice_selected[0]]
     synth_params.relative_pitch = 1.0
     synth_params.relative_rate = 1.0
     # setting volume is tricky, relative_volume value 1.0 produces
