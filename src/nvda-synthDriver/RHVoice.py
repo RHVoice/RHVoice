@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Olga Yakovleva <yakovleva.o.v@gmail.com>"
-__version__ = "0.5.1.4"
+__version__ = "0.5.1.5"
 # version decoded:
 #
 #              ^^^^^    -- RHVoice.dll (RHVoice.so) version that was
@@ -241,7 +241,7 @@ class WaveWriteCallback(SpeechCallback):
 # Reference to loaded library
 LIB = None
 # This dir is used for distributing voices in Python Wheel
-DATADIR = "RHVoice-%s.langdata" % __version__
+DATADIR = "RHVoice.langdata"
 
 def get_rhvoice_version():
     global LIB
