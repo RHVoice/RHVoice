@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2010, 2011, 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010-2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2015  anatoly techtonik <techtonik@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Olga Yakovleva <yakovleva.o.v@gmail.com>"
-__version__ = "0.5.1.3"
+__version__ = "0.5.1.4"
 # version decoded:
 #
 #              ^^^^^    -- RHVoice.dll (RHVoice.so) version that was
