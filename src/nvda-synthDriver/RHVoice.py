@@ -397,11 +397,13 @@ Options:
             raise RuntimeError("RHVoice: engine initialization error")
         else:
             sys.exit("RuntimeError: RHVoice: engine initialization error")
+    print("Writing to: %s" % opts.output)
 
     # --- voice ---
     # [ ] multiple voice selection (profile) is not there yet
     voices = get_voices(engine)
     voice_selected = []
+    voice_selected_name = []
     if opts.voice:
         for v in opts.voice.split(','):
             if v.lower() not in voices:
@@ -411,11 +413,14 @@ Options:
                 if DEBUG:
                     print("Selecting voice: %s" % v)
                 voice_selected.append(voices[v.lower()]["no"])
+                voice_selected_name.append(voices[v.lower()]["name"])
     if not voice_selected:
         # choose the first voice (doesn't depend on language)
         voice_selected = [0]
+        voice_selected_name = [voices[v]["name"] for v in voices if voices[v]["no"] == 0]
     elif len(voice_selected) > 1:
         print("\nNote: Sorry, multiple language selection doesn't work yet")
+    print("Selected voice: %s" % voice_selected_name[0])
 
     # --- list ---
     if possible_command == ['list']:
@@ -443,18 +448,17 @@ Options:
     profiles_total = lib.RHVoice_get_number_of_voice_profiles(engine)
     profiles = []
     first_profile = lib.RHVoice_get_voice_profiles(engine)
-    print("Voice Profiles")
     for profno in range(profiles_total):
-        print(" %s" % first_profile[profno])
-        profiles.append(first_profile[profno])
+            profiles.append(first_profile[profno])
+    if DEBUG:
+        print("Voice Profiles")
+        for p in profiles:
+            print(" %s" % p)
 
     # transform text to RHVoice_message for RHVoice_speak 
     # RHVoice_new_message is a function to do so. Its parameters:
     # (RHVoice_tts_engine, c_char_p, c_uint, c_int, POINTER(RHVoice_synth_params), c_void_p)
     # (tts_engine, const char* text, length, RHVoice_message_type,   synth_params, void* user_data)
-
-    text_en = "this is a test text phrase"
-    text_ru = "Значит так, короче, в общем, я считаю дело к ночи"
 
     text = ""
     if args:
