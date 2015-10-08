@@ -33,7 +33,7 @@ from ctypes import c_int, c_uint, c_short, c_void_p, byref, sizeof, string_at
 
 DEBUG=0
 
-# --- patching for Python bugs ---
+# --- workarounds for Python misbehavior ---
 
 # enable passing unicode argument from command line
 # https://stackoverflow.com/questions/846850/read-unicode-characters
@@ -65,9 +65,6 @@ def win32_utf8_argv():
         start = argc.value - len(sys.argv)
         return [argv[i].encode('utf-8') for i in
                 xrange(start, argc.value)]
-
-if sys.platform == "win32":
-    sys.argv = win32_utf8_argv()
 
 # --- bindings ---
 
@@ -326,6 +323,11 @@ Options:
   --voice NAME[,NAME]   choose voices
   --debug               show debug info
 """ % dict(datadir=DATADIR)
+
+
+    # --- patch Python to read unicode from command line ---
+    if sys.platform == "win32":
+        sys.argv = win32_utf8_argv()
 
     # --- process commands ---
     possible_command = sys.argv[1:2]
