@@ -1,5 +1,6 @@
-Manual instructions how to build Python wheel. This should move
-into SCons tooling one day.
+Manual instructions how to build Python wheel for distributing
+through Pyton Package Index (PyPI). This does not relate to NVDA
+plugin in any way and should move into SCons tooling some day.
 
 ## Creating Windows wheel by hand 
 
@@ -21,3 +22,22 @@ into SCons tooling one day.
             RHVoice-{{version}}-py2-none-win32.whl
 
 Repeat the above on Windows 64.
+
+## Creating new release on PyPI
+
+Create PKG-INFO file from the following template:
+
+    Metadata-Version: 1.1
+    Name: RHVoice
+    Version: 0.5.1.5
+    Author: Olga Yakovleva
+    Maintainer: anatoly techtonik
+    Maintainer-email: techtonik at gmail com
+    Home-page: https://github.com/techtonik/RHVoice/tree/master/src/nvda-synthDriver
+    Summary: Free and open source speech synthesizer
+
+Make sure to change **version**.
+
+Upload it through the PyPI submit form at
+https://pypi.python.org/pypi?%3Aaction=submit_form
+Then add .whl package to this new version.
