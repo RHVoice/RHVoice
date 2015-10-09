@@ -333,7 +333,11 @@ Commands:
 Options:
   -i --input FILE       file with text encoded in UTF-8
   -o --output FILE      output filename (default: output.wav)
+
   --voice NAME[,NAME]   choose voices
+  --pitch 1.0           tone of voice
+  --rate 1.0            speed of speech
+  --volume 1.0          speech volume
 
   --datadir DATADIR     path to language data (default: RHVoice.langdata/)
   --debug               show debug info
@@ -360,8 +364,11 @@ Options:
                       help="output filename (default: output.wav)")
     parser.add_option("--datadir",
                       help="path to language data (default: RHVoice.langdata/)")
-    parser.add_option("--voice",
-                      help="choose voices")
+
+    parser.add_option("--voice", help="choose voices")
+    parser.add_option("--pitch", type="float", default=1.0, help="tone of voice")
+    parser.add_option("--rate", type="float", default=1.0, help="speed of speech")
+    parser.add_option("--volume", type="float", default=1.0, help="speech volume")
 
     parser.add_option("--debug", help="show debug info", action="store_true")
     opts, args = parser.parse_args()
@@ -471,12 +478,13 @@ Options:
     # we just use them.
     # [ ] multiple voice selection
     synth_params.voice_profile = profiles[voice_selected[0]]
-    synth_params.relative_pitch = 1.0
-    synth_params.relative_rate = 1.0
+
+    synth_params.relative_pitch = opts.pitch   # 1.0 is the default
+    synth_params.relative_rate = opts.rate
     # setting volume is tricky, relative_volume value 1.0 produces
     # -4 dB with voice Alan, and -16 dB if setting is not set
-    # (measured with in Audacity)
-    synth_params.relative_volume = 1.0
+    # (measured in Audacity)
+    synth_params.relative_volume = opts.volume
 
     message = lib.RHVoice_new_message(engine,
                                       text,
