@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Olga Yakovleva <yakovleva.o.v@gmail.com>"
-__version__ = "0.5.1.5"
+__version__ = "0.5.1.6"
 # version decoded:
 #
 #              ^^^^^    -- RHVoice.dll (RHVoice.so) version that was
@@ -166,6 +166,19 @@ def get_library_location():
         print("detected dll/so path: %s " % libpath)
     return libpath
 
+def get_datadir_location():
+    root = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
+    lookup_paths = ["RHVoice.langdata", "../../data", "data"]
+    for p in lookup_paths:
+        datadir = os.path.abspath(os.path.join(root, p))
+        if os.path.exists(os.path.join(datadir, "languages")):
+            break
+    else:
+        datadir = lookup_paths[0]  # if not exist - choose first
+    if DEBUG:
+        print("detected data path: %s " % datadir)
+    return datadir
+
 def load_tts_library():
     lib=CDLL(get_library_location().encode(sys.getfilesystemencoding()))
     lib.RHVoice_get_version.restype=c_char_p
@@ -240,8 +253,6 @@ class WaveWriteCallback(SpeechCallback):
 
 # Reference to loaded library
 LIB = None
-# This dir is used for distributing voices in Python Wheel
-DATADIR = "RHVoice.langdata"
 
 def get_rhvoice_version():
     global LIB
@@ -249,7 +260,7 @@ def get_rhvoice_version():
         LIB = load_tts_library()
     return LIB.RHVoice_get_version()
 
-def init_rhvoice(datadir=DATADIR, callback=DebugCallback()):
+def init_rhvoice(datadir=get_datadir_location(), callback=DebugCallback()):
     """
     Load DLL and initialize speech engine - load language data
     and set callbacks.
@@ -307,7 +318,7 @@ def get_voices(engine):
 
 
 def main():
-    global DATADIR, DEBUG
+    global DEBUG
 
     usage = """
 Usage:
@@ -322,11 +333,11 @@ Commands:
 Options:
   -i --input FILE       file with text encoded in UTF-8
   -o --output FILE      output filename (default: output.wav)
-  --datadir DATADIR     path to language data
-                        (default: %(datadir)s)
   --voice NAME[,NAME]   choose voices
+
+  --datadir DATADIR     path to language data (default: RHVoice.langdata/)
   --debug               show debug info
-""" % dict(datadir=DATADIR)
+"""
 
 
     # --- patch Python to read unicode from command line ---
@@ -348,7 +359,7 @@ Options:
     parser.add_option("-o", "--output", default="output.wav",
                       help="output filename (default: output.wav)")
     parser.add_option("--datadir",
-                      help="path to language data (default: %s/)" % DATADIR)
+                      help="path to language data (default: RHVoice.langdata/)")
     parser.add_option("--voice",
                       help="choose voices")
 
@@ -363,8 +374,7 @@ Options:
     if opts.debug:
         DEBUG = 1
 
-    root_path = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
-    data_path = os.path.join(root_path, DATADIR)
+    data_path = get_datadir_location()
     if opts.datadir:
         data_path = opts.datadir
 
