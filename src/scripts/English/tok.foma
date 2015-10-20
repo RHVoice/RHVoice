@@ -56,12 +56,14 @@ z -> z|Z ;
 define ConsonantLetterSequence 
 [b|c|d|f|g|h|j|k|l|m|n|q|p|r|s|t|v|w|x|z]+ ; 
 
+define ConsonantAbbreviation {ms} | {mrs} | {mr} | {vs} ; 
+
 read text initialisms.txt
 letter machine
 define LetterSequenceWithVowels
 
 define LetterSequence 
-[[{IT} | {US} | ConsonantLetterSequence | LetterSequenceWithVowels] .o. CaseVariants].l ; 
+[[{IT} | {US} | [ConsonantLetterSequence - ConsonantAbbreviation] | LetterSequenceWithVowels] .o. CaseVariants].l ; 
 
 define Am Apostrophe [m|M];
 define Are Apostrophe [r|R] [e|E];
