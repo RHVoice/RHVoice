@@ -1,0 +1,30 @@
+#!/bin/bash
+"true";exec festival --script $0 $*
+
+(load (path-append libdir "init.scm"))
+
+(set! prompts (load (car argv) t))
+(define (write_word word)
+(set! name (item.name word))
+(set! tword (item.relation word 'Token))
+(set! token (item.parent tword))
+(format fd name)
+(format fd
+(if (item.next word)
+(if (equal? (item.feat word 'pbreak) "NB") " " ", ")
+(if (string-matches (item.feat token 'punc) "\\?") "?" ".")))
+)
+
+(define (write_prompt prompt)
+(set! utt (SynthText (car (cdr prompt))))
+(format fd "<s> ")
+(mapcar write_word (utt.relation.items utt 'Word))
+(format fd " </s>\n")
+)
+
+(set! fd (fopen (car (cdr argv)) "w"))
+(format fd "<speak xml:lang=\"en\">\n")
+(mapcar write_prompt prompts)
+(format fd "</speak>\n")
+(fclose fd)
+
