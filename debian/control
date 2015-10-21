@@ -1,0 +1,35 @@
+Source: rhvoice
+Section: sound
+Priority: optional
+Maintainer: Yauhen Kharuzhy <jekhor@gmail.com>
+Build-Depends: debhelper (>= 9), scons, libsox-dev, libunistring-dev, flite1-dev, libiconv-hook-dev, expat, pkg-config,libao-dev, libglibmm-2.4-dev, portaudio19-dev
+Standards-Version: 3.9.6
+Homepage: https://github.com/Olga-Yakovleva/RHVoice
+#Vcs-Git: git://anonscm.debian.org/collab-maint/rhvoice.git
+#Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/rhvoice.git;a=summary
+
+Package: rhvoice
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: free and open source speech synthesizer
+ RHVoice is a speech synthesizer.
+
+Package: librhvoice2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, rhvoice-data
+Description: free and open source speech synthesizer - libraries
+ RHVoice is a speech synthesizer.
+
+Package: librhvoice-dev
+Architecture: any
+Section: libdevel
+Depends: librhvoice2 (= ${binary:Version}), ${misc:Depends}
+Description: free and open source speech synthesizer - development package
+ RHVoice is a speech synthesizer.
+
+Package: rhvoice-data
+Architecture: all
+Depends: ${misc:Depends}
+Description: free and open source speech synthesizer – data files
+ RHVoice is a speech synthesizer. This package contains data files for it.
+
