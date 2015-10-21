@@ -1,0 +1,15 @@
+Source: rhvoice
+Section: sound
+Priority: optional
+Maintainer: Yauhen Kharuzhy <jekhor@gmail.com>
+Build-Depends: debhelper (>= 9), scons, libsox-dev, libunistring-dev, flite1-dev, libiconv-hook-dev, expat
+Standards-Version: 3.9.6
+Homepage: https://github.com/Olga-Yakovleva/RHVoice
+#Vcs-Git: git://anonscm.debian.org/collab-maint/rhvoice.git
+#Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/rhvoice.git;a=summary
+
+Package: rhvoice
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
