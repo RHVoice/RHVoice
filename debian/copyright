@@ -5,6 +5,69 @@ Source: https://github.com/Olga-Yakovleva/RHVoice
 Files: *
 Copyright: 2010-2015 Olga Yakovleva <yakovleva.o.v@gmail.com>
 License: LGPL-3+
+
+Files: debian/*
+Copyright: 2015 Yauhen Kharuzhy <jekhor@gmail.com>
+License: LGPL-3+
+
+Files: src/third-party/hts_engine/*
+Copyright: 2001-2011 Nagoya Institute of Technology, Department of Computer Science
+  2001-2008 Tokyo Institute of Technology, Interdisciplinary Graduate School of Science and Engineering
+License: BSD-3-clause
+
+Files: src/third-party/mage/*-sptk*
+Copyright: 1996-2008 Nagoya Institute of Technology, Department of Computer Science
+ 1984-2007 Tokyo Institute of Technology, Interdisciplinary Graduate School of Science and Engineering
+License: BSD-3-clause
+
+Files: src/third-party/mage/*
+Copyright: 2011 University of Mons
+License: GPL-3+
+  On Debian systems, the full text of the GNU General Public
+  License version 3 can be found in the file
+  `/usr/share/common-licenses/GPL-3'.
+
+Files: src/third-party/rapidxml/*
+Copyright: 2006, 2007 Marcin Kalicinski
+License: BSL-1.0 or MIT
+
+Files: src/third-party/sonic/*
+Copyright: 2010 Bill Cox
+License: LGPL-2.1+ with sonic exception
+  The Sonic Library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+  .
+  The GNU C Library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  .
+  You should have received a copy of the GNU Lesser General Public
+  License along with the GNU C Library; if not, write to the Free
+  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+  MA 02110-1301, USA.
+  .
+  As a special exception, you may add the source code for this file, sonic.c,
+  to your project, rather than linking against a libsonic or adding Sonic.jar,
+  but any changes to these two files must be published according to the LGPL
+  terms.
+  .
+  On Debian systems, the full text of the GNU Lesser General Public
+  License version 2.1 can be found in the file
+  `/usr/share/common-licenses/LGPL-2.1'.
+
+Files: src/third-party/tclap/*
+Copyright: 2003, Michael E. Smoot
+  2004, Michael E. Smoot, Daniel Aarno
+License: MIT
+
+Files: src/third-party/utf8/*
+Copyright: 2006 Nemanja Trifunovic
+License: BSL-1.0
+
+License: LGPL-3+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -19,29 +82,77 @@ License: LGPL-3+
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   .
   On Debian systems, the full text of the GNU Lesser General Public
-  License version 2 can be found in the file
+  License version 3 can be found in the file
   `/usr/share/common-licenses/LGPL-3'.
 
-Files: debian/*
-Copyright: 2015 Yauhen Kharuzhy <jekhor@gmail.com>
-License: GPL-3+
-  This program is free software; you can redistribute it
-  and/or modify it under the terms of the GNU General Public
-  License as published by the Free Software Foundation; either
-  version 3 of the License, or (at your option) any later
-  version.
+License: BSD-3-clause
+  Redistribution and use in source and binary forms, with or
+  without modification, are permitted provided that the following
+  conditions are met:
   .
-  This program is distributed in the hope that it will be
-  useful, but WITHOUT ANY WARRANTY; without even the implied
-  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-  PURPOSE.  See the GNU General Public License for more
-  details.
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above
+    copyright notice, this list of conditions and the following
+    disclaimer in the documentation and/or other materials provided
+    with the distribution.
+  - Neither the name of the author nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
   .
-  You should have received a copy of the GNU General Public
-  License along with this package; if not, write to the Free
-  Software Foundation, Inc., 51 Franklin St, Fifth Floor,
-  Boston, MA  02110-1301 USA
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+  CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS
+  BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+
+License: MIT
+  Permission is hereby granted, free of charge, to any person obtaining a copy 
+  of this software and associated documentation files (the "Software"), to deal 
+  in the Software without restriction, including without limitation the rights 
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+  of the Software, and to permit persons to whom the Software is furnished to do so, 
+  subject to the following conditions:
   .
-  On Debian systems, the full text of the GNU General Public
-  License version 3 can be found in the file
-  `/usr/share/common-licenses/GPL-3'.
+  The above copyright notice and this permission notice shall be included in all 
+  copies or substantial portions of the Software.
+  .
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+  IN THE SOFTWARE.
+
+License: BSL-1.0
+  Permission is hereby granted, free of charge, to any person or organization
+  obtaining a copy of the software and accompanying documentation covered by
+  this license (the "Software") to use, reproduce, display, distribute,
+  execute, and transmit the Software, and to prepare derivative works of the
+  Software, and to permit third-parties to whom the Software is furnished to
+  do so, all subject to the following:
+  .
+  The copyright notices in the Software and this entire statement, including
+  the above license grant, this restriction and the following disclaimer,
+  must be included in all copies of the Software, in whole or in part, and
+  all derivative works of the Software, unless such copies or derivative
+  works are solely in the form of machine-executable object code generated by
+  a source language processor.
+  .
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. IN NO EVENT
+  SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
+  FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
+  ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+
