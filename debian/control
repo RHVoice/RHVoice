@@ -12,24 +12,42 @@ Package: rhvoice
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: free and open source speech synthesizer
- RHVoice is a speech synthesizer.
+ RHVoice uses statistical parametric synthesis. It relies on existing open
+ source speech technologies (mainly HTS and related software).
+ .
+ This package contains executable files.
 
 Package: librhvoice2
 Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}, rhvoice-data
 Description: free and open source speech synthesizer - libraries
- RHVoice is a speech synthesizer.
+ RHVoice uses statistical parametric synthesis. It relies on existing open
+ source speech technologies (mainly HTS and related software).
+ .
+ This package contans shared libraries.
 
 Package: librhvoice-dev
 Architecture: any
+Multi-Arch: same
 Section: libdevel
+Pre-Depends: ${misc:Pre-Depends}
 Depends: librhvoice2 (= ${binary:Version}), ${misc:Depends}
 Description: free and open source speech synthesizer - development package
- RHVoice is a speech synthesizer.
+ RHVoice uses statistical parametric synthesis. It relies on existing open
+ source speech technologies (mainly HTS and related software).
+ .
+ This package contains files needed to develop a software that will use
+ RHVoice libraries.
 
 Package: rhvoice-data
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends}
 Description: free and open source speech synthesizer – data files
- RHVoice is a speech synthesizer. This package contains data files for it.
+ RHVoice uses statistical parametric synthesis. It relies on existing open
+ source speech technologies (mainly HTS and related software).
+ .
+ This package contains data files (language definitions and voices) for it.
 
