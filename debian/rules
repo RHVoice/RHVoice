@@ -16,7 +16,7 @@ override_dh_auto_clean:
 	dh_clean
 
 override_dh_auto_build:
-	scons CFLAGS='$(CFLAGS)' LDFLAGS='$(LDFLAGS)' CXXFLAGS='$(CXXFLAGS)' CPPFLAGS='$(CPPFLAGS)' prefix=/usr bindir=/usr/bin libdir=/usr/lib/$(DEB_HOST_MULTIARCH) sysconfdir=/etc
+	scons CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' CPPFLAGS='$(CPPFLAGS)' LINKFLAGS='$(LDFLAGS)' prefix=/usr bindir=/usr/bin libdir=/usr/lib/$(DEB_HOST_MULTIARCH) sysconfdir=/etc
 
 override_dh_auto_install:
 	scons DESTDIR=$(CURDIR)/debian/tmp install
