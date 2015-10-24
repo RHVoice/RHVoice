@@ -5,8 +5,8 @@ Maintainer: Yauhen Kharuzhy <jekhor@gmail.com>
 Build-Depends: debhelper (>= 9), scons, libsox-dev, libunistring-dev, flite1-dev, libiconv-hook-dev, expat, pkg-config,libao-dev, libglibmm-2.4-dev, portaudio19-dev
 Standards-Version: 3.9.6
 Homepage: https://github.com/Olga-Yakovleva/RHVoice
-#Vcs-Git: git://anonscm.debian.org/collab-maint/rhvoice.git
-#Vcs-Browser: https://anonscm.debian.org/gitweb/?p=collab-maint/rhvoice.git;a=summary
+Vcs-Git: https://github.com/minsk-hackerspace/RHVoice.git
+Vcs-Browser: https://github.com/minsk-hackerspace/RHVoice
 
 Package: rhvoice
 Architecture: any
