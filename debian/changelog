@@ -1,5 +1,6 @@
 rhvoice (0.5.1~pre-20151020-1) unstable; urgency=low
 
-  * Initial release
+  * Initial release.
+  * Closes: #802852
 
  -- Yauhen Kharuzhy <jekhor@gmail.com>  Wed, 21 Oct 2015 01:20:33 +0300
