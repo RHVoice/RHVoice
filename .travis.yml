@@ -1,5 +1,8 @@
 language: cpp
 script: scons
+before_install:
+  - brew update
+  - brew install scons
 os:
   - linux
   - osx
