@@ -1,7 +1,6 @@
 | Linux                           | Mac                             |
 |---------------------------------|---------------------------------|
 | [![Build Status][master]][repo] | [![Build Status][macosx]][repo] |
-
 [master]: https://travis-ci.org/nlprocby/RHVoice?branch=master
 [macosx]: https://travis-ci.org/nlprocby/RHVoice?branch=macosx
 [repo]: https://travis-ci.org/nlprocby/RHVoice
