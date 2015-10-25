@@ -1,8 +1,7 @@
-| Linux                           | Mac                             |
-|---------------------------------|---------------------------------|
-| [![Build Status][master]][repo] | [![Build Status][macosx]][repo] |
-[master]: https://travis-ci.org/nlprocby/RHVoice?branch=master
-[macosx]: https://travis-ci.org/nlprocby/RHVoice?branch=macosx
+| Linux & Mac                     |
+|---------------------------------|
+| [![Build Status][master]][repo] |
+[master]: https://travis-ci.org/nlprocby/RHVoice.svg?branch=master
 [repo]: https://travis-ci.org/nlprocby/RHVoice
 
 RHVoice is a free and open source speech synthesizer
