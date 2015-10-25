@@ -1,2 +1,5 @@
 language: cpp
 script: scons
+os:
+  - linux
+  - osx
