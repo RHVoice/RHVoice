@@ -1,8 +1,19 @@
 language: cpp
-script: scons
-before_install:
-  - brew update
-  - brew install scons
 os:
   - linux
   - osx
+  
+before_install:
+  - echo $TRAVIS_OS_NAME
+  # LINUX
+  - if [ "$TRAVIS_OS_NAME" == "osx" ];then brew update; brew install scons; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq; fi
+
+install:
+  - echo $TRAVIS_OS_NAME
+  # OSX
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install cmake; fi
+
+script:
+  - echo $TRAVIS_OS_NAME
+  - scons
