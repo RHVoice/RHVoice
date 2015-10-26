@@ -2,7 +2,7 @@ Source: rhvoice
 Section: sound
 Priority: optional
 Maintainer: Yauhen Kharuzhy <jekhor@gmail.com>
-Build-Depends: debhelper (>= 9), scons, libsox-dev, libunistring-dev, flite1-dev, libiconv-hook-dev, expat, pkg-config,libao-dev, libglibmm-2.4-dev, portaudio19-dev
+Build-Depends: debhelper (>= 9), scons, libsox-dev, libunistring-dev, flite1-dev, libiconv-hook-dev, expat, pkg-config,libao-dev, libglibmm-2.4-dev, portaudio19-dev, libutfcpp-dev
 Standards-Version: 3.9.6
 Homepage: https://github.com/Olga-Yakovleva/RHVoice
 Vcs-Git: https://github.com/minsk-hackerspace/RHVoice.git
