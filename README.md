@@ -1,6 +1,6 @@
 | Linux & Mac                     |  Windows                              |
 |---------------------------------|---------------------------------------|
-| [![Build Status][master]][repo] |[![Windows Build Status][branch][winrepo] |
+| [![Build Status][master]][repo] |[![Windows Build Status][branch]][winrepo] |
 [master]: https://travis-ci.org/nlprocby/RHVoice.svg?branch=master
 [repo]: https://travis-ci.org/nlprocby/RHVoice
 [branch]: https://ci.appveyor.com/api/projects/status/04xcn3nclfpjptfs/branch/master?svg=true
