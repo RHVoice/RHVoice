@@ -1,10 +1,10 @@
-| Linux & Mac                     |
-|---------------------------------|
-| [![Build Status][master]][repo] |
+| Linux & Mac                     |  Windows                              |
+|---------------------------------|---------------------------------------|
+| [![Build Status][master]][repo] |[![Windows Build Status][branch][winrepo] |
 [master]: https://travis-ci.org/nlprocby/RHVoice.svg?branch=master
 [repo]: https://travis-ci.org/nlprocby/RHVoice
-
-* AppVeyor `windows` build status: [![Windows Build status](https://ci.appveyor.com/project/YauhenMinsk/rhvoice/status/04xcn3nclfpjptfs/branch/master?svg=true)](https://ci.appveyor.com/project/YauhenMinsk/rhvoice/branch/master)             
+[branch]: https://ci.appveyor.com/api/projects/status/04xcn3nclfpjptfs/branch/master?svg=true
+[winrepo]: https://ci.appveyor.com/api/projects/status/branch/master
 
 RHVoice is a free and open source speech synthesizer
 The latest release can be found at http://github.com/Olga-Yakovleva/RHVoice/downloads
