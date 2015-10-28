@@ -1,0 +1,6 @@
+platform:
+ - x86
+ - Any CPU
+
+install:
+ - cmd: scons
