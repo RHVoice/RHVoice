@@ -1,6 +1,4 @@
-platform:
- - x86
- - Any CPU
-
 install:
- - cmd: scons
+ - curl -o scons.zip -fsS http://vorboss.dl.sourceforge.net/project/scons/scons/2.4.0/scons-2.4.0.zip
+ - unzip scons.zip
+ - python scons-2.4.0/script/scons
