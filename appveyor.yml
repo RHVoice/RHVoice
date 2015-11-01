@@ -6,8 +6,8 @@ install:
 
 build_script:
  - python scons-2.4.0/script/scons
+ - 7z a RHVoice-Windows-%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\build\windows\
 
 artifacts:
- - path: build/windows
-   name: RHVoice-Windows
-   type: zip
+ - path: RHVoice-Windows-*.zip
+   name: BuildFiles
