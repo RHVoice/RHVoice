@@ -6,3 +6,8 @@ install:
 
 build_script:
  - python scons-2.4.0/script/scons
+
+artifacts:
+ - path: build
+   name: RHVoice-Windows-{version}
+   type: zip
