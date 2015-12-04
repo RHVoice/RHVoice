@@ -171,9 +171,407 @@ class recordings_importer(task):
 			self.process(inpath,inname,outname)
 			self.copy_utt(inname,outname)
 
-class segmenter(task):
+class htk_segmenter(task):
 	def register(self):
-		subparser=subparsers.add_parser("segment")
+		subparser=subparsers.add_parser("htk")
+		subparser.set_defaults(func=self)
+
+	def make_dirs(self):
+		dirs=["htk"]
+		for dir in dirs:
+			if not os.path.isdir(dir):
+				os.mkdir(dir)
+
+	def setup(self):
+		self.alppf_regex=re.compile("^.*average log prob per frame = (.+)$")
+		self.make_dirs()
+		self.workdir="htk"
+		self.phoneset=self.get_phoneset()
+		self.wavdir=os.path.join("data","wav")
+		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavdir))]
+		self.param_settings={
+			"TARGETKIND" : "MFCC_0_D_A", 
+			"TARGETRATE" : 50000, 
+			"SAVECOMPRESSED" : "T", 
+			"SAVEWITHCRC" : "T", 
+			"WINDOWSIZE" : 100000, 
+			"USEHAMMING" : "T", 
+			"PREEMCOEF" : 0.97, 
+			"NUMCHANS" : 26, 
+			"CEPLIFTER" : 22, 
+			"NUMCEPS" : 12, 
+			"ENORMALISE" : "F"}
+		self.coding_settings=dict(self.param_settings)
+		self.coding_settings["SOURCEFORMAT"]="WAV"
+		self.coding_conf_path=os.path.join(self.workdir,"coding.conf")
+		self.coding_scp_path=os.path.join(self.workdir,"coding.scp")
+		self.mfccdir=os.path.join(self.workdir,"mfcc")
+		self.mfcc_scp_path=os.path.join(self.workdir,"mfcc.scp")
+		self.param_conf_path=os.path.join(self.workdir,"param.conf")
+		self.hmmdir=os.path.join(self.workdir,"hmm")
+		self.proto_path=os.path.join(self.workdir,"proto")
+
+	def transcribe(self):
+		self.transcriptions=[]
+		self.lex={"SILENCE":[["pau"]]}
+		self.lex["PAUSE"]=[["pau"],["skip"]]
+		self.lex["JUNCTURE"]=[["skip"],["pau"]]
+		phoneset=set(["pau"])
+		trans_path=os.path.join(self.workdir,"transcription")
+		subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],trans_path])
+		i=-1
+		with open(trans_path,"r") as f:
+			for line in f:
+				phones=line.split()
+				if not phones:
+					continue
+				words=[]
+				i+=1
+				name=self.recordings[i]
+				phones[0]="start"
+				phones[-1]="end"
+				pron=[]
+				for ph in phones[1:]:
+					if ph in ["ssil","pau","end"]:
+						word="_".join(pron).upper()
+						self.lex[word]=[pron]
+						words.append(word)
+						if ph=="pau":
+							words.append("PAUSE")
+						elif ph=="ssil":
+							words.append("JUNCTURE")
+						pron=[]
+					else:
+						phoneset.add(ph)
+						pron.append(ph)
+				self.transcriptions.append([name,words])
+		self.phonelist=sorted(phoneset)
+
+	def output_dict(self,i):
+		dict_path=os.path.join(self.workdir,"dict{}".format(i))
+		with open(dict_path,"wt") as f:
+			for word in sorted(self.lex.iterkeys()):
+				prons=self.lex[word]
+				for pron in prons:
+					f.write(word)
+					f.write(" ")
+					f.write(" ".join(pron))
+					f.write("\n")
+
+	def output_words_mlf(self):
+		path=os.path.join(self.workdir,"words.mlf")
+		with open(path,"wt") as f:
+			f.write("#!MLF!#\n")
+			for name,words in self.transcriptions:
+				f.write('"*/{}.lab"\n'.format(name))
+				for word in words:
+					f.write(word)
+					f.write("\n")
+				f.write(".\n")
+
+	def hrun(self,tool,*args,**kw):
+		logdir=os.path.join(self.workdir,"log")
+		if not os.path.isdir(logdir):
+			os.mkdir(logdir)
+		cmd=[os.path.join(self.settings["htk_bindir"],tool)]
+		cmd.append("-D")
+		cmd.append("-A")
+		cmd.extend(["-T","1"])
+		cmd.extend(args)
+		if "tag" in kw:
+			fname=tool+"_"+kw["tag"]
+		else:
+			fname=tool
+		with open(os.path.join(logdir,fname),"w") as f:
+			subprocess.check_call(cmd,stdout=f)
+
+	def expand_words_mlf(self):
+		words_mlf_path=os.path.join(self.workdir,"words.mlf")
+		dict_path=os.path.join(self.workdir,"dict1")
+		phones_mlf_path=os.path.join(self.workdir,"phones1.mlf")
+		self.hrun("HLEd","-l","*","-d",dict_path,"-i",phones_mlf_path,os.path.join(scriptdir,"w2p.led"),words_mlf_path,tag="expand")
+
+	def output_phonelist(self,i):
+		path=os.path.join(self.workdir,"phonelist{}".format(i))
+		phlist=list(self.phonelist)
+		phlist.append("skip")
+		if i>1:
+			phlist.append("ssil")
+		phlist.sort()
+		self.output_lines(phlist,path)
+
+	def output_config(self,params,path):
+		with open(path,"w") as f:
+			for k,v in sorted(params.iteritems()):
+				f.write("{} = {}\n".format(k,v))
+
+	def output_lines(self,values,path):
+		with open(path,"w") as f:
+			for v in values:
+				f.write(v)
+				f.write("\n")
+
+	def read_lines(self,path):
+		lines=[]
+		with open(path,"r") as f:
+			for line in f:
+				text=line.strip()
+				if text:
+					lines.append(text)
+		return lines
+
+	def get_hmm_dir(self,i):
+		if not os.path.isdir(self.hmmdir):
+			os.mkdir(self.hmmdir)
+		dir=os.path.join(self.hmmdir,str(i))
+		if not os.path.isdir(dir):
+			os.mkdir(dir)
+		return dir
+
+	def get_last_hmm_number(self):
+		return max([int(name) for name in os.listdir(self.hmmdir)])
+
+	def code(self):
+		if not os.path.isdir(self.mfccdir):
+			os.mkdir(self.mfccdir)
+		self.output_lines(["{wavdir}/{filename}.wav {mfccdir}/{filename}.mfcc".format(wavdir=self.wavdir,mfccdir=self.mfccdir,filename=filename) for filename in self.recordings],self.coding_scp_path)
+		self.output_config(self.param_settings,self.param_conf_path)
+		self.output_config(self.coding_settings,self.coding_conf_path)
+		print("Coding")
+		self.hrun("HCopy","-C",self.coding_conf_path,"-S",self.coding_scp_path,"-F","WAV")
+		print("Done")
+		self.output_lines(["{}/{}.mfcc".format(self.mfccdir,filename) for filename in self.recordings],self.mfcc_scp_path)
+
+	def build_proto(self,n):
+		proto=[]
+		proto.append("~o <VECSIZE> {} <{}>".format(n,self.param_settings["TARGETKIND"]))
+		proto.append('~h "proto"')
+		proto.append("<BeginHMM>")
+		proto.append("<NumStates> 5")
+		for i in xrange(2,5):
+			proto.append("<State> {}".format(i))
+			proto.append("<Mean> {}".format(n))
+			proto.append(" ".join(["0.0"]*n))
+			proto.append("<Variance> {}".format(n))
+			proto.append(" ".join(["1.0"]*n))
+		proto.append("<TransP> 5")
+		proto.append("0.0 1.0 0.0 0.0 0.0")
+		proto.append("0.0 0.6 0.4 0.0 0.0")
+		proto.append("0.0 0.0 0.6 0.4 0.0")
+		proto.append("0.0 0.0 0.0 0.7 0.3")
+		proto.append("0.0 0.0 0.0 0.0 0.0")
+		proto.append("<EndHMM>")
+		return proto
+
+	def build_skip_def(self,n):
+		lines=['~h "skip"',
+			   "<BeginHMM>",
+			   "<NumStates> 3",
+			   "<State> 2",
+			   "<Mean> {}".format(n),
+			   " ".join(["0.0"]*n),
+			   "<Variance> {}".format(n),
+			   " ".join(["1.0"]*n),
+			   "<TransP> 3",
+			   "0.0 0.0 1.0",
+			   "0.0 0.5 0.5",
+			   "0.0 0.0 0.0",
+			   "<EndHMM>"]
+		return lines
+
+	def output_hmmdefs(self):
+		proto=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto"))
+		lines=[]
+		for p in self.phonelist:
+			lines.append('~h "{}"'.format(p))
+			lines.extend(proto[4:])
+		lines.extend(self.build_skip_def(39))
+		self.output_lines(lines,os.path.join(self.get_hmm_dir(0),"hmmdefs"))
+
+	def output_macros(self):
+		dir=self.get_hmm_dir(0)
+		lines=self.read_lines(os.path.join(dir,"proto"))[:3]
+		lines.extend(self.read_lines(os.path.join(dir,"vFloors")))
+		self.output_lines(lines,os.path.join(dir,"macros"))
+
+	def get_alppf(self,i):
+		lines=self.read_lines(os.path.join(self.workdir,"log","HERest_{}".format(i)))
+		for line in reversed(lines):
+			m=self.alppf_regex.match(line)
+			if m:
+				return float(m.group(1))
+		raise RuntimeError("Average log prob per frame not found")
+
+	def get_epsilon(self,i):
+		return (self.get_alppf(i)-self.get_alppf(i-1))
+
+	def reest(self,i,j,k):
+		phlist=os.path.join(self.workdir,"phonelist{}".format(k))
+		phmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		indir=self.get_hmm_dir(i)
+		outdir=self.get_hmm_dir(i+1)
+		self.hrun("HERest","-C",self.param_conf_path,"-I",phmlf,"-t","250.0","150.0","1000.0","-S",self.mfcc_scp_path,"-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,phlist,tag=str(i))
+
+	def reest_until(self,n,j,k,min_epsilon,max_iter):
+		initial=True
+		for i in xrange(n,n+max_iter):
+			print("Reestimating hmm {}".format(i))
+			self.reest(i,j,k)
+			if initial:
+				initial=False
+			else:
+				epsilon=self.get_epsilon(i)
+				print("Epsilon = {}".format(epsilon))
+				if epsilon<min_epsilon:
+					return (i+1)
+		return (n+max_iter)
+
+	def edit_hmm(self,i,k,script_name):
+		script=os.path.join(scriptdir,script_name)
+		phlist=os.path.join(self.workdir,"phonelist{}".format(k))
+		indir=self.get_hmm_dir(i)
+		outdir=self.get_hmm_dir(i+1)
+		self.hrun("HHEd","-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,script,phlist)
+
+	def replace_skip_label_with_ssil(self,j):
+		inmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		outmlf=os.path.join(self.workdir,"phones{}.mlf".format(j+1))
+		self.hrun("HLEd","-l","*","-i",outmlf,os.path.join(scriptdir,"ssil.led"),inmlf,tag="skip_to_ssil")
+
+	def add_ssil_hmm(self,i):
+		indir=self.get_hmm_dir(i)
+		outdir=self.get_hmm_dir(i+1)
+		shutil.copy(os.path.join(indir,"macros"),os.path.join(outdir,"macros"))
+		old_defs=self.read_lines(os.path.join(indir,"hmmdefs"))
+		new_defs=list(old_defs)
+		state=[]
+		found_model=False
+		found_state=False
+		for line in old_defs:
+			if line.lower()=='~h "pau"':
+				found_model=True
+				continue
+			if not found_model:
+				continue
+			if line.lower()=="<state> 3":
+				found_state=True
+				continue
+			if not found_state:
+				continue
+			if line.lower()=="<state> 4":
+				break
+			state.append(line)
+		new_defs.append('~h "ssil"')
+		new_defs.append("<BeginHMM>")
+		new_defs.append("<NumStates> 3")
+		new_defs.append("<State> 2")
+		new_defs.extend(state)
+		new_defs.append("<TransP> 3")
+		new_defs.append("0.0 0.7 0.3")
+		new_defs.append("0.0 0.7 0.3")
+		new_defs.append("0.0 0.0 0.0")
+		new_defs.append("<EndHMM>")
+		self.output_lines(new_defs,os.path.join(outdir,"hmmdefs"))
+
+
+	def align(self,i,j,k):
+		moddir=self.get_hmm_dir(i)
+		inmlf=os.path.join(self.workdir,"words.mlf")
+		outmlf1=os.path.join(self.workdir,"aligned{}.mlf".format(j))
+		outmlf2=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		phlist=os.path.join(self.workdir,"phonelist{}".format(k))
+		dict_path=os.path.join(self.workdir,"dict{}".format(k))
+		print("Aligning with hmm {}".format(i))
+		self.hrun("HVite","-o","SW","-l","*","-b","SILENCE","-C",self.param_conf_path,"-a","-H",os.path.join(moddir,"macros"),"-H",os.path.join(moddir,"hmmdefs"),"-i",outmlf1,"-m","-t","250.0","-y","lab","-I",inmlf,"-S",self.mfcc_scp_path,dict_path,phlist,tag="align{}".format(j))
+		print("Done")
+		self.hrun("HLEd","-l","*","-i",outmlf2,os.path.join(scriptdir,"pau.led"),outmlf1,tag="fix{}".format(j))
+
+	def load_alignments(self,j):
+		path=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		lines=self.read_lines(path)[1:]
+		self.alignments=[]
+		self.durations=collections.defaultdict(list)
+		for line in lines:
+			if line==".":
+				self.alignments.append([file_name,labels])
+			elif line.startswith('"*/'):
+				file_name=line[3:-1]
+				labels=[]
+			else:
+				tokens=line.split()
+				start=int(tokens[0])
+				end=int(tokens[1])
+				duration=end-start
+				phone=tokens[2]
+				if phone=="skip" or duration==0:
+					continue
+				if phone=="ssil":
+					phone="pau"
+				labels.append([start,end,phone])
+				self.durations[phone].append(duration)
+
+	def fix_labels(self):
+		self.labels=[]
+		plosives=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="s")
+		affricates=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="a")
+		stops=plosives|affricates
+		pau_plus_stop_limits=dict()
+		for phone in stops:
+			pau_plus_stop_limits[phone]=stats.scoreatpercentile(self.durations[phone],95)
+		for file_name,labs in self.alignments:
+			new_labs=[list(labs[0]),list(labs[1])]
+			for i in xrange(2,len(labs)-1):
+				if labs[i-1][2]=="pau" and labs[i][2] in stops and (labs[i][1]-labs[i-1][0]) < pau_plus_stop_limits[labs[i][2]]:
+					new_labs[-1][1]=labs[i][1]
+					new_labs[-1][2]=labs[i][2]
+				else:
+					new_labs.append(list(labs[i]))
+			new_labs.append(list(labs[-1]))
+			self.labels.append([file_name,new_labs])
+
+	def save_labels(self):
+		for file_name,labs in self.labels:
+			path=os.path.join("data","labels","mono",file_name)
+			with open(path,"w") as f:
+				for start,end,phone in labs:
+					f.write("{} {} {}\n".format(start,end,phone))
+
+	def __call__(self,args):
+		self.setup()
+		self.transcribe()
+		self.output_dict(1)
+		self.lex["PAUSE"].append(["ssil"])
+		self.lex["JUNCTURE"].append(["ssil"])
+		self.output_dict(2)
+		self.output_words_mlf()
+		self.expand_words_mlf()
+		self.output_phonelist(1)
+		self.output_phonelist(2)
+		self.code()
+		self.output_lines(self.build_proto(39),self.proto_path)
+		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
+		self.output_hmmdefs()
+		self.output_macros()
+		max_reest_iter=20
+		n=self.reest_until(0,1,1,0.1,max_reest_iter)
+		self.edit_hmm(n,1,"pau.hed")
+		n+=1
+		n=self.reest_until(n,1,1,0.01,max_reest_iter)
+		self.align(n,2,1)
+		self.replace_skip_label_with_ssil(2)
+		self.add_ssil_hmm(n)
+		n+=1
+		self.edit_hmm(n,2,"ssil.hed")
+		n+=1
+		n=self.reest_until(n,3,2,0.001,max_reest_iter)
+		self.align(n,4,2)
+		self.load_alignments(4)
+		self.fix_labels()
+		self.save_labels()
+
+class ehmm_segmenter(task):
+	def register(self):
+		subparser=subparsers.add_parser("ehmm")
 		subparser.set_defaults(func=self)
 
 	def get_labs(self):
@@ -861,7 +1259,7 @@ class retrainer(task):
 		self.train()
 
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer]:
+	for cls in [setup,recordings_importer,ehmm_segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
