@@ -1,0 +1,55 @@
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define UkrainianLetter 
+[[а|А]:а] | 
+[[б|Б]:бе] | 
+[[в|В]:ве] | 
+[[г|Г]:ге] | 
+[{Ґ|ґ}:ґе] | 
+[[д|Д]:де] | 
+[[е|Е]:е] | 
+[[Є|є]:є] | 
+[[ж|Ж]:же] | 
+[[з|З]:зе] | 
+[[и|И]:и] | 
+[[І|і]:і] | 
+[[Ї|ї]:ї] | 
+[[й|Й]:йот] | 
+[[к|К]:ка] | 
+[[л|Л]:ел] | 
+[[м|М]:ем] | 
+[[н|Н]:ен] | 
+[[о|О]:о] | 
+[[п|П]:пе] | 
+[[р|Р]:ер] | 
+[[с|С]:ес] | 
+[[т|Т]:те] | 
+[[у|У]:у] | 
+[[ф|Ф]:еф] | 
+[[х|Х]:ха] | 
+[[ц|Ц]:це] | 
+[[ч|Ч]:че] | 
+[[ш|Ш]:ша] | 
+[[щ|Щ]:ща] | 
+[[ь|Ь]:["м'який" знак]] | 
+[[ю|Ю]:ю] | 
+[[я|Я]:я] ; 
+
+define Digit 
+%0:нуль|1:один|2:два|3:три|4:чотири|5:"п'ять"|6:шість|7:сім|8:вісім|9:"дев'ять";
+
+regex 
+UkrainianLetter|Digit;

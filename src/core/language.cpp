@@ -25,6 +25,7 @@
 #include "core/english.hpp"
 #include "core/esperanto.hpp"
 #include "core/georgian.hpp"
+#include "core/ukrainian.hpp"
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 
@@ -892,6 +893,44 @@ namespace RHVoice
     post_lex(u);
   }
 
+  void language::stress_monosyllabic_words(utterance& u) const
+  {
+    relation& rel=u.get_relation("SylStructure");
+    for(relation::iterator word_iter=rel.begin();word_iter!=rel.end();++word_iter)
+      {
+        item& word=*word_iter;
+        if(!word.has_children())
+          continue;
+        item& syl=word.first_child();
+        if(syl.has_next())
+          continue;
+        if(std::find_if(syl.begin(),syl.end(),feature_equals<std::string>("ph_vc","+"))==syl.end())
+          continue;
+        syl.set<std::string>("stress","1");
+}
+  }
+
+  void language::rename_palatalized_consonants(utterance& u) const
+  {
+    relation& seg_rel=u.get_relation("Segment");
+    for(relation::iterator seg_iter(seg_rel.begin());seg_iter!=seg_rel.end();++seg_iter)
+      {
+        if(seg_iter->eval("ph_vc").as<std::string>()!="-")
+          continue;
+        const std::string& name=seg_iter->get("name").as<std::string>();
+        if(!str::endswith(name,"j"))
+          {
+            seg_iter->set("pal",std::string("-"));
+            continue;
+          }
+        seg_iter->set("pal",std::string("+"));
+        if(name.size()>1)
+          seg_iter->set("name",name.substr(0,name.size()-1));
+}
+}
+
+
+
   language_info::language_info(const std::string& name,const std::string& data_path_,const std::string& userdict_path_):
     enabled("enabled",true),
     all_languages(0),
@@ -924,6 +963,7 @@ namespace RHVoice
     register_language<english_info>("English",1);
     register_language<esperanto_info>("Esperanto",1);
     register_language<georgian_info>("Georgian",1);
+    register_language<ukrainian_info>("Ukrainian",1);
     for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));

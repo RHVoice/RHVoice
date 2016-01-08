@@ -34,7 +34,7 @@ namespace RHVoice
       file_handle result(std::fopen(path.c_str(),mode.c_str()),std::fclose);
       #endif
       if(result.empty())
-        throw open_error();
+        throw open_error(path);
       return result;
     }
 
@@ -51,7 +51,7 @@ namespace RHVoice
       stream.open(path.c_str(),mode);
       #endif
       if(!stream.is_open())
-        throw open_error();
+        throw open_error(path);
     }
   }
 }
