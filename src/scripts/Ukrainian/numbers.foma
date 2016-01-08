@@ -1,0 +1,61 @@
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define Number [%0|[NZDigit Digit^<12]];
+
+define InsertThousands 
+[..] -> тисяч || Digit _ Digit^3 .#.;
+
+define InsertMillions 
+[..] -> мільйонів || Digit _ Digit^3 тисяч;
+
+define InsertBillions 
+[..] -> мільйярдів || Digit _ Digit^3 мільйонів;
+
+define RemoveSkippedParts 
+%0 %0 %0 [тисяч|мільйонів|мільйярдів] -> 0 ;
+
+define Units %0:0|1:один|2:два|3:три|4:чотири|5:"п'ять"|6:шість|7:сім|8:вісім|9:"дев'ять";
+
+define Teens 1:0 [%0:десять|1:одинадцять|2:дванадцять|3:тринадцять|4:чотирнадцять|5:"п'ятнадцять"|6:шістнадцять|7:сімнадцять|8:вісімнадцять|9:"дев'ятнадцять"];
+
+define Tens %0:0|2:двадцять|3:тридцять|4:сорок|5:"п'ятдесят"|6:шістдесят|7:сімдесят|8:вісімдесят|9:"дев'яносто";
+
+define Hundreds %0:0|1:сто|2:двісті|3:триста|4:чотириста|5:"п'ятсот"|6:шістсот|7:сімсот|8:вісімсот|9:"дев'ятсот";
+
+define UpToThousand %0:нуль .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
+
+define DigitsToWords 
+UpToThousand @-> ; 
+
+define FixCase 
+тисяч:тисяча|мільйонів:мільйон|мільйярдів:мільйярд -> || один _ ,, 
+тисяч:тисячі|мільйонів:мільйони|мільйярдів:мільйярди -> || два|три|чотири _ ;
+
+define FixGender 
+один -> одна || _ тисяча ,, 
+два -> дві || _ тисячі ; 
+
+regex 
+Number .o. 
+InsertThousands .o. 
+InsertMillions .o. 
+InsertBillions .o. 
+RemoveSkippedParts .o. 
+DigitsToWords .o. 
+FixCase .o. 
+FixGender;

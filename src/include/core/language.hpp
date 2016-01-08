@@ -168,6 +168,8 @@ namespace RHVoice
     void syllabify(utterance& u) const;
     void insert_pauses(utterance& u) const;
     void do_post_lexical_processing(utterance& u) const;
+    void stress_monosyllabic_words(utterance& u) const;
+    void rename_palatalized_consonants(utterance& u) const;
 
     virtual void decode_as_word(item& token,const std::string& name) const;
     virtual void decode_as_letter_sequence(item& token,const std::string& name) const;
