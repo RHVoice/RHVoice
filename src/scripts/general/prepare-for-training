@@ -101,6 +101,7 @@ class setup(task):
 		params["SAMPFREQ"]=self.settings["sample_rate"]
 		params.update(self.get_analysis_params())
 		params["USEGV"]=1 if self.settings["use_gv"] else 0
+		params["NITER"]=10
 		return params
 
 	def register(self):
@@ -177,7 +178,7 @@ class htk_segmenter(task):
 		subparser.set_defaults(func=self)
 
 	def make_dirs(self):
-		dirs=["htk"]
+		dirs=["htk",os.path.join("data","labels"),os.path.join("data","labels","mono")]
 		for dir in dirs:
 			if not os.path.isdir(dir):
 				os.mkdir(dir)
@@ -247,8 +248,8 @@ class htk_segmenter(task):
 				self.transcriptions.append([name,words])
 		self.phonelist=sorted(phoneset)
 
-	def output_dict(self,i):
-		dict_path=os.path.join(self.workdir,"dict{}".format(i))
+	def output_dict(self):
+		dict_path=os.path.join(self.workdir,"dict")
 		with open(dict_path,"wt") as f:
 			for word in sorted(self.lex.iterkeys()):
 				prons=self.lex[word]
@@ -287,16 +288,14 @@ class htk_segmenter(task):
 
 	def expand_words_mlf(self):
 		words_mlf_path=os.path.join(self.workdir,"words.mlf")
-		dict_path=os.path.join(self.workdir,"dict1")
+		dict_path=os.path.join(self.workdir,"dict")
 		phones_mlf_path=os.path.join(self.workdir,"phones1.mlf")
 		self.hrun("HLEd","-l","*","-d",dict_path,"-i",phones_mlf_path,os.path.join(scriptdir,"w2p.led"),words_mlf_path,tag="expand")
 
-	def output_phonelist(self,i):
-		path=os.path.join(self.workdir,"phonelist{}".format(i))
+	def output_phonelist(self):
+		path=os.path.join(self.workdir,"phonelist")
 		phlist=list(self.phonelist)
 		phlist.append("skip")
-		if i>1:
-			phlist.append("ssil")
 		phlist.sort()
 		self.output_lines(phlist,path)
 
@@ -405,18 +404,18 @@ class htk_segmenter(task):
 	def get_epsilon(self,i):
 		return (self.get_alppf(i)-self.get_alppf(i-1))
 
-	def reest(self,i,j,k):
-		phlist=os.path.join(self.workdir,"phonelist{}".format(k))
+	def reest(self,i,j):
+		phlist=os.path.join(self.workdir,"phonelist")
 		phmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
 		indir=self.get_hmm_dir(i)
 		outdir=self.get_hmm_dir(i+1)
-		self.hrun("HERest","-C",self.param_conf_path,"-I",phmlf,"-t","250.0","150.0","1000.0","-S",self.mfcc_scp_path,"-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,phlist,tag=str(i))
+		self.hrun("HERest","-C",self.param_conf_path,"-I",phmlf,"-t","250.0","150.0","5000.0","-S",self.mfcc_scp_path,"-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,phlist,tag=str(i))
 
-	def reest_until(self,n,j,k,min_epsilon,max_iter):
+	def reest_until(self,n,j,min_epsilon,max_iter):
 		initial=True
 		for i in xrange(n,n+max_iter):
 			print("Reestimating hmm {}".format(i))
-			self.reest(i,j,k)
+			self.reest(i,j)
 			if initial:
 				initial=False
 			else:
@@ -426,61 +425,20 @@ class htk_segmenter(task):
 					return (i+1)
 		return (n+max_iter)
 
-	def edit_hmm(self,i,k,script_name):
+	def edit_hmm(self,i,script_name):
 		script=os.path.join(scriptdir,script_name)
-		phlist=os.path.join(self.workdir,"phonelist{}".format(k))
+		phlist=os.path.join(self.workdir,"phonelist")
 		indir=self.get_hmm_dir(i)
 		outdir=self.get_hmm_dir(i+1)
 		self.hrun("HHEd","-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,script,phlist)
 
-	def replace_skip_label_with_ssil(self,j):
-		inmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
-		outmlf=os.path.join(self.workdir,"phones{}.mlf".format(j+1))
-		self.hrun("HLEd","-l","*","-i",outmlf,os.path.join(scriptdir,"ssil.led"),inmlf,tag="skip_to_ssil")
-
-	def add_ssil_hmm(self,i):
-		indir=self.get_hmm_dir(i)
-		outdir=self.get_hmm_dir(i+1)
-		shutil.copy(os.path.join(indir,"macros"),os.path.join(outdir,"macros"))
-		old_defs=self.read_lines(os.path.join(indir,"hmmdefs"))
-		new_defs=list(old_defs)
-		state=[]
-		found_model=False
-		found_state=False
-		for line in old_defs:
-			if line.lower()=='~h "pau"':
-				found_model=True
-				continue
-			if not found_model:
-				continue
-			if line.lower()=="<state> 3":
-				found_state=True
-				continue
-			if not found_state:
-				continue
-			if line.lower()=="<state> 4":
-				break
-			state.append(line)
-		new_defs.append('~h "ssil"')
-		new_defs.append("<BeginHMM>")
-		new_defs.append("<NumStates> 3")
-		new_defs.append("<State> 2")
-		new_defs.extend(state)
-		new_defs.append("<TransP> 3")
-		new_defs.append("0.0 0.7 0.3")
-		new_defs.append("0.0 0.7 0.3")
-		new_defs.append("0.0 0.0 0.0")
-		new_defs.append("<EndHMM>")
-		self.output_lines(new_defs,os.path.join(outdir,"hmmdefs"))
-
-
-	def align(self,i,j,k):
+	def align(self,i,j):
 		moddir=self.get_hmm_dir(i)
 		inmlf=os.path.join(self.workdir,"words.mlf")
 		outmlf1=os.path.join(self.workdir,"aligned{}.mlf".format(j))
 		outmlf2=os.path.join(self.workdir,"phones{}.mlf".format(j))
-		phlist=os.path.join(self.workdir,"phonelist{}".format(k))
-		dict_path=os.path.join(self.workdir,"dict{}".format(k))
+		phlist=os.path.join(self.workdir,"phonelist")
+		dict_path=os.path.join(self.workdir,"dict")
 		print("Aligning with hmm {}".format(i))
 		self.hrun("HVite","-o","SW","-l","*","-b","SILENCE","-C",self.param_conf_path,"-a","-H",os.path.join(moddir,"macros"),"-H",os.path.join(moddir,"hmmdefs"),"-i",outmlf1,"-m","-t","250.0","-y","lab","-I",inmlf,"-S",self.mfcc_scp_path,dict_path,phlist,tag="align{}".format(j))
 		print("Done")
@@ -505,8 +463,6 @@ class htk_segmenter(task):
 				phone=tokens[2]
 				if phone=="skip" or duration==0:
 					continue
-				if phone=="ssil":
-					phone="pau"
 				labels.append([start,end,phone])
 				self.durations[phone].append(duration)
 
@@ -539,32 +495,25 @@ class htk_segmenter(task):
 	def __call__(self,args):
 		self.setup()
 		self.transcribe()
-		self.output_dict(1)
-		self.lex["PAUSE"].append(["ssil"])
-		self.lex["JUNCTURE"].append(["ssil"])
-		self.output_dict(2)
+		self.output_dict()
 		self.output_words_mlf()
 		self.expand_words_mlf()
-		self.output_phonelist(1)
-		self.output_phonelist(2)
+		self.output_phonelist()
 		self.code()
 		self.output_lines(self.build_proto(39),self.proto_path)
 		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
 		self.output_hmmdefs()
 		self.output_macros()
 		max_reest_iter=20
-		n=self.reest_until(0,1,1,0.1,max_reest_iter)
-		self.edit_hmm(n,1,"pau.hed")
+		n=self.reest_until(0,1,0.1,max_reest_iter)
+		self.edit_hmm(n,"pau.hed")
 		n+=1
-		n=self.reest_until(n,1,1,0.01,max_reest_iter)
-		self.align(n,2,1)
-		self.replace_skip_label_with_ssil(2)
-		self.add_ssil_hmm(n)
-		n+=1
-		self.edit_hmm(n,2,"ssil.hed")
-		n+=1
-		n=self.reest_until(n,3,2,0.001,max_reest_iter)
-		self.align(n,4,2)
+		n=self.reest_until(n,1,0.01,max_reest_iter)
+		self.align(n,2)
+		n=self.reest_until(n,2,0.005,max_reest_iter)
+		self.align(n,3)
+		n=self.reest_until(n,3,0.001,max_reest_iter)
+		self.align(n,4)
 		self.load_alignments(4)
 		self.fix_labels()
 		self.save_labels()
@@ -787,7 +736,7 @@ class f0_extracter(task):
 
 	def extract_with_praat(self,filepath,method):
 		assert(method in ["praat_ac","praat_cc"])
-		command=["praat"]
+		command=["praat","--run"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
 		command.append(os.path.abspath(filepath))
 		command.append(str(self.settings["sample_rate"]))
