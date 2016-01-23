@@ -7,9 +7,9 @@
 [winrepo]: https://ci.appveyor.com/project/nlprocby/rhvoice/build/artifacts
 
 RHVoice is a free and open source speech synthesizer, created by
-Olga Yakovleva. It consists of the following components:
+Olga Yakovleva. It consists from following components:
 
- - command line tool `rhvoice-client` (needs love)
+ - command line tool `rhvoice-client`
  - speech module for NVDA
  - speech module for Windows (SAPI5)
  - Android App
@@ -17,6 +17,9 @@ Olga Yakovleva. It consists of the following components:
 
 Official downloads are available at
 https://github.com/Olga-Yakovleva/RHVoice/wiki/Downloads
+
+nlproc.by binaries for Windows are available from Artfifacts
+tab at https://ci.appveyor.com/project/nlprocby/rhvoice
 
 Source code for community edition can be fetched with git:
 
