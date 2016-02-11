@@ -174,7 +174,7 @@ class recordings_importer(task):
 
 class htk_segmenter(task):
 	def register(self):
-		subparser=subparsers.add_parser("htk")
+		subparser=subparsers.add_parser("segment")
 		subparser.set_defaults(func=self)
 
 	def make_dirs(self):
@@ -517,198 +517,6 @@ class htk_segmenter(task):
 		self.load_alignments(4)
 		self.fix_labels()
 		self.save_labels()
-
-class ehmm_segmenter(task):
-	def register(self):
-		subparser=subparsers.add_parser("ehmm")
-		subparser.set_defaults(func=self)
-
-	def get_labs(self):
-		plosives=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="s")
-		affricates=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="a")
-		stops=plosives|affricates
-		stop_durs=dict((phone,list()) for phone in stops)
-		labdir=os.path.join(self.workdir,"align")
-		labs=collections.OrderedDict()
-		for name in self.recordings:
-			phones=list()
-			prev_phone=None
-			prev_time=0.0
-			with open(os.path.join(labdir,name+".lab"),"r") as f:
-				f.readline()
-				for line in f:
-					tokens=line.split()
-					phone=tokens[-1]
-					time=float(tokens[0])
-					dur=time-prev_time
-					if (phone in ["pau","ssil"]) and (prev_phone in ["pau","ssil"]):
-						phones[-1][1]+=dur
-					else:
-						phones.append([phone,dur])
-						if phone in stops:
-							stop_durs[phone].append(dur)
-					prev_phone=phone
-					prev_time=time
-			labs[name]=phones
-		ssil_plus_stop_limits=dict((phone,stats.scoreatpercentile(durs,95)) for phone,durs in stop_durs.iteritems() if durs)
-		for name,phones in labs.iteritems():
-			phones1=list()
-			prev_phone=None
-			prev_dur=0.0
-			for phone,dur in phones:
-				if (phone in stops) and (prev_phone=="ssil") and ((prev_dur+dur)<ssil_plus_stop_limits[phone]):
-					phones1[-1][0]=phone
-					phones1[-1][1]+=dur
-					prev_phone=phone
-					prev_dur+=dur
-				elif (phone=="ssil") and (prev_phone in plosives) and ((prev_dur+dur)<ssil_plus_stop_limits[prev_phone]):
-					phones1[-1][1]+=dur
-					prev_dur+=dur
-				else:
-					phones1.append([phone,dur])
-					prev_phone=phone
-					prev_dur=dur
-			phones[:]=[("pau" if phone=="ssil" else phone,dur) for phone,dur in phones1]
-		return labs
-
-	def get_transcription(self):
-		self.transcription=collections.OrderedDict()
-		uttdir=os.path.join("data","src_utts")
-		if self.settings["uttdir"] is not None:
-			subcommands=list()
-			for name in self.recordings:
-				utt=os.path.join(uttdir,name+".utt")
-				subcommands.append('(print-phseq "{}")\n'.format(utt))
-			subcommands.append("(quit)\n")
-			festival=subprocess.Popen([os.path.join(self.settings["festdir"],"bin","festival"),
-									   "--heap","10000000",
-									   "--pipe",
-									   os.path.join(scriptdir,"utils.scm")],
-									  stdin=subprocess.PIPE,
-									  stdout=subprocess.PIPE)
-			output,error=festival.communicate("".join(subcommands))
-			lines=output.strip().split("\n")
-			for name,line in zip(self.recordings,lines):
-				self.transcription[name]=line.split()
-		else:
-			transcription_path=os.path.join(self.workdir,"etc","transcription.txt")
-			subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],transcription_path])
-			with open(transcription_path,"r") as f:
-				for name,line in zip(self.recordings,f):
-					self.transcription[name]=line.split()
-
-	def setup(self):
-		self.phoneset=self.get_phoneset()
-		self.wavedir=os.path.join("data","wav")
-		self.workdir="ehmm"
-		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavedir))]
-		subdirs=[self.workdir]
-		for name in ["feat","binfeat","etc","lab","mod","align"]:
-			subdirs.append(os.path.join(self.workdir,name))
-		hts_labdir=os.path.join("data","labels")
-		subdirs.append(hts_labdir)
-		subdirs.append(os.path.join(hts_labdir,"mono"))
-		for subdir in subdirs:
-			if not os.path.isdir(subdir):
-				os.mkdir(subdir)
-		with open(os.path.join(self.workdir,"etc","mywavelist"),"w") as f:
-			f.write("NoOfFiles: {}\n".format(len(self.recordings)))
-			for name in self.recordings:
-				f.write(name+"\n")
-		ehmm_settings=collections.OrderedDict()
-		ehmm_settings["WaveDir"]=self.wavedir
-		ehmm_settings["HeaderBytes"]=44
-		ehmm_settings["SamplingFreq"]=16000
-		ehmm_settings["FrameSize"]=160
-		ehmm_settings["FrameShift"]=80
-		ehmm_settings["Lporder"]=12
-		ehmm_settings["CepsNum"]=16
-		ehmm_settings["FeatDir"]=os.path.join(self.workdir,"feat")
-		ehmm_settings["Ext"]=".wav"
-		with open(os.path.join(self.workdir,"etc","mysp_settings"),"w") as f:
-			for key,value in ehmm_settings.iteritems():
-				f.write("{}: {}\n".format(key,value))
-
-	def phseq(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		self.get_transcription()
-		with open(os.path.join(etcdir,"transcription.train"),"w") as f_train:
-			for name,phones in self.transcription.iteritems():
-				f_train.write(name)
-				f_train.write(" pau ")
-				f_train.write(" ".join("ssil" if phone=="pau" else phone for phone in phones[1:-1]))
-				f_train.write(" pau\n")
-		subprocess.check_call(["perl",os.path.join(bindir,"phfromutt.pl"),os.path.join(etcdir,"transcription.train"),os.path.join(etcdir,"ph_list"),"5"])
-		subprocess.check_call(["perl",os.path.join(bindir,"seqproc.pl"),os.path.join(etcdir,"transcription.train"),os.path.join(etcdir,"ph_list"),"2","2","13"])
-
-	def feats(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		featdir=os.path.join(self.workdir,"feat")
-		binfeatdir=os.path.join(self.workdir,"binfeat")
-		subprocess.check_call([os.path.join(bindir,"FeatureExtraction"),os.path.join(etcdir,"mysp_settings"),os.path.join(etcdir,"mywavelist")])
-		for fname in os.listdir(featdir):
-			if not fname.endswith(".mfcc"):
-				continue
-			subprocess.check_call([os.path.join(bindir,"ConvertFeatsFileToBinaryFormat"),os.path.join(featdir,fname),os.path.join(binfeatdir,fname[:-4]+"ft")])
-		subprocess.check_call([os.path.join(bindir,"ScaleBinaryFeats"),os.path.join(etcdir,"mywavelist"),"4","1"])
-
-	def bw(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		binfeatdir=os.path.join(self.workdir,"binfeat")
-		moddir=os.path.join(self.workdir,"mod")
-		subprocess.check_call([os.path.join(bindir,"ehmm"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.train.int"),"1","0",binfeatdir,"scaledft",moddir,"0","0","0","30",str(mp.cpu_count())])
-
-	def align(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		binfeatdir=os.path.join(self.workdir,"binfeat")
-		moddir=os.path.join(self.workdir,"mod")
-		aligndir=os.path.join(self.workdir,"align")
-		labdir1=os.path.join(self.workdir,"lab")
-		labdir2=os.path.join("data","labels","mono")
-		subprocess.check_call([os.path.join(bindir,"edec"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.train.int"),"1",binfeatdir,"scaledft",os.path.join(etcdir,"mysp_settings"),moddir,"0",aligndir,str(mp.cpu_count())])
-		subprocess.check_call(["perl",os.path.join(bindir,"sym2nm.pl"),aligndir,os.path.join(etcdir,"ph_list.int")])
-		labs=self.get_labs()
-		for name,phones in labs.iteritems():
-			with open(os.path.join(labdir1,name+".lab"),"w") as f:
-				f.write("#\n")
-				total=0.0
-				for phone,dur in phones:
-					total+=dur
-					f.write("{} 125 {}\n".format(total,phone))
-		if self.settings["uttdir"] is None:
-			for name,phones in labs.iteritems():
-				with open(os.path.join(labdir2,name+".lab"),"w") as f:
-					start=0
-					for phone,dur in phones:
-						end=start+int(round(dur*10000000))
-						f.write("{} {} {}\n".format(start,end,phone))
-						start=end
-		else:
-			commands=["(set_backtrace t)"]
-			for name in self.recordings:
-				fromfile=os.path.join("data","src_utts",name+".utt")
-				labfile=os.path.join(self.workdir,"lab",name+".lab")
-				tofile=os.path.join("data","utts",name+".utt")
-				commands.append('(merge-labs "{}" "{}" "{}")\n'.format(fromfile,labfile,tofile))
-			commands.append("(quit)\n")
-			festival=subprocess.Popen([os.path.join(self.settings["festdir"],"bin","festival"),
-									   "--heap","10000000",
-									   "--pipe",
-									   os.path.join(scriptdir,"utils.scm")],
-									  stdin=subprocess.PIPE)
-			festival.communicate("".join(commands))
-
-	def __call__(self,args):
-		self.setup()
-		self.phseq()
-		self.feats()
-		self.bw()
-		self.align()
-
 
 class labeller(task):
 	def register(self):
@@ -1208,7 +1016,7 @@ class retrainer(task):
 		self.train()
 
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,ehmm_segmenter,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
+	for cls in [setup,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
