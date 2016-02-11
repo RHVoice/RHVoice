@@ -144,7 +144,7 @@ class recordings_importer(task):
 
 	def process(self,inpath,inname,outname):
 		print("Processing {}".format(inname))
-		cmd=["praat",
+		cmd=["praat","--run",
 			 os.path.join(scriptdir,"import.praat"),
 			 inpath,
 			 os.path.join(workdir,"data","wav",outname+".wav"),
