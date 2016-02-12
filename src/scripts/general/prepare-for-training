@@ -573,12 +573,15 @@ class f0_extracter(task):
 		count=len(output)/4
 		return list(struct.unpack("={}f".format(count),output))
 
-	def extract_with_reaper(self,file_path):
+	def extract_with_reaper(self,raw_path):
 		f0_path="utt.f0"
+		wav_path="utt.wav"
 		extra_opts=[]
 		if "reaper_options" in self.settings:
 			extra_opts=self.settings["reaper_options"].split()
-		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(self.settings["lower_f0"]),"-x",str(self.settings["upper_f0"]),"-i",file_path,"-f",f0_path]+extra_opts)
+		subprocess.check_call(["sox","-t","raw","-c","1","-e","signed","-b","16","-r",str(self.settings["sample_rate"]),raw_path,"-t","wav",wav_path])
+		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(self.settings["lower_f0"]),"-x",str(self.settings["upper_f0"]),"-i",wav_path,"-f",f0_path]+extra_opts)
+		os.remove(wav_path)
 		f0s=[]
 		with open(f0_path,"rt") as f_in:
 			for line in f_in:
@@ -592,18 +595,18 @@ class f0_extracter(task):
 		os.remove(f0_path)
 		return f0s
 
-	def extract_with(self,raw_path,wav_path,method):
+	def extract_with(self,raw_path,method):
 		if method.startswith("praat_"):
 			return self.extract_with_praat(raw_path,method)
 		elif method=="reaper":
-			return self.extract_with_reaper(wav_path)
+			return self.extract_with_reaper(raw_path)
 		else:
 			return self.extract_with_sptk(raw_path,method)
 
-	def extract_and_vote(self,raw_path,wav_path,methods):
+	def extract_and_vote(self,raw_path,methods):
 		extracted=list()
 		for method in sorted(set(methods)):
-			extracted.append(self.extract_with(raw_path,wav_path,method))
+			extracted.append(self.extract_with(raw_path,method))
 		result=list()
 		for values in zip(*extracted):
 			result.append(numpy.median(values))
@@ -611,16 +614,14 @@ class f0_extracter(task):
 
 	def extract(self,name):
 		raw_dir=os.path.join("data","raw")
-		wav_dir=os.path.join("data","wav")
 		base,ext=os.path.splitext(name)
 		print("Processing {}".format(base))
 		raw_path=os.path.join(raw_dir,name)
-		wav_path=os.path.join(wav_dir,base+".wav")
 		method=self.settings["f0_method"]
 		if isinstance(method,basestring):
-			return self.extract_with(raw_path,wav_path,method)
+			return self.extract_with(raw_path,method)
 		else:
-			return self.extract_and_vote(raw_path,wav_path,method)
+			return self.extract_and_vote(raw_path,method)
 
 	def __call__(self,args):
 		raw_dir=os.path.join("data","raw")

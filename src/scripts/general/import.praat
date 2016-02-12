@@ -69,9 +69,9 @@ end_of_speech=Get start point... 1 num_intervals
 end=end_of_speech+min_sil_dur
 endif
 select snd
-Extract part... start end rectangular 1 no
+speech=Extract part... start end rectangular 1 no
 if invert!=0
-Multiply: -1
+speech=Multiply: -1
 endif
 if sample_rate!=src_sample_rate
 Resample: sample_rate, 70
@@ -81,5 +81,14 @@ peak=Get absolute extremum... 0 0 Sinc70
 if peak>0.99
 Scale peak... 0.99
 endif
-Save as WAV file... 'first_output_file$'
 Save as raw 16-bit little-endian file... 'second_output_file$'
+if sample_rate!=16000
+select speech
+Resample: 16000, 70
+Scale intensity... 70
+peak=Get absolute extremum... 0 0 Sinc70
+if peak>0.99
+Scale peak... 0.99
+endif
+endif
+Save as WAV file... 'first_output_file$'
