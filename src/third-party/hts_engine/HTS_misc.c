@@ -4,7 +4,7 @@
 /*           http://hts-engine.sourceforge.net/                      */
 /* ----------------------------------------------------------------- */
 /*                                                                   */
-/*  Copyright (c) 2001-2011  Nagoya Institute of Technology          */
+/*  Copyright (c) 2001-2015  Nagoya Institute of Technology          */
 /*                           Department of Computer Science          */
 /*                                                                   */
 /*                2001-2008  Tokyo Institute of Technology           */
@@ -66,13 +66,230 @@ HTS_MISC_C_START;
 #include "EST_walloc.h"
 #endif                          /* FESTIVAL */
 
-#include "utils.h"
+#define HTS_FILE  0
+#define HTS_DATA  1
+
+typedef struct _HTS_Data {
+   unsigned char *data;
+   size_t size;
+   size_t index;
+} HTS_Data;
+
+/* HTS_fopen_from_fn: wrapper for fopen */
+HTS_File *HTS_fopen_from_fn(const char *name, const char *opt)
+{
+   HTS_File *fp = (HTS_File *) HTS_calloc(1, sizeof(HTS_File));
+
+   fp->type = HTS_FILE;
+   fp->pointer = (void *) fopen(name, opt);
+
+   if (fp->pointer == NULL) {
+      HTS_error(0, "HTS_fopen: Cannot open %s.\n", name);
+      HTS_free(fp);
+      return NULL;
+   }
+
+   return fp;
+}
+
+/* HTS_fopen_from_fp: wrapper for fopen */
+HTS_File *HTS_fopen_from_fp(HTS_File * fp, size_t size)
+{
+   if (fp == NULL || size == 0)
+      return NULL;
+   else if (fp->type == HTS_FILE) {
+      HTS_Data *d;
+      HTS_File *f;
+      d = (HTS_Data *) HTS_calloc(1, sizeof(HTS_Data));
+      d->data = (unsigned char *) HTS_calloc(size, sizeof(unsigned char));
+      d->size = size;
+      d->index = 0;
+      if (fread(d->data, sizeof(unsigned char), size, (FILE *) fp->pointer) != size) {
+         free(d->data);
+         free(d);
+         return NULL;
+      }
+      f = (HTS_File *) HTS_calloc(1, sizeof(HTS_File));
+      f->type = HTS_DATA;
+      f->pointer = (void *) d;
+      return f;
+   } else if (fp->type == HTS_DATA) {
+      HTS_File *f;
+      HTS_Data *tmp1, *tmp2;
+      tmp1 = (HTS_Data *) fp->pointer;
+      if (tmp1->index + size > tmp1->size)
+         return NULL;
+      tmp2 = (HTS_Data *) HTS_calloc(1, sizeof(HTS_Data));
+      tmp2->data = (unsigned char *) HTS_calloc(size, sizeof(unsigned char));
+      tmp2->size = size;
+      tmp2->index = 0;
+      memcpy(tmp2->data, &tmp1->data[tmp1->index], size);
+      tmp1->index += size;
+      f = (HTS_File *) HTS_calloc(1, sizeof(HTS_File));
+      f->type = HTS_DATA;
+      f->pointer = (void *) tmp2;
+      return f;
+   }
+
+   HTS_error(0, "HTS_fopen_from_fp: Unknown file type.\n");
+   return NULL;
+}
+
+/* HTS_fopen_from_data: wrapper for fopen */
+HTS_File *HTS_fopen_from_data(void *data, size_t size)
+{
+   HTS_Data *d;
+   HTS_File *f;
+
+   if (data == NULL || size == 0)
+      return NULL;
+
+   d = (HTS_Data *) HTS_calloc(1, sizeof(HTS_Data));
+   d->data = (unsigned char *) HTS_calloc(size, sizeof(unsigned char));
+   d->size = size;
+   d->index = 0;
+
+   memcpy(d->data, data, size);
+
+   f = (HTS_File *) HTS_calloc(1, sizeof(HTS_File));
+   f->type = HTS_DATA;
+   f->pointer = (void *) d;
+
+   return f;
+}
+
+/* HTS_fclose: wrapper for fclose */
+void HTS_fclose(HTS_File * fp)
+{
+   if (fp == NULL) {
+      return;
+   } else if (fp->type == HTS_FILE) {
+      if (fp->pointer != NULL)
+         fclose((FILE *) fp->pointer);
+      HTS_free(fp);
+      return;
+   } else if (fp->type == HTS_DATA) {
+      if (fp->pointer != NULL) {
+         HTS_Data *d = (HTS_Data *) fp->pointer;
+         if (d->data != NULL)
+            HTS_free(d->data);
+         HTS_free(d);
+      }
+      HTS_free(fp);
+      return;
+   }
+   HTS_error(0, "HTS_fclose: Unknown file type.\n");
+}
+
+/* HTS_fgetc: wrapper for fgetc */
+int HTS_fgetc(HTS_File * fp)
+{
+   if (fp == NULL) {
+      return EOF;
+   } else if (fp->type == HTS_FILE) {
+      return fgetc((FILE *) fp->pointer);
+   } else if (fp->type == HTS_DATA) {
+      HTS_Data *d = (HTS_Data *) fp->pointer;
+      if (d->size <= d->index)
+         return EOF;
+      return (int) d->data[d->index++];
+   }
+   HTS_error(0, "HTS_fgetc: Unknown file type.\n");
+   return EOF;
+}
+
+/* HTS_feof: wrapper for feof */
+int HTS_feof(HTS_File * fp)
+{
+   if (fp == NULL) {
+      return 1;
+   } else if (fp->type == HTS_FILE) {
+      return feof((FILE *) fp->pointer);
+   } else if (fp->type == HTS_DATA) {
+      HTS_Data *d = (HTS_Data *) fp->pointer;
+      return d->size <= d->index ? 1 : 0;
+   }
+   HTS_error(0, "HTS_feof: Unknown file type.\n");
+   return 1;
+}
+
+/* HTS_fseek: wrapper for fseek */
+int HTS_fseek(HTS_File * fp, long offset, int origin)
+{
+   if (fp == NULL) {
+      return 1;
+   } else if (fp->type == HTS_FILE) {
+      return fseek((FILE *) fp->pointer, offset, origin);
+   } else if (fp->type == HTS_DATA) {
+      HTS_Data *d = (HTS_Data *) fp->pointer;
+      if (origin == SEEK_SET) {
+         d->index = (size_t) offset;
+      } else if (origin == SEEK_CUR) {
+         d->index += offset;
+      } else if (origin == SEEK_END) {
+         d->index = d->size + offset;
+      } else {
+         return 1;
+      }
+      return 0;
+   }
+   HTS_error(0, "HTS_fseek: Unknown file type.\n");
+   return 1;
+}
+
+/* HTS_ftell: rapper for ftell */
+size_t HTS_ftell(HTS_File * fp)
+{
+   if (fp == NULL) {
+      return 0;
+   } else if (fp->type == HTS_FILE) {
+      fpos_t pos;
+      fgetpos((FILE *) fp->pointer, &pos);
+#if defined(_WIN32) || defined(__CYGWIN__) || defined(__APPLE__) || defined(__ANDROID__)
+      return (size_t) pos;
+#else
+      return (size_t) pos.__pos;
+#endif                          /* _WIN32 || __CYGWIN__ || __APPLE__ || __ANDROID__ */
+   } else if (fp->type == HTS_DATA) {
+      HTS_Data *d = (HTS_Data *) fp->pointer;
+      return d->index;
+   }
+   HTS_error(0, "HTS_ftell: Unknown file type.\n");
+   return 0;
+}
+
+/* HTS_fread: wrapper for fread */
+static size_t HTS_fread(void *buf, size_t size, size_t n, HTS_File * fp)
+{
+   if (fp == NULL || size == 0 || n == 0) {
+      return 0;
+   }
+   if (fp->type == HTS_FILE) {
+      return fread(buf, size, n, (FILE *) fp->pointer);
+   } else if (fp->type == HTS_DATA) {
+      HTS_Data *d = (HTS_Data *) fp->pointer;
+      size_t i, length = size * n;
+      unsigned char *c = (unsigned char *) buf;
+      for (i = 0; i < length; i++) {
+         if (d->index < d->size)
+            c[i] = d->data[d->index++];
+         else
+            break;
+      }
+      if (i == 0)
+         return 0;
+      else
+         return i / size;
+   }
+   HTS_error(0, "HTS_fread: Unknown file type.\n");
+   return 0;
+}
 
 /* HTS_byte_swap: byte swap */
-static int HTS_byte_swap(void *p, const int size, const int block)
+static void HTS_byte_swap(void *p, size_t size, size_t block)
 {
    char *q, tmp;
-   int i, j;
+   size_t i, j;
 
    q = (char *) p;
 
@@ -84,81 +301,46 @@ static int HTS_byte_swap(void *p, const int size, const int block)
       }
       q += size;
    }
-
-   return i;
 }
 
-/* HTS_error: output error message */
-void HTS_error(const int error, char *message, ...)
+/* HTS_fread_big_endian: fread with byteswap */
+size_t HTS_fread_big_endian(void *buf, size_t size, size_t n, HTS_File * fp)
 {
-   va_list arg;
+   size_t block = HTS_fread(buf, size, n, fp);
 
-   fflush(stdout);
-   fflush(stderr);
+#ifdef WORDS_LITTLEENDIAN
+   HTS_byte_swap(buf, size, block);
+#endif                          /* WORDS_LITTLEENDIAN */
 
-   if (error > 0)
-      fprintf(stderr, "\nError: ");
-   else
-      fprintf(stderr, "\nWarning: ");
-
-   va_start(arg, message);
-   vfprintf(stderr, message, arg);
-   va_end(arg);
-
-   fflush(stderr);
-
-   if (error > 0)
-      exit(error);
+   return block;
 }
 
-/* HTS_fopen: wrapper for fopen */
-HTS_File *HTS_fopen(const char *name, const char *opt)
+/* HTS_fread_little_endian: fread with byteswap */
+size_t HTS_fread_little_endian(void *buf, size_t size, size_t n, HTS_File * fp)
 {
-   HTS_File *fp = utf8_fopen(name, opt);
+   size_t block = HTS_fread(buf, size, n, fp);
 
-   if (fp == NULL) {
-      HTS_error(1, "HTS_fopen: Cannot open %s.\n", name);
-      return NULL;
-   }
+#ifdef WORDS_BIGENDIAN
+   HTS_byte_swap(buf, size, block);
+#endif                          /* WORDS_BIGENDIAN */
 
-   return fp;
+   return block;
 }
 
-/* HTS_fgetc: wrapper for fgetc */
-int HTS_fgetc(HTS_File * fp)
+/* HTS_fwrite_little_endian: fwrite with byteswap */
+size_t HTS_fwrite_little_endian(const void *buf, size_t size, size_t n, FILE * fp)
 {
-   return fgetc(fp);
-}
-
-/* HTS_feof: wrapper for feof */
-int HTS_feof(HTS_File * fp)
-{
-   return feof(fp);
-}
-
-/* HTS_fread: wrapper for fread */
-size_t HTS_fread(void *buf, size_t size, size_t n, HTS_File * fp)
-{
-   return fread(buf, size, n, fp);
-}
-
-/* HTS_fwrite: wrapper for fwrite */
-size_t HTS_fwrite(const void *buf, size_t size, size_t n, HTS_File * fp)
-{
+#ifdef WORDS_BIGENDIAN
+   HTS_byte_swap(buf, size, n * size);
+#endif                          /* WORDS_BIGENDIAN */
    return fwrite(buf, size, n, fp);
 }
 
-/* HTS_fclose: wrapper for fclose */
-void HTS_fclose(HTS_File * fp)
-{
-   fclose(fp);
-}
-
-/* HTS_get_pattern_token: get pattern token */
+/* HTS_get_pattern_token: get pattern token (single/double quote can be used) */
 HTS_Boolean HTS_get_pattern_token(HTS_File * fp, char *buff)
 {
    char c;
-   int i;
+   size_t i;
    HTS_Boolean squote = FALSE, dquote = FALSE;
 
    if (fp == NULL || HTS_feof(fp))
@@ -212,11 +394,11 @@ HTS_Boolean HTS_get_pattern_token(HTS_File * fp, char *buff)
    return TRUE;
 }
 
-/* HTS_get_token: get token (separators are space, tab, and line break) */
-HTS_Boolean HTS_get_token(HTS_File * fp, char *buff)
+/* HTS_get_token: get token from file pointer (separators are space, tab, and line break) */
+HTS_Boolean HTS_get_token_from_fp(HTS_File * fp, char *buff)
 {
    char c;
-   int i;
+   size_t i;
 
    if (fp == NULL || HTS_feof(fp))
       return FALSE;
@@ -225,6 +407,8 @@ HTS_Boolean HTS_get_token(HTS_File * fp, char *buff)
       if (HTS_feof(fp))
          return FALSE;
       c = HTS_fgetc(fp);
+      if (c == EOF)
+         return FALSE;
    }
 
    for (i = 0; c != ' ' && c != '\n' && c != '\t';) {
@@ -232,6 +416,38 @@ HTS_Boolean HTS_get_token(HTS_File * fp, char *buff)
       if (HTS_feof(fp))
          break;
       c = HTS_fgetc(fp);
+      if (c == EOF)
+         break;
+   }
+
+   buff[i] = '\0';
+   return TRUE;
+}
+
+/* HTS_get_token_with_separator: get token from file pointer with specified separator */
+HTS_Boolean HTS_get_token_from_fp_with_separator(HTS_File * fp, char *buff, char separator)
+{
+   char c;
+   size_t i;
+
+   if (fp == NULL || HTS_feof(fp))
+      return FALSE;
+   c = HTS_fgetc(fp);
+   while (c == separator) {
+      if (HTS_feof(fp))
+         return FALSE;
+      c = HTS_fgetc(fp);
+      if (c == EOF)
+         return FALSE;
+   }
+
+   for (i = 0; c != separator;) {
+      buff[i++] = c;
+      if (HTS_feof(fp))
+         break;
+      c = HTS_fgetc(fp);
+      if (c == EOF)
+         break;
    }
 
    buff[i] = '\0';
@@ -239,10 +455,10 @@ HTS_Boolean HTS_get_token(HTS_File * fp, char *buff)
 }
 
 /* HTS_get_token_from_string: get token from string (separators are space, tab, and line break) */
-HTS_Boolean HTS_get_token_from_string(char *string, int *index, char *buff)
+HTS_Boolean HTS_get_token_from_string(const char *string, size_t * index, char *buff)
 {
    char c;
-   int i;
+   size_t i;
 
    c = string[(*index)];
    if (c == '\0')
@@ -264,37 +480,56 @@ HTS_Boolean HTS_get_token_from_string(char *string, int *index, char *buff)
    return TRUE;
 }
 
-/* HTS_fread_big_endian: fread with byteswap */
-int HTS_fread_big_endian(void *p, const int size, const int num, HTS_File * fp)
+/* HTS_get_token_from_string_with_separator: get token from string with specified separator */
+HTS_Boolean HTS_get_token_from_string_with_separator(const char *str, size_t * index, char *buff, char separator)
 {
-   const int block = HTS_fread(p, size, num, fp);
+   char c;
+   size_t len = 0;
 
-   if(is_machine_little_endian())
-     HTS_byte_swap(p, size, block);
+   if (str == NULL)
+      return FALSE;
 
-   return block;
-}
+   c = str[(*index)];
+   if (c == '\0')
+      return FALSE;
+   while (c == separator) {
+      if (c == '\0')
+         return FALSE;
+      (*index)++;
+      c = str[(*index)];
+   }
+   while (c != separator && c != '\0') {
+      buff[len++] = c;
+      (*index)++;
+      c = str[(*index)];
+   }
+   if (c != '\0')
+      (*index)++;
 
-/* HTS_fwrite_little_endian: fwrite with byteswap */
-int HTS_fwrite_little_endian(void *p, const int size, const int num, HTS_File * fp)
-{
-   const int block = num * size;
+   buff[len] = '\0';
 
-   if(is_machine_big_endian())
-     HTS_byte_swap(p, size, block);
-   HTS_fwrite(p, size, num, fp);
-
-   return block;
+   if (len > 0)
+      return TRUE;
+   else
+      return FALSE;
 }
 
 /* HTS_calloc: wrapper for calloc */
-char *HTS_calloc(const size_t num, const size_t size)
+void *HTS_calloc(const size_t num, const size_t size)
 {
+   size_t n = num * size;
+   void *mem;
+
+   if (n == 0)
+      return NULL;
+
 #ifdef FESTIVAL
-   char *mem = (char *) safe_wcalloc(num * size);
+   mem = (void *) safe_wcalloc(n);
 #else
-   char *mem = (char *) calloc(num, size);
+   mem = (void *) malloc(n);
 #endif                          /* FESTIVAL */
+
+   memset(mem, 0, n);
 
    if (mem == NULL)
       HTS_error(1, "HTS_calloc: Cannot allocate memory.\n");
@@ -325,10 +560,15 @@ char *HTS_strdup(const char *string)
 }
 
 /* HTS_alloc_matrix: allocate double matrix */
-double **HTS_alloc_matrix(const int x, const int y)
+double **HTS_alloc_matrix(size_t x, size_t y)
 {
-   int i;
-   double **p = (double **) HTS_calloc(x, sizeof(double *));
+   size_t i;
+   double **p;
+
+   if (x == 0 || y == 0)
+      return NULL;
+
+   p = (double **) HTS_calloc(x, sizeof(double *));
 
    for (i = 0; i < x; i++)
       p[i] = (double *) HTS_calloc(y, sizeof(double));
@@ -336,13 +576,36 @@ double **HTS_alloc_matrix(const int x, const int y)
 }
 
 /* HTS_free_matrix: free double matrix */
-void HTS_free_matrix(double **p, const int x)
+void HTS_free_matrix(double **p, size_t x)
 {
-   int i;
+   size_t i;
 
-   for (i = x - 1; i >= 0; i--)
+   for (i = 0; i < x; i++)
       HTS_free(p[i]);
    HTS_free(p);
+}
+
+/* HTS_error: output error message */
+void HTS_error(int error, const char *message, ...)
+{
+   va_list arg;
+
+   fflush(stdout);
+   fflush(stderr);
+
+   if (error > 0)
+      fprintf(stderr, "\nError: ");
+   else
+      fprintf(stderr, "\nWarning: ");
+
+   va_start(arg, message);
+   vfprintf(stderr, message, arg);
+   va_end(arg);
+
+   fflush(stderr);
+
+   if (error > 0)
+      exit(error);
 }
 
 HTS_MISC_C_END;
