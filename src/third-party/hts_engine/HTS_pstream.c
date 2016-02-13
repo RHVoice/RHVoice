@@ -4,7 +4,7 @@
 /*           http://hts-engine.sourceforge.net/                      */
 /* ----------------------------------------------------------------- */
 /*                                                                   */
-/*  Copyright (c) 2001-2011  Nagoya Institute of Technology          */
+/*  Copyright (c) 2001-2015  Nagoya Institute of Technology          */
 /*                           Department of Computer Science          */
 /*                                                                   */
 /*                2001-2008  Tokyo Institute of Technology           */
@@ -76,9 +76,10 @@ static double HTS_finv(const double x)
 }
 
 /* HTS_PStream_calc_wuw_and_wum: calcurate W'U^{-1}W and W'U^{-1}M */
-static void HTS_PStream_calc_wuw_and_wum(HTS_PStream * pst, const int m)
+static void HTS_PStream_calc_wuw_and_wum(HTS_PStream * pst, size_t m)
 {
-   int t, i, j, k;
+   size_t t, i, j;
+   int shift;
    double wu;
 
    for (t = 0; t < pst->length; t++) {
@@ -89,15 +90,13 @@ static void HTS_PStream_calc_wuw_and_wum(HTS_PStream * pst, const int m)
 
       /* calc WUW & WUM */
       for (i = 0; i < pst->win_size; i++)
-         for (j = pst->win_l_width[i]; j <= pst->win_r_width[i]; j++)
-            if ((t + j >= 0) && (t + j < pst->length)
-                && (pst->win_coefficient[i][-j] != 0.0)) {
-               wu = pst->win_coefficient[i][-j] * pst->sm.ivar[t + j][i * pst->static_length + m];
-               pst->sm.wum[t] += wu * pst->sm.mean[t + j][i * pst->static_length + m];
-               for (k = 0; (k < pst->width) && (t + k < pst->length); k++)
-                  if ((k - j <= pst->win_r_width[i])
-                      && (pst->win_coefficient[i][k - j] != 0.0))
-                     pst->sm.wuw[t][k] += wu * pst->win_coefficient[i][k - j];
+         for (shift = pst->win_l_width[i]; shift <= pst->win_r_width[i]; shift++)
+            if (((int) t + shift >= 0) && ((int) t + shift < pst->length) && (pst->win_coefficient[i][-shift] != 0.0)) {
+               wu = pst->win_coefficient[i][-shift] * pst->sm.ivar[t + shift][i * pst->vector_length + m];
+               pst->sm.wum[t] += wu * pst->sm.mean[t + shift][i * pst->vector_length + m];
+               for (j = 0; (j < pst->width) && (t + j < pst->length); j++)
+                  if (((int) j <= pst->win_r_width[i] + shift) && (pst->win_coefficient[i][j - shift] != 0.0))
+                     pst->sm.wuw[t][j] += wu * pst->win_coefficient[i][j - shift];
             }
    }
 }
@@ -106,7 +105,7 @@ static void HTS_PStream_calc_wuw_and_wum(HTS_PStream * pst, const int m)
 /* HTS_PStream_ldl_factorization: Factorize W'*U^{-1}*W to L*D*L' (L: lower triangular, D: diagonal) */
 static void HTS_PStream_ldl_factorization(HTS_PStream * pst)
 {
-   int t, i, j;
+   size_t t, i, j;
 
    for (t = 0; t < pst->length; t++) {
       for (i = 1; (i < pst->width) && (t >= i); i++)
@@ -123,7 +122,7 @@ static void HTS_PStream_ldl_factorization(HTS_PStream * pst)
 /* HTS_PStream_forward_substitution: forward subtitution for mlpg */
 static void HTS_PStream_forward_substitution(HTS_PStream * pst)
 {
-   int t, i;
+   size_t t, i;
 
    for (t = 0; t < pst->length; t++) {
       pst->sm.g[t] = pst->sm.wum[t];
@@ -133,11 +132,12 @@ static void HTS_PStream_forward_substitution(HTS_PStream * pst)
 }
 
 /* HTS_PStream_backward_substitution: backward subtitution for mlpg */
-static void HTS_PStream_backward_substitution(HTS_PStream * pst, const int m)
+static void HTS_PStream_backward_substitution(HTS_PStream * pst, size_t m)
 {
-   int t, i;
+   size_t rev, t, i;
 
-   for (t = pst->length - 1; t >= 0; t--) {
+   for (rev = 0; rev < pst->length; rev++) {
+      t = pst->length - 1 - rev;
       pst->par[t][m] = pst->sm.g[t] / pst->sm.wuw[t][0];
       for (i = 1; (i < pst->width) && (t + i < pst->length); i++)
          pst->par[t][m] -= pst->sm.wuw[t][i] * pst->par[t + i][m];
@@ -145,9 +145,9 @@ static void HTS_PStream_backward_substitution(HTS_PStream * pst, const int m)
 }
 
 /* HTS_PStream_calc_gv: subfunction for mlpg using GV */
-static void HTS_PStream_calc_gv(HTS_PStream * pst, const int m, double *mean, double *vari)
+static void HTS_PStream_calc_gv(HTS_PStream * pst, size_t m, double *mean, double *vari)
 {
-   int t;
+   size_t t;
 
    *mean = 0.0;
    for (t = 0; t < pst->length; t++)
@@ -162,9 +162,9 @@ static void HTS_PStream_calc_gv(HTS_PStream * pst, const int m, double *mean, do
 }
 
 /* HTS_PStream_conv_gv: subfunction for mlpg using GV */
-static void HTS_PStream_conv_gv(HTS_PStream * pst, const int m)
+static void HTS_PStream_conv_gv(HTS_PStream * pst, size_t m)
 {
-   int t;
+   size_t t;
    double ratio;
    double mean;
    double vari;
@@ -177,16 +177,16 @@ static void HTS_PStream_conv_gv(HTS_PStream * pst, const int m)
 }
 
 /* HTS_PStream_calc_derivative: subfunction for mlpg using GV */
-static double HTS_PStream_calc_derivative(HTS_PStream * pst, const int m)
+static double HTS_PStream_calc_derivative(HTS_PStream * pst, size_t m)
 {
-   int t, i;
+   size_t t, i;
    double mean;
    double vari;
    double dv;
    double h;
    double gvobj;
    double hmmobj;
-   const double w = 1.0 / (pst->win_size * pst->length);
+   double w = 1.0 / (pst->win_size * pst->length);
 
    HTS_PStream_calc_gv(pst, m, &mean, &vari);
    gvobj = -0.5 * W2 * vari * pst->gv_vari[m] * (vari - 2.0 * pst->gv_mean[m]);
@@ -215,11 +215,11 @@ static double HTS_PStream_calc_derivative(HTS_PStream * pst, const int m)
 }
 
 /* HTS_PStream_gv_parmgen: function for mlpg using GV */
-static void HTS_PStream_gv_parmgen(HTS_PStream * pst, const int m)
+static void HTS_PStream_gv_parmgen(HTS_PStream * pst, size_t m)
 {
-   int t, i;
+   size_t t, i;
    double step = STEPINIT;
-   double prev = -LZERO;
+   double prev = 0.0;
    double obj;
 
    if (pst->gv_length == 0)
@@ -230,12 +230,16 @@ static void HTS_PStream_gv_parmgen(HTS_PStream * pst, const int m)
       HTS_PStream_calc_wuw_and_wum(pst, m);
       for (i = 1; i <= GV_MAX_ITERATION; i++) {
          obj = HTS_PStream_calc_derivative(pst, m);
-         if (obj > prev)
-            step *= STEPDEC;
-         if (obj < prev)
-            step *= STEPINC;
-         for (t = 0; t < pst->length; t++)
-            pst->par[t][m] += step * pst->sm.g[t];
+         if (i > 1) {
+            if (obj > prev)
+               step *= STEPDEC;
+            if (obj < prev)
+               step *= STEPINC;
+         }
+         for (t = 0; t < pst->length; t++) {
+            if (pst->gv_switch[t])
+               pst->par[t][m] += step * pst->sm.g[t];
+         }
          prev = obj;
       }
    }
@@ -244,12 +248,12 @@ static void HTS_PStream_gv_parmgen(HTS_PStream * pst, const int m)
 /* HTS_PStream_mlpg: generate sequence of speech parameter vector maximizing its output probability for given pdf sequence */
 static void HTS_PStream_mlpg(HTS_PStream * pst)
 {
-   int m;
+   size_t m;
 
    if (pst->length == 0)
       return;
 
-   for (m = 0; m < pst->static_length; m++) {
+   for (m = 0; m < pst->vector_length; m++) {
       HTS_PStream_calc_wuw_and_wum(pst, m);
       HTS_PStream_ldl_factorization(pst);       /* LDL factorization */
       HTS_PStream_forward_substitution(pst);    /* forward substitution   */
@@ -270,13 +274,14 @@ void HTS_PStreamSet_initialize(HTS_PStreamSet * pss)
 /* HTS_PStreamSet_create: parameter generation using GV weight */
 HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, double *msd_threshold, double *gv_weight)
 {
-   int i, j, k, l, m;
-   int frame, msd_frame, state;
+   size_t i, j, k, l, m;
+   int shift;
+   size_t frame, msd_frame, state;
 
    HTS_PStream *pst;
    HTS_Boolean not_bound;
 
-   if (pss->nstream) {
+   if (pss->nstream != 0) {
       HTS_error(1, "HTS_PstreamSet_create: HTS_PStreamSet should be clear.\n");
       return FALSE;
    }
@@ -289,22 +294,25 @@ HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, do
    /* create */
    for (i = 0; i < pss->nstream; i++) {
       pst = &pss->pstream[i];
-      if (HTS_SStreamSet_is_msd(sss, i)) {      /* for MSD */
+      if (HTS_SStreamSet_is_msd(sss, i) == TRUE) {      /* for MSD */
          pst->length = 0;
          for (state = 0; state < HTS_SStreamSet_get_total_state(sss); state++)
             if (HTS_SStreamSet_get_msd(sss, i, state) > msd_threshold[i])
                pst->length += HTS_SStreamSet_get_duration(sss, state);
          pst->msd_flag = (HTS_Boolean *) HTS_calloc(pss->total_frame, sizeof(HTS_Boolean));
-         for (state = 0, frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++)
-            if (HTS_SStreamSet_get_msd(sss, i, state) > msd_threshold[i])
+         for (state = 0, frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++) {
+            if (HTS_SStreamSet_get_msd(sss, i, state) > msd_threshold[i]) {
                for (j = 0; j < HTS_SStreamSet_get_duration(sss, state); j++) {
                   pst->msd_flag[frame] = TRUE;
                   frame++;
-            } else
+               }
+            } else {
                for (j = 0; j < HTS_SStreamSet_get_duration(sss, state); j++) {
                   pst->msd_flag[frame] = FALSE;
                   frame++;
                }
+            }
+         }
       } else {                  /* for non MSD */
          pst->length = pss->total_frame;
          pst->msd_flag = NULL;
@@ -312,13 +320,14 @@ HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, do
       pst->vector_length = HTS_SStreamSet_get_vector_length(sss, i);
       pst->width = HTS_SStreamSet_get_window_max_width(sss, i) * 2 + 1; /* band width of R */
       pst->win_size = HTS_SStreamSet_get_window_size(sss, i);
-      pst->static_length = pst->vector_length / pst->win_size;
-      pst->sm.mean = HTS_alloc_matrix(pst->length, pst->vector_length);
-      pst->sm.ivar = HTS_alloc_matrix(pst->length, pst->vector_length);
-      pst->sm.wum = (double *) HTS_calloc(pst->length, sizeof(double));
-      pst->sm.wuw = HTS_alloc_matrix(pst->length, pst->width);
-      pst->sm.g = (double *) HTS_calloc(pst->length, sizeof(double));
-      pst->par = HTS_alloc_matrix(pst->length, pst->static_length);
+      if (pst->length > 0) {
+         pst->sm.mean = HTS_alloc_matrix(pst->length, pst->vector_length * pst->win_size);
+         pst->sm.ivar = HTS_alloc_matrix(pst->length, pst->vector_length * pst->win_size);
+         pst->sm.wum = (double *) HTS_calloc(pst->length, sizeof(double));
+         pst->sm.wuw = HTS_alloc_matrix(pst->length, pst->width);
+         pst->sm.g = (double *) HTS_calloc(pst->length, sizeof(double));
+         pst->par = HTS_alloc_matrix(pst->length, pst->vector_length);
+      }
       /* copy dynamic window */
       pst->win_l_width = (int *) HTS_calloc(pst->win_size, sizeof(int));
       pst->win_r_width = (int *) HTS_calloc(pst->win_size, sizeof(int));
@@ -333,22 +342,22 @@ HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, do
             pst->win_coefficient[j] = (double *)
                 HTS_calloc(-2 * pst->win_l_width[j], sizeof(double));
          pst->win_coefficient[j] -= pst->win_l_width[j];
-         for (k = pst->win_l_width[j]; k <= pst->win_r_width[j]; k++)
-            pst->win_coefficient[j][k] = HTS_SStreamSet_get_window_coefficient(sss, i, j, k);
+         for (shift = pst->win_l_width[j]; shift <= pst->win_r_width[j]; shift++)
+            pst->win_coefficient[j][shift] = HTS_SStreamSet_get_window_coefficient(sss, i, j, shift);
       }
       /* copy GV */
       if (HTS_SStreamSet_use_gv(sss, i)) {
-         pst->gv_mean = (double *) HTS_calloc(pst->static_length, sizeof(double));
-         pst->gv_vari = (double *) HTS_calloc(pst->static_length, sizeof(double));
-         for (j = 0; j < pst->static_length; j++) {
+         pst->gv_mean = (double *) HTS_calloc(pst->vector_length, sizeof(double));
+         pst->gv_vari = (double *) HTS_calloc(pst->vector_length, sizeof(double));
+         for (j = 0; j < pst->vector_length; j++) {
             pst->gv_mean[j] = HTS_SStreamSet_get_gv_mean(sss, i, j) * gv_weight[i];
             pst->gv_vari[j] = HTS_SStreamSet_get_gv_vari(sss, i, j);
          }
          pst->gv_switch = (HTS_Boolean *) HTS_calloc(pst->length, sizeof(HTS_Boolean));
-         if (HTS_SStreamSet_is_msd(sss, i)) {   /* for MSD */
+         if (HTS_SStreamSet_is_msd(sss, i) == TRUE) {   /* for MSD */
             for (state = 0, frame = 0, msd_frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++)
                for (j = 0; j < HTS_SStreamSet_get_duration(sss, state); j++, frame++)
-                  if (pst->msd_flag[frame])
+                  if (pst->msd_flag[frame] == TRUE)
                      pst->gv_switch[msd_frame++] = HTS_SStreamSet_get_gv_switch(sss, i, state);
          } else {               /* for non MSD */
             for (state = 0, frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++)
@@ -365,20 +374,20 @@ HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, do
          pst->gv_vari = NULL;
       }
       /* copy pdfs */
-      if (HTS_SStreamSet_is_msd(sss, i)) {      /* for MSD */
-         for (state = 0, frame = 0, msd_frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++)
+      if (HTS_SStreamSet_is_msd(sss, i) == TRUE) {      /* for MSD */
+         for (state = 0, frame = 0, msd_frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++) {
             for (j = 0; j < HTS_SStreamSet_get_duration(sss, state); j++) {
-               if (pst->msd_flag[frame]) {
+               if (pst->msd_flag[frame] == TRUE) {
                   /* check current frame is MSD boundary or not */
                   for (k = 0; k < pst->win_size; k++) {
                      not_bound = TRUE;
-                     for (l = pst->win_l_width[k]; l <= pst->win_r_width[k]; l++)
-                        if (frame + l < 0 || pss->total_frame <= frame + l || !pst->msd_flag[frame + l]) {
+                     for (shift = pst->win_l_width[k]; shift <= pst->win_r_width[k]; shift++)
+                        if ((int) frame + shift < 0 || (int) pss->total_frame <= (int) frame + shift || pst->msd_flag[frame + shift] != TRUE) {
                            not_bound = FALSE;
                            break;
                         }
-                     for (l = 0; l < pst->static_length; l++) {
-                        m = pst->static_length * k + l;
+                     for (l = 0; l < pst->vector_length; l++) {
+                        m = pst->vector_length * k + l;
                         pst->sm.mean[msd_frame][m] = HTS_SStreamSet_get_mean(sss, i, state, m);
                         if (not_bound || k == 0)
                            pst->sm.ivar[msd_frame][m] = HTS_finv(HTS_SStreamSet_get_vari(sss, i, state, m));
@@ -390,18 +399,19 @@ HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, do
                }
                frame++;
             }
+         }
       } else {                  /* for non MSD */
          for (state = 0, frame = 0; state < HTS_SStreamSet_get_total_state(sss); state++) {
             for (j = 0; j < HTS_SStreamSet_get_duration(sss, state); j++) {
                for (k = 0; k < pst->win_size; k++) {
                   not_bound = TRUE;
-                  for (l = pst->win_l_width[k]; l <= pst->win_r_width[k]; l++)
-                     if (frame + l < 0 || pss->total_frame <= frame + l) {
+                  for (shift = pst->win_l_width[k]; shift <= pst->win_r_width[k]; shift++)
+                     if ((int) frame + shift < 0 || (int) pss->total_frame <= (int) frame + shift) {
                         not_bound = FALSE;
                         break;
                      }
-                  for (l = 0; l < pst->static_length; l++) {
-                     m = pst->static_length * k + l;
+                  for (l = 0; l < pst->vector_length; l++) {
+                     m = pst->vector_length * k + l;
                      pst->sm.mean[frame][m] = HTS_SStreamSet_get_mean(sss, i, state, m);
                      if (not_bound || k == 0)
                         pst->sm.ivar[frame][m] = HTS_finv(HTS_SStreamSet_get_vari(sss, i, state, m));
@@ -421,43 +431,43 @@ HTS_Boolean HTS_PStreamSet_create(HTS_PStreamSet * pss, HTS_SStreamSet * sss, do
 }
 
 /* HTS_PStreamSet_get_nstream: get number of stream */
-int HTS_PStreamSet_get_nstream(HTS_PStreamSet * pss)
+size_t HTS_PStreamSet_get_nstream(HTS_PStreamSet * pss)
 {
    return pss->nstream;
 }
 
-/* HTS_PStreamSet_get_static_length: get static features length */
-int HTS_PStreamSet_get_static_length(HTS_PStreamSet * pss, int stream_index)
+/* HTS_PStreamSet_get_vector_length: get feature length */
+size_t HTS_PStreamSet_get_vector_length(HTS_PStreamSet * pss, size_t stream_index)
 {
-   return pss->pstream[stream_index].static_length;
+   return pss->pstream[stream_index].vector_length;
 }
 
 /* HTS_PStreamSet_get_total_frame: get total number of frame */
-int HTS_PStreamSet_get_total_frame(HTS_PStreamSet * pss)
+size_t HTS_PStreamSet_get_total_frame(HTS_PStreamSet * pss)
 {
    return pss->total_frame;
 }
 
 /* HTS_PStreamSet_get_parameter: get parameter */
-double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, int stream_index, int frame_index, int vector_index)
+double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index, size_t vector_index)
 {
    return pss->pstream[stream_index].par[frame_index][vector_index];
 }
 
 /* HTS_PStreamSet_get_parameter_vector: get parameter vector*/
-double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, int stream_index, int frame_index)
+double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index)
 {
    return pss->pstream[stream_index].par[frame_index];
 }
 
 /* HTS_PStreamSet_get_msd_flag: get generated MSD flag per frame */
-HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, int stream_index, int frame_index)
+HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index)
 {
    return pss->pstream[stream_index].msd_flag[frame_index];
 }
 
 /* HTS_PStreamSet_is_msd: get MSD flag */
-HTS_Boolean HTS_PStreamSet_is_msd(HTS_PStreamSet * pss, int stream_index)
+HTS_Boolean HTS_PStreamSet_is_msd(HTS_PStreamSet * pss, size_t stream_index)
 {
    return pss->pstream[stream_index].msd_flag ? TRUE : FALSE;
 }
@@ -465,31 +475,42 @@ HTS_Boolean HTS_PStreamSet_is_msd(HTS_PStreamSet * pss, int stream_index)
 /* HTS_PStreamSet_clear: free parameter stream set */
 void HTS_PStreamSet_clear(HTS_PStreamSet * pss)
 {
-   int i, j;
+   size_t i, j;
    HTS_PStream *pstream;
 
    if (pss->pstream) {
       for (i = 0; i < pss->nstream; i++) {
          pstream = &pss->pstream[i];
-         HTS_free(pstream->sm.wum);
-         HTS_free(pstream->sm.g);
-         HTS_free_matrix(pstream->sm.wuw, pstream->length);
-         HTS_free_matrix(pstream->sm.ivar, pstream->length);
-         HTS_free_matrix(pstream->sm.mean, pstream->length);
-         HTS_free_matrix(pstream->par, pstream->length);
+         if (pstream->sm.wum)
+            HTS_free(pstream->sm.wum);
+         if (pstream->sm.g)
+            HTS_free(pstream->sm.g);
+         if (pstream->sm.wuw)
+            HTS_free_matrix(pstream->sm.wuw, pstream->length);
+         if (pstream->sm.ivar)
+            HTS_free_matrix(pstream->sm.ivar, pstream->length);
+         if (pstream->sm.mean)
+            HTS_free_matrix(pstream->sm.mean, pstream->length);
+         if (pstream->par)
+            HTS_free_matrix(pstream->par, pstream->length);
          if (pstream->msd_flag)
             HTS_free(pstream->msd_flag);
-         for (j = pstream->win_size - 1; j >= 0; j--) {
-            pstream->win_coefficient[j] += pstream->win_l_width[j];
-            HTS_free(pstream->win_coefficient[j]);
+         if (pstream->win_coefficient) {
+            for (j = 0; j < pstream->win_size; j++) {
+               pstream->win_coefficient[j] += pstream->win_l_width[j];
+               HTS_free(pstream->win_coefficient[j]);
+            }
          }
          if (pstream->gv_mean)
             HTS_free(pstream->gv_mean);
          if (pstream->gv_vari)
             HTS_free(pstream->gv_vari);
-         HTS_free(pstream->win_coefficient);
-         HTS_free(pstream->win_l_width);
-         HTS_free(pstream->win_r_width);
+         if (pstream->win_coefficient)
+            HTS_free(pstream->win_coefficient);
+         if (pstream->win_l_width)
+            HTS_free(pstream->win_l_width);
+         if (pstream->win_r_width)
+            HTS_free(pstream->win_r_width);
          if (pstream->gv_switch)
             HTS_free(pstream->gv_switch);
       }
