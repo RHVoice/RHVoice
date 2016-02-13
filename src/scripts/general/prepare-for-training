@@ -936,7 +936,7 @@ class realigner(task):
 	def align(self):
 		cmd=[os.path.join(self.settings["bindir"],"HSMMAlign")]
 		cmd.extend(["-A","-D","-T","1"])
-		cmd.extend(["-C",os.path.join("configs","trn.cnf")])
+		cmd.extend(["-C",os.path.join("configs","qst001","ver1","trn.cnf")])
 		cmd.extend(["-S",os.path.join("data","scp","train.scp")])
 		cmd.extend(["-I",os.path.join("data","labels","full.mlf")])
 		cmd.extend(["-t","1500","100","5000"])
