@@ -18,6 +18,6 @@ import os.path
 
 Import("env")
 
-for subdir in ["sonic","hts_engine","mage"]:
+for subdir in ["sonic","hts_engine"]:
 	SConscript(os.path.join(subdir,"SConscript"),
 			   exports={"env":env})

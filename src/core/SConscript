@@ -17,7 +17,7 @@
 import os
 import os.path
 
-Import("env","libsonic","libhts_engine","libmage")
+Import("env","libsonic","libhts_engine")
 local_env=env.Clone()
 local_env["libversion"]="0.0.0"
 local_env["liblevel"]=1
@@ -48,12 +48,11 @@ src=["unicode.cpp",
 	 "voice.cpp",
 	 "hts_engine_impl.cpp",
 	 "std_hts_engine_impl.cpp",
-	 "mage_hts_engine_impl.cpp",
 	 "hts_engine_call.cpp",
 	 "hts_label.cpp",
 	 "hts_labeller.cpp",
 	 "speech_processor.cpp"]
-for lib in [libhts_engine,libsonic,libmage]:
+for lib in [libhts_engine,libsonic]:
 	src.extend(lib)
 libRHVoice_core=local_env.BuildLibrary("RHVoice_core",src)
 if env["PLATFORM"]!="win32":
