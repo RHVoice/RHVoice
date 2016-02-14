@@ -1,0 +1,78 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import codecs
+import random
+
+def read_most_frequent_words(n):
+	words=set()
+	with codecs.open("words","r","utf-8") as f:
+		for i in xrange(n):
+			words.add(f.readline().split()[0])
+	return words
+
+def token_to_word(token):
+	b=0
+	e=len(token)
+	for i in xrange(len(token)):
+		if token[i].isalpha():
+			b=i
+			break
+	for i in xrange(len(token)-1,-1,-1):
+		if token[i].isalpha():
+			e=i+1
+			break
+	return token[b:e].lower()
+
+def get_sentence_words(sent):
+	words=set()
+	for tok in sent.split():
+		words.add(token_to_word(tok))
+	return words
+
+def read_candidate_sentences(most_frequent_words):
+	sents=[]
+	with codecs.open("sentences","r","utf-8") as f:
+		for line in f:
+			sent=line.strip()
+			if not sent:
+				continue
+			words=get_sentence_words(sent)
+			if words.difference(most_frequent_words):
+				continue
+			sents.append(sent)
+	return sents
+
+def select_sentences(candidates,n):
+	if len(candidates)<=n:
+		return candidates
+	return random.sample(candidates,n)
+
+def output_result(sentences):
+	with codecs.open("test.ssml","w","utf-8") as f:
+		f.write('<speak xml:lang="{}">\n'.format(sys.argv[1]))
+		for sent in sentences:
+			f.write(u"<s> {} </s>\n".format(sent))
+		f.write("</speak>\n")
+
+if __name__=="__main__":
+	most_frequent_words=read_most_frequent_words(5000)
+	candidate_sentences=read_candidate_sentences(most_frequent_words)
+	sentences=select_sentences(candidate_sentences,100)
+	output_result(sentences)

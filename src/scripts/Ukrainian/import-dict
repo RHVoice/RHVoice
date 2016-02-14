@@ -1,0 +1,74 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import os.path
+import sys
+import codecs
+import re
+
+vowels=set(u"аеєиіїоуюя")
+alphabet=u"бгґджзклмнпрстфхцчшщаеєиіїоуюяйвь"
+
+pattern1=re.compile(ur"^(.+)(ся|сь)\((ся|сь)\)?$")
+pattern2=re.compile(ur"^[{a}]+('[{a}]+)*$".format(a=alphabet))
+
+def entries(path):
+	with codecs.open(path,"rt","cp1251") as f:
+		for line in f:
+			tokens=line.split()
+			if len(tokens)!=1:
+				continue
+			entry=tokens[0].lower().replace(u"’","\'")
+			match1=pattern1.match(entry)
+			if match1:
+				yield (match1.group(1)+match1.group(2))
+				yield (match1.group(1)+match1.group(3))
+			else:
+				yield entry
+
+if __name__=="__main__":
+	dct=dict()
+	for file_name in sorted(os.listdir(sys.argv[1])):
+		path=os.path.join(sys.argv[1],file_name)
+		for entry in entries(path):
+			if "-" in entry:
+				continue
+			if entry.count("+")!=1:
+				continue
+			i=entry.find("+")
+			if i==0 or entry[i-1] not in vowels:
+				continue
+			word=entry[:i]+entry[i+1:]
+			if not pattern2.match(word):
+				continue
+			if len([l for l in word if l in vowels])<2:
+				continue
+			if word in dct:
+				continue
+			pron=entry[:i-1]+entry[i-1].upper()+entry[i+1:]
+			dct[word]=pron
+	with codecs.open("dict","wt","utf-8") as f1:
+		with codecs.open("fst.txt","wt","utf-8") as f2:
+			for word,pron in sorted(dct.items()):
+				f1.write(pron)
+				f1.write("\n")
+				f2.write(u" ".join(word))
+				f2.write("\n")
+				f2.write(u" ".join(pron))
+				f2.write("\n")

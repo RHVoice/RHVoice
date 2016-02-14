@@ -38,6 +38,11 @@ namespace RHVoice
         exception("Unable to open a file")
       {
       }
+
+      open_error(const std::string& path):
+        exception(std::string("Unable to open ")+path)
+      {
+      }
     };
 
     typedef smart_ptr<FILE> file_handle;

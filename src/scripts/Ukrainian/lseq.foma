@@ -1,0 +1,63 @@
+# Copyright (C) 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define InitialLetterMapping 
+а : a0 | 
+е : e0 | 
+є : [j e0] | 
+и : i0 | 
+і : ii0 | 
+ї : [j ii0] | 
+о : o0 | 
+у : u0 | 
+ю : [j u0] | 
+я : [j a0] | 
+б : [b e0] | 
+г : [gh e0] | 
+ґ : [g e0] | 
+д : [d e0] | 
+ж : [zh e0] | 
+з : [z e0] | 
+к : [k a0] | 
+л : [e0 l] | 
+м : [e0 m] | 
+н : [e0 n] | 
+п : [p e0] | 
+р : [e0 r] | 
+с : [e0 s] | 
+т : [t e0] | 
+ф : [e0 f] | 
+х : [h a0] | 
+ц : [ts e0] | 
+ч : [tsh e0] | 
+ш : [sh a0] | 
+щ : [sh tsh a0] | 
+й : [j o0 t] | 
+в : [w e0] | 
+ь : [m j a1 k i0 j z n a1 k] ; 
+
+define InitialTranscription InitialLetterMapping+;
+
+define Vowel 
+a0|a1|e0|a1|i0|i1|ii0|ii1|o0|o1|u0|u1;
+
+define VowelStress 
+a0:a1|e0:e1|i0:i1|ii0:ii1|o0:o1|u0:u1;
+
+define StressLastVowel 
+VowelStress -> || _ [\Vowel]* .#. ; 
+
+regex 
+InitialTranscription .o. StressLastVowel ; 

@@ -1,0 +1,24 @@
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Vowel a0|a1|e0|e1|i0|i1|ii0|ii1|o0|o1|u0|u1;
+define VoicedObstruent b|bj|gh|ghj|g|gj|d|dj|dzh|dzhj|dz|dzj|zh|zhj|z|zj;
+define VoicelessObstruent k|kj|p|pj|s|sj|t|tj|f|fj|h|hj|ts|tsj|sh|shj|tsh|tshj;
+define Glide j|w|wj;
+define Liquid l|lj|r|rj;
+define Nasal m|mj|n|nj;
+define Consonant Glide|Liquid|Nasal|VoicedObstruent|VoicelessObstruent;
+define Onset VoicelessObstruent* VoicedObstruent* (Nasal) (Liquid) (Glide);
+regex [Vowel Consonant*] @> ... "." || _ [Onset Vowel];
