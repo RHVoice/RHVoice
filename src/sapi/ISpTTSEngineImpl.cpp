@@ -79,7 +79,7 @@ namespace RHVoice
         return E_OUTOFMEMORY;
       pwfex->wFormatTag=0x0001;
       pwfex->nChannels=1;
-      pwfex->nSamplesPerSec=16000;
+      pwfex->nSamplesPerSec=24000;
       pwfex->wBitsPerSample=16;
       pwfex->nBlockAlign=pwfex->nChannels*pwfex->wBitsPerSample/8;
       pwfex->nAvgBytesPerSec=pwfex->nSamplesPerSec*pwfex->nBlockAlign;

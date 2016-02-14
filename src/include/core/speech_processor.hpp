@@ -81,7 +81,7 @@ namespace RHVoice
     speech_processor():
       next(0),
       stopped(0),
-      sample_rate(sample_rate_16k),
+      sample_rate(sample_rate_24k),
       player(0)
     {
     }

@@ -55,13 +55,13 @@
 
 HTS_AUDIO_C_START;
 
-#if !defined(AUDIO_PLAY_WIN32) && !defined(AUDIO_PLAY_PORTAUDIO) && !defined(AUDIO_PLAY_NONE)
-#if defined(__WINCE__) || defined(_WINCE) || defined(_WINCE) || defined(__WINCE) || defined(__WIN32__) || defined(__WIN32) || defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__)
-#define AUDIO_PLAY_WIN32
-#else
-#define AUDIO_PLAY_NONE
-#endif                          /* __WINCE__ || _WINCE || _WINCE || __WINCE || __WIN32__ || __WIN32 || _WIN32 || WIN32 || __CYGWIN__ || __MINGW32__ */
-#endif                          /* !AUDIO_PLAY_WIN32 && !AUDIO_PLAY_PORTAUDIO && !AUDIO_PLAY_NONE */
+/* #if !defined(AUDIO_PLAY_WIN32) && !defined(AUDIO_PLAY_PORTAUDIO) && !defined(AUDIO_PLAY_NONE) */
+/* #if defined(__WINCE__) || defined(_WINCE) || defined(_WINCE) || defined(__WINCE) || defined(__WIN32__) || defined(__WIN32) || defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) */
+/* #define AUDIO_PLAY_WIN32 */
+/* #else */
+/* #define AUDIO_PLAY_NONE */
+/* #endif                          /\* __WINCE__ || _WINCE || _WINCE || __WINCE || __WIN32__ || __WIN32 || _WIN32 || WIN32 || __CYGWIN__ || __MINGW32__ *\/ */
+/* #endif                          /\* !AUDIO_PLAY_WIN32 && !AUDIO_PLAY_PORTAUDIO && !AUDIO_PLAY_NONE *\/ */
 
 /* hts_engine libralies */
 #include "HTS_hidden.h"

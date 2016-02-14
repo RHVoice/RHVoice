@@ -32,44 +32,17 @@ namespace RHVoice
   void std_hts_engine_impl::do_initialize()
   {
     engine.reset(new HTS_Engine);
-    HTS_Engine_initialize(engine.get(),3);
-    engine->audio.data=this;
-    HTS_Engine_set_audio_buff_size(engine.get(),fperiod);
-    model_file_list dur_files(data_path,"dur");
-    if(!HTS_Engine_load_duration_from_fn(engine.get(),&dur_files.pdf,&dur_files.tree,1))
+    HTS_Engine_initialize(engine.get());
+    engine->audio.audio_interface=this;
+    std::string voice_path(path::join(data_path,"voice.data"));
+    char* c_voice_path=const_cast<char*>(voice_path.c_str());
+    if(!HTS_Engine_load(engine.get(),&c_voice_path,1))
       {
         HTS_Engine_clear(engine.get());
         throw initialization_error();
       }
-    model_file_list mgc_files(data_path,"mgc",3);
-    if(!HTS_Engine_load_parameter_from_fn(engine.get(),&mgc_files.pdf,&mgc_files.tree,mgc_files.windows,0,false,mgc_files.num_windows,1))
-      {
-        HTS_Engine_clear(engine.get());
-        throw initialization_error();
-      }
-    model_file_list lf0_files(data_path,"lf0",3);
-    if(!HTS_Engine_load_parameter_from_fn(engine.get(),&lf0_files.pdf,&lf0_files.tree,lf0_files.windows,1,true,lf0_files.num_windows,1))
-      {
-        HTS_Engine_clear(engine.get());
-        throw initialization_error();
-      }
-    model_file_list lpf_files(data_path,"lpf",1);
-    if(!HTS_Engine_load_parameter_from_fn(engine.get(),&lpf_files.pdf,&lpf_files.tree,lpf_files.windows,2,false,lpf_files.num_windows,1))
-      {
-        HTS_Engine_clear(engine.get());
-        throw initialization_error();
-      }
-    HTS_Engine_set_sampling_rate(engine.get(),sample_rate);
-    HTS_Engine_set_fperiod(engine.get(),fperiod);
-    HTS_Engine_set_alpha(engine.get(),alpha);
-    HTS_Engine_set_gamma(engine.get(),0);
-    HTS_Engine_set_log_gain(engine.get(),true);
     HTS_Engine_set_beta(engine.get(),beta);
-    HTS_Engine_set_msd_threshold(engine.get(),1,msd_threshold);
-    HTS_Engine_set_duration_interpolation_weight(engine.get(),0,1.0);
-    HTS_Engine_set_parameter_interpolation_weight(engine.get(),0,0,1.0);
-    HTS_Engine_set_parameter_interpolation_weight(engine.get(),1,0,1.0);
-    HTS_Engine_set_parameter_interpolation_weight(engine.get(),2,0,1.0);
+    HTS_Engine_set_audio_buff_size(engine.get(),HTS_Engine_get_fperiod(engine.get()));
   }
 
   std_hts_engine_impl::~std_hts_engine_impl()
@@ -80,14 +53,13 @@ namespace RHVoice
 
   void std_hts_engine_impl::do_synthesize()
   {
-    load_labels();
-    if(!HTS_Engine_create_sstream(engine.get()))
-      throw synthesis_error();
-    set_time_info();
+    set_speed();
     set_pitch();
-    if(!HTS_Engine_create_pstream(engine.get()))
+    load_labels();
+    set_time_info();
+    if(!HTS_Engine_generate_parameter_sequence(engine.get()))
       throw synthesis_error();
-    if(!HTS_Engine_create_gstream(engine.get()))
+    if(!HTS_Engine_generate_sample_sequence(engine.get()))
       throw synthesis_error();
   }
 
@@ -106,13 +78,13 @@ namespace RHVoice
       {
         pointers.push_back(const_cast<char*>(it->get_name().c_str()));
       }
-    HTS_Engine_load_label_from_string_list(engine.get(),&pointers[0],pointers.size());
-    if(rate!=1)
-      HTS_Label_set_speech_speed(&(engine->label),rate);
+    if(!HTS_Engine_generate_state_sequence_from_strings(engine.get(),&pointers[0],pointers.size()))
+      throw synthesis_error();
   }
 
   void std_hts_engine_impl::set_time_info()
   {
+    int fperiod=HTS_Engine_get_fperiod(engine.get());
     int n=HTS_Engine_get_nstate(engine.get());
     int time=0;
     int dur=0;
@@ -130,19 +102,19 @@ namespace RHVoice
 
   void std_hts_engine_impl::set_pitch()
   {
-    int n=HTS_Engine_get_nstate(engine.get());
-    int i=0;
-    for(label_sequence::const_iterator lab_iter=input->lbegin();lab_iter!=input->lend();++lab_iter,i+=n)
-      {
-        double pitch=lab_iter->get_pitch();
-        if(pitch!=1)
-          for(int j=0;j<n;++j)
-            {
-              double f0=std::exp(HTS_Engine_get_state_mean(engine.get(),1,i+j,0))*pitch;
-              if(f0<20)
-                f0=20;
-              HTS_Engine_set_state_mean(engine.get(),1,i+j,0,std::log(f0));
-            }
-      }
+    if(input->lbegin()==input->lend())
+      return;
+    double factor=input->lbegin()->get_pitch();
+    if(factor==1)
+      return;
+    double shift=std::log(factor)*12;
+    HTS_Engine_add_half_tone(engine.get(),shift);
+  }
+
+  void std_hts_engine_impl::set_speed()
+  {
+    if(rate==1)
+      return;
+    HTS_Engine_set_speed(engine.get(),rate);
   }
 }

@@ -25,7 +25,7 @@ namespace RHVoice
   public:
     speech_processing_chain():
       player(0),
-    sample_rate(sample_rate_16k),
+    sample_rate(sample_rate_24k),
     first(0),
       last(0),
       stopped(false)

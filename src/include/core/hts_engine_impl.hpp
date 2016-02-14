@@ -101,32 +101,12 @@ namespace RHVoice
 
     std::string data_path;
     sample_rate_property sample_rate;
-    int fperiod;
-    double alpha;
-    numeric_property<double> msd_threshold;
     numeric_property<double> beta;
     numeric_property<double> gain;
 
     hts_input* input;
     speech_processing_chain* output;
     double rate;
-
-    class model_file_list
-    {
-    public:
-      model_file_list(const std::string& voice_path,const std::string& type,int num_windows_=0);
-
-      char* pdf;
-      char* tree;
-      int num_windows;
-      char* windows[3];
-               
-    private:
-      model_file_list(const model_file_list&);
-      model_file_list& operator=(const model_file_list&);
-
-      std::vector<std::string> file_names;
-    };
 
   private:
     hts_engine_impl(const hts_engine_impl&);

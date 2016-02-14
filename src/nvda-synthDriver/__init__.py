@@ -270,7 +270,7 @@ class SynthDriver(SynthDriver):
     def __init__(self):
         self.__lib=load_tts_library()
         self.__cancel_flag=threading.Event()
-        self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=16000,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
+        self.__player=nvwave.WavePlayer(channels=1,samplesPerSec=24000,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
         self.__speech_callback=speech_callback(self.__lib,self.__player,self.__cancel_flag)
         self.__c_speech_callback=RHVoice_callback_types.play_speech(self.__speech_callback)
         self.__mark_callback=mark_callback(self.__lib)
