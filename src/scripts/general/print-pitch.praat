@@ -19,11 +19,16 @@ positive Sample_rate 16000
 positive Lower_f0 40
 positive Upper_f0 500
 real Voicing_threshold 0.45
+boolean Autocorrelation 1
 endform
 sound=Read Sound from raw 16-bit Little Endian file... 'input_file$'
 Override sampling frequency... sample_rate
 shift=floor(0.005*sample_rate)/sample_rate
+if autocorrelation
 pitch=To Pitch (ac)... 0.001 lower_f0 15 no 0.03 voicing_threshold 0.01 0.35 0.14 upper_f0
+else
+pitch=To Pitch (cc)... 0.001 lower_f0 15 no 0.03 voicing_threshold 0.01 0.35 0.14 upper_f0
+endif
 duration=Get total duration
 nvalues=duration/shift
 for i to nvalues

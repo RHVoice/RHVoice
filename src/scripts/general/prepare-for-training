@@ -31,6 +31,8 @@ import struct
 import weakref
 import xml.etree.ElementTree as xml
 from scipy import stats
+import multiprocessing as mp
+import numpy
 
 scriptdir=os.path.abspath(os.path.dirname(__file__))
 workdir=os.path.abspath(".")
@@ -55,7 +57,13 @@ class task(object):
 			params["FRAMELEN"]=550
 			params["FFTLEN"]=1024
 			params["FREQWARP"]=0.45
-			params["MGCORDER"]=34
+			params["MGCORDER"]=30
+		elif self.settings["sample_rate"]==24000:
+			params["FRAMESHIFT"]=120
+			params["FRAMELEN"]=600
+			params["FFTLEN"]=1024
+			params["FREQWARP"]=0.466
+			params["MGCORDER"]=30
 		elif self.settings["sample_rate"]==32000:
 			params["FRAMESHIFT"]=160
 			params["FRAMELEN"]=800
@@ -99,6 +107,7 @@ class setup(task):
 		params["SAMPFREQ"]=self.settings["sample_rate"]
 		params.update(self.get_analysis_params())
 		params["USEGV"]=1 if self.settings["use_gv"] else 0
+		params["NITER"]=10
 		return params
 
 	def register(self):
@@ -121,289 +130,399 @@ class recordings_importer(task):
 		subparser=subparsers.add_parser("import-recordings")
 		subparser.set_defaults(func=self)
 
+	def get_file_list(self):
+		regex=re.compile(r"([^0-9]*)([0-9]+)[^0-9]?.*\.wav")
+		wavedir=self.settings["wavedir"]
+		files=[]
+		for inname in sorted(os.listdir(wavedir)):
+			m=regex.match(inname)
+			if not m:
+				continue
+			n=int(m.group(2))
+			p=m.group(1)
+			key=(p,n)
+			inpath=os.path.abspath(os.path.join(wavedir,inname))
+			files.append([inpath,inname,key])
+		files.sort(key=lambda x: x[-1])
+		for i,item in enumerate(files):
+			item[-1]="{}_{}_{:04}".format(self.settings["dataset"],self.settings["speaker"],i+1)
+		return files
+
+	def process(self,inpath,inname,outname):
+		print("Processing {}".format(inname))
+		cmd=["praat","--run",
+			 os.path.join(scriptdir,"import.praat"),
+			 inpath,
+			 os.path.join(workdir,"data","wav",outname+".wav"),
+			 os.path.join(workdir,"data","raw",outname+".raw"),
+			 str(self.settings["sample_rate"]),
+			 "1" if self.settings["invert"] else "0"]
+		subprocess.check_call(cmd)
+
+	def copy_utt(self,inname,outname):
+		if not self.settings.get("uttdir",None):
+			return
+		inbase=os.path.splitext(inname)[0]
+		inpath=os.path.join(self.settings["uttdir"],inbase+".utt")
+		outpath=os.path.join("data","src_utts",outname+".utt")
+		shutil.copy(inpath,outpath)
+
 	def __call__(self,args):
-		subdirs=["raw","wav"]
-		if self.settings["uttdir"]:
-			subdirs.append("src_utts")
-			subdirs.append("utts")
+		subdirs=["raw","wav","utts","src_utts"]
 		for subdir in subdirs:
 			dir=os.path.join(workdir,"data",subdir)
 			if not os.path.isdir(dir):
 				os.mkdir(dir)
-		regex=re.compile(self.settings["wavename"])
-		wavedir=os.path.abspath(self.settings["wavedir"])
-		uttdir= os.path.abspath(self.settings["uttdir"]) if self.settings["uttdir"] else None
-		for name in sorted(os.listdir(wavedir)):
-			full_name=os.path.join(wavedir,name)
-			if os.path.isfile(full_name):
-				match=regex.match(name)
-				if match:
-					new_name="{}_{}_{}".format(self.settings["dataset"],self.settings["speaker"],match.group(1))
-					print("Processing {}".format(name))
-					if self.settings["trim_silences"]:
-						end_points=map(float,subprocess.check_output(["praat",os.path.join(scriptdir,"trim.praat"),full_name]).split())
-					sox=subprocess.Popen(["sox",full_name,"-n","remix","1","stats"],stderr=subprocess.PIPE)
-					out,err=sox.communicate()
-					for line in err.split("\n"):
-						if line.startswith("RMS lev dB"):
-							rms=float(line.split()[-1])
-						elif line.startswith("Pk lev dB"):
-							peak=float(line.split()[-1])
-						elif line.startswith("Bit-depth"):
-							bit_depth=int(line.split()[-1].split("/")[0])
-					gain=-20-rms
-					limit=-1-peak
-					if gain>limit:
-						gain=limit
-					q="-v" if bit_depth>16 else "-h"
-					command1=["sox",full_name,"-b","16",os.path.join("data","raw",new_name+".raw"),"remix","1"]
-					command2=["sox",full_name,"-b","16",os.path.join("data","wav",new_name+".wav"),"remix","1"]
-					if self.settings["trim_silences"]:
-						start=end_points[0]
-						length=end_points[1]-start
-						effect=["trim",str(start),str(length)]
-						command1.extend(effect)
-						command2.extend(effect)
-					if gain!=0:
-						effect=["gain",str(gain)]
-						command1.extend(effect)
-						command2.extend(effect)
-					command1.extend(["rate",q,str(self.settings["sample_rate"])])
-					command2.extend(["rate",q,"16000"])
-					subprocess.check_call(command1)
-					subprocess.check_call(command2)
-					if uttdir:
-						src=os.path.join(uttdir,os.path.splitext(name)[0]+".utt")
-						dst=os.path.join("data","src_utts",new_name+".utt")
-						shutil.copyfile(src,dst)
+		files=self.get_file_list()
+		for inpath,inname,outname in files:
+			self.process(inpath,inname,outname)
+			self.copy_utt(inname,outname)
 
-class segmenter(task):
+class htk_segmenter(task):
 	def register(self):
 		subparser=subparsers.add_parser("segment")
-		subparser.add_argument("--stage",type=int,default=1)
 		subparser.set_defaults(func=self)
 
-	def get_labs(self,stage):
+	def make_dirs(self):
+		dirs=["htk",os.path.join("data","labels"),os.path.join("data","labels","mono")]
+		for dir in dirs:
+			if not os.path.isdir(dir):
+				os.mkdir(dir)
+
+	def setup(self):
+		self.alppf_regex=re.compile("^.*average log prob per frame = (.+)$")
+		self.make_dirs()
+		self.workdir="htk"
+		self.phoneset=self.get_phoneset()
+		self.wavdir=os.path.join("data","wav")
+		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavdir))]
+		self.param_settings={
+			"TARGETKIND" : "MFCC_0_D_A", 
+			"TARGETRATE" : 50000, 
+			"SAVECOMPRESSED" : "T", 
+			"SAVEWITHCRC" : "T", 
+			"WINDOWSIZE" : 100000, 
+			"USEHAMMING" : "T", 
+			"PREEMCOEF" : 0.97, 
+			"NUMCHANS" : 26, 
+			"CEPLIFTER" : 22, 
+			"NUMCEPS" : 12, 
+			"ENORMALISE" : "F"}
+		self.coding_settings=dict(self.param_settings)
+		self.coding_settings["SOURCEFORMAT"]="WAV"
+		self.coding_conf_path=os.path.join(self.workdir,"coding.conf")
+		self.coding_scp_path=os.path.join(self.workdir,"coding.scp")
+		self.mfccdir=os.path.join(self.workdir,"mfcc")
+		self.mfcc_scp_path=os.path.join(self.workdir,"mfcc.scp")
+		self.param_conf_path=os.path.join(self.workdir,"param.conf")
+		self.hmmdir=os.path.join(self.workdir,"hmm")
+		self.proto_path=os.path.join(self.workdir,"proto")
+
+	def transcribe(self):
+		self.transcriptions=[]
+		self.lex={"SILENCE":[["pau"]]}
+		self.lex["PAUSE"]=[["pau"],["skip"]]
+		self.lex["JUNCTURE"]=[["skip"],["pau"]]
+		phoneset=set(["pau"])
+		trans_path=os.path.join(self.workdir,"transcription")
+		subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],trans_path])
+		i=-1
+		with open(trans_path,"r") as f:
+			for line in f:
+				phones=line.split()
+				if not phones:
+					continue
+				words=[]
+				i+=1
+				name=self.recordings[i]
+				phones[0]="start"
+				phones[-1]="end"
+				pron=[]
+				for ph in phones[1:]:
+					if ph in ["ssil","pau","end"]:
+						word="_".join(pron).upper()
+						self.lex[word]=[pron]
+						words.append(word)
+						if ph=="pau":
+							words.append("PAUSE")
+						elif ph=="ssil":
+							words.append("JUNCTURE")
+						pron=[]
+					else:
+						phoneset.add(ph)
+						pron.append(ph)
+				self.transcriptions.append([name,words])
+		self.phonelist=sorted(phoneset)
+
+	def output_dict(self):
+		dict_path=os.path.join(self.workdir,"dict")
+		with open(dict_path,"wt") as f:
+			for word in sorted(self.lex.iterkeys()):
+				prons=self.lex[word]
+				for pron in prons:
+					f.write(word)
+					f.write(" ")
+					f.write(" ".join(pron))
+					f.write("\n")
+
+	def output_words_mlf(self):
+		path=os.path.join(self.workdir,"words.mlf")
+		with open(path,"wt") as f:
+			f.write("#!MLF!#\n")
+			for name,words in self.transcriptions:
+				f.write('"*/{}.lab"\n'.format(name))
+				for word in words:
+					f.write(word)
+					f.write("\n")
+				f.write(".\n")
+
+	def hrun(self,tool,*args,**kw):
+		logdir=os.path.join(self.workdir,"log")
+		if not os.path.isdir(logdir):
+			os.mkdir(logdir)
+		cmd=[os.path.join(self.settings["htk_bindir"],tool)]
+		cmd.append("-D")
+		cmd.append("-A")
+		cmd.extend(["-T","1"])
+		cmd.extend(args)
+		if "tag" in kw:
+			fname=tool+"_"+kw["tag"]
+		else:
+			fname=tool
+		with open(os.path.join(logdir,fname),"w") as f:
+			subprocess.check_call(cmd,stdout=f)
+
+	def expand_words_mlf(self):
+		words_mlf_path=os.path.join(self.workdir,"words.mlf")
+		dict_path=os.path.join(self.workdir,"dict")
+		phones_mlf_path=os.path.join(self.workdir,"phones1.mlf")
+		self.hrun("HLEd","-l","*","-d",dict_path,"-i",phones_mlf_path,os.path.join(scriptdir,"w2p.led"),words_mlf_path,tag="expand")
+
+	def output_phonelist(self):
+		path=os.path.join(self.workdir,"phonelist")
+		phlist=list(self.phonelist)
+		phlist.append("skip")
+		phlist.sort()
+		self.output_lines(phlist,path)
+
+	def output_config(self,params,path):
+		with open(path,"w") as f:
+			for k,v in sorted(params.iteritems()):
+				f.write("{} = {}\n".format(k,v))
+
+	def output_lines(self,values,path):
+		with open(path,"w") as f:
+			for v in values:
+				f.write(v)
+				f.write("\n")
+
+	def read_lines(self,path):
+		lines=[]
+		with open(path,"r") as f:
+			for line in f:
+				text=line.strip()
+				if text:
+					lines.append(text)
+		return lines
+
+	def get_hmm_dir(self,i):
+		if not os.path.isdir(self.hmmdir):
+			os.mkdir(self.hmmdir)
+		dir=os.path.join(self.hmmdir,str(i))
+		if not os.path.isdir(dir):
+			os.mkdir(dir)
+		return dir
+
+	def get_last_hmm_number(self):
+		return max([int(name) for name in os.listdir(self.hmmdir)])
+
+	def code(self):
+		if not os.path.isdir(self.mfccdir):
+			os.mkdir(self.mfccdir)
+		self.output_lines(["{wavdir}/{filename}.wav {mfccdir}/{filename}.mfcc".format(wavdir=self.wavdir,mfccdir=self.mfccdir,filename=filename) for filename in self.recordings],self.coding_scp_path)
+		self.output_config(self.param_settings,self.param_conf_path)
+		self.output_config(self.coding_settings,self.coding_conf_path)
+		print("Coding")
+		self.hrun("HCopy","-C",self.coding_conf_path,"-S",self.coding_scp_path,"-F","WAV")
+		print("Done")
+		self.output_lines(["{}/{}.mfcc".format(self.mfccdir,filename) for filename in self.recordings],self.mfcc_scp_path)
+
+	def build_proto(self,n):
+		proto=[]
+		proto.append("~o <VECSIZE> {} <{}>".format(n,self.param_settings["TARGETKIND"]))
+		proto.append('~h "proto"')
+		proto.append("<BeginHMM>")
+		proto.append("<NumStates> 5")
+		for i in xrange(2,5):
+			proto.append("<State> {}".format(i))
+			proto.append("<Mean> {}".format(n))
+			proto.append(" ".join(["0.0"]*n))
+			proto.append("<Variance> {}".format(n))
+			proto.append(" ".join(["1.0"]*n))
+		proto.append("<TransP> 5")
+		proto.append("0.0 1.0 0.0 0.0 0.0")
+		proto.append("0.0 0.6 0.4 0.0 0.0")
+		proto.append("0.0 0.0 0.6 0.4 0.0")
+		proto.append("0.0 0.0 0.0 0.7 0.3")
+		proto.append("0.0 0.0 0.0 0.0 0.0")
+		proto.append("<EndHMM>")
+		return proto
+
+	def build_skip_def(self,n):
+		lines=['~h "skip"',
+			   "<BeginHMM>",
+			   "<NumStates> 3",
+			   "<State> 2",
+			   "<Mean> {}".format(n),
+			   " ".join(["0.0"]*n),
+			   "<Variance> {}".format(n),
+			   " ".join(["1.0"]*n),
+			   "<TransP> 3",
+			   "0.0 0.0 1.0",
+			   "0.0 0.5 0.5",
+			   "0.0 0.0 0.0",
+			   "<EndHMM>"]
+		return lines
+
+	def output_hmmdefs(self):
+		proto=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto"))
+		lines=[]
+		for p in self.phonelist:
+			lines.append('~h "{}"'.format(p))
+			lines.extend(proto[4:])
+		lines.extend(self.build_skip_def(39))
+		self.output_lines(lines,os.path.join(self.get_hmm_dir(0),"hmmdefs"))
+
+	def output_macros(self):
+		dir=self.get_hmm_dir(0)
+		lines=self.read_lines(os.path.join(dir,"proto"))[:3]
+		lines.extend(self.read_lines(os.path.join(dir,"vFloors")))
+		self.output_lines(lines,os.path.join(dir,"macros"))
+
+	def get_alppf(self,i):
+		lines=self.read_lines(os.path.join(self.workdir,"log","HERest_{}".format(i)))
+		for line in reversed(lines):
+			m=self.alppf_regex.match(line)
+			if m:
+				return float(m.group(1))
+		raise RuntimeError("Average log prob per frame not found")
+
+	def get_epsilon(self,i):
+		return (self.get_alppf(i)-self.get_alppf(i-1))
+
+	def reest(self,i,j):
+		phlist=os.path.join(self.workdir,"phonelist")
+		phmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		indir=self.get_hmm_dir(i)
+		outdir=self.get_hmm_dir(i+1)
+		self.hrun("HERest","-C",self.param_conf_path,"-I",phmlf,"-t","250.0","150.0","5000.0","-S",self.mfcc_scp_path,"-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,phlist,tag=str(i))
+
+	def reest_until(self,n,j,min_epsilon,max_iter):
+		initial=True
+		for i in xrange(n,n+max_iter):
+			print("Reestimating hmm {}".format(i))
+			self.reest(i,j)
+			if initial:
+				initial=False
+			else:
+				epsilon=self.get_epsilon(i)
+				print("Epsilon = {}".format(epsilon))
+				if epsilon<min_epsilon:
+					return (i+1)
+		return (n+max_iter)
+
+	def edit_hmm(self,i,script_name):
+		script=os.path.join(scriptdir,script_name)
+		phlist=os.path.join(self.workdir,"phonelist")
+		indir=self.get_hmm_dir(i)
+		outdir=self.get_hmm_dir(i+1)
+		self.hrun("HHEd","-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,script,phlist)
+
+	def align(self,i,j):
+		moddir=self.get_hmm_dir(i)
+		inmlf=os.path.join(self.workdir,"words.mlf")
+		outmlf1=os.path.join(self.workdir,"aligned{}.mlf".format(j))
+		outmlf2=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		phlist=os.path.join(self.workdir,"phonelist")
+		dict_path=os.path.join(self.workdir,"dict")
+		print("Aligning with hmm {}".format(i))
+		self.hrun("HVite","-o","SW","-l","*","-b","SILENCE","-C",self.param_conf_path,"-a","-H",os.path.join(moddir,"macros"),"-H",os.path.join(moddir,"hmmdefs"),"-i",outmlf1,"-m","-t","250.0","-y","lab","-I",inmlf,"-S",self.mfcc_scp_path,dict_path,phlist,tag="align{}".format(j))
+		print("Done")
+		self.hrun("HLEd","-l","*","-i",outmlf2,os.path.join(scriptdir,"pau.led"),outmlf1,tag="fix{}".format(j))
+
+	def load_alignments(self,j):
+		path=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		lines=self.read_lines(path)[1:]
+		self.alignments=[]
+		self.durations=collections.defaultdict(list)
+		for line in lines:
+			if line==".":
+				self.alignments.append([file_name,labels])
+			elif line.startswith('"*/'):
+				file_name=line[3:-1]
+				labels=[]
+			else:
+				tokens=line.split()
+				start=int(tokens[0])
+				end=int(tokens[1])
+				duration=end-start
+				phone=tokens[2]
+				if phone=="skip" or duration==0:
+					continue
+				labels.append([start,end,phone])
+				self.durations[phone].append(duration)
+
+	def fix_labels(self):
+		self.labels=[]
 		plosives=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="s")
 		affricates=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="a")
 		stops=plosives|affricates
-		stop_durs=dict((phone,list()) for phone in stops)
-		labdir=os.path.join(self.workdir,"align"+str(stage))
-		labs=collections.OrderedDict()
-		for name in self.recordings:
-			phones=list()
-			prev_phone=None
-			prev_time=0.0
-			with open(os.path.join(labdir,name+".lab"),"r") as f:
-				f.readline()
-				for line in f:
-					tokens=line.split()
-					phone=tokens[-1]
-					time=float(tokens[0])
-					dur=time-prev_time
-					if (phone in ["pau","ssil"]) and (prev_phone in ["pau","ssil"]):
-						phones[-1][1]+=dur
-					else:
-						phones.append([phone,dur])
-						if phone in stops:
-							stop_durs[phone].append(dur)
-					prev_phone=phone
-					prev_time=time
-			labs[name]=phones
-		ssil_plus_stop_limits=dict((phone,stats.scoreatpercentile(durs,95)) for phone,durs in stop_durs.iteritems() if durs)
-		for name,phones in labs.iteritems():
-			phones1=list()
-			prev_phone=None
-			prev_dur=0.0
-			for phone,dur in phones:
-				if (phone in stops) and (prev_phone=="ssil") and ((prev_dur+dur)<ssil_plus_stop_limits[phone]):
-					phones1[-1][0]=phone
-					phones1[-1][1]+=dur
-					prev_phone=phone
-					prev_dur+=dur
-				elif (phone=="ssil") and (prev_phone in plosives) and ((prev_dur+dur)<ssil_plus_stop_limits[prev_phone]):
-					phones1[-1][1]+=dur
-					prev_dur+=dur
+		pau_plus_stop_limits=dict()
+		for phone in stops:
+			pau_plus_stop_limits[phone]=stats.scoreatpercentile(self.durations[phone],95)
+		for file_name,labs in self.alignments:
+			new_labs=[list(labs[0]),list(labs[1])]
+			for i in xrange(2,len(labs)-1):
+				if labs[i-1][2]=="pau" and labs[i][2] in stops and (labs[i][1]-labs[i-1][0]) < pau_plus_stop_limits[labs[i][2]]:
+					new_labs[-1][1]=labs[i][1]
+					new_labs[-1][2]=labs[i][2]
 				else:
-					phones1.append([phone,dur])
-					prev_phone=phone
-					prev_dur=dur
-			phones[:]=[("pau" if phone=="ssil" else phone,dur) for phone,dur in phones1]
-		return labs
+					new_labs.append(list(labs[i]))
+			new_labs.append(list(labs[-1]))
+			self.labels.append([file_name,new_labs])
 
-	def get_transcription(self):
-		self.transcription=collections.OrderedDict()
-		uttdir=os.path.join("data","src_utts")
-		if os.path.isdir(uttdir):
-			subcommands=list()
-			for name in self.recordings:
-				utt=os.path.join(uttdir,name+".utt")
-				subcommands.append('(print-phseq "{}")\n'.format(utt))
-			subcommands.append("(quit)\n")
-			festival=subprocess.Popen([os.path.join(self.settings["festdir"],"bin","festival"),
-									   "--heap","10000000",
-									   "--pipe",
-									   os.path.join(scriptdir,"utils.scm")],
-									  stdin=subprocess.PIPE,
-									  stdout=subprocess.PIPE)
-			output,error=festival.communicate("".join(subcommands))
-			lines=output.strip().split("\n")
-			for name,line in zip(self.recordings,lines):
-				self.transcription[name]=line.split()
-		else:
-			transcription_path=os.path.join(self.workdir,"etc","transcription.txt")
-			subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],transcription_path])
-			with open(transcription_path,"r") as f:
-				for name,line in zip(self.recordings,f):
-					self.transcription[name]=line.split()
-
-	def fix_transcription(self):
-		labs=self.get_labs(self.stage-1)
-		for name,phones in self.transcription.iteritems():
-			i=0
-			for phone,dur in labs[name]:
-				if phones[i]=="pau":
-					phones[i]="ssil"
-				if phones[i]=="ssil":
-					if phone=="pau":
-						phones[i]="pau"
-					else:
-						i+=1
-				assert(phone==phones[i])
-				i+=1
-
-	def setup(self):
-		self.phoneset=self.get_phoneset()
-		self.wavedir=os.path.join("data","wav")
-		self.workdir="ehmm"
-		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavedir))]
-		subdirs=[self.workdir]
-		for name in ["feat","binfeat","etc","lab","mod"+str(self.stage),"align"+str(self.stage)]:
-			subdirs.append(os.path.join(self.workdir,name))
-		hts_labdir=os.path.join("data","labels")
-		subdirs.append(hts_labdir)
-		subdirs.append(os.path.join(hts_labdir,"mono"))
-		for subdir in subdirs:
-			if not os.path.isdir(subdir):
-				os.mkdir(subdir)
-		ehmm_settings=collections.OrderedDict()
-		ehmm_settings["WaveDir"]=self.wavedir
-		ehmm_settings["HeaderBytes"]=44
-		ehmm_settings["SamplingFreq"]=16000
-		ehmm_settings["FrameSize"]=160
-		ehmm_settings["FrameShift"]=80
-		ehmm_settings["Lporder"]=12
-		ehmm_settings["CepsNum"]=16
-		ehmm_settings["FeatDir"]=os.path.join(self.workdir,"feat")
-		ehmm_settings["Ext"]=".wav"
-		with open(os.path.join(self.workdir,"etc","mysp_settings"),"w") as f:
-			for key,value in ehmm_settings.iteritems():
-				f.write("{}: {}\n".format(key,value))
-
-	def phseq(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		self.get_transcription()
-		if self.stage>1:
-			self.fix_transcription()
-		with open(os.path.join(etcdir,"transcription.train."+str(self.stage)),"w") as f_train:
-			with open(os.path.join(etcdir,"transcription.align."+str(self.stage)),"w") as f_align:
-				for name,phones in self.transcription.iteritems():
-					f_train.write(name+" ")
-					f_align.write(name+" ")
-					f_train.write("pau ")
-					if self.stage==1:
-						f_train.write(" ".join("ssil" if phone=="pau" else phone for phone in phones[1:-1] if phone!="ssil"))
-					else:
-						f_train.write(" ".join(phones[1:-1]))
-					f_train.write(" pau")
-					f_align.write("pau ")
-					if self.stage==1:
-						f_align.write(" ".join("ssil" if phone=="pau" else phone for phone in phones[1:-1]))
-					else:
-						f_align.write(" ".join(phones[1:-1]))
-					f_align.write(" pau")
-					f_train.write("\n")
-					f_align.write("\n")
-			subprocess.check_call(["perl",os.path.join(bindir,"phfromutt.pl"),os.path.join(etcdir,"transcription.train.1"),os.path.join(etcdir,"ph_list"),"5"])
-		if self.stage==1:
-			subprocess.check_call(["perl",os.path.join(bindir,"getwavlist.pl"),os.path.join(etcdir,"transcription.train.1"),os.path.join(etcdir,"mywavelist")])
-		for name in ["transcription.train."+str(self.stage),"transcription.align."+str(self.stage)]:
-			subprocess.check_call(["perl",os.path.join(bindir,"seqproc.pl"),os.path.join(etcdir,name),os.path.join(etcdir,"ph_list"),"2","2","13"])
-
-	def feats(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		featdir=os.path.join(self.workdir,"feat")
-		binfeatdir=os.path.join(self.workdir,"binfeat")
-		mod1dir=os.path.join(self.workdir,"mod1")
-		subprocess.check_call([os.path.join(bindir,"FeatureExtraction"),os.path.join(etcdir,"mysp_settings"),os.path.join(etcdir,"mywavelist")])
-		for fname in os.listdir(featdir):
-			if not fname.endswith(".mfcc"):
-				continue
-			subprocess.check_call([os.path.join(bindir,"ConvertFeatsFileToBinaryFormat"),os.path.join(featdir,fname),os.path.join(binfeatdir,fname[:-4]+"ft")])
-		subprocess.check_call([os.path.join(bindir,"ScaleBinaryFeats"),os.path.join(etcdir,"mywavelist"),"4","1"])
-
-	def bw(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		binfeatdir=os.path.join(self.workdir,"binfeat")
-		moddir=os.path.join(self.workdir,"mod"+str(self.stage))
-		if self.stage>1:
-			mod1dir=os.path.join(self.workdir,"mod1")
-			shutil.copy(os.path.join(mod1dir,"global_mn_vr.txt"),moddir)
-		subprocess.check_call([os.path.join(bindir,"ehmm"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.train.{}.int".format(self.stage)),"1","0",binfeatdir,"scaledft",moddir,"0","0","0","30","1"])
-
-	def align(self):
-		bindir=os.path.join(self.settings["ehmmdir"],"bin")
-		etcdir=os.path.join(self.workdir,"etc")
-		binfeatdir=os.path.join(self.workdir,"binfeat")
-		moddir=os.path.join(self.workdir,"mod"+str(self.stage))
-		aligndir=os.path.join(self.workdir,"align"+str(self.stage))
-		labdir1=os.path.join(self.workdir,"lab")
-		labdir2=os.path.join("data","labels","mono")
-		subprocess.check_call([os.path.join(bindir,"edec"),os.path.join(etcdir,"ph_list.int"),os.path.join(etcdir,"transcription.align.{}.int".format(self.stage)),"1",binfeatdir,"scaledft",os.path.join(etcdir,"mysp_settings"),moddir,"0",aligndir,"1"])
-		subprocess.check_call(["perl",os.path.join(bindir,"sym2nm.pl"),aligndir,os.path.join(etcdir,"ph_list.int")])
-		labs=self.get_labs(self.stage)
-		for name,phones in labs.iteritems():
-			with open(os.path.join(labdir1,name+".lab"),"w") as f:
-				f.write("#\n")
-				total=0.0
-				for phone,dur in phones:
-					total+=dur
-					f.write("{} 125 {}\n".format(total,phone))
-		if self.settings["uttdir"] is None:
-			for name,phones in labs.iteritems():
-				with open(os.path.join(labdir2,name+".lab"),"w") as f:
-					start=0
-					for phone,dur in phones:
-						end=start+int(round(dur*10000000))
-						f.write("{} {} {}\n".format(start,end,phone))
-						start=end
-		else:
-			commands=list()
-			for name in self.recordings:
-				fromfile=os.path.join("data","src_utts",name+".utt")
-				labfile=os.path.join(self.workdir,"lab",name+".lab")
-				tofile=os.path.join("data","utts",name+".utt")
-				commands.append('(merge-labs "{}" "{}" "{}")\n'.format(fromfile,labfile,tofile))
-				commands.append("(quit)\n")
-			festival=subprocess.Popen([os.path.join(self.settings["festdir"],"bin","festival"),
-									   "--heap","10000000",
-									   "--pipe",
-									   os.path.join(scriptdir,"utils.scm")],
-									  stdin=subprocess.PIPE,
-									  stdout=subprocess.PIPE)
-			festival.communicate("".join(commands))
+	def save_labels(self):
+		for file_name,labs in self.labels:
+			path=os.path.join("data","labels","mono",file_name)
+			with open(path,"w") as f:
+				for start,end,phone in labs:
+					f.write("{} {} {}\n".format(start,end,phone))
 
 	def __call__(self,args):
-		self.stage=args.stage
 		self.setup()
-		self.phseq()
-		if self.stage==1:
-			self.feats()
-		self.bw()
-		self.align()
+		self.transcribe()
+		self.output_dict()
+		self.output_words_mlf()
+		self.expand_words_mlf()
+		self.output_phonelist()
+		self.code()
+		self.output_lines(self.build_proto(39),self.proto_path)
+		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
+		self.output_hmmdefs()
+		self.output_macros()
+		max_reest_iter=20
+		n=self.reest_until(0,1,0.1,max_reest_iter)
+		self.edit_hmm(n,"pau.hed")
+		n+=1
+		n=self.reest_until(n,1,0.01,max_reest_iter)
+		self.align(n,2)
+		n=self.reest_until(n,2,0.005,max_reest_iter)
+		self.align(n,3)
+		n=self.reest_until(n,3,0.001,max_reest_iter)
+		self.align(n,4)
+		self.load_alignments(4)
+		self.fix_labels()
+		self.save_labels()
 
 class labeller(task):
 	def register(self):
@@ -411,12 +530,11 @@ class labeller(task):
 		subparser.set_defaults(func=self)
 
 	def __call__(self,args):
-		if self.settings["uttdir"] is None:
-			labdir=os.path.join("data","labels","full")
-			testdir=os.path.join("data","labels","gen")
-			for dir in [labdir,testdir]:
-				if not os.path.isdir(dir):
-					os.mkdir(dir)
+		labdir=os.path.join("data","labels","full")
+		testdir=os.path.join("data","labels","gen")
+		for dir in [labdir,testdir]:
+			if not os.path.isdir(dir):
+				os.mkdir(dir)
 		subprocess.check_call(["RHVoice-make-hts-labels","-l",os.path.join("data","labels","mono"),self.settings["text"],labdir])
 		subprocess.check_call(["RHVoice-make-hts-labels","-p","test",self.settings["test"],testdir])
 		os.chdir("data")
@@ -430,14 +548,16 @@ class f0_extracter(task):
 		subparser=subparsers.add_parser("extract-f0")
 		subparser.set_defaults(func=self)
 
-	def extract_with_praat(self,filepath):
-		command=["praat"]
+	def extract_with_praat(self,filepath,method):
+		assert(method in ["praat_ac","praat_cc"])
+		command=["praat","--run"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
 		command.append(os.path.abspath(filepath))
 		command.append(str(self.settings["sample_rate"]))
 		command.append(str(self.settings["lower_f0"]))
 		command.append(str(self.settings["upper_f0"]))
 		command.append(str(self.settings["praat_voicing_threshold"]))
+		command.append("1" if method.endswith("_ac") else "0")
 		output=subprocess.check_output(command)
 		return map(float,output.split())
 
@@ -458,47 +578,141 @@ class f0_extracter(task):
 		output=process.communicate(data)[0]
 		count=len(output)/4
 		return list(struct.unpack("={}f".format(count),output))
-		
-	def extract_with(self,filepath,method):
-		if method=="praat":
-			return self.extract_with_praat(filepath)
-		else:
-			return self.extract_with_sptk(filepath,method)
 
-	def extract_and_vote(self,filepath):
+	def extract_with_reaper(self,raw_path):
+		f0_path="utt.f0"
+		wav_path="utt.wav"
+		extra_opts=[]
+		if "reaper_options" in self.settings:
+			extra_opts=self.settings["reaper_options"].split()
+		subprocess.check_call(["sox","-t","raw","-c","1","-e","signed","-b","16","-r",str(self.settings["sample_rate"]),raw_path,"-t","wav",wav_path])
+		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(self.settings["lower_f0"]),"-x",str(self.settings["upper_f0"]),"-i",wav_path,"-f",f0_path]+extra_opts)
+		os.remove(wav_path)
+		f0s=[]
+		with open(f0_path,"rt") as f_in:
+			for line in f_in:
+				if line.strip()=="EST_Header_End":
+					break
+			for line in f_in:
+				f0=float(line.split()[-1])
+				if f0<0:
+					f0=0
+				f0s.append(f0)
+		os.remove(f0_path)
+		return f0s
+
+	def extract_with(self,raw_path,method):
+		if method.startswith("praat_"):
+			return self.extract_with_praat(raw_path,method)
+		elif method=="reaper":
+			return self.extract_with_reaper(raw_path)
+		else:
+			return self.extract_with_sptk(raw_path,method)
+
+	def extract_and_vote(self,raw_path,methods):
 		extracted=list()
-		for method in ["praat","rapt","swipe"]:
-			extracted.append(self.extract_with(filepath,method))
+		for method in sorted(set(methods)):
+			extracted.append(self.extract_with(raw_path,method))
 		result=list()
 		for values in zip(*extracted):
-			result.append(sorted(values)[1])
+			result.append(numpy.median(values))
 		return result
 
-	def extract(self,filepath):
+	def extract(self,name):
+		raw_dir=os.path.join("data","raw")
+		base,ext=os.path.splitext(name)
+		print("Processing {}".format(base))
+		raw_path=os.path.join(raw_dir,name)
 		method=self.settings["f0_method"]
-		if method=="vote":
-			return self.extract_and_vote(filepath)
+		if isinstance(method,basestring):
+			return self.extract_with(raw_path,method)
 		else:
-			return self.extract_with(filepath,method)
+			return self.extract_and_vote(raw_path,method)
 
 	def __call__(self,args):
-		rawdir=os.path.join("data","raw")
-		f0dir=os.path.join("data","lf0")
-		if not os.path.isdir(f0dir):
-			os.mkdir(f0dir)
+		raw_dir=os.path.join("data","raw")
+		f0_dir=os.path.join("data","lf0")
+		if not os.path.isdir(f0_dir):
+			os.mkdir(f0_dir)
 		print("Extracting f0")
-		for name in sorted(os.listdir(rawdir)):
-			base,ext=os.path.splitext(name)
-			if ext==".raw":
-				print("Processing {}".format(base))
-				values=self.extract(os.path.join(rawdir,name))
-				with open(os.path.join(f0dir,base+".lf0"),"wb") as f:
+		for name in sorted(os.listdir(raw_dir)):
+				values=self.extract(name)
+				base,ext=os.path.splitext(name)
+				with open(os.path.join(f0_dir,base+".lf0"),"wb") as f:
 					for f0 in values:
 						if f0==0:
 							lf0=-10000000000.0
 						else:
 							lf0=math.log(f0)
 						f.write(struct.pack("=f",lf0))
+
+class f0_stats_computer(f0_extracter):
+	def register(self):
+		subparser=subparsers.add_parser("f0-stats")
+		subparser.set_defaults(func=self)
+
+	def __call__(self,args):
+		raw_dir=os.path.join("data","raw")
+		all_values=list()
+		for name in sorted(os.listdir(raw_dir)):
+			print("Processing {}".format(name))
+			values=self.extract(name)
+			all_values.extend([v for v in values if v!=0])
+		for p in [1,2,3,4,5,10,15,25,35,50,65,75,90,95,96,97,98,99]:
+			v=stats.scoreatpercentile(all_values,p)
+			print("p{}={}".format(p,v))
+
+class synthesizer(task):
+	def register(self):
+		subparser=subparsers.add_parser("synth")
+		subparser.set_defaults(func=self)
+
+	def read_bytes(self,f,n):
+		while(True):
+			bytes=f.read(n)
+			if not bytes:
+				return
+			yield bytes
+
+	def create_pitch_file(self,name):
+		outpath="utt.pitch"
+		sample_rate=float(self.settings["sample_rate"])
+		with open(os.path.join("data","lf0",name+".lf0"),"rb") as f_in:
+			with open(outpath,"wb") as f_out:
+				for bytes in self.read_bytes(f_in,4):
+					lf0=struct.unpack("=f",bytes)[0]
+					period=0
+					if lf0!=-10000000000:
+						f0=numpy.exp(lf0)
+						period=sample_rate/f0
+					f_out.write(struct.pack("=f",period))
+		return outpath
+
+	def process(self,name):
+		print("Processing {}".format(name))
+		params=self.get_analysis_params()
+		bindir=self.settings["bindir"]
+		excite=os.path.join(bindir,"excite")
+		x2x=os.path.join(bindir,"x2x")
+		mlsadf=os.path.join(bindir,"mlsadf")
+		mgc_path=os.path.join("data","mgc",name+".mgc")
+		wav_path=os.path.join("data","synth",name+".wav")
+		pitch_path=self.create_pitch_file(name)
+		cmd=[excite,"-p",str(params["FRAMESHIFT"]),pitch_path,"|",
+			 mlsadf,"-m",str(params["MGCORDER"]),"-a",str(params["FREQWARP"]),"-p",str(params["FRAMESHIFT"]),mgc_path,"|",
+			 x2x,"-o","+fs","|",
+			 "sox","-t","raw","-e","signed","-b","16","-r",str(self.settings["sample_rate"]),"-",wav_path]
+		subprocess.check_call(" ".join(cmd),shell=True)
+		os.remove(pitch_path)
+
+	def __call__(self,args):
+		synth_dir=os.path.join("data","synth")
+		if not os.path.isdir(synth_dir):
+			os.mkdir(synth_dir)
+		raw_dir=os.path.join("data","raw")
+		for name in sorted(os.listdir(raw_dir)):
+			base,ext=os.path.splitext(name)
+			self.process(base)
 
 class phonetic_feature_table(object):
 	def __init__(self):
@@ -585,7 +799,7 @@ class phonetic_class(object):
 				self.children.append(child)
 
 class hts_feature(object):
-	def __init__(self,name,prefix,suffix):
+	def __init__(self,name,prefix,suffix,value_pattern):
 		self.name=name
 		self.prefix=prefix
 		self.suffix=suffix
@@ -596,7 +810,7 @@ class hts_feature(object):
 			format_string=""
 			pattern="^"
 		format_string+="{}"
-		pattern+="([a-zA-Z0-9]+)"
+		pattern+="({})".format(value_pattern)
 		if suffix:
 			format_string+=(suffix+"*")
 			pattern+=(re.escape(suffix)+".+")
@@ -645,8 +859,9 @@ class questions_maker(task):
 		prefix=""
 		for elem in doc.find("format").iterfind("feature"):
 			name=elem.get("name")
+			value_pattern=elem.get("value_pattern","[a-zA-Z0-9]+")
 			suffix=elem.tail.strip()
-			features[name]=hts_feature(name,prefix,suffix)
+			features[name]=hts_feature(name,prefix,suffix,value_pattern)
 			prefix=suffix
 		return features
 
@@ -668,10 +883,15 @@ class questions_maker(task):
 		return values
 
 	def write_feature_questions(self,f_out,feature,values,phonetic_questions=None):
-		m=re.match("^((?:prev_)*|(?:next_)*)name$",feature.name)
+		m=re.match("^(?:(?:prev_)*|(?:next_)*)(?:name|(?:syl_vowel(?:_in_word)?))$",feature.name)
 		if m:
 			for phonemes,question in phonetic_questions.iteritems():
-				f_out.write('QS "{}{}"\t{{{}}}\n'.format(m.group(1),question,",".join(feature.format_string.format(phoneme) for phoneme in phonemes)))
+				if set(phonemes).intersection(set(values)):
+					if feature.name.endswith("name"):
+						prefix=feature.name[:-4]
+					else:
+						prefix=feature.name+"_"
+					f_out.write('QS "{}{}"\t{{{}}}\n'.format(prefix,question,",".join(feature.format_string.format(phoneme) for phoneme in phonemes)))
 			f_out.write("\n")
 		for value in sorted(values):
 			f_out.write('QS "{}=={}"\t{{{}}}\n'.format(feature.name,value,feature.format_string.format(value)))
@@ -701,8 +921,109 @@ class questions_maker(task):
 				values=all_values[name]
 				self.write_feature_questions(f_out,feature,values)
 
+class realigner(task):
+	def register(self):
+		subparser=subparsers.add_parser("realign")
+		subparser.set_defaults(func=self)
+
+	def copy_models(self):
+		for type in ["cmp","dur"]:
+			inpath=os.path.join("models","qst001","ver1",type,"re_clustered.mmf.embedded.gz")
+			outpath=os.path.join(self.moddir,type+".mmf.gz")
+			subprocess.check_call(["cp",inpath,outpath])
+			subprocess.check_call(["gunzip",outpath])
+
+	def align(self):
+		cmd=[os.path.join(self.settings["bindir"],"HSMMAlign")]
+		cmd.extend(["-A","-D","-T","1"])
+		cmd.extend(["-C",os.path.join("configs","trn.cnf")])
+		cmd.extend(["-S",os.path.join("data","scp","train.scp")])
+		cmd.extend(["-I",os.path.join("data","labels","full.mlf")])
+		cmd.extend(["-t","1500","100","5000"])
+		cmd.extend(["-w","1.0"])
+		cmd.extend(["-H",os.path.join(self.moddir,"cmp.mmf")])
+		cmd.extend(["-N",os.path.join(self.moddir,"dur.mmf")])
+		cmd.extend(["-m",self.fulldir])
+		lst=os.path.join("data","lists","full.list")
+		cmd.extend([lst,lst])
+		subprocess.check_call(cmd)
+
+	def save_mono(self):
+		print("Saving mono labels")
+		name_regex=re.compile(r"^[a-z0-9]+\^[a-z0-9]+\-([a-z0-9]+)\+.+$")
+		for filename in sorted(os.listdir(self.fulldir)):
+			print(filename)
+			with open(os.path.join(self.fulldir,filename),"r") as f_in:
+				with open(os.path.join(self.monodir,filename),"w") as f_out:
+					for line in f_in:
+						start,end,lab=line.split()
+						name=name_regex.match(lab).group(1)
+						f_out.write("{} {} {}\n".format(start,end,name))
+
+	def cleanup(self):
+		os.remove(os.path.join(self.moddir,"cmp.mmf"))
+		os.remove(os.path.join(self.moddir,"dur.mmf"))
+		os.rmdir(self.moddir)
+
+	def __call__(self,args):
+		self.workdir="realigned"
+		self.moddir=os.path.join(self.workdir,"mod")
+		self.monodir=os.path.join(self.workdir,"mono")
+		self.fulldir=os.path.join(self.workdir,"full")
+		for dir in [self.workdir,self.moddir,self.monodir,self.fulldir]:
+			if not os.path.isdir(dir):
+				os.mkdir(dir)
+		self.copy_models()
+		self.align()
+		self.save_mono()
+		self.cleanup()
+
+class retrainer(task):
+	def register(self):
+		subparser=subparsers.add_parser("retrain")
+		subparser.set_defaults(func=self)
+
+	def get_backup_dir(self):
+		verdir="versions"
+		if not os.path.isdir(verdir):
+			os.mkdir(verdir)
+		ver=len(os.listdir(verdir))+1
+		bkdir=os.path.join(verdir,str(ver))
+		if not os.path.isdir(bkdir):
+			os.mkdir(bkdir)
+		return bkdir
+
+	def backup(self):
+		backup_dir=self.get_backup_dir()
+		backup_list=["voices","gen","log",os.path.join("data","labels","mono"),os.path.join("data","labels","full"),"realigned"]
+		for what in backup_list:
+			if os.path.isdir(what):
+				shutil.copytree(what,os.path.join(backup_dir,what))
+			else:
+				shutil.copy2(what,backup_dir)
+
+	def replace_labels(self):
+		for type in ["mono","full"]:
+			src_dir=os.path.join("realigned",type)
+			dst_dir=os.path.join("data","labels",type)
+			shutil.rmtree(dst_dir,True)
+			shutil.copytree(src_dir,dst_dir)
+
+	def cleanup(self):
+		subprocess.check_call(["make","clean-voice"])
+		shutil.rmtree("realigned")
+
+	def train(self):
+		subprocess.check_call(["make","voice"])
+
+	def __call__(self,args):
+		self.backup()
+		self.replace_labels()
+		self.cleanup()
+		self.train()
+
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,segmenter,labeller,f0_extracter,questions_maker]:
+	for cls in [setup,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()

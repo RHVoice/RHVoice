@@ -413,6 +413,110 @@ namespace RHVoice
       }
     };
 
+    struct hts_next_syl_vowel: public feature_function
+    {
+      hts_next_syl_vowel():
+        feature_function("next_syl_vowel")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.R:Syllable.n.syl_vowel",x);
+      }
+    };
+
+    struct hts_next_next_syl_vowel: public feature_function
+    {
+      hts_next_next_syl_vowel():
+        feature_function("next_next_syl_vowel")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.R:Syllable.n.n.syl_vowel",x);
+      }
+    };
+
+    struct hts_prev_syl_vowel: public feature_function
+    {
+      hts_prev_syl_vowel():
+        feature_function("prev_syl_vowel")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.R:Syllable.p.syl_vowel",x);
+      }
+    };
+
+    struct hts_prev_prev_syl_vowel: public feature_function
+    {
+      hts_prev_prev_syl_vowel():
+        feature_function("prev_prev_syl_vowel")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.R:Syllable.p.p.syl_vowel",x);
+      }
+    };
+
+    struct hts_next_syl_vowel_in_word: public feature_function
+    {
+      hts_next_syl_vowel_in_word():
+        feature_function("next_syl_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.n.syl_vowel",x);
+      }
+    };
+
+    struct hts_next_next_syl_vowel_in_word: public feature_function
+    {
+      hts_next_next_syl_vowel_in_word():
+        feature_function("next_next_syl_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.n.n.syl_vowel",x);
+      }
+    };
+
+    struct hts_prev_syl_vowel_in_word: public feature_function
+    {
+      hts_prev_syl_vowel_in_word():
+        feature_function("prev_syl_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.p.syl_vowel",x);
+      }
+    };
+
+    struct hts_prev_prev_syl_vowel_in_word: public feature_function
+    {
+      hts_prev_prev_syl_vowel_in_word():
+        feature_function("prev_prev_syl_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.p.p.syl_vowel",x);
+      }
+    };
+
     struct hts_next_syl_stress: public feature_function
     {
       hts_next_syl_stress():
@@ -552,7 +656,7 @@ namespace RHVoice
 
       value eval(const item& seg) const
       {
-        return (is_silence(seg)?x:seg.eval("R:SylStructure.parent.parent.words_out"));
+        return (is_silence(seg)?x:(seg.eval("R:SylStructure.parent.parent.words_out").as<unsigned int>()+1));
       }
     };
 
@@ -1158,6 +1262,57 @@ namespace RHVoice
         return count;
       }
     };
+
+    struct hts_syl_part: public feature_function
+    {
+      hts_syl_part():
+        feature_function("syl_part")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        if(seg.eval("ph_vc").as<std::string>()=="+")
+          return std::string("rime");
+        const item& sseg=seg.as("SylStructure");
+        const item& syl=sseg.parent();
+        item::const_iterator seg_pos=sseg.get_iterator();
+        for(item::const_iterator pos=syl.begin();pos!=seg_pos;++pos)
+          {
+            if(pos->eval("ph_vc").as<std::string>()=="+")
+              return std::string("rime");
+          }
+        return std::string("onset");
+      }
+    };
+
+    struct hts_first_gpos_in_phrase: public feature_function
+    {
+      hts_first_gpos_in_phrase():
+        feature_function("first_gpos_in_phrase")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.daughter1.gpos",zero);
+      }
+    };
+
+    struct hts_last_gpos_in_phrase: public feature_function
+    {
+      hts_last_gpos_in_phrase():
+        feature_function("last_gpos_in_phrase")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.daughtern.gpos",zero);
+      }
+    };
   }
 
   void hts_labeller::load_label_format_description(const std::string& file_path)
@@ -1254,6 +1409,14 @@ namespace RHVoice
     define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_accented_syl_in_phrase));
     define_feature(smart_ptr<feature_function>(new hts_dist_to_next_accented_syl_in_phrase));
     define_feature(smart_ptr<feature_function>(new hts_syl_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_next_syl_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_next_next_syl_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_prev_syl_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_prev_prev_syl_vowel));
+    define_feature(smart_ptr<feature_function>(new hts_next_syl_vowel_in_word));
+    define_feature(smart_ptr<feature_function>(new hts_next_next_syl_vowel_in_word));
+    define_feature(smart_ptr<feature_function>(new hts_prev_syl_vowel_in_word));
+    define_feature(smart_ptr<feature_function>(new hts_prev_prev_syl_vowel_in_word));
     define_feature(smart_ptr<feature_function>(new hts_next_syl_stress));
     define_feature(smart_ptr<feature_function>(new hts_next_syl_accented));
     define_feature(smart_ptr<feature_function>(new hts_next_syl_length));
@@ -1299,5 +1462,8 @@ namespace RHVoice
     define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_end_of_word));
     define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_start_of_phrase));
     define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_end_of_phrase));
+    define_feature(smart_ptr<feature_function>(new hts_syl_part));
+    define_feature(smart_ptr<feature_function>(new hts_first_gpos_in_phrase));
+    define_feature(smart_ptr<feature_function>(new hts_last_gpos_in_phrase));
   }
 }

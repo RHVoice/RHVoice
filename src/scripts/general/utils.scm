@@ -27,6 +27,9 @@
   (cond
    ((null? old_segs)
     t)
+   ((null? new_segs)
+    (item.delete (car old_segs))
+(align (cdr old_segs) new_segs))
    ((equal? (item.name (car old_segs)) (item.name (car new_segs)))
     (item.set_feat (car old_segs) 'end (item.feat (car new_segs) 'end))
     (align (cdr old_segs) (cdr new_segs)))
