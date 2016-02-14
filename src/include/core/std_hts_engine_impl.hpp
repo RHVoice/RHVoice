@@ -37,6 +37,7 @@ namespace RHVoice
     void load_labels();
     void set_time_info();
     void set_pitch();
+    void set_speed();
 
     std::auto_ptr<_HTS_Engine> engine;
   };

@@ -24,6 +24,7 @@ namespace RHVoice
     {
       sample_rate_16k=16000,
       sample_rate_22k=22050,
+      sample_rate_24k=24000,
       sample_rate_32k=32000,
       sample_rate_44k=44100,
       sample_rate_48k=48000

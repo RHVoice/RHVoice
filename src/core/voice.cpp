@@ -86,7 +86,7 @@ namespace RHVoice
               {
                 resource_description desc("voice",*it);
                 logger.log(tag,RHVoice_log_level_info,std::string("Voice resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
-                if(desc.format==1)
+                if(desc.format==2)
                   v.reset(new voice_info(*it,languages));
                 else
                   logger.log(tag,RHVoice_log_level_error,"Unsupported voice format");

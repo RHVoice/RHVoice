@@ -57,13 +57,13 @@ class task(object):
 			params["FRAMELEN"]=550
 			params["FFTLEN"]=1024
 			params["FREQWARP"]=0.45
-			params["MGCORDER"]=30
+			params["MGCORDER"]=34
 		elif self.settings["sample_rate"]==24000:
 			params["FRAMESHIFT"]=120
 			params["FRAMELEN"]=600
 			params["FFTLEN"]=1024
 			params["FREQWARP"]=0.466
-			params["MGCORDER"]=30
+			params["MGCORDER"]=34
 		elif self.settings["sample_rate"]==32000:
 			params["FRAMESHIFT"]=160
 			params["FRAMELEN"]=800

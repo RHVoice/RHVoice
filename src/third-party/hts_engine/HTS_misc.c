@@ -66,6 +66,8 @@ HTS_MISC_C_START;
 #include "EST_walloc.h"
 #endif                          /* FESTIVAL */
 
+#include "utils.h"
+
 #define HTS_FILE  0
 #define HTS_DATA  1
 
@@ -81,7 +83,7 @@ HTS_File *HTS_fopen_from_fn(const char *name, const char *opt)
    HTS_File *fp = (HTS_File *) HTS_calloc(1, sizeof(HTS_File));
 
    fp->type = HTS_FILE;
-   fp->pointer = (void *) fopen(name, opt);
+   fp->pointer = (void *) utf8_fopen(name, opt);
 
    if (fp->pointer == NULL) {
       HTS_error(0, "HTS_fopen: Cannot open %s.\n", name);
@@ -308,9 +310,8 @@ size_t HTS_fread_big_endian(void *buf, size_t size, size_t n, HTS_File * fp)
 {
    size_t block = HTS_fread(buf, size, n, fp);
 
-#ifdef WORDS_LITTLEENDIAN
+   if(is_machine_little_endian())
    HTS_byte_swap(buf, size, block);
-#endif                          /* WORDS_LITTLEENDIAN */
 
    return block;
 }
@@ -320,9 +321,8 @@ size_t HTS_fread_little_endian(void *buf, size_t size, size_t n, HTS_File * fp)
 {
    size_t block = HTS_fread(buf, size, n, fp);
 
-#ifdef WORDS_BIGENDIAN
+   if(is_machine_big_endian())
    HTS_byte_swap(buf, size, block);
-#endif                          /* WORDS_BIGENDIAN */
 
    return block;
 }
@@ -330,9 +330,8 @@ size_t HTS_fread_little_endian(void *buf, size_t size, size_t n, HTS_File * fp)
 /* HTS_fwrite_little_endian: fwrite with byteswap */
 size_t HTS_fwrite_little_endian(const void *buf, size_t size, size_t n, FILE * fp)
 {
-#ifdef WORDS_BIGENDIAN
+  if(is_machine_big_endian())
    HTS_byte_swap(buf, size, n * size);
-#endif                          /* WORDS_BIGENDIAN */
    return fwrite(buf, size, n, fp);
 }
 

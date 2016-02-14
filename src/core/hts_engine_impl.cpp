@@ -31,7 +31,7 @@ extern "C"
 
   void HTS_Audio_write(HTS_Audio * audio, short sample)
   {
-    static_cast<RHVoice::hts_engine_impl*>(audio->data)->on_new_sample(sample);
+    static_cast<RHVoice::hts_engine_impl*>(audio->audio_interface)->on_new_sample(sample);
   }
 
   void HTS_Audio_flush(HTS_Audio * audio)
@@ -45,30 +45,8 @@ extern "C"
 
 namespace RHVoice
 {
-  hts_engine_impl::model_file_list::model_file_list(const std::string& voice_path,const std::string& type,int num_windows_):
-    pdf(0),
-    tree(0),
-    num_windows(num_windows_)
-  {
-    file_names.push_back(path::join(voice_path,type+".pdf"));
-    file_names.push_back(path::join(voice_path,"tree-"+type+".inf"));
-    for(int i=0;i<num_windows;++i)
-      {
-        file_names.push_back(path::join(voice_path,type+".win"+str::to_string(i+1)));
-      }
-    pdf=const_cast<char*>(file_names[0].c_str());
-    tree=const_cast<char*>(file_names[1].c_str());
-    for(int i=0;i<num_windows;++i)
-      {
-        windows[i]=const_cast<char*>(file_names[i+2].c_str());
-      }
-  }
-
   hts_engine_impl::hts_engine_impl(const std::string& impl_name,const std::string& voice_path):
     data_path(voice_path),
-    fperiod(80),
-    alpha(0.42),
-    msd_threshold("msd_threshold",0.5,0,1.0),
     beta("beta",0.4,-0.8,0.8),
     gain("gain",1.0,0.5,2.0),
     input(0),
@@ -79,29 +57,7 @@ namespace RHVoice
     config cfg1;
     cfg1.register_setting(sample_rate);
     cfg1.load(path::join(data_path,"voice.info"));
-    switch(sample_rate)
-      {
-      case sample_rate_22k:
-        fperiod=110;
-        alpha=0.45;
-        break;
-      case sample_rate_32k:
-        fperiod=160;
-        alpha=0.5;
-        break;
-      case sample_rate_44k:
-        fperiod=220;
-        alpha=0.54;
-        break;
-      case sample_rate_48k:
-        fperiod=240;
-        alpha=0.55;
-        break;
-      default:
-        break;
-      }
     config cfg2;
-    cfg2.register_setting(msd_threshold);
     cfg2.register_setting(beta);
     cfg2.register_setting(gain);
     cfg2.load(path::join(data_path,"voice.params"));
@@ -129,30 +85,9 @@ namespace RHVoice
     config cfg1;
     cfg1.register_setting(sample_rate);
     cfg1.load(path::join(data_path,"voice.info"));
-    switch(sample_rate)
-      {
-      case sample_rate_22k:
-        fperiod=110;
-        alpha=0.45;
-        break;
-      case sample_rate_32k:
-        fperiod=160;
-        alpha=0.5;
-        break;
-      case sample_rate_44k:
-        fperiod=220;
-        alpha=0.54;
-        break;
-      case sample_rate_48k:
-        fperiod=240;
-        alpha=0.55;
-        break;
-      default:
-        break;
-      }
     config cfg2;
-    cfg2.register_setting(msd_threshold);
     cfg2.register_setting(beta);
+    cfg2.register_setting(gain);
     cfg2.load(path::join(data_path,"voice.params"));
   }
 

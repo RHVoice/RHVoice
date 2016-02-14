@@ -139,7 +139,7 @@ namespace
 
   void write_wave_header()
   {
-    guint32 sample_rate=16000;
+    guint32 sample_rate=24000;
     guint32 byte_rate=2*sample_rate;
     unsigned char header[]={
       /* RIFF header */

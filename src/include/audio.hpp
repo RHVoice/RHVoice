@@ -128,7 +128,7 @@ namespace RHVoice
       playback_params():
         lib(lib_default),
         backend(backend_default),
-        sample_rate(16000),
+        sample_rate(24000),
         buffer_size(0)
       {
       }

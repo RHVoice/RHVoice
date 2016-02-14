@@ -354,7 +354,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 params.setRate(((double)rate)/100.0);
                 params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);
-                callback.start(16000,AudioFormat.ENCODING_PCM_16BIT,1);
+                callback.start24000,AudioFormat.ENCODING_PCM_16BIT,1);
                 state.engine.speak(request.getText(),params,player);
                 callback.done();
             }

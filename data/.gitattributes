@@ -4,3 +4,4 @@
 *.fsm binary
 *.dt binary
 *.lts binary
+*.data binary

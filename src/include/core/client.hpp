@@ -65,7 +65,7 @@ namespace RHVoice
 
     virtual int get_sample_rate() const
     {
-      return 16000;
+      return 24000;
     }
 
     virtual bool set_sample_rate(int sample_rate)
