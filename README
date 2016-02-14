@@ -1,4 +1,13 @@
-RHVoice is a free and open source speech synthesizer
-The latest release can be found at http://github.com/Olga-Yakovleva/RHVoice/downloads
-You can also use git to get the development code.
-The git repository address is git://github.com/Olga-Yakovleva/RHVoice.git
+RHVoice is a free and open source speech synthesizer.
+It consists of the following components:
+
+ - command line tool `rhvoice-client` (needs love)
+ - speech module for NVDA
+ - speech module for Windows (SAPI5)
+ - Android App
+
+See downloads at https://github.com/Olga-Yakovleva/RHVoice/wiki/Downloads
+
+Source code for development version can be fetched with git from:
+
+    git://github.com/Olga-Yakovleva/RHVoice.git
