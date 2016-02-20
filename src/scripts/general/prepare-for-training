@@ -96,7 +96,7 @@ class task(object):
 			phoneset[name]=features
 		return phoneset
 
-class setup(task):
+class configurator(task):
 	def get_configure_params(self):
 		params=collections.OrderedDict()
 		params["--with-fest-search-path"]=os.path.join(self.settings["festdir"],"examples")
@@ -111,7 +111,7 @@ class setup(task):
 		return params
 
 	def register(self):
-		subparser=subparsers.add_parser("setup")
+		subparser=subparsers.add_parser("configure")
 		subparser.set_defaults(func=self)
 
 	def __call__(self,args):
@@ -1014,7 +1014,7 @@ class retrainer(task):
 		self.train()
 
 if __name__=="__main__":
-	for cls in [setup,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
+	for cls in [configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
