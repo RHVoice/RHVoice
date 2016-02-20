@@ -159,16 +159,8 @@ class recordings_importer(task):
 			 "1" if self.settings["invert"] else "0"]
 		subprocess.check_call(cmd)
 
-	def copy_utt(self,inname,outname):
-		if not self.settings.get("uttdir",None):
-			return
-		inbase=os.path.splitext(inname)[0]
-		inpath=os.path.join(self.settings["uttdir"],inbase+".utt")
-		outpath=os.path.join("data","src_utts",outname+".utt")
-		shutil.copy(inpath,outpath)
-
 	def __call__(self,args):
-		subdirs=["raw","wav","utts","src_utts"]
+		subdirs=["raw","wav"]
 		for subdir in subdirs:
 			dir=os.path.join(workdir,"data",subdir)
 			if not os.path.isdir(dir):
@@ -176,7 +168,6 @@ class recordings_importer(task):
 		files=self.get_file_list()
 		for inpath,inname,outname in files:
 			self.process(inpath,inname,outname)
-			self.copy_utt(inname,outname)
 
 class htk_segmenter(task):
 	def register(self):
