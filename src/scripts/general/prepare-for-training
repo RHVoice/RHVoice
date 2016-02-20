@@ -902,6 +902,8 @@ class questions_maker(task):
 
 	def __call__(self,args):
 		qstdir=os.path.join("data","questions")
+		if not os.path.isdir(qstdir):
+			os.mkdir(qstdir)
 		phonetic_questions=self.generate_phonetic_questions()
 		hts_features=self.load_hts_features()
 		all_values=self.extract_values(hts_features)
