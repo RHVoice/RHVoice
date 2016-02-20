@@ -40,9 +40,12 @@ parser=argparse.ArgumentParser(description="A few helper commands augmenting the
 subparsers=parser.add_subparsers()
 
 class task(object):
-	def __init__(self):
-		with open("training.cfg","r") as f:
-			self.settings=json.load(f)
+	@property
+	def settings(self):
+		if not hasattr(self,"__settings"):
+			with open("training.cfg","r") as f:
+				self.__settings=json.load(f)
+		return self.__settings
 
 	def get_analysis_params(self):
 		params=collections.OrderedDict()
@@ -1013,8 +1016,25 @@ class retrainer(task):
 		self.cleanup()
 		self.train()
 
+class initializer(task):
+	def register(self):
+		subparser=subparsers.add_parser("init")
+		subparser.set_defaults(func=self)
+
+	def __call__(self,args):
+		assert(len(os.listdir(workdir))==0)
+		shutil.copy2(os.path.join(scriptdir,"training.cfg"),workdir)
+		htsdir=os.path.abspath(os.path.join(scriptdir,"..","hts"))
+		for name in sorted(os.listdir(htsdir)):
+			inpath=os.path.join(htsdir,name)
+			outpath=os.path.join(workdir,name)
+			if os.path.isdir(inpath):
+				shutil.copytree(inpath,outpath)
+			else:
+				shutil.copy2(inpath,workdir)
+
 if __name__=="__main__":
-	for cls in [configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()

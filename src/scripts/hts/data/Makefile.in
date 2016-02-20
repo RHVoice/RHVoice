@@ -1,0 +1,390 @@
+# ----------------------------------------------------------------- #
+#           The HMM-Based Speech Synthesis System (HTS)             #
+#           developed by HTS Working Group                          #
+#           http://hts.sp.nitech.ac.jp/                             #
+# ----------------------------------------------------------------- #
+#                                                                   #
+#  Copyright (c) 2001-2015  Nagoya Institute of Technology          #
+#                           Department of Computer Science          #
+#                                                                   #
+#                2001-2008  Tokyo Institute of Technology           #
+#                           Interdisciplinary Graduate School of    #
+#                           Science and Engineering                 #
+#                                                                   #
+# All rights reserved.                                              #
+#                                                                   #
+# Redistribution and use in source and binary forms, with or        #
+# without modification, are permitted provided that the following   #
+# conditions are met:                                               #
+#                                                                   #
+# - Redistributions of source code must retain the above copyright  #
+#   notice, this list of conditions and the following disclaimer.   #
+# - Redistributions in binary form must reproduce the above         #
+#   copyright notice, this list of conditions and the following     #
+#   disclaimer in the documentation and/or other materials provided #
+#   with the distribution.                                          #
+# - Neither the name of the HTS working group nor the names of its  #
+#   contributors may be used to endorse or promote products derived #
+#   from this software without specific prior written permission.   #
+#                                                                   #
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            #
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       #
+# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          #
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          #
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS #
+# BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          #
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   #
+# TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     #
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON #
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   #
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    #
+# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           #
+# POSSIBILITY OF SUCH DAMAGE.                                       #
+# ----------------------------------------------------------------- #
+
+# setting
+SPEAKER = @SPEAKER@
+DATASET = @DATASET@
+
+# awk and perl
+AWK  = @AWK@
+PERL = @PERL@
+
+# SPTK commands
+X2X     = @X2X@
+MGCEP   = @MGCEP@
+LPC2LSP = @LPC2LSP@
+MERGE   = @MERGE@
+VSTAT   = @VSTAT@
+SOPR    = @SOPR@
+NAN     = @NAN@
+MINMAX  = @MINMAX@
+PITCH   = @PITCH@
+FRAME   = @FRAME@
+WINDOW  = @WINDOW@
+RAW2WAV = @RAW2WAV@
+
+# MATLAB and STRAIGHT
+USESTRAIGHT = @USESTRAIGHT@
+MATLAB      = @MATLAB@
+STRAIGHT    = @STRAIGHT@
+
+# Festival commands
+USEUTT    = @USEUTT@
+TEXT2UTT  = @TEXT2UTT@
+DUMPFEATS = @DUMPFEATS@
+
+# speech analysis conditions
+SAMPFREQ   = @SAMPFREQ@   # Sampling frequency (48kHz)
+FRAMELEN   = @FRAMELEN@   # Frame length in point (1200 = 48000 * 0.025)
+FRAMESHIFT = @FRAMESHIFT@ # Frame shift in point (240 = 48000 * 0.005)
+WINDOWTYPE = @WINDOWTYPE@ # Window type -> 0: Blackman 1: Hamming 2: Hanning
+NORMALIZE  = @NORMALIZE@  # Normalization -> 0: none  1: by power  2: by magnitude
+FFTLEN     = @FFTLEN@     # FFT length in point
+FREQWARP   = @FREQWARP@   # frequency warping factor
+GAMMA      = @GAMMA@      # pole/zero weight for mel-generalized cepstral (MGC) analysis
+MGCORDER   = @MGCORDER@   # order of MGC analysis
+BAPORDER   = @BAPORDER@   # order of BAP analysis
+LNGAIN     = @LNGAIN@     # use logarithmic gain rather than linear gain
+LOWERF0    = @LOWERF0@    # lower limit for f0 extraction (Hz)
+UPPERF0    = @UPPERF0@    # upper limit for f0 extraction (Hz)
+
+# windows for calculating delta features
+MGCWIN  = win/mgc.win
+LF0WIN  = win/lf0.win
+BAPWIN  = win/bap.win
+NMGCWIN = @NMGCWIN@
+NLF0WIN = @NLF0WIN@
+NBAPWIN = @NBAPWIN@
+
+all: analysis labels
+
+analysis: features cmp
+
+labels: lab mlf list scp
+
+features:
+	# Extracting features from raw audio
+	mkdir -p mgc lf0 bap
+	SAMPKHZ=`echo $(SAMPFREQ) | $(X2X) +af | $(SOPR) -m 0.001 | $(X2X) +fa`; \
+	for raw in raw/$(DATASET)_$(SPEAKER)_*.raw; do \
+		base=`basename $${raw} .raw`; \
+		min=`$(X2X) +sf $${raw} | $(MINMAX) | $(X2X) +fa | head -n 1`; \
+		max=`$(X2X) +sf $${raw} | $(MINMAX) | $(X2X) +fa | tail -n 1`; \
+		if [ -s $${raw} -a $${min} -gt -32768 -a $${max} -lt 32767 ]; then \
+			echo "Extracting features from $${raw}"; \
+			if [ $(USESTRAIGHT) -eq 0 ]; then \
+				# $(X2X) +sf $${raw} | $(PITCH) -H $(UPPERF0) -L $(LOWERF0) -p $(FRAMESHIFT) -s $${SAMPKHZ} -o 2 > lf0/$${base}.lf0; \
+				if [ $(GAMMA) -eq 0 ]; then \
+					$(X2X) +sf $${raw} | \
+					$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) | \
+					$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
+					$(MGCEP) -a $(FREQWARP) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 > mgc/$${base}.mgc; \
+				else \
+					if [ $(LNGAIN) -eq 1 ]; then \
+						GAINOPT="-L"; \
+					fi; \
+					$(X2X) +sf $${raw} | \
+					$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) | \
+					$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
+					$(MGCEP) -a $(FREQWARP) -c $(GAMMA) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 -o 4 | \
+					$(LPC2LSP) -m $(MGCORDER) -s $${SAMPKHZ} $${GAINOPT} -n $(FFTLEN) -p 8 -d 1.0E-08 > mgc/$${base}.mgc; \
+				fi; \
+				# if [ -n "`$(NAN) lf0/$${base}.lf0`" ]; then \
+				# 	echo " Failed to extract features from $${raw}"; \
+				# 	rm -f lf0/$${base}.lf0; \
+				# fi; \
+				if [ -n "`$(NAN) mgc/$${base}.mgc`" ]; then \
+					echo " Failed to extract features from $${raw}"; \
+					rm -f mgc/$${base}.mgc; \
+				fi; \
+			else \
+				FRAMESHIFTMS=`echo $(FRAMESHIFT) | $(X2X) +af | $(SOPR) -m 1000 -d $(SAMPFREQ) | $(X2X) +fa`; \
+				$(RAW2WAV) -s $${SAMPKHZ} -d . $${raw}; \
+				echo "path(path,'$(STRAIGHT)');"                    >  $${base}.m; \
+				echo "prm.F0frameUpdateInterval=$${FRAMESHIFTMS};"  >> $${base}.m; \
+				echo "prm.F0searchUpperBound=$(UPPERF0);"           >> $${base}.m; \
+				echo "prm.F0searchLowerBound=$(LOWERF0);"           >> $${base}.m; \
+				echo "prm.spectralUpdateInterval=$${FRAMESHIFTMS};" >> $${base}.m; \
+				echo "[x,fs]=wavread('$${base}.wav');"              >> $${base}.m; \
+				echo "[f0,ap] = exstraightsource(x,fs,prm);"        >> $${base}.m; \
+				echo "[sp] = exstraightspec(x,f0,fs,prm);"          >> $${base}.m; \
+				echo "ap = ap';"                                    >> $${base}.m; \
+				echo "sp = sp';"                                    >> $${base}.m; \
+				echo "sp = sp*32768.0;"                             >> $${base}.m; \
+				echo "save '$${base}.f0' f0 -ascii;"                >> $${base}.m; \
+				echo "save '$${base}.ap' ap -ascii;"                >> $${base}.m; \
+				echo "save '$${base}.sp' sp -ascii;"                >> $${base}.m; \
+				echo "quit;"                                        >> $${base}.m; \
+				$(MATLAB) < $${base}.m; \
+				if [ -s $${base}.f0 ]; then \
+					$(X2X) +af $${base}.f0 | $(SOPR) -magic 0.0 -LN -MAGIC -1.0E+10 > lf0/$${base}.lf0; \
+					if [ -n "`$(NAN) lf0/$${base}.lf0`" ]; then \
+						echo " Failed to extract features from $${raw}"; \
+						rm -f lf0/$${base}.lf0; \
+					fi; \
+				fi; \
+				if [ -s $${base}.sp ]; then \
+					if [ $(GAMMA) -eq 0 ]; then \
+						$(X2X) +af $${base}.sp | \
+						$(MGCEP) -a $(FREQWARP) -m $(MGCORDER) -l 2048 -e 1.0E-08 -j 0 -f 0.0 -q 3 > mgc/$${base}.mgc; \
+					else \
+						if [ $(LNGAIN) -eq 1 ]; then \
+							GAINOPT="-L"; \
+						fi; \
+						$(X2X) +af $${base}.sp | \
+						$(MGCEP) -a $(FREQWARP) -c $(GAMMA) -m $(MGCORDER) -l 2048 -e 1.0E-08 -j 0 -f 0.0 -q 3 -o 4 | \
+						$(LPC2LSP) -m $(MGCORDER) -s $${SAMPKHZ} $${GAINOPT} -n 2048 -p 8 -d 1.0E-08 > mgc/$${base}.mgc; \
+					fi; \
+					if [ -n "`$(NAN) mgc/$${base}.mgc`" ]; then \
+						echo " Failed to extract features from $${raw}"; \
+						rm -f mgc/$${base}.mgc; \
+					fi; \
+				fi; \
+				if [ -s $${base}.ap ]; then \
+					$(X2X) +af $${base}.ap | \
+					$(MGCEP) -a $(FREQWARP) -m $(BAPORDER) -l 2048 -e 1.0E-08 -j 0 -f 0.0 -q 1 > bap/$${base}.bap; \
+					if [ -n "`$(NAN) bap/$${base}.bap`" ]; then \
+						echo " Failed to extract features from $${raw}"; \
+						rm -f bap/$${base}.bap; \
+					fi; \
+				fi; \
+				rm -f $${base}.m $${base}.wav $${base}.f0 $${base}.ap $${base}.sp; \
+			fi; \
+		fi; \
+	done
+
+cmp: 
+	# Composing training data files from extracted features
+	mkdir -p cmp
+	for raw in raw/$(DATASET)_$(SPEAKER)_*.raw; do \
+		base=`basename $${raw} .raw`; \
+		echo "Composing training data for $${base}"; \
+		if [ $(USESTRAIGHT) -eq 0 ]; then \
+			MGCDIM=`expr $(MGCORDER) + 1`; \
+			LF0DIM=1; \
+			MGCWINDIM=`expr $(NMGCWIN) \* $${MGCDIM}`; \
+			LF0WINDIM=`expr $(NLF0WIN) \* $${LF0DIM}`; \
+			BYTEPERFRAME=`expr 4 \* \( $${MGCWINDIM} + $${LF0WINDIM} \)`; \
+			if [ -s mgc/$${base}.mgc -a -s lf0/$${base}.lf0 ]; then \
+				MGCWINS=""; \
+				i=1; \
+				while [ $${i} -le $(NMGCWIN) ]; do \
+					eval MGCWINS=\"$${MGCWINS} $(MGCWIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${MGCDIM} mgc/$${base}.mgc $${MGCWINS} > tmp.mgc; \
+				LF0WINS=""; \
+				i=1; \
+				while [ $${i} -le $(NLF0WIN) ]; do \
+					eval LF0WINS=\"$${LF0WINS} $(LF0WIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${LF0DIM} lf0/$${base}.lf0 $${LF0WINS} > tmp.lf0; \
+				$(MERGE) +f -s 0 -l $${LF0WINDIM} -L $${MGCWINDIM} tmp.mgc < tmp.lf0                 > tmp.cmp; \
+				$(PERL) scripts/addhtkheader.pl $(SAMPFREQ) $(FRAMESHIFT) $${BYTEPERFRAME} 9 tmp.cmp > cmp/$${base}.cmp; \
+				rm -f tmp.mgc tmp.lf0 tmp.cmp; \
+			fi; \
+		else \
+			MGCDIM=`expr $(MGCORDER) + 1`; \
+			LF0DIM=1; \
+			BAPDIM=`expr $(BAPORDER) + 1`; \
+			MGCWINDIM=`expr $(NMGCWIN) \* $${MGCDIM}`; \
+			LF0WINDIM=`expr $(NLF0WIN) \* $${LF0DIM}`; \
+			BAPWINDIM=`expr $(NBAPWIN) \* $${BAPDIM}`; \
+			MGCLF0WINDIM=`expr $${MGCWINDIM} + $${LF0WINDIM}`; \
+			BYTEPERFRAME=`expr 4 \* \( $${MGCWINDIM} + $${LF0WINDIM} + $${BAPWINDIM} \)`; \
+			if [ -s mgc/$${base}.mgc -a -s lf0/$${base}.lf0 -a -s bap/$${base}.bap ]; then \
+				MGCWINS=""; \
+				i=1; \
+				while [ $${i} -le $(NMGCWIN) ]; do \
+					eval MGCWINS=\"$${MGCWINS} $(MGCWIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${MGCDIM} mgc/$${base}.mgc $${MGCWINS} > tmp.mgc; \
+				LF0WINS=""; \
+				i=1; \
+				while [ $${i} -le $(NLF0WIN) ]; do \
+					eval LF0WINS=\"$${LF0WINS} $(LF0WIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${LF0DIM} lf0/$${base}.lf0 $${LF0WINS} > tmp.lf0; \
+				BAPWINS=""; \
+				i=1; \
+				while [ $${i} -le $(NBAPWIN) ]; do \
+					eval BAPWINS=\"$${BAPWINS} $(BAPWIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${BAPDIM} bap/$${base}.bap $${BAPWINS} > tmp.bap; \
+				$(MERGE) +f -s 0 -l $${LF0WINDIM} -L $${MGCWINDIM}    tmp.mgc     < tmp.lf0          > tmp.mgc+lf0; \
+				$(MERGE) +f -s 0 -l $${BAPWINDIM} -L $${MGCLF0WINDIM} tmp.mgc+lf0 < tmp.bap          > tmp.cmp; \
+				$(PERL) scripts/addhtkheader.pl $(SAMPFREQ) $(FRAMESHIFT) $${BYTEPERFRAME} 9 tmp.cmp > cmp/$${base}.cmp; \
+				rm -f tmp.mgc tmp.lf0 tmp.bap tmp.mgc+lf0 tmp.cmp; \
+			fi; \
+		fi; \
+	done
+
+lab:
+	# Extracting monophone and fullcontext labels
+	mkdir -p labels/mono
+	mkdir -p labels/full
+	if [ $(USEUTT) -eq 1 ]; then \
+		for utt in utts/$(DATASET)_$(SPEAKER)_*.utt; do \
+			base=`basename $${utt} .utt`; \
+			if [ -s $${utt} ]; then \
+				echo "Extracting labels from $${utt}"; \
+				$(DUMPFEATS) -eval scripts/extra_feats.scm -relation Segment -feats scripts/label.feats -output tmp.feats $${utt}; \
+			fi; \
+			if [ -s tmp.feats ]; then \
+				$(AWK) -f scripts/label-full.awk tmp.feats > labels/full/$${base}.lab; \
+				$(AWK) -f scripts/label-mono.awk tmp.feats > labels/mono/$${base}.lab; \
+				rm -f tmp.feats; \
+			fi; \
+		done; \
+	else \
+		for txt in txt/$(DATASET)_$(SPEAKER)_*.txt; do \
+			base=`basename $${txt} .txt`; \
+			if [ -s $${txt} ]; then \
+				echo "Extracting labels from $${txt}"; \
+				$(PERL) scripts/normtext.pl $${txt} > tmp.txt; \
+				$(TEXT2UTT) tmp.txt > tmp.utt; \
+				$(DUMPFEATS) -eval scripts/extra_feats.scm -relation Segment -feats scripts/label.feats -output tmp.feats tmp.utt; \
+				rm -f tmp.txt tmp.utt; \
+			fi; \
+			if [ -s tmp.feats ]; then \
+				$(AWK) -f scripts/label-full.awk tmp.feats > labels/full/$${base}.lab; \
+				$(AWK) -f scripts/label-mono.awk tmp.feats > labels/mono/$${base}.lab; \
+				rm -f tmp.feats; \
+			fi; \
+		done; \
+	fi
+
+mlf:
+	# Generating monophone and fullcontext Master Label Files (MLF)
+	echo "#!MLF!#" > labels/mono.mlf
+	echo "\"*/$(DATASET)_$(SPEAKER)_*.lab\" -> \"@PWD@/data/labels/mono\"" >> labels/mono.mlf
+
+	echo "#!MLF!#" > labels/full.mlf
+	echo "\"*/$(DATASET)_$(SPEAKER)_*.lab\" -> \"@PWD@/data/labels/full\"" >> labels/full.mlf
+
+list:
+	# Generating a fullcontext model list file
+	mkdir -p lists
+
+	rm -f tmp
+	for lab in labels/full/$(DATASET)_$(SPEAKER)_*.lab; do \
+		if [ -s $${lab} -a -s labels/mono/`basename $${lab}` -a -s cmp/`basename $${lab} .lab`.cmp ]; then \
+			sed -e "s/.* //g" $${lab} >> tmp; \
+		fi \
+	done
+	sort -u tmp > lists/full.list
+	rm -f tmp
+
+	# Generating a fullcontext model list file which includes unseen models
+	rm -f tmp
+	cat lists/full.list > tmp
+	for lab in labels/gen/*.lab; do \
+		sed -e "s/.* //g" $${lab} >> tmp; \
+	done
+	sort -u tmp > lists/full_all.list
+	rm -f tmp
+
+	# Generating a monophone list file
+	rm -f tmp
+	for lab in labels/mono/$(DATASET)_$(SPEAKER)_*.lab; do \
+		if [ -s $${lab} -a -s labels/full/`basename $${lab}` -a -s cmp/`basename $${lab} .lab`.cmp ]; then \
+			sed -e "s/.* //g" $${lab} >> tmp; \
+		fi \
+	done
+	sort -u tmp > lists/mono.list
+	rm -f tmp
+
+scp:
+	# Generating a trainig data script
+	mkdir -p scp
+
+	rm -f scp/train.scp
+	for cmp in @PWD@/data/cmp/$(DATASET)_$(SPEAKER)_*.cmp; do \
+		if [ -s $${cmp} -a -s labels/mono/`basename $${cmp} .cmp`.lab -a -s labels/full/`basename $${cmp} .cmp`.lab ]; then \
+			echo $${cmp} >> scp/train.scp; \
+		fi \
+	done
+
+	# Generating a generation label script
+	rm -f scp/gen.scp
+	for lab in @PWD@/data/labels/gen/*.lab; do \
+		echo $${lab} >> scp/gen.scp; \
+	done
+
+
+clean: clean-mgc clean-lf0 clean-bap clean-cmp clean-lab clean-mlf clean-list clean-scp
+
+clean-mgc:
+	rm -rf mgc
+
+clean-lf0:
+	rm -rf lf0
+
+clean-bap:
+	rm -rf bap
+
+clean-cmp:
+	rm -rf cmp
+
+clean-lab:
+	rm -rf labels/mono
+	rm -rf labels/full
+
+clean-mlf:
+	rm -f labels/*.mlf
+
+clean-list:
+	rm -rf lists
+
+clean-scp:
+	rm -rf scp
+
+distclean: clean
+	rm -f Makefile
+
+.PHONY: all analysis features cmp labels lab mlf list scp clean distclean
