@@ -22,14 +22,10 @@
 #include <windows.h>
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
   #ifdef _MSC_VER
-__inline int is_machine_big_endian()
+__inline static int is_machine_big_endian()
   #else
-  inline int is_machine_big_endian()
+  inline static int is_machine_big_endian()
   #endif
   {
     union
@@ -42,9 +38,9 @@ __inline int is_machine_big_endian()
   }
 
   #ifdef _MSC_VER
-  __inline int is_machine_little_endian()
+  __inline static int is_machine_little_endian()
   #else
-  inline int is_machine_little_endian()
+  inline static int is_machine_little_endian()
   #endif
   {
     union
@@ -56,12 +52,11 @@ __inline int is_machine_big_endian()
     return (u.c[0]==1);
   }
 
-
   #ifdef WIN32
   #ifdef _MSC_VER
-  __inline wchar_t* utf8_to_utf16(const char* str)
+  __inline static wchar_t* utf8_to_utf16(const char* str)
   #else
-  inline wchar_t* utf8_to_utf16(const char* str)
+  inline static wchar_t* utf8_to_utf16(const char* str)
   #endif
   {
     wchar_t* wstr=NULL;
@@ -82,9 +77,9 @@ __inline int is_machine_big_endian()
   #endif
 
   #ifdef _MSC_VER
-  __inline FILE* utf8_fopen(const char* path,const char* mode)
+  __inline static FILE* utf8_fopen(const char* path,const char* mode)
   #else
-  inline FILE* utf8_fopen(const char* path,const char* mode)
+  inline static FILE* utf8_fopen(const char* path,const char* mode)
   #endif
   {
   #ifdef WIN32
@@ -107,8 +102,4 @@ __inline int is_machine_big_endian()
   return fopen(path,mode);
   #endif
 }
-
-#ifdef __cplusplus
-}
-#endif
 #endif
