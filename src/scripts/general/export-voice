@@ -1,0 +1,90 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import os.path
+import json
+import collections
+import shutil
+
+voice_format="2"
+
+def load_conf(path):
+	conf=collections.OrderedDict()
+	if not os.path.isfile(path):
+		return conf
+	with open(path,"r") as f:
+		for line in f:
+			toks=line.strip().split("=")
+			if not toks:
+				continue
+			conf[toks[0]]=toks[1]
+	return conf
+
+def save_conf(conf,path):
+	with open(path,"w") as f:
+		for key,val in conf.iteritems():
+			f.write(key)
+			f.write("=")
+			f.write(val)
+			f.write("\n")
+
+def save_info():
+	path=os.path.join(outdir,"voice.info")
+	info=load_conf(path)
+	name=settings["speaker"].title()
+	if "name" in info:
+		assert(name==info["name"])
+	else:
+		info["name"]=name
+	if "language" not in info:
+		info["language"]=settings["language"].title()
+	info["sample_rate"]=str(settings["sample_rate"]//1000)+"k"
+	if "gender" not in info:
+		info["gender"]=settings["gender"].lower()
+	format=info.get("format",0)
+	revision=info.get("revision","0")
+	if format==voice_format:
+		revision=str(int(revision)+1)
+	else:
+		revision="0"
+	info["format"]=voice_format
+	info["revision"]=revision
+	save_conf(info,path)
+
+def save_params():
+	path=os.path.join(outdir,"voice.params")
+	if os.path.isfile(path):
+		return
+	params=collections.OrderedDict([("beta","0.4"),("gain","1.0")])
+	save_conf(params,path)
+
+def copy_voice():
+	inpath=os.path.join("voices","qst001","ver1",settings["dataset"]+"_"+settings["speaker"]+".htsvoice")
+	outpath=os.path.join(outdir,"voice.data")
+	shutil.copy(inpath,outpath)
+
+if __name__=="__main__":
+	with open("training.cfg","r") as f:
+		settings=json.load(f)
+	outdir=settings["outdir"]
+	if not os.path.isdir(outdir):
+		os.mkdir(outdir)
+	save_info()
+	save_params()
+	copy_voice()
