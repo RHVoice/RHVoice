@@ -1772,7 +1772,7 @@ sub make_edfile_mkunseen_gv {
 sub make_lpf {
    my ( $lfil, @coef, $coefSize, $i, $j );
 
-   $lfil     = `$PERL $datdir/scripts/makefilter.pl $sr 0`;
+   $lfil     = `python2 $datdir/scripts/makefilter.py $sr 0`;
    @coef     = split( '\s', $lfil );
    $coefSize = @coef;
 
@@ -1848,7 +1848,7 @@ sub make_htsvoice($$) {
    }
    $type     = "lpf";
    $tmp      = get_stream_name($type);
-   @coef     = split( '\s', `$PERL $datdir/scripts/makefilter.pl $sr 0` );
+   @coef     = split( '\s', `python2 $datdir/scripts/makefilter.py $sr 0` );
    $coefSize = @coef;
    print HTSVOICE "VECTOR_LENGTH[${tmp}]:${coefSize}\n";
    foreach $type (@cmp) {
@@ -2280,8 +2280,8 @@ sub gen_wave($) {
          shell($line);
 
          # synthesize waveform
-         $lfil = `$PERL $datdir/scripts/makefilter.pl $sr 0`;
-         $hfil = `$PERL $datdir/scripts/makefilter.pl $sr 1`;
+         $lfil = `python2 $datdir/scripts/makefilter.py $sr 0`;
+         $hfil = `python2 $datdir/scripts/makefilter.py $sr 1`;
 
          $line = "$SOPR -m 0 $gendir/$base.pit | $EXCITE -n -p $fs | $DFS -b $hfil > $gendir/$base.unv";
          shell($line);
