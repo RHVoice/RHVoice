@@ -22,8 +22,11 @@ import json
 import collections
 import shutil
 import subprocess
+import imp
+from struct import pack
 
 voice_format="2"
+numstates=5
 
 def load_config(path):
 	conf=collections.OrderedDict()
@@ -113,6 +116,30 @@ def copy_windows(type,n):
 		file_name="{}.win{}".format(type,i)
 		shutil.copy2(os.path.join("data","win",file_name),os.path.join(outdir,file_name))
 
+def gen_lpf_pdf():
+	makefilter=imp.load_source("makefilter",os.path.join("data","scripts","makefilter.py"))
+	coefs=makefilter.lpf(settings["sample_rate"])
+	numtaps=len(coefs)
+	with open(os.path.join(outdir,"lpf.pdf"),"wb") as f:
+		f.write(pack(">i",0))
+		f.write(pack(">i",1))
+		f.write(pack(">i",numtaps))
+		for i in xrange(numstates):
+			f.write(pack(">i",1))
+		for i in xrange(numstates):
+			for c in coefs:
+				f.write(pack(">ff",c,0))
+
+def gen_lpf_tree():
+	with open(os.path.join(outdir,"tree-lpf.inf"),"w") as f:
+		for i in xrange(2,numstates+2):
+			f.write("{{*}}[{}]\n".format(i))
+			f.write("   \"lpf_s{}_1\"\n".format(i))
+
+def gen_lpf_win():
+	with open(os.path.join(outdir,"lpf.win1"),"w") as f:
+		f.write("1 1.0\n")
+
 def convert_data():
 	conf_path=make_conversion_config()
 	convert_model_and_tree("cmp","mgc",1,conf_path)
@@ -121,6 +148,9 @@ def convert_data():
 	os.remove(conf_path)
 	copy_windows("mgc",3)
 	copy_windows("lf0",3)
+	gen_lpf_pdf()
+	gen_lpf_tree()
+	gen_lpf_win()
 
 if __name__=="__main__":
 	with open("training.cfg","r") as f:
