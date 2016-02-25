@@ -109,39 +109,39 @@ void MAGE::Model::checkInterpolationWeights( MAGE::Engine * engine, bool forced 
 	int i, j;
 	double temp;
 	
-	HTS_ModelSet ms = engine->getModelSet();
-	HTS_Global global = engine->getGlobal();
+	HTS106_ModelSet ms = engine->getModelSet();
+	HTS106_Global global = engine->getGlobal();
 	
 	//do it only once
 	if( !this->weightsChecked || forced )
 	{
 
 		// check interpolation weights 
-		for( i = 0, temp = 0.0; i < HTS_ModelSet_get_duration_interpolation_size( &ms ); i++ )
+		for( i = 0, temp = 0.0; i < HTS106_ModelSet_get_duration_interpolation_size( &ms ); i++ )
 			temp += global.duration_iw[i];
 
 		if( temp != 0.0 )
-			for( i = 0; i < HTS_ModelSet_get_duration_interpolation_size( &ms ); i++ )
+			for( i = 0; i < HTS106_ModelSet_get_duration_interpolation_size( &ms ); i++ )
 				if( global.duration_iw[i] != 0.0 )
 					global.duration_iw[i] /= temp; // ATTENTION :: should not change in the model !!!
 
 		for( i = 0; i < nOfStreams; i++ )
 		{
-			for( j = 0, temp = 0.0; j < HTS_ModelSet_get_parameter_interpolation_size( &ms, i ); j++ )
+			for( j = 0, temp = 0.0; j < HTS106_ModelSet_get_parameter_interpolation_size( &ms, i ); j++ )
 				temp += global.parameter_iw[i][j];
 
 			if( temp != 0.0 )
-				for( j = 0; j < HTS_ModelSet_get_parameter_interpolation_size( &ms, i ); j++ )
+				for( j = 0; j < HTS106_ModelSet_get_parameter_interpolation_size( &ms, i ); j++ )
 					if( global.parameter_iw[i][j] != 0.0 )
 						global.parameter_iw[i][j] /= temp; // ATTENTION :: should not change in the model !!!
 
-			if( HTS_ModelSet_use_gv( &ms, i ) )
+			if( HTS106_ModelSet_use_gv( &ms, i ) )
 			{
-				for( j = 0, temp = 0.0; j < HTS_ModelSet_get_gv_interpolation_size( &ms, i ); j++ )
+				for( j = 0, temp = 0.0; j < HTS106_ModelSet_get_gv_interpolation_size( &ms, i ); j++ )
 					temp += global.gv_iw[i][j];
 
 				if( temp != 0.0 )
-					for( j = 0; j < HTS_ModelSet_get_gv_interpolation_size( &ms, i ); j++ )
+					for( j = 0; j < HTS106_ModelSet_get_gv_interpolation_size( &ms, i ); j++ )
 						if( global.gv_iw[i][j] != 0.0 )
 							global.gv_iw[i][j] /= temp; // ATTENTION :: should not change in the model !!!
 			}
@@ -158,8 +158,8 @@ void MAGE::Model::computeDuration( MAGE::Engine * engine, MAGE::Label * label, d
 	double temp;
 	double frame_length;
 
-	HTS_ModelSet ms = engine->getModelSet();
-	HTS_Global global = engine->getGlobal();
+	HTS106_ModelSet ms = engine->getModelSet();
+	HTS106_Global global = engine->getGlobal();
 	
 	// determine state duration 
 	const double rate = global.sampling_rate / ( global.fperiod * 1e+7 );
@@ -173,8 +173,8 @@ void MAGE::Model::computeDuration( MAGE::Engine * engine, MAGE::Label * label, d
 	else 
 		iw = 1;
 	
-	// HTS_ModelSet_get_duration: get duration using interpolation weight 
-	HTS_ModelSet_get_duration( &ms, this->modelMemory.strQuery, this->modelMemory.duration_mean, 
+	// HTS106_ModelSet_get_duration: get duration using interpolation weight 
+	HTS106_ModelSet_get_duration( &ms, this->modelMemory.strQuery, this->modelMemory.duration_mean, 
 									this->modelMemory.duration_vari, global.duration_iw );
 	
 	if( label->isDurationForced() ) // use duration set by user : -vp
@@ -182,10 +182,10 @@ void MAGE::Model::computeDuration( MAGE::Engine * engine, MAGE::Label * label, d
 		frame_length = ( label->getEnd()- label->getBegin() ) * rate;
 		
 		if( label->getEnd() > 0 )
-			this->duration = mHTS_set_duration( this->modelMemory.duration_array, this->modelMemory.duration_mean,
+			this->duration = mHTS106_set_duration( this->modelMemory.duration_array, this->modelMemory.duration_mean,
 												this->modelMemory.duration_vari , nOfStates, frame_length );
 		else
-			HTS_error( -1,( char * )"HTS_SStreamSet_create: The time of final label is not specified.\n" );
+			HTS106_error( -1,( char * )"HTS106_SStreamSet_create: The time of final label is not specified.\n" );
 	}
 	else // determine frame length
 	{
@@ -203,7 +203,7 @@ void MAGE::Model::computeDuration( MAGE::Engine * engine, MAGE::Label * label, d
 			frame_length = 0;
 		
 		// set state duration 
-		this->duration = mHTS_set_duration( this->modelMemory.duration_array, this->modelMemory.duration_mean, 
+		this->duration = mHTS106_set_duration( this->modelMemory.duration_array, this->modelMemory.duration_mean, 
 											this->modelMemory.duration_vari, nOfStates, frame_length );
 	}
 	
@@ -273,8 +273,8 @@ void MAGE::Model::computeParameters( MAGE::Engine * engine, MAGE::Label * label,
 {
 	int i, j, k;
 	
-	HTS_ModelSet ms = engine->getModelSet();
-	HTS_Global global = engine->getGlobal();
+	HTS106_ModelSet ms = engine->getModelSet();
+	HTS106_Global global = engine->getGlobal();
 	
 	// convert string query to char * 
 	string query = label->getQuery();
@@ -293,17 +293,17 @@ void MAGE::Model::computeParameters( MAGE::Engine * engine, MAGE::Label * label,
 		{			
 			if(ms.stream[k].msd_flag)
 			{
-				HTS_ModelSet_get_parameter( &ms, strQuery, this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
+				HTS106_ModelSet_get_parameter( &ms, strQuery, this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
 										   &lf0_msd, k, i+2, global.parameter_iw[k] ); 
 			}
 			else
 			{
-				HTS_ModelSet_get_parameter( &ms, strQuery, this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
+				HTS106_ModelSet_get_parameter( &ms, strQuery, this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
 										   NULL, k, i+2, global.parameter_iw[k] );
 				lf0_msd = defaultMSDflag;
 			}
 		
-			for( j = 0; j < HTS_ModelSet_get_vector_length(&ms, k); j++ )
+			for( j = 0; j < HTS106_ModelSet_get_vector_length(&ms, k); j++ )
 			{
 				this->state[i].streams[k][j].mean += iw * this->modelMemory.stream_mean[k][j];
 				this->state[i].streams[k][j].vari += iw * iw * this->modelMemory.stream_vari[k][j];
@@ -325,8 +325,8 @@ void MAGE::Model::computeGlobalVariances( MAGE::Engine * engine, MAGE::Label * l
 	
 	bool gv_switch;
 	
-	HTS_ModelSet ms = engine->getModelSet();
-	HTS_Global global = engine->getGlobal();
+	HTS106_ModelSet ms = engine->getModelSet();
+	HTS106_Global global = engine->getGlobal();
 	
 	// convert string query to char * 
 	string query = label->getQuery();
@@ -334,13 +334,13 @@ void MAGE::Model::computeGlobalVariances( MAGE::Engine * engine, MAGE::Label * l
 	
 	for( k = 0; k < nOfStreams; k++ )
 	{
-		if( HTS_ModelSet_use_gv( &ms, k ) )
+		if( HTS106_ModelSet_use_gv( &ms, k ) )
 		{
-			HTS_ModelSet_get_gv( &ms, strQuery, this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], k, global.gv_iw[k] );
+			HTS106_ModelSet_get_gv( &ms, strQuery, this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], k, global.gv_iw[k] );
 		
 			for( i = 0; i < nOfStates; i++ )
 			{
-				for( j = 0; j < HTS_ModelSet_get_vector_length(&ms, k); j++ )
+				for( j = 0; j < HTS106_ModelSet_get_vector_length(&ms, k); j++ )
 				{
 					this->state[i].gv_streams[k][j].mean = this->modelMemory.stream_mean[k][j];
 					this->state[i].gv_streams[k][j].vari = this->modelMemory.stream_vari[k][j];
@@ -352,9 +352,9 @@ void MAGE::Model::computeGlobalVariances( MAGE::Engine * engine, MAGE::Label * l
 	//TODO :: fix this
 	// 1. one gv_switch per stream
 	// 2. one gv_switch for nstates, not nstates gv_switch
-	if( HTS_ModelSet_have_gv_switch( &ms ) )
+	if( HTS106_ModelSet_have_gv_switch( &ms ) )
 	{
-		if( !HTS_ModelSet_get_gv_switch( &ms, strQuery ) )
+		if( !HTS106_ModelSet_get_gv_switch( &ms, strQuery ) )
 			gv_switch = false;
 		else 
 			gv_switch = true;

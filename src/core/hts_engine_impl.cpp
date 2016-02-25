@@ -17,31 +17,6 @@
 #include "core/path.hpp"
 #include "core/config.hpp"
 #include "core/hts_engine_impl.hpp"
-#include "HTS_engine.h"
-
-extern "C"
-{
-  void HTS_Audio_initialize(HTS_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS_Audio_set_parameter(HTS_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS_Audio_write(HTS_Audio * audio, short sample)
-  {
-    static_cast<RHVoice::hts_engine_impl*>(audio->audio_interface)->on_new_sample(sample);
-  }
-
-  void HTS_Audio_flush(HTS_Audio * audio)
-  {
-  }
-
-  void HTS_Audio_clear(HTS_Audio * audio)
-  {
-  }
-}
 
 namespace RHVoice
 {

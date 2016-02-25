@@ -29,8 +29,8 @@
 #pragma once
 
 #include "MathFunctions.h"
-#include "HTS_engine.h"
-#include "HTS_hidden.h"
+#include "HTS106_engine.h"
+#include "HTS106_hidden.h"
 
 #include <string>
 #include <stdarg.h>
@@ -76,21 +76,21 @@ namespace MAGE
 			 *
 			 *	@return The global settings used by an Engine instance.
 			 */
-			inline HTS_Global getGlobal( void ){ return( this->global ); };
+			inline HTS106_Global getGlobal( void ){ return( this->global ); };
 		
 			/**
 			 *	This function gets an individual PDF stream used by an Engine instance.
 			 *
 			 *	@return The individual PDF stream used by an Engine instance.
 			 */
-			inline HTS_PStream getPStream( void ){ return( this->pss ); };
+			inline HTS106_PStream getPStream( void ){ return( this->pss ); };
 		
 			/**
 			 *	This function gets the set of duration models, HMMs and global variance models used by an Engine instance.
 			 *
 			 *	@return The set of duration models, HMMs and global variance models used by an Engine instance.
 			 */
-			inline HTS_ModelSet getModelSet( void ){ return( this->ms ); };
+			inline HTS106_ModelSet getModelSet( void ){ return( this->ms ); };
 
 //setters
 			/**
@@ -98,14 +98,14 @@ namespace MAGE
 			 *
 			 *	@param global The new global settings for the Engine instance.
 			 */	
-			inline void setGlobal( HTS_Global global ){ this->global = global; };
+			inline void setGlobal( HTS106_Global global ){ this->global = global; };
 		
 			/**
 			 *	This function sets a new PDF stream used by an Engine instance.
 			 *
 			 *	@param pss The new PDF stream for the Engine instance.
 			 */
-			inline void setPStream( HTS_PStream pss ){ this->pss = pss; };
+			inline void setPStream( HTS106_PStream pss ){ this->pss = pss; };
 		
 			/**
 			 *	This function sets a new set of duration models, HMMs and global variance models 
@@ -114,7 +114,7 @@ namespace MAGE
 			 *	@param ms The new set of duration models, HMMs and global variance models
 			 *					for the Engine instance.
 			 */
-			inline void setModelSet( HTS_ModelSet ms ){ this->ms = ms; };
+			inline void setModelSet( HTS106_ModelSet ms ){ this->ms = ms; };
 
 // methods
 		
@@ -129,28 +129,28 @@ namespace MAGE
 	protected:
 		
 			/** 
-			 *	\var HTS_Global global.
+			 *	\var HTS106_Global global.
 			 *	\brief It contains the global settings used from an Engine instance.
 			 */
-			HTS_Global global;	// global settings 
+			HTS106_Global global;	// global settings 
 		
 			/** 
-			 *	\var HTS_PStream pss.
+			 *	\var HTS106_PStream pss.
 			 *	\brief It contains an individual PDF stream used from an Engine instance.
 			 */
-			HTS_PStream pss;	// set of PDF streams
+			HTS106_PStream pss;	// set of PDF streams
 		
 			/** 
-			 *	\var HTS_ModelSet ms.
+			 *	\var HTS106_ModelSet ms.
 			 *	\brief It contains a set of duration models, HMMs and GV models
 			 *			used from an Engine instance.
 			 */
-			HTS_ModelSet ms;	// set of duration models, HMMs and GV models 
+			HTS106_ModelSet ms;	// set of duration models, HMMs and GV models 
 
 		
 	private:
 		
-		HTS_Engine engine;
+		HTS106_Engine engine;
 		
 		 /* delta window handler for mel-cepstrum*/
 		char ** fn_ws_mgc;
@@ -237,7 +237,7 @@ bool isdigit_string( char * str );
  *	@param size The number of states that the HMM contains.
  *	@param frame_length The length of the given frame.
  */
-double mHTS_set_duration( int * duration, double * mean, double * vari, int size, double frame_length );
+double mHTS106_set_duration( int * duration, double * mean, double * vari, int size, double frame_length );
 
 // --- HTS PStream --
 
@@ -249,7 +249,7 @@ double mHTS_set_duration( int * duration, double * mean, double * vari, int size
  *	@param x The variance to be converted.
  *	@return The converted inverse variance.
  */
-double HTS_finv( const double x );
+double HTS106_finv( const double x );
 
 /**
  *	This function generates the sequence of speech parameter vectors by maximizing its 
@@ -259,7 +259,7 @@ double HTS_finv( const double x );
  *
  *	@param pst The individual PDF stream used from an Engine instance.
  */
-void HTS_PStream_mlpg( HTS_PStream * pst );
+void HTS106_PStream_mlpg( HTS106_PStream * pst );
 
 /**
  *	This function calcurates the : W'U^{-1}W and W'U^{-1}M.
@@ -269,7 +269,7 @@ void HTS_PStream_mlpg( HTS_PStream * pst );
  *	@param pst The individual PDF stream used from an Engine instance.
  *	@param m The static legnth of the current PDF stream used from an Engine instance.
  */
-void HTS_PStream_calc_wuw_and_wum( HTS_PStream * pst, const int m );
+void HTS106_PStream_calc_wuw_and_wum( HTS106_PStream * pst, const int m );
 
 /**
  *	This function factorizes W' * U^{-1} * W to L * D * L'( L: lower triangular, D: diagonal ).
@@ -278,7 +278,7 @@ void HTS_PStream_calc_wuw_and_wum( HTS_PStream * pst, const int m );
  *
  *	@param pst The individual PDF stream used from an Engine instance.
  */
-void HTS_PStream_ldl_factorization( HTS_PStream * pst );
+void HTS106_PStream_ldl_factorization( HTS106_PStream * pst );
 
 /**
  *	This function computes the forward subtitution for mlpg.
@@ -287,7 +287,7 @@ void HTS_PStream_ldl_factorization( HTS_PStream * pst );
  *
  *	@param pst The individual PDF stream used from an Engine instance.
  */
-void HTS_PStream_forward_substitution( HTS_PStream * pst );
+void HTS106_PStream_forward_substitution( HTS106_PStream * pst );
 
 /**
  *	This function computes the backward subtitution for mlpg.
@@ -297,7 +297,7 @@ void HTS_PStream_forward_substitution( HTS_PStream * pst );
  *	@param pst The individual PDF stream used from an Engine instance.
  *	@param m The static legnth of the current PDF stream used from an Engine instance.
  */
-void HTS_PStream_backward_substitution( HTS_PStream * pst, const int m );
+void HTS106_PStream_backward_substitution( HTS106_PStream * pst, const int m );
 
 
 /**
@@ -308,7 +308,7 @@ void HTS_PStream_backward_substitution( HTS_PStream * pst, const int m );
  *	@param pst The individual PDF stream used from an Engine instance.
  *	@param m The static legnth of the current PDF stream used from an Engine instance.
  */
-void HTS_PStream_gv_parmgen( HTS_PStream * pst, const int m );
+void HTS106_PStream_gv_parmgen( HTS106_PStream * pst, const int m );
 
 /**
  *	This function is used as a subfunction for the mlpg function using global variances.
@@ -318,7 +318,7 @@ void HTS_PStream_gv_parmgen( HTS_PStream * pst, const int m );
  *	@param pst The individual PDF stream used from an Engine instance.
  *	@param m The static legnth of the current PDF stream used from an Engine instance.
  */
-void HTS_PStream_conv_gv( HTS_PStream * pst, const int m );
+void HTS106_PStream_conv_gv( HTS106_PStream * pst, const int m );
 
 /**
  *	This function is used as a subfunction for the mlpg function using global variances.
@@ -328,7 +328,7 @@ void HTS_PStream_conv_gv( HTS_PStream * pst, const int m );
  *	@param pst The individual PDF stream used from an Engine instance.
  *	@param m The static legnth of the current PDF stream used from an Engine instance.
  */
-double HTS_PStream_calc_derivative( HTS_PStream * pst, const int m );
+double HTS106_PStream_calc_derivative( HTS106_PStream * pst, const int m );
 
 /**
  *	This function is used as a subfunction for the mlpg function using global variances.
@@ -338,6 +338,6 @@ double HTS_PStream_calc_derivative( HTS_PStream * pst, const int m );
  *	@param pst The individual PDF stream used from an Engine instance.
  *	@param m The static legnth of the current PDF stream used from an Engine instance.
  */
-void HTS_PStream_calc_gv( HTS_PStream * pst, const int m, double * mean, double * vari );
+void HTS106_PStream_calc_gv( HTS106_PStream * pst, const int m, double * mean, double * vari );
 
 

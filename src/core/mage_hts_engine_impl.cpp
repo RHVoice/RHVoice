@@ -17,11 +17,54 @@
 #include <cmath>
 #include "core/str.hpp"
 #include "core/mage_hts_engine_impl.hpp"
-#include "HTS_engine.h"
+#include "HTS106_engine.h"
 #include "mage.h"
+
+extern "C"
+{
+  void HTS106_Audio_initialize(HTS106_Audio * audio, int sampling_rate, int max_buff_size)
+  {
+  }
+
+  void HTS106_Audio_set_parameter(HTS106_Audio * audio, int sampling_rate, int max_buff_size)
+  {
+  }
+
+  void HTS106_Audio_write(HTS106_Audio * audio, short sample)
+  {
+    static_cast<RHVoice::hts_engine_impl*>(audio->data)->on_new_sample(sample);
+  }
+
+  void HTS106_Audio_flush(HTS106_Audio * audio)
+  {
+  }
+
+  void HTS106_Audio_clear(HTS106_Audio * audio)
+  {
+  }
+}
 
 namespace RHVoice
 {
+  mage_hts_engine_impl::model_file_list::model_file_list(const std::string& voice_path,const std::string& type,int num_windows_):
+    pdf(0),
+    tree(0),
+    num_windows(num_windows_)
+  {
+    file_names.push_back(path::join(voice_path,type+".pdf"));
+    file_names.push_back(path::join(voice_path,"tree-"+type+".inf"));
+    for(int i=0;i<num_windows;++i)
+      {
+        file_names.push_back(path::join(voice_path,type+".win"+str::to_string(i+1)));
+      }
+    pdf=const_cast<char*>(file_names[0].c_str());
+    tree=const_cast<char*>(file_names[1].c_str());
+    for(int i=0;i<num_windows;++i)
+      {
+        windows[i]=const_cast<char*>(file_names[i+2].c_str());
+      }
+  }
+
   mage_hts_engine_impl::mage_hts_engine_impl(const std::string& voice_path):
     hts_engine_impl("mage",voice_path)
   {
@@ -43,11 +86,11 @@ namespace RHVoice
     append_model_args(args,lf0_files,"-tf","-mf","-df");
     model_file_list lpf_files(data_path,"lpf",1);
     append_model_args(args,lpf_files,"-tl","-ml","-dl");
-    args.push_back(arg("-s",str::to_string(sample_rate.get())));
-    args.push_back(arg("-p",str::to_string(fperiod)));
-    args.push_back(arg("-a",str::to_string(alpha)));
+    args.push_back(arg("-s",str::to_string(MAGE::defaultSamplingRate)));
+    args.push_back(arg("-p",str::to_string(MAGE::defaultFrameRate)));
+    args.push_back(arg("-a",str::to_string(MAGE::defaultAlpha)));
     args.push_back(arg("-b",str::to_string(beta.get())));
-    args.push_back(arg("-u",str::to_string(msd_threshold.get())));
+    args.push_back(arg("-u","0.5"));
     std::vector<char*> c_args;
     char name[]="RHVoice";
     c_args.push_back(name);
@@ -57,7 +100,7 @@ namespace RHVoice
         c_args.push_back(const_cast<char*>(it->second.c_str()));
       }
     mage.reset(new MAGE::Mage("default",c_args.size(),&c_args[0]));
-    vocoder.reset(new HTS_Vocoder);
+    vocoder.reset(new HTS106_Vocoder);
   }
 
   void mage_hts_engine_impl::do_synthesize()
@@ -69,7 +112,7 @@ namespace RHVoice
       {
         label_iter->set_time(time);
         generate_parameters(*label_iter);
-        dur=mage->getDuration()*fperiod;
+        dur=mage->getDuration()*MAGE::defaultFrameRate;
         label_iter->set_duration(dur);
         time+=dur;
         generate_samples(*label_iter);
@@ -81,7 +124,7 @@ namespace RHVoice
   void mage_hts_engine_impl::do_reset()
   {
     mage->reset();
-    HTS_Vocoder_clear(vocoder.get());
+    HTS106_Vocoder_clear(vocoder.get());
     MAGE::FrameQueue* fq=mage->getFrameQueue();
     mage->setFrameQueue(0);
     delete fq;
@@ -107,7 +150,7 @@ namespace RHVoice
         MAGE::FrameQueue* fq=new MAGE::FrameQueue(MAGE::maxFrameQueueLen);
         mage->setFrameQueue(fq);
       }
-    HTS_Vocoder_initialize(vocoder.get(),MAGE::nOfMGCs-1,0,1,sample_rate,fperiod);
+    HTS106_Vocoder_initialize(vocoder.get(),MAGE::nOfMGCs-1,0,1,MAGE::defaultSamplingRate,MAGE::defaultFrameRate);
   }
 
   void mage_hts_engine_impl::generate_parameters(hts_label& lab)
@@ -143,9 +186,9 @@ namespace RHVoice
           }
         lpf=f->streams[MAGE::lpfStreamIndex];
         fq->pop();
-        HTS_Audio audio;
+        HTS106_Audio audio;
         audio.data=this;
-        HTS_Vocoder_synthesize(vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,nlpf,lpf,alpha,beta,1,0,&audio);
+        HTS106_Vocoder_synthesize(vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,nlpf,lpf,MAGE::defaultAlpha,beta,1,0,&audio);
       }
   }
 }
