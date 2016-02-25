@@ -48,7 +48,7 @@ MAGE::ModelQueueMemory::ModelQueueMemory()
 	
 	this->voiced_unvoiced = ( int * ) calloc( maxNumOfFrames, sizeof( int ) );	// [maxNumOfFrames]
 	
-	// HTS_SMatrixies needed
+	// HTS106_SMatrixies needed
 	this->g		= ( double **  ) calloc( nOfStreams, sizeof( double * ) );	// [nOfStreams][maxNumOfFrames]
 	this->wum	= ( double **  ) calloc( nOfStreams, sizeof( double * ) );	// [nOfStreams][maxNumOfFrames]
 	this->wuw	= ( double *** ) calloc( nOfStreams, sizeof( double ** ) );	// [nOfStreams][maxNumOfFrames][maxWindowWidth]
@@ -133,8 +133,8 @@ MAGE::ModelQueue::~ModelQueue()
 //	This function generates the PDF parameters of every stream.
 void MAGE::ModelQueue::generate( MAGE::Engine * engine, FrameQueue * frameQueue, unsigned int backup )
 {
-	HTS_ModelSet ms = engine->getModelSet();
-	HTS_Global global = engine->getGlobal();
+	HTS106_ModelSet ms = engine->getModelSet();
+	HTS106_Global global = engine->getGlobal();
 
 	//TODO :: actual frame generation with vocoder
 	unsigned int i, k, s, q, w, ind;
@@ -234,9 +234,9 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 	int window = backup + lookup + 1;//how many model do we use
 	head = read; // hopefuly we land on the oldest model wich is 'backup' earlier than current model
 	
-	HTS_ModelSet ms = engine->getModelSet();
-	HTS_Global global = engine->getGlobal();
-	HTS_PStream pss = engine->getPStream();
+	HTS106_ModelSet ms = engine->getModelSet();
+	HTS106_Global global = engine->getGlobal();
+	HTS106_PStream pss = engine->getPStream();
 	
 	int i, j, k, l, m, w;
 	int state, frame, msd_frame, static_length;
@@ -305,7 +305,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 									this->modelQueueMemory.mean[i][msd_frame][m] = rawData[head].getState( state ).streams[i][m].mean;
 										
 									if( not_bound || k == 0 )
-										this->modelQueueMemory.ivar[i][msd_frame][m] = HTS_finv( rawData[head].getState( state ).streams[i][m].vari );
+										this->modelQueueMemory.ivar[i][msd_frame][m] = HTS106_finv( rawData[head].getState( state ).streams[i][m].vari );
 									else
 										this->modelQueueMemory.ivar[i][msd_frame][m] = 0.0;
 										
@@ -355,7 +355,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 								this->modelQueueMemory.mean[i][frame][m] = rawData[head].getState( state ).streams[i][m].mean;
 
 								if( not_bound || k == 0 )
-									this->modelQueueMemory.ivar[i][frame][m] = HTS_finv( rawData[head].getState( state ).streams[i][m].vari );
+									this->modelQueueMemory.ivar[i][frame][m] = HTS106_finv( rawData[head].getState( state ).streams[i][m].vari );
 								else
 									this->modelQueueMemory.ivar[i][frame][m] = 0.0;
 									
@@ -371,7 +371,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 			}
 		}
 		
-		// just vector assigments in order to create a HTS_PStream object and use the default HTS_PStream_mlpg function
+		// just vector assigments in order to create a HTS106_PStream object and use the default HTS106_PStream_mlpg function
 		pss.vector_length = ms.stream[i].vector_length;			// vector length( include static and dynamic features )
 		pss.width = ms.stream[i].window.max_width * 2 + 1;		// width of dynamic window 
 		pss.win_size = ms.stream[i].window.size;				// # of windows( static + deltas )
@@ -389,7 +389,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 		else						// for non MSD :: mgcs & lpf
 			pss.length = frame;		// stream length :: total number of frames
 		
-		if( HTS_ModelSet_use_gv( &ms, i ) )	// if GV is used 
+		if( HTS106_ModelSet_use_gv( &ms, i ) )	// if GV is used 
 			pss.gv_length = pss.length;		//frame length for GV calculation
 		else 
 			pss.gv_length = 0;				//frame length for GV calculation
@@ -404,7 +404,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 		// output parameter vector in a pre-allocated memory
 		pss.par = this->modelQueueMemory.par[i];		 
 		
-		HTS_PStream_mlpg( &pss );			// parameter generation 
+		HTS106_PStream_mlpg( &pss );			// parameter generation 
 	}
 
 	return;

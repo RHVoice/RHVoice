@@ -34,13 +34,13 @@
 
 // #if mode == HTS
 #if 1
-	#define Alpha 0.42
+	#define Alpha 0.466
 	#define PadeOrder 5
 	#define NumberOfStreams 3 
 
 	#define logF0 1
 	#define melF0 0
-	#define NumberOfMGCs 25		// # of MGC coefficients for the MLSA filter	
+	#define NumberOfMGCs 35		// # of MGC coefficients for the MLSA filter	
 #endif
 
 namespace MAGE 
@@ -88,7 +88,7 @@ namespace MAGE
 	 *	\brief Number of low-pass filter coefficients.
 	 *
 	 */
-	const unsigned int nOfLPFs = 31;	// # of low-pass filter coefficients
+	const unsigned int nOfLPFs = 99;	// # of low-pass filter coefficients
 	
 	/**
 	 *	\var const int mgcLen.
@@ -198,7 +198,7 @@ namespace MAGE
 	 *	\brief Default value for the framerate parameter used also during the training phase.
 	 *
 	 */
-	const int defaultFrameRate = 80;
+	const int defaultFrameRate = 120;
 	
 	/**
 	 *	\var const int defaultInterpFrameRate.
@@ -212,7 +212,7 @@ namespace MAGE
 	 *	\brief Default value for the sampling rate parameter used also during the training phase.
 	 *
 	 */
-	const int defaultSamplingRate = 16000;
+	const int defaultSamplingRate = 24000;
 	
 	const int fftLen = 256;
 	

@@ -85,10 +85,10 @@ MAGE::Engine::Engine()
 MAGE::Engine::~Engine()
 {
 	// free
-	HTS_Engine_refresh( &(this->engine) );
+	HTS106_Engine_refresh( &(this->engine) );
 	
 	// free memory
-	HTS_Engine_clear( &(this->engine) );
+	HTS106_Engine_clear( &(this->engine) );
 	free( this->rate_interp );
 	free( this->fn_ws_mgc );
 	free( this->fn_ws_lf0 );
@@ -116,8 +116,8 @@ void MAGE::Engine::load( int argc, char ** argv )
 	double f;
 	char * labfn = NULL;
 	
-	HTS_File * durfp = NULL, * mgcfp = NULL, * lf0fp = NULL, * lpffp = NULL;
-	HTS_File * wavfp = NULL, * rawfp = NULL, * tracefp = NULL;
+	HTS106_File * durfp = NULL, * mgcfp = NULL, * lf0fp = NULL, * lpffp = NULL;
+	HTS106_File * wavfp = NULL, * rawfp = NULL, * tracefp = NULL;
 	
 	// number of speakers for interpolation
 	int num_interp = 0;
@@ -125,7 +125,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 	//double * rate_interp = NULL;
 	rate_interp = NULL;
 	
-	// HTS_Files
+	// HTS106_Files
 	
 	// number of each models for interpolation
 	int num_ms_dur = 0, num_ms_mgc = 0, num_ms_lf0 = 0, num_ms_lpf = 0;
@@ -152,9 +152,9 @@ void MAGE::Engine::load( int argc, char ** argv )
 	double gv_weight_lpf = 1.0;
 	
 	double half_tone = 0.0;
-	HTS_Boolean phoneme_alignment = FALSE;
+	HTS106_Boolean phoneme_alignment = FALSE;
 	double speech_speed = 1.0;
-	HTS_Boolean use_log_gain = FALSE;
+	HTS106_Boolean use_log_gain = FALSE;
 	
 	// parse command line
 	if( argc == 1 )
@@ -285,32 +285,32 @@ void MAGE::Engine::load( int argc, char ** argv )
 					switch( * ( * argv + 2 ) )
 				{
 					case 'w':
-						wavfp = HTS_fopen( * ++argv, "wb" );
+						wavfp = HTS106_fopen( * ++argv, "wb" );
 						break;
 						
 					case 'r':
-						rawfp = HTS_fopen( * ++argv, "wb" );
+						rawfp = HTS106_fopen( * ++argv, "wb" );
 						break;
 						
 					case 'd':
-						durfp = HTS_fopen( * ++argv, "wt" );
+						durfp = HTS106_fopen( * ++argv, "wt" );
 						break;
 						
 					case 'm':
-						mgcfp = HTS_fopen( * ++argv, "wb" );
+						mgcfp = HTS106_fopen( * ++argv, "wb" );
 						break;
 						
 					case 'f':
 					case 'p':
-						lf0fp = HTS_fopen( * ++argv, "wb" );
+						lf0fp = HTS106_fopen( * ++argv, "wb" );
 						break;
 						
 					case 'l':
-						lpffp = HTS_fopen( * ++argv, "wb" );
+						lpffp = HTS106_fopen( * ++argv, "wb" );
 						break;
 						
 					case 't':
-						tracefp = HTS_fopen( * ++argv, "wt" );
+						tracefp = HTS106_fopen( * ++argv, "wt" );
 						break;
 						
 					default:
@@ -487,107 +487,107 @@ void MAGE::Engine::load( int argc, char ** argv )
 	
 	// initialize( stream[0] = spectrum, stream[1] = lf0, stream[2] = low-pass filter )
 	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-		HTS_Engine_initialize( &engine, 3 );
+		HTS106_Engine_initialize( &engine, 3 );
 	else
-		HTS_Engine_initialize( &engine, 2 );
+		HTS106_Engine_initialize( &engine, 2 );
 	
 	// load duration model
-	HTS_Engine_load_duration_from_fn( &engine, fn_ms_dur, fn_ts_dur, num_interp );
+	HTS106_Engine_load_duration_from_fn( &engine, fn_ms_dur, fn_ts_dur, num_interp );
 	
 	// load stream[0]( spectrum model )
-	HTS_Engine_load_parameter_from_fn( &engine, fn_ms_mgc, fn_ts_mgc, fn_ws_mgc, 0, FALSE, num_ws_mgc, num_interp );
+	HTS106_Engine_load_parameter_from_fn( &engine, fn_ms_mgc, fn_ts_mgc, fn_ws_mgc, 0, FALSE, num_ws_mgc, num_interp );
 	
 	// load stream[1]( lf0 model )
-	HTS_Engine_load_parameter_from_fn( &engine, fn_ms_lf0, fn_ts_lf0, fn_ws_lf0, 1, TRUE, num_ws_lf0, num_interp );
+	HTS106_Engine_load_parameter_from_fn( &engine, fn_ms_lf0, fn_ts_lf0, fn_ws_lf0, 1, TRUE, num_ws_lf0, num_interp );
 	
 	// load stream[2]( low-pass filter model )
 	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-		HTS_Engine_load_parameter_from_fn( &engine, fn_ms_lpf, fn_ts_lpf, fn_ws_lpf, 2, FALSE, num_ws_lpf, num_interp );
+		HTS106_Engine_load_parameter_from_fn( &engine, fn_ms_lpf, fn_ts_lpf, fn_ws_lpf, 2, FALSE, num_ws_lpf, num_interp );
 	
 	// load gv[0]( GV for spectrum )
 	if( num_interp == num_ms_gvm )
 	{
 		if( num_ms_gvm == num_ts_gvm )
-			HTS_Engine_load_gv_from_fn( &engine, fn_ms_gvm, fn_ts_gvm, 0, num_interp );
+			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvm, fn_ts_gvm, 0, num_interp );
 		else
-			HTS_Engine_load_gv_from_fn( &engine, fn_ms_gvm, NULL, 0, num_interp );
+			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvm, NULL, 0, num_interp );
 	}
 	
 	// load gv[1]( GV for lf0 )
 	if( num_interp == num_ms_gvl ){
 		if( num_ms_gvl == num_ts_gvl )
-			HTS_Engine_load_gv_from_fn( &engine, fn_ms_gvl, fn_ts_gvl, 1, num_interp );
+			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvl, fn_ts_gvl, 1, num_interp );
 		else
-			HTS_Engine_load_gv_from_fn( &engine, fn_ms_gvl, NULL, 1, num_interp );
+			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvl, NULL, 1, num_interp );
 	}
 	
 	// load gv[2]( GV for low-pass filter )
 	if( num_interp == num_ms_gvf && ( num_ms_lpf > 0 || num_ts_lpf > 0 ) ){
 		if( num_ms_gvf == num_ts_gvf )
-			HTS_Engine_load_gv_from_fn( &engine, fn_ms_gvf, fn_ts_gvf, 0, num_interp );
+			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvf, fn_ts_gvf, 0, num_interp );
 		else
-			HTS_Engine_load_gv_from_fn( &engine, fn_ms_gvf, NULL, 2, num_interp );
+			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvf, NULL, 2, num_interp );
 	}
 	
 	// load GV switch
 	if( fn_gv_switch != NULL )
-		HTS_Engine_load_gv_switch_from_fn( &engine, fn_gv_switch );
+		HTS106_Engine_load_gv_switch_from_fn( &engine, fn_gv_switch );
 	
 	// set parameter
-	HTS_Engine_set_sampling_rate( &engine, sampling_rate );
-	HTS_Engine_set_fperiod( &engine, fperiod );
-	HTS_Engine_set_alpha( &engine, alpha );
-	HTS_Engine_set_gamma( &engine, stage );
-	HTS_Engine_set_log_gain( &engine, use_log_gain );
-	HTS_Engine_set_beta( &engine, beta );
-	HTS_Engine_set_audio_buff_size( &engine, audio_buff_size );
-	HTS_Engine_set_msd_threshold( &engine, 1, uv_threshold );	// set voiced/unvoiced threshold for stream[1]
-	HTS_Engine_set_gv_weight( &engine, 0, gv_weight_mgc );
-	HTS_Engine_set_gv_weight( &engine, 1, gv_weight_lf0 );
+	HTS106_Engine_set_sampling_rate( &engine, sampling_rate );
+	HTS106_Engine_set_fperiod( &engine, fperiod );
+	HTS106_Engine_set_alpha( &engine, alpha );
+	HTS106_Engine_set_gamma( &engine, stage );
+	HTS106_Engine_set_log_gain( &engine, use_log_gain );
+	HTS106_Engine_set_beta( &engine, beta );
+	HTS106_Engine_set_audio_buff_size( &engine, audio_buff_size );
+	HTS106_Engine_set_msd_threshold( &engine, 1, uv_threshold );	// set voiced/unvoiced threshold for stream[1]
+	HTS106_Engine_set_gv_weight( &engine, 0, gv_weight_mgc );
+	HTS106_Engine_set_gv_weight( &engine, 1, gv_weight_lf0 );
 	
 	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-		HTS_Engine_set_gv_weight( &engine, 2, gv_weight_lpf );
+		HTS106_Engine_set_gv_weight( &engine, 2, gv_weight_lpf );
 	
 	for( i = 0; i < num_interp; i++ )
 	{
-		HTS_Engine_set_duration_interpolation_weight( &engine, i, rate_interp[i] );
-		HTS_Engine_set_parameter_interpolation_weight( &engine, 0, i, rate_interp[i] );
-		HTS_Engine_set_parameter_interpolation_weight( &engine, 1, i, rate_interp[i] );
+		HTS106_Engine_set_duration_interpolation_weight( &engine, i, rate_interp[i] );
+		HTS106_Engine_set_parameter_interpolation_weight( &engine, 0, i, rate_interp[i] );
+		HTS106_Engine_set_parameter_interpolation_weight( &engine, 1, i, rate_interp[i] );
 		
 		if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-			HTS_Engine_set_parameter_interpolation_weight( &engine, 2, i, rate_interp[i] );
+			HTS106_Engine_set_parameter_interpolation_weight( &engine, 2, i, rate_interp[i] );
 	}
 	
 	if( num_interp == num_ms_gvm )
 		for( i = 0; i < num_interp; i++ )
-			HTS_Engine_set_gv_interpolation_weight( &engine, 0, i, rate_interp[i] );
+			HTS106_Engine_set_gv_interpolation_weight( &engine, 0, i, rate_interp[i] );
 	
 	if( num_interp == num_ms_gvl )
 		for( i = 0; i < num_interp; i++ )
-			HTS_Engine_set_gv_interpolation_weight( &engine, 1, i, rate_interp[i] );
+			HTS106_Engine_set_gv_interpolation_weight( &engine, 1, i, rate_interp[i] );
 	
 	if( num_interp == num_ms_gvf && ( num_ms_lpf > 0 || num_ts_lpf > 0 ) )
 		for( i = 0; i < num_interp; i++ )
-			HTS_Engine_set_gv_interpolation_weight( &engine, 2, i, rate_interp[i] );
+			HTS106_Engine_set_gv_interpolation_weight( &engine, 2, i, rate_interp[i] );
 	
 	this->global = engine.global;
 	this->ms = engine.ms;
 	
 	// close files
 	if( durfp != NULL )
-		HTS_fclose( durfp );
+		HTS106_fclose( durfp );
 	if( mgcfp != NULL )
-		HTS_fclose( mgcfp );
+		HTS106_fclose( mgcfp );
 	if( lf0fp != NULL )
-		HTS_fclose( lf0fp );
+		HTS106_fclose( lf0fp );
 	if( lpffp != NULL )
-		HTS_fclose( lpffp );
+		HTS106_fclose( lpffp );
 	if( wavfp != NULL )
-		HTS_fclose( wavfp );
+		HTS106_fclose( wavfp );
 	if( rawfp != NULL )
-		HTS_fclose( rawfp );
+		HTS106_fclose( rawfp );
 	if( tracefp != NULL )
-		HTS_fclose( tracefp );
+		HTS106_fclose( tracefp );
 	
 	return;
 }
@@ -598,7 +598,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 // Usage: output usage
 void Usage( void )
 {
-	HTS_show_copyright( stderr );
+	HTS106_show_copyright( stderr );
 	fprintf( stderr, "\n" );
 	fprintf( stderr, "hts_engine - The HMM-based speech synthesis engine \"hts_engine API\"\n" );
 	fprintf( stderr, "\n" );
@@ -716,8 +716,8 @@ bool isdigit_string( char * str )
 }
 
 
-// HTS_set_duration: set duration from state duration probability distribution
-double mHTS_set_duration( int * duration, double * mean, double * vari, int size, double frame_length )
+// HTS106_set_duration: set duration from state duration probability distribution
+double mHTS106_set_duration( int * duration, double * mean, double * vari, int size, double frame_length )
 {
 	int i, j;
 	double temp1, temp2;
@@ -747,7 +747,7 @@ double mHTS_set_duration( int * duration, double * mean, double * vari, int size
 	if( target_length <= size )
 	{
 		if( target_length < size )
-			HTS_error( -1,( char * )"HTS_set_duration: Specified frame length is too short.\n" );
+			HTS106_error( -1,( char * )"HTS106_set_duration: Specified frame length is too short.\n" );
 		
 		for( i = 0; i < size; i++ )
 			duration[i] = 1;
@@ -822,8 +822,8 @@ double mHTS_set_duration( int * duration, double * mean, double * vari, int size
 	return( double )target_length;
 }
 
-// HTS_finv: calculate 1.0/variance function
-double HTS_finv( const double x )
+// HTS106_finv: calculate 1.0/variance function
+double HTS106_finv( const double x )
 {
 	if( x >= INFTY2 )
 		return 0.0;
@@ -837,8 +837,8 @@ double HTS_finv( const double x )
 	return( 1.0 / x );
 }
 
-// HTS_PStream_mlpg: generate sequence of speech parameter vector maximizing its output probability for given pdf sequence
-void HTS_PStream_mlpg( HTS_PStream * pst )
+// HTS106_PStream_mlpg: generate sequence of speech parameter vector maximizing its output probability for given pdf sequence
+void HTS106_PStream_mlpg( HTS106_PStream * pst )
 {
 	int m;
 	
@@ -847,19 +847,19 @@ void HTS_PStream_mlpg( HTS_PStream * pst )
 	
 	for( m = 0; m < pst->static_length; m++ )
 	{
-		HTS_PStream_calc_wuw_and_wum( pst, m );
-		HTS_PStream_ldl_factorization( pst );		// LDL factorization
-		HTS_PStream_forward_substitution( pst );	// forward substitution	
-		HTS_PStream_backward_substitution( pst, m );// backward substitution	
+		HTS106_PStream_calc_wuw_and_wum( pst, m );
+		HTS106_PStream_ldl_factorization( pst );		// LDL factorization
+		HTS106_PStream_forward_substitution( pst );	// forward substitution	
+		HTS106_PStream_backward_substitution( pst, m );// backward substitution	
 		
 		if( pst->gv_length > 0 )
-			HTS_PStream_gv_parmgen( pst, m );
+			HTS106_PStream_gv_parmgen( pst, m );
 	}
 	return;
 }
 
-// HTS_PStream_calc_wuw_and_wum: calcurate W'U^{-1}W and W'U^{-1}M
-void HTS_PStream_calc_wuw_and_wum( HTS_PStream * pst, const int m )
+// HTS106_PStream_calc_wuw_and_wum: calcurate W'U^{-1}W and W'U^{-1}M
+void HTS106_PStream_calc_wuw_and_wum( HTS106_PStream * pst, const int m )
 {
 	int t, i, j, k;
 	double wu;
@@ -888,8 +888,8 @@ void HTS_PStream_calc_wuw_and_wum( HTS_PStream * pst, const int m )
 	return;
 }
 
-// HTS_PStream_ldl_factorization: Factorize W' * U^{-1} * W to L * D * L'( L: lower triangular, D: diagonal )
-void HTS_PStream_ldl_factorization( HTS_PStream * pst )
+// HTS106_PStream_ldl_factorization: Factorize W' * U^{-1} * W to L * D * L'( L: lower triangular, D: diagonal )
+void HTS106_PStream_ldl_factorization( HTS106_PStream * pst )
 {
 	int t, i, j;
 	
@@ -909,8 +909,8 @@ void HTS_PStream_ldl_factorization( HTS_PStream * pst )
 	return;
 }
 
-// HTS_PStream_forward_substitution: forward subtitution for mlpg
-void HTS_PStream_forward_substitution( HTS_PStream * pst )
+// HTS106_PStream_forward_substitution: forward subtitution for mlpg
+void HTS106_PStream_forward_substitution( HTS106_PStream * pst )
 {
 	int t, i;
 	
@@ -924,8 +924,8 @@ void HTS_PStream_forward_substitution( HTS_PStream * pst )
 	return;
 }
 
-// HTS_PStream_backward_substitution: backward subtitution for mlpg
-void HTS_PStream_backward_substitution( HTS_PStream * pst, const int m )
+// HTS106_PStream_backward_substitution: backward subtitution for mlpg
+void HTS106_PStream_backward_substitution( HTS106_PStream * pst, const int m )
 {
 	int t, i;
 	
@@ -939,8 +939,8 @@ void HTS_PStream_backward_substitution( HTS_PStream * pst, const int m )
 	return;
 }
 
-// HTS_PStream_gv_parmgen: function for mlpg using GV
-void HTS_PStream_gv_parmgen( HTS_PStream * pst, const int m )
+// HTS106_PStream_gv_parmgen: function for mlpg using GV
+void HTS106_PStream_gv_parmgen( HTS106_PStream * pst, const int m )
 {
 	int t, i;
 	double step = STEPINIT;
@@ -950,13 +950,13 @@ void HTS_PStream_gv_parmgen( HTS_PStream * pst, const int m )
 	if( pst->gv_length == 0 )
 		return;
 	
-	HTS_PStream_conv_gv( pst, m );
+	HTS106_PStream_conv_gv( pst, m );
 	
 	if( GV_MAX_ITERATION > 0 ){
-		HTS_PStream_calc_wuw_and_wum( pst, m );
+		HTS106_PStream_calc_wuw_and_wum( pst, m );
 		for( i = 1; i <= GV_MAX_ITERATION; i++ )
 		{
-			obj = HTS_PStream_calc_derivative( pst, m );
+			obj = HTS106_PStream_calc_derivative( pst, m );
 			
 			if( obj > prev )
 				step *= STEPDEC;
@@ -973,15 +973,15 @@ void HTS_PStream_gv_parmgen( HTS_PStream * pst, const int m )
 	return;
 }
 
-// HTS_PStream_conv_gv: subfunction for mlpg using GV
-void HTS_PStream_conv_gv( HTS_PStream * pst, const int m )
+// HTS106_PStream_conv_gv: subfunction for mlpg using GV
+void HTS106_PStream_conv_gv( HTS106_PStream * pst, const int m )
 {
 	int t;
 	double ratio;
 	double mean;
 	double vari;
 	
-	HTS_PStream_calc_gv( pst, m, &mean, &vari );
+	HTS106_PStream_calc_gv( pst, m, &mean, &vari );
 	
 	ratio = sqrt( pst->gv_mean[m] / vari );
 	
@@ -991,8 +991,8 @@ void HTS_PStream_conv_gv( HTS_PStream * pst, const int m )
 	return;
 }
 
-// HTS_PStream_calc_derivative: subfunction for mlpg using GV
-double HTS_PStream_calc_derivative( HTS_PStream * pst, const int m )
+// HTS106_PStream_calc_derivative: subfunction for mlpg using GV
+double HTS106_PStream_calc_derivative( HTS106_PStream * pst, const int m )
 {
 	int t, i;
 	double mean;
@@ -1003,7 +1003,7 @@ double HTS_PStream_calc_derivative( HTS_PStream * pst, const int m )
 	double hmmobj;
 	const double w = 1.0 /( pst->win_size * pst->length );
 	
-	HTS_PStream_calc_gv( pst, m, &mean, &vari );
+	HTS106_PStream_calc_gv( pst, m, &mean, &vari );
 	gvobj = -0.5 * W2 * vari * pst->gv_vari[m] * ( vari - 2.0 * pst->gv_mean[m] );
 	dv = -2.0 * pst->gv_vari[m] * ( vari - pst->gv_mean[m] )/ pst->length;
 	
@@ -1034,8 +1034,8 @@ double HTS_PStream_calc_derivative( HTS_PStream * pst, const int m )
 	return( -( hmmobj + gvobj ) );
 }
 
-// HTS_PStream_calc_gv: subfunction for mlpg using GV
-void HTS_PStream_calc_gv( HTS_PStream * pst, const int m, double * mean, double * vari )
+// HTS106_PStream_calc_gv: subfunction for mlpg using GV
+void HTS106_PStream_calc_gv( HTS106_PStream * pst, const int m, double * mean, double * vari )
 {
 	int t;
 	

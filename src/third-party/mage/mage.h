@@ -597,7 +597,7 @@ namespace MAGE
 			double updateFunction[nOfStates]; // replace with void * function
 			double interpolationWeights[nOfStreams + 1];
 		
-// HTS_Engine & Voices (Engine)
+// HTS106_Engine & Voices (Engine)
 			int argc;
 			char ** argv;
 			bool flagReady;

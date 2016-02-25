@@ -25,7 +25,7 @@ namespace MAGE
   class Mage;
 }
 
-struct _HTS_Vocoder;
+struct _HTS106_Vocoder;
 
 namespace RHVoice
 {
@@ -35,7 +35,24 @@ namespace RHVoice
     explicit mage_hts_engine_impl(const std::string& voice_path);
 
   private:
-    typedef std::pair<std::string,std::string> arg;
+    class model_file_list
+    {
+    public:
+      model_file_list(const std::string& voice_path,const std::string& type,int num_windows_=0);
+
+      char* pdf;
+      char* tree;
+      int num_windows;
+      char* windows[3];
+
+    private:
+      model_file_list(const model_file_list&);
+      model_file_list& operator=(const model_file_list&);
+
+      std::vector<std::string> file_names;
+    };
+
+     typedef std::pair<std::string,std::string> arg;
     typedef std::vector<arg> arg_list;
 
     pointer do_create() const;
@@ -49,7 +66,7 @@ namespace RHVoice
     void append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name="") const;
 
     std::auto_ptr<MAGE::Mage> mage;
-    std::auto_ptr<_HTS_Vocoder> vocoder;
+    std::auto_ptr<_HTS106_Vocoder> vocoder;
   };
 }
 #endif
