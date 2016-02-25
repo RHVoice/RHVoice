@@ -27,7 +27,8 @@ namespace RHVoice
       enum_string_property("hts_engine")
     {
       define("standard");
-      set_default_value("standard");
+      define("mage");
+      set_default_value("mage");
     }
   };
 }
