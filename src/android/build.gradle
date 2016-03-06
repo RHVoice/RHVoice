@@ -1,0 +1,151 @@
+buildDir=file("../../build/android")
+
+buildscript {
+repositories {
+jcenter()
+    }
+dependencies {
+classpath 'com.android.tools.build:gradle:1.5.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+ext.myDataDir=file("../../data")
+ext.myLanguagesDir=new File(myDataDir,"languages")
+ext.myVoicesDir=new File(myDataDir,"voices")
+ext.myLanguageNames=myLanguagesDir.list()
+ext.myVoiceNames=myVoicesDir.list()
+
+def getDataItemSpec(type,baseDir,dirName) {
+def spec=["type":type,"dirName":dirName]
+spec["outDataDir"]=new File(new File(new File(project.buildDir,"data"),"${type}s"),dirName)
+spec["inDataDir"]=new File(baseDir,dirName)
+spec["resDir"]=new File(spec["outDataDir"],"res")
+spec["rawDir"]=new File(spec["resDir"],"raw")
+def infoFile=new File(spec["inDataDir"],"${type}.info")
+def reader=new BufferedReader(new FileReader(infoFile))
+def props=new Properties()
+props.load(reader)
+reader.close()
+spec["format"]=Integer.parseInt(props.getProperty("format"))
+spec["revision"]=Integer.parseInt(props.getProperty("revision"))
+spec["name"]=props.getProperty("name")
+if(type.equals("voice")) {
+spec["language"]=props.getProperty("language")
+}
+spec["versionCode"]=1000*spec["format"]+10*spec["revision"]
+spec["versionName"]="${spec['format']}.${spec['revision']}"
+spec["package"]="com.github.olga_yakovleva.rhvoice.android.${type}.${dirName.toLowerCase()}"
+spec["flavor"]=type.equals("voice")?"voice-${spec['language']}-${spec['name']}":"language-${spec['name']}"
+spec["appName"]=type.equals("voice")?"RHVoice ${spec['language']} ${spec['name']}":"RHVoice ${spec['name']}"
+spec["task"]="pack_${type}_${spec['name']}"
+return spec
+}
+
+ext.myData=[]
+
+myLanguageNames.each {languageName -> myData.add(getDataItemSpec("language",myLanguagesDir,languageName))}
+myVoiceNames.each {voiceName -> myData.add(getDataItemSpec("voice",myVoicesDir,voiceName))}
+
+myData.each {spec ->
+task "${spec['task']}" (type: Zip) {
+description="Creates data archive"
+archiveName="data.zip"
+destinationDir=spec["rawDir"]
+from spec["inDataDir"]
+}
+}
+
+ext.myTargetSdkVersion=14
+
+if(hasProperty("enableSigning")) {
+enableSigning=Boolean.parseBoolean(enableSigning)
+}
+else {
+ext.enableSigning=false
+}
+
+ext.myNdkBuildScript=new File(android.ndkDirectory,"ndk-build")
+ext.myNdkOutDir=new File(buildDir,"ndk")
+ext.myNdkLibsOutDir=new File(myNdkOutDir,"libs")
+ext.myNdkObjOutDir=new File(myNdkOutDir,"obj")
+ext.myCoreSrcDir=file("src/core")
+
+task buildNative(type: Exec) {
+executable=myNdkBuildScript.path
+args=["-C",myCoreSrcDir.path,"NDK_OUT=${myNdkObjOutDir.path}","NDK_LIBS_OUT=${myNdkLibsOutDir.path}"]
+inputs.dir("../include").dir("../core").dir("../third-party")
+outputs.dir(myNdkOutDir)
+}
+
+ext.myConfigFile=file("../../config/RHVoice.conf")
+ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
+
+task addConfigFile(type: Copy) {
+from myConfigFile
+into myExtraCoreAssetsDir
+}
+
+android {
+compileSdkVersion myTargetSdkVersion
+buildToolsVersion '23.0.2'
+
+defaultConfig {
+minSdkVersion myTargetSdkVersion
+targetSdkVersion myTargetSdkVersion
+}
+
+productFlavors {
+core {
+applicationId "com.github.olga_yakovleva.rhvoice.android"
+versionCode 11
+versionName "0.6"
+}
+
+myData.each {spec ->
+"${spec['flavor']}" {
+applicationId spec["package"]
+versionCode spec["versionCode"]
+versionName spec["versionName"]
+resValue "string","app_name",spec["appName"]
+}
+}
+}
+
+sourceSets.core {
+jni.srcDirs=[]
+jniLibs.srcDir myNdkLibsOutDir
+assets.srcDir myExtraCoreAssetsDir
+}
+
+myData.each {spec->
+sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
+}
+
+if(enableSigning) {
+signingConfigs {
+release {
+storeFile file(project.keyStore)
+storePassword project.keyStorePassword
+keyAlias project.keyAlias
+keyPassword project.keyPassword
+}
+}
+}
+buildTypes {
+release {
+if(enableSigning) {
+signingConfig signingConfigs.release
+}
+}
+}
+}
+
+preBuild.dependsOn buildNative
+
+myData.each {spec ->
+preBuild.dependsOn tasks.getByName(spec["task"])
+}
+
+preBuild.dependsOn addConfigFile

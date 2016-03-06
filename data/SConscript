@@ -4,7 +4,6 @@ import os.path
 from SimpleConfigParser import SimpleConfigParser
 import RHVoicePackaging.nvda
 import RHVoicePackaging.windows
-import RHVoicePackaging.android
 
 Import("env")
 local_env=env.Clone()
@@ -35,7 +34,5 @@ for dir_name in ["languages","voices"]:
             packagers["nvda"].add(data_files,"data")
             packagers["sapi"]=RHVoicePackaging.windows.app_packager(name,pkgdir.Dir("sapi"),local_env,description,version,True)
             packagers["sapi"].add(data_files,r"data\{type}s\{name}".format(**props))
-        packagers["android"]=RHVoicePackaging.android.data_packager(props["name"],Dir("android"),local_env,props["language"],props["format"],props["revision"])
-        packagers["android"].add(data_files)
         for p in packagers.itervalues():
             p.package()

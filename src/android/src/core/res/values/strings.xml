@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">RHVoice</string>
+    <string name="unpacking_data">Unpacking data</string>
+    <string name="checking_data">Checking data</string>
+    <string name="loading_data">Loading data</string>
+    <string name="rhvoice_settings">RHVoice settings</string>
+    <string name="languages_and_voices_title">Languages and voices</string>
+    <string name="default_voice_title">Default voice</string>
+    <string name="default_voice_dialog_title">Select a voice</string>
+    <string name="detect_language_title">Automatic language switching</string>
+</resources>
