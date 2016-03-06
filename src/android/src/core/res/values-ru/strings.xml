@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unpacking_data">Распаковка данных</string>
+    <string name="checking_data">Проверка данных</string>
+    <string name="loading_data">Загрузка данных</string>
+    <string name="rhvoice_settings">Настройки RHVoice</string>
+    <string name="languages_and_voices_title">Языки и голоса</string>
+    <string name="default_voice_title">Голос по умолчанию</string>
+    <string name="default_voice_dialog_title">Выберите голос</string>
+    <string name="detect_language_title">Автоматическое переключение языка</string>
+</resources>
