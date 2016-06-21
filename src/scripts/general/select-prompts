@@ -105,6 +105,7 @@ class prompt_selector(object):
 		self.unit_idx=unit_indexer()
 		self.coverage_in_statements=conf["coverage_in_statements"]
 		self.coverage_in_questions=conf["coverage_in_questions"]
+		self.alphabet=set(conf["alphabet"])
 		self.statements=sentence_list()
 		self.questions=sentence_list()
 		self.prompts=[]
@@ -116,7 +117,7 @@ class prompt_selector(object):
 				if text:
 					sent=sentence(text,order)
 					order+=1
-					if sent.text.endswith("?") and self.coverage_in_questions>0:
+					if self.is_question(sent.text) and self.coverage_in_questions>0:
 						self.questions.append(sent)
 					else:
 						self.statements.append(sent)
@@ -125,6 +126,14 @@ class prompt_selector(object):
 		self.determine_units(self.questions)
 		print("Normalizing units")
 		self.normalize_all_sentence_units()
+
+	def is_question(self,sent):
+		for c in sent[-1::-1]:
+			if c=="?":
+				return True
+			elif c.isspace():
+				return False
+		return False
 
 	def normalize_all_sentence_units(self):
 		for sent in self.statements:
@@ -274,17 +283,36 @@ class prompt_selector(object):
 		self.order_prompts()
 		return self.prompts
 
+	def get_word(self,token):
+		ltoken=token.lower()
+		first=next((i for i in xrange(len(ltoken)) if ltoken[i] in self.alphabet),None)
+		if first is None:
+			return u""
+		last=next((i for i in xrange(len(ltoken)-1,-1,-1) if ltoken[i] in self.alphabet))
+		return ltoken[first:last+1]
+
 class bigram_prompt_selector(prompt_selector):
 	def __init__(self,conf):
 		self.digraphs=set(conf["digraphs"])
 		prompt_selector.__init__(self,conf)
 
-	def get_word(self,token):
+	def get_words(self,token):
 		ltoken=token.lower()
-		if(ltoken[-1]).isalpha():
-			return ltoken
-		else:
-			return ltoken[0:-1]
+		b=[]
+		prev_is_letter=False
+		for i,c in enumerate(ltoken):
+			is_letter=(c in self.alphabet)
+			if is_letter:
+				if not prev_is_letter:
+					b.append([i,len(ltoken)])
+			else:
+				if prev_is_letter:
+					b[-1][1]=i
+			prev_is_letter=is_letter
+		words=[]
+		for s,e in b:
+			words.append(ltoken[s:e])
+		return words
 
 	def get_word_symbols(self,word):
 		symbols=[]
@@ -306,15 +334,17 @@ class bigram_prompt_selector(prompt_selector):
 		return symbols
 
 	def get_sentence_symbols(self,sentence):
-			symbols=["#"]
-			for token in sentence.text.split():
-					word=self.get_word(token)
-					symbols.extend(self.get_word_symbols(word))
-					if not token[-1].isalpha():
-							symbols.append("#")
-			if symbols[-1]!="#":
-					symbols.append("#")
-			return symbols
+		symbols=["#"]
+		for token in sentence.text.split():
+			if symbols[-1]!="#" and token[0].lower() not in self.alphabet:
+				symbols.append("#")
+			for word in self.get_words(token):
+				symbols.extend(self.get_word_symbols(word))
+			if symbols[-1]!="#" and token[-1].lower() not in self.alphabet:
+				symbols.append("#")
+		if symbols[-1]!="#":
+			symbols.append("#")
+		return symbols
 
 	def get_n_grams(self,symbols,n):
 		if len(symbols)<n:
@@ -359,7 +389,7 @@ def select_prompts(conf):
 			f.write("\r\n\r\n")
 	words=set()
 	for prompt in prompts:
-		words.update((word[:-1].lower() if word[-1] in [",",".","?"] else word).lower() for word in prompt.text.split())
+		words.update((sel.get_word(token) for token in prompt.text.split()))
 	with codecs.open("vocab","w","utf-8") as f:
 		for word in sorted(words):
 			f.write(word)
