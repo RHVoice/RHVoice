@@ -544,20 +544,20 @@ class f0_extracter(task):
 		subparser=subparsers.add_parser("extract-f0")
 		subparser.set_defaults(func=self)
 
-	def extract_with_praat(self,filepath,method):
+	def extract_with_praat(self,filepath,method,min_f0,max_f0):
 		assert(method in ["praat_ac","praat_cc"])
 		command=["praat","--run"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
 		command.append(os.path.abspath(filepath))
 		command.append(str(self.settings["sample_rate"]))
-		command.append(str(self.settings["lower_f0"]))
-		command.append(str(self.settings["upper_f0"]))
+		command.append(str(min_f0))
+		command.append(str(max_f0))
 		command.append(str(self.settings["praat_voicing_threshold"]))
 		command.append("1" if method.endswith("_ac") else "0")
 		output=subprocess.check_output(command)
 		return map(float,output.split())
 
-	def extract_with_sptk(self,filepath,method):
+	def extract_with_sptk(self,filepath,method,min_f0,max_f0):
 		assert(method in ["swipe","rapt"])
 		command=[os.path.join(self.settings["bindir"],"x2x"),"+sf",filepath]
 		data=subprocess.check_output(command)
@@ -567,22 +567,22 @@ class f0_extracter(task):
 		command.extend(["-p",str(self.get_analysis_params()["FRAMESHIFT"])])
 		if method=="swipe":
 			command.extend(["-t",str(self.settings["swipe_voicing_threshold"])])
-		command.extend(["-L",str(self.settings["lower_f0"])])
-		command.extend(["-H",str(self.settings["upper_f0"])])
+		command.extend(["-L",str(min_f0)])
+		command.extend(["-H",str(max_f0)])
 		command.extend(["-o","1"])
 		process=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
 		output=process.communicate(data)[0]
 		count=len(output)/4
 		return list(struct.unpack("={}f".format(count),output))
 
-	def extract_with_reaper(self,raw_path):
+	def extract_with_reaper(self,raw_path,min_f0,max_f0):
 		f0_path="utt.f0"
 		wav_path="utt.wav"
 		extra_opts=[]
 		if "reaper_options" in self.settings:
 			extra_opts=self.settings["reaper_options"].split()
 		subprocess.check_call(["sox","-t","raw","-c","1","-e","signed","-b","16","-r",str(self.settings["sample_rate"]),raw_path,"-t","wav",wav_path])
-		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(self.settings["lower_f0"]),"-x",str(self.settings["upper_f0"]),"-i",wav_path,"-f",f0_path]+extra_opts)
+		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(min_f0),"-x",str(max_f0),"-i",wav_path,"-f",f0_path]+extra_opts)
 		os.remove(wav_path)
 		f0s=[]
 		with open(f0_path,"rt") as f_in:
@@ -597,50 +597,68 @@ class f0_extracter(task):
 		os.remove(f0_path)
 		return f0s
 
-	def extract_with(self,raw_path,method):
+	def extract_with(self,raw_path,method,min_f0,max_f0):
 		if method.startswith("praat_"):
-			return self.extract_with_praat(raw_path,method)
+			return self.extract_with_praat(raw_path,method,min_f0,max_f0)
 		elif method=="reaper":
-			return self.extract_with_reaper(raw_path)
+			return self.extract_with_reaper(raw_path,min_f0,max_f0)
 		else:
-			return self.extract_with_sptk(raw_path,method)
+			return self.extract_with_sptk(raw_path,method,min_f0,max_f0)
 
-	def extract_and_vote(self,raw_path,methods):
+	def extract_and_vote(self,raw_path,methods,min_f0,max_f0):
 		extracted=list()
 		for method in sorted(set(methods)):
-			extracted.append(self.extract_with(raw_path,method))
+			extracted.append(self.extract_with(raw_path,method,min_f0,max_f0))
 		result=list()
 		for values in zip(*extracted):
 			result.append(numpy.median(values))
 		return result
 
-	def extract(self,name):
+	def extract(self,raw_path,min_f0,max_f0):
+		method=self.settings["f0_method"]
+		if isinstance(method,basestring):
+			return self.extract_with(raw_path,method,min_f0,max_f0)
+		else:
+			return self.extract_and_vote(raw_path,method,min_f0,max_f0)
+
+	def process(self,name):
 		raw_dir=os.path.join("data","raw")
 		base,ext=os.path.splitext(name)
 		print("Processing {}".format(base))
 		raw_path=os.path.join(raw_dir,name)
-		method=self.settings["f0_method"]
-		if isinstance(method,basestring):
-			return self.extract_with(raw_path,method)
-		else:
-			return self.extract_and_vote(raw_path,method)
+		min_f0=self.settings["lower_f0"]
+		max_f0=self.settings["upper_f0"]
+		return self.extract(raw_path,min_f0,max_f0)
+
+	def get_number_of_frames(self,name):
+		with open(os.path.join("data","raw",name),"rb") as fp:
+			samples=numpy.fromfile(fp,numpy.int16)
+		return int(numpy.ceil(samples.size/float(self.shift)))
 
 	def __call__(self,args):
+		self.shift=self.get_analysis_params()["FRAMESHIFT"]
 		raw_dir=os.path.join("data","raw")
 		f0_dir=os.path.join("data","lf0")
 		if not os.path.isdir(f0_dir):
 			os.mkdir(f0_dir)
 		print("Extracting f0")
 		for name in sorted(os.listdir(raw_dir)):
-				values=self.extract(name)
-				base,ext=os.path.splitext(name)
-				with open(os.path.join(f0_dir,base+".lf0"),"wb") as f:
-					for f0 in values:
-						if f0==0:
-							lf0=-10000000000.0
-						else:
-							lf0=math.log(f0)
-						f.write(struct.pack("=f",lf0))
+			base,ext=os.path.splitext(name)
+			if os.path.exists(os.path.join(f0_dir,base+".lf0")):
+				continue
+			values=self.process(name)
+			nzvalues=[v for v in values if v!=0]
+			assert(len(nzvalues)>0)
+			nframes=self.get_number_of_frames(name)
+			if nframes>len(values):
+				values.extend((nframes-len(values))*[0])
+			with open(os.path.join(f0_dir,base+".lf0"),"wb") as f:
+				for f0 in values:
+					if f0==0:
+						lf0=-10000000000.0
+					else:
+						lf0=math.log(f0)
+					f.write(struct.pack("=f",lf0))
 
 class f0_stats_computer(f0_extracter):
 	def register(self):
@@ -652,11 +670,18 @@ class f0_stats_computer(f0_extracter):
 		all_values=list()
 		for name in sorted(os.listdir(raw_dir)):
 			print("Processing {}".format(name))
-			values=self.extract(name)
+			values=self.extract(os.path.join(raw_dir,name),40,600)
 			all_values.extend([v for v in values if v!=0])
-		for p in [1,2,3,4,5,10,15,25,35,50,65,75,90,95,96,97,98,99]:
+		s={}
+		for p in [1,2,3,4,5,10,25,50,75,90,95,96,97,98,99]:
 			v=stats.scoreatpercentile(all_values,p)
+			s[p]=v
 			print("p{}={}".format(p,v))
+		min_f0=(10*numpy.floor(0.75*s[25]/10.0)).astype(numpy.int)-10
+		max_f0=(10*numpy.ceil(1.5*s[75]/10.0)).astype(numpy.int)+10
+		print("Suggested f0 range:")
+		print("Minimum={}".format(min_f0))
+		print("Maximum={}".format(max_f0))
 
 class synthesizer(task):
 	def register(self):
