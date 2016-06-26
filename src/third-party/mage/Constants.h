@@ -88,7 +88,7 @@ namespace MAGE
 	 *	\brief Number of low-pass filter coefficients.
 	 *
 	 */
-	const unsigned int nOfLPFs = 99;	// # of low-pass filter coefficients
+	const unsigned int nOfLPFs = 31;	// # of low-pass filter coefficients
 	
 	/**
 	 *	\var const int mgcLen.

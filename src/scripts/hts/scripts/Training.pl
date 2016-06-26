@@ -752,7 +752,7 @@ if ( $CONVM && !$usestraight ) {
    }
 
    # low-pass filter
-   make_lpf();
+   # make_lpf();
 
    # make HTS voice
    make_htsvoice( "$voice", "${dset}_${spkr}" );
@@ -1772,7 +1772,7 @@ sub make_edfile_mkunseen_gv {
 sub make_lpf {
    my ( $lfil, @coef, $coefSize, $i, $j );
 
-   $lfil     = `python2 $datdir/scripts/makefilter.py $sr 0`;
+   $lfil     = `$PERL $datdir/scripts/makefilter.pl $sr 0`;
    @coef     = split( '\s', $lfil );
    $coefSize = @coef;
 
@@ -1848,8 +1848,9 @@ sub make_htsvoice($$) {
    }
    $type     = "lpf";
    $tmp      = get_stream_name($type);
-   @coef     = split( '\s', `python2 $datdir/scripts/makefilter.py $sr 0` );
-   $coefSize = @coef;
+   # @coef     = split( '\s', `$PERL $datdir/scripts/makefilter.pl $sr 0` );
+   # $coefSize = @coef;
+   $coefSize = 31;
    print HTSVOICE "VECTOR_LENGTH[${tmp}]:${coefSize}\n";
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
@@ -2280,8 +2281,8 @@ sub gen_wave($) {
          shell($line);
 
          # synthesize waveform
-         $lfil = `python2 $datdir/scripts/makefilter.py $sr 0`;
-         $hfil = `python2 $datdir/scripts/makefilter.py $sr 1`;
+         $lfil = `$PERL $datdir/scripts/makefilter.pl $sr 0`;
+         $hfil = `$PERL $datdir/scripts/makefilter.pl $sr 1`;
 
          $line = "$SOPR -m 0 $gendir/$base.pit | $EXCITE -n -p $fs | $DFS -b $hfil > $gendir/$base.unv";
          shell($line);

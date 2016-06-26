@@ -17,7 +17,7 @@
   <phoneme name="ay" vc="+" vfront="2" vheight="3" vlng="d" vrnd="-"
          />
   <phoneme cplace="l" ctype="s" cvox="+" name="b" vc="-" />
-  <phoneme cplace="p" ctype="a" cvox="-" name="ch" vc="-" />
+  <phoneme cplace="p" ctype="a" cvox="-" name="ch" vc="-" csib="+"/>
   <phoneme cplace="a" ctype="s" cvox="+" name="d" vc="-" />
   <phoneme cplace="d" ctype="f" cvox="+" name="dh" vc="-" />
   <phoneme cplace="a" ctype="s" cvox="+" name="dx" vc="-" vlng="a" />
@@ -38,7 +38,7 @@
          />
   <phoneme name="iy" vc="+" vfront="1" vheight="1" vlng="l" vrnd="-"
          />
-  <phoneme cplace="p" ctype="a" cvox="+" name="jh" vc="-" />
+  <phoneme cplace="p" ctype="a" cvox="+" name="jh" vc="-" csib="+"/>
   <phoneme cplace="v" ctype="s" cvox="-" name="k" vc="-" />
   <phoneme cplace="a" ctype="l" cvox="+" name="l" vc="-" />
   <phoneme cplace="l" ctype="n" cvox="+" name="m" vc="-" />
@@ -51,8 +51,8 @@
          />
   <phoneme cplace="l" ctype="s" cvox="-" name="p" vc="-" />
   <phoneme cplace="a" ctype="r" cvox="+" name="r" vc="-" />
-  <phoneme cplace="a" ctype="f" cvox="-" name="s" vc="-" />
-  <phoneme cplace="p" ctype="f" cvox="-" name="sh" vc="-" />
+  <phoneme cplace="a" ctype="f" cvox="-" name="s" vc="-" csib="+"/>
+  <phoneme cplace="p" ctype="f" cvox="-" name="sh" vc="-" csib="+"/>
   <phoneme cplace="a" ctype="s" cvox="-" name="t" vc="-" />
   <phoneme cplace="d" ctype="f" cvox="-" name="th" vc="-" />
   <phoneme name="uh" vc="+" vfront="3" vheight="1" vlng="s" vrnd="+"
@@ -62,8 +62,8 @@
   <phoneme cplace="b" ctype="f" cvox="+" name="v" vc="-" />
   <phoneme cplace="l" ctype="r" cvox="+" name="w" vc="-" />
   <phoneme cplace="p" ctype="r" cvox="+" name="y" vc="-" />
-  <phoneme cplace="a" ctype="f" cvox="+" name="z" vc="-" />
-  <phoneme cplace="p" ctype="f" cvox="+" name="zh" vc="-" />
+  <phoneme cplace="a" ctype="f" cvox="+" name="z" vc="-" csib="+"/>
+  <phoneme cplace="p" ctype="f" cvox="+" name="zh" vc="-" csib="+"/>
   <phoneme cvox="-" name="pau" vc="-" />
   <phoneme cvox="-" name="h#" vc="-" />
   <phoneme cvox="-" name="brth" vc="-" />

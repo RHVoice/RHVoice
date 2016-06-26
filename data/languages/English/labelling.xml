@@ -106,5 +106,9 @@ _
 <feature name="num_words_in_utt"/>
 -
 <feature name="num_phrases_in_utt"/>
+/K:
+<feature name="pos_in_word_fw"/>
+_
+<feature name="pos_in_word_bw"/>
 </format>
 </labelling>
