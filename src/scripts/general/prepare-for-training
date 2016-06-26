@@ -1100,8 +1100,142 @@ class lpf_maker(task):
 		self.make_tree()
 		self.make_window()
 
+class voice_exporter(task):
+	def register(self):
+		subparser=subparsers.add_parser("export-voice")
+		subparser.set_defaults(func=self)
+
+	def load_config(self,path):
+		conf=collections.OrderedDict()
+		if not os.path.isfile(path):
+			return conf
+		with open(path,"r") as f:
+			for line in f:
+				toks=line.strip().split("=")
+				if not toks:
+					continue
+				conf[toks[0]]=toks[1]
+		return conf
+
+	def save_config(self,conf,path):
+		with open(path,"w") as f:
+			for key,val in conf.iteritems():
+				f.write(key)
+				f.write("=")
+				f.write(val)
+				f.write("\n")
+
+	def save_info(self):
+		path=os.path.join(self.outdir,"voice.info")
+		info=self.load_config(path)
+		name=self.settings["speaker"].title()
+		if "name" in info:
+			assert(name==info["name"])
+		else:
+			info["name"]=name
+		if "language" not in info:
+			info["language"]=self.settings["language"].title()
+		info["sample_rate"]=str(self.settings["sample_rate"]//1000)+"k"
+		if "gender" not in info:
+			info["gender"]=self.settings["gender"].lower()
+		format=info.get("format",0)
+		revision=info.get("revision","0")
+		if format==self.voice_format:
+			revision=str(int(revision)+1)
+		else:
+			revision="0"
+		info["format"]=self.voice_format
+		info["revision"]=revision
+		self.save_config(info,path)
+
+	def save_params(self):
+		path=os.path.join(self.outdir,"voice.params")
+		if os.path.isfile(path):
+			return
+		params=collections.OrderedDict([("beta","0.4"),("gain","1.0")])
+		self.save_config(params,path)
+
+	def copy_voice(self):
+		inpath=os.path.join(self.indir,self.settings["dataset"]+"_"+self.settings["speaker"]+".htsvoice")
+		outpath=os.path.join(self.outdir,"voice.data")
+		shutil.copy(inpath,outpath)
+
+	def make_conversion_config(self):
+		path=os.path.join(self.outdir,"convert.conf")
+		conf=collections.OrderedDict()
+		conf["NATURALREADORDER"]="T"
+		conf["NATURALWRITEORDER"]="F"
+		self.save_config(conf,path)
+		return path
+
+	def make_conversion_script(self,set,type):
+		script_path=os.path.abspath(os.path.join(self.outdir,type+".hed"))
+		tree_path=os.path.abspath(os.path.join("trees","qst001","ver1",set,type+".inf.untied"))
+		with open(script_path,"w") as f:
+			f.write("LT {}\n".format(tree_path))
+			f.write("CT {}\n".format(self.outdir))
+			f.write("CM {}\n".format(self.outdir))
+		return script_path
+
+	def convert_model_and_tree(self,set,type,n,conf):
+		hhed=os.path.join(self.settings["hts22_bindir"],"HHEd")
+		mmf=os.path.abspath(os.path.join("models","qst001","ver1",set,"re_clustered.mmf"))
+		script=self.make_conversion_script(set,type)
+		lst=os.path.abspath(os.path.join("data","lists","full.list"))
+		cmd=[hhed,"-B","-C",conf,"-T","2","-p","-i","-H",mmf,script,lst]
+		subprocess.check_call(cmd)
+		os.remove(script)
+		os.rename(os.path.join(self.outdir,"trees.{}".format(n)),os.path.join(self.outdir,"tree-{}.inf".format(type)))
+		os.rename(os.path.join(self.outdir,"pdf.{}".format(n)),os.path.join(self.outdir,"{}.pdf".format(type)))
+
+	def copy_windows(self,type,n):
+		for i in xrange(1,n+1):
+			file_name="{}.win{}".format(type,i)
+			shutil.copy2(os.path.join("data","win",file_name),os.path.join(self.outdir,file_name))
+
+	def copy_lpf(self):
+		shutil.copy(os.path.join(self.indir,"tree-lpf.inf"),os.path.join(self.outdir,"tree-lpf.inf"))
+		shutil.copy(os.path.join(self.indir,"lpf.win1"),os.path.join(self.outdir,"lpf.win1"))
+		numtaps=31
+		numstates=5
+		with open(os.path.join(self.indir,"lpf.pdf"),"rb") as ifp:
+			with open(os.path.join(self.outdir,"lpf.pdf"),"wb") as ofp:
+				ofp.write(struct.pack(">i",0))
+				ofp.write(struct.pack(">i",1))
+				ofp.write(struct.pack(">i",numtaps))
+				for i in xrange(numstates):
+					n=struct.unpack("<i",ifp.read(4))[0]
+					ofp.write(struct.pack(">i",n))
+				while True:
+					bytes=ifp.read(4)
+					if not bytes:
+						break
+					n=struct.unpack("<f",bytes)[0]
+					ofp.write(struct.pack(">f",n))
+
+	def convert_data(self):
+		conf_path=self.make_conversion_config()
+		self.convert_model_and_tree("cmp","mgc",1,conf_path)
+		self.convert_model_and_tree("cmp","lf0",2,conf_path)
+		self.convert_model_and_tree("dur","dur",1,conf_path)
+		os.remove(conf_path)
+		self.copy_windows("mgc",3)
+		self.copy_windows("lf0",3)
+		self.copy_lpf()
+
+	def __call__(self,args):
+		self.voice_format="2"
+		self.indir=os.path.abspath(os.path.join("voices","qst001","ver1"))
+		self.outdir=os.path.abspath(self.settings["outdir"])
+		if not os.path.isdir(self.outdir):
+			os.makedirs(self.outdir)
+		self.save_info()
+		self.save_params()
+		self.copy_voice()
+		self.convert_data()
+
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter,lpf_maker]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter,lpf_maker,voice_exporter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
