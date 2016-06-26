@@ -141,4 +141,9 @@ namespace RHVoice
       return;
     HTS_Engine_set_speed(engine.get(),rate);
   }
+
+  void std_hts_engine_impl::do_stop()
+  {
+    HTS_Engine_set_stop_flag(engine.get(),TRUE);
+  }
 }

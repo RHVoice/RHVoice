@@ -77,7 +77,10 @@ namespace RHVoice
   void hts_engine_impl::on_new_sample(short sample)
   {
     if(output->is_stopped())
-      return;
+      {
+        do_stop();
+        return;
+      }
     double s=(sample/32768.0)*gain;
     try
       {
@@ -87,5 +90,7 @@ namespace RHVoice
       {
         output->stop();
       }
+    if(output->is_stopped())
+      do_stop();
   }
 }
