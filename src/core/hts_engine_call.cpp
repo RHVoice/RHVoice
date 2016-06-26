@@ -302,6 +302,8 @@ namespace RHVoice
     const relation& seg_rel=utt.get_relation("Segment");
     const relation& tokstruct_rel=utt.get_relation("TokStructure");
     relation::const_iterator seg_start=seg_rel.begin();
+    // if(!seg_rel.empty())
+    //   ++seg_start;
     relation::const_iterator seg_end=seg_start;
     if((!tokstruct_rel.empty())&&(events_of_interest&event_sentence_starts))
       input.add_event<sentence_starts_event>(utt);
@@ -373,8 +375,8 @@ namespace RHVoice
           delete sii;
         else
           output.append(sii);
-        trim* t=new trim(input.lbegin(),input.lend());
-        output.append(t);
+        // trim* t=new trim(input.lbegin(),input.lend());
+        // output.append(t);
         double rate=input.lbegin()->get_rate();
         if(rate!=1)
           {

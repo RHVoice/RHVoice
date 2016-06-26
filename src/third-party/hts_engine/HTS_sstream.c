@@ -283,6 +283,11 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    HTS_free(duration_mean);
    HTS_free(duration_vari);
 
+   for(i=0;i<(sss->nstate-1);++i)
+     {
+       sss->duration[i]=1;
+}
+
    /* get parameter */
    for (i = 0, state = 0; i < HTS_Label_get_size(label); i++) {
       for (j = 2; j <= sss->nstate + 1; j++) {
