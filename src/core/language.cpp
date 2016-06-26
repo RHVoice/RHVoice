@@ -960,7 +960,7 @@ namespace RHVoice
   {
     const std::string tag="language_list";
     register_language<russian_info>("Russian",2);
-    register_language<english_info>("English",1);
+    register_language<english_info>("English",2);
     register_language<esperanto_info>("Esperanto",1);
     register_language<georgian_info>("Georgian",1);
     register_language<ukrainian_info>("Ukrainian",1);
