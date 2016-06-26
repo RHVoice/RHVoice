@@ -31,8 +31,8 @@ import struct
 import weakref
 import xml.etree.ElementTree as xml
 from scipy import stats
-import multiprocessing as mp
 import numpy
+from scipy.signal import firwin
 
 scriptdir=os.path.abspath(os.path.dirname(__file__))
 workdir=os.path.abspath(".")
@@ -1035,8 +1035,73 @@ class initializer(task):
 			else:
 				shutil.copy2(inpath,workdir)
 
+class lpf_maker(task):
+	def register(self):
+		subparser=subparsers.add_parser("make-lpf")
+		subparser.set_defaults(func=self)
+
+	def make_filters(self):
+		ns=5
+		nf=6
+		nt=31
+		nyq=numpy.float(self.settings["sample_rate"])/2
+		counts=nf*numpy.ones(ns,dtype=numpy.int32)
+		vars=numpy.zeros(nt,dtype=numpy.float32)
+		filters=numpy.zeros((nf,nt),dtype=numpy.float32)
+		for j in xrange(nf):
+			cf=(j+1)*1000
+			filters[j]=firwin(nt,cf,window="hanning",nyq=nyq)
+		with open(os.path.join(self.outdir,"lpf.pdf"),"wb") as fp:
+			counts.tofile(fp)
+			for i in xrange(ns):
+				for j in xrange(nf):
+					filters[j].tofile(fp)
+					vars.tofile(fp)
+
+	def make_tree(self):
+		phoneset=self.get_phoneset()
+		sibs=[]
+		for ph,feats in phoneset.iteritems():
+			if feats.get("csib",None)=="+":
+				sibs.append(ph)
+		sibs.sort()
+		with open(os.path.join(self.outdir,"tree-lpf.inf"),"wt") as fp:
+			fp.write("QS sibilant {{ {} }}\n".format(",".join('"*-{}+*"'.format(ph) for ph in sibs)))
+			fp.write("QS prev_sibilant {{ {} }}\n".format(",".join('"*^{}-*"'.format(ph) for ph in sibs)))
+			fp.write("QS next_sibilant {{ {} }}\n".format(",".join('"*+{}=*"'.format(ph) for ph in sibs)))
+			fp.write('QS prev_name==pau { "*^pau-*" }\n')
+			fp.write('QS next_name==pau { "*+pau=*" }\n')
+			fp.write("\n")
+			for i in xrange(2,7):
+				fp.write("{{*}}[{}]\n".format(i))
+				fp.write("{\n")
+				if i==2:
+					fp.write('0 sibilant "lpf_s2_6" -1\n')
+					fp.write('-1 prev_name==pau -2 "lpf_s2_2"\n')
+					fp.write('-2 prev_sibilant "lpf_s2_6" "lpf_s2_2"\n')
+				elif i==6:
+					fp.write('0 sibilant "lpf_s6_6" -1\n')
+					fp.write('-1 next_name==pau -2 "lpf_s6_2"\n')
+					fp.write('-2 next_sibilant "lpf_s6_6" "lpf_s6_2"\n')
+				else:
+					fp.write('0 sibilant "lpf_s{i}_6" "lpf_s{i}_2"\n'.format(i=i))
+				fp.write("}\n")
+				fp.write("\n")
+
+	def make_window(self):
+		with open(os.path.join(self.outdir,"lpf.win1"),"wt") as fp:
+			fp.write("1 1.0\n")
+
+	def __call__(self,args):
+		self.outdir=os.path.join("voices","qst001","ver1")
+		if not os.path.exists(self.outdir):
+			os.makedirs(self.outdir)
+		self.make_filters()
+		self.make_tree()
+		self.make_window()
+
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter,lpf_maker]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
