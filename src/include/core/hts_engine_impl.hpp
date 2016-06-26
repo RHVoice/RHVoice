@@ -124,6 +124,10 @@ namespace RHVoice
     virtual void do_synthesize()=0;
     virtual void do_reset()=0;
 
+    virtual void do_stop()
+    {
+}
+
     std::string name;
   };
 }
