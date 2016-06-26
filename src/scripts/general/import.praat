@@ -15,12 +15,12 @@
 
 form Parameters
 word Input_file recording.wav
-word First_output_file recording.wav
-word Second_output_file recording.raw
+word Wav_output_file recording.wav
+word Raw_output_file recording.raw
 integer Sample_rate 16000
 boolean Invert 0
 endform
-min_sil_dur=0.3
+min_sil_dur=0.2
 Read from file... 'input_file$'
 snd=Extract one channel... 1
 src_sample_rate=Get sampling frequency
@@ -50,11 +50,7 @@ start_of_sound=Get time from sample number... first_sample
 end_of_sound=Get time from sample number... last_sample
 snd=Extract part... start_of_sound end_of_sound rectangular 1 no
 endif
-To Intensity: 100, 0, "yes"
-avg=Get quantile: 0, 0, 0.5
-mx=Get maximum: 0, 0, "Parabolic"
-thr=avg-mx-20
-To TextGrid (silences)... thr min_sil_dur 0.05 silent sounding
+To TextGrid (silences)... 100 0 -30 min_sil_dur 0.05 silent sounding
 num_intervals=Get number of intervals... 1
 start=0
 label$=Get label of interval... 1 1
@@ -73,22 +69,23 @@ speech=Extract part... start end rectangular 1 no
 if invert!=0
 speech=Multiply: -1
 endif
+speech=Subtract mean
 if sample_rate!=src_sample_rate
 Resample: sample_rate, 70
 endif
 Scale intensity... 70
-peak=Get absolute extremum... 0 0 Sinc70
+peak=Get absolute extremum... 0 0 None
 if peak>0.99
 Scale peak... 0.99
 endif
-Save as raw 16-bit little-endian file... 'second_output_file$'
+Save as raw 16-bit little-endian file... 'raw_output_file$'
 if sample_rate!=16000
 select speech
 Resample: 16000, 70
 Scale intensity... 70
-peak=Get absolute extremum... 0 0 Sinc70
+peak=Get absolute extremum... 0 0 None
 if peak>0.99
 Scale peak... 0.99
 endif
 endif
-Save as WAV file... 'first_output_file$'
+Save as WAV file... 'wav_output_file$'
