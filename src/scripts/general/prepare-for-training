@@ -477,9 +477,11 @@ class htk_segmenter(task):
 		for file_name,labs in self.alignments:
 			new_labs=[list(labs[0]),list(labs[1])]
 			for i in xrange(2,len(labs)-1):
-				if labs[i-1][2]=="pau" and labs[i][2] in stops and (labs[i][1]-labs[i-1][0]) < pau_plus_stop_limits[labs[i][2]]:
+				if new_labs[-1][2]=="pau" and labs[i][2] in stops and (labs[i][1]-new_labs[-1][0]) < pau_plus_stop_limits[labs[i][2]]:
 					new_labs[-1][1]=labs[i][1]
 					new_labs[-1][2]=labs[i][2]
+				elif labs[i][2]=="pau" and new_labs[-1][2] in stops and (labs[i][1]-new_labs[-1][0]) < pau_plus_stop_limits[new_labs[-1][2]]:
+					new_labs[-1][1]=labs[i][1]
 				else:
 					new_labs.append(list(labs[i]))
 			new_labs.append(list(labs[-1]))
