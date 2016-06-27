@@ -1234,11 +1234,13 @@ class voice_exporter(task):
 					n=struct.unpack("<i",ifp.read(4))[0]
 					ofp.write(struct.pack(">i",n))
 				while True:
-					bytes=ifp.read(4)
-					if not bytes:
-						break
-					n=struct.unpack("<f",bytes)[0]
-					ofp.write(struct.pack(">f",n))
+					for i in xrange(numtaps):
+						bytes=ifp.read(4)
+						if not bytes:
+							return
+						c=struct.unpack("<f",bytes)[0]
+						ofp.write(struct.pack(">ff",c,0))
+					ifp.read(4*numtaps)
 
 	def convert_data(self):
 		conf_path=self.make_conversion_config()
