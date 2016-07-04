@@ -34,6 +34,7 @@ from scipy import stats
 import numpy
 from scipy.signal import firwin
 
+version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
 workdir=os.path.abspath(".")
 parser=argparse.ArgumentParser(description="A few helper commands augmenting the standard HTS demo script")
@@ -46,6 +47,18 @@ class task(object):
 			with open("training.cfg","r") as f:
 				self.__settings=json.load(f)
 		return self.__settings
+
+	@property
+	def version(self):
+		if not hasattr(self,"__version"):
+			with open(os.path.join("scripts","Config.pm"),"r") as f:
+				contents=f.read()
+				self.__version=int(version_pattern.search(contents).group(1))
+		return self.__version
+
+	@property
+	def version_name(self):
+		return ("ver"+str(self.version))
 
 	def get_analysis_params(self):
 		params=collections.OrderedDict()
@@ -951,7 +964,7 @@ class realigner(task):
 
 	def copy_models(self):
 		for type in ["cmp","dur"]:
-			inpath=os.path.join("models","qst001","ver1",type,"re_clustered.mmf.embedded.gz")
+			inpath=os.path.join("models","qst001",self.version_name,type,"re_clustered.mmf.embedded.gz")
 			outpath=os.path.join(self.moddir,type+".mmf.gz")
 			subprocess.check_call(["cp",inpath,outpath])
 			subprocess.check_call(["gunzip",outpath])
@@ -959,7 +972,7 @@ class realigner(task):
 	def align(self):
 		cmd=[os.path.join(self.settings["bindir"],"HSMMAlign")]
 		cmd.extend(["-A","-D","-T","1"])
-		cmd.extend(["-C",os.path.join("configs","qst001","ver1","trn.cnf")])
+		cmd.extend(["-C",os.path.join("configs","qst001",self.version_name,"trn.cnf")])
 		cmd.extend(["-S",os.path.join("data","scp","train.scp")])
 		cmd.extend(["-I",os.path.join("data","labels","full.mlf")])
 		cmd.extend(["-t","1500","100","5000"])
@@ -972,10 +985,8 @@ class realigner(task):
 		subprocess.check_call(cmd)
 
 	def save_mono(self):
-		print("Saving mono labels")
 		name_regex=re.compile(r"^[a-z0-9]+\^[a-z0-9]+\-([a-z0-9]+)\+.+$")
 		for filename in sorted(os.listdir(self.fulldir)):
-			print(filename)
 			with open(os.path.join(self.fulldir,filename),"r") as f_in:
 				with open(os.path.join(self.monodir,filename),"w") as f_out:
 					for line in f_in:
@@ -988,62 +999,49 @@ class realigner(task):
 		os.remove(os.path.join(self.moddir,"dur.mmf"))
 		os.rmdir(self.moddir)
 
+	def update_mlf(self):
+		fmt_args={}
+		fmt_args["dataset"]=self.settings["dataset"]
+		fmt_args["speaker"]=self.settings["speaker"]
+		fmt_args["dir"]=os.path.abspath(self.workdir)
+		for type in ["mono","full"]:
+			with open(os.path.join("data","labels",type+".mlf"),"w") as fp:
+				fp.write("#!MLF!#\n")
+				fp.write('"*/{dataset}_{speaker}_*.lab" -> "{dir}/{type}"\n'.format(type=type,**fmt_args))
+
+	def copy_lpf(self):
+		dir=os.path.join("voices","qst001")
+		version_name="ver"+str(self.version+1)
+		indir=os.path.join(dir,self.version_name)
+		outdir=os.path.join(dir,version_name)
+		os.mkdir(outdir)
+		for filename in ["lpf.pdf","tree-lpf.inf","lpf.win1"]:
+			shutil.copy(os.path.join(indir,filename),os.path.join(outdir,filename))
+
+	def update_version_number(self):
+		path=os.path.join("scripts","Config.pm")
+		with open(path,"r") as ifp:
+			old_contents=ifp.read()
+		version_line="$ver = '{}';".format((self.version+1))
+		new_contents=version_pattern.sub(version_line,old_contents)
+		with open(path,"w") as ofp:
+			ofp.write(new_contents)
+
 	def __call__(self,args):
-		self.workdir="realigned"
+		self.workdir=os.path.join("realigned",self.version_name)
 		self.moddir=os.path.join(self.workdir,"mod")
 		self.monodir=os.path.join(self.workdir,"mono")
 		self.fulldir=os.path.join(self.workdir,"full")
 		for dir in [self.workdir,self.moddir,self.monodir,self.fulldir]:
 			if not os.path.isdir(dir):
-				os.mkdir(dir)
+				os.makedirs(dir)
 		self.copy_models()
 		self.align()
 		self.save_mono()
 		self.cleanup()
-
-class retrainer(task):
-	def register(self):
-		subparser=subparsers.add_parser("retrain")
-		subparser.set_defaults(func=self)
-
-	def get_backup_dir(self):
-		verdir="versions"
-		if not os.path.isdir(verdir):
-			os.mkdir(verdir)
-		ver=len(os.listdir(verdir))+1
-		bkdir=os.path.join(verdir,str(ver))
-		if not os.path.isdir(bkdir):
-			os.mkdir(bkdir)
-		return bkdir
-
-	def backup(self):
-		backup_dir=self.get_backup_dir()
-		backup_list=["voices","gen","log",os.path.join("data","labels","mono"),os.path.join("data","labels","full"),"realigned"]
-		for what in backup_list:
-			if os.path.isdir(what):
-				shutil.copytree(what,os.path.join(backup_dir,what))
-			else:
-				shutil.copy2(what,backup_dir)
-
-	def replace_labels(self):
-		for type in ["mono","full"]:
-			src_dir=os.path.join("realigned",type)
-			dst_dir=os.path.join("data","labels",type)
-			shutil.rmtree(dst_dir,True)
-			shutil.copytree(src_dir,dst_dir)
-
-	def cleanup(self):
-		subprocess.check_call(["make","clean-voice"])
-		shutil.rmtree("realigned")
-
-	def train(self):
-		subprocess.check_call(["make","voice"])
-
-	def __call__(self,args):
-		self.backup()
-		self.replace_labels()
-		self.cleanup()
-		self.train()
+		self.update_mlf()
+		self.copy_lpf()
+		self.update_version_number()
 
 class initializer(task):
 	def register(self):
@@ -1197,7 +1195,7 @@ class voice_exporter(task):
 
 	def make_conversion_script(self,set,type):
 		script_path=os.path.abspath(os.path.join(self.outdir,type+".hed"))
-		tree_path=os.path.abspath(os.path.join("trees","qst001","ver1",set,type+".inf.untied"))
+		tree_path=os.path.abspath(os.path.join("trees","qst001",self.version_name,set,type+".inf.untied"))
 		with open(script_path,"w") as f:
 			f.write("LT {}\n".format(tree_path))
 			f.write("CT {}\n".format(self.outdir))
@@ -1206,7 +1204,7 @@ class voice_exporter(task):
 
 	def convert_model_and_tree(self,set,type,n,conf):
 		hhed=os.path.join(self.settings["hts22_bindir"],"HHEd")
-		mmf=os.path.abspath(os.path.join("models","qst001","ver1",set,"re_clustered.mmf"))
+		mmf=os.path.abspath(os.path.join("models","qst001",self.version_name,set,"re_clustered.mmf"))
 		script=self.make_conversion_script(set,type)
 		lst=os.path.abspath(os.path.join("data","lists","full.list"))
 		cmd=[hhed,"-B","-C",conf,"-T","2","-p","-i","-H",mmf,script,lst]
@@ -1254,7 +1252,7 @@ class voice_exporter(task):
 
 	def __call__(self,args):
 		self.voice_format="2"
-		self.indir=os.path.abspath(os.path.join("voices","qst001","ver1"))
+		self.indir=os.path.abspath(os.path.join("voices","qst001",self.version_name))
 		self.outdir=os.path.abspath(self.settings["outdir"])
 		if not os.path.isdir(self.outdir):
 			os.makedirs(self.outdir)
@@ -1264,7 +1262,7 @@ class voice_exporter(task):
 		self.convert_data()
 
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,retrainer,htk_segmenter,lpf_maker,voice_exporter]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()

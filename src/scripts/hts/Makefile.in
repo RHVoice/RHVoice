@@ -49,7 +49,7 @@ data:
 
 voice:
 	echo "Running a training/synthesis perl script (Training.pl) in background...."
-	@PERL@ scripts/Training.pl scripts/Config.pm > log 2>&1 
+	@PERL@ scripts/Training.pl scripts/Config.pm >> log 2>&1 
 
 clean: clean-data clean-voice
 
