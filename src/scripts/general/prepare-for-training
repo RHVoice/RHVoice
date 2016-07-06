@@ -123,6 +123,7 @@ class configurator(task):
 		params["SAMPFREQ"]=self.settings["sample_rate"]
 		params.update(self.get_analysis_params())
 		params["USEGV"]=1 if self.settings["use_gv"] else 0
+		params["USEMSPF"]=0
 		params["NITER"]=10
 		return params
 
