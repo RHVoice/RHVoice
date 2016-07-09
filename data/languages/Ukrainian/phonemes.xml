@@ -22,24 +22,24 @@
   <phoneme name="kj" vc="-" ctype="s" cplace="v" cvox="-" cpal="?"/>
   <phoneme name="g" vc="-" ctype="s" cplace="v" cvox="+" cpal="-"/>
   <phoneme name="gj" vc="-" ctype="s" cplace="v" cvox="+" cpal="?"/>
-  <phoneme name="ts" vc="-" ctype="a" cplace="d" cvox="-" cpal="-"/>
-  <phoneme name="tsj" vc="-" ctype="a" cplace="d" cvox="-" cpal="+"/>
-  <phoneme name="dz" vc="-" ctype="a" cplace="d" cvox="+" cpal="-"/>
-  <phoneme name="dzj" vc="-" ctype="a" cplace="d" cvox="+" cpal="+"/>
-  <phoneme name="tsh" vc="-" ctype="a" cplace="p" cvox="-" cpal="-"/>
-  <phoneme name="tshj" vc="-" ctype="a" cplace="p" cvox="-" cpal="?"/>
-  <phoneme name="dzh" vc="-" ctype="a" cplace="p" cvox="+" cpal="-"/>
-  <phoneme name="dzhj" vc="-" ctype="a" cplace="p" cvox="+" cpal="?"/>
+  <phoneme name="ts" vc="-" ctype="a" csib="+" cplace="d" cvox="-" cpal="-"/>
+  <phoneme name="tsj" vc="-" ctype="a" csib="+" cplace="d" cvox="-" cpal="+"/>
+  <phoneme name="dz" vc="-" ctype="a" csib="+" cplace="d" cvox="+" cpal="-"/>
+  <phoneme name="dzj" vc="-" ctype="a" csib="+" cplace="d" cvox="+" cpal="+"/>
+  <phoneme name="tsh" vc="-" ctype="a" csib="+" cplace="p" cvox="-" cpal="-"/>
+  <phoneme name="tshj" vc="-" ctype="a" csib="+" cplace="p" cvox="-" cpal="?"/>
+  <phoneme name="dzh" vc="-" ctype="a" csib="+" cplace="p" cvox="+" cpal="-"/>
+  <phoneme name="dzhj" vc="-" ctype="a" csib="+" cplace="p" cvox="+" cpal="?"/>
   <phoneme name="f" vc="-" ctype="f" cplace="l" cvox="-" cpal="-"/>
   <phoneme name="fj" vc="-" ctype="f" cplace="l" cvox="-" cpal="?"/>
-  <phoneme name="s" vc="-" ctype="f" cplace="a" cvox="-" cpal="-"/>
-  <phoneme name="sj" vc="-" ctype="f" cplace="a" cvox="-" cpal="+"/>
-  <phoneme name="z" vc="-" ctype="f" cplace="a" cvox="+" cpal="-"/>
-  <phoneme name="zj" vc="-" ctype="f" cplace="a" cvox="+" cpal="+"/>
-  <phoneme name="sh" vc="-" ctype="f" cplace="p" cvox="-" cpal="-"/>
-  <phoneme name="shj" vc="-" ctype="f" cplace="p" cvox="-" cpal="?"/>
-  <phoneme name="zh" vc="-" ctype="f" cplace="p" cvox="+" cpal="-"/>
-  <phoneme name="zhj" vc="-" ctype="f" cplace="p" cvox="+" cpal="?"/>
+  <phoneme name="s" vc="-" ctype="f" csib="+" cplace="a" cvox="-" cpal="-"/>
+  <phoneme name="sj" vc="-" ctype="f" csib="+" cplace="a" cvox="-" cpal="+"/>
+  <phoneme name="z" vc="-" ctype="f" csib="+" cplace="a" cvox="+" cpal="-"/>
+  <phoneme name="zj" vc="-" ctype="f" csib="+" cplace="a" cvox="+" cpal="+"/>
+  <phoneme name="sh" vc="-" ctype="f" csib="+" cplace="p" cvox="-" cpal="-"/>
+  <phoneme name="shj" vc="-" ctype="f" csib="+" cplace="p" cvox="-" cpal="?"/>
+  <phoneme name="zh" vc="-" ctype="f" csib="+" cplace="p" cvox="+" cpal="-"/>
+  <phoneme name="zhj" vc="-" ctype="f" csib="+" cplace="p" cvox="+" cpal="?"/>
   <phoneme name="h" vc="-" ctype="f" cplace="v" cvox="-" cpal="-"/>
   <phoneme name="hj" vc="-" ctype="f" cplace="v" cvox="-" cpal="?"/>
   <phoneme name="gh" vc="-" ctype="f" cplace="g" cvox="+" cpal="-"/>
