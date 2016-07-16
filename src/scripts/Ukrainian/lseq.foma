@@ -14,39 +14,45 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 define InitialLetterMapping 
-а : a0 | 
-е : e0 | 
-є : [j e0] | 
-и : i0 | 
-і : ii0 | 
-ї : [j ii0] | 
-о : o0 | 
-у : u0 | 
-ю : [j u0] | 
-я : [j a0] | 
-б : [b e0] | 
-г : [gh e0] | 
-ґ : [g e0] | 
-д : [d e0] | 
-ж : [zh e0] | 
-з : [z e0] | 
-к : [k a0] | 
-л : [e0 l] | 
-м : [e0 m] | 
-н : [e0 n] | 
-п : [p e0] | 
-р : [e0 r] | 
-с : [e0 s] | 
-т : [t e0] | 
-ф : [e0 f] | 
-х : [h a0] | 
-ц : [ts e0] | 
-ч : [tsh e0] | 
-ш : [sh a0] | 
-щ : [sh tsh a0] | 
-й : [j o0 t] | 
-в : [w e0] | 
-ь : [m j a1 k i0 j z n a1 k] ; 
+[а|a] : a0 | 
+[е|e] : e0 | 
+[є] : [j e0] | 
+[и] : i0 | 
+[і|i] : ii0 | 
+[ї] : [j ii0] | 
+[о|o] : o0 | 
+[у|u] : u0 | 
+[ю] : [j u0] | 
+[я] : [j a0] | 
+[б|b] : [b e0] | 
+[г] : [gh e0] | 
+[ґ|g] : [g e0] | 
+[д|d] : [d e0] | 
+[ж] : [zh e0] | 
+[з] : [z e0] | 
+[к|k] : [k a0] | 
+[л|l] : [e0 l] | 
+[м|m] : [e0 m] | 
+[н|n] : [e0 n] | 
+[п|p] : [p e0] | 
+[р|r] : [e0 r] | 
+[с|s] : [e0 s] | 
+[т|t] : [t e0] | 
+[ф|f] : [e0 f] | 
+[х] : [h a0] | 
+[ц|c] : [ts e0] | 
+[ч] : [tsh e0] | 
+[ш] : [sh a0] | 
+[щ] : [sh tsh a0] | 
+[й|j] : [j o0 t] | 
+[в|v] : [w e0] | 
+[ь] : [m j a1 k i0 j z n a1 k] | 
+h : [gh a0] | 
+q : [k u0] | 
+w : [d u0 b lj v e0] | 
+x : [ii0 k s] | 
+y : [ii0 gh r e0 k] | 
+z : [z e0 t] ; 
 
 define InitialTranscription InitialLetterMapping+;
 
@@ -57,7 +63,8 @@ define VowelStress
 a0:a1|e0:e1|i0:i1|ii0:ii1|o0:o1|u0:u1;
 
 define StressLastVowel 
-VowelStress -> || _ [\Vowel]* .#. ; 
+ii0:ii1 gh r e0 k @-> || _ .#. ,, 
+VowelStress @-> || _ [\Vowel]* .#. ; 
 
 regex 
 InitialTranscription .o. StressLastVowel ; 

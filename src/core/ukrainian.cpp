@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <list>
 #include "core/path.hpp"
 #include "core/utterance.hpp"
 #include "core/relation.hpp"
@@ -69,6 +70,7 @@ namespace RHVoice
     info(info_),
     g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
     lseq_fst(path::join(info_.get_data_path(),"lseq.fst")),
+    untranslit_fst(path::join(info_.get_data_path(),"untranslit.fst")),
     stress_fst(path::join(info_.get_data_path(),"stress.fst")),
     stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
   {
@@ -109,4 +111,14 @@ namespace RHVoice
   {
     stress_monosyllabic_words(u);
 }
+
+  void ukrainian::decode_as_word(item& token,const std::string& token_name) const
+  {
+    std::string word_name;
+    std::list<std::string> lowercase_letters;
+    downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),std::back_inserter(lowercase_letters));
+    untranslit_fst.translate(lowercase_letters.begin(),lowercase_letters.end(),str::append_string_iterator(word_name));
+    item& word=token.append_child();
+    word.set("name",word_name);
+  }
 }
