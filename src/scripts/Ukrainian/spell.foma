@@ -48,6 +48,35 @@ define UkrainianLetter
 [[ю|Ю]:ю] | 
 [[я|Я]:я] ; 
 
+define EnglishLetter 
+[[a|A]:а] | 
+[[b|B]:бе] | 
+[[c|C]:це] | 
+[[d|D]:де] | 
+[[e|E]:е] | 
+[[f|F]:еф] | 
+[[g|G]:ґе] | 
+[[h|H]:га] | 
+[[i|I]:і] | 
+[[j|J]:йот] | 
+[[k|K]:ка] | 
+[[l|L]:ель] | 
+[[m|M]:ен] | 
+[[n|N]:ен] | 
+[[o|O]:о] | 
+[[p|P]:пе] | 
+[[q|Q]:ку] | 
+[[r|R]:ер] | 
+[[s|S]:ес] | 
+[[t|T]:те] | 
+[[u|U]:у] | 
+[[v|V]:ве] | 
+[[w|W]:[дубль ве]] | 
+[[x|X]:ікс] | 
+[[y|Y]:ігрек] | 
+[[z|Z]:зет] ; 
+
+
 define Digit 
 %0:нуль|1:один|2:два|3:три|4:чотири|5:"п'ять"|6:шість|7:сім|8:вісім|9:"дев'ять";
 
@@ -93,4 +122,4 @@ define Symbol
 %№:номер ; 
 
 regex 
-UkrainianLetter|Digit | Whitespace | Punctuation | Symbol;
+UkrainianLetter|EnglishLetter|Digit | Whitespace | Punctuation | Symbol;

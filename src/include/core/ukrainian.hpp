@@ -51,11 +51,14 @@ namespace RHVoice
 
     std::vector<std::string> get_word_transcription(const item& word) const;
 
+    void decode_as_word(item& token,const std::string& token_name) const;
+
   private:
     void post_lex(utterance& u) const;
 
     const ukrainian_info& info;
     const fst g2p_fst;
+    const fst untranslit_fst;
     const fst lseq_fst;
     const fst stress_fst;
     const rules<uint8_t> stress_rules;
