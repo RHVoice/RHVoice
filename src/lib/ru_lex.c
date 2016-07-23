@@ -161,8 +161,7 @@ static cst_val* word_to_phones(const cst_item *word)
     }
   else if((variant==variant_pseudo_english)&&(flags&cs_en))
     {
-      cst_val *en_phones=lex_lookup(en_lex,name,(cst_streq(name,"a")?"n":NULL));
-      if(en_phones)
+      cst_val *en_phones=lex_lookup(en_lex,name,(cst_streq(name,"a")?"n":NULL),NULL); if(en_phones)
         {
           phones=ru_lts_apply(en_phones,&ru_en_lts);
           delete_val(en_phones);
