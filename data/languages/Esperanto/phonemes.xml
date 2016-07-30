@@ -12,16 +12,16 @@
 <phoneme name="t" vc="-" ctype="s" cplace="a" cvox="-"/>
 <phoneme name="k" vc="-" ctype="s" cplace="v" cvox="-"/>
 <phoneme name="v" vc="-" ctype="f" cplace="l" cvox="+"/>
-<phoneme name="z" vc="-" ctype="f" cplace="a" cvox="+"/>
-<phoneme name="zh" vc="-" ctype="f" cplace="p" cvox="+"/>
+<phoneme name="z" vc="-" ctype="f" csib="+" cplace="a" cvox="+"/>
+<phoneme name="zh" vc="-" ctype="f" csib="+" cplace="p" cvox="+"/>
 <phoneme name="f" vc="-" ctype="f" cplace="l" cvox="-"/>
-<phoneme name="s" vc="-" ctype="f" cplace="a" cvox="-"/>
-<phoneme name="sh" vc="-" ctype="f" cplace="p" cvox="-"/>
+<phoneme name="s" vc="-" ctype="f" csib="+" cplace="a" cvox="-"/>
+<phoneme name="sh" vc="-" ctype="f" csib="+" cplace="p" cvox="-"/>
 <phoneme name="hh" vc="-" ctype="f" cplace="v" cvox="-"/>
 <phoneme name="h" vc="-" ctype="f" cplace="g" cvox="-"/>
-<phoneme name="j" vc="-" ctype="a" cplace="p" cvox="+"/>
-<phoneme name="c" vc="-" ctype="a" cplace="a" cvox="-"/>
-<phoneme name="ch" vc="-" ctype="a" cplace="p" cvox="-"/>
+<phoneme name="j" vc="-" ctype="a" csib="+" cplace="p" cvox="+"/>
+<phoneme name="c" vc="-" ctype="a" csib="+" cplace="a" cvox="-"/>
+<phoneme name="ch" vc="-" ctype="a" csib="+" cplace="p" cvox="-"/>
 <phoneme name="m" vc="-" ctype="n" cplace="b" cvox="+"/>
 <phoneme name="n" vc="-" ctype="n" cplace="a" cvox="+"/>
 <phoneme name="l" vc="-" ctype="l" cplace="a" cvox="+"/>
