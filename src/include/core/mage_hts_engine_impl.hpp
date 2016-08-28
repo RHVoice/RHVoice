@@ -62,6 +62,7 @@ namespace RHVoice
 
     void setup();
     void generate_parameters(hts_label& lab);
+    void skip_initial_pause();
     void generate_samples(hts_label& lab);
     void append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name="") const;
 
