@@ -44,8 +44,8 @@
   <phoneme name="hj" vc="-" ctype="f" cplace="v" cvox="-" cpal="?"/>
   <phoneme name="gh" vc="-" ctype="f" cplace="g" cvox="+" cpal="-"/>
   <phoneme name="ghj" vc="-" ctype="f" cplace="g" cvox="+" cpal="?"/>
-  <phoneme name="w" vc="-" ctype="g" cplace="b" cvox="+" cpal="-"/>
-  <phoneme name="wj" vc="-" ctype="g" cplace="b" cvox="+" cpal="?"/>
+  <phoneme name="w" vc="-" ctype="g" cplace="lv" cvox="+" cpal="-"/>
+  <phoneme name="wj" vc="-" ctype="g" cplace="lv" cvox="+" cpal="?"/>
   <phoneme name="l" vc="-" ctype="l" cplace="a" cvox="+" cpal="-"/>
   <phoneme name="lj" vc="-" ctype="l" cplace="a" cvox="+" cpal="+"/>
   <phoneme name="j" vc="-" ctype="g" cplace="p" cvox="+" cpal="+"/>

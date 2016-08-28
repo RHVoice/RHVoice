@@ -40,7 +40,7 @@ define ConsonantSequence
 Consonant+ - [в|В|з|З|й|Й|б|Б|ж|Ж];
 
 define LetterSequence 
-ConsonantSequence;
+ConsonantSequence | ь+ ;
 
 define BasicTokenizer 
 Word @-> ... word || _ ,, 
