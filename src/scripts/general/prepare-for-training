@@ -43,18 +43,18 @@ subparsers=parser.add_subparsers()
 class task(object):
 	@property
 	def settings(self):
-		if not hasattr(self,"__settings"):
+		if not hasattr(self,"_settings"):
 			with open("training.cfg","r") as f:
-				self.__settings=json.load(f)
-		return self.__settings
+				self._settings=json.load(f)
+		return self._settings
 
 	@property
 	def version(self):
-		if not hasattr(self,"__version"):
+		if not hasattr(self,"_version"):
 			with open(os.path.join("scripts","Config.pm"),"r") as f:
 				contents=f.read()
-				self.__version=int(version_pattern.search(contents).group(1))
-		return self.__version
+				self._version=int(version_pattern.search(contents).group(1))
+		return self._version
 
 	@property
 	def version_name(self):
@@ -1254,7 +1254,7 @@ class voice_exporter(task):
 
 	def __call__(self,args):
 		if args.version>0:
-			self.__version=args.version
+			self._version=args.version
 		self.voice_format="2"
 		self.indir=os.path.abspath(os.path.join("voices","qst001",self.version_name))
 		self.outdir=os.path.abspath(self.settings["outdir"])
