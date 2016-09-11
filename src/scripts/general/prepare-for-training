@@ -1129,6 +1129,7 @@ class lpf_maker(task):
 class voice_exporter(task):
 	def register(self):
 		subparser=subparsers.add_parser("export-voice")
+		subparser.add_argument("--version",type=int,default=0)
 		subparser.set_defaults(func=self)
 
 	def load_config(self,path):
@@ -1252,6 +1253,8 @@ class voice_exporter(task):
 		self.copy_lpf()
 
 	def __call__(self,args):
+		if args.version>0:
+			self.__version=args.version
 		self.voice_format="2"
 		self.indir=os.path.abspath(os.path.join("voices","qst001",self.version_name))
 		self.outdir=os.path.abspath(self.settings["outdir"])
