@@ -1,2 +1,2 @@
-use_gv=false
-gain=0.5
+beta=0.4
+gain=1.0

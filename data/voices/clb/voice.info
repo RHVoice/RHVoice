@@ -1,6 +1,6 @@
-name=CLB
+name=Clb
 language=English
-sample_rate=16k
+sample_rate=24k
 gender=female
-format=1
+format=2
 revision=0
