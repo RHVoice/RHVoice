@@ -1,2 +1,2 @@
-use_gv=false
-msd_threshold=0.25
+beta=0.4
+gain=1.0
