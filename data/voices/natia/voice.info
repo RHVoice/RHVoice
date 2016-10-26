@@ -1,6 +1,6 @@
 name=Natia
 language=Georgian
-sample_rate=16k
+sample_rate=24k
 gender=female
-format=1
+format=2
 revision=0
