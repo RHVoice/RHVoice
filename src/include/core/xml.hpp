@@ -358,7 +358,7 @@ namespace RHVoice
       xml_text.push_back('\0');
       handler_args<ch> args(&xml_text[0],xml_text.size()-1,target_document);
       rapidxml::xml_document<ch> xml_doc;
-      xml_doc.parse<rapidxml::parse_non_destructive>(&xml_text[0]);
+      xml_doc.template parse<rapidxml::parse_non_destructive>(&xml_text[0]);
       const rapidxml::xml_node<ch>* prev_node=0;
       const rapidxml::xml_node<ch> *next_node,*first_child,*last_child;
       element_handler<ch>* elem_handler;
