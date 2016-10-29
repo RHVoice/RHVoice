@@ -573,7 +573,7 @@ namespace RHVoice
 
     T operator()(const item& i) const
     {
-      return i.eval(name).as<T>();
+      return i.eval(name).template as<T>();
     }
 
   private:
@@ -591,7 +591,7 @@ namespace RHVoice
 
       bool operator()(const item& i) const
     {
-      return (i.eval(name).as<T>()==val);
+      return (i.eval(name).template as<T>()==val);
     }
 
   private:
