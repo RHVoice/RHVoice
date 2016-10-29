@@ -5,7 +5,7 @@ repositories {
 jcenter()
     }
 dependencies {
-classpath 'com.android.tools.build:gradle:1.5.0'
+classpath 'com.android.tools.build:gradle:2.2.0'
     }
 }
 
@@ -89,7 +89,7 @@ into myExtraCoreAssetsDir
 
 android {
 compileSdkVersion myTargetSdkVersion
-buildToolsVersion '23.0.2'
+buildToolsVersion '25'
 
 defaultConfig {
 minSdkVersion myTargetSdkVersion
