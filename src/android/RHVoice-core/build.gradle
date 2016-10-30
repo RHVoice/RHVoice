@@ -1,0 +1,56 @@
+apply plugin: 'com.android.application'
+
+ext.myConfigFile=file("../../../config/RHVoice.conf")
+ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
+
+task addConfigFile(type: Copy) {
+from myConfigFile
+into myExtraCoreAssetsDir
+}
+
+android {
+compileSdkVersion myTargetSdkVersion
+buildToolsVersion rootProject.androidBuildToolsVersion
+
+defaultConfig {
+minSdkVersion myTargetSdkVersion
+targetSdkVersion myTargetSdkVersion
+applicationId "com.github.olga_yakovleva.rhvoice.android"
+versionCode 11
+versionName "0.6"
+ndk{
+abiFilters 'armeabi-v7a', 'x86'
+}
+}
+
+sourceSets.main {
+assets.srcDir myExtraCoreAssetsDir
+}
+
+if(rootProject.enableSigning) {
+signingConfigs {
+release {
+storeFile file(rootProject.keyStore)
+storePassword rootProject.keyStorePassword
+keyAlias rootProject.keyAlias
+keyPassword rootProject.keyPassword
+}
+}
+}
+
+externalNativeBuild {
+ndkBuild {
+path 'src/main/jni/Android.mk'
+}
+}
+
+buildTypes {
+release {
+if(rootProject.enableSigning) {
+signingConfig signingConfigs.release
+}
+}
+}
+}
+
+preBuild.dependsOn addConfigFile

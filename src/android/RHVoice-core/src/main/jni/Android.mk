@@ -4,7 +4,7 @@ MY_PACKAGE := RHVoice
 MY_VERSION := 0.6
 MY_DEFINES := -DPACKAGE=\"$(MY_PACKAGE)\" -DVERSION=\"$(MY_VERSION)\" -DDATA_PATH=\"\" -DCONFIG_PATH=\"\"
 
-MY_SRC_DIR := ../../../..
+MY_SRC_DIR := ../../../../..
 MY_INCLUDE_DIR := $(MY_SRC_DIR)/include
 MY_THIRD_PARTY_DIR := $(MY_SRC_DIR)/third-party
 MY_SONIC_DIR := $(MY_THIRD_PARTY_DIR)/sonic
