@@ -1,3 +1,5 @@
 local.properties
 gradle.properties
 .gradle/
+.externalNativeBuild/
+build/

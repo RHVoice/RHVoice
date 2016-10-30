@@ -1,0 +1,95 @@
+apply plugin: 'com.android.application'
+
+ext.myDataDir=file("../../../data")
+ext.myLanguagesDir=new File(myDataDir,"languages")
+ext.myVoicesDir=new File(myDataDir,"voices")
+ext.myLanguageNames=myLanguagesDir.list()
+ext.myVoiceNames=myVoicesDir.list()
+
+def getDataItemSpec(type,baseDir,dirName) {
+def spec=["type":type,"dirName":dirName]
+spec["outDataDir"]=new File(new File(new File(project.buildDir,"data"),"${type}s"),dirName)
+spec["inDataDir"]=new File(baseDir,dirName)
+spec["resDir"]=new File(spec["outDataDir"],"res")
+spec["rawDir"]=new File(spec["resDir"],"raw")
+def infoFile=new File(spec["inDataDir"],"${type}.info")
+def reader=new BufferedReader(new FileReader(infoFile))
+def props=new Properties()
+props.load(reader)
+reader.close()
+spec["format"]=Integer.parseInt(props.getProperty("format"))
+spec["revision"]=Integer.parseInt(props.getProperty("revision"))
+spec["name"]=props.getProperty("name")
+if(type.equals("voice")) {
+spec["language"]=props.getProperty("language")
+}
+spec["versionCode"]=1000*spec["format"]+10*spec["revision"]
+spec["versionName"]="${spec['format']}.${spec['revision']}"
+spec["package"]="com.github.olga_yakovleva.rhvoice.android.${type}.${dirName.toLowerCase()}"
+spec["flavor"]=type.equals("voice")?"voice-${spec['language']}-${spec['name']}":"language-${spec['name']}"
+spec["appName"]=type.equals("voice")?"RHVoice ${spec['language']} ${spec['name']}":"RHVoice ${spec['name']}"
+spec["task"]="pack_${type}_${spec['name']}"
+return spec
+}
+
+ext.myData=[]
+
+myLanguageNames.each {languageName -> myData.add(getDataItemSpec("language",myLanguagesDir,languageName))}
+myVoiceNames.each {voiceName -> myData.add(getDataItemSpec("voice",myVoicesDir,voiceName))}
+
+myData.each {spec ->
+task "${spec['task']}" (type: Zip) {
+description="Creates data archive"
+archiveName="data.zip"
+destinationDir=spec["rawDir"]
+from spec["inDataDir"]
+}
+}
+
+android {
+compileSdkVersion myTargetSdkVersion
+buildToolsVersion rootProject.androidBuildToolsVersion
+
+defaultConfig {
+minSdkVersion myTargetSdkVersion
+targetSdkVersion myTargetSdkVersion
+}
+
+productFlavors {
+myData.each {spec ->
+"${spec['flavor']}" {
+applicationId spec["package"]
+versionCode spec["versionCode"]
+versionName spec["versionName"]
+resValue "string","app_name",spec["appName"]
+}
+}
+}
+
+myData.each {spec->
+sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
+}
+
+if(rootProject.enableSigning) {
+signingConfigs {
+release {
+storeFile file(rootProject.keyStore)
+storePassword rootProject.keyStorePassword
+keyAlias rootProject.keyAlias
+keyPassword rootProject.keyPassword
+}
+}
+}
+
+buildTypes {
+release {
+if(rootProject.enableSigning) {
+signingConfig signingConfigs.release
+}
+}
+}
+}
+
+myData.each {spec ->
+preBuild.dependsOn tasks.getByName(spec["task"])
+}

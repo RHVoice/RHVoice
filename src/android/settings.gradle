@@ -1,1 +1,1 @@
-rootProject.setName("RHVoice")
+include ':RHVoice-core',':RHVoice-data'
