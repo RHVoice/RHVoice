@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,15 +15,24 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
-import android.app.Activity;
-import android.os.Bundle;
-
-public final class InstallTTSData extends UIActivity
+public final class OnPackageReceiver extends BroadcastReceiver
 {
+    private static final String TAG="RHVoiceOnPackageReceiver";
+
     @Override
-    public void onDataInstalled()
+    public void onReceive(Context context,Intent intent)
     {
-        replaceFragment(MessageFragment.newInstance(R.string.voice_data_installed),"message_fragment");
-}
+        int uid=context.getApplicationInfo().uid;
+        if(intent.getIntExtra(Intent.EXTRA_UID,uid)!=uid)
+            return;
+        String packageName=intent.getData().getSchemeSpecificPart();
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Package "+packageName+" has been installed/updated/removed");
+        context.startService(new Intent(context,DataService.class));
+    }
 }

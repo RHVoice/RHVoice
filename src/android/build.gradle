@@ -8,16 +8,25 @@ classpath 'com.android.tools.build:gradle:2.2.0'
 }
 
 allprojects {
-ext.myTargetSdkVersion=14
+ext.myMinSdkVersion=14
+ext.myCompileSdkVersion=21
+ext.myTargetSdkVersion=23
 }
 
 if(!hasProperty('androidBuildToolsVersion')) {
 ext.androidBuildToolsVersion='25.0.0'
 }
 
-if(hasProperty("enableSigning")) {
-ext.enableSigning=Boolean.parseBoolean(enableSigning)
+if(hasProperty("signRelease")) {
+ext.signRelease=Boolean.parseBoolean(signRelease)
 }
 else {
-ext.enableSigning=false
+ext.signRelease=false
+}
+
+if(hasProperty("signDebug")) {
+ext.signDebug=Boolean.parseBoolean(signDebug)
+}
+else {
+ext.signDebug=false
 }

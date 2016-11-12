@@ -47,11 +47,11 @@ from spec["inDataDir"]
 }
 
 android {
-compileSdkVersion myTargetSdkVersion
+compileSdkVersion myCompileSdkVersion
 buildToolsVersion rootProject.androidBuildToolsVersion
 
 defaultConfig {
-minSdkVersion myTargetSdkVersion
+minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 }
 
@@ -70,7 +70,7 @@ myData.each {spec->
 sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
 }
 
-if(rootProject.enableSigning) {
+if(rootProject.signRelease||rootProject.signDebug) {
 signingConfigs {
 release {
 storeFile file(rootProject.keyStore)
@@ -83,7 +83,12 @@ keyPassword rootProject.keyPassword
 
 buildTypes {
 release {
-if(rootProject.enableSigning) {
+if(rootProject.signRelease) {
+signingConfig signingConfigs.release
+}
+}
+debug {
+if(rootProject.signDebug) {
 signingConfig signingConfigs.release
 }
 }

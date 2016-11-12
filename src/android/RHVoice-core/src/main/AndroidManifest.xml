@@ -4,8 +4,11 @@
       android:sharedUserId="com.github.olga_yakovleva.rhvoice"
       android:sharedUserLabel="@string/app_name">
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-  <application>
+  <application
+    android:label="@string/app_name"
+    android:icon="@drawable/ic_launcher">
     <service
+        android:label="@string/app_name"
         android:name=".RHVoiceService">
       <intent-filter>
         <action android:name="android.intent.action.TTS_SERVICE"/>
@@ -14,19 +17,8 @@
       <meta-data android:name="android.speech.tts" android:resource="@xml/tts_engine"/>
     </service>
     <activity
-        android:name="RHVoiceActivity"
-        android:label="@string/rhvoice_settings"
-        android:theme="@android:style/Theme.Dialog"
-        android:noHistory="true">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER"/>
-        <category android:name="android.intent.category.DEFAULT"/>
-      </intent-filter>
-    </activity>
-    <activity
         android:name=".InstallTTSData"
-        android:theme="@android:style/Theme.Dialog">
+        android:label="@string/voice_data">
       <intent-filter>
         <action android:name="android.speech.tts.engine.INSTALL_TTS_DATA"/>
         <category android:name="android.intent.category.DEFAULT"/>
@@ -34,7 +26,8 @@
     </activity>
     <activity
         android:name=".CheckTTSData"
-        android:theme="@android:style/Theme.Dialog">
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoDisplay">
       <intent-filter>
         <action android:name="android.speech.tts.engine.CHECK_TTS_DATA"/>
         <category android:name="android.intent.category.DEFAULT"/>
@@ -45,7 +38,7 @@
     </service>
     <activity
         android:name=".SampleTextActivity"
-        android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        android:theme="@android:style/Theme.NoDisplay">
       <intent-filter>
         <action android:name="android.speech.tts.engine.GET_SAMPLE_TEXT"/>
         <category android:name="android.intent.category.DEFAULT"/>
@@ -54,6 +47,18 @@
     <activity
         android:name=".SettingsActivity"
         android:label="@string/rhvoice_settings">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
     </activity>
+    <receiver
+        android:name=".OnPackageReceiver">
+      <intent-filter>
+        <action android:name="android.intent.action.PACKAGE_ADDED"/>
+        <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED"/>
+      </intent-filter>
+    </receiver>    
   </application>
 </manifest>

@@ -15,6 +15,23 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.media.AudioFormat;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.speech.tts.SynthesisCallback;
+import android.speech.tts.SynthesisRequest;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeechService;
+import android.speech.tts.Voice;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
+import android.util.Log;
+import com.github.olga_yakovleva.rhvoice.*;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -26,46 +43,103 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.media.AudioFormat;
-import android.preference.PreferenceManager;
-import android.speech.tts.SynthesisCallback;
-import android.speech.tts.SynthesisRequest;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeechService;
-import android.util.Log;
-
-import com.github.olga_yakovleva.rhvoice.*;
-
-public final class RHVoiceService extends TextToSpeechService implements FutureDataResult.Receiver
+public final class RHVoiceService extends TextToSpeechService
 {
     private static final String TAG="RHVoiceTTSService";
+
     private static final int[] languageSupportConstants={TextToSpeech.LANG_NOT_SUPPORTED,TextToSpeech.LANG_AVAILABLE,TextToSpeech.LANG_COUNTRY_AVAILABLE,TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE};
 
-    private class OnPackageAddedReceiver extends BroadcastReceiver
-    {
-        @Override
-        public void onReceive(Context context,Intent intent)
+    private final BroadcastReceiver receiver=new BroadcastReceiver()
         {
-            onPackageAdded(intent);
-        }
-    }
+            @Override
+            public void onReceive(Context context,Intent intent)
+            {
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Data state changed");
+                initialize();
+}
+        };
 
-    private static class TtsState
+    private static class Tts
     {
         public TTSEngine engine=null;
-        public List<AndroidVoiceInfo> voices=new ArrayList<AndroidVoiceInfo>();
-        public Set<String> languages=new HashSet<String>();
-        public AndroidVoiceInfo voice=null;
+        public List<AndroidVoiceInfo> voices;
+        public Set<String> languages;
+        public Map<String,AndroidVoiceInfo> voiceIndex;
+
+        public Tts()
+        {
+            voices=new ArrayList<AndroidVoiceInfo>();
+            languages=new HashSet<String>();
+            voiceIndex=new HashMap<String,AndroidVoiceInfo>();
+}
+
+        public Tts(Tts other,boolean passEngine)
+        {
+            this.voices=other.voices;
+            this.languages=other.languages;
+            this.voiceIndex=other.voiceIndex;
+            if(!passEngine)
+                return;
+            this.engine=other.engine;
+            other.engine=null;
+}
     }
 
-    private volatile TtsState ttsState;
-        private OnPackageAddedReceiver onPackageAddedReceiver;
-    private FutureDataResult dataResult;
+    private static class TtsManager
+        {
+            private Tts tts;
+            private boolean done;
+
+            public synchronized void reset(Tts newTts)
+            {
+                if(newTts==null)
+                    throw new IllegalArgumentException();
+                if(tts!=null&&tts.engine!=null)
+                    tts.engine.shutdown();
+                tts=newTts;
+            }
+
+            public synchronized void destroy()
+            {
+                done=true;
+                if(tts!=null&&tts.engine!=null)
+                    tts.engine.shutdown();
+                tts=null;
+            }
+
+            public synchronized Tts acquireForSynthesis()
+            {
+                if(done)
+                    return null;
+                if(tts==null)
+                    return null;
+                if(tts.engine==null)
+                    return null;
+                Tts result=new Tts(tts,true);
+                return result;
+}
+
+            public synchronized void release(Tts usedTts)
+            {
+                if(usedTts==null||usedTts.engine==null)
+                    throw new IllegalArgumentException();
+                if(done||tts.engine!=null)
+                    usedTts.engine.shutdown();
+                else
+                    tts=new Tts(usedTts,true);
+}
+
+            public synchronized Tts get()
+            {
+                if(tts==null)
+                    return null;
+                return new Tts(tts,false);
+}
+    }
+
+    private final TtsManager ttsManager=new TtsManager();
+    private volatile AndroidVoiceInfo currentVoice;
     private volatile boolean speaking=false;
 
     private class Player implements TTSClient
@@ -106,13 +180,13 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         public final AndroidVoiceInfo voice;
         public final int score;
 
-        Candidate()
+        public Candidate()
         {
             voice=null;
             score=0;
         }
 
-        Candidate(AndroidVoiceInfo voice,String language,String country,String variant)
+        public Candidate(AndroidVoiceInfo voice,String language,String country,String variant)
         {
             this.voice=voice;
             score=voice.getSupportLevel(language,country,variant);
@@ -125,15 +199,26 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         public boolean detect;
     }
 
-    private Map<String,LanguageSettings> getLanguageSettings(TtsState state)
+    private void logLanguage(String language,String country,String variant)
+    {
+        Log.v(TAG,"Language: "+language);
+        if(TextUtils.isEmpty(country))
+            return;
+        Log.v(TAG,"Country: "+country);
+        if(TextUtils.isEmpty(variant))
+            return;
+        Log.v(TAG,"Variant: "+variant);
+}
+
+    private Map<String,LanguageSettings> getLanguageSettings(Tts tts)
     {
         Map<String,LanguageSettings> result=new HashMap<String,LanguageSettings>();
         SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(this);
-        for(String language: state.languages)
+        for(String language: tts.languages)
             {
                 LanguageSettings settings=new LanguageSettings();
                 String prefVoice=prefs.getString("language."+language+".voice",null);
-                for(AndroidVoiceInfo voice: state.voices)
+                for(AndroidVoiceInfo voice: tts.voices)
                     {
                         if(!voice.getSource().getLanguage().getAlpha3Code().equals(language))
                             continue;
@@ -156,14 +241,20 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         return result;
     }
 
-    private Candidate findBestVoice(TtsState state,String language,String country,String variant,Map<String,LanguageSettings> languageSettings)
+    private Candidate findBestVoice(Tts tts,String language,String country,String variant,String voiceName,Map<String,LanguageSettings> languageSettings)
     {
+        if(!TextUtils.isEmpty(voiceName))
+            {
+                AndroidVoiceInfo voice=tts.voiceIndex.get(voiceName);
+                if(voice!=null)
+                    return new Candidate(voice,language,country,"");
+}
         LanguageSettings settings=null;
         if(languageSettings!=null)
             settings=languageSettings.get(language);
         Candidate best=new Candidate();
         Candidate bestPreferred=new Candidate();
-        for(AndroidVoiceInfo voice: state.voices)
+        for(AndroidVoiceInfo voice: tts.voices)
             {
                 Candidate candidate=new Candidate(voice,language,country,variant);
                 if(candidate.score>best.score)
@@ -174,19 +265,25 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         return bestPreferred.score>=best.score?bestPreferred:best;
     }
 
-    public void onDataFailure()
-    {
-    }
-
-    public void onDataSuccess(String[] paths)
+    private void initialize()
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Initializing the engine");
-        TtsState newState=new TtsState();
+        DataManager dm=new DataManager(this);
+        dm.checkFiles();
+        if(!dm.isUpToDate())
+            startService(new Intent(this,DataService.class));
+        List<String> paths=dm.getUpToDatePaths();
+        if(paths.isEmpty())
+            {
+                Log.w(TAG,"No voice data");
+                return;
+}
+        Tts tts=new Tts();
         try
             {
                 File configDir=Config.getDir(this);
-                newState.engine=new TTSEngine("",configDir.getAbsolutePath(),paths,CoreLogger.instance);
+                tts.engine=new TTSEngine("",configDir.getAbsolutePath(),paths,CoreLogger.instance);
             }
         catch(Exception e)
             {
@@ -194,25 +291,24 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                     Log.e(TAG,"Error during engine initialization",e);
                 return;
             }
-        AndroidVoiceInfo firstVoice=null;
-        List<VoiceInfo> engineVoices=newState.engine.getVoices();
+        List<VoiceInfo> engineVoices=tts.engine.getVoices();
+        if(engineVoices.isEmpty())
+            {
+                if(BuildConfig.DEBUG)
+                    Log.w(TAG,"No voices");
+                tts.engine.shutdown();
+                return;
+}
         for(VoiceInfo engineVoice: engineVoices)
             {
                 AndroidVoiceInfo nextVoice=new AndroidVoiceInfo(engineVoice);
                 if(BuildConfig.DEBUG)
                     Log.i(TAG,"Found voice "+nextVoice.toString());
-                newState.voices.add(nextVoice);
-                newState.languages.add(engineVoice.getLanguage().getAlpha3Code());
-                if(firstVoice==null)
-                    firstVoice=nextVoice;
+                tts.voices.add(nextVoice);
+                tts.voiceIndex.put(nextVoice.getName(),nextVoice);
+                tts.languages.add(engineVoice.getLanguage().getAlpha3Code());
             }
-        Locale locale=Locale.getDefault();
-        Candidate bestMatch=findBestVoice(newState,locale.getISO3Language(),locale.getISO3Country(),"",getLanguageSettings(newState));
-        if(bestMatch.voice!=null)
-            newState.voice=bestMatch.voice;
-        else
-            newState.voice=firstVoice;
-        ttsState=newState;
+        ttsManager.reset(tts);
     }
 
     @Override
@@ -220,74 +316,69 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Starting the service");
-        dataResult=DataService.prepareData(this,this);
-        IntentFilter filter=new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
-        filter.addDataScheme("package");
-        onPackageAddedReceiver=this.new OnPackageAddedReceiver();
-        registerReceiver(onPackageAddedReceiver,filter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,new IntentFilter(DataService.ACTION_DATA_STATE_CHANGED));
+        initialize();
         super.onCreate();
     }
 
     @Override
     public void onDestroy()
     {
-        if(dataResult!=null)
-            dataResult.unregisterReceiver();
-        if(onPackageAddedReceiver!=null)
-            unregisterReceiver(onPackageAddedReceiver);
-        onStop();
         super.onDestroy();
-        TtsState state=ttsState;
-        if(state.engine!=null)
-            state.engine.shutdown();
-    }
-
-    private void onPackageAdded(Intent intent)
-    {
-        int uid=getApplicationInfo().uid;
-        if(intent.getIntExtra(Intent.EXTRA_UID,uid)!=uid)
-            return;
-        String packageName=intent.getData().getSchemeSpecificPart();
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Package "+packageName+" has been installed/updated");
-        if(packageName==getPackageName())
-            return;
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Trying to reload the data");
-        if(dataResult!=null)
-            {
-                dataResult.unregisterReceiver();
-                dataResult=null;
-            }
-        dataResult=DataService.prepareData(this,this);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        ttsManager.destroy();
     }
 
     @Override
     protected String[] onGetLanguage()
     {
         String[] result={"rus","RUS",""};
-        TtsState state=ttsState;
-        if(state==null)
+        AndroidVoiceInfo voice=currentVoice;
+        if(voice==null)
+            {
+                Tts tts=ttsManager.get();
+                if(tts!=null)
+                    {
+                        Locale locale=Locale.getDefault();
+                        Candidate bestMatch=findBestVoice(tts,locale.getISO3Language(),locale.getISO3Country(),"","",getLanguageSettings(tts));
+                        if(bestMatch.voice!=null)
+                            voice=bestMatch.voice;
+                    }
+            }
+        if(voice==null)
             return result;
-        result[0]=state.voice.getLanguage();
-        result[1]=state.voice.getCountry();
-        result[2]=state.voice.getVariant();
+        result[0]=voice.getLanguage();
+        result[1]=voice.getCountry();
         return result;
     }
 
     @Override
     protected int onIsLanguageAvailable(String language,String country,String variant)
     {
-        TtsState state=ttsState;
-        if(state==null)
-            return TextToSpeech.LANG_NOT_SUPPORTED;
-        Candidate bestMatch=findBestVoice(state,language,country,variant,null);
-        return languageSupportConstants[bestMatch.score];
+        if(BuildConfig.DEBUG)
+            {
+                Log.v(TAG,"onIsLanguageAvailable called");
+                logLanguage(language,country,variant);
+}
+        Tts tts=ttsManager.get();
+        if(tts==null)
+            {
+                if(BuildConfig.DEBUG)
+                    Log.w(TAG,"Not initialized yet");
+                return TextToSpeech.LANG_NOT_SUPPORTED;
+            }
+        Candidate bestMatch=findBestVoice(tts,language,country,variant,"",null);
+        int result=languageSupportConstants[bestMatch.score];
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Result: "+result);
+        return result;
     }
 
     @Override
     protected int onLoadLanguage(String language,String country,String variant)
     {
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onLoadLanguage called");
         return onIsLanguageAvailable(language,country,variant);
     }
 
@@ -301,9 +392,12 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
     protected void onSynthesizeText(SynthesisRequest request,SynthesisCallback callback)
     {
         if(BuildConfig.DEBUG)
-            Log.v(TAG,"onSynthesize called");
-        TtsState state=ttsState;
-        if(state==null)
+            {
+                Log.v(TAG,"onSynthesize called");
+                logLanguage(request.getLanguage(),request.getCountry(),request.getVariant());
+            }
+        Tts tts=ttsManager.acquireForSynthesis();
+        if(tts==null)
             {
                 if(BuildConfig.DEBUG)
                     Log.w(TAG,"Not initialized yet");
@@ -313,24 +407,26 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         try
             {
                 speaking=true;
-                String langDesc="language="+request.getLanguage()+"&&country="+request.getCountry()+"&&variant="+request.getVariant();
-                Map<String,LanguageSettings> languageSettings=getLanguageSettings(state);
-                final Candidate bestMatch=findBestVoice(state,request.getLanguage(),request.getCountry(),request.getVariant(),languageSettings);
+                Map<String,LanguageSettings> languageSettings=getLanguageSettings(tts);
+                String voiceName="";
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
+                    voiceName=request.getVoiceName();
+                final Candidate bestMatch=findBestVoice(tts,request.getLanguage(),request.getCountry(),request.getVariant(),voiceName,languageSettings);
                 if(bestMatch.voice==null)
                     {
                         if(BuildConfig.DEBUG)
-                            Log.e(TAG,"Unsupported language: "+langDesc);
+                            Log.e(TAG,"Unsupported language");
                         callback.error();
                         return;
                     }
                 if(BuildConfig.DEBUG)
-                    Log.v(TAG,"Requested language: "+langDesc+", selected voice: "+bestMatch.voice.getSource().getName());
-                state.voice=bestMatch.voice;
+                    Log.v(TAG,"Selected voice: "+bestMatch.voice.getSource().getName());
+                currentVoice=bestMatch.voice;
                 StringBuilder voiceProfileSpecBuilder=new StringBuilder();
                 voiceProfileSpecBuilder.append(bestMatch.voice.getSource().getName());
                 for(Map.Entry<String,LanguageSettings> entry: languageSettings.entrySet())
                     {
-                        if(entry.getKey().equals(request.getLanguage()))
+                        if(entry.getKey().equals(bestMatch.voice.getLanguage()))
                             continue;
                         if(entry.getValue().detect)
                             {
@@ -355,7 +451,7 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
                 params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);
                 callback.start(24000,AudioFormat.ENCODING_PCM_16BIT,1);
-                state.engine.speak(request.getText(),params,player);
+                tts.engine.speak(request.getText(),params,player);
                 callback.done();
             }
         catch(RHVoiceException e)
@@ -367,6 +463,69 @@ public final class RHVoiceService extends TextToSpeechService implements FutureD
         finally
             {
                 speaking=false;
+                ttsManager.release(tts);
             }
     }
+
+    @Override
+    public String onGetDefaultVoiceNameFor(String language,String country,String variant)
+    {
+        if(BuildConfig.DEBUG)
+            {
+                Log.v(TAG,"onGetDefaultVoiceNameFor called");
+                    logLanguage(language,country,variant);
+                    }
+        Tts tts=ttsManager.get();
+        if(tts==null)
+            return null;
+        Candidate bestMatch=findBestVoice(tts,language,country,variant,"",getLanguageSettings(tts));
+        if(bestMatch==null||bestMatch.voice==null)
+            return null;
+        String name=bestMatch.voice.getName();
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Voice name: "+name);
+        return name;
+}
+
+    @Override
+    public List<Voice> onGetVoices()
+    {
+        List<Voice> result=new ArrayList<Voice>();
+        Tts tts=ttsManager.get();
+        if(tts==null)
+            return result;
+        for(AndroidVoiceInfo voice: tts.voices)
+            {
+                result.add(voice.getAndroidVoice());
+            }
+        return result;
+    }
+
+    @Override
+    public int onIsValidVoiceName(String name)
+    {
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onIsValidVoiceName called for name "+name);
+        Tts tts=ttsManager.get();
+        if(tts==null)
+            return TextToSpeech.ERROR;
+        if(tts.voiceIndex.containsKey(name))
+            {
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Voice found");
+                return TextToSpeech.SUCCESS;
+            }
+        else
+            {
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Voice not found");
+                return TextToSpeech.ERROR;
+            }
+}
+
+    @Override
+    public int onLoadVoice(String name)
+    {
+        return TextToSpeech.SUCCESS;
+}
 }

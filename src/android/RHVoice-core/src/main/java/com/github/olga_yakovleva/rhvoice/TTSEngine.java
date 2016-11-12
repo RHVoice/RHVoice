@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -38,6 +38,11 @@ public final class TTSEngine
     {
         onInit(data_path,config_path,resource_paths,logger);
     }
+
+    public TTSEngine(String data_path,String config_path,List<String> resource_paths,Logger logger) throws RHVoiceException
+    {
+        this(data_path,config_path,resource_paths.toArray(new String[resource_paths.size()]),logger);
+}
 
     public TTSEngine() throws RHVoiceException
     {

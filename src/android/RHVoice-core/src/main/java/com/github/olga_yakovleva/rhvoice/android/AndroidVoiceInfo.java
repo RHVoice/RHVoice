@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,7 +15,11 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.speech.tts.Voice;
+import android.text.TextUtils;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
+import java.util.HashSet;
+import java.util.Locale;
 
 public final class AndroidVoiceInfo
 {
@@ -38,7 +42,11 @@ public final class AndroidVoiceInfo
 
     public String getCountry()
     {
-        return source.getLanguage().getAlpha3CountryCode();
+        String code=source.getLanguage().getAlpha3CountryCode();
+        if(TextUtils.isEmpty(code))
+            return "";
+        else
+            return code.toUpperCase();
     }
 
     public String getVariant()
@@ -49,13 +57,13 @@ public final class AndroidVoiceInfo
     public int getSupportLevel(String language,String country,String variant)
     {
         int result=0;
-        if((language!=null)&&language.equals(getLanguage()))
+        if((language!=null)&&language.equalsIgnoreCase(getLanguage()))
             {
                 ++result;
-                if((country!=null)&&country.equals(getCountry()))
+                if((country!=null)&&country.equalsIgnoreCase(getCountry()))
                     {
                         ++result;
-                        if((variant!=null)&&variant.equals(getVariant()))
+                        if((variant!=null)&&variant.equalsIgnoreCase(getVariant()))
                             ++result;
                     }
             }
@@ -94,4 +102,24 @@ public final class AndroidVoiceInfo
             return false;
         return (source.getName().equals(((AndroidVoiceInfo)other).source.getName()));
     }
+
+    public String getName()
+    {
+        return source.getName();
+}
+
+    public Locale getLocale()
+    {
+        String language=source.getLanguage().getAlpha2Code();
+        String country=source.getLanguage().getAlpha2CountryCode();
+        if(TextUtils.isEmpty(country))
+            return new Locale(language);
+        else
+            return new Locale(language,country);
+}
+
+    public Voice getAndroidVoice()
+    {
+        return new Voice(getName(),getLocale(),Voice.QUALITY_NORMAL,Voice.LATENCY_NORMAL,false,new HashSet<String>());
+}
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,118 +15,59 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import com.github.olga_yakovleva.rhvoice.VoiceInfo;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import android.util.Log;
-import com.github.olga_yakovleva.rhvoice.*;
 
-public final class CheckTTSData extends Activity implements FutureDataResult.Receiver
+public final class CheckTTSData extends Activity
 {
     private static final String TAG="RHVoiceCheckDataActivity";
-    private FutureDataResult dataResult;
+    private DataManager dm;
+    private ArrayList<String> languageTags=new ArrayList<String>();
 
-    private List<AndroidVoiceInfo> listVoices(String[] paths) throws RHVoiceException,IOException
+    private void checkData()
     {
-        TTSEngine engine=new TTSEngine("",Config.getDir(this).getAbsolutePath(),paths,CoreLogger.instance);
-        List<VoiceInfo> voices=engine.getVoices();
-        engine.shutdown();
-        List<AndroidVoiceInfo> result=new ArrayList(voices.size());
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Checking");
+        DataManager dm=new DataManager(this);
+        dm.checkFiles();
+        dm.checkVoices();
+        List<VoiceInfo> voices=dm.getVoices();
         for(VoiceInfo voice: voices)
             {
-                AndroidVoiceInfo androidVoice=new AndroidVoiceInfo(voice);
-                result.add(androidVoice);
-            }
-        return result;
-    }
-
-    private void reply(int resultCode,ArrayList<String> availableVoices,ArrayList<String> unavailableVoices)
-    {
-        final Intent intent=new Intent();
-        if(availableVoices!=null)
-            intent.putExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES,availableVoices);
-        if(unavailableVoices!=null)
-            intent.putExtra(TextToSpeech.Engine.EXTRA_UNAVAILABLE_VOICES,unavailableVoices);
-        setResult(resultCode,intent);
-        finish();
-    }
-
-    public void onDataSuccess(String[] paths)
-    {
-        List<AndroidVoiceInfo> voices=null;
-        try
-            {
-                voices=listVoices(paths);
-            }
-        catch(Exception e)
-            {
+                String languageTag=voice.getLanguage().getTag3();
+                if(languageTags.contains(languageTag))
+                    continue;
+                languageTags.add(languageTag);
                 if(BuildConfig.DEBUG)
-                    Log.e(TAG,"Unable to list installed voices",e);
-            }
-        if(voices==null)
-            reply(TextToSpeech.Engine.CHECK_VOICE_DATA_FAIL,null,null);
-        else
+                    Log.i(TAG,languageTag);
+}
+        Collections.sort(languageTags);
+        if(!dm.isUpToDate())
+            startService(new Intent(this,DataService.class));
+}
+
+    @Override
+    protected void onCreate(Bundle state)
+    {
+        super.onCreate(state);
+        checkData();
+        Intent resultIntent=new Intent();
+        if(!languageTags.isEmpty())
             {
-                ArrayList<String> availableVoices=new ArrayList<String>();
-                ArrayList<String> unavailableVoices=new ArrayList<String>();
-                final ArrayList<String> requestedVoices=getIntent().getStringArrayListExtra(TextToSpeech.Engine.EXTRA_CHECK_VOICE_DATA_FOR);
-                if((requestedVoices==null)||requestedVoices.isEmpty())
-                    {
-                        Set<String> locales=new LinkedHashSet<String>();
-                        for(AndroidVoiceInfo voice: voices)
-                            {
-                                locales.add(voice.getLanguage()+"-"+voice.getCountry());
-                            }
-                        availableVoices.addAll(locales);
-                    }
-                else
-                    {
-                        Set<String> matchingVoices=new LinkedHashSet<String>();
-                        for(String name: requestedVoices)
-                            {
-                                boolean found=false;
-                                for(AndroidVoiceInfo voice: voices)
-                                    {
-                                        if(voice.matches(name))
-                                            {
-                                                matchingVoices.add(voice.toString());
-                                                found=true;
-                                            }
-                                    }
-                                if(!found)
-                                    unavailableVoices.add(name);
-                            }
-                        availableVoices.addAll(matchingVoices);
-                    }
-                reply(TextToSpeech.Engine.CHECK_VOICE_DATA_PASS,availableVoices,unavailableVoices);
-            }
-    }
-
-    public void onDataFailure()
-    {
-        reply(TextToSpeech.Engine.CHECK_VOICE_DATA_FAIL,null,null);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.check);
-        dataResult=DataService.checkData(this,this);
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        if(dataResult!=null)
-            dataResult.unregisterReceiver();
-        super.onDestroy();
-    }
+                resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES,languageTags);
+                resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_UNAVAILABLE_VOICES,new ArrayList<String>());
+                setResult(TextToSpeech.Engine.CHECK_VOICE_DATA_PASS,resultIntent);
+}
+        else
+            setResult(TextToSpeech.Engine.CHECK_VOICE_DATA_FAIL,resultIntent);
+        finish();
+}
 }

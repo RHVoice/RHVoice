@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -14,6 +14,8 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 package com.github.olga_yakovleva.rhvoice;
+
+import android.text.TextUtils;
 
 public final class LanguageInfo
 {
@@ -72,4 +74,12 @@ public final class LanguageInfo
     {
         return alpha3_country_code;
     }
+
+    public String getTag3()
+    {
+        if(TextUtils.isEmpty(alpha3_country_code))
+            return alpha3_code;
+        else
+            return (alpha3_code+"-"+alpha3_country_code.toUpperCase());
+}
 }
