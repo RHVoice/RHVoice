@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,15 +15,25 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-
-import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-public final class InstallTTSData extends UIActivity
+public abstract class UIFragment extends Fragment
 {
-    @Override
-    public void onDataInstalled()
+    protected abstract int getLayout();
+
+    protected void setViewContent(View view)
     {
-        replaceFragment(MessageFragment.newInstance(R.string.voice_data_installed),"message_fragment");
+}
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle state)
+    {
+        View view=inflater.inflate(getLayout(),container,false);
+        setViewContent(view);
+        return view;
 }
 }

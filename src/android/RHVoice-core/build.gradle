@@ -9,17 +9,17 @@ into myExtraCoreAssetsDir
 }
 
 android {
-compileSdkVersion myTargetSdkVersion
+compileSdkVersion myCompileSdkVersion
 buildToolsVersion rootProject.androidBuildToolsVersion
 
 defaultConfig {
-minSdkVersion myTargetSdkVersion
+minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode 11
+versionCode 12
 versionName "0.6"
 ndk{
-abiFilters 'armeabi-v7a', 'x86'
+abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
 }
 }
 
@@ -27,7 +27,7 @@ sourceSets.main {
 assets.srcDir myExtraCoreAssetsDir
 }
 
-if(rootProject.enableSigning) {
+if(rootProject.signRelease||rootProject.signDebug) {
 signingConfigs {
 release {
 storeFile file(rootProject.keyStore)
@@ -46,11 +46,20 @@ path 'src/main/jni/Android.mk'
 
 buildTypes {
 release {
-if(rootProject.enableSigning) {
+if(rootProject.signRelease) {
+signingConfig signingConfigs.release
+}
+}
+debug {
+if(rootProject.signDebug) {
 signingConfig signingConfigs.release
 }
 }
 }
+}
+
+dependencies {
+compile 'com.android.support:support-core-utils:25.0.0'
 }
 
 preBuild.dependsOn addConfigFile
