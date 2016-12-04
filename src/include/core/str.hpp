@@ -512,6 +512,15 @@ namespace RHVoice
       else
         throw std::invalid_argument("Invalid type representation as a string");
     }
+
+    inline bool is_single_char(const std::string& s)
+    {
+      if(s.empty())
+        return false;
+      utf8_string_iterator it=utf8_string_begin(s);
+      ++it;
+      return (it==utf8_string_end(s));
+    }
   }
 }
 #endif

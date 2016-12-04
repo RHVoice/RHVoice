@@ -19,12 +19,12 @@ b|c|d|f|g|h|j|k|l|m|n|p|r|s|t|q|v|w|x|z |
 B|C|D|F|G|H|J|K|L|M|N|P|R|S|T|Q|V|W|X|Z ; 
 
 define Vowel 
-а|е|є|и|і|ї|о|у|ю|я|А|Е|Є|И|І|Ї|О|У|Ю|Я | 
+а|е|э|є|и|ы|і|ї|о|у|ю|я|ё|А|Е|Э|Є|И|Ы|І|Ї|О|У|Ю|Я|Ё | 
 a|e|i|o|u|y | 
 A|E|I|O|U|Y ; 
 
 define Letter 
-Consonant|Vowel|ь;
+Consonant|Vowel|ь|Ь|ъ|Ъ ; 
 
 define Apos %'|’;
 
@@ -40,7 +40,7 @@ define ConsonantSequence
 Consonant+ - [в|В|з|З|й|Й|б|Б|ж|Ж];
 
 define LetterSequence 
-ConsonantSequence | ь+ ;
+ConsonantSequence | [ь|Ь|ъ|Ъ]+ ; 
 
 define BasicTokenizer 
 Word @-> ... word || _ ,, 

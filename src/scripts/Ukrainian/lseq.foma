@@ -24,6 +24,9 @@ define InitialLetterMapping
 [у|u] : u0 | 
 [ю] : [j u0] | 
 [я] : [j a0] | 
+ё : [j o0] | 
+э : [r o0 s ii1 j s k a0 e1] | 
+ы : [r o0 s ii1 j s k a0 i1] | 
 [б|b] : [b e0] | 
 [г] : [gh e0] | 
 [ґ|g] : [g e0] | 
@@ -47,6 +50,7 @@ define InitialLetterMapping
 [й|j] : [j o0 t] | 
 [в|v] : [w e0] | 
 [ь] : [m j a1 k i0 j z n a1 k] | 
+ъ : [t w e1 r d i0 j z n a1 k] | 
 h : [gh a0] | 
 q : [k u0] | 
 w : [d u0 b lj v e0] | 
