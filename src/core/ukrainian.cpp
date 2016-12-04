@@ -80,7 +80,8 @@ namespace RHVoice
   {
     std::vector<std::string> transcription;
     const std::string& name=word.get("name").as<std::string>();
-    if(word.has_feature("lseq"))
+    const item& word_in_phrase=word.as("Phrase");
+    if(word.has_feature("lseq")||(str::is_single_char(name)&&!word_in_phrase.has_next()&&!word_in_phrase.has_prev()))
       {
         lseq_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
         return transcription;

@@ -13,31 +13,33 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-define Letter б|г|ґ|д|ж|з|к|л|м|н|п|р|с|т|ф|х|ц|ч|ш|щ|а|е|є|и|і|ї|о|у|ю|я|А|Е|Є|И|І|Ї|О|У|Ю|Я|й|в|ь|%'|’ ; 
+define Letter б|г|ґ|д|ж|з|к|л|м|н|п|р|с|т|ф|х|ц|ч|ш|щ|а|е|э|є|и|ы|і|ї|о|у|ю|я|ё|А|Е|Э|Є|И|Ы|І|Ї|О|У|Ю|Я|Ё|й|в|ь|ъ|%'|’ ; 
 
 define Word Letter + ; 
 
 define InitialLetterMapping 
 а : a0 | 
-е : e0 | 
+[е|э] : e0 | 
 є : [J e0] | 
-и : i0 | 
+[и|ы] : i0 | 
 і : ii0 | 
 ї : [j ii0] | 
 о : o0 | 
 у : u0 | 
 ю : [J u0] | 
-я : [J a0] | 
+я : [J a0] |
+ё : [J o0] | 
 А : a1 | 
-Е : e1 | 
+[Е|Э] : e1 | 
 Є : [J e1] | 
-И : i1 | 
+[И|Ы] : i1 | 
 І : ii1 | 
 Ї : [j ii1] | 
 О : o1 | 
 У : u1 | 
 Ю : [J u1] | 
-Я : [J a1] | 
+Я : [J a1] |
+Ё : [J o1] | 
 б : b | 
 г : gh | 
 ґ : g | 
@@ -63,7 +65,7 @@ define InitialLetterMapping
 й : j | 
 в : w |
 ь : softSign | 
-[%' | ’] : apos ; 
+[%' | ’ | ъ] : apos ; 
 
 define InitialTranscription InitialLetterMapping @-> ; 
 
