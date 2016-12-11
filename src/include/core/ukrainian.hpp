@@ -35,6 +35,11 @@ namespace RHVoice
     }
     #endif
 
+    std::string get_country() const
+    {
+      return "UKR/UA";
+    }
+
   private:
     smart_ptr<language> create_instance() const;
   };
