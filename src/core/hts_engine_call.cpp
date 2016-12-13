@@ -50,8 +50,9 @@ namespace RHVoice
       samples.clear();
       for(std::size_t i=0;i<input.size();++i)
         {
-          short s=input[i]*32768;
-          samples.push_back(std::max<short>(-32768,std::min<short>(32767,s)));
+          sample_type s=input[i]*32768;
+          s=std::max<sample_type>(-32768,std::min<sample_type>(32767,s));
+          samples.push_back(static_cast<short>(s));
         }
       bool should_continue=player->play_speech(&samples[0],samples.size());
       if(!should_continue)
