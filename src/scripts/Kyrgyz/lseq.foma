@@ -1,0 +1,56 @@
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define TranscribeLetter 
+а:a | 
+б:[b e] | 
+в:[v e] | 
+г:[g e] | 
+д:[d e] | 
+е:[j e] | 
+ё:[j o] | 
+ж:[dzh e] | 
+з:[z e] | 
+и:i | 
+й:[i j] | 
+к:[k a] | 
+л:[ e l] | 
+м:[e m] | 
+н:[e n] | 
+ң:[y ng] | 
+о:o | 
+ө:of | 
+п:[p e] | 
+р:[e r] | 
+с:[e s] | 
+т:[t e] | 
+уu | 
+ү:uf | 
+ф:[e f] | 
+х:[h a] | 
+ц:[c e] | 
+ч:[ch e] | 
+ш:[sh a] | 
+щ:[sch a] | 
+ь:[i ch k e r t uuf b e l g i s i] | 
+ы:y | 
+ъ:[a dzh y r a t uu b e l g i s i] | 
+э:e | 
+ю:[j u] | 
+я:[j a] ; 
+
+define TranscribeLetterSequence TranscribeLetter+ ; 
+
+regex TranscribeLetterSequence ;

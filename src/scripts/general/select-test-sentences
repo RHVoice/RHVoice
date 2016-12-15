@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
-# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2016, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ def output_result(sentences):
 		f.write("</speak>\n")
 
 if __name__=="__main__":
-	most_frequent_words=read_most_frequent_words(5000)
+	most_frequent_words=read_most_frequent_words(100000)
 	candidate_sentences=read_candidate_sentences(most_frequent_words)
 	sentences=select_sentences(candidate_sentences,100)
 	output_result(sentences)
