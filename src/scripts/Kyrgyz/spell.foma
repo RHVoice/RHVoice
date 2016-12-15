@@ -1,0 +1,80 @@
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define KyrgyzLetter 
+[[а|А]:а] | 
+[[б|Б]:бэ] | 
+[[в|В]:вэ] | 
+[[г|Г]:гэ] | 
+[[д|Д]:дэ] | 
+[[е|Е]:йэ] | 
+[[ж|Ж]:жэ] | 
+[[з|З]:зэ] | 
+[[и|И]:и] | 
+[[й|Й]:ий | 
+[[к|К]:ка] | 
+[[л|Л]:эл] | 
+[[м|М]:эм] | 
+[[н|Н]:эн] | 
+[[ң|Ң]:ың] | 
+[[о|О]:о] | 
+[[ө|Ө]:ө] | 
+[[п|П]:пэ] | 
+[[р|Р]:эр] | 
+[[с|С]:эс] | 
+[[т|Т]:тэ] | 
+[[у|У]:у] | 
+[[ү|Ү]:ү] | 
+[[ф|Ф]:эф] | 
+[[х|Х]:ха] | 
+[[ц|Ц]:цэ] | 
+[[ч|Ч]:чэ] | 
+[[ш|Ш]:ша] | 
+[[щ|Щ]:ща] | 
+[[ъ|Ъ]:[ажыратуу белгиси]] | 
+[[ы|Ы]:ы] | 
+[[ь|Ь]:[ичкертүү белгиси]] | 
+[[э|Э]:э] | 
+[[ю|Ю]:йу] | 
+[[я|Я]:йа] | 
+[[Ё|ё]:йо] ; 
+
+define Digit %0:Нөл|1:бир|2:эки|3:үч|4:төрт|5:беш|6:алты|7:жети|8:сегиз|9:тогуз;
+
+define Whitespace 
+tab:таб | 
+sp:пробел ; 
+
+define Punctuation 
+%,:үтүр | 
+%.:чекит | 
+%?:[суроо белиси] | 
+%!:[илеп белгиси] | 
+%::[кош чекит] | 
+%;:[үтүрлүү чекит] | 
+%":тырмакча | 
+%-:сызыкча | 
+[%(:[кашаа ачуу]] | 
+[%):[кашаа жабуу]] ; 
+
+define Symbol 
+%%:пайыз | 
+%#:торчо | 
+%*:жылдызча | 
+%@:маймылча ; 
+
+regex 
+KyrgyzLetter | Digit | Whitespace | Punctuation | Symbol ; 
+

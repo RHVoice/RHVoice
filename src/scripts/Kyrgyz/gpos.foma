@@ -1,0 +1,46 @@
+# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Postposition 
+менен | үчүн | тууралуу | боюнча | жөнүндө | чейин | кийин | башка | илгери | мурун | көрө | каршы | бери | дейре | жараша | караганда | карай | көздөй | тартып | бери | карата ; 
+
+define Conjunction 
+жана | жана дагы | дагы | жана да | менен да | дале | деле | нары | ары | же | же болбосо | ал эми | антсе да | бирок | бирок да | ошентсе да | анткени менен | ошондой болсо да | анткени | эгер | эгерде | ошондуктан | андыктан | канчалык | ошончолук | да | ошондой болсо да | же | не | себеби ; 
+
+define Particle 
+бейм | го | ко | имиш | миш | сыягы | абдан | өтө | эң | ушунчалык | укмуштай | эбегейсиз | иттей | гана | эле | чейин | ээ | ыя | а? | ии | нак | как | деле | эч | түк | такыр | таптакыр | жок | бир да | эч бир | ооба | ананчы | сөзсүз | албетте | гой ; 
+
+define ModalWord 
+адатта | айталы | айтмакчы | албетте | алсак | болжолу | мүмкүн | өзгөчө | сөзсүз | балким | чамасы | сыягы | ыктымал | тийиш | керек | көрүнөт | айтмакчы | кыскасын айтканда | шексиз | сыяктуу | тескерсинче | экинчиден | айтор | кыязы ; 
+
+define FunctionWord Conjunction | Preposition | Particle  | ModalWord ; 
+
+regex 
+Conjunction -> conj || _ ,, 
+Preposition -> prep || _ ,, 
+Particle -> part || _ ,, 
+\FunctionWord -> content || _ ; 
+
+define FunctionWordMapping 
+[[? & Postposition] : post] .P. 
+[[? & Conjunction] : conj] .P. 
+[[? & Particle] : part] .P. 
+[[? & ModalWord] : mod] ; 
+
+define WordMapping 
+FunctionWordMapping .P. [\FunctionWord : content] ; 
+
+regex 
+WordMapping -> ; 

@@ -1,0 +1,75 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
+
+# Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import collections
+import xml.etree.ElementTree as xml
+
+if __name__!="__main__":
+	sys.exit()
+
+inpath=sys.argv[1]
+outlen=int(sys.argv[2])
+assert(outlen>=2)
+
+symbols=set()
+pairs=collections.defaultdict(set)
+
+doc=xml.parse(inpath)
+prefix=""
+for feat in doc.getroot().iterfind("format/feature"):
+	suffix=feat.tail.strip()
+	if len(suffix)==1:
+		symbols.add(suffix)
+		if len(prefix)==1:
+			pairs[prefix].add(suffix)
+	prefix=suffix
+
+def output(seq):
+	for sym in seq:
+		print(sym)
+	sys.exit()
+
+def reject(seq):
+	if len(seq)<2:
+		return False
+	for i in xrange(0,len(seq)-2):
+		if seq[i]==seq[-2] and seq[i+1]==seq[-1]:
+			return True
+	return False
+
+def accept(seq):
+	if len(seq)!=outlen:
+		return False
+	return (not reject(seq))
+
+def bt(seq):
+	if reject(seq):
+		return
+	if accept(seq):
+		output(seq)
+	if seq:
+		candidates=symbols-pairs[seq[-1]]
+	else:
+		candidates=symbols
+	for sym in sorted(candidates):
+		seq.append(sym)
+		bt(seq)
+		seq.pop()
+
+bt([])
