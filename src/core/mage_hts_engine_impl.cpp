@@ -207,6 +207,8 @@ namespace RHVoice
       {
         skip_dur+=mod->getState(i).duration;
       }
+    if(mod->getState(MAGE::nOfStates-1).duration>6)
+      skip_dur+=(mod->getState(MAGE::nOfStates-1).duration-6);
     MAGE::FrameQueue* fq=mage->getFrameQueue();
     int dur=0;
     while(!(output->is_stopped()||fq->isEmpty()))
