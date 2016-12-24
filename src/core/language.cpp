@@ -959,7 +959,7 @@ namespace RHVoice
   language_list::language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path,const event_logger& logger)
   {
     const std::string tag="language_list";
-    register_language<russian_info>("Russian",2);
+    register_language<russian_info>("Russian",3);
     register_language<english_info>("English",2);
     register_language<esperanto_info>("Esperanto",1);
     register_language<georgian_info>("Georgian",1);
