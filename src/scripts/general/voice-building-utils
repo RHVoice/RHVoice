@@ -202,6 +202,10 @@ class htk_segmenter(task):
 		self.make_dirs()
 		self.workdir="htk"
 		self.phoneset=self.get_phoneset()
+		self.plosives=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="s")
+		self.affricates=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="a")
+		self.stops=self.plosives|self.affricates
+		self.voiced_consonants=set(phone for phone,features in self.phoneset.iteritems() if features.get("cvox")=="+")
 		self.wavdir=os.path.join("data","wav")
 		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavdir))]
 		self.param_settings={
@@ -225,13 +229,14 @@ class htk_segmenter(task):
 		self.param_conf_path=os.path.join(self.workdir,"param.conf")
 		self.hmmdir=os.path.join(self.workdir,"hmm")
 		self.proto_path=os.path.join(self.workdir,"proto")
+		self.merge_cl_script_path=os.path.join(self.workdir,"merge_cl.led")
 
 	def transcribe(self):
 		self.transcriptions=[]
 		self.lex={"SILENCE":[["pau"]]}
 		self.lex["PAUSE"]=[["pau"],["skip"]]
 		self.lex["JUNCTURE"]=[["skip"],["pau"]]
-		phoneset=set(["pau"])
+		phoneset=set()
 		trans_path=os.path.join(self.workdir,"transcription")
 		subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],trans_path])
 		i=-1
@@ -243,24 +248,31 @@ class htk_segmenter(task):
 				words=[]
 				i+=1
 				name=self.recordings[i]
-				phones[0]="start"
-				phones[-1]="end"
-				pron=[]
-				for ph in phones[1:]:
-					if ph in ["ssil","pau","end"]:
-						word="_".join(pron).upper()
-						self.lex[word]=[pron]
-						words.append(word)
+				for ph in phones[1:-1]:
+					if ph in ["ssil","pau"]:
 						if ph=="pau":
 							words.append("PAUSE")
 						elif ph=="ssil":
 							words.append("JUNCTURE")
-						pron=[]
 					else:
 						phoneset.add(ph)
-						pron.append(ph)
+						words.append(ph)
 				self.transcriptions.append([name,words])
-		self.phonelist=sorted(phoneset)
+		self.phonelist=["pau","vcl","ucl"]
+		for ph in phoneset:
+			self.phonelist.append(ph)
+			if ph in self.stops:
+				cl="vcl" if ph in self.voiced_consonants else "ucl"
+				self.lex[ph]=[[cl,ph]]
+			else:
+				self.lex[ph]=[[ph]]
+		self.phonelist.sort()
+
+	def output_merge_cl_script(self):
+		with open(self.merge_cl_script_path,"wt") as f_out:
+			for ph in sorted(self.stops):
+				cl="vcl" if ph in self.voiced_consonants else "ucl"
+				f_out.write("ME {ph} {cl} {ph}\n".format(ph=ph,cl=cl))
 
 	def output_dict(self):
 		dict_path=os.path.join(self.workdir,"dict")
@@ -456,10 +468,15 @@ class htk_segmenter(task):
 		print("Aligning with hmm {}".format(i))
 		self.hrun("HVite","-o","SW","-l","*","-b","SILENCE","-C",self.param_conf_path,"-a","-H",os.path.join(moddir,"macros"),"-H",os.path.join(moddir,"hmmdefs"),"-i",outmlf1,"-m","-t","250.0","-y","lab","-I",inmlf,"-S",self.mfcc_scp_path,dict_path,phlist,tag="align{}".format(j))
 		print("Done")
-		self.hrun("HLEd","-l","*","-i",outmlf2,os.path.join(scriptdir,"pau.led"),outmlf1,tag="fix{}".format(j))
+		self.hrun("HLEd","-l","*","-i",outmlf2,os.path.join(scriptdir,"pau.led"),outmlf1,tag="fixpau{}".format(j))
 
-	def load_alignments(self,j):
-		path=os.path.join(self.workdir,"phones{}.mlf".format(j))
+	def merge_cl(self,j):
+		outmlf=os.path.join(self.workdir,"result.mlf")
+		inmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
+		self.hrun("HLEd","-l","*","-i",outmlf,self.merge_cl_script_path,inmlf,tag="fixcl{}".format(j))
+
+	def load_alignments(self):
+		path=os.path.join(self.workdir,"result.mlf")
 		lines=self.read_lines(path)[1:]
 		self.alignments=[]
 		self.durations=collections.defaultdict(list)
@@ -482,20 +499,15 @@ class htk_segmenter(task):
 
 	def fix_labels(self):
 		self.labels=[]
-		plosives=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="s")
-		affricates=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="a")
-		stops=plosives|affricates
 		pau_plus_stop_limits=dict()
-		for phone in stops:
+		for phone in self.stops:
 			pau_plus_stop_limits[phone]=stats.scoreatpercentile(self.durations[phone],95)
 		for file_name,labs in self.alignments:
 			new_labs=[list(labs[0]),list(labs[1])]
 			for i in xrange(2,len(labs)-1):
-				if new_labs[-1][2]=="pau" and labs[i][2] in stops and (labs[i][1]-new_labs[-1][0]) < pau_plus_stop_limits[labs[i][2]]:
+				if new_labs[-1][2]=="pau" and labs[i][2] in self.stops and (labs[i][1]-new_labs[-1][0]) < pau_plus_stop_limits[labs[i][2]]:
 					new_labs[-1][1]=labs[i][1]
 					new_labs[-1][2]=labs[i][2]
-				elif labs[i][2]=="pau" and new_labs[-1][2] in stops and (labs[i][1]-new_labs[-1][0]) < pau_plus_stop_limits[new_labs[-1][2]]:
-					new_labs[-1][1]=labs[i][1]
 				else:
 					new_labs.append(list(labs[i]))
 			new_labs.append(list(labs[-1]))
@@ -510,6 +522,7 @@ class htk_segmenter(task):
 
 	def __call__(self,args):
 		self.setup()
+		self.output_merge_cl_script()
 		self.transcribe()
 		self.output_dict()
 		self.output_words_mlf()
@@ -530,7 +543,8 @@ class htk_segmenter(task):
 		self.align(n,3)
 		n=self.reest_until(n,3,0.001,max_reest_iter)
 		self.align(n,4)
-		self.load_alignments(4)
+		self.merge_cl(4)
+		self.load_alignments()
 		self.fix_labels()
 		self.save_labels()
 
