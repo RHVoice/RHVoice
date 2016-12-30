@@ -50,7 +50,7 @@ start_of_sound=Get time from sample number... first_sample
 end_of_sound=Get time from sample number... last_sample
 snd=Extract part... start_of_sound end_of_sound rectangular 1 no
 endif
-To TextGrid (silences)... 100 0 -30 min_sil_dur 0.05 silent sounding
+To TextGrid (silences)... 100 0 -40 min_sil_dur 0.05 silent sounding
 num_intervals=Get number of intervals... 1
 start=0
 label$=Get label of interval... 1 1
