@@ -427,9 +427,6 @@ class htk_segmenter(task):
 				return float(m.group(1))
 		raise RuntimeError("Average log prob per frame not found")
 
-	def get_epsilon(self,i):
-		return (self.get_alppf(i)-self.get_alppf(i-1))
-
 	def reest(self,i,j):
 		phlist=os.path.join(self.workdir,"phonelist")
 		phmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
@@ -442,17 +439,27 @@ class htk_segmenter(task):
 		for i in xrange(n,n+max_iter):
 			print("Reestimating hmm {}".format(i))
 			self.reest(i,j)
+			alppf=self.get_alppf(i)
+			print("Average log prob per frame = {}".format(alppf))
 			if initial:
 				initial=False
 			else:
-				epsilon=self.get_epsilon(i)
+				epsilon=alppf-prev_alppf
 				print("Epsilon = {}".format(epsilon))
 				if epsilon<min_epsilon:
-					return (i+1)
+					if epsilon<0:
+						shutil.rmtree(self.get_hmm_dir(i+1))
+						return i
+					else:
+						return (i+1)
+			prev_alppf=alppf
 		return (n+max_iter)
 
 	def edit_hmm(self,i,script_name):
-		script=os.path.join(scriptdir,script_name)
+		if os.path.split(script_name)[0]:
+			script=script_name
+		else:
+			script=os.path.join(scriptdir,script_name)
 		phlist=os.path.join(self.workdir,"phonelist")
 		indir=self.get_hmm_dir(i)
 		outdir=self.get_hmm_dir(i+1)
