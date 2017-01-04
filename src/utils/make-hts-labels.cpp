@@ -125,7 +125,7 @@ namespace
             seg.set("end",end);
           }
         else
-          throw std::runtime_error("Label mismatch");
+          throw std::runtime_error("Label mismatch: expected "+name+", found "+phone);
       }
     rephrase(utt);
   }
