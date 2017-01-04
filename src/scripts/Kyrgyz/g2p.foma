@@ -33,9 +33,11 @@ define RussianUnstress
 
 define RussianStemsStressRules [RussianStressedStems .o. RussianUnstress].i; 
 
-define RussianTranscribePlainConsonant б:"b_r"|в:"v_r"|г:"g_r"|д:"d_r"|ж:"zh_r"|з:"z_r"|й:"j_r"|к:"k_r"|л:"l_r"|м:"m_r"|н:"n_r"|п:"p_r"|р:"r_r"|с:"s_r"|т:"t_r"|ф:"f_r"|х:"h_r"|ц:"c_r"|ч:"ch_j_r"|ш:"sh_r"|щ:"sch_j_r"; 
+define RussianTranscribePlainConsonant б:"b_r"|в:"v_r"|г:"g_r"|д:"d_r"|з:"z_r"|к:"k_r"|л:"l_r"|м:"m_r"|н:"n_r"|п:"p_r"|р:"r_r"|с:"s_r"|т:"t_r"|ф:"f_r"|х:"h_r"; 
 
 define RussianTranscribePalatalizedConsonant б:"b_j_r"|в:"v_j_r"|г:"g_j_r"|д:"d_j_r"|з:"z_j_r"|к:"k_j_r"|л:"l_j_r"|м:"m_j_r"|н:"n_j_r"|п:"p_j_r"|р:"r_j_r"|с:"s_j_r"|т:"t_j_r"|ф:"f_j_r"|х:"h_j_r"; 
+
+define RussianTranscribeInvariantConsonant ж:"zh_r"|й:"j_j_r"|ц:"c_r"|ч:"ch_j_r"|ш:"sh_r"|щ:"sch_j_r";
 
 define RussianTranscribeVowel а:"a0_r"|А:"a1_r"|е:"e0_i_r"|Е:"e1_i_r"|ё:"o1_i_r"|Ё:"o1_i_r"|и:"i0_i_r"|И:"i1_i_r"|о:"a0_r"|О:"o1_r"|у:"u0_r"|У:"u1_r"|ы:"i0_r"|Ы:"i1_r"|э:"e0_r"|Э:"e1_r"|ю:"u0_i_r"|Ю:"u1_i_r"|я:"i0_i_r"|Я:"a1_i_r"; 
 
@@ -44,7 +46,8 @@ define RussianPalatalizingContext ь|е|Е|ё|Ё|и|И|ю|Ю|я|Я;
 define RussianTranscriptionRules 
 RussianTranscribePalatalizedConsonant -> || _ RussianPalatalizingContext ,, 
 RussianTranscribePlainConsonant -> || _ \RussianPalatalizingContext | .#. ,, 
-[..] -> "j_r" || .#.|а|А|е|Е|ё|Ё|и|И|о|О|у|У|ы|Ы|э|Э|ю|Ю|я|Я|ь|ъ _ е|Е|ё|Ё|ю|Ю|я|Я ,, 
+RussianTranscribeInvariantConsonant -> ,, 
+[..] -> "j_j_r" || .#.|а|А|е|Е|ё|Ё|и|И|о|О|у|У|ы|Ы|э|Э|ю|Ю|я|Я|ь|ъ _ е|Е|ё|Ё|ю|Ю|я|Я ,, 
 RussianTranscribeVowel -> ,, 
 ь|ъ -> 0 ; 
 
