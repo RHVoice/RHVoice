@@ -111,24 +111,24 @@ _
 _
 <feature name="pos_in_word_bw"/>
 /L:
-<feature name="ext_prev_prev_r"/>
+<feature name="prev_prev_ext_r"/>
 !
-<feature name="ext_prev_r"/>
+<feature name="prev_ext_r"/>
 !
 <feature name="ext_r"/>
 #
-<feature name="ext_next_r"/>
+<feature name="next_ext_r"/>
 !
-<feature name="ext_next_next_r"/>
+<feature name="next_next_ext_r"/>
 $
-<feature name="ext_prev_prev_j"/>
+<feature name="prev_prev_ext_j"/>
 !
-<feature name="ext_prev_j"/>
+<feature name="prev_ext_j"/>
 &
 <feature name="ext_j"/>
 !
-<feature name="ext_next_j"/>
+<feature name="next_ext_j"/>
 +
-<feature name="ext_next_next_j"/>
+<feature name="next_next_ext_j"/>
 </format>
 </labelling>
