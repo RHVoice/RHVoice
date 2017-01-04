@@ -229,7 +229,6 @@ class htk_segmenter(task):
 		self.param_conf_path=os.path.join(self.workdir,"param.conf")
 		self.hmmdir=os.path.join(self.workdir,"hmm")
 		self.proto_path=os.path.join(self.workdir,"proto")
-		self.merge_cl_script_path=os.path.join(self.workdir,"merge_cl.led")
 
 	def transcribe(self):
 		self.transcriptions=[]
@@ -258,21 +257,11 @@ class htk_segmenter(task):
 						phoneset.add(ph)
 						words.append(ph)
 				self.transcriptions.append([name,words])
-		self.phonelist=["pau","vcl","ucl"]
+		self.phonelist=["pau"]
 		for ph in phoneset:
 			self.phonelist.append(ph)
-			if ph in self.stops:
-				cl="vcl" if ph in self.voiced_consonants else "ucl"
-				self.lex[ph]=[[cl,ph]]
-			else:
-				self.lex[ph]=[[ph]]
+			self.lex[ph]=[[ph]]
 		self.phonelist.sort()
-
-	def output_merge_cl_script(self):
-		with open(self.merge_cl_script_path,"wt") as f_out:
-			for ph in sorted(self.stops):
-				cl="vcl" if ph in self.voiced_consonants else "ucl"
-				f_out.write("ME {ph} {cl} {ph}\n".format(ph=ph,cl=cl))
 
 	def output_dict(self):
 		dict_path=os.path.join(self.workdir,"dict")
@@ -432,7 +421,7 @@ class htk_segmenter(task):
 		phmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
 		indir=self.get_hmm_dir(i)
 		outdir=self.get_hmm_dir(i+1)
-		self.hrun("HERest","-C",self.param_conf_path,"-I",phmlf,"-t","250.0","150.0","5000.0","-S",self.mfcc_scp_path,"-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,phlist,tag=str(i))
+		self.hrun("HERest","-C",self.param_conf_path,"-I",phmlf,"-t","250.0","150.0","1000.0","-S",self.mfcc_scp_path,"-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,phlist,tag=str(i))
 
 	def reest_until(self,n,j,min_epsilon,max_iter):
 		initial=True
@@ -477,13 +466,8 @@ class htk_segmenter(task):
 		print("Done")
 		self.hrun("HLEd","-l","*","-i",outmlf2,os.path.join(scriptdir,"pau.led"),outmlf1,tag="fixpau{}".format(j))
 
-	def merge_cl(self,j):
-		outmlf=os.path.join(self.workdir,"result.mlf")
-		inmlf=os.path.join(self.workdir,"phones{}.mlf".format(j))
-		self.hrun("HLEd","-l","*","-i",outmlf,self.merge_cl_script_path,inmlf,tag="fixcl{}".format(j))
-
-	def load_alignments(self):
-		path=os.path.join(self.workdir,"result.mlf")
+	def load_alignments(self,j):
+		path=os.path.join(self.workdir,"phones{}.mlf".format(j))
 		lines=self.read_lines(path)[1:]
 		self.alignments=[]
 		self.durations=collections.defaultdict(list)
@@ -529,7 +513,6 @@ class htk_segmenter(task):
 
 	def __call__(self,args):
 		self.setup()
-		self.output_merge_cl_script()
 		self.transcribe()
 		self.output_dict()
 		self.output_words_mlf()
@@ -550,8 +533,7 @@ class htk_segmenter(task):
 		self.align(n,3)
 		n=self.reest_until(n,3,0.001,max_reest_iter)
 		self.align(n,4)
-		self.merge_cl(4)
-		self.load_alignments()
+		self.load_alignments(4)
 		self.fix_labels()
 		self.save_labels()
 
