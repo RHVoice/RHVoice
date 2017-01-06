@@ -159,6 +159,8 @@ def create_base_env(vars):
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++03"])
+        env.Append( LINKFLAGS = Split('-z origin') )
+        env.Append( RPATH = env.Literal("$prefix/lib") )
     if sys.platform.startswith("linux"):
         env.Append(SHLINKFLAGS="-Wl,-soname,${TARGET.file}.${libversion.split('.')[0]}")
     return env
