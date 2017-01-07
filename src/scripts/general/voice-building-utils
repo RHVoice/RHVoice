@@ -435,8 +435,8 @@ class htk_segmenter(task):
 			else:
 				epsilon=alppf-prev_alppf
 				print("Epsilon = {}".format(epsilon))
-				if epsilon<min_epsilon:
-					if epsilon<0:
+				if epsilon<=min_epsilon:
+					if epsilon<=0:
 						shutil.rmtree(self.get_hmm_dir(i+1))
 						return i
 					else:
@@ -453,6 +453,31 @@ class htk_segmenter(task):
 		indir=self.get_hmm_dir(i)
 		outdir=self.get_hmm_dir(i+1)
 		self.hrun("HHEd","-H",os.path.join(indir,"macros"),"-H",os.path.join(indir,"hmmdefs"),"-M",outdir,script,phlist)
+
+	def inc_mix(self,n,m):
+		print("Incrementing number of mixture components to {}".format(m))
+		script_path=os.path.join(self.workdir,"mix{}.hed".format(m))
+		content=["MU {} {{*.state[2-4].mix}}".format(m)]
+		self.output_lines(content,script_path)
+		self.edit_hmm(n,script_path)
+
+	def inc_mix_and_reest_until(self,n,j,min_epsilon1,max_iter):
+		max_num_mix=self.settings.get("seg_max_num_mix",3)
+		if max_num_mix<2:
+			return n
+		prev_n=n
+		prev_alppf=self.get_alppf(n-1)
+		for m in xrange(2,max_num_mix+1):
+			self.inc_mix(prev_n,m)
+			next_n=self.reest_until(prev_n+1,j,min_epsilon1,max_iter)
+			next_alppf=self.get_alppf(next_n-1)
+			epsilon2=next_alppf-prev_alppf
+			print("epsilon2={}".format(epsilon2))
+			if epsilon2<=0:
+				return prev_n
+			prev_n=next_n
+			prev_alppf=next_alppf
+		return next_n
 
 	def align(self,i,j):
 		moddir=self.get_hmm_dir(i)
@@ -523,7 +548,7 @@ class htk_segmenter(task):
 		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
 		self.output_hmmdefs()
 		self.output_macros()
-		max_reest_iter=20
+		max_reest_iter=30
 		n=self.reest_until(0,1,0.1,max_reest_iter)
 		self.edit_hmm(n,"pau.hed")
 		n+=1
@@ -532,6 +557,7 @@ class htk_segmenter(task):
 		n=self.reest_until(n,2,0.005,max_reest_iter)
 		self.align(n,3)
 		n=self.reest_until(n,3,0.001,max_reest_iter)
+		n=self.inc_mix_and_reest_until(n,3,0.001,max_reest_iter)
 		self.align(n,4)
 		self.load_alignments(4)
 		self.fix_labels()
