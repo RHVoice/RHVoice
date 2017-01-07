@@ -233,8 +233,6 @@ class htk_segmenter(task):
 	def transcribe(self):
 		self.transcriptions=[]
 		self.lex={"SILENCE":[["pau"]]}
-		self.lex["PAUSE"]=[["pau"],["skip"]]
-		self.lex["JUNCTURE"]=[["skip"],["pau"]]
 		phoneset=set()
 		trans_path=os.path.join(self.workdir,"transcription")
 		subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],trans_path])
@@ -250,9 +248,9 @@ class htk_segmenter(task):
 				for ph in phones[1:-1]:
 					if ph in ["ssil","pau"]:
 						if ph=="pau":
-							words.append("PAUSE")
+							words[-1]=words[-1]+"_before_punctuation"
 						elif ph=="ssil":
-							words.append("JUNCTURE")
+							words[-1]="word_final_"+words[-1]
 					else:
 						phoneset.add(ph)
 						words.append(ph)
@@ -261,6 +259,8 @@ class htk_segmenter(task):
 		for ph in phoneset:
 			self.phonelist.append(ph)
 			self.lex[ph]=[[ph]]
+			self.lex["word_final_"+ph]=[[ph],[ph,"pau"]]
+			self.lex[ph+"_before_punctuation"]=[[ph,"pau"],[ph]]
 		self.phonelist.sort()
 
 	def output_dict(self):
@@ -310,7 +310,6 @@ class htk_segmenter(task):
 	def output_phonelist(self):
 		path=os.path.join(self.workdir,"phonelist")
 		phlist=list(self.phonelist)
-		phlist.append("skip")
 		phlist.sort()
 		self.output_lines(phlist,path)
 
@@ -377,29 +376,12 @@ class htk_segmenter(task):
 		proto.append("<EndHMM>")
 		return proto
 
-	def build_skip_def(self,n):
-		lines=['~h "skip"',
-			   "<BeginHMM>",
-			   "<NumStates> 3",
-			   "<State> 2",
-			   "<Mean> {}".format(n),
-			   " ".join(["0.0"]*n),
-			   "<Variance> {}".format(n),
-			   " ".join(["1.0"]*n),
-			   "<TransP> 3",
-			   "0.0 0.0 1.0",
-			   "0.0 0.5 0.5",
-			   "0.0 0.0 0.0",
-			   "<EndHMM>"]
-		return lines
-
 	def output_hmmdefs(self):
 		proto=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto"))
 		lines=[]
 		for p in self.phonelist:
 			lines.append('~h "{}"'.format(p))
 			lines.extend(proto[4:])
-		lines.extend(self.build_skip_def(39))
 		self.output_lines(lines,os.path.join(self.get_hmm_dir(0),"hmmdefs"))
 
 	def output_macros(self):
@@ -508,8 +490,6 @@ class htk_segmenter(task):
 				end=int(tokens[1])
 				duration=end-start
 				phone=tokens[2]
-				if phone=="skip" or duration==0:
-					continue
 				labels.append([start,end,phone])
 				self.durations[phone].append(duration)
 
