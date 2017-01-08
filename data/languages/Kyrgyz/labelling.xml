@@ -124,7 +124,7 @@ $
 <feature name="prev_prev_ext_j"/>
 !
 <feature name="prev_ext_j"/>
-&
+&amp;
 <feature name="ext_j"/>
 !
 <feature name="next_ext_j"/>
