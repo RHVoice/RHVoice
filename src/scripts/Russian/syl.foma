@@ -17,8 +17,5 @@ define Obs b | bb | v | vv | g | gg | d | dd | zh | z | zz | k | kk | p | pp | s
 define Son l | ll | m | mm | n | nn | r | rr;
 define Cons Obs | Son | j;
 define Vowel a0 | a1 | e0 | e1 | i0 | i1 | o0 | o1 | u0 | u1 | y0 | y1;
-
-define Syllabification 
-[..] -> "." || Vowel j _ Cons+ Vowel , Vowel _ (j) Vowel , Vowel _ [Obs|Son] Cons* Vowel ; 
-
-regex Syllabification;
+define Onset Obs* Son* j*;
+regex [Vowel Cons*] @> ... "." || _ [Onset Vowel];
