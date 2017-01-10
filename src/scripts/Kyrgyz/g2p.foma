@@ -39,11 +39,11 @@ define RussianTranscribePalatalizedConsonant б:"b_j_r"|в:"v_j_r"|г:"g_j_r"|д
 
 define RussianTranscribeInvariantConsonant ж:"zh_r"|й:"j_j_r"|ц:"c_r"|ч:"ch_j_r"|ш:"sh_r"|щ:"sch_j_r";
 
-define RussianTranscribeVowel а:"a0_r"|А:"a1_r"|е:"e0_i_r"|Е:"e1_i_r"|ё:"o1_i_r"|Ё:"o1_i_r"|и:"i0_i_r"|И:"i1_i_r"|о:"a0_r"|О:"o1_r"|у:"u0_r"|У:"u1_r"|ы:"i0_r"|Ы:"i1_r"|э:"e0_r"|Э:"e1_r"|ю:"u0_i_r"|Ю:"u1_i_r"|я:"i0_i_r"|Я:"a1_i_r"; 
+define RussianTranscribeVowel а:"a0_r"|А:"a1_r"|е:"e0_i_r"|Е:"e1_i_r"|ё:"of1_i_r"|Ё:"of1_i_r"|и:"i0_i_r"|И:"i1_i_r"|о:"a0_r"|О:"o1_r"|у:"u0_r"|У:"u1_r"|ы:"y0_r"|Ы:"y1_r"|э:"e0_r"|Э:"e1_r"|ю:"uf0_i_r"|Ю:"uf1_i_r"|я:"a0_i_r"|Я:"a1_i_r"; 
 
 define RussianPalatalizingContext ь|е|Е|ё|Ё|и|И|ю|Ю|я|Я; 
 
-define RussianTranscriptionRules 
+define RussianBasicTranscriptionRules 
 RussianTranscribePalatalizedConsonant -> || _ RussianPalatalizingContext ,, 
 RussianTranscribePlainConsonant -> || _ \RussianPalatalizingContext | .#. ,, 
 RussianTranscribeInvariantConsonant -> ,, 
@@ -51,7 +51,14 @@ RussianTranscribeInvariantConsonant -> ,,
 RussianTranscribeVowel -> ,, 
 ь|ъ -> 0 ; 
 
-define RussianStemsTranscription RussianStemsStressRules .o. RussianTranscriptionRules ; 
+define RussianFixTranscription 
+"a0_i_r" -> "i0_i_r" || _ \.#. ,, 
+["i1_i_r":"y1_r"|"i0_i_r":"y0_r"|"uf1_i_r":"u1_r"|"uf0_i_r":"u0_r"] -> || ["c_r"|"zh_r"|"sh_r"] _ ; 
+
+define RussianStemsTranscription 
+RussianStemsStressRules .o. 
+RussianBasicTranscriptionRules .o. 
+RussianFixTranscription ; 
 
 define KyrgyzTranscribeConsonant б:b|в:v|г:g|д:d|ж:dzh|з:z|й:j|к:k|л:l|м:m|н:n|п:p|р:r|с:s|т:t|ф:f|х:h|ц:c|ч:ch|ш:sh|щ:sch|ң:ng ; 
 
