@@ -56,6 +56,7 @@
 HTS_ENGINE_H_START;
 
 #include <stdio.h>
+#include "core/bpf.h"
 
 /* common ---------------------------------------------------------- */
 
@@ -299,6 +300,7 @@ typedef struct _HTS_Engine {
    HTS_SStreamSet sss;          /* set of state streams */
    HTS_PStreamSet pss;          /* set of PDF streams */
    HTS_GStreamSet gss;          /* set of generated parameter streams */
+  BPF bpf;
 } HTS_Engine;
 
 /* engine method --------------------------------------------------- */

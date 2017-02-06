@@ -65,6 +65,12 @@ namespace RHVoice
         HTS_Engine_clear(engine.get());
         throw initialization_error();
       }
+    std::string bpf_path(path::join(data_path,"bpf.txt"));
+    if(bpf_load(&engine->bpf,bpf_path.c_str())==0)
+      {
+        HTS_Engine_clear(engine.get());
+        throw initialization_error();
+      }
     HTS_Engine_set_beta(engine.get(),beta);
     HTS_Engine_set_audio_buff_size(engine.get(),HTS_Engine_get_fperiod(engine.get()));
   }
