@@ -57,7 +57,8 @@ src=["unicode.cpp",
 	 "hts_engine_call.cpp",
 	 "hts_label.cpp",
 	 "hts_labeller.cpp",
-	 "speech_processor.cpp"]
+	 "speech_processor.cpp",
+		 "bpf.cpp"]
 if local_env["enable_mage"]:
 	src.append("mage_hts_engine_impl.cpp")
 for lib in [libhts_engine,libsonic]:

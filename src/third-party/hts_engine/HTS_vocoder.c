@@ -641,28 +641,37 @@ static double HTS_white_noise(HTS_Vocoder * v)
 }
 
 /* HTS_Vocoder_initialize_excitation: initialize excitation */
-static void HTS_Vocoder_initialize_excitation(HTS_Vocoder * v, double pitch, size_t nlpf)
+static void HTS_Vocoder_initialize_excitation(HTS_Vocoder * v, double pitch, size_t nbpf)
 {
    size_t i;
 
    v->pitch_of_curr_point = pitch;
    v->pitch_counter = pitch;
    v->pitch_inc_per_point = 0.0;
-   if (nlpf > 0) {
-      v->excite_buff_size = nlpf;
-      v->excite_ring_buff = (double *) HTS_calloc(v->excite_buff_size, sizeof(double));
+   if (nbpf > 0) {
+      v->excite_buff_size = nbpf;
+      v->pulses_ring_buff = (double *) HTS_calloc(v->excite_buff_size, sizeof(double));
+      v->noise_ring_buff = (double *) HTS_calloc(v->excite_buff_size, sizeof(double));
+      v->pulse_filter = (double *) HTS_calloc(nbpf, sizeof(double));
+      v->noise_filter = (double *) HTS_calloc(nbpf, sizeof(double));
       for (i = 0; i < v->excite_buff_size; i++)
-         v->excite_ring_buff[i] = 0.0;
+        {
+          v->pulses_ring_buff[i] = 0.0;
+          v->noise_ring_buff[i] = 0.0;
+        }
       v->excite_buff_index = 0;
    } else {
       v->excite_buff_size = 0;
-      v->excite_ring_buff = NULL;
+      v->pulses_ring_buff = NULL;
+      v->noise_ring_buff = NULL;
+      v->pulse_filter = NULL;
+      v->noise_filter = NULL;
       v->excite_buff_index = 0;
    }
 }
 
 /* HTS_Vocoder_start_excitation: start excitation of each frame */
-static void HTS_Vocoder_start_excitation(HTS_Vocoder * v, double pitch)
+static void HTS_Vocoder_start_excitation(HTS_Vocoder * v, double pitch, double* bap, BPF* bpf)
 {
    if (v->pitch_of_curr_point != 0.0 && pitch != 0.0) {
       v->pitch_inc_per_point = (pitch - v->pitch_of_curr_point) / v->fprd;
@@ -671,37 +680,57 @@ static void HTS_Vocoder_start_excitation(HTS_Vocoder * v, double pitch)
       v->pitch_of_curr_point = pitch;
       v->pitch_counter = pitch;
    }
+   if(v->pitch_of_curr_point!=0)
+     {
+       for(int j=0;j<bpf->length;++j)
+         {
+           v->pulse_filter[j]=0.0;
+           v->noise_filter[j]=0.0;
+}
+       double pw,nw;
+       for(int i=0;i<bpf->number;++i)
+         {
+           nw=bap[i];
+           pw=1-nw;
+           for(int j=0;j<bpf->length;++j)
+             {
+               v->pulse_filter[j]+=(pw*bpf->coefs[i][j]);
+               v->noise_filter[j]+=(nw*bpf->coefs[i][j]);
+}
+}
+}
 }
 
 /* HTS_Vocoder_excite_unvoiced_frame: ping noise to ring buffer */
-static void HTS_Vocoder_excite_unvoiced_frame(HTS_Vocoder * v, double noise)
+static double HTS_Vocoder_excite_unvoiced_frame(HTS_Vocoder * v, double noise)
 {
-   size_t center = (v->excite_buff_size - 1) / 2;
-   v->excite_ring_buff[(v->excite_buff_index + center) % v->excite_buff_size] += noise;
+   v->noise_ring_buff[v->excite_buff_index] = noise;
+   return noise;
 }
 
 /* HTS_Vocoder_excite_vooiced_frame: ping noise and pulse to ring buffer */
-static void HTS_Vocoder_excite_voiced_frame(HTS_Vocoder * v, double noise, double pulse, const double *lpf)
+static double HTS_Vocoder_excite_voiced_frame(HTS_Vocoder * v, double noise, double pulse)
 {
    size_t i;
-   size_t center = (v->excite_buff_size - 1) / 2;
+   size_t j;
+   size_t k;
+   double x=0.0;
 
-   if (noise != 0.0) {
-      for (i = 0; i < v->excite_buff_size; i++) {
-         if (i == center)
-            v->excite_ring_buff[(v->excite_buff_index + i) % v->excite_buff_size] += noise * (1.0 - lpf[i]);
-         else
-            v->excite_ring_buff[(v->excite_buff_index + i) % v->excite_buff_size] += noise * (0.0 - lpf[i]);
-      }
-   }
-   if (pulse != 0.0) {
-      for (i = 0; i < v->excite_buff_size; i++)
-         v->excite_ring_buff[(v->excite_buff_index + i) % v->excite_buff_size] += pulse * lpf[i];
-   }
+   v->pulses_ring_buff[v->excite_buff_index]=pulse;
+   v->noise_ring_buff[v->excite_buff_index]=noise;
+
+   for(i=0,j=v->excite_buff_size-1;i<v->excite_buff_size;++i,--j)
+     {
+       k=(v->excite_buff_index+1+i) % v->excite_buff_size;
+       x+=(v->pulse_filter[j]*v->pulses_ring_buff[k]);
+       x+=(v->noise_filter[j]*v->noise_ring_buff[k]);
+}
+
+   return x;
 }
 
 /* HTS_Vocoder_get_excitation: get excitation of each sample */
-static double HTS_Vocoder_get_excitation(HTS_Vocoder * v, const double *lpf)
+static double HTS_Vocoder_get_excitation(HTS_Vocoder * v)
 {
    double x;
    double noise, pulse = 0.0;
@@ -710,18 +739,16 @@ static double HTS_Vocoder_get_excitation(HTS_Vocoder * v, const double *lpf)
       noise = HTS_white_noise(v);
       pulse = 0.0;
       if (v->pitch_of_curr_point == 0.0) {
-         HTS_Vocoder_excite_unvoiced_frame(v, noise);
+         x=HTS_Vocoder_excite_unvoiced_frame(v, noise);
       } else {
          v->pitch_counter += 1.0;
          if (v->pitch_counter >= v->pitch_of_curr_point) {
             pulse = sqrt(v->pitch_of_curr_point);
             v->pitch_counter -= v->pitch_of_curr_point;
          }
-         HTS_Vocoder_excite_voiced_frame(v, noise, pulse, lpf);
+         x=HTS_Vocoder_excite_voiced_frame(v, noise, pulse);
          v->pitch_of_curr_point += v->pitch_inc_per_point;
       }
-      x = v->excite_ring_buff[v->excite_buff_index];
-      v->excite_ring_buff[v->excite_buff_index] = 0.0;
       v->excite_buff_index++;
       if (v->excite_buff_index >= v->excite_buff_size)
          v->excite_buff_index = 0;
@@ -833,7 +860,8 @@ void HTS_Vocoder_initialize(HTS_Vocoder * v, size_t m, size_t stage, HTS_Boolean
    v->pitch_of_curr_point = 0.0;
    v->pitch_counter = 0.0;
    v->pitch_inc_per_point = 0.0;
-   v->excite_ring_buff = NULL;
+   v->pulses_ring_buff = NULL;
+   v->noise_ring_buff = NULL;
    v->excite_buff_size = 0;
    v->excite_buff_index = 0;
    v->sw = 0;
@@ -863,7 +891,7 @@ void HTS_Vocoder_initialize(HTS_Vocoder * v, size_t m, size_t stage, HTS_Boolean
 }
 
 /* HTS_Vocoder_synthesize: pulse/noise excitation and MLSA/MGLSA filster based waveform synthesis */
-void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spectrum, size_t nlpf, double *lpf, double alpha, double beta, double volume, double *rawdata, HTS_Audio * audio)
+void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spectrum, double *bap, BPF *bpf, double alpha, double beta, double volume, double *rawdata, HTS_Audio * audio)
 {
    double x;
    int i, j;
@@ -883,7 +911,7 @@ void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spect
 
    /* first time */
    if (v->is_first == TRUE) {
-      HTS_Vocoder_initialize_excitation(v, p, nlpf);
+      HTS_Vocoder_initialize_excitation(v, p, bpf->length);
       if (v->stage == 0) {      /* for MCP */
          HTS_mc2b(spectrum, v->c, m, alpha);
       } else {                  /* for LSP */
@@ -897,7 +925,7 @@ void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spect
       v->is_first = FALSE;
    }
 
-   HTS_Vocoder_start_excitation(v, p);
+   HTS_Vocoder_start_excitation(v, p,bap,bpf);
    if (v->stage == 0) {         /* for MCP */
       HTS_Vocoder_postfilter_mcp(v, spectrum, m, alpha, beta);
       HTS_mc2b(spectrum, v->cc, m, alpha);
@@ -916,7 +944,7 @@ void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spect
    }
 
    for (j = 0; j < v->fprd; j++) {
-      x = HTS_Vocoder_get_excitation(v, lpf);
+     x = HTS_Vocoder_get_excitation(v);
       if (v->stage == 0) {      /* for MCP */
          if (x != 0.0)
             x *= exp(v->c[0]);
@@ -985,9 +1013,21 @@ void HTS_Vocoder_clear(HTS_Vocoder * v)
       }
       v->excite_buff_size = 0;
       v->excite_buff_index = 0;
-      if (v->excite_ring_buff != NULL) {
-         HTS_free(v->excite_ring_buff);
-         v->excite_ring_buff = NULL;
+      if (v->pulses_ring_buff != NULL) {
+         HTS_free(v->pulses_ring_buff);
+         v->pulses_ring_buff = NULL;
+      }
+      if (v->noise_ring_buff != NULL) {
+        HTS_free(v->noise_ring_buff);
+        v->noise_ring_buff = NULL;
+      }
+      if (v->pulse_filter != NULL) {
+         HTS_free(v->pulse_filter);
+         v->pulse_filter = NULL;
+      }
+      if (v->noise_filter != NULL) {
+        HTS_free(v->noise_filter);
+        v->noise_filter = NULL;
       }
    }
 }

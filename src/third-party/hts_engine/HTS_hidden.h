@@ -397,7 +397,7 @@ void HTS_PStreamSet_clear(HTS_PStreamSet * pss);
 void HTS_GStreamSet_initialize(HTS_GStreamSet * gss);
 
 /* HTS_GStreamSet_create: generate speech */
-HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, size_t stage, HTS_Boolean use_log_gain, size_t sampling_rate, size_t fperiod, double alpha, double beta, HTS_Boolean * stop, double volume, HTS_Audio * audio);
+HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, size_t stage, HTS_Boolean use_log_gain, size_t sampling_rate, size_t fperiod, double alpha, double beta, HTS_Boolean * stop, double volume, HTS_Audio * audio, BPF* bpf);
 
 /* HTS_GStreamSet_get_total_nsamples: get total number of sample */
 size_t HTS_GStreamSet_get_total_nsamples(HTS_GStreamSet * gss);
@@ -477,7 +477,10 @@ typedef struct _HTS_Vocoder {
    double pitch_of_curr_point;  /* used in excitation generation */
    double pitch_counter;        /* used in excitation generation */
    double pitch_inc_per_point;  /* used in excitation generation */
-   double *excite_ring_buff;    /* used in excitation generation */
+   double *pulses_ring_buff;    /* used in excitation generation */
+  double *noise_ring_buff;    /* used in excitation generation */
+   double *pulse_filter;    /* used in excitation generation */
+  double *noise_filter;    /* used in excitation generation */
    size_t excite_buff_size;     /* used in excitation generation */
    size_t excite_buff_index;    /* used in excitation generation */
    unsigned char sw;            /* switch used in random generator */
@@ -500,7 +503,7 @@ typedef struct _HTS_Vocoder {
 void HTS_Vocoder_initialize(HTS_Vocoder * v, size_t m, size_t stage, HTS_Boolean use_log_gain, size_t rate, size_t fperiod);
 
 /* HTS_Vocoder_synthesize: pulse/noise excitation and MLSA/MGLSA filster based waveform synthesis */
-void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spectrum, size_t nlpf, double *lpf, double alpha, double beta, double volume, double *rawdata, HTS_Audio * audio);
+void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spectrum, double *bap, BPF* bpf, double alpha, double beta, double volume, double *rawdata, HTS_Audio * audio);
 
 /* HTS_Vocoder_clear: clear vocoder */
 void HTS_Vocoder_clear(HTS_Vocoder * v);

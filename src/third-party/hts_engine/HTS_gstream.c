@@ -69,13 +69,13 @@ void HTS_GStreamSet_initialize(HTS_GStreamSet * gss)
 }
 
 /* HTS_GStreamSet_create: generate speech */
-HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, size_t stage, HTS_Boolean use_log_gain, size_t sampling_rate, size_t fperiod, double alpha, double beta, HTS_Boolean * stop, double volume, HTS_Audio * audio)
+HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, size_t stage, HTS_Boolean use_log_gain, size_t sampling_rate, size_t fperiod, double alpha, double beta, HTS_Boolean * stop, double volume, HTS_Audio * audio,BPF* bpf)
 {
    size_t i, j, k;
    size_t msd_frame;
    HTS_Vocoder v;
-   size_t nlpf = 0;
-   double *lpf = NULL;
+   size_t nbap = 0;
+   double *bap = NULL;
 
    /* check */
    if (gss->gstream || gss->gspeech) {
@@ -115,7 +115,7 @@ HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, si
    }
 
    /* check */
-   if (gss->nstream != 2 && gss->nstream != 3) {
+   if (gss->nstream < 2 ) {
       HTS_error(1, "HTS_GStreamSet_create: The number of streams should be 2 or 3.\n");
       HTS_GStreamSet_clear(gss);
       return FALSE;
@@ -125,8 +125,14 @@ HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, si
       HTS_GStreamSet_clear(gss);
       return FALSE;
    }
-   if (gss->nstream >= 3 && gss->gstream[2].vector_length % 2 == 0) {
-      HTS_error(1, "HTS_GStreamSet_create: The number of low-pass filter coefficient should be odd numbers.");
+   if (gss->nstream >= 3 && bpf->length % 2 == 0) {
+      HTS_error(1, "HTS_GStreamSet_create: The number of band-pass filter coefficient should be odd numbers.");
+      HTS_GStreamSet_clear(gss);
+      return FALSE;
+   }
+
+   if (gss->nstream >= 3 && gss->gstream[2].vector_length != bpf->number) {
+      HTS_error(1, "HTS_GStreamSet_create: The number of band aperiodicities must be equal to the number of band-pass filters.");
       HTS_GStreamSet_clear(gss);
       return FALSE;
    }
@@ -134,12 +140,21 @@ HTS_Boolean HTS_GStreamSet_create(HTS_GStreamSet * gss, HTS_PStreamSet * pss, si
    /* synthesize speech waveform */
    HTS_Vocoder_initialize(&v, gss->gstream[0].vector_length - 1, stage, use_log_gain, sampling_rate, fperiod);
    if (gss->nstream >= 3)
-      nlpf = gss->gstream[2].vector_length;
+      nbap = gss->gstream[2].vector_length;
    for (i = 0; i < gss->total_frame && (*stop) == FALSE; i++) {
       j = i * fperiod;
-      if (gss->nstream >= 3)
-         lpf = &gss->gstream[2].par[i][0];
-      HTS_Vocoder_synthesize(&v, gss->gstream[0].vector_length - 1, gss->gstream[1].par[i][0], &gss->gstream[0].par[i][0], nlpf, lpf, alpha, beta, volume, &gss->gspeech[j], audio);
+      if (gss->nstream >= 3) {
+        bap = &gss->gstream[2].par[i][0];
+        for(size_t k=0;k<nbap;++k)
+          {
+            if(bap[k]>0)
+              bap[k]=0;
+            bap[k]=pow(10.0,bap[k]/10.0);
+            if(bap[k]>1)
+              bap[k]=1;
+}
+      }
+      HTS_Vocoder_synthesize(&v, gss->gstream[0].vector_length - 1, gss->gstream[1].par[i][0], &gss->gstream[0].par[i][0], bap, bpf, alpha, beta, volume, &gss->gspeech[j], audio);
    }
    HTS_Vocoder_clear(&v);
    if (audio)
