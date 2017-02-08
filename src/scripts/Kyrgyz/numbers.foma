@@ -17,13 +17,13 @@ define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
 define Number [%0|[NZDigit Digit^<12]];
 
-define NamesOfPowersOfTen Миң|миллион|миллиард;
+define NamesOfPowersOfTen миң|миллион|миллиард;
 
 define InsertThousands 
-[..] -> Миң || Digit _ Digit^3 .#.;
+[..] -> миң || Digit _ Digit^3 .#.;
 
 define InsertMillions 
-[..] -> миллион || Digit _ Digit^3 Миң;
+[..] -> миллион || Digit _ Digit^3 миң;
 
 define InsertBillions 
 [..] -> миллиард || Digit _ Digit^3 миллион;
@@ -36,9 +36,9 @@ define Units %0:0|1:бир|2:эки|3:үч|4:төрт|5:беш|6:алты|7:же
 
 define Tens %0:0|1:он|2:жыйырма|3:отуз|4:кырк|5:элүү|6:алтымыш|7:жетимиш|8:сексен|9:токсон;
 
-define Hundreds [%0:0] .P. [[[1:0] .P. Units] 0:Жүз];
+define Hundreds [%0:0] .P. [[[1:0] .P. Units] 0:жүз];
 
-define UpToThousand %0:Нөл .P. [((Hundreds) Tens) Units];
+define UpToThousand %0:нөл .P. [((Hundreds) Tens) Units];
 
 define DigitsToWords 
 UpToThousand @-> ; 
