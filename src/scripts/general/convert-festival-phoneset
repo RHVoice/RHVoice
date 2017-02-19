@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import xml.etree.ElementTree as xml
+import lxml.etree as xml
 import sexpr
 
 if __name__=="__main__":
@@ -32,4 +32,4 @@ if __name__=="__main__":
 			if v!=0:
 				elem.set(s[0],str(v))
 		root.append(elem)
-	xml.ElementTree(root).write(sys.argv[2])
+	xml.ElementTree(root).write(sys.argv[2],pretty_print=True)
