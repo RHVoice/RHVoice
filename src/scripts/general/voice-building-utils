@@ -693,15 +693,15 @@ class f0_stats_computer(f0_extracter):
 		all_values=list()
 		for name in sorted(os.listdir(raw_dir)):
 			print("Processing {}".format(name))
-			values=self.extract(os.path.join(raw_dir,name),40,600)
+			values=self.extract_with_sptk(os.path.join(raw_dir,name),"rapt",40,600)
 			all_values.extend([v for v in values if v!=0])
 		s={}
 		for p in [1,2,3,4,5,10,25,50,75,90,95,96,97,98,99]:
 			v=stats.scoreatpercentile(all_values,p)
 			s[p]=v
 			print("p{}={}".format(p,v))
-		min_f0=(10*numpy.floor(0.75*s[25]/10.0)).astype(numpy.int)-10
-		max_f0=(10*numpy.ceil(1.5*s[75]/10.0)).astype(numpy.int)+10
+		min_f0=numpy.int(numpy.round(0.72*stats.scoreatpercentile(all_values,35)))
+		max_f0=numpy.int(numpy.round(1.9*stats.scoreatpercentile(all_values,65)))
 		print("Suggested f0 range:")
 		print("Minimum={}".format(min_f0))
 		print("Maximum={}".format(max_f0))
