@@ -92,14 +92,14 @@ MAGE::Engine::~Engine()
 	free( this->rate_interp );
 	free( this->fn_ws_mgc );
 	free( this->fn_ws_lf0 );
-	free( this->fn_ws_lpf );
+	free( this->fn_ws_bap );
 	free( this->fn_ms_mgc );
 	free( this->fn_ms_lf0 );
-	free( this->fn_ms_lpf );
+	free( this->fn_ms_bap );
 	free( this->fn_ms_dur );
 	free( this->fn_ts_mgc );
 	free( this->fn_ts_lf0 );
-	free( this->fn_ts_lpf );
+	free( this->fn_ts_bap );
 	free( this->fn_ts_dur );
 	free( this->fn_ms_gvm );
 	free( this->fn_ms_gvl );
@@ -116,7 +116,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 	double f;
 	char * labfn = NULL;
 	
-	HTS106_File * durfp = NULL, * mgcfp = NULL, * lf0fp = NULL, * lpffp = NULL;
+	HTS106_File * durfp = NULL, * mgcfp = NULL, * lf0fp = NULL, * bapfp = NULL;
 	HTS106_File * wavfp = NULL, * rawfp = NULL, * tracefp = NULL;
 	
 	// number of speakers for interpolation
@@ -128,12 +128,12 @@ void MAGE::Engine::load( int argc, char ** argv )
 	// HTS106_Files
 	
 	// number of each models for interpolation
-	int num_ms_dur = 0, num_ms_mgc = 0, num_ms_lf0 = 0, num_ms_lpf = 0;
+	int num_ms_dur = 0, num_ms_mgc = 0, num_ms_lf0 = 0, num_ms_bap = 0;
 	
 	// number of each trees for interpolation
-	int num_ts_dur = 0, num_ts_mgc = 0, num_ts_lf0 = 0, num_ts_lpf = 0;
+	int num_ts_dur = 0, num_ts_mgc = 0, num_ts_lf0 = 0, num_ts_bap = 0;
 	
-	int num_ws_mgc = 0, num_ws_lf0 = 0, num_ws_lpf = 0;
+	int num_ws_mgc = 0, num_ws_lf0 = 0, num_ws_bap = 0;
 	int num_ms_gvm = 0, num_ms_gvl = 0, num_ms_gvf = 0;
 	int num_ts_gvm = 0, num_ts_gvl = 0, num_ts_gvf = 0;
 	
@@ -149,7 +149,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 	double uv_threshold = 0.5;
 	double gv_weight_mgc = 1.0;
 	double gv_weight_lf0 = 1.0;
-	double gv_weight_lpf = 1.0;
+	double gv_weight_bap = 1.0;
 	
 	double half_tone = 0.0;
 	HTS106_Boolean phoneme_alignment = FALSE;
@@ -164,8 +164,8 @@ void MAGE::Engine::load( int argc, char ** argv )
 	fn_ws_mgc = ( char ** ) calloc( argc, sizeof( char * ) );
 	// delta window handler for log f0
 	fn_ws_lf0 = ( char ** ) calloc( argc, sizeof( char * ) );
-	// delta window handler for low-pass filter
-	fn_ws_lpf = ( char ** ) calloc( argc, sizeof( char * ) );
+	// delta window handler for band aperiodicities
+	fn_ws_bap = ( char ** ) calloc( argc, sizeof( char * ) );
 	
 	// prepare for interpolation
 	num_interp = GetNumInterp( argc, argv );
@@ -176,11 +176,11 @@ void MAGE::Engine::load( int argc, char ** argv )
 	fn_ms_dur = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ms_mgc = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ms_lf0 = ( char ** ) calloc( num_interp, sizeof( char * ) );
-	fn_ms_lpf = ( char ** ) calloc( num_interp, sizeof( char * ) );
+	fn_ms_bap = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ts_dur = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ts_mgc = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ts_lf0 = ( char ** ) calloc( num_interp, sizeof( char * ) );
-	fn_ts_lpf = ( char ** ) calloc( num_interp, sizeof( char * ) );
+	fn_ts_bap = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ms_gvm = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ms_gvl = ( char ** ) calloc( num_interp, sizeof( char * ) );
 	fn_ms_gvf = ( char ** ) calloc( num_interp, sizeof( char * ) );
@@ -224,7 +224,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 						break;
 						
 					case 'l':
-						fn_ts_lpf[num_ts_lpf++] = * ++argv;
+						fn_ts_bap[num_ts_bap++] = * ++argv;
 						break;
 						
 					default:
@@ -250,7 +250,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 						break;
 						
 					case 'l':
-						fn_ms_lpf[num_ms_lpf++] = * ++argv;
+						fn_ms_bap[num_ms_bap++] = * ++argv;
 						break;
 						
 					default:
@@ -272,7 +272,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 						break;
 						
 					case 'l':
-						fn_ws_lpf[num_ws_lpf++] = * ++argv;
+						fn_ws_bap[num_ws_bap++] = * ++argv;
 						break;
 						
 					default:
@@ -306,7 +306,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 						break;
 						
 					case 'l':
-						lpffp = HTS106_fopen( * ++argv, "wb" );
+						bapfp = HTS106_fopen( * ++argv, "wb" );
 						break;
 						
 					case 't':
@@ -448,7 +448,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 						break;
 						
 					case 'l':
-						gv_weight_lpf = atof( * ++argv );
+						gv_weight_bap = atof( * ++argv );
 						break;
 						
 					default:
@@ -481,12 +481,12 @@ void MAGE::Engine::load( int argc, char ** argv )
 	if( num_interp != num_ts_dur || num_interp != num_ts_mgc || num_interp != num_ts_lf0 || num_interp != num_ms_dur || num_interp != num_ms_mgc || num_interp != num_ms_lf0 )
 		Error( 1,( char * )"hts_engine: specify %d models( trees )for each parameter.\n", num_interp );
 	
-	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-		if( num_interp != num_ms_lpf || num_interp != num_ts_lpf )
+	if( num_ms_bap > 0 || num_ts_bap > 0 )
+		if( num_interp != num_ms_bap || num_interp != num_ts_bap )
 			Error( 1,( char * )"hts_engine: specify %d models( trees )for each parameter.\n", num_interp );
 	
-	// initialize( stream[0] = spectrum, stream[1] = lf0, stream[2] = low-pass filter )
-	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
+	// initialize( stream[0] = spectrum, stream[1] = lf0, stream[2] = band aperiodicities )
+	if( num_ms_bap > 0 || num_ts_bap > 0 )
 		HTS106_Engine_initialize( &engine, 3 );
 	else
 		HTS106_Engine_initialize( &engine, 2 );
@@ -500,9 +500,9 @@ void MAGE::Engine::load( int argc, char ** argv )
 	// load stream[1]( lf0 model )
 	HTS106_Engine_load_parameter_from_fn( &engine, fn_ms_lf0, fn_ts_lf0, fn_ws_lf0, 1, TRUE, num_ws_lf0, num_interp );
 	
-	// load stream[2]( low-pass filter model )
-	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-		HTS106_Engine_load_parameter_from_fn( &engine, fn_ms_lpf, fn_ts_lpf, fn_ws_lpf, 2, FALSE, num_ws_lpf, num_interp );
+	// load stream[2]( band aperiodicities model )
+	if( num_ms_bap > 0 || num_ts_bap > 0 )
+		HTS106_Engine_load_parameter_from_fn( &engine, fn_ms_bap, fn_ts_bap, fn_ws_bap, 2, FALSE, num_ws_bap, num_interp );
 	
 	// load gv[0]( GV for spectrum )
 	if( num_interp == num_ms_gvm )
@@ -521,8 +521,8 @@ void MAGE::Engine::load( int argc, char ** argv )
 			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvl, NULL, 1, num_interp );
 	}
 	
-	// load gv[2]( GV for low-pass filter )
-	if( num_interp == num_ms_gvf && ( num_ms_lpf > 0 || num_ts_lpf > 0 ) ){
+	// load gv[2]( GV for band aperiodicities )
+	if( num_interp == num_ms_gvf && ( num_ms_bap > 0 || num_ts_bap > 0 ) ){
 		if( num_ms_gvf == num_ts_gvf )
 			HTS106_Engine_load_gv_from_fn( &engine, fn_ms_gvf, fn_ts_gvf, 0, num_interp );
 		else
@@ -545,8 +545,8 @@ void MAGE::Engine::load( int argc, char ** argv )
 	HTS106_Engine_set_gv_weight( &engine, 0, gv_weight_mgc );
 	HTS106_Engine_set_gv_weight( &engine, 1, gv_weight_lf0 );
 	
-	if( num_ms_lpf > 0 || num_ts_lpf > 0 )
-		HTS106_Engine_set_gv_weight( &engine, 2, gv_weight_lpf );
+	if( num_ms_bap > 0 || num_ts_bap > 0 )
+		HTS106_Engine_set_gv_weight( &engine, 2, gv_weight_bap );
 	
 	for( i = 0; i < num_interp; i++ )
 	{
@@ -554,7 +554,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 		HTS106_Engine_set_parameter_interpolation_weight( &engine, 0, i, rate_interp[i] );
 		HTS106_Engine_set_parameter_interpolation_weight( &engine, 1, i, rate_interp[i] );
 		
-		if( num_ms_lpf > 0 || num_ts_lpf > 0 )
+		if( num_ms_bap > 0 || num_ts_bap > 0 )
 			HTS106_Engine_set_parameter_interpolation_weight( &engine, 2, i, rate_interp[i] );
 	}
 	
@@ -566,7 +566,7 @@ void MAGE::Engine::load( int argc, char ** argv )
 		for( i = 0; i < num_interp; i++ )
 			HTS106_Engine_set_gv_interpolation_weight( &engine, 1, i, rate_interp[i] );
 	
-	if( num_interp == num_ms_gvf && ( num_ms_lpf > 0 || num_ts_lpf > 0 ) )
+	if( num_interp == num_ms_gvf && ( num_ms_bap > 0 || num_ts_bap > 0 ) )
 		for( i = 0; i < num_interp; i++ )
 			HTS106_Engine_set_gv_interpolation_weight( &engine, 2, i, rate_interp[i] );
 	
@@ -580,8 +580,8 @@ void MAGE::Engine::load( int argc, char ** argv )
 		HTS106_fclose( mgcfp );
 	if( lf0fp != NULL )
 		HTS106_fclose( lf0fp );
-	if( lpffp != NULL )
-		HTS106_fclose( lpffp );
+	if( bapfp != NULL )
+		HTS106_fclose( bapfp );
 	if( wavfp != NULL )
 		HTS106_fclose( wavfp );
 	if( rawfp != NULL )
@@ -608,18 +608,18 @@ void Usage( void )
 	fprintf( stderr, "	-td tree		 : decision tree files for state duration					[	N/A]\n" );
 	fprintf( stderr, "	-tm tree		 : decision tree files for spectrum						[	N/A]\n" );
 	fprintf( stderr, "	-tf tree		 : decision tree files for Log F0							[	N/A]\n" );
-	fprintf( stderr, "	-tl tree		 : decision tree files for low-pass filter				 [	N/A]\n" );
+	fprintf( stderr, "	-tl tree		 : decision tree files for band aperiodicities				 [	N/A]\n" );
 	fprintf( stderr, "	-md pdf		: model files for state duration							[	N/A]\n" );
 	fprintf( stderr, "	-mm pdf		: model files for spectrum								[	N/A]\n" );
 	fprintf( stderr, "	-mf pdf		: model files for Log F0									[	N/A]\n" );
-	fprintf( stderr, "	-ml pdf		: model files for low-pass filter						 [	N/A]\n" );
+	fprintf( stderr, "	-ml pdf		: model files for band aperiodicities						 [	N/A]\n" );
 	fprintf( stderr, "	-dm win		: window files for calculation delta of spectrum			[	N/A]\n" );
 	fprintf( stderr, "	-df win		: window files for calculation delta of Log F0			[	N/A]\n" );
-	fprintf( stderr, "	-dl win		: window files for calculation delta of low-pass filter	 [	N/A]\n" );
+	fprintf( stderr, "	-dl win		: window files for calculation delta of band aperiodicities	 [	N/A]\n" );
 	fprintf( stderr, "	-od s			: filename of output label with duration					[	N/A]\n" );
 	fprintf( stderr, "	-om s			: filename of output spectrum							 [	N/A]\n" );
 	fprintf( stderr, "	-of s			: filename of output Log F0								 [	N/A]\n" );
-	fprintf( stderr, "	-ol s			: filename of output low-pass filter						[	N/A]\n" );
+	fprintf( stderr, "	-ol s			: filename of output band aperiodicities						[	N/A]\n" );
 	fprintf( stderr, "	-or s			: filename of output raw audio( generated speech )		 [	N/A]\n" );
 	fprintf( stderr, "	-ow s			: filename of output wav audio( generated speech )		 [	N/A]\n" );
 	fprintf( stderr, "	-ot s			: filename of output trace information					[	N/A]\n" );
@@ -636,20 +636,20 @@ void Usage( void )
 	fprintf( stderr, "	-u	f			: voiced/unvoiced threshold								 [	0.5][ 0.0--1.0]\n" );
 	fprintf( stderr, "	-em tree		 : decision tree files for GV of spectrum					[	N/A]\n" );
 	fprintf( stderr, "	-ef tree		 : decision tree files for GV of Log F0					[	N/A]\n" );
-	fprintf( stderr, "	-el tree		 : decision tree files for GV of low-pass filter			 [	N/A]\n" );
+	fprintf( stderr, "	-el tree		 : decision tree files for GV of band aperiodicities			 [	N/A]\n" );
 	fprintf( stderr, "	-cm pdf		: filenames of GV for spectrum							[	N/A]\n" );
 	fprintf( stderr, "	-cf pdf		: filenames of GV for Log F0								[	N/A]\n" );
-	fprintf( stderr, "	-cl pdf		: filenames of GV for low-pass filter					 [	N/A]\n" );
+	fprintf( stderr, "	-cl pdf		: filenames of GV for band aperiodicities					 [	N/A]\n" );
 	fprintf( stderr, "	-jm f			: weight of GV for spectrum								 [	1.0][ 0.0--2.0]\n" );
 	fprintf( stderr, "	-jf f			: weight of GV for Log F0								 [	1.0][ 0.0--2.0]\n" );
-	fprintf( stderr, "	-jl f			: weight of GV for low-pass filter						[	1.0][ 0.0--2.0]\n" );
+	fprintf( stderr, "	-jl f			: weight of GV for band aperiodicities						[	1.0][ 0.0--2.0]\n" );
 	fprintf( stderr, "	-k	tree		 : GV switch												 [	N/A]\n" );
 	fprintf( stderr, "	-z	i			: audio buffer size										 [ 1600][	 0--48000]\n" );
 	fprintf( stderr, "	infile:\n" );
 	fprintf( stderr, "	label file\n" );
 	fprintf( stderr, "	note:\n" );
 	fprintf( stderr, "	option '-d' may be repeated to use multiple delta parameters.\n" );
-	fprintf( stderr, "	generated spectrum, log F0, and low-pass filter coefficient\n" );
+	fprintf( stderr, "	generated spectrum, log F0, and band aperiodicities coefficient\n" );
 	fprintf( stderr, "	sequences are saved in natural endian, binary( float )format.\n" );
 	fprintf( stderr, "\n" );
 	

@@ -95,7 +95,7 @@ void HTS106_get_copyright(char *str);
 
 /*  -------------------------- audio ------------------------------  */
 
-#define AUDIO_PLAY_CALLER
+#define AUDIO_PLAY_NONE
 
 #if !defined(AUDIO_PLAY_WINCE) && !defined(AUDIO_PLAY_WIN32) && !defined(AUDIO_PLAY_PORTAUDIO) && !defined(AUDIO_PLAY_NONE) && !defined(AUDIO_PLAY_CALLER)
 #if defined(__WINCE__) || defined(_WINCE) || defined(_WINCE) || defined(__WINCE)

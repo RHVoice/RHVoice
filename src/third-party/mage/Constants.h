@@ -40,7 +40,7 @@
 
 	#define logF0 1
 	#define melF0 0
-	#define NumberOfMGCs 35		// # of MGC coefficients for the MLSA filter	
+	#define NumberOfMGCs 31		// # of MGC coefficients for the MLSA filter	
 #endif
 
 namespace MAGE 
@@ -84,18 +84,18 @@ namespace MAGE
 	const int lf0Len = nOfDers * nOfLF0s;	
 	
 	/**
-	 *	\var const unsigned int nOfLPFs.
-	 *	\brief Number of low-pass filter coefficients.
+	 *	\var const unsigned int nOfBAPs.
+	 *	\brief Number of band aperiodicities.
 	 *
 	 */
-	const unsigned int nOfLPFs = 31;	// # of low-pass filter coefficients
+	const unsigned int nOfBAPs = 12;	// # of band aperiodicities
 	
 	/**
 	 *	\var const int mgcLen.
-	 *	\brief Number of low-pass filter coefficients including including static and dynamic features.
+	 *	\brief Number of band aperiodicities including including static and dynamic features.
 	 *
 	 */	
-	const int lpfLen = nOfDers * nOfLPFs;
+	const int bapLen = nOfDers * nOfBAPs;
 	
 	const int maxStreamLen = nOfDers * nOfMGCs;
 
@@ -115,10 +115,10 @@ namespace MAGE
 	
 	/**
 	 *	\var const unsigned int nOfStreams.
-	 *	\brief Number of streams, here mgcs, lf0, lpf.
+	 *	\brief Number of streams, here mgcs, lf0, bap.
 	 *
 	 */
-	const unsigned int nOfStreams = NumberOfStreams;	// # of streams : mgcs, lf0, lpf
+	const unsigned int nOfStreams = NumberOfStreams;	// # of streams : mgcs, lf0, bap
 	
 	
 // --- Queues ---
@@ -308,11 +308,11 @@ namespace MAGE
 	const int lf0StreamIndex = 1; // lf0 stream index
 	
 	/**
-	 *	\var const int lpfStreamIndex.
-	 *	\brief Index number for the low-pass filter coefficients stream.
+	 *	\var const int bapStreamIndex.
+	 *	\brief Index number for the band aperiodicities stream.
 	 *
 	 */
-	const int lpfStreamIndex = 2; // lpf stream index
+	const int bapStreamIndex = 2; // bap stream index
 	
 	/**
 	 *	\var const int durStreamIndex.

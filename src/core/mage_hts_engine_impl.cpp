@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -17,32 +17,8 @@
 #include <cmath>
 #include "core/str.hpp"
 #include "core/mage_hts_engine_impl.hpp"
-#include "HTS106_engine.h"
+#include "HTS_hidden.h"
 #include "mage.h"
-
-extern "C"
-{
-  void HTS106_Audio_initialize(HTS106_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS106_Audio_set_parameter(HTS106_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS106_Audio_write(HTS106_Audio * audio, short sample)
-  {
-    static_cast<RHVoice::hts_engine_impl*>(audio->data)->on_new_sample(sample);
-  }
-
-  void HTS106_Audio_flush(HTS106_Audio * audio)
-  {
-  }
-
-  void HTS106_Audio_clear(HTS106_Audio * audio)
-  {
-  }
-}
 
 namespace RHVoice
 {
@@ -68,7 +44,13 @@ namespace RHVoice
   mage_hts_engine_impl::mage_hts_engine_impl(const std::string& voice_path):
     hts_engine_impl("mage",voice_path)
   {
+    bpf_init(&bpf);
   }
+
+  mage_hts_engine_impl::~mage_hts_engine_impl()
+  {
+    bpf_clear(&bpf);
+}
 
   hts_engine_impl::pointer mage_hts_engine_impl::do_create() const
   {
@@ -77,6 +59,9 @@ namespace RHVoice
 
   void mage_hts_engine_impl::do_initialize()
   {
+    std::string bpf_path(path::join(data_path,"bpf.txt"));
+    if(!bpf_load(&bpf,bpf_path.c_str()))
+      throw initialization_error();
     arg_list args;
     model_file_list dur_files(data_path,"dur");
     append_model_args(args,dur_files,"-td","-md");
@@ -84,8 +69,8 @@ namespace RHVoice
     append_model_args(args,mgc_files,"-tm","-mm","-dm");
     model_file_list lf0_files(data_path,"lf0",3);
     append_model_args(args,lf0_files,"-tf","-mf","-df");
-    model_file_list lpf_files(data_path,"lpf",1);
-    append_model_args(args,lpf_files,"-tl","-ml","-dl");
+    model_file_list bap_files(data_path,"bap",3);
+    append_model_args(args,bap_files,"-tl","-ml","-dl");
     args.push_back(arg("-s",str::to_string(MAGE::defaultSamplingRate)));
     args.push_back(arg("-p",str::to_string(MAGE::defaultFrameRate)));
     args.push_back(arg("-a",str::to_string(MAGE::defaultAlpha)));
@@ -100,7 +85,7 @@ namespace RHVoice
         c_args.push_back(const_cast<char*>(it->second.c_str()));
       }
     mage.reset(new MAGE::Mage("default",c_args.size(),&c_args[0]));
-    vocoder.reset(new HTS106_Vocoder);
+    vocoder.reset(new HTS_Vocoder);
   }
 
   void mage_hts_engine_impl::do_synthesize()
@@ -124,7 +109,7 @@ namespace RHVoice
   void mage_hts_engine_impl::do_reset()
   {
     mage->reset();
-    HTS106_Vocoder_clear(vocoder.get());
+    HTS_Vocoder_clear(vocoder.get());
     MAGE::FrameQueue* fq=mage->getFrameQueue();
     mage->setFrameQueue(0);
     delete fq;
@@ -150,7 +135,7 @@ namespace RHVoice
         MAGE::FrameQueue* fq=new MAGE::FrameQueue(MAGE::maxFrameQueueLen);
         mage->setFrameQueue(fq);
       }
-    HTS106_Vocoder_initialize(vocoder.get(),MAGE::nOfMGCs-1,0,1,MAGE::defaultSamplingRate,MAGE::defaultFrameRate);
+    HTS_Vocoder_initialize(vocoder.get(),MAGE::nOfMGCs-1,0,1,MAGE::defaultSamplingRate,MAGE::defaultFrameRate);
   }
 
   void mage_hts_engine_impl::generate_parameters(hts_label& lab)
@@ -174,13 +159,20 @@ namespace RHVoice
   {
     double pitch=lab.get_pitch();
     double mgc[MAGE::nOfMGCs];
-    double* lpf=0;
-    int nlpf=(MAGE::nOfLPFs-1)/2;
+    double bap[MAGE::nOfBAPs];
+    double speech[MAGE::defaultFrameRate];
     MAGE::FrameQueue* fq=mage->getFrameQueue();
     while(!(output->is_stopped()||fq->isEmpty()))
       {
         MAGE::Frame* f=fq->get();
         std::copy(f->streams[MAGE::mgcStreamIndex],f->streams[MAGE::mgcStreamIndex]+MAGE::nOfMGCs,mgc);
+        std::copy(f->streams[MAGE::bapStreamIndex],f->streams[MAGE::bapStreamIndex]+MAGE::nOfBAPs,bap);
+        for(int i=0;i<MAGE::nOfBAPs;++i)
+          {
+            if(bap[i]>0)
+              bap[i]=0;
+            bap[i]=std::pow(10.0,bap[i]/10.0);
+}
         double lf0=(f->voiced)?(f->streams[MAGE::lf0StreamIndex][0]):LZERO;
         if(f->voiced&&(pitch!=1))
           {
@@ -189,11 +181,14 @@ namespace RHVoice
               f0=20;
             lf0=std::log(f0);
           }
-        lpf=f->streams[MAGE::lpfStreamIndex];
         fq->pop();
-        HTS106_Audio audio;
-        audio.data=this;
-        HTS106_Vocoder_synthesize(vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,nlpf,lpf,MAGE::defaultAlpha,beta,1,0,&audio);
+        HTS_Vocoder_synthesize(vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,bap,&bpf,MAGE::defaultAlpha,beta,1,speech,0);
+        for(int i=0;i<MAGE::defaultFrameRate;++i)
+          {
+            speech[i]/=32768.0;
+            speech[i]*=gain;
+}
+        output->process(speech,MAGE::defaultFrameRate);
       }
   }
 }

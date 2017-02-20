@@ -267,7 +267,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 		head = ( head + 1 ) % length;
 	}
 	
-	for( i = 0; i < nOfStreams; i++ ) // for every stream : mgc, lf0, lpf
+	for( i = 0; i < nOfStreams; i++ ) // for every stream : mgc, lf0, bap
 	{
 		head = read;
 		
@@ -386,7 +386,7 @@ void MAGE::ModelQueue::optimizeParameters( MAGE::Engine * engine, unsigned int b
 		
 		if( ms.stream[i].msd_flag )	// for MSD :: lf0
 			pss.length = msd_frame;	// stream length :: total number of frames
-		else						// for non MSD :: mgcs & lpf
+		else						// for non MSD :: mgcs & bap
 			pss.length = frame;		// stream length :: total number of frames
 		
 		if( HTS106_ModelSet_use_gv( &ms, i ) )	// if GV is used 
