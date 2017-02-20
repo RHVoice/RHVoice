@@ -159,7 +159,7 @@ namespace MAGE
 		char ** fn_ws_lf0;
 		
 		 /* delta window handler for low-pass filter*/
-		char ** fn_ws_lpf;
+		char ** fn_ws_bap;
 		
 		 /* prepare for interpolation*/
 		double * rate_interp;
@@ -167,11 +167,11 @@ namespace MAGE
 		char ** fn_ms_dur;
 		char ** fn_ms_mgc;
 		char ** fn_ms_lf0;
-		char ** fn_ms_lpf;
+		char ** fn_ms_bap;
 		char ** fn_ts_dur;
 		char ** fn_ts_mgc;
 		char ** fn_ts_lf0;
-		char ** fn_ts_lpf;
+		char ** fn_ts_bap;
 		char ** fn_ms_gvm;
 		char ** fn_ms_gvl;
 		char ** fn_ms_gvf;

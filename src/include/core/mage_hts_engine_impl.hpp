@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -19,13 +19,14 @@
 #include <memory>
 #include <utility>
 #include "hts_engine_impl.hpp"
+#include "bpf.h"
 
 namespace MAGE
 {
   class Mage;
 }
 
-struct _HTS106_Vocoder;
+struct _HTS_Vocoder;
 
 namespace RHVoice
 {
@@ -33,6 +34,7 @@ namespace RHVoice
   {
   public:
     explicit mage_hts_engine_impl(const std::string& voice_path);
+    ~mage_hts_engine_impl();
 
   private:
     class model_file_list
@@ -66,7 +68,8 @@ namespace RHVoice
     void append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name="") const;
 
     std::auto_ptr<MAGE::Mage> mage;
-    std::auto_ptr<_HTS106_Vocoder> vocoder;
+    std::auto_ptr<_HTS_Vocoder> vocoder;
+    BPF bpf;
   };
 }
 #endif

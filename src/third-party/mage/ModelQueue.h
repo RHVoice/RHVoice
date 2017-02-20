@@ -126,7 +126,7 @@ namespace MAGE
 			 *			fundamental frequency and low-pass filter coefficients of every stream 
 			 *			(including static and dynamic features).
 			 */
-			double *** par;		// output parameter vector for otimized mgc, lf0 and lpf for every stream, 
+			double *** par;		// output parameter vector for otimized mgc, lf0 and bap for every stream, 
 								// for every frame // [nOfStreams][maxNumOfFrames][nOfDers * nOfMGCs] 
 		
 			/** 
