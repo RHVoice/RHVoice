@@ -528,7 +528,7 @@ class htk_segmenter(task):
 		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
 		self.output_hmmdefs()
 		self.output_macros()
-		max_reest_iter=30
+		max_reest_iter=50
 		n=self.reest_until(0,1,0.1,max_reest_iter)
 		self.edit_hmm(n,"pau.hed")
 		n+=1
