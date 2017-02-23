@@ -11,7 +11,7 @@
   <phoneme name="d" vc="-" son="-" cont="-" ctype="s" cplace="a" ccor="+" cvox="+"/>
   <phoneme name="dh" vc="-" son="-" cont="+" ctype="f" cplace="d" ccor="+" cvox="+"/>
   <phoneme name="eh" vc="+" vlng="s" vheight="2" vfront="1" vrnd="-"/>
-  <phoneme name="er" vc="+" vlng="a" vheight="2" vfront="2" vrnd="-"/>
+  <phoneme name="er" vc="+" vlng="a" vheight="2" vfront="2" vrnd="-" ctype="r"/>
   <phoneme name="ey" vc="+" vlng="d" vheight="2" vfront="1" vrnd="-"/>
   <phoneme name="f" vc="-" son="-" cont="+" ctype="f" cplace="b" clab="+" cvox="-"/>
   <phoneme name="g" vc="-" son="-" cont="-" ctype="s" cplace="v" cvox="+"/>
