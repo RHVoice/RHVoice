@@ -49,7 +49,33 @@ define TranscribeLetter
 ъ:[a dzh y r a t uu b e l g i s i] | 
 э:e | 
 ю:[j u] | 
-я:[j a] ; 
+я:[j a] | 
+[a : [a]] | 
+[b : [b e]] | 
+[c : [c e]] | 
+[d : [d e]] | 
+[e : [e]] | 
+[f : [e f]] | 
+[g : [g e]] | 
+[h : [h a]] | 
+[i : [i]] | 
+[j : [dzh e]] | 
+[k : [k a]] | 
+[l : [e l]] | 
+[m : [e m]] | 
+[n : [e n]] | 
+[o : [o]] | 
+[p : [p e]] | 
+[q : [k j u]] | 
+[r : [e r]] | 
+[s : [e s]] | 
+[t : [t e]] | 
+[u : [u]] | 
+[v : [v e]] | 
+[w : [d a b l j u]] | 
+[x : [i k s]] | 
+[y : [y]] | 
+[z : [z e]] ; 
 
 define TranscribeLetterSequence TranscribeLetter+ ; 
 
