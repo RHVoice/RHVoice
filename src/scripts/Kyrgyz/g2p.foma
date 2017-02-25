@@ -76,10 +76,43 @@ KyrgyzTranscribeNonJVowel @-> ,,
 KyrgyzTranscribeJVowel @-> || \KyrgyzJVowelContext _ ,, 
 ь|ъ @-> 0 ; 
 
-define KyrgyzLetter а|б|в|г|д|е|ё|ж|з|и|й|к|л|м|н|о|п|р|с|т|у|ф|х|ц|ч|ш|щ|ь|ы|ъ|э|ю|я|ө|ү|ң ; 
+define KyrgyzLetter а|б|в|г|д|е|ё|ж|з|и|й|к|л|м|н|о|п|р|с|т|у|ф|х|ц|ч|ш|щ|ь|ы|ъ|э|ю|я|ө|ү|ң | a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z ; 
 
 define KyrgyzWord KyrgyzLetter+ ; 
 
-define KyrgyzTranscription KyrgyzWord .o. KyrgyzTranscriptionRules ; 
+define KyrgyzConvertLatinLetters 
+a @-> а ,, 
+b @-> б ,, 
+c @-> ц ,, 
+d @-> д ,, 
+{ch} @-> ч ,, 
+e @-> э ,, 
+f @-> ф ,, 
+g @-> г ,, 
+h @-> х ,, 
+i @-> и ,, 
+j @-> ж ,, 
+k @-> к ,, 
+l @-> л ,, 
+m @-> м ,, 
+n @-> н ,, 
+{ng} @-> ң ,, 
+o @-> о ,, 
+p @-> п ,, 
+q @-> к ,, 
+r @-> р ,, 
+s @-> с ,, 
+{sh} @-> ш ,, 
+{sch} @-> щ ,, 
+t @-> т ,, 
+u @-> у ,, 
+v @-> в ,, 
+w @-> в ,, 
+x @-> {кс} ,, 
+y @-> й || _ [a|e|i|o|u] ,, 
+y @-> ы || _ \[a|e|i|o|u] ,, 
+z @-> з ; 
+
+define KyrgyzTranscription KyrgyzWord .o. KyrgyzConvertLatinLetters .o. KyrgyzTranscriptionRules ; 
 
 regex KyrgyzTranscription ; 

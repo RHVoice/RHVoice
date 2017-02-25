@@ -23,7 +23,7 @@ define KyrgyzLetter
 [[ж|Ж]:жэ] | 
 [[з|З]:зэ] | 
 [[и|И]:и] | 
-[[й|Й]:ий | 
+[[й|Й]:ий] | 
 [[к|К]:ка] | 
 [[л|Л]:эл] | 
 [[м|М]:эм] | 
@@ -51,6 +51,34 @@ define KyrgyzLetter
 [[я|Я]:йа] | 
 [[Ё|ё]:йо] ; 
 
+define EnglishLetter 
+[[a | A] : а ] | 
+[[b | B] : бэ ] | 
+[[c | C] : цэ ] | 
+[[d | D] : дэ ] | 
+[[e | E] : э ] | 
+[[f | F] : эф ] | 
+[[g | G] : гэ ] | 
+[[h | H] : ха ] | 
+[[i | I] : и ] | 
+[[j | J] : же ] | 
+[[k | K] : ка ] | 
+[[l | L] : эл ] | 
+[[m | M] : эм ] | 
+[[n | N] : эн ] | 
+[[o | O] : о ] | 
+[[p | P] : пэ ] | 
+[[q | Q] : кйу ] | 
+[[r | R] : эр ] | 
+[[s | S] : эс ] | 
+[[t | T] : те ] | 
+[[u | U] : у ] | 
+[[v | V] : вэ ] | 
+[[w | W] : даблйу ] | 
+[[x | X] : икс ] | 
+[[y | Y] : ы ] | 
+[[z | Z] : зэ ] ; 
+
 define Digit %0:Нөл|1:бир|2:эки|3:үч|4:төрт|5:беш|6:алты|7:жети|8:сегиз|9:тогуз;
 
 define Whitespace 
@@ -76,5 +104,5 @@ define Symbol
 %@:маймылча ; 
 
 regex 
-KyrgyzLetter | Digit | Whitespace | Punctuation | Symbol ; 
+KyrgyzLetter | EnglishLetter | Digit | Whitespace | Punctuation | Symbol ; 
 
