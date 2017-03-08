@@ -25,13 +25,7 @@ define Particle
 define ModalWord 
 адатта | айталы | айтмакчы | албетте | алсак | болжолу | мүмкүн | өзгөчө | сөзсүз | балким | чамасы | сыягы | ыктымал | тийиш | керек | көрүнөт | айтмакчы | кыскасын айтканда | шексиз | сыяктуу | тескерсинче | экинчиден | айтор | кыязы ; 
 
-define FunctionWord Conjunction | Preposition | Particle  | ModalWord ; 
-
-regex 
-Conjunction -> conj || _ ,, 
-Preposition -> prep || _ ,, 
-Particle -> part || _ ,, 
-\FunctionWord -> content || _ ; 
+define FunctionWord Conjunction | Postposition | Particle  | ModalWord ; 
 
 define FunctionWordMapping 
 [[? & Postposition] : post] .P. 
