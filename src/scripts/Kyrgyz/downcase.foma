@@ -19,7 +19,8 @@ clear
 define KyrgyzDowncase 
 Ө : ө | 
 Ү : ү | 
-Ң : ң ; 
+Ң : ң | 
+Ӊ : ӊ ; 
 
 regex 
 [RussianDowncase | KyrgyzDowncase | EnglishDowncase] -> ; 
