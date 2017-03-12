@@ -53,7 +53,11 @@ word -> lseq || [.#.|word|num|dig|sym] LetterSequence _ ;
 define UntagLargeNumbers 
 num -> dig || Digit^13 _ ; 
 
+define SplitDigitSequences 
+[[%0 Digit 0:dig] | [%0 0:num]] [[NZDigit Digit 0:num] | [%0 Digit 0:dig]]* dig:0 @-> ; 
+
 regex 
 BasicTokenizer .o. 
+SplitDigitSequences .o. 
 TagLetterSequences .o. 
 UntagLargeNumbers ; 
