@@ -15,7 +15,7 @@
 
 # The original tagger is defined in festival/lib/pos.scm
 
-define In about | after | against | among | as | at | because | before | between | by | down | for | from | if | in | into | new | of | on | over | per | that | through | under | until | up | while | with | without;
+define In about | after | against | among | as | at | because | before | between | by | down | for | from | if | in | into | new | of | on | over | per | that | through | under | until | up | while | with | without | than ;
 define To to;
 define Det a | all | an | another | any | both | each | every | many | neither | no | some | the | these | this | those;
 define Md can | could | may | might | must | ought | should | will | would;
