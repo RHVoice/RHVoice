@@ -453,13 +453,13 @@ class htk_segmenter(task):
 		self.edit_hmm(n,script_path)
 
 	def inc_mix_and_reest_until(self,n,j,min_epsilon1,max_iter):
-		max_num_mix=self.settings.get("seg_max_num_mix",4)
-		if max_num_mix<2:
+		steps=self.settings.get("seg_inc_mix_steps",[2,3])
+		if not steps:
 			return n
 		prev_n=n
 		prev_alppf=self.get_alppf(n-1)
-		m=2
-		while m<=max_num_mix:
+		assert(steps[0]==2)
+		for m in steps:
 			self.inc_mix(prev_n,m)
 			next_n=self.reest_until(prev_n+1,j,min_epsilon1,max_iter)
 			next_alppf=self.get_alppf(next_n-1)
@@ -469,7 +469,6 @@ class htk_segmenter(task):
 				return prev_n
 			prev_n=next_n
 			prev_alppf=next_alppf
-			m*=2
 		return next_n
 
 	def align(self,i,j):
