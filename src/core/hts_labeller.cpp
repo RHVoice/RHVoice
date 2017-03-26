@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -181,6 +181,19 @@ namespace RHVoice
       }
     };
 
+    struct hts_prev_syl_coda_length: public feature_function
+    {
+      hts_prev_syl_coda_length():
+        feature_function("prev_syl_coda_length")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.syl_codasize":"R:SylStructure.parent.R:Syllable.p.syl_codasize",zero);
+      }
+    };
+
     struct hts_syl_stress: public feature_function
     {
       hts_syl_stress():
@@ -217,6 +230,19 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return is_silence(seg)?x:seg.eval("R:SylStructure.parent.syl_numphones");
+      }
+    };
+
+    struct hts_syl_coda_length: public feature_function
+    {
+      hts_syl_coda_length():
+        feature_function("syl_coda_length")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval("R:SylStructure.parent.syl_codasize");
       }
     };
 
@@ -517,6 +543,32 @@ namespace RHVoice
       }
     };
 
+    struct hts_first_syl_vowel_in_word: public feature_function
+    {
+      hts_first_syl_vowel_in_word():
+        feature_function("first_syl_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.parent.daughter1.syl_vowel",x);
+      }
+    };
+
+    struct hts_last_syl_vowel_in_word: public feature_function
+    {
+      hts_last_syl_vowel_in_word():
+        feature_function("last_syl_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval("R:SylStructure.parent.parent.daughtern.syl_vowel",x);
+      }
+    };
+
     struct hts_next_syl_stress: public feature_function
     {
       hts_next_syl_stress():
@@ -553,6 +605,19 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.syl_numphones":"R:SylStructure.parent.R:Syllable.n.syl_numphones",zero);
+      }
+    };
+
+    struct hts_next_syl_coda_length: public feature_function
+    {
+      hts_next_syl_coda_length():
+        feature_function("next_syl_coda_length")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.syl_codasize":"R:SylStructure.parent.R:Syllable.n.syl_codasize",zero);
       }
     };
 
@@ -1313,6 +1378,24 @@ namespace RHVoice
         return is_silence(seg)?x:seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.daughtern.gpos",zero);
       }
     };
+
+    struct hts_ext_phon_feat: public feature_function
+    {
+    private:
+      const std::string full_name;
+
+    public:
+      hts_ext_phon_feat(const std::string& hts_prefix,const std::string& path,const std::string& short_name):
+        full_name(path+"ph_ext_"+short_name),
+        feature_function(hts_prefix+"ext_"+short_name)
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval(full_name,zero);
+      }
+    };
   }
 
   void hts_labeller::load_label_format_description(const std::string& file_path)
@@ -1417,6 +1500,8 @@ namespace RHVoice
     define_feature(smart_ptr<feature_function>(new hts_next_next_syl_vowel_in_word));
     define_feature(smart_ptr<feature_function>(new hts_prev_syl_vowel_in_word));
     define_feature(smart_ptr<feature_function>(new hts_prev_prev_syl_vowel_in_word));
+    define_feature(smart_ptr<feature_function>(new hts_first_syl_vowel_in_word));
+    define_feature(smart_ptr<feature_function>(new hts_last_syl_vowel_in_word));
     define_feature(smart_ptr<feature_function>(new hts_next_syl_stress));
     define_feature(smart_ptr<feature_function>(new hts_next_syl_accented));
     define_feature(smart_ptr<feature_function>(new hts_next_syl_length));
@@ -1465,5 +1550,17 @@ namespace RHVoice
     define_feature(smart_ptr<feature_function>(new hts_syl_part));
     define_feature(smart_ptr<feature_function>(new hts_first_gpos_in_phrase));
     define_feature(smart_ptr<feature_function>(new hts_last_gpos_in_phrase));
+define_feature(smart_ptr<feature_function>(new hts_prev_syl_coda_length));
+define_feature(smart_ptr<feature_function>(new hts_syl_coda_length));
+define_feature(smart_ptr<feature_function>(new hts_next_syl_coda_length));
   }
+
+  void hts_labeller::define_extra_phonetic_feature(const std::string& name)
+  {
+    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("","",name)));
+    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("next_","n.",name)));
+    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("prev_","p.",name)));
+    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("next_next_","n.n.",name)));
+    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("prev_prev_","p.p.",name)));
+}
 }
