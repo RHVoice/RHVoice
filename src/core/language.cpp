@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -417,6 +417,27 @@ namespace RHVoice
       }
     };
 
+    struct feat_syl_coda_size: public feature_function
+    {
+      feat_syl_coda_size():
+        feature_function("syl_codasize")
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& syl_in_word=syl.as("Syllable").as("SylStructure");
+        item::const_iterator vowel_pos=std::find_if(syl_in_word.begin(),syl_in_word.end(),feature_equals<std::string>("ph_vc","+"));
+        unsigned int result;
+        if(vowel_pos==syl_in_word.end())
+          result=std::distance(syl_in_word.begin(),syl_in_word.end());
+else
+  result=std::distance(vowel_pos,syl_in_word.end())-1;
+        return result;
+      }
+    };
+
+
     class phoneme_feature_function: public feature_function
     {
     public:
@@ -546,6 +567,7 @@ namespace RHVoice
     register_feature(smart_ptr<feature_function>(new feat_word_stress_pattern));
     register_feature(smart_ptr<feature_function>(new feat_phrases_in));
     register_feature(smart_ptr<feature_function>(new feat_phrases_out));
+    register_feature(smart_ptr<feature_function>(new feat_syl_coda_size));
   }
 
   item& language::append_token(utterance& u,const std::string& text) const
@@ -810,7 +832,19 @@ namespace RHVoice
   void language::assign_pronunciation(item& word) const
   {
     std::vector<std::string> transcription(get_word_transcription(word));
-    std::copy(transcription.begin(),transcription.end(),word.back_inserter());
+    str::tokenizer<str::is_equal_to> tokenizer("",str::is_equal_to('_'));
+    std::string val("1");
+    for(std::vector<std::string>::const_iterator it1=transcription.begin();it1!=transcription.end();++it1)
+      {
+        tokenizer.assign(*it1);
+        str::tokenizer<str::is_equal_to>::iterator it2=tokenizer.begin();
+        item& seg=word.append_child();
+        seg.set("name",*it2);
+        for(++it2;it2!=tokenizer.end();++it2)
+          {
+            seg.set("ph_ext_"+*it2,val);
+}
+}
   }
 
   void language::do_g2p(utterance& u) const
