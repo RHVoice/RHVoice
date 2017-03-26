@@ -1363,7 +1363,7 @@ namespace RHVoice
     for(std::vector<hts_feature>::const_iterator it(features.begin());it!=features.end();++it)
       {
         if(it->function.empty())
-          throw hts_feature_undefined();
+          throw hts_feature_undefined(it->name);
         s << it->prefix;
         s << it->function->eval(seg);
       }

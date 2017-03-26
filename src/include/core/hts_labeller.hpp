@@ -29,8 +29,8 @@ namespace RHVoice
   class hts_feature_undefined: public lookup_error
   {
   public:
-    hts_feature_undefined():
-      lookup_error("This hts feature has not been defined")
+    hts_feature_undefined(const std::string& name):
+      lookup_error("This hts feature has not been defined: "+name)
     {
     }
   };
