@@ -287,8 +287,8 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
      {
        sss->duration[i]=1;
 }
-   if(sss->duration[sss->nstate-1]>6)
-     sss->duration[sss->nstate-1]=6;
+   if(sss->duration[sss->nstate-1]>1)
+     sss->duration[sss->nstate-1]=1;
 
    /* get parameter */
    for (i = 0, state = 0; i < HTS_Label_get_size(label); i++) {
