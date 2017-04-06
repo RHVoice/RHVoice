@@ -108,7 +108,6 @@ namespace RHVoice
     setup();
     int time=0;
     int dur=0;
-    bool skip_flag=true;
     for(label_sequence::iterator label_iter=input->lbegin();label_iter!=input->lend();++label_iter)
       {
         label_iter->set_time(time);
@@ -116,13 +115,7 @@ namespace RHVoice
         dur=mage->getDuration()*MAGE::defaultFrameRate;
         label_iter->set_duration(dur);
         time+=dur;
-        if(skip_flag)
-          {
-            skip_flag=false;
-            skip_initial_pause();
-          }
-        else
-          generate_samples(*label_iter);
+        generate_samples(*label_iter);
         if(output->is_stopped())
           return;
       }
@@ -165,6 +158,11 @@ namespace RHVoice
     MAGE::Label mlab(lab.get_name());
     if(rate!=1)
       mlab.setSpeed(rate);
+    if(lab.get_time()==0)
+      {
+        mlab.setEnd(250000);
+        mlab.setDurationForced(true);
+}
     mage->setLabel(mlab);
     mage->prepareModel();
     mage->computeDuration();
@@ -196,27 +194,6 @@ namespace RHVoice
         HTS106_Audio audio;
         audio.data=this;
         HTS106_Vocoder_synthesize(vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,nlpf,lpf,MAGE::defaultAlpha,beta,1,0,&audio);
-      }
-  }
-
-  void mage_hts_engine_impl::skip_initial_pause()
-  {
-    MAGE::Model* mod=mage->getModel();
-    int skip_dur=0;
-    for(int i=0;i<(MAGE::nOfStates-1);++i)
-      {
-        skip_dur+=mod->getState(i).duration;
-      }
-    if(mod->getState(MAGE::nOfStates-1).duration>6)
-      skip_dur+=(mod->getState(MAGE::nOfStates-1).duration-6);
-    MAGE::FrameQueue* fq=mage->getFrameQueue();
-    int dur=0;
-    while(!(output->is_stopped()||fq->isEmpty()))
-      {
-        ++dur;
-        if(dur>skip_dur)
-          break;
-        fq->pop();
       }
   }
 }
