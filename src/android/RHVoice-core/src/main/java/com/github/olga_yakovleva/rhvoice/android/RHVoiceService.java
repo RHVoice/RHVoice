@@ -162,6 +162,8 @@ public final class RHVoiceService extends TextToSpeechService
                     return null;
                 if(tts.engine==null)
                     return null;
+                if(tts.voices.isEmpty())
+                    return null;
                 Tts result=new Tts(tts,true);
                 return result;
 }
@@ -223,8 +225,8 @@ public final class RHVoiceService extends TextToSpeechService
 
     static private class Candidate
     {
-        public final AndroidVoiceInfo voice;
-        public final int score;
+        public AndroidVoiceInfo voice;
+        public int score;
 
         public Candidate()
         {
@@ -295,20 +297,25 @@ public final class RHVoiceService extends TextToSpeechService
                 if(voice!=null)
                     return new Candidate(voice,language,country,"");
 }
-        LanguageSettings settings=null;
-        if(languageSettings!=null)
-            settings=languageSettings.get(language);
         Candidate best=new Candidate();
-        Candidate bestPreferred=new Candidate();
         for(AndroidVoiceInfo voice: tts.voices)
             {
                 Candidate candidate=new Candidate(voice,language,country,variant);
-                if(candidate.score>best.score)
+                if(candidate.score>best.score||best.voice==null)
                     best=candidate;
-                if((settings!=null)&&settings.voice.equals(voice))
-                    bestPreferred=candidate;
             }
-        return bestPreferred.score>=best.score?bestPreferred:best;
+        if(best.score==3)
+            return best;
+        if(best.voice==null)
+            best.voice=tts.voices.get(0);
+        LanguageSettings settings=null;
+        if(languageSettings!=null)
+            settings=languageSettings.get(best.voice.getLanguage());
+        if(settings==null)
+            return best;
+        if(settings.voice!=null)
+            best.voice=settings.voice;
+        return best;
     }
 
     private void initialize()
