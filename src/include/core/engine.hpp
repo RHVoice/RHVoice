@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -116,6 +116,12 @@ namespace RHVoice
       return logger;
     }
 
+
+    bool configure(const std::string& key,const std::string& value)
+    {
+      return cfg.set(key,value);
+}
+
   private:
     engine(const engine&);
     engine& operator=(const engine&);
@@ -126,6 +132,7 @@ namespace RHVoice
     voice_list voices;
     std::set<voice_profile> voice_profiles;
     smart_ptr<event_logger> logger;
+    config cfg;
 
     void create_voice_profiles();
 

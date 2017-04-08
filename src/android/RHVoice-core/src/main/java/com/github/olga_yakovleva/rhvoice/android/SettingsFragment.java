@@ -33,6 +33,9 @@ import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
 import android.preference.PreferenceFragment;
+import android.preference.EditTextPreference;
+import android.text.InputType;
+import android.text.InputFilter;
 
 public final class SettingsFragment extends PreferenceFragment
 {
@@ -98,6 +101,23 @@ public final class SettingsFragment extends PreferenceFragment
         detectPref.setTitle(R.string.detect_language_title);
         detectPref.setDefaultValue(true);
         cat.addPreference(detectPref);
+        InputFilter[] inputFilters=new InputFilter[]{new InputFilter.LengthFilter(3)};
+        EditTextPreference volumePref=new EditTextPreference(getActivity());
+        volumePref.setKey("language."+code3+".volume");
+        volumePref.setTitle(R.string.speech_volume);
+        volumePref.setDefaultValue("100");
+        volumePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+        volumePref.getEditText().setSelectAllOnFocus(true);
+        volumePref.getEditText().setFilters(inputFilters);
+        cat.addPreference(volumePref);
+        EditTextPreference ratePref=new EditTextPreference(getActivity());
+        ratePref.setKey("language."+code3+".rate");
+        ratePref.setTitle(R.string.speech_rate);
+        ratePref.setDefaultValue("100");
+        ratePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+        ratePref.getEditText().setSelectAllOnFocus(true);
+        ratePref.getEditText().setFilters(inputFilters);
+        cat.addPreference(ratePref);
     }
 
     @Override

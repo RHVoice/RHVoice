@@ -8,4 +8,6 @@
     <string name="voice_data">Голосовые данные для RHVoice</string>
     <string name="voice_data_installed">Голосовые данные установлены</string>
     <string name="voice_data_not_installed">Голосовые данные не установлены</string>
+    <string name="speech_volume">Громкость речи</string>
+    <string name="speech_rate">Скорость речи</string>
 </resources>

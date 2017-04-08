@@ -95,6 +95,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
 JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doSpeak
   (JNIEnv *, jobject, jstring, jobject, jobject);
 
+/*
+ * Class:     com_github_olga_yakovleva_rhvoice_TTSEngine
+ * Method:    doConfigure
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doConfigure
+(JNIEnv *, jobject, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif
