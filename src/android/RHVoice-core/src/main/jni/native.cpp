@@ -498,3 +498,12 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doSpeak
   speak_impl(env,self,text,synth_params,tts_client)();
   CATCH1(env);
 }
+
+JNIEXPORT jboolean JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doConfigure
+(JNIEnv *env, jobject obj, jstring key, jstring value)
+{
+  TRY
+    Data* data=get_native_field<Data>(env,obj,data_field);
+  return data->engine_ptr->configure(jstring_to_string(env,key),jstring_to_string(env,value));
+  CATCH2(env,false)
+}

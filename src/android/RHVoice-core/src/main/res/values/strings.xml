@@ -8,5 +8,8 @@
     <string name="detect_language_title">Automatic language switching</string>
     <string name="voice_data">Voice data</string>
     <string name="voice_data_installed">Voice data is installed</string>
-    <string name="voice_data_not_installed">Voice data is not installed</string>
+    <string name="voice_data_not_installed">Voice data is not
+    installed</string>
+    <string name="speech_volume">Speech volume</string>
+    <string name="speech_rate">Speech rate</string>
 </resources>

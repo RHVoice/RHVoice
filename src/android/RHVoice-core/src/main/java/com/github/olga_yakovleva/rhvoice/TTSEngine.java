@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2016, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,8 +15,9 @@
 
 package com.github.olga_yakovleva.rhvoice;
 
-import java.util.List;
+import android.text.TextUtils;
 import java.util.Arrays;
+import java.util.List;
 
 public final class TTSEngine
 {
@@ -27,6 +28,7 @@ public final class TTSEngine
     private native void onShutdown();
     private native VoiceInfo[] doGetVoices();
     private native void doSpeak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException;
+    private native boolean doConfigure(String key,String value);
 
     static
     {
@@ -65,4 +67,13 @@ public final class TTSEngine
             throw new RHVoiceException("Voice not set");
         doSpeak(text,params,client);
     }
+
+    public boolean configure(String key,String value)
+    {
+        if(TextUtils.isEmpty(key))
+            return false;
+        if(TextUtils.isEmpty(value))
+            return false;
+        return doConfigure(key,value);
+}
 }

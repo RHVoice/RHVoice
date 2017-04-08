@@ -68,7 +68,6 @@ namespace RHVoice
     logger->log(tag,RHVoice_log_level_info,"creating a new engine");
     if(languages.empty())
       throw no_languages();
-    config cfg;
     cfg.set_logger(logger);
     cfg.register_setting(voice_profiles_spec);
     voice_settings.register_self(cfg);
