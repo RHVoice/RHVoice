@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<phonemes>
+  <phoneme name="a" vc="+" vheight="l" vlng="l" vfront="b" vrnd="-"/>
+  <phoneme name="af" vc="+" vheight="l" vlng="l" vfront="f" vrnd="-"/>
+  <phoneme name="e" vc="+" vheight="m" vlng="s" vfront="f" vrnd="-"/>
+  <phoneme name="i" vc="+" vheight="h" vlng="l" vfront="f" vrnd="-"/>
+  <phoneme name="y" vc="+" vheight="h" vlng="s" vfront="b" vrnd="-"/>
+  <phoneme name="o" vc="+" vheight="m" vlng="s" vfront="b" vrnd="+"/>
+  <phoneme name="of" vc="+" vheight="m" vlng="s" vfront="f" vrnd="+"/>
+  <phoneme name="u" vc="+" vheight="h" vlng="l" vfront="b" vrnd="+"/>
+  <phoneme name="uf" vc="+" vheight="h" vlng="l" vfront="f" vrnd="+"/>
+  <phoneme name="b" vc="-" ctype="s" cplace="b" lab="+" cvox="+" son="-"/>
+  <phoneme name="d" vc="-" ctype="s" cplace="d" cor="+" cvox="+" son="-"/>
+  <phoneme name="g" vc="-" ctype="s" cplace="v" dor="+" cvox="+" son="-"/>
+  <phoneme name="gh" vc="-" ctype="f" cplace="u" dor="+" cvox="+" son="-"/>
+  <phoneme name="p" vc="-" ctype="s" cplace="b" lab="+" cvox="-" son="-"/>
+  <phoneme name="t" vc="-" ctype="s" cplace="d" cor="+" cvox="-" son="-"/>
+  <phoneme name="k" vc="-" ctype="s" cplace="v" dor="+" cvox="-" son="-"/>
+  <phoneme name="kh" vc="-" ctype="s" cplace="u" dor="+" cvox="-" son="-"/>
+  <phoneme name="v" vc="-" ctype="f" cplace="l" lab="+" cvox="+" son="-"/>
+  <phoneme name="z" vc="-" ctype="f" csib="+" cplace="a" cor="+" cvox="+" son="-"/>
+  <phoneme name="zh" vc="-" ctype="f" csib="+" cplace="a" cor="+" cvox="+" son="-"/>
+  <phoneme name="zhj" vc="-" ctype="f" csib="+" cplace="a" cor="+" cvox="+" son="-"/>
+  <phoneme name="f" vc="-" ctype="f" cplace="l" lab="+" cvox="-" son="-"/>
+  <phoneme name="s" vc="-" ctype="f" csib="+" cplace="a" cor="+" cvox="-" son="-"/>
+  <phoneme name="sh" vc="-" ctype="f" csib="+" cplace="a" cor="+" cvox="-" son="-"/>
+  <phoneme name="shj" vc="-" ctype="f" csib="+" cplace="a" cor="+" cvox="-" son="-"/>
+  <phoneme name="hh" vc="-" ctype="f" cplace="u" dor="+" cvox="-" son="-"/>
+  <phoneme name="h" vc="-" ctype="f" cplace="f" cvox="-" son="-"/>
+  <phoneme name="m" vc="-" ctype="n" cplace="b" lab="+" cvox="+" son="+"/>
+  <phoneme name="n" vc="-" ctype="n" cplace="d" cor="+" cvox="+" son="+"/>
+  <phoneme name="ng" vc="-" ctype="n" cplace="u" dor="+" cvox="+" son="+"/>
+  <phoneme name="l" vc="-" ctype="f" cplace="d" cor="+" cvox="+" son="+"/>
+  <phoneme name="r" vc="-" ctype="t" cplace="d" cor="+" cvox="+" son="+"/>
+  <phoneme name="j" vc="-" ctype="f" cplace="p" dor="+" cvox="+" son="+"/>
+  <phoneme name="w" vc="-" ctype="f" cplace="b" dor="+" lab="+" cvox="+" son="+"/>
+  <phoneme name="pau"/>
+</phonemes>
