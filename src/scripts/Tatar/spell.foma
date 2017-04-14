@@ -1,0 +1,124 @@
+# Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define TatarLetter 
+[[а | А] : а] | 
+[[ә | Ә] : ә] | 
+[[и | И] : и] | 
+[[о | О] : о] | 
+[[ө | Ө] : ө] | 
+[[у | У] : у] | 
+[[ү | Ү] : ү] | 
+[[ы | Ы] : ы] | 
+[[э | Э] : э] | 
+[[б | Б] : бэ] | 
+[[в | В] : вэ] | 
+[[г | Г] : гэ] | 
+[[д | Д] : дэ] | 
+[[е | Е] : йэ] | 
+[[ё | Ё] : йо] | 
+[[ж | Ж] : жэ] | 
+[[з | З] : зэт] | 
+[[й | Й] : йот] | 
+[[к | К] : ка] | 
+[[л | Л] : эль] | 
+[[м | М] : эм] | 
+[[н | Н] : эн] | 
+[[п | П] : пэ] | 
+[[р | Р] : эр] | 
+[[с | С] : эс] | 
+[[т | Т] : тэ] | 
+[[ф | Ф] : эф] | 
+[[х | Х] : хе] | 
+[[ц | Ц] : цэ] | 
+[[ч | Ч] : чэ] | 
+[[ш | Ш] : шэ] | 
+[[щ | Щ] : чэ] | 
+[[ъ | Ъ] : [калынлык билгесе]] | 
+[[ь | Ь] : [нечкәлек билгесе]] | 
+[[ю | Ю] : йу] | 
+[[я | Я] : йа] | 
+[[җ | Җ] : җэ] | 
+[[ң | Ң] : эң] | 
+[[һ | Һ] : һаш] ; 
+
+define EnglishLetter 
+[[a | A] : а] | 
+[[b | B] : бэ] | 
+[[c | C] : цэ] | 
+[[d | D] : дэ] | 
+[[e | E] : э] | 
+[[f | F] : эф] | 
+[[g | G] : гэ] | 
+[[h | H] : хаш] | 
+[[i | I] : и] | 
+[[j | J] : йот] | 
+[[k | K] : ка] | 
+[[l | L] : эль] | 
+[[m | M] : эм] | 
+[[n | N] : эн] | 
+[[o | O] : о] | 
+[[p | P] : пэ] | 
+[[q | Q] : ку] | 
+[[r | R] : эр] | 
+[[s | S] : эс] | 
+[[t | T] : тэ] | 
+[[u | U] : у] | 
+[[v | V] : вэ] | 
+[[w | W] : [дубль вэ]] | 
+[[x | X] : икс] | 
+[[y | Y] : игрек] | 
+[[z | Z] : зэт] ; 
+
+define Digit %0:нүл|1:бер|2:ике|3:өч|4:дүрт|5:биш|6:алты|7:җиде|8:сигез|9:тугыз;
+
+define Whitespace 
+tab:таб | 
+sp:аралык ; 
+
+define Punctuation 
+["." : нокта] | 
+["," : өтер] | 
+[";" : [нокталы өтер]] | 
+[":" : [ике нокта]] | 
+["!" : [өндәү билгесе]] | 
+["?" : [сорау билгесе]] | 
+["-" : [кыска сызык]] | 
+["(" : [ачу җәясе]] | 
+[")" : [ябу җәясе]] | 
+["[" : [квадратлы ачу җәясе]] | 
+["]" : [квадратлы ябу җәясе]] | 
+["{" : [фигуралы  ачу җәясе]] | 
+["}" : [фигуралы  ябу җәясе]] ; 
+
+define Symbol 
+["+" : кушу] | 
+["/" : бүлү] | 
+["*" : тапкырлау] | 
+["^" : [дәрәҗәгә күтәрү]] | 
+["=" : тигез] | 
+["<" : [сул зурлык уң зурлыктан кече]] | 
+[">" : [сул зурлык уң зурлыктан зур]] | 
+["@" : собачка] | 
+["#" : рәшәткә] | 
+["$" : дуллыр] | 
+["%" : пратсинт] |
+["&" : һәм] | 
+["'" : апустрыф] | 
+["\" : [кире кыек сызык]] ; 
+
+regex 
+TatarLetter | EnglishLetter | Digit | Whitespace | Punctuation | Symbol ; 
+

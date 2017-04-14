@@ -1,0 +1,55 @@
+# Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define Number [%0|[NZDigit Digit^<12]];
+
+define NamesOfPowersOfTen мең|миллион|миллиард ; 
+
+define InsertThousands 
+[..] -> мең || Digit _ Digit^3 .#.;
+
+define InsertMillions 
+[..] -> миллион || Digit _ Digit^3 мең;
+
+define InsertBillions 
+[..] -> миллиард || Digit _ Digit^3 миллион;
+
+define InsertHundreds 
+[NZDigit 0:йөз] | [%0:0] -> || _ Digit^2 ; 
+
+define RemoveSkippedParts 
+%0^3 NamesOfPowersOfTen @-> 0 ; 
+
+define Units %0:0|1:бер|2:ике|3:өч|4:дүрт|5:биш|6:алты|7:җиде|8:сигез|9:тугыз;
+
+define Teens 1:0 [%0:ун|1:унбер|2:унике|3:унөч|4:ундүрт|5:унбиш|6:уналты|7:унҗиде|8:унсигез|9:унтугыз] ; 
+
+define Tens %0:0|2:егерме|3:утыз|4:кырык|5:илле|6:алтмыш|7:җитмеш|8:сиксән|9:туксан ; 
+
+define UpToHundred %0:нүл .P. [Teens | [(Tens) Units]];
+
+define DigitsToWords 
+UpToHundred @-> ; 
+
+regex 
+Number .o. 
+InsertThousands .o. 
+InsertMillions .o. 
+InsertBillions .o. 
+RemoveSkippedParts .o. 
+InsertHundreds .o. 
+DigitsToWords ; 

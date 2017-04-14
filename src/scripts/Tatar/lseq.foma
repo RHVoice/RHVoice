@@ -1,0 +1,85 @@
+# Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define TranscribeLetter 
+а:a | 
+ә : af | 
+б:[b e] | 
+в:[v e] | 
+г:[g e] | 
+д:[d e] | 
+е:[j e] | 
+ё:[j o] | 
+ж:[zh e] | 
+з:[z e t] | 
+и:i | 
+й:[j o t] | 
+к:[k a] | 
+л:[ e l] | 
+м:[e m] | 
+н:[e n] | 
+ң:[e ng] | 
+о:o | 
+ө:of | 
+п:[p e] | 
+р:[e r] | 
+с:[e s] | 
+т:[t e] | 
+уu | 
+ү:uf | 
+ф:[e f] | 
+х:[hh e] | 
+ц:[t s e] | 
+ч:[shj e] | 
+ш:[sh e] | 
+щ:[shj e] | 
+ь:[n e shj k af l e k b i l g e s e] | 
+ы:y | 
+ъ:[kh a l y n l y k b i l g e s e] | 
+э:e | 
+ю:[j u] | 
+я:[j a] | 
+җ:[zhj e] | 
+һ:[h a sh] | 
+[a : [a]] | 
+[b : [b e]] | 
+[c : [t s e]] | 
+[d : [d e]] | 
+[e : [e]] | 
+[f : [e f]] | 
+[g : [g e]] | 
+[h : [h a sh]] | 
+[i : [i]] | 
+[j : [j o t]] | 
+[k : [k a]] | 
+[l : [e l]] | 
+[m : [e m]] | 
+[n : [e n]] | 
+[o : [o]] | 
+[p : [p e]] | 
+[q : [kh u]] | 
+[r : [e r]] | 
+[s : [e s]] | 
+[t : [t e]] | 
+[u : [u]] | 
+[v : [v e]] | 
+[w : [d u b l v e]] | 
+[x : [i k s]] | 
+[y : [i g r e k]] | 
+[z : [z e t]] ; 
+
+define TranscribeLetterSequence TranscribeLetter+ ; 
+
+regex TranscribeLetterSequence ;
