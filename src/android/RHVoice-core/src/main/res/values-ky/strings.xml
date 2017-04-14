@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rhvoice_settings">RHVoice-тун артык көрүүлөрү</string>
+    <string name="languages_and_voices_title">Тилдер жана үндөр</string>
+    <string name="default_voice_title">Жарыяланбаган үн</string>
+    <string name="default_voice_dialog_title">Үндү тандап алуу</string>
+    <string name="detect_language_title">Автоматтык түрдө тилди алмаштыруу</string>
+    <string name="voice_data">RHVoice үчүн үн дайындар</string>
+    <string name="voice_data_installed">Үн дайындар коюулган</string>
+    <string name="voice_data_not_installed">Үн дайындар коюлган эмес</string>
+    <string name="speech_volume">Үндүн бийиктиги</string>
+    <string name="speech_rate">Үндүн ылдамдыгы</string>
+</resources>
