@@ -26,9 +26,27 @@ define TatarConsonantLetter б|в|г|д|ж|җ|з|й|к|л|м|н|ң|п|р|с|т|�
 define TatarLetter TatarVowelLetter | TatarConsonantLetter | ь | ъ ; 
 
 define RussianStem RussianDict.u ; 
-define RussianPrefix RussianStem .o. [RussianDict TatarLetter+] ; 
+define Prefix(x) [x .o. [x [TatarLetter+]:0]].l ; 
+define RussianPrefixStem1 Prefix(RussianStem) ; 
+define RussianStem1 RussianStem - RussianPrefixStem1 ; 
+define RussianLoan1 [RussianStem1 .o. RussianDict] TatarLetter* ; 
+define RussianPrefixStem2 Prefix(RussianPrefixStem1) ; 
+define RussianStem2 RussianPrefixStem1 - RussianPrefixStem2 ; 
+define RussianLoan2 [RussianStem2 .o. RussianDict] TatarLetter* ; 
+define RussianPrefixStem3 Prefix(RussianPrefixStem2) ; 
+define RussianStem3 RussianPrefixStem2 - RussianPrefixStem3 ; 
+define RussianLoan3 [RussianStem3 .o. RussianDict] TatarLetter* ; 
+define RussianPrefixStem4 Prefix(RussianPrefixStem3) ; 
+define RussianStem4 RussianPrefixStem3 - RussianPrefixStem4 ; 
+define RussianLoan4 [RussianStem4 .o. RussianDict] TatarLetter* ; 
+define RussianPrefixStem5 Prefix(RussianPrefixStem4) ; 
+define RussianStem5 RussianPrefixStem4 - RussianPrefixStem5 ; 
+define RussianLoan5 [RussianStem5 .o. RussianDict] TatarLetter* ; 
+define RussianPrefixStem6 Prefix(RussianPrefixStem5) ; 
+define RussianStem6 RussianPrefixStem5 - RussianPrefixStem6 ; 
+define RussianLoan6 [RussianStem6 .o. RussianDict] TatarLetter* ; 
 
-define RussianLoan [RussianDict TatarLetter*] - [RussianPrefix TatarLetter*] ; 
+define RussianLoan RussianLoan1 .P. RussianLoan2 .P. RussianLoan3 .P. RussianLoan4 .P. RussianLoan5 .P. RussianLoan6 ; 
 
 define LatinVowelLetter a|e|i|o|u ; 
 define LatinConsonantLetter b|v|w|g|ğ|d|j|c|z|y|k|q|l|m|n|p|r|s|t|f|x|h ; 

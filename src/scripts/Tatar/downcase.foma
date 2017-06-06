@@ -34,7 +34,7 @@ define TatarDowncase
 Ü : ü | 
 Ç : ç | 
 Ş : ş | 
-I : ı ; 
+I : i ; 
 
 regex 
 TatarDowncase .P. [RussianDowncase | EnglishDowncase] -> ; 
