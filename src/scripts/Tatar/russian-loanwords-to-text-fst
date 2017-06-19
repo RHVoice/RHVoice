@@ -13,6 +13,8 @@ with open("russian-loanwords.csv","r") as ifp:
 		reader=csv.reader(ifp)
 		for row in reader:
 			word=row[0].decode("utf-8")
+			if word.startswith("#"):
+				continue
 			trans=row[1].decode("utf-8")
 			ofp.write(u" ".join(word)+"\n")
 			ofp.write(u" ".join(trans)+"\n")
