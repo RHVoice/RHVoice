@@ -66,24 +66,41 @@ define TatarDefaultCTranscription c -> s ;
 define TatarBasicVowelTranscription а:a|ә:af|е:je|ё:jo|и:i|о:o|ө:of|у:u|ү:uf|ы:y|э:e|ю:ju|я:ja|y:i ; 
 define TatarBasicVowelsTranscription TatarBasicVowelTranscription -> ; 
 
-define TatarJVowelsAfterConsonants je:e|ju:uf|ja:af|ё:of -> || TatarConsonant _ ; 
+define TatarIntervocalicWInsertion 
+[..] -> w , jj -> w || u|uf _ TatarVowel ; 
 
-define TatarJInsertion [..] -> j || _ je|jo|ju|ja ; 
+define TatarJVowelAsFront [0:jj] [je:e|jo:of|ju:uf|ja:af] ; 
 
-define TatarFrontVowel af|e|i|of|uf ; 
+define TatarJVowelAsBack [0:jj] [je:y|jo:o|ju:u|ja:a] ; 
+
+define TatarJVowelsAfterConsonants je:e|ju:uf|ja:af|jo:of -> || TatarConsonant _ ; 
+
+define TatarFrontVowel af|e|i|of|uf ;
+
 define TatarBackVowel a|o|u|y ; 
 
-define TatarJeAsBackTranscription 
-je -> y \\ _ [\TatarFrontVowel]* TatarBackVowel ; 
-
-define TatarJVowelsAsFrontTranscription 
-[ju:uf|ja:af] -> \\ _ [\TatarBackVowel]* TatarFrontVowel ; 
-
 define TatarJVowelsBeforeSoftSignTranscription 
-ja:af|ju:uf -> || .#. j _ TatarConsonant+ ь .#. ; 
+TatarJVowelAsFront -> || _ TatarConsonant* ь ; 
+
+define TatarJVowelsForwardSearchTranscription 
+TatarJVowelAsFront -> || _ [\TatarBackVowel]* TatarFrontVowel ,, 
+TatarJVowelAsBack -> || _ [\TatarFrontVowel]* TatarBackVowel ; 
+
+define TatarJVowelsBackwardSearchTranscription 
+TatarJVowelAsFront -> || TatarFrontVowel [\TatarBackVowel]* _ ,, 
+TatarJVowelAsBack -> || TatarBackVowel [\TatarFrontVowel]* _ ; 
+
+define TatarJVowelSequenceTranscription 
+TatarJVowelAsFront^>1 @-> ; 
 
 define TatarJVowelsDefaultTranscription 
-ja:a|je:e|ju:u|jo:o -> ; 
+TatarJVowelAsBack -> ; 
+
+define TatarUjeException 
+jj -> j || u _ y ; 
+
+define TatarJBeforeJVowels 
+jj -> j ; 
 
 define TatarUvularStopsTranscription 
 k:kh|g:gh -> || _ ъ|TatarBackVowel , TatarBackVowel _ TatarConsonant+ TatarBackVowel | .#. ; 
@@ -100,11 +117,14 @@ TatarIntervocalicCTranscription .o.
 TatarDefaultCTranscription .o. 
 TatarBasicVowelsTranscription .o. 
 TatarJVowelsAfterConsonants .o. 
-TatarJInsertion .o. 
-TatarJeAsBackTranscription .o. 
-TatarJVowelsAsFrontTranscription .o. 
 TatarJVowelsBeforeSoftSignTranscription .o. 
+TatarJVowelsForwardSearchTranscription .o. 
+TatarJVowelsBackwardSearchTranscription .o. 
+TatarJVowelSequenceTranscription .o. 
 TatarJVowelsDefaultTranscription .o. 
+TatarUjeException .o. 
+TatarIntervocalicWInsertion .o. 
+TatarJBeforeJVowels .o. 
 TatarUvularStopsTranscription .o. 
 TatarNonSyllabicUToW .o. 
 TatarSoftAndHardSignsRemoval ; 
@@ -119,9 +139,10 @@ TatarIntervocalicCTranscription .o.
 TatarDefaultCTranscription .o. 
 TatarBasicVowelsTranscription .o. 
 TatarJVowelsAfterConsonants .o. 
-TatarJInsertion .o. 
-TatarJVowelsAsFrontTranscription .o. 
 TatarJVowelsBeforeSoftSignTranscription .o. 
+TatarJVowelsForwardSearchTranscription .o. 
+TatarJVowelsBackwardSearchTranscription .o. 
+TatarJVowelSequenceTranscription .o. 
 TatarJVowelsDefaultTranscription .o. 
 TatarSoftAndHardSignsRemoval ; 
 
