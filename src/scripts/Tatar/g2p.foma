@@ -67,7 +67,7 @@ define TatarBasicVowelTranscription а:a|ә:af|е:je|ё:jo|и:i|о:o|ө:of|у:u|
 define TatarBasicVowelsTranscription TatarBasicVowelTranscription -> ; 
 
 define TatarIntervocalicWInsertion 
-[..] -> w , jj -> w || u|uf _ TatarVowel ; 
+[..] -> w || u|uf _ TatarVowel ; 
 
 define TatarJVowelAsFront [0:jj] [je:e|jo:of|ju:uf|ja:af] ; 
 
@@ -97,7 +97,7 @@ define TatarJVowelsDefaultTranscription
 TatarJVowelAsBack -> ; 
 
 define TatarUjeException 
-jj -> j || u _ y ; 
+jj -> w || uf _ e ; 
 
 define TatarJBeforeJVowels 
 jj -> j ; 
