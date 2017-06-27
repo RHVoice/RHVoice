@@ -110,8 +110,19 @@ define TatarSoftAndHardSignsRemoval ь|ъ -> 0 || _ ;
 define TatarNonSyllabicUToW 
 [u|uf] -> w || TatarVowel _ ; 
 
+define TatarVInSurnameLeftContext ? ? ? [о|е] ; 
+
+define TatarVInSurnamesOfWomen 
+в -> v || TatarVInSurnameLeftContext _ (н) а [[н|г|д|л|м|ң|с]|.#.] ; 
+
+define TatarVInSurnamesOfMen 
+в -> v || TatarVInSurnameLeftContext _ [ы] | [{ич}] ,, 
+в -> f || TatarVInSurnameLeftContext _ [[н|к|т|л] | .#.] ; 
+
 define TatarTranscription 
 TatarWord .o. 
+TatarVInSurnamesOfWomen .o. 
+TatarVInSurnamesOfMen .o. 
 TatarBasicConsonantsTranscription .o. 
 TatarIntervocalicCTranscription .o. 
 TatarDefaultCTranscription .o. 
