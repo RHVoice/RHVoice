@@ -20,6 +20,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <memory>
 #include "params.hpp"
 #include "exception.hpp"
 #include "smart_ptr.hpp"
@@ -174,7 +175,6 @@ namespace RHVoice
     virtual void decode_as_word(item& token,const std::string& name) const;
     virtual void decode_as_letter_sequence(item& token,const std::string& name) const;
 
-
     virtual std::vector<std::string> get_word_transcription(const item& word) const=0;
 
     template<typename forward_iterator,typename output_iterator>
@@ -224,6 +224,8 @@ namespace RHVoice
 
     void indicate_case_if_necessary(item& token) const;
     break_strength get_word_break(const item& word) const;
+    bool decode_as_english(item& tok) const;
+    std::vector<std::string> get_english_word_transcription(const item& word) const;
 
     std::map<std::string,smart_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
@@ -236,6 +238,7 @@ namespace RHVoice
     const fst syl_fst;
     std::vector<std::string> msg_cap_letter,msg_char_code;
     std::map<utf8::uint32_t,std::string> whitespace_symbols;
+    std::auto_ptr<fst> english_phone_mapping_fst;
     userdict::dict udict;
 
   protected:
@@ -262,6 +265,7 @@ namespace RHVoice
   public:
     voice_params voice_settings;
     text_params text_settings;
+    bool_property use_pseudo_english;
 
     void register_settings(config& cfg);
 
