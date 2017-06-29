@@ -519,6 +519,13 @@ else
     downcase_fst(path::join(info_.get_data_path(),"downcase.fst")),
     udict(info_)
   {
+    try
+      {
+        english_phone_mapping_fst.reset(new fst(path::join(info_.get_data_path(),"english_phone_mapping.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -641,9 +648,37 @@ else
     return parent_token.as("Token");
   }
 
+  bool language::decode_as_english(item& token) const
+  {
+    if(token.has_children())
+      return false;
+    if(!get_info().use_pseudo_english)
+      return false;
+    if(english_phone_mapping_fst.get()==0)
+      return false;
+    const language_list& languages=get_info().get_all_languages();
+    language_list::const_iterator lang_it=languages.find("English");
+    if(lang_it==languages.end())
+      return false;
+    const std::string& pos=token.get("pos").as<std::string>();
+    if(pos!="word"&&pos!="lseq")
+      return false;
+    const std::string& name=token.get("name").as<std::string>();
+    if(!lang_it->are_all_letters(str::utf8_string_begin(name),str::utf8_string_end(name)))
+      return false;
+    lang_it->get_instance().decode(token);
+    for(item::iterator it=token.begin();it!=token.end();++it)
+      {
+        it->set("english",true);
+}
+    return true;
+}
+
   void language::decode(item& token) const
   {
     if(token.has_children())
+      return;
+    if(decode_as_english(token))
       return;
     const std::string& token_pos=token.get("pos").as<std::string>();
     const std::string& token_name=token.get("name").as<std::string>();
@@ -831,9 +866,23 @@ else
       }
   }
 
+  std::vector<std::string> language::get_english_word_transcription(const item& word) const
+  {
+    const language_list& languages=get_info().get_all_languages();
+    language_list::const_iterator lang_it=languages.find("English");
+    if(lang_it==languages.end())
+      throw std::runtime_error("English language not loaded");
+    if(english_phone_mapping_fst.get()==0)
+      throw std::runtime_error("No phone mapping for english");
+    std::vector<std::string> eng_trans=lang_it->get_instance().get_word_transcription(word);
+    std::vector<std::string> native_trans;
+    english_phone_mapping_fst->translate(eng_trans.begin(),eng_trans.end(),std::back_inserter(native_trans));
+    return native_trans;
+}
+
   void language::assign_pronunciation(item& word) const
   {
-    std::vector<std::string> transcription(get_word_transcription(word));
+    std::vector<std::string> transcription((get_info().use_pseudo_english&&word.has_feature("english"))?get_english_word_transcription(word):get_word_transcription(word));
     str::tokenizer<str::is_equal_to> tokenizer("",str::is_equal_to('_'));
     std::string val("1");
     for(std::vector<std::string>::const_iterator it1=transcription.begin();it1!=transcription.end();++it1)
@@ -970,7 +1019,8 @@ else
   language_info::language_info(const std::string& name,const std::string& data_path_,const std::string& userdict_path_):
     enabled("enabled",true),
     all_languages(0),
-    userdict_path(userdict_path_)
+    userdict_path(userdict_path_),
+    use_pseudo_english("use_pseudo_english",true)
   {
     set_name(name);
     set_data_path(data_path_);
@@ -988,6 +1038,7 @@ else
   void language_info::do_register_settings(config& cfg,const std::string& prefix)
   {
     cfg.register_setting(enabled,prefix);
+    cfg.register_setting(use_pseudo_english,prefix);
     voice_settings.register_self(cfg,prefix);
     text_settings.register_self(cfg,prefix);
   }

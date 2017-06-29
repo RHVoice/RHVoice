@@ -41,8 +41,7 @@ namespace RHVoice
   }
 
   russian_info::russian_info(const std::string& data_path,const std::string& userdict_path):
-    language_info("Russian",data_path,userdict_path),
-    use_pseudo_english("use_pseudo_english",true)
+    language_info("Russian",data_path,userdict_path)
   {
     set_alpha2_code("ru");
     set_alpha3_code("rus");
@@ -60,12 +59,6 @@ namespace RHVoice
     return smart_ptr<language>(new russian(*this));
   }
 
-  void russian_info::do_register_settings(config& cfg,const std::string& prefix)
-  {
-    language_info::do_register_settings(cfg,prefix);
-    cfg.register_setting(use_pseudo_english,prefix);
-  }
-
   russian::russian(const russian_info& info_):
     language(info_),
     info(info_),
@@ -76,17 +69,8 @@ namespace RHVoice
     split_fst(path::join(info_.get_data_path(),"split.fst")),
     dict_fst(path::join(info_.get_data_path(),"dict.fst")),
     stress_fst(path::join(info_.get_data_path(),"stress.fst")),
-    stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>()),
-    english_phone_mapping(path::join(info_.get_data_path(),"english_phone_mapping.fst"))
+    stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
   {
-    try
-      {
-        rulex_dict_fst.reset(new fst(path::join(info.get_data_path(),"rulex_dict.fst")));
-        rulex_rules_fst.reset(new fst(path::join(info.get_data_path(),"rulex_rules.fst")));
-      }
-    catch(const io::open_error& e)
-      {
-      }
   }
 
   bool russian::decode_as_russian_word(item& token,const std::string& token_name) const
@@ -119,43 +103,9 @@ namespace RHVoice
     return true;
   }
 
-  bool russian::decode_as_english_word(item& token,const std::string& token_name) const
-  {
-    if(!info.use_pseudo_english)
-      return false;
-    const language_list& languages=info.get_all_languages();
-    language_list::const_iterator lang_it=languages.find("English");
-    if(lang_it==languages.end())
-      return false;
-    str::utf8_string_iterator start=str::utf8_string_begin(token_name);
-    str::utf8_string_iterator end=str::utf8_string_end(token_name);
-    if(!lang_it->are_all_letters(start,end))
-      return false;
-    std::string word_name;
-    downcase_fst.translate(start,end,str::append_string_iterator(word_name));
-    item& word=token.append_child();
-    word.set("name",word_name);
-    word.set("english",true);
-    return true;
-  }
-
   void russian::decode_as_word(item& token,const std::string& token_name) const
   {
-    decode_as_english_word(token,token_name)||
       decode_as_russian_word(token,token_name);
-  }
-
-  void russian::decode_as_letter_sequence(item& token,const std::string& token_name) const
-  {
-    if(decode_as_english_word(token,token_name))
-      token.last_child().set("lseq",true);
-    else
-      language::decode_as_letter_sequence(token,token_name);
-  }
-
-  bool russian::decode_as_known_character(item& token,const std::string& token_name) const
-  {
-    return (decode_as_english_word(token,token_name)||language::decode_as_known_character(token,token_name));
   }
 
   void russian::mark_clitics(utterance& u) const
@@ -345,26 +295,6 @@ namespace RHVoice
       transcribe_word_applying_stress_rules(word,transcription)||
       transcribe_unknown_word(word,transcription);
     return transcription;
-  }
-
-  void russian::assign_pronunciation(item& word) const
-  {
-    if(word.has_feature("english"))
-      {
-        const std::string& name=word.get("name").as<std::string>();
-        if(name=="a")
-          {
-            word.append_child().set<std::string>("name","e1");
-            word.append_child().set<std::string>("name","j");
-          }
-        else
-          {
-            std::vector<std::string> transcription(info.get_all_languages().find("English")->get_instance().get_word_transcription(word));
-            english_phone_mapping.translate(transcription.begin(),transcription.end(),word.back_inserter());
-          }
-      }
-    else
-      language::assign_pronunciation(word);
   }
 
   void russian::reduce_vowels(utterance& u) const
