@@ -1,0 +1,93 @@
+# Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Mapping 
+aa -> a1 ,, 
+aa0 -> a0 ,, 
+aa1 -> a1 ,, 
+ae -> e1 ,, 
+ae0 -> e0 ,, 
+ae1 -> e1 ,, 
+ah -> a1 ,, 
+ah0 -> a0 ,, 
+ah1 -> a1 ,, 
+ao -> o1 ,, 
+ao0 -> o1 ,, 
+ao1 -> o1 ,, 
+aw -> a1 u0 ,, 
+aw1 -> a1 u0 ,, 
+aw0 -> a0 u0 ,, 
+ax -> e0 ,, 
+ax0 -> e0 ,, 
+ax1 -> e1 ,, 
+ay -> a1 j ,, 
+ay0 -> a0 j ,, 
+ay1 -> a1 j ,, 
+eh -> e1 ,, 
+eh0 -> e0 ,, 
+eh1 -> e1 ,, 
+er -> of1 r ,, 
+er0 -> e0 r ,, 
+er1 -> of1 r ,, 
+ey -> e1 j ,, 
+ey0 -> e0 j ,, 
+ey1 -> e1 j ,, 
+ih -> i1 ,, 
+ih0 -> i0 ,, 
+ih1 -> i1 ,, 
+iy -> i1 ,, 
+iy0 -> i0 ,, 
+iy1 -> i1 ,, 
+ow -> o1 u0 ,, 
+ow0 -> o1 u0 ,, 
+ow1 -> o1 u0 ,, 
+oy -> o1 j ,, 
+oy0 -> o1 j ,, 
+oy1 -> o1 j ,, 
+uh -> u1 ,, 
+uh0 -> u0 ,, 
+uh1 -> u1 ,, 
+uw -> u1 ,, 
+uw0 -> u0 ,, 
+uw1 -> u1 ,, 
+b -> b ,, 
+ch -> ch ,, 
+d -> d ,, 
+dh -> z ,, 
+f -> f ,, 
+g -> g ,, 
+hh -> h ,, 
+jh -> dzh ,, 
+k -> k ,, 
+l -> l ,, 
+m -> m ,, 
+n -> n ,, 
+ng -> ng ,, 
+p -> p ,, 
+r -> r ,, 
+s -> s ,, 
+sh -> sh ,, 
+t -> t ,, 
+th -> s ,, 
+v -> v ,, 
+w -> v ,, 
+y -> j ,, 
+z -> z ,, 
+zh -> zh ; 
+
+define FixA [ax|ax1|ax0]:[e1 j] ; 
+
+regex 
+FixA .P. Mapping ;
