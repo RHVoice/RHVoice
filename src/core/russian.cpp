@@ -71,6 +71,14 @@ namespace RHVoice
     stress_fst(path::join(info_.get_data_path(),"stress.fst")),
     stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
   {
+    try
+      {
+        rulex_dict_fst.reset(new fst(path::join(info.get_data_path(),"rulex_dict.fst")));
+        rulex_rules_fst.reset(new fst(path::join(info.get_data_path(),"rulex_rules.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   bool russian::decode_as_russian_word(item& token,const std::string& token_name) const
