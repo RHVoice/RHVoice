@@ -1,0 +1,25 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
+
+import sys
+import csv
+import codecs
+
+if __name__!="__main__":
+	sys.exit()
+
+with open("dict.csv","r") as ifp:
+	with codecs.open("dict-prefixes.txt","w","utf-8") as ofp1:
+		with codecs.open("dict-words.txt","w","utf-8") as ofp2:
+			reader=csv.reader(ifp)
+			for row in reader:
+				word=row[0].decode("utf-8")
+				if word.startswith("#"):
+					continue
+				ofp=ofp1
+				if word.endswith("="):
+					word=word[:-1]
+					ofp=ofp2
+				trans=row[1].decode("utf-8")
+				ofp.write(u" ".join(word)+"\n")
+				ofp.write(u" ".join(trans)+"\n")
