@@ -10,4 +10,5 @@
     <string name="voice_data_not_installed">Голосовые данные не установлены</string>
     <string name="speech_volume">Громкость речи</string>
     <string name="speech_rate">Скорость речи</string>
+    <string name="pseudo_english_title">Стараться правильно читать английские слова</string>
 </resources>

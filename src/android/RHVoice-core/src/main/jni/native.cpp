@@ -131,6 +131,11 @@ namespace
     return get_method(env,cls,name,"()Ljava/lang/String;");
   }
 
+  inline jmethodID get_boolean_setter(JNIEnv* env,jclass cls,const char* name)
+  {
+    return get_method(env,cls,name,"(Z)V");
+  }
+
   inline jfieldID get_field(JNIEnv* env,jclass cls,const char* name,const char* sig)
   {
     return check(env,env->GetFieldID(cls,name,sig));
@@ -216,6 +221,13 @@ namespace
     check(env);
   }
 
+  inline void call_boolean_setter(JNIEnv* env,jobject obj,jmethodID method_id,bool v)
+  {
+    jboolean jv=v;
+    env->CallVoidMethod(obj,method_id,jv);
+    check(env);
+  }
+
   inline std::string call_string_getter(JNIEnv* env,jobject obj,jmethodID method)
   {
     jobject jstr=check(env,env->CallObjectMethod(obj,method));
@@ -238,6 +250,7 @@ namespace
   jmethodID LanguageInfo_setAlpha3Code_method;
   jmethodID LanguageInfo_setAlpha2CountryCode_method;
   jmethodID LanguageInfo_setAlpha3CountryCode_method;
+  jmethodID LanguageInfo_setPseudoEnglish_method;
   jclass SynthesisParameters_class;
   jmethodID SynthesisParameters_getVoiceProfile_method;
   jmethodID SynthesisParameters_getSSMLMode_method;
@@ -391,6 +404,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
   LanguageInfo_setAlpha3Code_method=get_string_setter(env,LanguageInfo_class,"setAlpha3Code");
   LanguageInfo_setAlpha2CountryCode_method=get_string_setter(env,LanguageInfo_class,"setAlpha2CountryCode");
   LanguageInfo_setAlpha3CountryCode_method=get_string_setter(env,LanguageInfo_class,"setAlpha3CountryCode");
+  LanguageInfo_setPseudoEnglish_method=get_boolean_setter(env,LanguageInfo_class,"setPseudoEnglish");
   VoiceInfo_class=find_class(env,"com/github/olga_yakovleva/rhvoice/VoiceInfo");
   VoiceInfo_constructor=get_default_constructor(env,VoiceInfo_class);
   VoiceInfo_setName_method=get_string_setter(env,VoiceInfo_class,"setName");
@@ -481,6 +495,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
           if(country.length()==6)
             call_string_setter(env,jlanguage,LanguageInfo_setAlpha2CountryCode_method,country.substr(4));
         }
+      call_boolean_setter(env,jlanguage,LanguageInfo_setPseudoEnglish_method,lang.supports_pseudo_english());
       env->CallVoidMethod(jvoice,VoiceInfo_setLanguage_method,jlanguage);
       check(env);
       set_object_array_element(env,result,i,jvoice);

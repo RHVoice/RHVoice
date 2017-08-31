@@ -46,6 +46,11 @@ namespace RHVoice
       return true;
     }
 
+    bool supports_pseudo_english() const
+    {
+      return true;
+    }
+
   private:
     smart_ptr<language> create_instance() const;
   };

@@ -101,6 +101,14 @@ public final class SettingsFragment extends PreferenceFragment
         detectPref.setTitle(R.string.detect_language_title);
         detectPref.setDefaultValue(true);
         cat.addPreference(detectPref);
+        if(language.getPseudoEnglish())
+            {
+                CheckBoxPreference engPref=new CheckBoxPreference(getActivity());
+                engPref.setKey("language."+code3+".use_pseudo_english");
+                engPref.setTitle(R.string.pseudo_english_title);
+                engPref.setDefaultValue(true);
+                cat.addPreference(engPref);
+            }
         InputFilter[] inputFilters=new InputFilter[]{new InputFilter.LengthFilter(3)};
         EditTextPreference volumePref=new EditTextPreference(getActivity());
         volumePref.setKey("language."+code3+".volume");

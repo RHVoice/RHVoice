@@ -348,6 +348,11 @@ namespace RHVoice
       return false;
     }
 
+    virtual bool supports_pseudo_english() const
+    {
+      return false;
+    }
+
   protected:
     virtual void do_register_settings(config& cfg,const std::string& prefix);
 

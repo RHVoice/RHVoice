@@ -88,6 +88,20 @@ public final class RHVoiceService extends TextToSpeechService
 }
         };
 
+    private static final SettingValueTranslator yesSettingValueTranslator=new SettingValueTranslator()
+        {
+            public Object load(SharedPreferences prefs,String key)
+            {
+                Boolean value=prefs.getBoolean(key,true);
+                return value;
+            }
+
+            public String translate(Object value)
+            {
+                return String.valueOf(value).toLowerCase();
+            }
+        };
+
     private static class MappedSetting
     {
         public final String prefKey;
@@ -365,6 +379,7 @@ public final class RHVoiceService extends TextToSpeechService
             {
                 tts.mappedSettings.add(new MappedSetting("language."+lang+".volume","languages."+lang+".default_volume",prosodySettingValueTranslator));
                 tts.mappedSettings.add(new MappedSetting("language."+lang+".rate","languages."+lang+".default_rate",prosodySettingValueTranslator));
+                tts.mappedSettings.add(new MappedSetting("language."+lang+".use_pseudo_english","languages."+lang+".use_pseudo_english",yesSettingValueTranslator));
 }
         ttsManager.reset(tts);
     }
