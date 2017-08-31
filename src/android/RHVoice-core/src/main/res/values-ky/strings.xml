@@ -10,4 +10,5 @@
     <string name="voice_data_not_installed">Үн дайындар коюлган эмес</string>
     <string name="speech_volume">Үндүн бийиктиги</string>
     <string name="speech_rate">Үндүн ылдамдыгы</string>
+    <string name="pseudo_english_title">Англисче сөздөрдү туура окуу</string>
 </resources>

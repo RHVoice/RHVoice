@@ -12,4 +12,5 @@
     installed</string>
     <string name="speech_volume">Speech volume</string>
     <string name="speech_rate">Speech rate</string>
+    <string name="pseudo_english_title">Try to read English words correctly</string>
 </resources>

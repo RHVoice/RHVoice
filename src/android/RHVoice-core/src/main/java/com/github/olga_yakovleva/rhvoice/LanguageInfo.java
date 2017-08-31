@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2016, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -24,6 +24,7 @@ public final class LanguageInfo
     private String alpha3_code=null;
     private String alpha2_country_code=null;
     private String alpha3_country_code=null;
+    private boolean pseudoEnglish=false;
 
     void setName(String name)
     {
@@ -74,6 +75,16 @@ public final class LanguageInfo
     {
         return alpha3_country_code;
     }
+
+    void setPseudoEnglish(boolean value)
+    {
+        pseudoEnglish=value;
+}
+
+    public boolean getPseudoEnglish()
+    {
+        return pseudoEnglish;
+}
 
     public String getTag3()
     {
