@@ -1815,7 +1815,7 @@ sub make_htsvoice($$) {
    print HTSVOICE "SAMPLING_FREQUENCY:${sr}\n";
    print HTSVOICE "FRAME_PERIOD:${fs}\n";
    print HTSVOICE "NUM_STATES:${nState}\n";
-   print HTSVOICE "NUM_STREAMS:" . ( ${ nPdfStreams { 'cmp' } } + 1 ) . "\n";
+   print HTSVOICE "NUM_STREAMS:" . ( ${ nPdfStreams { 'cmp' } } ) . "\n";
    print HTSVOICE "STREAM_TYPE:";
 
    for ( $i = 0 ; $i < @cmp ; $i++ ) {
@@ -1825,7 +1825,7 @@ sub make_htsvoice($$) {
       $tmp = get_stream_name( $cmp[$i] );
       print HTSVOICE "${tmp}";
    }
-   print HTSVOICE ",LPF\n";
+   print HTSVOICE "\n";
    print HTSVOICE "FULLCONTEXT_FORMAT:${fclf}\n";
    print HTSVOICE "FULLCONTEXT_VERSION:${fclv}\n";
    if ($nosilgv) {
@@ -1846,26 +1846,14 @@ sub make_htsvoice($$) {
       $tmp = get_stream_name($type);
       print HTSVOICE "VECTOR_LENGTH[${tmp}]:${ordr{$type}}\n";
    }
-   $type     = "lpf";
-   $tmp      = get_stream_name($type);
-   # @coef     = split( '\s', `$PERL $datdir/scripts/makefilter.pl $sr 0` );
-   # $coefSize = @coef;
-   $coefSize = 31;
-   print HTSVOICE "VECTOR_LENGTH[${tmp}]:${coefSize}\n";
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
       print HTSVOICE "IS_MSD[${tmp}]:${msdi{$type}}\n";
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   print HTSVOICE "IS_MSD[${tmp}]:0\n";
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
       print HTSVOICE "NUM_WINDOWS[${tmp}]:${nwin{$type}}\n";
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   print HTSVOICE "NUM_WINDOWS[${tmp}]:1\n";
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
       if ($useGV) {
@@ -1875,9 +1863,6 @@ sub make_htsvoice($$) {
          print HTSVOICE "USE_GV[${tmp}]:0\n";
       }
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   print HTSVOICE "USE_GV[${tmp}]:0\n";
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
       if ( $tmp eq "MCP" ) {
@@ -1890,9 +1875,6 @@ sub make_htsvoice($$) {
          print HTSVOICE "OPTION[${tmp}]:\n";
       }
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   print HTSVOICE "OPTION[${tmp}]:\n";
 
    # position
    $file_index = 0;
@@ -1923,15 +1905,6 @@ sub make_htsvoice($$) {
       }
       print HTSVOICE "\n";
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   print HTSVOICE "STREAM_WIN[${tmp}]:";
-   $file_size = get_file_size("$voicedir/$win{$type}[0]");
-   $s         = $file_index;
-   $e         = $file_index + $file_size - 1;
-   print HTSVOICE "${s}-${e}";
-   $file_index += $file_size;
-   print HTSVOICE "\n";
 
    foreach $type (@cmp) {
       $tmp       = get_stream_name($type);
@@ -1941,13 +1914,6 @@ sub make_htsvoice($$) {
       print HTSVOICE "STREAM_PDF[$tmp]:${s}-${e}\n";
       $file_index += $file_size;
    }
-   $type      = "lpf";
-   $tmp       = get_stream_name($type);
-   $file_size = get_file_size("${voicedir}/${type}.pdf");
-   $s         = $file_index;
-   $e         = $file_index + $file_size - 1;
-   print HTSVOICE "STREAM_PDF[$tmp]:${s}-${e}\n";
-   $file_index += $file_size;
 
    foreach $type (@cmp) {
       $tmp       = get_stream_name($type);
@@ -1957,13 +1923,6 @@ sub make_htsvoice($$) {
       print HTSVOICE "STREAM_TREE[$tmp]:${s}-${e}\n";
       $file_index += $file_size;
    }
-   $type      = "lpf";
-   $tmp       = get_stream_name($type);
-   $file_size = get_file_size("${voicedir}/tree-${type}.inf");
-   $s         = $file_index;
-   $e         = $file_index + $file_size - 1;
-   print HTSVOICE "STREAM_TREE[$tmp]:${s}-${e}\n";
-   $file_index += $file_size;
 
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
@@ -2009,13 +1968,6 @@ sub make_htsvoice($$) {
          print HTSVOICE $DATA;
       }
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   open( I, "${voicedir}/$win{$type}[0]" ) || die "Cannot open $!";
-   @STAT = stat(I);
-   read( I, $DATA, $STAT[7] );
-   close(I);
-   print HTSVOICE $DATA;
 
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
@@ -2025,13 +1977,6 @@ sub make_htsvoice($$) {
       close(I);
       print HTSVOICE $DATA;
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   open( I, "${voicedir}/${type}.pdf" ) || die "Cannot open $!";
-   @STAT = stat(I);
-   read( I, $DATA, $STAT[7] );
-   close(I);
-   print HTSVOICE $DATA;
 
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
@@ -2041,13 +1986,6 @@ sub make_htsvoice($$) {
       close(I);
       print HTSVOICE $DATA;
    }
-   $type = "lpf";
-   $tmp  = get_stream_name($type);
-   open( I, "${voicedir}/tree-${type}.inf" ) || die "Cannot open $!";
-   @STAT = stat(I);
-   read( I, $DATA, $STAT[7] );
-   close(I);
-   print HTSVOICE $DATA;
 
    foreach $type (@cmp) {
       $tmp = get_stream_name($type);
