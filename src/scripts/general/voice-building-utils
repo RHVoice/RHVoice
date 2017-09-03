@@ -1,7 +1,7 @@
 #!/usr/bin/python2
-# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2013, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ import weakref
 import xml.etree.ElementTree as xml
 from scipy import stats
 import numpy
-from scipy.signal import firwin
+from scipy.signal import firwin,lfilter,kaiserord
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
@@ -98,6 +98,7 @@ class task(object):
 			params["FFTLEN"]=2048
 			params["FREQWARP"]=0.55
 			params["MGCORDER"]=34
+		params["BAPORDER"]=len(self.get_filter_band_edges())
 		return params
 
 	def get_phoneset(self):
@@ -111,6 +112,26 @@ class task(object):
 					features[key]=value
 			phoneset[name]=features
 		return phoneset
+
+	def load_speech(self,name):
+		samples=numpy.fromfile(os.path.join("data","raw",name+".raw"),numpy.short).astype(numpy.double,"C")
+		samples/=32768.0
+		return samples
+
+	def load_f0(self,name):
+		lf0=numpy.fromfile(os.path.join("data","lf0",name+".lf0"),numpy.float32).astype(numpy.float)
+		f0=numpy.zeros(lf0.size)
+		m=(lf0!=-10000000000)
+		f0[m]=numpy.exp(lf0[m])
+		return f0
+
+	def get_filter_band_edges(self):
+		sr=self.settings["sample_rate"]
+		nyq_freq=sr//2
+		freq=1000
+		max_freq=min(16000,nyq_freq-freq)
+		edges=range(freq,max_freq+1,freq)
+		return edges
 
 class configurator(task):
 	def get_configure_params(self):
@@ -1261,20 +1282,25 @@ class voice_exporter(task):
 						ofp.write(struct.pack(">ff",c,0))
 					ifp.read(4*numtaps)
 
+	def copy_bpf(self):
+		shutil.copy(os.path.join("data","bpf.txt"),os.path.join(self.outdir,"bpf.txt"))
+
 	def convert_data(self):
 		conf_path=self.make_conversion_config()
 		self.convert_model_and_tree("cmp","mgc",1,conf_path)
 		self.convert_model_and_tree("cmp","lf0",2,conf_path)
+		self.convert_model_and_tree("cmp","bap",5,conf_path)
 		self.convert_model_and_tree("dur","dur",1,conf_path)
 		os.remove(conf_path)
 		self.copy_windows("mgc",3)
 		self.copy_windows("lf0",3)
-		self.copy_lpf()
+		self.copy_windows("bap",3)
+		self.copy_bpf()
 
 	def __call__(self,args):
 		if args.version>0:
 			self._version=args.version
-		self.voice_format="2"
+		self.voice_format="3"
 		self.indir=os.path.abspath(os.path.join("voices","qst001",self.version_name))
 		self.outdir=os.path.abspath(self.settings["outdir"])
 		if not os.path.isdir(self.outdir):
@@ -1284,8 +1310,182 @@ class voice_exporter(task):
 		self.copy_voice()
 		self.convert_data()
 
+class nccf(object):
+	def __init__(self,speech,sample_rate,frame_shift,frame_number,f0,avg_f0):
+		self.f0=f0
+		self.t0=numpy.float(sample_rate)/f0
+		self.it0=numpy.int(numpy.round(self.t0))
+		avg_t0=numpy.float(sample_rate)/avg_f0
+		self.sample_rate=sample_rate
+		self.speech=speech
+		half_win_len=numpy.int(numpy.round(0.5*avg_t0))
+		self.win_len=2*half_win_len+1
+		self.sample_index=max(0,frame_number*frame_shift-half_win_len)
+		self.min_lag=numpy.int(numpy.round(self.sample_rate/800.0))
+		self.max_lag=numpy.int(numpy.round(self.sample_rate/20.0))
+		self.size=self.max_lag+2
+		self.values=numpy.empty(self.size)
+		self.mask=numpy.zeros(self.size,dtype=numpy.bool)
+		self.x=speech[self.sample_index:self.sample_index+self.win_len]
+		self.sum_xx=numpy.sum(self.x*self.x)
+
+	def eval(self,lag):
+		if self.sum_xx==0:
+			return 0
+		sample_index=self.sample_index+lag
+		limit=sample_index+self.x.size
+		if limit>self.speech.size:
+			return 0
+		y=self.speech[sample_index:limit]
+		sum_yy=numpy.sum(y*y)
+		if sum_yy==0:
+			sum_yy=1
+		sum_xy=numpy.sum(self.x*y)
+		return sum_xy/numpy.sqrt(self.sum_xx*sum_yy)
+
+	def get(self,lag):
+		if not self.mask[lag]:
+			self.values[lag]=self.eval(lag)
+			self.mask[lag]=True
+		return self.values[lag]
+
+	def is_peak_lag(self,lag):
+		if lag<self.min_lag:
+			return False
+		if lag>self.max_lag:
+			return False
+		c2=self.get(lag)
+		if c2<=0:
+			return False
+		c1=self.get(lag-1)
+		if c2<=c1:
+			return False
+		c3=self.get(lag+1)
+		return (c3<=c2)
+
+	def interpolate_peak(self,lag):
+		x1=lag-1
+		x2=lag
+		x3=lag+1
+		y1=self.get(x1)
+		y2=self.get(x2)
+		y3=self.get(x3)
+		dy=0.5*(y3-y1)
+		d2y=2.0*y2-y1-y3
+		y=y2+0.5*dy*dy/d2y
+		x=x2+dy/d2y
+		return (numpy.float(self.sample_rate)/x,y)
+
+	def find_nearest_peak(self):
+		min_lag=self.min_lag
+		max_lag=self.max_lag
+		lag1=numpy.int(numpy.floor(self.t0))
+		lag2=lag1+1
+		p1=None
+		p2=None
+		while (lag1>=min_lag and (not p1)) or (lag2<=max_lag and (not p2)):
+			if lag1>=min_lag and (not p1):
+				if self.is_peak_lag(lag1):
+					p1=self.interpolate_peak(lag1)
+					if p2:
+						if numpy.abs(self.f0-p1[0])<=numpy.abs(self.f0-p2[0]):
+							return p1
+						else:
+							return p2
+					d=p1[0]-self.f0
+					f=self.f0-d
+					max_lag=numpy.int(numpy.ceil(self.sample_rate/f))
+				lag1-=1
+			if lag2<=max_lag and (not p2):
+				if self.is_peak_lag(lag2):
+					p2=self.interpolate_peak(lag2)
+					if p1:
+						if numpy.abs(self.f0-p2[0])<=numpy.abs(self.f0-p1[0]):
+							return p2
+						else:
+							return p1
+					d=self.f0-p2[0]
+					f=self.f0+d
+					min_lag=numpy.int(numpy.floor(self.sample_rate/f))
+				lag2+=1
+		assert((not p1) or (not p2))
+		if p1:
+			return p1
+		if p2:
+			return p2
+		return (self.f0,self.get(self.it0))
+
+class bap_extractor(task):
+	def register(self):
+		subparser=subparsers.add_parser("extract-bap")
+		subparser.set_defaults(func=self)
+
+	def make_filters(self):
+		freqs=self.get_filter_band_edges()
+		num_bands=len(freqs)+1
+		tw=1000.0/self.nyq
+		n,b=kaiserord(60,tw)
+		if n%2==0:
+			n+=1
+		self.filters=numpy.zeros((num_bands,n))
+		self.filters[0]=firwin(n,freqs[0],nyq=self.nyq,window=b,scale=False)
+		self.filters[-1]=firwin(n,freqs[-1],nyq=self.nyq,window=b,pass_zero=False,scale=False)
+		for i in xrange(1,num_bands-1):
+			self.filters[i]=firwin(n,(freqs[i-1],freqs[i]),nyq=self.nyq,window=b,pass_zero=False,scale=False)
+		with open(os.path.join("data","bpf.txt"),"wb") as fp:
+			numpy.array(self.filters.shape).tofile(fp,sep="\n")
+			fp.write("\n")
+			self.filters.tofile(fp,sep="\n")
+			fp.write("\n")
+
+	def split_into_bands(self,speech):
+		num_bands=self.filters.shape[0]
+		bands=numpy.zeros((num_bands,speech.size))
+		num_taps=self.filters.shape[1]
+		delay=(num_taps-1)/2
+		padded_speech=numpy.append(speech,numpy.zeros(delay))
+		for i in xrange(num_bands):
+			bands[i]=lfilter(self.filters[i],1,padded_speech)[delay:]
+		return bands
+
+	def compute_correlation_coefficients(self,speech,bands,f0):
+		num_bands=bands.shape[0]
+		cc=numpy.zeros((f0.size,num_bands))
+		af0=numpy.median(f0[f0!=0])
+		for i in xrange(f0.size):
+			if f0[i]==0:
+				continue
+			cf0=f0[i]
+			for j in xrange(0,num_bands):
+				f=nccf(bands[j],self.sample_rate,self.frame_shift,i,cf0,af0)
+				f0_j,cc[i,j]=f.find_nearest_peak()
+		return cc
+
+	def process(self,name):
+		print("Processing {}".format(name))
+		speech=self.load_speech(name)
+		f0=self.load_f0(name)
+		bands=self.split_into_bands(speech)
+		cc=self.compute_correlation_coefficients(speech,bands,f0)
+		cc[cc<0]=0
+		cc[cc>=(1-1e-10)]=1-1e-10
+		bap=10.0*numpy.log10(1-cc)
+		bap.astype(numpy.float32).tofile(os.path.join(self.bap_dir,name+".bap"))
+
+	def __call__(self,args):
+		self.sample_rate=self.settings["sample_rate"]
+		self.nyq=self.sample_rate/2.0
+		self.frame_shift=self.get_analysis_params()["FRAMESHIFT"]
+		self.make_filters()
+		self.bap_dir=os.path.join("data","bap")
+		if not os.path.isdir(self.bap_dir):
+			os.mkdir(self.bap_dir)
+		for name in sorted(os.listdir(os.path.join("data","raw"))):
+			base,ext=os.path.splitext(name)
+			self.process(base)
+
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()

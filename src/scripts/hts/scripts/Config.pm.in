@@ -54,11 +54,7 @@ $ver         = '@VER@';
 $usestraight = '@USESTRAIGHT@';
 
 @SET        = ('cmp','dur');
-if(!$usestraight){
-   @cmp     = ('mgc','lf0');
-}else{
-   @cmp     = ('mgc','lf0','bap');
-}
+@cmp     = ('mgc','lf0','bap');
 @dur        = ('dur');
 $ref{'cmp'} = \@cmp;
 $ref{'dur'} = \@dur;
@@ -285,7 +281,7 @@ $MCDGV = 1; # making global variance
 # $PGEN1 = 1; # generating speech parameter sequences (1mix)
 # $WGEN1 = 1; # synthesizing waveforms (1mix)
 $CONVM = 1; # converting mmfs to the hts_engine file format
-$ENGIN = 1; # synthesizing waveforms using hts_engine
+#$ENGIN = 1; # synthesizing waveforms using hts_engine
 # $SEMIT = 1; # semi-tied covariance matrices
 # $MKUNS = 1; # making unseen models (stc)
 # $PGENS = 1; # generating speech parameter sequences (stc)

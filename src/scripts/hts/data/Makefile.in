@@ -200,32 +200,6 @@ cmp:
 	for raw in raw/$(DATASET)_$(SPEAKER)_*.raw; do \
 		base=`basename $${raw} .raw`; \
 		echo "Composing training data for $${base}"; \
-		if [ $(USESTRAIGHT) -eq 0 ]; then \
-			MGCDIM=`expr $(MGCORDER) + 1`; \
-			LF0DIM=1; \
-			MGCWINDIM=`expr $(NMGCWIN) \* $${MGCDIM}`; \
-			LF0WINDIM=`expr $(NLF0WIN) \* $${LF0DIM}`; \
-			BYTEPERFRAME=`expr 4 \* \( $${MGCWINDIM} + $${LF0WINDIM} \)`; \
-			if [ -s mgc/$${base}.mgc -a -s lf0/$${base}.lf0 ]; then \
-				MGCWINS=""; \
-				i=1; \
-				while [ $${i} -le $(NMGCWIN) ]; do \
-					eval MGCWINS=\"$${MGCWINS} $(MGCWIN)$${i}\"; \
-					i=`expr $${i} + 1`; \
-				done; \
-				$(PERL) scripts/window.pl $${MGCDIM} mgc/$${base}.mgc $${MGCWINS} > tmp.mgc; \
-				LF0WINS=""; \
-				i=1; \
-				while [ $${i} -le $(NLF0WIN) ]; do \
-					eval LF0WINS=\"$${LF0WINS} $(LF0WIN)$${i}\"; \
-					i=`expr $${i} + 1`; \
-				done; \
-				$(PERL) scripts/window.pl $${LF0DIM} lf0/$${base}.lf0 $${LF0WINS} > tmp.lf0; \
-				$(MERGE) +f -s 0 -l $${LF0WINDIM} -L $${MGCWINDIM} tmp.mgc < tmp.lf0                 > tmp.cmp; \
-				$(PERL) scripts/addhtkheader.pl $(SAMPFREQ) $(FRAMESHIFT) $${BYTEPERFRAME} 9 tmp.cmp > cmp/$${base}.cmp; \
-				rm -f tmp.mgc tmp.lf0 tmp.cmp; \
-			fi; \
-		else \
 			MGCDIM=`expr $(MGCORDER) + 1`; \
 			LF0DIM=1; \
 			BAPDIM=`expr $(BAPORDER) + 1`; \
@@ -260,7 +234,6 @@ cmp:
 				$(MERGE) +f -s 0 -l $${BAPWINDIM} -L $${MGCLF0WINDIM} tmp.mgc+lf0 < tmp.bap          > tmp.cmp; \
 				$(PERL) scripts/addhtkheader.pl $(SAMPFREQ) $(FRAMESHIFT) $${BYTEPERFRAME} 9 tmp.cmp > cmp/$${base}.cmp; \
 				rm -f tmp.mgc tmp.lf0 tmp.bap tmp.mgc+lf0 tmp.cmp; \
-			fi; \
 		fi; \
 	done
 
