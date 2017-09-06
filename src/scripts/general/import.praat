@@ -73,7 +73,6 @@ speech=Subtract mean
 if sample_rate!=src_sample_rate
 Resample: sample_rate, 70
 endif
-Scale intensity... 70
 peak=Get absolute extremum... 0 0 None
 if peak>0.99
 Scale peak... 0.99
@@ -82,10 +81,10 @@ Save as raw 16-bit little-endian file... 'raw_output_file$'
 if sample_rate!=16000
 select speech
 Resample: 16000, 70
+endif
 Scale intensity... 70
 peak=Get absolute extremum... 0 0 None
 if peak>0.99
 Scale peak... 0.99
-endif
 endif
 Save as WAV file... 'wav_output_file$'

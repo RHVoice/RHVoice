@@ -1,0 +1,21 @@
+#!/usr/bin/python2
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
+
+import sys
+import os
+import os.path
+import json
+import numpy
+
+if __name__!="__main__":
+	sys.exit()
+
+with open(os.path.join("..","training.cfg"),"r") as f:
+	settings=json.load(f)
+target_db=settings.get("volume",-20)
+target=10.0**(target_db/20.0)
+
+sig=numpy.fromfile(sys.argv[1],numpy.int16).astype(numpy.float)/32768.0
+rms=numpy.sqrt(numpy.mean(sig*sig))
+ratio=target/rms
+print(ratio)
