@@ -114,8 +114,8 @@ class task(object):
 		return phoneset
 
 	def load_speech(self,name):
-		samples=numpy.fromfile(os.path.join("data","raw",name+".raw"),numpy.short).astype(numpy.double,"C")
-		samples/=32768.0
+		samples=numpy.fromfile(os.path.join("data","raw",name+".raw"),numpy.int32).astype(numpy.float)
+		samples/=(2**31)
 		return samples
 
 	def load_f0(self,name):
@@ -600,21 +600,22 @@ class f0_extracter(task):
 
 	def extract_with_praat(self,filepath,method,min_f0,max_f0):
 		assert(method in ["praat_ac","praat_cc"])
+		subprocess.check_call(["sox","-t","raw","-c","1","-r",str(self.settings["sample_rate"]),"-e","signed","-b","32",filepath,"-t","wav","utt.wav"])
 		command=["praat","--run"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
-		command.append(os.path.abspath(filepath))
-		command.append(str(self.settings["sample_rate"]))
+		command.append(os.path.abspath("utt.wav"))
 		command.append(str(min_f0))
 		command.append(str(max_f0))
 		command.append(str(self.settings["praat_voicing_threshold"]))
 		command.append("1" if method.endswith("_ac") else "0")
 		output=subprocess.check_output(command)
+		os.remove("utt.wav")
 		return map(float,output.split())
 
 	def extract_with_sptk(self,filepath,method,min_f0,max_f0):
 		assert(method in ["swipe","rapt"])
-		command=[os.path.join(self.settings["bindir"],"x2x"),"+sf",filepath]
-		data=subprocess.check_output(command)
+		audio=((numpy.fromfile(filepath,numpy.int32).astype(numpy.float))/(2**16)).astype(numpy.float32)
+		data=struct.pack("={}f".format(audio.size),*audio)
 		command=[os.path.join(self.settings["bindir"],"pitch")]
 		command.extend(["-a","1" if method=="swipe" else "0"])
 		command.extend(["-s",str(float(self.settings["sample_rate"])/1000.0)])
@@ -635,7 +636,7 @@ class f0_extracter(task):
 		extra_opts=[]
 		if "reaper_options" in self.settings:
 			extra_opts=self.settings["reaper_options"].split()
-		subprocess.check_call(["sox","-t","raw","-c","1","-e","signed","-b","16","-r",str(self.settings["sample_rate"]),raw_path,"-t","wav",wav_path])
+		subprocess.check_call(["sox","-t","raw","-c","1","-e","signed","-b","32","-r",str(self.settings["sample_rate"]),raw_path,"-t","wav","-b","16",wav_path])
 		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(min_f0),"-x",str(max_f0),"-i",wav_path,"-f",f0_path]+extra_opts)
 		os.remove(wav_path)
 		f0s=[]
