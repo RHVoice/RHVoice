@@ -1,4 +1,4 @@
-# Copyright (C) 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2015, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ peak=Get absolute extremum... 0 0 None
 if peak>0.99
 Scale peak... 0.99
 endif
-Save as raw 16-bit little-endian file... 'raw_output_file$'
+Save as raw 32-bit little-endian file... 'raw_output_file$'
 if sample_rate!=16000
 select speech
 Resample: 16000, 70

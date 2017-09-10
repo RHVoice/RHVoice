@@ -109,16 +109,12 @@ features:
 	SAMPKHZ=`echo $(SAMPFREQ) | $(X2X) +af | $(SOPR) -m 0.001 | $(X2X) +fa`; \
 	for raw in raw/$(DATASET)_$(SPEAKER)_*.raw; do \
 		base=`basename $${raw} .raw`; \
-		min=`$(X2X) +sf $${raw} | $(MINMAX) | $(X2X) +fa | head -n 1`; \
-		max=`$(X2X) +sf $${raw} | $(MINMAX) | $(X2X) +fa | tail -n 1`; \
-		if [ -s $${raw} -a $${min} -gt -32768 -a $${max} -lt 32767 ]; then \
+		if [ -s $${raw} ]; then \
 			echo "Extracting features from $${raw}"; \
 			if [ $(USESTRAIGHT) -eq 0 ]; then \
 				# $(X2X) +sf $${raw} | $(PITCH) -H $(UPPERF0) -L $(LOWERF0) -p $(FRAMESHIFT) -s $${SAMPKHZ} -o 2 > lf0/$${base}.lf0; \
 				if [ $(GAMMA) -eq 0 ]; then \
-					factor=`env python2 scripts/get-utt-volume-norm-factor $${raw}`; \
-					$(X2X) +sf $${raw} | \
-					$(SOPR) -m $${factor} | \
+					env python2 scripts/convert-audio $${raw} | \
 					$(FRAME) -l $(FRAMELEN) -p $(FRAMESHIFT) | \
 					$(WINDOW) -l $(FRAMELEN) -L $(FFTLEN) -w $(WINDOWTYPE) -n $(NORMALIZE) | \
 					$(MGCEP) -a $(FREQWARP) -m $(MGCORDER) -l $(FFTLEN) -e 1.0E-08 > mgc/$${base}.mgc; \
