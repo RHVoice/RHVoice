@@ -1082,7 +1082,6 @@ class realigner(task):
 		self.save_mono()
 		self.cleanup()
 		self.update_mlf()
-		self.copy_lpf()
 		self.update_version_number()
 
 class initializer(task):
