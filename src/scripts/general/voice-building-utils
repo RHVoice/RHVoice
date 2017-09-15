@@ -33,6 +33,7 @@ import xml.etree.ElementTree as xml
 from scipy import stats
 import numpy
 from scipy.signal import firwin,lfilter,kaiserord
+from scipy.io import wavfile
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
@@ -600,7 +601,7 @@ class f0_extracter(task):
 
 	def extract_with_praat(self,filepath,method,min_f0,max_f0):
 		assert(method in ["praat_ac","praat_cc"])
-		subprocess.check_call(["sox","-t","raw","-c","1","-r",str(self.settings["sample_rate"]),"-e","signed","-b","32",filepath,"-t","wav","utt.wav"])
+		wavfile.write("utt.wav",self.settings["sample_rate"],numpy.fromfile(filepath,numpy.int32))
 		command=["praat","--run"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
 		command.append(os.path.abspath("utt.wav"))
@@ -636,7 +637,13 @@ class f0_extracter(task):
 		extra_opts=[]
 		if "reaper_options" in self.settings:
 			extra_opts=self.settings["reaper_options"].split()
-		subprocess.check_call(["sox","-t","raw","-c","1","-e","signed","-b","32","-r",str(self.settings["sample_rate"]),raw_path,"-t","wav","-b","16",wav_path])
+		audio=numpy.fromfile(raw_path,numpy.int32).astype(numpy.float)/(2**31)
+		m=2**15
+		audio=numpy.round(audio*m)
+		audio[audio<-m]=-m
+		audio[audio>(m-1)]=m-1
+		audio=audio.astype(numpy.int16)
+		wavfile.write(wav_path,self.settings["sample_rate"],audio)
 		subprocess.check_call([self.settings["reaper_path"],"-a","-m",str(min_f0),"-x",str(max_f0),"-i",wav_path,"-f",f0_path]+extra_opts)
 		os.remove(wav_path)
 		f0s=[]
@@ -687,7 +694,7 @@ class f0_extracter(task):
 
 	def get_number_of_frames(self,name):
 		with open(os.path.join("data","raw",name),"rb") as fp:
-			samples=numpy.fromfile(fp,numpy.int16)
+			samples=numpy.fromfile(fp,numpy.int32)
 		return int(numpy.ceil(samples.size/float(self.shift)))
 
 	def __call__(self,args):
