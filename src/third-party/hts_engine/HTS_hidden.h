@@ -447,11 +447,11 @@ void HTS_GStreamSet_clear(HTS_GStreamSet * gss);
 #ifdef HTS_EMBEDDED
 #define GAUSS     FALSE
 #define PADEORDER 4             /* pade order (for MLSA filter) */
-#define IRLENG    384           /* length of impulse response */
+#define IRLENG    64           /* length of impulse response */
 #else
 #define GAUSS     TRUE
 #define PADEORDER 5
-#define IRLENG    576
+#define IRLENG    96
 #endif                          /* HTS_EMBEDDED */
 
 #define CHECK_LSP_STABILITY_MIN 0.25
