@@ -195,7 +195,8 @@ class recordings_importer(task):
 			 os.path.join(workdir,"data","wav",outname+".wav"),
 			 os.path.join(workdir,"data","raw",outname+".raw"),
 			 str(self.settings["sample_rate"]),
-			 "1" if self.settings["invert"] else "0"]
+			 "1" if self.settings["invert"] else "0",
+				 str(self.settings.get("silence_threshold",-40))]
 		subprocess.check_call(cmd)
 
 	def __call__(self,args):
