@@ -2,5 +2,5 @@ name=Anatol
 language=Ukrainian
 sample_rate=24k
 gender=male
-format=2
-revision=1
+format=3
+revision=0
