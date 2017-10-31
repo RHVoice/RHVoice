@@ -2,4 +2,12 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
 android:key="root">
+  <PreferenceScreen
+      android:title="@string/download_settings"
+      android:key="download_settings">
+    <CheckBoxPreference
+        android:title="@string/only_on_wifi"
+        android:key="wifi_only"
+        android:defaultValue="true"/>
+  </PreferenceScreen>
 </PreferenceScreen>

@@ -29,19 +29,14 @@ public final class DataInstallationFragment extends UIFragment
             @Override
             public void onReceive(Context context,Intent intent)
             {
-                boolean installed=intent.getBooleanExtra(DataService.EXTRA_STATE,false);
-                DataStateListener listener=(DataStateListener)getActivity();
-                if(installed)
-                    listener.onDataInstalled();
-                else
-                    listener.onDataNotInstalled();
+                SyncCompletionListener listener=(SyncCompletionListener)getActivity();
+                listener.onSyncFinished();
 }
         };
 
-    public interface DataStateListener
+    public interface SyncCompletionListener
     {
-        public void onDataInstalled();
-        public void onDataNotInstalled();
+        public void onSyncFinished();
 }
 
     @Override
@@ -55,7 +50,7 @@ public final class DataInstallationFragment extends UIFragment
     {
         super.onResume();
         Activity activity=getActivity();
-        LocalBroadcastManager.getInstance(activity).registerReceiver(receiver,new IntentFilter(DataService.ACTION_DATA_STATE));
+        LocalBroadcastManager.getInstance(activity).registerReceiver(receiver,new IntentFilter(DataService.ACTION_DATA_SYNC_FINISHED));
         activity.startService(new Intent(activity,DataService.class));
 }
 

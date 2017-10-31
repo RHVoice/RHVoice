@@ -21,7 +21,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
-public abstract class UIActivity extends Activity implements DataInstallationFragment.DataStateListener
+public abstract class UIActivity extends Activity implements DataInstallationFragment.SyncCompletionListener
 {
     protected void replaceFragment(Fragment frag,String tag)
     {
@@ -38,11 +38,5 @@ public abstract class UIActivity extends Activity implements DataInstallationFra
         setContentView(R.layout.frame);
         if(state==null)
             replaceFragment(new DataInstallationFragment(),"data_installation_fragment");
-}
-
-    @Override
-    public void onDataNotInstalled()
-    {
-        replaceFragment(MessageFragment.newInstance(R.string.voice_data_not_installed),"message_fragment");
 }
 }

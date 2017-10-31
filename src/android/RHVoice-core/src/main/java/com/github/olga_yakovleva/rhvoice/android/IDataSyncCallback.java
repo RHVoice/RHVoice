@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,15 +15,12 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-
-import android.app.Activity;
-import android.os.Bundle;
-
-public final class InstallTTSData extends UIActivity
+interface IDataSyncCallback
 {
-    @Override
-    public void onDataInstalled()
-    {
-        replaceFragment(MessageFragment.newInstance(R.string.voice_data_installed),"message_fragment");
-}
+    public boolean isConnected();
+    public void onLanguageDownloadStart(LanguagePack language);
+    public void onLanguageDownloadDone(LanguagePack language);
+    public void onVoiceDownloadStart(VoicePack voice);
+    public void onVoiceDownloadDone(VoicePack voice);
+    public void onNetworkError();
 }

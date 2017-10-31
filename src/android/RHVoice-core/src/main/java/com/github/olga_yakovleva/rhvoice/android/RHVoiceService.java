@@ -336,11 +336,9 @@ public final class RHVoiceService extends TextToSpeechService
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Initializing the engine");
-        DataManager dm=new DataManager(this);
-        dm.checkFiles();
-        if(!dm.isUpToDate())
+        if(Data.isSyncRequired(this))
             startService(new Intent(this,DataService.class));
-        List<String> paths=dm.getUpToDatePaths();
+        List<String> paths=Data.getPaths(this);
         if(paths.isEmpty())
             {
                 Log.w(TAG,"No voice data");
