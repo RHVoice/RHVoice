@@ -29,28 +29,30 @@ import android.util.Log;
 public final class CheckTTSData extends Activity
 {
     private static final String TAG="RHVoiceCheckDataActivity";
-    private DataManager dm;
-    private ArrayList<String> languageTags=new ArrayList<String>();
+    private ArrayList<String> installedLanguages=new ArrayList<String>();
+    private ArrayList<String> notInstalledLanguages=new ArrayList<String>();
 
     private void checkData()
     {
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Checking");
-        DataManager dm=new DataManager(this);
-        dm.checkFiles();
-        dm.checkVoices();
-        List<VoiceInfo> voices=dm.getVoices();
-        for(VoiceInfo voice: voices)
+        installedLanguages.clear();
+        notInstalledLanguages.clear();
+        for(LanguagePack language: Data.getLanguages())
             {
-                String languageTag=voice.getLanguage().getTag3();
-                if(languageTags.contains(languageTag))
-                    continue;
-                languageTags.add(languageTag);
-                if(BuildConfig.DEBUG)
-                    Log.i(TAG,languageTag);
-}
-        Collections.sort(languageTags);
-        if(!dm.isUpToDate())
+                boolean installed=false;
+                boolean notInstalled=false;
+                for(VoicePack voice: language.getVoices())
+                    {
+                        if(voice.getEnabled(this)&&voice.isUpToDate(this))
+                            installed=true;
+                        else
+                            notInstalled=true;
+                    }
+                if(installed)
+                    installedLanguages.add(language.getCode());
+                if(notInstalled)
+                    notInstalledLanguages.add(language.getCode());
+            }
+        if(Data.isSyncRequired(this))
             startService(new Intent(this,DataService.class));
 }
 
@@ -60,14 +62,9 @@ public final class CheckTTSData extends Activity
         super.onCreate(state);
         checkData();
         Intent resultIntent=new Intent();
-        if(!languageTags.isEmpty())
-            {
-                resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES,languageTags);
-                resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_UNAVAILABLE_VOICES,new ArrayList<String>());
-                setResult(TextToSpeech.Engine.CHECK_VOICE_DATA_PASS,resultIntent);
-}
-        else
-            setResult(TextToSpeech.Engine.CHECK_VOICE_DATA_FAIL,resultIntent);
+        resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES,installedLanguages);
+        resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_UNAVAILABLE_VOICES,notInstalledLanguages);
+        setResult(TextToSpeech.Engine.CHECK_VOICE_DATA_PASS,resultIntent);
         finish();
 }
 }

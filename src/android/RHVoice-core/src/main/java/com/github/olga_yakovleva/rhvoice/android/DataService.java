@@ -22,9 +22,8 @@ import android.support.v4.content.LocalBroadcastManager;
 
 public final class DataService extends IntentService
 {
-    public static final String ACTION_DATA_STATE="com.github.olga_yakovleva.rhvoice.android.action.data_state";
     public static final String ACTION_DATA_STATE_CHANGED="com.github.olga_yakovleva.rhvoice.android.action.data_state_changed";
-    public static final String EXTRA_STATE="state";
+    public static final String ACTION_DATA_SYNC_FINISHED="com.github.olga_yakovleva.rhvoice.android.action.data_sync_finished";
 
     public DataService()
     {
@@ -34,27 +33,7 @@ public final class DataService extends IntentService
     @Override
     protected void onHandleIntent(final Intent intent)
     {
-        DataManager dm=new DataManager(this);
-        dm.checkFiles();
-        if(dm.isAllUnpacked())
-            dm.checkVoices();
-        boolean oldState=(dm.isAllUnpacked()&&!dm.getVoices().isEmpty());
-        boolean newState=oldState;
-        if(!dm.isUpToDate())
-            {
-                dm.synchronizeFiles();
-                if(!oldState)
-                    {
-                        dm.checkVoices();
-                        newState=(dm.isAllUnpacked()&&!dm.getVoices().isEmpty());
-                    }
-            }
-        if(!oldState&&newState)
-            sendBroadcast(new Intent(TextToSpeech.Engine.ACTION_TTS_DATA_INSTALLED));
-        Intent broadcast=new Intent(ACTION_DATA_STATE);
-        broadcast.putExtra(EXTRA_STATE,newState);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcast);
-        if(oldState!=newState)
-            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_DATA_STATE_CHANGED));
+        DataSyncAction a=new DataSyncAction(this);
+        a.run();
     }
 }

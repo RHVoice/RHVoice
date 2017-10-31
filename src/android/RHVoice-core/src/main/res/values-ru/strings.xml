@@ -12,4 +12,8 @@
     <string name="speech_volume">Громкость речи</string>
     <string name="speech_rate">Скорость речи</string>
     <string name="pseudo_english_title">Стараться правильно читать английские слова</string>
+    <string name="settings">Настройки</string>
+    <string name="download_settings">Настройки загрузки</string>
+    <string name="speech_settings">Настройки речи</string>
+    <string name="only_on_wifi">Только по Wi-Fi</string>
 </resources>

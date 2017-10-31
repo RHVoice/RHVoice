@@ -16,28 +16,30 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
+import android.text.InputFilter;
+import android.text.InputType;
+import com.github.olga_yakovleva.rhvoice.LanguageInfo;
+import com.github.olga_yakovleva.rhvoice.TTSEngine;
+import com.github.olga_yakovleva.rhvoice.VoiceInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
-import com.github.olga_yakovleva.rhvoice.LanguageInfo;
-import com.github.olga_yakovleva.rhvoice.TTSEngine;
-import com.github.olga_yakovleva.rhvoice.VoiceInfo;
-import android.preference.PreferenceFragment;
-import android.preference.EditTextPreference;
-import android.text.InputType;
-import android.text.InputFilter;
-
-public final class SettingsFragment extends PreferenceFragment
+public final class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener
 {
     private static final String TAG="RHVoiceSettingsFragment";
 
@@ -67,7 +69,7 @@ public final class SettingsFragment extends PreferenceFragment
         return result;
     }
 
-    private void buildLanguagePreferenceCategory(List<VoiceInfo> voices)
+    private void buildLanguagePreferenceCategory(PreferenceScreen screen,List<VoiceInfo> voices)
     {
         PreferenceScreen cat=getPreferenceManager().createPreferenceScreen(getActivity());
         cat.setPersistent(false);
@@ -78,7 +80,7 @@ public final class SettingsFragment extends PreferenceFragment
         cat.setKey("language."+code3);
         Locale locale=new Locale(code2);
         cat.setTitle(locale.getDisplayName());
-        getPreferenceScreen().addPreference(cat);
+        screen.addPreference(cat);
         ListPreference voicePref=new ListPreference(getActivity());
         voicePref.setOnPreferenceChangeListener(onVoiceChange);
         voicePref.setKey("language."+code3+".voice");
@@ -132,20 +134,39 @@ public final class SettingsFragment extends PreferenceFragment
     public void onCreate(Bundle state)
     {
         super.onCreate(state);
-        DataManager dm=new DataManager(getActivity());
-        dm.checkFiles();
-        dm.checkVoices();
-        List<VoiceInfo> voices=dm.getVoices();
-        if(voices.isEmpty())
-            {
-                getActivity().finish();
-                return;
-}
         addPreferencesFromResource(R.xml.settings);
+        List<VoiceInfo> voices=Data.getVoices(getActivity());
+        if(voices.isEmpty())
+            return;
         Map<String,List<VoiceInfo>> voiceGroups=groupVoicesByLanguage(voices);
+        PreferenceScreen screen=getPreferenceManager().createPreferenceScreen(getActivity());
+        screen.setKey("speech_settings");
+        screen.setTitle(R.string.speech_settings);
+        getPreferenceScreen().addPreference(screen);
         for(Map.Entry<String,List<VoiceInfo>> entry: voiceGroups.entrySet())
             {
-                buildLanguagePreferenceCategory(entry.getValue());
+                buildLanguagePreferenceCategory(screen,entry.getValue());
             }
     }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences prefs,String key)
+    {
+        if(DataSyncAction.getWifiOnlyKey().equals(key))
+            getActivity().startService(new Intent(getActivity(),DataService.class));
+}
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+}
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+}
 }
