@@ -160,6 +160,11 @@ TatarJVowelsForwardSearchTranscription .o.
 TatarJVowelsBackwardSearchTranscription .o. 
 TatarJVowelSequenceTranscription .o. 
 TatarJVowelsDefaultTranscription .o. 
+TatarUjeException .o. 
+TatarIntervocalicWInsertion .o. 
+TatarJBeforeJVowels .o. 
+TatarUvularStopsTranscription .o. 
+TatarNonSyllabicUToW .o. 
 TatarSoftAndHardSignsRemoval ; 
 
 regex TatarTranscription ; 
