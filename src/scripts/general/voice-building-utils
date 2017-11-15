@@ -615,18 +615,20 @@ class f0_extracter(task):
 		return map(float,output.split())
 
 	def extract_with_sptk(self,filepath,method,min_f0,max_f0):
-		assert(method in ["swipe","rapt"])
+		methods={"sptk_rapt":"0","sptk_swipe":"1","sptk_reaper":"2"}
+		assert(method in methods.keys())
+		voicing_threshold=self.settings.get(method+"_voicing_threshold",None)
 		audio=((numpy.fromfile(filepath,numpy.int32).astype(numpy.float))/(2**16)).astype(numpy.float32)
 		data=struct.pack("={}f".format(audio.size),*audio)
 		command=[os.path.join(self.settings["bindir"],"pitch")]
-		command.extend(["-a","1" if method=="swipe" else "0"])
+		command.extend(["-a",methods[method]])
 		command.extend(["-s",str(float(self.settings["sample_rate"])/1000.0)])
 		command.extend(["-p",str(self.get_analysis_params()["FRAMESHIFT"])])
-		if method=="swipe":
-			command.extend(["-t",str(self.settings["swipe_voicing_threshold"])])
 		command.extend(["-L",str(min_f0)])
 		command.extend(["-H",str(max_f0)])
 		command.extend(["-o","1"])
+		if voicing_threshold is not None:
+			command.extend(["-t"+methods[method],str(voicing_threshold)])
 		process=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
 		output=process.communicate(data)[0]
 		count=len(output)/4
@@ -733,7 +735,7 @@ class f0_stats_computer(f0_extracter):
 		all_values=list()
 		for name in sorted(os.listdir(raw_dir)):
 			print("Processing {}".format(name))
-			values=self.extract_with_sptk(os.path.join(raw_dir,name),"rapt",40,600)
+			values=self.extract_with_sptk(os.path.join(raw_dir,name),"sptk_reaper",40,600)
 			all_values.extend([v for v in values if v!=0])
 		s={}
 		for p in [1,2,3,4,5,10,25,50,75,90,95,96,97,98,99]:
