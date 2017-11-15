@@ -676,7 +676,11 @@ class f0_extracter(task):
 			extracted.append(self.extract_with(raw_path,method,min_f0,max_f0))
 		result=list()
 		for values in zip(*extracted):
-			result.append(numpy.median(values))
+			nzvalues=[v for v in values if v!=0]
+			if len(nzvalues)>=(len(values)-len(nzvalues)):
+				result.append(numpy.median(nzvalues))
+			else:
+				result.append(0)
 		return result
 
 	def extract(self,raw_path,min_f0,max_f0):
