@@ -18,6 +18,9 @@ import os.path
 
 Import("env")
 
-for subdir in ["sonic","hts_engine","mage"]:
+subdirs=["sonic","hts_engine"]
+if env["enable_mage"]:
+	subdirs.append("mage")
+for subdir in subdirs:
 	SConscript(os.path.join(subdir,"SConscript"),
 			   exports={"env":env})

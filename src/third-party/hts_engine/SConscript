@@ -17,5 +17,8 @@
 Import("env")
 local_env=env.Clone()
 local_env["liblevel"]=0
-libhts_engine=local_env.BuildLibrary("hts_engine",Glob("*.c"))
+src=Glob("HTS_*.c")
+if local_env["enable_mage"]:
+	src.extend(Glob("HTS106_*.c"))
+libhts_engine=local_env.BuildLibrary("hts_engine",src)
 Export("libhts_engine")
