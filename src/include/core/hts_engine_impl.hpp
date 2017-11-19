@@ -26,15 +26,19 @@
 
 struct _HTS_Audio;
 extern "C" void HTS_Audio_write(_HTS_Audio * audio, short sample);
+#ifdef ENABLE_MAGE
 struct _HTS106_Audio;
 extern "C" void HTS106_Audio_write(_HTS106_Audio * audio, short sample);
+#endif
 
 namespace RHVoice
 {
   class hts_engine_impl
   {
     friend void ::HTS_Audio_write(_HTS_Audio * audio, short sample);
+#ifdef ENABLE_MAGE
     friend void ::HTS106_Audio_write(_HTS106_Audio * audio, short sample);
+    #endif
   public:
     typedef smart_ptr<hts_engine_impl> pointer;
 

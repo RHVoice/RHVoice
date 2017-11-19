@@ -20,7 +20,9 @@
 #include <list>
 #include "threading.hpp"
 #include "std_hts_engine_impl.hpp"
+#ifdef ENABLE_MAGE
 #include "mage_hts_engine_impl.hpp"
+#endif
 
 namespace RHVoice
 {
@@ -30,7 +32,9 @@ namespace RHVoice
     explicit hts_engine_pool(const std::string& voice_path)
     {
       prototypes.push_back(hts_engine_impl::pointer(new std_hts_engine_impl(voice_path)));
+#ifdef ENABLE_MAGE
       prototypes.push_back(hts_engine_impl::pointer(new mage_hts_engine_impl(voice_path)));
+#endif
     }
 
     hts_engine_impl::pointer acquire(const std::string& name)
