@@ -29,8 +29,7 @@ define InsertBillions
 [..] -> миллиард || Digit _ Digit^3 миллион;
 
 define RemoveSkippedParts 
-%0 %0 %0 NamesOfPowersOfTen -> 0 ,, 
-1 -> 0 || .#. _ NamesOfPowersOfTen ; 
+%0 %0 %0 NamesOfPowersOfTen -> 0 ; 
 
 define Units %0:0|1:бир|2:эки|3:үч|4:төрт|5:беш|6:алты|7:жети|8:сегиз|9:тогуз;
 
