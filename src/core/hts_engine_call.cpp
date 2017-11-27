@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -22,6 +22,7 @@
 #include "core/language.hpp"
 #include "core/voice.hpp"
 #include "core/tone.hpp"
+#include "core/limiter.hpp"
 #include "core/hts_engine_call.hpp"
 
 namespace RHVoice
@@ -389,9 +390,14 @@ namespace RHVoice
                 output.append(rc);
               }
           }
-        double volume=input.lbegin()->get_volume();
+        double volume=input.lbegin()->get_volume()*engine_impl->get_gain();
         if(volume!=1)
           {
+            if(volume>1)
+              {
+                limiter* lm=new limiter(volume);
+                output.append(lm);
+              }
             volume_controller* vc=new volume_controller(volume);
             output.append(vc);
           }

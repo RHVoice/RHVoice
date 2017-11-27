@@ -103,6 +103,11 @@ namespace RHVoice
       rate=value;
     }
 
+    double get_gain() const
+    {
+      return gain;
+}
+
   protected:
     explicit hts_engine_impl(const std::string& name,const std::string& voice_path);
 

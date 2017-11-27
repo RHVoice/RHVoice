@@ -24,9 +24,9 @@ namespace RHVoice
     default_pitch("default_pitch",1,0.5,2),
     min_pitch("min_pitch",0.5,0.5,1),
     max_pitch("max_pitch",2,1,2),
-    default_volume("default_volume",1,0.25,2),
+    default_volume("default_volume",1,0.25,4),
     min_volume("min_volume",0.25,0.25,1),
-    max_volume("max_volume",2,1,2),
+    max_volume("max_volume",2,1,4),
     cap_pitch_factor("cap_pitch_factor",1.3,0.5,2),
     min_sonic_rate("min_sonic_rate",2.5,0.2,5)
   {

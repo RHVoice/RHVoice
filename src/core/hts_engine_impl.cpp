@@ -81,7 +81,7 @@ namespace RHVoice
         do_stop();
         return;
       }
-    double s=(sample/32768.0)*gain;
+    double s=(sample/32768.0);
     try
       {
         output->process(&s,1);
