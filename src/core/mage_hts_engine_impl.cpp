@@ -186,7 +186,6 @@ namespace RHVoice
         for(int i=0;i<MAGE::defaultFrameRate;++i)
           {
             speech[i]/=32768.0;
-            speech[i]*=gain;
 }
         output->process(speech,MAGE::defaultFrameRate);
       }
