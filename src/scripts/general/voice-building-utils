@@ -603,12 +603,13 @@ class f0_extracter(task):
 	def extract_with_praat(self,filepath,method,min_f0,max_f0):
 		assert(method in ["praat_ac","praat_cc"])
 		wavfile.write("utt.wav",self.settings["sample_rate"],numpy.fromfile(filepath,numpy.int32))
+		voicing_threshold=self.settings.get(method+"_voicing_threshold",0.45)
 		command=["praat","--run"]
 		command.append(os.path.join(scriptdir,"print-pitch.praat"))
 		command.append(os.path.abspath("utt.wav"))
 		command.append(str(min_f0))
 		command.append(str(max_f0))
-		command.append(str(self.settings["praat_voicing_threshold"]))
+		command.append(str(voicing_threshold))
 		command.append("1" if method.endswith("_ac") else "0")
 		output=subprocess.check_output(command)
 		os.remove("utt.wav")
