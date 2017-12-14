@@ -56,8 +56,13 @@ num -> dig || Digit^13 _ ;
 define SplitDigitSequences 
 [[%0 Digit 0:dig] | [%0 0:num]] [[NZDigit Digit 0:num] | [%0 Digit 0:dig]]* dig:0 @-> ; 
 
+define TagSigns 
+sym -> 0 || [%+|%-] _ Digit+ num ,, 
+num %% sym -> %% num ; 
+
 regex 
 BasicTokenizer .o. 
 SplitDigitSequences .o. 
 TagLetterSequences .o. 
-UntagLargeNumbers ; 
+UntagLargeNumbers .o. 
+TagSigns ; 
