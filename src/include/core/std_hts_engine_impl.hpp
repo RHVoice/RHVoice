@@ -29,6 +29,11 @@ namespace RHVoice
     explicit std_hts_engine_impl(const std::string& voice_path);
     ~std_hts_engine_impl();
 
+    virtual bool supports_quality(int q) const
+    {
+      return (q>75);
+}
+
   private:
     pointer do_create() const;
     void do_initialize();

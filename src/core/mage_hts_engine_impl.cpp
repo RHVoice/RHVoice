@@ -17,6 +17,7 @@
 #include <cmath>
 #include "core/str.hpp"
 #include "core/mage_hts_engine_impl.hpp"
+#include "HTS106_engine.h"
 #include "HTS_hidden.h"
 #include "mage.h"
 
@@ -59,9 +60,12 @@ namespace RHVoice
 
   void mage_hts_engine_impl::do_initialize()
   {
-    std::string bpf_path(path::join(data_path,"bpf.txt"));
-    if(!bpf_load(&bpf,bpf_path.c_str()))
-      throw initialization_error();
+    if(quality>25)
+{
+  std::string bpf_path(path::join(data_path,"bpf.txt"));
+  if(!bpf_load(&bpf,bpf_path.c_str()))
+    throw initialization_error();
+ }
     arg_list args;
     model_file_list dur_files(data_path,"dur");
     append_model_args(args,dur_files,"-td","-md");
@@ -69,8 +73,8 @@ namespace RHVoice
     append_model_args(args,mgc_files,"-tm","-mm","-dm");
     model_file_list lf0_files(data_path,"lf0",3);
     append_model_args(args,lf0_files,"-tf","-mf","-df");
-    model_file_list bap_files(data_path,"bap",3);
-    append_model_args(args,bap_files,"-tl","-ml","-dl");
+    model_file_list ap_files(data_path,quality>25?"bap":"lpf",quality>25?3:1);
+    append_model_args(args,ap_files,"-tl","-ml","-dl");
     args.push_back(arg("-s",str::to_string(MAGE::defaultSamplingRate)));
     args.push_back(arg("-p",str::to_string(MAGE::defaultFrameRate)));
     args.push_back(arg("-a",str::to_string(MAGE::defaultAlpha)));
@@ -85,7 +89,10 @@ namespace RHVoice
         c_args.push_back(const_cast<char*>(it->second.c_str()));
       }
     mage.reset(new MAGE::Mage("default",c_args.size(),&c_args[0]));
-    vocoder.reset(new HTS_Vocoder);
+    if(quality>25)
+      new_vocoder.reset(new HTS_Vocoder);
+    else
+      old_vocoder.reset(new HTS106_Vocoder);
   }
 
   void mage_hts_engine_impl::do_synthesize()
@@ -109,7 +116,10 @@ namespace RHVoice
   void mage_hts_engine_impl::do_reset()
   {
     mage->reset();
-    HTS_Vocoder_clear(vocoder.get());
+    if(quality>25)
+      HTS_Vocoder_clear(new_vocoder.get());
+    else
+      HTS106_Vocoder_clear(old_vocoder.get());
     MAGE::FrameQueue* fq=mage->getFrameQueue();
     mage->setFrameQueue(0);
     delete fq;
@@ -135,7 +145,10 @@ namespace RHVoice
         MAGE::FrameQueue* fq=new MAGE::FrameQueue(MAGE::maxFrameQueueLen);
         mage->setFrameQueue(fq);
       }
-    HTS_Vocoder_initialize(vocoder.get(),MAGE::nOfMGCs-1,0,1,MAGE::defaultSamplingRate,MAGE::defaultFrameRate);
+    if(quality>25)
+      HTS_Vocoder_initialize(new_vocoder.get(),MAGE::nOfMGCs-1,0,1,MAGE::defaultSamplingRate,MAGE::defaultFrameRate);
+    else
+      HTS106_Vocoder_initialize(old_vocoder.get(),MAGE::nOfMGCs-1,0,1,MAGE::defaultSamplingRate,MAGE::defaultFrameRate);
   }
 
   void mage_hts_engine_impl::generate_parameters(hts_label& lab)
@@ -159,20 +172,25 @@ namespace RHVoice
   {
     double pitch=lab.get_pitch();
     double mgc[MAGE::nOfMGCs];
-    double bap[MAGE::nOfBAPs];
-    double speech[MAGE::defaultFrameRate];
+    int n=quality>25?MAGE::nOfBAPs:31;
+    double ap[31];
+    double dspeech[MAGE::defaultFrameRate];
+    short sspeech[MAGE::defaultFrameRate];
     MAGE::FrameQueue* fq=mage->getFrameQueue();
     while(!(output->is_stopped()||fq->isEmpty()))
       {
         MAGE::Frame* f=fq->get();
         std::copy(f->streams[MAGE::mgcStreamIndex],f->streams[MAGE::mgcStreamIndex]+MAGE::nOfMGCs,mgc);
-        std::copy(f->streams[MAGE::bapStreamIndex],f->streams[MAGE::bapStreamIndex]+MAGE::nOfBAPs,bap);
-        for(int i=0;i<MAGE::nOfBAPs;++i)
-          {
-            if(bap[i]>0)
-              bap[i]=0;
-            bap[i]=std::pow(10.0,bap[i]/10.0);
-}
+        std::copy(f->streams[MAGE::bapStreamIndex],f->streams[MAGE::bapStreamIndex]+n,ap);
+        if(quality>25)
+{
+  for(int i=0;i<MAGE::nOfBAPs;++i)
+    {
+      if(ap[i]>0)
+        ap[i]=0;
+      ap[i]=std::pow(10.0,ap[i]/10.0);
+    }
+ }
         double lf0=(f->voiced)?(f->streams[MAGE::lf0StreamIndex][0]):LZERO;
         if(f->voiced&&(pitch!=1))
           {
@@ -182,12 +200,20 @@ namespace RHVoice
             lf0=std::log(f0);
           }
         fq->pop();
-        HTS_Vocoder_synthesize(vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,bap,&bpf,MAGE::defaultAlpha,beta,1,speech,0);
+        if(quality>25)
+          {
+            HTS_Vocoder_synthesize(new_vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,ap,&bpf,MAGE::defaultAlpha,beta,1,dspeech,0);
+          }
+        else
+          {
+            HTS106_Vocoder_synthesize(old_vocoder.get(),MAGE::nOfMGCs-1,lf0,mgc,(n-1)/2,ap,MAGE::defaultAlpha,beta,1,sspeech,0);
+            std::copy(sspeech,sspeech+MAGE::defaultFrameRate,dspeech);
+          }
         for(int i=0;i<MAGE::defaultFrameRate;++i)
           {
-            speech[i]/=32768.0;
-}
-        output->process(speech,MAGE::defaultFrameRate);
+            dspeech[i]/=32768.0;
+          }
+        output->process(dspeech,MAGE::defaultFrameRate);
       }
   }
 }

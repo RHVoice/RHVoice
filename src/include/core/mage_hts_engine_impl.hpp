@@ -27,6 +27,7 @@ namespace MAGE
 }
 
 struct _HTS_Vocoder;
+struct _HTS106_Vocoder;
 
 namespace RHVoice
 {
@@ -35,6 +36,17 @@ namespace RHVoice
   public:
     explicit mage_hts_engine_impl(const std::string& voice_path);
     ~mage_hts_engine_impl();
+
+    virtual bool supports_quality(int q) const
+    {
+      if(q>75)
+        return false;
+      if(quality<0)
+        return true;
+      if(quality>25)
+        return(q>25);
+      return true;
+}
 
   private:
     class model_file_list
@@ -68,7 +80,8 @@ namespace RHVoice
     void append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name="") const;
 
     std::auto_ptr<MAGE::Mage> mage;
-    std::auto_ptr<_HTS_Vocoder> vocoder;
+    std::auto_ptr<_HTS_Vocoder> new_vocoder;
+    std::auto_ptr<_HTS106_Vocoder> old_vocoder;
     BPF bpf;
   };
 }
