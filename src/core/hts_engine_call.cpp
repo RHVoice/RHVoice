@@ -279,7 +279,7 @@ namespace RHVoice
     utt(u),
     player(player_),
     engine_pool(pool),
-    engine_impl(pool.acquire(utt.get_hts_engine_impl()))
+    engine_impl(pool.acquire(utt.get_quality()))
   {
   }
 

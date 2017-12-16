@@ -37,11 +37,11 @@ namespace RHVoice
 #endif
     }
 
-    hts_engine_impl::pointer acquire(const std::string& name)
+    hts_engine_impl::pointer acquire(int quality)
     {
-      hts_engine_impl::pointer result(get_instance(name));
+      hts_engine_impl::pointer result(get_instance(quality));
       if(result.empty())
-        result=get_prototype(name)->create();
+        result=get_prototype(quality)->create(quality);
       return result;
     }
 
@@ -57,13 +57,13 @@ namespace RHVoice
 
     typedef std::list<hts_engine_impl::pointer> engine_list;
 
-    hts_engine_impl::pointer get_instance(const std::string& name)
+    hts_engine_impl::pointer get_instance(int quality )
     {
       hts_engine_impl::pointer result;
       threading::lock l(inst_mutex);
       for(engine_list::iterator it=instances.begin();it!=instances.end();++it)
         {
-          if((*it)->get_name()==name)
+          if((*it)->supports_quality(quality))
             {
               result=*it;
               instances.erase(it);
@@ -73,12 +73,12 @@ namespace RHVoice
       return result;
     }
 
-    hts_engine_impl::pointer get_prototype(const std::string& name) const
+    hts_engine_impl::pointer get_prototype(int quality) const
     {
       hts_engine_impl::pointer result;
       for(engine_list::const_iterator it=prototypes.begin();it!=prototypes.end();++it)
         {
-          if((*it)->get_name()==name)
+          if((*it)->supports_quality(quality))
             {
               result=*it;
               break;

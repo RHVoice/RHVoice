@@ -78,7 +78,7 @@ namespace RHVoice
       return name;
     }
 
-    pointer create() const;
+    pointer create(int quality) const;
 
     void set_input(hts_input& input_)
     {
@@ -108,6 +108,8 @@ namespace RHVoice
       return gain;
 }
 
+    virtual bool supports_quality(int q) const=0;
+
   protected:
     explicit hts_engine_impl(const std::string& name,const std::string& voice_path);
 
@@ -115,6 +117,7 @@ namespace RHVoice
     sample_rate_property sample_rate;
     numeric_property<double> beta;
     numeric_property<double> gain;
+    int quality;
 
     hts_input* input;
     speech_processing_chain* output;
@@ -127,6 +130,11 @@ namespace RHVoice
     void on_new_sample(short sample);
 
     void load_configs();
+
+    void set_quality(int q)
+    {
+      quality=q;
+}
 
     virtual pointer do_create() const=0;
     virtual void do_initialize()=0;

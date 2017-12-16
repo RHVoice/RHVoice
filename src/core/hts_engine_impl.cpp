@@ -22,6 +22,7 @@ namespace RHVoice
 {
   hts_engine_impl::hts_engine_impl(const std::string& impl_name,const std::string& voice_path):
     data_path(voice_path),
+    quality(-1),
     beta("beta",0.4,-0.8,0.8),
     gain("gain",1.0,0.5,2.0),
     input(0),
@@ -66,9 +67,10 @@ namespace RHVoice
     cfg2.load(path::join(data_path,"voice.params"));
   }
 
-  hts_engine_impl::pointer hts_engine_impl::create() const
+  hts_engine_impl::pointer hts_engine_impl::create(int q) const
   {
     pointer p=do_create();
+    p->set_quality(q);
     p->load_configs();
     p->do_initialize();
     return p;
