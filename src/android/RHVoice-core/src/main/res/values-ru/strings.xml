@@ -13,7 +13,12 @@
     <string name="speech_rate">Скорость речи</string>
     <string name="pseudo_english_title">Стараться правильно читать английские слова</string>
     <string name="settings">Настройки</string>
-    <string name="download_settings">Настройки загрузки</string>
-    <string name="speech_settings">Настройки речи</string>
-    <string name="only_on_wifi">Только по Wi-Fi</string>
+    <string name="only_on_wifi">Загружать голоса только по Wi-Fi</string>
+    <string name="speech_quality">Качество речи</string>
+    <string-array name="quality_labels">
+      <item>Наилучший возможный отклик</item>
+      <item>Стандартное качество</item>
+      <item>Наилучшее возможное качество</item>
+    </string-array>
+    <string name="languages">Языки</string>
 </resources>
