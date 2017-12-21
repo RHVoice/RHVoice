@@ -67,6 +67,8 @@ public final class LanguagePack extends DataPack
     @Override
     public boolean getEnabled(Context context)
     {
+        if(code.equals("eng"))
+            return true;
         for(VoicePack voice: voices)
             {
                 if(voice.getEnabled(context))
@@ -102,8 +104,7 @@ public final class LanguagePack extends DataPack
                 if(voicePath!=null)
                     paths.add(voicePath);
 }
-        if(!paths.isEmpty())
-            paths.add(languagePath);
+        paths.add(languagePath);
         return paths;
 }
 
