@@ -18,13 +18,17 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -36,8 +40,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 public final class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener
 {
@@ -47,6 +49,31 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
             public boolean onPreferenceChange(Preference pref,Object obj)
             {
                 pref.setSummary(obj.toString());
+                return true;
+            }
+        };
+
+    private Preference.OnPreferenceChangeListener onQualityChange=new Preference.OnPreferenceChangeListener() {
+            public boolean onPreferenceChange(Preference pref,Object obj)
+            {
+                String value=obj.toString();
+                Resources res=getActivity().getResources();
+                try
+                    {
+                        String[] labels=res.getStringArray(R.array.quality_labels);
+                        String[] values=res.getStringArray(R.array.quality_values);
+                        for(int i=0;i<values.length;++i)
+                            {
+                                if(values[i].equals(value))
+                                    {
+                                        pref.setSummary(labels[i]);
+                                        break;
+}
+}
+}
+                catch(Resources.NotFoundException e)
+                    {
+}
                 return true;
             }
         };
@@ -69,7 +96,7 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
         return result;
     }
 
-    private void buildLanguagePreferenceCategory(PreferenceScreen screen,List<VoiceInfo> voices)
+    private void buildLanguagePreferenceCategory(PreferenceCategory cat0,List<VoiceInfo> voices)
     {
         PreferenceScreen cat=getPreferenceManager().createPreferenceScreen(getActivity());
         cat.setPersistent(false);
@@ -80,7 +107,7 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
         cat.setKey("language."+code3);
         Locale locale=new Locale(code2);
         cat.setTitle(locale.getDisplayName());
-        screen.addPreference(cat);
+        cat0.addPreference(cat);
         ListPreference voicePref=new ListPreference(getActivity());
         voicePref.setOnPreferenceChangeListener(onVoiceChange);
         voicePref.setKey("language."+code3+".voice");
@@ -135,17 +162,20 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
     {
         super.onCreate(state);
         addPreferencesFromResource(R.xml.settings);
+        ListPreference qPref=(ListPreference)findPreference("quality");
+        qPref.setSummary(qPref.getEntry());
+        qPref.setOnPreferenceChangeListener(onQualityChange);
         List<VoiceInfo> voices=Data.getVoices(getActivity());
         if(voices.isEmpty())
             return;
         Map<String,List<VoiceInfo>> voiceGroups=groupVoicesByLanguage(voices);
-        PreferenceScreen screen=getPreferenceManager().createPreferenceScreen(getActivity());
-        screen.setKey("speech_settings");
-        screen.setTitle(R.string.speech_settings);
-        getPreferenceScreen().addPreference(screen);
+        PreferenceCategory cat=new PreferenceCategory(getActivity());
+        cat.setKey("languages");
+        cat.setTitle(R.string.languages);
+        getPreferenceScreen().addPreference(cat);
         for(Map.Entry<String,List<VoiceInfo>> entry: voiceGroups.entrySet())
             {
-                buildLanguagePreferenceCategory(screen,entry.getValue());
+                buildLanguagePreferenceCategory(cat,entry.getValue());
             }
     }
 
