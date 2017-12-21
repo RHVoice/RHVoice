@@ -45,7 +45,7 @@ namespace RHVoice
         return true;
       if(quality>25)
         return(q>25);
-      return true;
+      return (q<=25);
 }
 
   private:
