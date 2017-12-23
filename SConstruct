@@ -23,7 +23,7 @@ if sys.platform=="win32":
     import _winreg
 
 def get_version(is_release):
-    next_version="0.6"
+    next_version="0.7-a1"
     if is_release:
         return next_version
     else:
