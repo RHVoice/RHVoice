@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string name="rhvoice_settings">RHVoice settings</string>
     <string name="languages_and_voices_title">Languages and voices</string>
     <string name="default_voice_title">Default voice</string>
