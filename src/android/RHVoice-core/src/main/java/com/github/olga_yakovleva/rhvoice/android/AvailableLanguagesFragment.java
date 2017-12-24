@@ -15,6 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.app.ActionBar;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.View;
@@ -43,5 +44,14 @@ public final class AvailableLanguagesFragment extends ListFragment
     {
         LanguagePack language=(LanguagePack)lv.getItemAtPosition(pos);
         ((Listener)getActivity()).onLanguageSelected(language);
+}
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        ActionBar actionBar=getActivity().getActionBar();
+        if(actionBar!=null)
+            actionBar.setSubtitle(R.string.languages);
 }
 }

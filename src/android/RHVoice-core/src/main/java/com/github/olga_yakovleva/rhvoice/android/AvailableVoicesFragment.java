@@ -15,6 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.app.ActionBar;
 import android.app.ListFragment;
 import android.os.Bundle;
 import android.view.View;
@@ -30,12 +31,13 @@ public final class AvailableVoicesFragment extends ListFragment
 }
 
     public static final String ARG_LANGUAGE="language";
+    private LanguagePack language;
 
     @Override
     public void onActivityCreated(Bundle state)
     {
         super.onActivityCreated(state);
-        LanguagePack language=Data.getLanguage(getArguments().getString(ARG_LANGUAGE));
+        language=Data.getLanguage(getArguments().getString(ARG_LANGUAGE));
         ArrayAdapter<VoicePack> voices=new ArrayAdapter<VoicePack>(getActivity(),android.R.layout.simple_list_item_multiple_choice,new ArrayList<VoicePack>(language.getVoices()));
         voices.sort(new DataPackNameComparator<VoicePack>());
         ListView listView=getListView();
@@ -53,5 +55,14 @@ public final class AvailableVoicesFragment extends ListFragment
     {
         VoicePack voice=(VoicePack)lv.getItemAtPosition(pos);
         ((Listener)getActivity()).onVoiceSelected(voice,lv.isItemChecked(pos));
+}
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        ActionBar actionBar=getActivity().getActionBar();
+        if(actionBar!=null)
+            actionBar.setSubtitle(language.getDisplayName());
 }
 }
