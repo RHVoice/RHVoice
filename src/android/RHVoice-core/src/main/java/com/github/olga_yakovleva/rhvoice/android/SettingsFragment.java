@@ -45,7 +45,7 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
 {
     private static final String TAG="RHVoiceSettingsFragment";
 
-    private Preference.OnPreferenceChangeListener onVoiceChange=new Preference.OnPreferenceChangeListener() {
+    private Preference.OnPreferenceChangeListener onValueChange=new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference pref,Object obj)
             {
                 pref.setSummary(obj.toString());
@@ -109,7 +109,7 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
         cat.setTitle(locale.getDisplayName());
         cat0.addPreference(cat);
         ListPreference voicePref=new ListPreference(getActivity());
-        voicePref.setOnPreferenceChangeListener(onVoiceChange);
+        voicePref.setOnPreferenceChangeListener(onValueChange);
         voicePref.setKey("language."+code3+".voice");
         voicePref.setTitle(R.string.default_voice_title);
         voicePref.setSummary(firstVoiceName);
@@ -146,7 +146,9 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
         volumePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
         volumePref.getEditText().setSelectAllOnFocus(true);
         volumePref.getEditText().setFilters(inputFilters);
+        volumePref.setOnPreferenceChangeListener(onValueChange);
         cat.addPreference(volumePref);
+        volumePref.setSummary(volumePref.getText());
         EditTextPreference ratePref=new EditTextPreference(getActivity());
         ratePref.setKey("language."+code3+".rate");
         ratePref.setTitle(R.string.speech_rate);
@@ -154,7 +156,9 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
         ratePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
         ratePref.getEditText().setSelectAllOnFocus(true);
         ratePref.getEditText().setFilters(inputFilters);
+        ratePref.setOnPreferenceChangeListener(onValueChange);
         cat.addPreference(ratePref);
+        ratePref.setSummary(ratePref.getText());
     }
 
     @Override
