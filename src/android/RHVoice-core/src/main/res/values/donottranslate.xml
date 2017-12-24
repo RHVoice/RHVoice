@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="app_name">RHVoice</string>
   <string-array name="quality_values">
     <item>0</item>
     <item>50</item>
