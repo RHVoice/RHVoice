@@ -17,7 +17,12 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.app.ActionBar;
 import android.app.ListFragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -32,37 +37,44 @@ public final class AvailableVoicesFragment extends ListFragment
 
     public static final String ARG_LANGUAGE="language";
     private LanguagePack language;
+    private VoiceListAdapter adapter;
+
+    private final BroadcastReceiver voiceDownloadedReceiver=new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context,Intent intent)
+            {
+                String name=intent.getStringExtra("name");
+                if(language.findVoice(name)!=null)
+                    adapter.notifyDataSetChanged();
+}
+        };
 
     @Override
     public void onActivityCreated(Bundle state)
     {
         super.onActivityCreated(state);
         language=Data.getLanguage(getArguments().getString(ARG_LANGUAGE));
-        ArrayAdapter<VoicePack> voices=new ArrayAdapter<VoicePack>(getActivity(),android.R.layout.simple_list_item_multiple_choice,new ArrayList<VoicePack>(language.getVoices()));
-        voices.sort(new DataPackNameComparator<VoicePack>());
+        adapter=new VoiceListAdapter(getActivity(),language);
         ListView listView=getListView();
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        setListAdapter(voices);
-        int n=voices.getCount();
-        for(int i=0;i<n;++i)
-            {
-                listView.setItemChecked(i,voices.getItem(i).getEnabled(getActivity()));
-}
-}
-
-    @Override
-    public void onListItemClick(ListView lv,View v,int pos,long id)
-    {
-        VoicePack voice=(VoicePack)lv.getItemAtPosition(pos);
-        ((Listener)getActivity()).onVoiceSelected(voice,lv.isItemChecked(pos));
+        listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
+        setListAdapter(adapter);
 }
 
     @Override
     public void onStart()
     {
         super.onStart();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(voiceDownloadedReceiver,new IntentFilter(DataService.ACTION_VOICE_DOWNLOADED));
         ActionBar actionBar=getActivity().getActionBar();
         if(actionBar!=null)
             actionBar.setSubtitle(language.getDisplayName());
+}
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(voiceDownloadedReceiver);
 }
 }

@@ -19,11 +19,14 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 
 public final class LanguagePack extends DataPack
 {
     private final String code;
     private final List<VoicePack> voices=new ArrayList<VoicePack>();
+    private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
 
     public LanguagePack(String name,String code,int format,int revision)
     {
@@ -61,6 +64,7 @@ public final class LanguagePack extends DataPack
     public LanguagePack addVoice(VoicePack voice)
     {
         voices.add(voice);
+        index.put(voice.getName(),voice);
         return this;
 }
 
@@ -136,5 +140,10 @@ public final class LanguagePack extends DataPack
                     return true;
 }
         return false;
+}
+
+    public VoicePack findVoice(String name)
+    {
+        return index.get(name);
 }
 }
