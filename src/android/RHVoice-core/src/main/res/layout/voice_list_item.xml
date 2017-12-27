@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:orientation="horizontal">
+  <CheckBox
+      android:id="@+id/voice"
+      android:focusable="true"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:textAppearance="?attr/android:textAppearanceListItem"/>
+  <ProgressBar
+      android:id="@+id/progress"
+      android:focusable="true"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:layout_marginLeft="8dp"
+      android:indeterminate="true"
+      style="@android:style/Widget.ProgressBar.Small"/>
+</LinearLayout>

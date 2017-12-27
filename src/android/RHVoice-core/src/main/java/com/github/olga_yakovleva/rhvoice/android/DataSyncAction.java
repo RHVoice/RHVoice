@@ -102,7 +102,9 @@ class DataSyncAction implements Runnable,IDataSyncCallback
 
     public void onVoiceDownloadDone(VoicePack voice)
     {
-
+        Intent event=new Intent(DataService.ACTION_VOICE_DOWNLOADED);
+        event.putExtra("name",voice.getName());
+        LocalBroadcastManager.getInstance(context).sendBroadcast(event);
 }
 
     public void onNetworkError()
