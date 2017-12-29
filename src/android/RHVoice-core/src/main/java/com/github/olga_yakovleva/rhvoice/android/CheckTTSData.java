@@ -47,10 +47,15 @@ public final class CheckTTSData extends Activity
                         else
                             notInstalled=true;
                     }
+                String tag=language.getTag();
                 if(installed)
-                    installedLanguages.add(language.getCode());
+                    {
+                        if(BuildConfig.DEBUG)
+                            Log.v(TAG,"Installed language: "+tag);
+                        installedLanguages.add(tag);
+                    }
                 if(notInstalled)
-                    notInstalledLanguages.add(language.getCode());
+                    notInstalledLanguages.add(tag);
             }
         if(Data.isSyncRequired(this))
             startService(new Intent(this,DataService.class));
@@ -60,6 +65,8 @@ public final class CheckTTSData extends Activity
     protected void onCreate(Bundle state)
     {
         super.onCreate(state);
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"checking data");
         checkData();
         Intent resultIntent=new Intent();
         resultIntent.putStringArrayListExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES,installedLanguages);

@@ -331,7 +331,7 @@ public final class RHVoiceService extends TextToSpeechService
                 if(candidate.score>best.score||best.voice==null)
                     best=candidate;
             }
-        if(best.score==3)
+        if(!TextUtils.isEmpty(variant)&&best.score==3)
             return best;
         if(best.voice==null)
             best.voice=tts.voices.get(0);
@@ -417,6 +417,8 @@ public final class RHVoiceService extends TextToSpeechService
     @Override
     protected String[] onGetLanguage()
     {
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onGetLanguage called");
         String[] result={"rus","RUS",""};
         AndroidVoiceInfo voice=currentVoice;
         if(voice==null)
@@ -434,6 +436,8 @@ public final class RHVoiceService extends TextToSpeechService
             return result;
         result[0]=voice.getLanguage();
         result[1]=voice.getCountry();
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onGetLanguage returns "+result[0]+"-"+result[1]);
         return result;
     }
 
@@ -592,13 +596,19 @@ public final class RHVoiceService extends TextToSpeechService
     @Override
     public List<Voice> onGetVoices()
     {
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onGetVoices called");
         List<Voice> result=new ArrayList<Voice>();
         Tts tts=ttsManager.get();
         if(tts==null)
             return result;
+        Voice v=null;
         for(AndroidVoiceInfo voice: tts.voices)
             {
-                result.add(voice.getAndroidVoice());
+                v=voice.getAndroidVoice();
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Voice: "+v.toString());
+                result.add(v);
             }
         return result;
     }
@@ -628,6 +638,8 @@ public final class RHVoiceService extends TextToSpeechService
     @Override
     public int onLoadVoice(String name)
     {
-        return TextToSpeech.SUCCESS;
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"onLoadVoice called with voice name "+name);
+        return onIsValidVoiceName(name);
 }
 }
