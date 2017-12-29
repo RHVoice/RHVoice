@@ -21,23 +21,27 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
+import android.text.TextUtils;
 
 public final class LanguagePack extends DataPack
 {
     private final String code;
+    private final String countryCode;
     private final List<VoicePack> voices=new ArrayList<VoicePack>();
     private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
 
-    public LanguagePack(String name,String code,int format,int revision)
+    public LanguagePack(String name,String code,String countryCode,int format,int revision)
     {
         super(name,format,revision);
         this.code=code;
+        this.countryCode=countryCode;
 }
 
-    public LanguagePack(String name,String code,int format,int revision,String tempLink)
+    public LanguagePack(String name,String code,String countryCode,int format,int revision,String tempLink)
     {
         super(name,format,revision,tempLink);
         this.code=code;
+        this.countryCode=countryCode;
 }
 
     public String getType()
@@ -115,6 +119,19 @@ public final class LanguagePack extends DataPack
     public String getCode()
     {
         return code;
+}
+
+    public String getCountryCode()
+    {
+        return countryCode;
+}
+
+    public String getTag()
+    {
+        if(TextUtils.isEmpty(countryCode))
+            return code;
+        else
+            return (code+"-"+countryCode);
 }
 
     @Override

@@ -35,31 +35,31 @@ public final class Data
     static
     {
         LanguagePack lang=null;
-        lang=new LanguagePack("English", "eng", 2, 1, "https://www.dropbox.com/s/1lthlfseb2wdvs8/data.zip?dl=1");
+        lang=new LanguagePack("English", "eng", "USA", 2, 1, "https://www.dropbox.com/s/1lthlfseb2wdvs8/data.zip?dl=1");
         lang.addVoice(new VoicePack("Alan", lang, 3, 0, "https://www.dropbox.com/s/flnc1kkidc0sgse/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Bdl", lang, 3, 0, "https://www.dropbox.com/s/cqhj7nmgtizm051/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Clb", lang, 3, 0, "https://www.dropbox.com/s/f84xmcr5lc4je5o/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Slt", lang, 3, 0, "https://www.dropbox.com/s/x7idxdtn9amjsid/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Esperanto", "epo", 1, 2, "https://www.dropbox.com/s/dy78nluxxjozdza/data.zip?dl=1");
+        lang=new LanguagePack("Esperanto", "epo", "", 1, 2, "https://www.dropbox.com/s/dy78nluxxjozdza/data.zip?dl=1");
         lang.addVoice(new VoicePack("Spomenka", lang, 3, 0, "https://www.dropbox.com/s/eghhpy0hiq138lo/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Georgian", "kat", 1, 6, "https://www.dropbox.com/s/ztk7s7kuye61mb4/data.zip?dl=1");
+        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 6, "https://www.dropbox.com/s/ztk7s7kuye61mb4/data.zip?dl=1");
         lang.addVoice(new VoicePack("Natia", lang, 3, 0, "https://www.dropbox.com/s/jyqfza4156n0ccc/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Kyrgyz", "kir", 1, 10, "https://www.dropbox.com/s/8l87ibk99fajlfe/data.zip?dl=1");
+        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 10, "https://www.dropbox.com/s/8l87ibk99fajlfe/data.zip?dl=1");
         lang.addVoice(new VoicePack("Nazgul", lang, 3, 0, "https://www.dropbox.com/s/x8k4wsxzq3hjedx/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Russian", "rus", 2, 2, "https://www.dropbox.com/s/hejp3zwzrv7oegy/data.zip?dl=1");
+        lang=new LanguagePack("Russian", "rus", "RUS", 2, 2, "https://www.dropbox.com/s/hejp3zwzrv7oegy/data.zip?dl=1");
         lang.addVoice(new VoicePack("Aleksandr", lang, 3, 0, "https://www.dropbox.com/s/by0ss7m92i5q5cp/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Anna", lang, 3, 0, "https://www.dropbox.com/s/0irrntqes1irx6f/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Elena", lang, 3, 0, "https://www.dropbox.com/s/bmg8mci4jzsxae5/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Irina", lang, 3, 0, "https://www.dropbox.com/s/17cmypgl7qhp8pr/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Tatar", "tat", 1, 5, "https://www.dropbox.com/s/5amabtqrqz5pxad/data.zip?dl=1");
+        lang=new LanguagePack("Tatar", "tat", "RUS", 1, 5, "https://www.dropbox.com/s/5amabtqrqz5pxad/data.zip?dl=1");
         lang.addVoice(new VoicePack("Talgat", lang, 3, 0, "https://www.dropbox.com/s/ajlwemovrm13cz9/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Ukrainian", "ukr", 1, 2, "https://www.dropbox.com/s/n00skvtatwyy3wr/data.zip?dl=1");
+        lang=new LanguagePack("Ukrainian", "ukr", "UKR", 1, 2, "https://www.dropbox.com/s/n00skvtatwyy3wr/data.zip?dl=1");
         lang.addVoice(new VoicePack("Anatol", lang, 3, 0, "https://www.dropbox.com/s/8x4wiy255bb6k4d/data.zip?dl=1"));
         addLanguage(lang);
 }

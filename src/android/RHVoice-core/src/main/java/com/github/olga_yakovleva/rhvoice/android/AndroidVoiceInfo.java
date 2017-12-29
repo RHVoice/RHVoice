@@ -57,13 +57,13 @@ public final class AndroidVoiceInfo
     public int getSupportLevel(String language,String country,String variant)
     {
         int result=0;
-        if((language!=null)&&language.equalsIgnoreCase(getLanguage()))
+        if(TextUtils.isEmpty(language)||language.equalsIgnoreCase(getLanguage()))
             {
                 ++result;
-                if((country!=null)&&country.equalsIgnoreCase(getCountry()))
+                if(TextUtils.isEmpty(country)||country.equalsIgnoreCase(getCountry()))
                     {
                         ++result;
-                        if((variant!=null)&&variant.equalsIgnoreCase(getVariant()))
+                        if(TextUtils.isEmpty(variant)||variant.equalsIgnoreCase(getVariant()))
                             ++result;
                     }
             }
