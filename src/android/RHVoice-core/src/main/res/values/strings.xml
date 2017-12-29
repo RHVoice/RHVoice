@@ -2,14 +2,9 @@
 <resources
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
-    <string name="rhvoice_settings">RHVoice settings</string>
-    <string name="languages_and_voices_title">Languages and voices</string>
     <string name="default_voice_title">Default voice</string>
     <string name="default_voice_dialog_title">Select a voice</string>
     <string name="detect_language_title">Automatic language switching</string>
-    <string name="voice_data">Voice data</string>
-    <string name="voice_data_installed">Voice data is installed</string>
-    <string name="voice_data_not_installed">Voice data is not installed</string>
     <string name="speech_volume">Speech volume</string>
     <string name="speech_rate">Speech rate</string>
     <string name="pseudo_english_title">Try to read English words correctly</string>
