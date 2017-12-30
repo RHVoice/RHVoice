@@ -128,6 +128,7 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
         CheckBoxPreference detectPref=new CheckBoxPreference(getActivity());
         detectPref.setKey("language."+code3+".detect");
         detectPref.setTitle(R.string.detect_language_title);
+        detectPref.setSummary(R.string.detect_language_desc);
         detectPref.setDefaultValue(true);
         cat.addPreference(detectPref);
         if(language.getPseudoEnglish())
@@ -135,6 +136,7 @@ public final class SettingsFragment extends PreferenceFragment implements Shared
                 CheckBoxPreference engPref=new CheckBoxPreference(getActivity());
                 engPref.setKey("language."+code3+".use_pseudo_english");
                 engPref.setTitle(R.string.pseudo_english_title);
+                engPref.setSummary(R.string.pseudo_english_desc);
                 engPref.setDefaultValue(true);
                 cat.addPreference(engPref);
             }

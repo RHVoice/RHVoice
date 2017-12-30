@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
 android:key="root">
     <CheckBoxPreference
-        android:title="@string/only_on_wifi"
+        android:title="@string/wifi_only_title"
+        android:summary="@string/wifi_only_desc"
         android:key="wifi_only"
         android:defaultValue="true"/>
     <ListPreference
