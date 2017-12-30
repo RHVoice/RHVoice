@@ -16,4 +16,5 @@
       <item>Наилучшее возможное качество</item>
     </string-array>
     <string name="languages">Языки</string>
+    <string name="voice_remove_question">Удалить этот голос?</string>
 </resources>

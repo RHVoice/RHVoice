@@ -75,4 +75,9 @@ public final class VoicePack extends DataPack
     {
         callback.onVoiceDownloadDone(this);
     }
+
+    public LanguagePack getLanguage()
+    {
+        return lang;
+}
 }

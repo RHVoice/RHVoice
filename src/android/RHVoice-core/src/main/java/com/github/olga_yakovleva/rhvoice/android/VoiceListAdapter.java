@@ -41,7 +41,6 @@ public final class VoiceListAdapter extends BaseAdapter
         public void onCheckedChanged(CompoundButton v,boolean newState)
         {
             ((AvailableVoicesFragment.Listener)activity).onVoiceSelected(voice,newState);
-            notifyDataSetChanged();
 }
 }
 
