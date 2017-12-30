@@ -90,6 +90,7 @@ public final class VoiceListAdapter extends BaseAdapter
         VoicePack voice=voices.get(pos);
         boolean enabled=voice.getEnabled(activity);
         CheckBox cv=(CheckBox)v.findViewById(R.id.voice);
+        cv.setOnCheckedChangeListener(null);
         cv.setText(voice.getName());
         cv.setChecked(enabled);
         cv.setOnCheckedChangeListener(this.new VoiceSelectedListener(voice));
