@@ -3,12 +3,15 @@
   <!-- Translated by Olga Yakovleva <yakovleva.o.v@gmail.com> -->
     <string name="default_voice_title">Голос по умолчанию</string>
     <string name="default_voice_dialog_title">Выберите голос</string>
-    <string name="detect_language_title">Автоматическое переключение языка</string>
+    <string name="detect_language_title">Определение языка</string>
+    <string name="detect_language_desc">Автоматическое переключение языка</string>
     <string name="speech_volume">Громкость речи</string>
     <string name="speech_rate">Скорость речи</string>
-    <string name="pseudo_english_title">Стараться правильно читать английские слова</string>
+    <string name="pseudo_english_title">Английские слова</string>
+    <string name="pseudo_english_desc">Стараться правильно читать английские слова</string>
     <string name="settings">Настройки</string>
-    <string name="only_on_wifi">Загружать голоса только по Wi-Fi</string>
+    <string name="wifi_only_title">Только Wi-Fi</string>
+    <string name="wifi_only_desc">Загружать голоса только по Wi-Fi</string>
     <string name="speech_quality">Качество речи</string>
     <string-array name="quality_labels">
       <item>Наилучший возможный отклик</item>

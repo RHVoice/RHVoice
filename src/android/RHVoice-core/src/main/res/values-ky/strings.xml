@@ -3,12 +3,12 @@
   <!-- Translated by Iskender Sultanaliev <bishkek-fenomen@mail.ru> -->
     <string name="default_voice_title">Демейки үн</string>
     <string name="default_voice_dialog_title">Үндүн катуулугу</string>
-    <string name="detect_language_title">Автоматтык түрдө тилди алмаштыруу</string>
+    <string name="detect_language_desc">Автоматтык түрдө тилди алмаштыруу</string>
     <string name="speech_volume">Үндүн бийиктиги</string>
     <string name="speech_rate">Үндүн ылдамдыгы</string>
-    <string name="pseudo_english_title">Англисче сөздөрдү туура окуу</string>
+    <string name="pseudo_english_desc">Англисче сөздөрдү туура окуу</string>
     <string name="settings">Түзөтүүлөр</string>
-    <string name="only_on_wifi">Wi-Fi боюнча гана үндү жүктөө</string>
+    <string name="wifi_only_desc">Wi-Fi боюнча гана үндү жүктөө</string>
     <string name="speech_quality">Сүйлөө сапаты</string>
     <string-array name="quality_labels">
       <item>Мүмкүн болгон эң жакшы жооп</item>

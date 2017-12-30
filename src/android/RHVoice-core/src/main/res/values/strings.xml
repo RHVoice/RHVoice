@@ -3,12 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools">
     <string name="default_voice_title">Default voice</string>
     <string name="default_voice_dialog_title">Select a voice</string>
-    <string name="detect_language_title">Automatic language switching</string>
+    <string name="detect_language_title">Language detection</string>
+    <string name="detect_language_desc">Automatic language switching</string>
     <string name="speech_volume">Speech volume</string>
     <string name="speech_rate">Speech rate</string>
-    <string name="pseudo_english_title">Try to read English words correctly</string>
+    <string name="pseudo_english_title">English words</string>
+    <string name="pseudo_english_desc">Try to read English words correctly</string>
     <string name="settings">Settings</string>
-    <string name="only_on_wifi">Download voices only on Wi-Fi</string>
+    <string name="wifi_only_title">Wi-Fi only</string>
+    <string name="wifi_only_desc">Download voices only on Wi-Fi</string>
     <string name="speech_quality">Speech quality</string>
     <string-array name="quality_labels">
       <item>Best possible responsiveness</item>
