@@ -16,4 +16,5 @@
       <item>Best possible quality</item>
     </string-array>
     <string name="languages">Languages</string>
+    <string name="voice_remove_question">Uninstall this voice</string>
 </resources>

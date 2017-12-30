@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public final class MainActivity extends Activity implements AvailableLanguagesFragment.Listener,AvailableVoicesFragment.Listener
+public final class MainActivity extends Activity implements AvailableLanguagesFragment.Listener,AvailableVoicesFragment.Listener,ConfirmVoiceRemovalDialogFragment.Listener
 {
     @Override
     protected void onCreate(Bundle state)
@@ -43,9 +43,31 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
 
     public void onVoiceSelected(VoicePack voice,boolean state)
     {
-        voice.setEnabled(this,state);
-        startService(new Intent(this,DataService.class));
+        if(state||!voice.isInstalled(this))
+            {
+                voice.setEnabled(this,state);
+                startService(new Intent(this,DataService.class));
+            }
+        else
+            {
+                ConfirmVoiceRemovalDialogFragment.show(this,voice);
+            }
+    }
+
+    public void onConfirmVoiceRemovalResponse(VoicePack voice,boolean response)
+    {
+        if(response)
+            {
+                voice.setEnabled(this,false);
+                startService(new Intent(this,DataService.class));
 }
+        else
+            {
+                AvailableVoicesFragment frag=(AvailableVoicesFragment)(getFragmentManager().findFragmentByTag("voices"));
+                if(frag!=null)
+                    frag.refresh();
+            }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

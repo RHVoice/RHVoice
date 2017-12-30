@@ -77,4 +77,9 @@ public final class AvailableVoicesFragment extends ListFragment
         super.onStop();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(voiceDownloadedReceiver);
 }
+
+    public void refresh()
+    {
+        adapter.notifyDataSetChanged();
+}
 }
