@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <!-- Translated by Iskender Sultanaliev <bishkek-fenomen@mail.ru> -->
-    <string name="default_voice_title">Демейки үн</string>
-    <string name="default_voice_dialog_title">Үндүн катуулугу</string>
-    <string name="detect_language_desc">Автоматтык түрдө тилди алмаштыруу</string>
-    <string name="speech_volume">Үндүн бийиктиги</string>
+    <string name="default_voice_title">Баштапкы үн</string>
+    <string name="default_voice_dialog_title">Үн тандоо</string>
+    <string name="detect_language_title">Тилди аныктоо</string>
+    <string name="detect_language_desc">Тилди автоматтык түрдө алмаштыруу</string>
+    <string name="speech_volume">Үндүн катуулугу</string>
     <string name="speech_rate">Үндүн ылдамдыгы</string>
-    <string name="pseudo_english_desc">Англисче сөздөрдү туура окуу</string>
+    <string name="pseudo_english_title">Англис сөздөр</string>
+    <string name="pseudo_english_desc">Англис сөздөрүн туура окууга аракеттенүү</string>
     <string name="settings">Түзөтүүлөр</string>
+    <string name="wifi_only_title">Wi-Fi боюнча гана</string>
     <string name="wifi_only_desc">Wi-Fi боюнча гана үндү жүктөө</string>
     <string name="speech_quality">Сүйлөө сапаты</string>
     <string-array name="quality_labels">
@@ -16,4 +19,5 @@
       <item>Мүмкүн болгон эң жакшы сапат</item>
     </string-array>
     <string name="languages">Тилдер</string>
+    <string name="voice_remove_question">Бул үндү өчүрүү керекпи?</string>
 </resources>
