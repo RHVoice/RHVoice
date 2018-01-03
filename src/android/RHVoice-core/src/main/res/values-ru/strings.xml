@@ -20,4 +20,6 @@
     </string-array>
     <string name="languages">Языки</string>
     <string name="voice_remove_question">Удалить этот голос?</string>
+    <string name="install">Установить</string>
+    <string name="uninstall">Удалить</string>
 </resources>

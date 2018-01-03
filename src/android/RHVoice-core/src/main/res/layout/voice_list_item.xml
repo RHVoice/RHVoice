@@ -3,21 +3,34 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:orientation="horizontal">
-  <CheckBox
-      android:id="@+id/voice"
-      android:focusable="true"
+    android:orientation="horizontal"
+    android:padding="8dp">
+  <LinearLayout
       android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:textAppearance="?attr/android:textAppearanceListItem"/>
-  <ProgressBar
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="horizontal"
+    android:focusable="true">
+    <TextView
+        android:id="@+id/voice"
+        android:focusable="false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/android:textAppearanceListItem"/>
+    <ProgressBar
       android:id="@+id/progress"
-      android:focusable="true"
+      android:focusable="false"
       android:layout_width="wrap_content"
-      android:layout_height="match_parent"
-      android:layout_marginLeft="8dp"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="8dp"
       android:indeterminate="true"
       style="@android:style/Widget.ProgressBar.Small"/>
+  </LinearLayout>
+  <ImageButton
+      android:id="@+id/action"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:focusable="true"
+      android:contentDescription="@string/install"
+      android:src="@drawable/ic_download"/>
 </LinearLayout>
