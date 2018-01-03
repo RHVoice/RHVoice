@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingTranslation">
     <string name="default_voice_title">Default voice</string>
     <string name="default_voice_dialog_title">Select a voice</string>
     <string name="detect_language_title">Language detection</string>
@@ -20,4 +21,6 @@
     </string-array>
     <string name="languages">Languages</string>
     <string name="voice_remove_question">Uninstall this voice</string>
+    <string name="install">Install</string>
+    <string name="uninstall">Uninstall</string>
 </resources>

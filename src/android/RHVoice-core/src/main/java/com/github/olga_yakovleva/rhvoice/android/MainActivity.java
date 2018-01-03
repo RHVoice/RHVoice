@@ -47,6 +47,9 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
             {
                 voice.setEnabled(this,state);
                 startService(new Intent(this,DataService.class));
+                AvailableVoicesFragment frag=(AvailableVoicesFragment)(getFragmentManager().findFragmentByTag("voices"));
+                if(frag!=null)
+                    frag.refresh();
             }
         else
             {
@@ -60,9 +63,6 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
             {
                 voice.setEnabled(this,false);
                 startService(new Intent(this,DataService.class));
-}
-        else
-            {
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh();

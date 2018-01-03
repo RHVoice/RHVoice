@@ -20,27 +20,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public final class VoiceListAdapter extends BaseAdapter
 {
-    private class VoiceSelectedListener implements CompoundButton.OnCheckedChangeListener
+    private class ActionButtonListener implements View.OnClickListener
     {
         private final VoicePack voice;
+        private final boolean flag;
 
-        public VoiceSelectedListener(VoicePack voice)
+        public ActionButtonListener(VoicePack voice,boolean flag)
         {
             this.voice=voice;
+            this.flag=flag;
 }
 
-        public void onCheckedChanged(CompoundButton v,boolean newState)
+        public void onClick(View v)
         {
-            ((AvailableVoicesFragment.Listener)activity).onVoiceSelected(voice,newState);
+            ((AvailableVoicesFragment.Listener)activity).onVoiceSelected(voice,flag);
+            if(flag)
+                notifyDataSetChanged();
 }
 }
 
@@ -88,16 +92,36 @@ public final class VoiceListAdapter extends BaseAdapter
             v=inflater.inflate(R.layout.voice_list_item,parent,false);
         VoicePack voice=voices.get(pos);
         boolean enabled=voice.getEnabled(activity);
-        CheckBox cv=(CheckBox)v.findViewById(R.id.voice);
-        cv.setOnCheckedChangeListener(null);
-        cv.setText(voice.getName());
-        cv.setChecked(enabled);
-        cv.setOnCheckedChangeListener(this.new VoiceSelectedListener(voice));
+        boolean installed=voice.isInstalled(activity);
+        boolean upToDate=voice.isUpToDate(activity);
+        TextView tv=(TextView)v.findViewById(R.id.voice);
+        tv.setText(voice.getName());
         ProgressBar pv=(ProgressBar)v.findViewById(R.id.progress);
-        if(enabled&&!voice.isUpToDate(activity))
+        if(enabled&&!upToDate)
             pv.setVisibility(View.VISIBLE);
         else
             pv.setVisibility(View.GONE);
+        ImageButton bv=(ImageButton)(v.findViewById(R.id.action));
+        if(enabled)
+            {
+                if(installed)
+                    {
+                        bv.setImageResource(R.drawable.ic_delete);
+                        bv.setContentDescription(activity.getString(R.string.uninstall));
+}
+                else
+                    {
+                        bv.setImageResource(R.drawable.ic_cancel);
+                        bv.setContentDescription(activity.getString(android.R.string.cancel));
+}
+                bv.setOnClickListener(this.new ActionButtonListener(voice,false));
+}
+        else
+            {
+                bv.setImageResource(R.drawable.ic_download);
+                bv.setContentDescription(activity.getString(R.string.install));
+                bv.setOnClickListener(this.new ActionButtonListener(voice,true));
+            }
         return v;
 }
 }
