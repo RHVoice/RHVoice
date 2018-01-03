@@ -20,4 +20,6 @@
     </string-array>
     <string name="languages">Тилдер</string>
     <string name="voice_remove_question">Бул үндү өчүрүү керекпи?</string>
+    <string name="install">Орнотуу</string>
+    <string name="uninstall">Өчүрүү</string>
 </resources>
