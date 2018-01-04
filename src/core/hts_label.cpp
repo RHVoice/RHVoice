@@ -20,8 +20,12 @@ namespace RHVoice
 {
   double hts_label::calculate_speech_param(double absolute_change,double relative_change,double default_value,double min_value,double max_value) const
   {
-    if(!((min_value<=default_value)&&(default_value<=max_value)))
+    if(!(min_value<=max_value))
       return 1;
+    if(default_value>max_value)
+      default_value=max_value;
+    else if(default_value<min_value)
+      default_value=min_value;
     double result=default_value;
     if(absolute_change>0)
       {
