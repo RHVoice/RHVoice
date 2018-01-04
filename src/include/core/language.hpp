@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -279,6 +279,11 @@ namespace RHVoice
       return (letters.find(cp)!=letters.end());
     }
 
+    bool is_sign(utf8::uint32_t cp) const
+    {
+      return (signs.find(cp)!=signs.end());
+    }
+
     bool has_common_letters(const language_info& other) const
     {
       for(std::set<utf8::uint32_t>::const_iterator iter=letters.begin();iter!=letters.end();++iter)
@@ -358,7 +363,7 @@ namespace RHVoice
 
   private:
     std::string alpha2_code,alpha3_code;
-    std::set<utf8::uint32_t> letters,vowel_letters;
+    std::set<utf8::uint32_t> letters,vowel_letters,signs;
     bool_property enabled;
 
   protected:
@@ -378,6 +383,11 @@ namespace RHVoice
     void register_vowel_letter(utf8::uint32_t cp)
     {
       vowel_letters.insert(cp);
+    }
+
+    void register_sign(utf8::uint32_t cp)
+    {
+      signs.insert(cp);
     }
 
   public:

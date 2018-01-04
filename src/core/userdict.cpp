@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -258,7 +258,7 @@ namespace RHVoice
         bool match_native_letters()
         {
           chars32::const_iterator old_pos=pos;
-          for(;((pos!=input.end())&&(lang.is_letter(*pos)));++pos)
+          for(;((pos!=input.end())&&(lang.is_letter(*pos)||lang.is_sign(*pos)));++pos)
             {
               next_token->append(*pos);
             }

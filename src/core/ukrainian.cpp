@@ -1,4 +1,4 @@
-/* Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -58,6 +58,7 @@ namespace RHVoice
     register_vowel_letter(1108);
     register_vowel_letter(1110);
     register_vowel_letter(1111);
+    register_sign('\'');
   }
 
   smart_ptr<language> ukrainian_info::create_instance() const
