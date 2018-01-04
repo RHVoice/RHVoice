@@ -35,7 +35,7 @@ public final class Data
     static
     {
         LanguagePack lang=null;
-        lang=new LanguagePack("English", "eng", "USA", 2, 1, "https://www.dropbox.com/s/1lthlfseb2wdvs8/data.zip?dl=1");
+        lang=new LanguagePack("English", "eng", "USA", 2, 2, "https://www.dropbox.com/s/1lthlfseb2wdvs8/data.zip?dl=1");
         lang.addVoice(new VoicePack("Alan", lang, 3, 0, "https://www.dropbox.com/s/flnc1kkidc0sgse/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Bdl", lang, 3, 0, "https://www.dropbox.com/s/cqhj7nmgtizm051/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Clb", lang, 3, 0, "https://www.dropbox.com/s/f84xmcr5lc4je5o/data.zip?dl=1"));
