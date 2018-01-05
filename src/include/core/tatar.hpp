@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -37,6 +37,11 @@ namespace RHVoice
     std::string get_country() const
     {
       return "RUS/RU";
+    }
+
+    bool supports_pseudo_english() const
+    {
+      return true;
     }
 
   private:

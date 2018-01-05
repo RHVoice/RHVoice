@@ -57,7 +57,7 @@ public final class Data
         lang.addVoice(new VoicePack("Elena", lang, 4, 0, null));
         lang.addVoice(new VoicePack("Irina", lang, 4, 0, null));
         addLanguage(lang);
-        lang=new LanguagePack("Tatar", "tat", "RUS", 1, 5, null);
+        lang=new LanguagePack("Tatar", "tat", "RUS", 1, 6, null);
         lang.addVoice(new VoicePack("Talgat", lang, 4, 0, null));
         addLanguage(lang);
         lang=new LanguagePack("Ukrainian", "ukr", "UKR", 1, 3, null);
