@@ -1,0 +1,91 @@
+# Copyright (C) 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Mapping 
+aa -> a ,, 
+aa0 -> a ,, 
+aa1 -> a ,, 
+ae -> e ,, 
+ae0 -> e ,, 
+ae1 -> e ,, 
+ah -> a ,, 
+ah0 -> a ,, 
+ah1 -> a ,, 
+ao -> o ,, 
+ao0 -> o ,, 
+ao1 -> o ,, 
+aw -> a u ,, 
+aw1 -> a u ,, 
+aw0 -> a u ,, 
+ax -> e ,, 
+ax0 -> e ,, 
+ax1 -> e ,, 
+ay -> a i ,, 
+ay0 -> a i ,, 
+ay1 -> a i ,, 
+eh -> e ,, 
+eh0 -> e ,, 
+eh1 -> e ,, 
+er -> o r ,, 
+er0 -> e r ,, 
+er1 -> o r ,, 
+ey -> e i ,, 
+ey0 -> e i ,, 
+ey1 -> e i ,, 
+ih -> i ,, 
+ih0 -> i ,, 
+ih1 -> i ,, 
+iy -> i ,, 
+iy0 -> i ,, 
+iy1 -> i ,, 
+ow -> o u ,, 
+ow0 -> o u ,, 
+ow1 -> o u ,, 
+oy -> o i ,, 
+oy0 -> o i ,, 
+oy1 -> o i ,, 
+uh -> u ,, 
+uh0 -> u ,, 
+uh1 -> u ,, 
+uw -> u ,, 
+uw0 -> u ,, 
+uw1 -> u ,, 
+b -> b ,, 
+ch -> chh ,, 
+d -> d ,, 
+dh -> z ,, 
+f -> v ,, 
+g -> g ,, 
+hh -> h ,, 
+jh -> j ,, 
+k -> k ,, 
+l -> l ,, 
+m -> m ,, 
+n -> n ,, 
+ng -> [n g] ,, 
+p -> p ,, 
+r -> r ,, 
+s -> s ,, 
+sh -> sh ,, 
+t -> t ,, 
+th -> s ,, 
+v -> v ,, 
+w -> v ,, 
+y -> i ,, 
+z -> z ,, 
+zh -> zh ; 
+
+regex 
+Mapping ;

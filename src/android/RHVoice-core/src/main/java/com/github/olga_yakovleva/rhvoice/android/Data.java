@@ -44,7 +44,7 @@ public final class Data
         lang=new LanguagePack("Esperanto", "epo", "", 1, 2, null);
         lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, null));
         addLanguage(lang);
-        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 6, null);
+        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 7, null);
         lang.addVoice(new VoicePack("Natia", lang, 4, 0, null));
         addLanguage(lang);
         lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 13, null);
