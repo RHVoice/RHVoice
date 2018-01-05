@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -31,7 +31,7 @@ define TranscribeLetter
 н:[e n] | 
 [ң|ӊ]:[y ng] | 
 о:o | 
-ө:of | 
+[ө|ѳ]:of | 
 п:[p e] | 
 р:[e r] | 
 с:[e s] | 

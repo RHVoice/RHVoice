@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@ b|c|d|f|g|h|j|k|l|m|n|p|r|s|t|q|v|w|x|z |
 B|C|D|F|G|H|J|K|L|M|N|P|R|S|T|Q|V|W|X|Z ; 
 
 define Vowel 
-а|е|ё|и|о|у|ю|я|ы|э|ө|ү|А|Е|Ё|И|О|У|Ю|Я|Ы|Э|Ө|Ү | 
+а|е|ё|и|о|у|ю|я|ы|э|ө|ѳ|ү|А|Е|Ё|И|О|У|Ю|Я|Ы|Э|Ө|Ѳ|Ү | 
 a|e|i|o|u|y | 
 A|E|I|O|U|Y ; 
 
