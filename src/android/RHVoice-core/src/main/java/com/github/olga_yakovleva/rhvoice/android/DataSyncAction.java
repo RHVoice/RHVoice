@@ -95,6 +95,11 @@ class DataSyncAction implements Runnable,IDataSyncCallback
 
 }
 
+    public void onLanguageInstallation(LanguagePack language)
+    {
+
+}
+
     public void onVoiceDownloadStart(VoicePack voice)
     {
 
@@ -103,6 +108,13 @@ class DataSyncAction implements Runnable,IDataSyncCallback
     public void onVoiceDownloadDone(VoicePack voice)
     {
         Intent event=new Intent(DataService.ACTION_VOICE_DOWNLOADED);
+        event.putExtra("name",voice.getName());
+        LocalBroadcastManager.getInstance(context).sendBroadcast(event);
+}
+
+    public void onVoiceInstallation(VoicePack voice)
+    {
+        Intent event=new Intent(DataService.ACTION_VOICE_INSTALLED);
         event.putExtra("name",voice.getName());
         LocalBroadcastManager.getInstance(context).sendBroadcast(event);
 }

@@ -39,7 +39,7 @@ public final class AvailableVoicesFragment extends ListFragment
     private LanguagePack language;
     private VoiceListAdapter adapter;
 
-    private final BroadcastReceiver voiceDownloadedReceiver=new BroadcastReceiver()
+    private final BroadcastReceiver voiceInstalledReceiver=new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context,Intent intent)
@@ -65,7 +65,7 @@ public final class AvailableVoicesFragment extends ListFragment
     public void onStart()
     {
         super.onStart();
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(voiceDownloadedReceiver,new IntentFilter(DataService.ACTION_VOICE_DOWNLOADED));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(voiceInstalledReceiver,new IntentFilter(DataService.ACTION_VOICE_INSTALLED));
         ActionBar actionBar=getActivity().getActionBar();
         if(actionBar!=null)
             actionBar.setSubtitle(language.getDisplayName());
@@ -75,7 +75,7 @@ public final class AvailableVoicesFragment extends ListFragment
     public void onStop()
     {
         super.onStop();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(voiceDownloadedReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(voiceInstalledReceiver);
 }
 
     public void refresh()

@@ -147,6 +147,12 @@ public final class LanguagePack extends DataPack
 }
 
     @Override
+    protected void notifyInstallation(IDataSyncCallback callback)
+    {
+        callback.onLanguageInstallation(this);
+}
+
+    @Override
     public boolean isSyncRequired(Context context)
     {
         if(super.isSyncRequired(context))
