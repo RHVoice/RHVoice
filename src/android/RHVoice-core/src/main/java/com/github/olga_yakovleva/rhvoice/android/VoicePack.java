@@ -76,6 +76,12 @@ public final class VoicePack extends DataPack
         callback.onVoiceDownloadDone(this);
     }
 
+    @Override
+    protected void notifyInstallation(IDataSyncCallback callback)
+    {
+        callback.onVoiceInstallation(this);
+    }
+
     public LanguagePack getLanguage()
     {
         return lang;

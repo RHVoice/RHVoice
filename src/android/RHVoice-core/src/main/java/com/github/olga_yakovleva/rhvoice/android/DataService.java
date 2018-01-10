@@ -25,6 +25,7 @@ public final class DataService extends IntentService
     public static final String ACTION_DATA_STATE_CHANGED="com.github.olga_yakovleva.rhvoice.android.action.data_state_changed";
     public static final String ACTION_DATA_SYNC_FINISHED="com.github.olga_yakovleva.rhvoice.android.action.data_sync_finished";
     public static final String ACTION_VOICE_DOWNLOADED="com.github.olga_yakovleva.rhvoice.android.action.voice_downloaded";
+    public static final String ACTION_VOICE_INSTALLED="com.github.olga_yakovleva.rhvoice.android.action.voice_installed";
 
     public DataService()
     {

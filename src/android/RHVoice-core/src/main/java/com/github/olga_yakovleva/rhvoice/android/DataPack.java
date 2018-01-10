@@ -398,6 +398,7 @@ catch(PackageManager.NameNotFoundException e)
 
     protected abstract void notifyDownloadStart(IDataSyncCallback callback);
     protected abstract void notifyDownloadDone(IDataSyncCallback callback);
+    protected abstract void notifyInstallation(IDataSyncCallback callback);
 
     public boolean install(Context context,IDataSyncCallback callback)
     {
@@ -476,6 +477,7 @@ catch(PackageManager.NameNotFoundException e)
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Installed "+getType()+" "+getName());
                 cleanup(context,versionCode);
+                notifyInstallation(callback);
                 context.sendBroadcast(new Intent(TextToSpeech.Engine.ACTION_TTS_DATA_INSTALLED));
                 return true;
             }
