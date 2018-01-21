@@ -105,6 +105,9 @@ void MAGE::Label::parseQuery( string q )
 	
 	this->speed = 1.0;
 	
+
+        RHVoice_parse_label_string(this->query.c_str(), &parsed);
+
 	return;
 }
 
