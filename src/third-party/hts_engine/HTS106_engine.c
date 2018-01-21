@@ -578,7 +578,7 @@ void HTS106_Engine_save_information(HTS106_Engine * engine, HTS106_File * fp)
       fprintf(fp, "  Duration\n");
       for (j = 0; j < HTS106_ModelSet_get_duration_interpolation_size(ms); j++) {
          fprintf(fp, "    Interpolation[%2d]\n", j);
-         HTS106_ModelSet_get_duration_index(ms, HTS106_Label_get_string(label, i), &k, &l, j);
+         HTS106_ModelSet_get_duration_index(ms, HTS106_Label_get_string(label, i), NULL, &k, &l, j);
          fprintf(fp, "      Tree index                       -> %8d\n", k);
          fprintf(fp, "      PDF index                        -> %8d\n", l);
       }
@@ -595,7 +595,7 @@ void HTS106_Engine_save_information(HTS106_Engine * engine, HTS106_File * fp)
             }
             for (l = 0; l < HTS106_ModelSet_get_parameter_interpolation_size(ms, k); l++) {
                fprintf(fp, "      Interpolation[%2d]\n", l);
-               HTS106_ModelSet_get_parameter_index(ms, HTS106_Label_get_string(label, i), &m, &n, k, j + 2, l);
+               HTS106_ModelSet_get_parameter_index(ms, HTS106_Label_get_string(label, i), NULL, &m, &n, k, j + 2, l);
                fprintf(fp, "        Tree index                     -> %8d\n", m);
                fprintf(fp, "        PDF index                      -> %8d\n", n);
             }

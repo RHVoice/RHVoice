@@ -232,7 +232,7 @@ HTS106_Boolean HTS106_SStreamSet_create(HTS106_SStreamSet * sss, HTS106_ModelSet
    duration_mean = (double *) HTS106_calloc(sss->nstate * HTS106_Label_get_size(label), sizeof(double));
    duration_vari = (double *) HTS106_calloc(sss->nstate * HTS106_Label_get_size(label), sizeof(double));
    for (i = 0; i < HTS106_Label_get_size(label); i++)
-      HTS106_ModelSet_get_duration(ms, HTS106_Label_get_string(label, i), &duration_mean[i * sss->nstate], &duration_vari[i * sss->nstate], duration_iw);
+     HTS106_ModelSet_get_duration(ms, HTS106_Label_get_string(label, i), NULL, &duration_mean[i * sss->nstate], &duration_vari[i * sss->nstate], duration_iw);
    if (HTS106_Label_get_frame_specified_flag(label)) {
       /* use duration set by user */
       next_time = 0;
@@ -273,9 +273,9 @@ HTS106_Boolean HTS106_SStreamSet_create(HTS106_SStreamSet * sss, HTS106_ModelSet
          for (k = 0; k < sss->nstream; k++) {
             sst = &sss->sstream[k];
             if (sst->msd)
-               HTS106_ModelSet_get_parameter(ms, HTS106_Label_get_string(label, i), sst->mean[state], sst->vari[state], &sst->msd[state], k, j, parameter_iw[k]);
+              HTS106_ModelSet_get_parameter(ms, HTS106_Label_get_string(label, i), NULL, sst->mean[state], sst->vari[state], &sst->msd[state], k, j, parameter_iw[k]);
             else
-               HTS106_ModelSet_get_parameter(ms, HTS106_Label_get_string(label, i), sst->mean[state], sst->vari[state], NULL, k, j, parameter_iw[k]);
+              HTS106_ModelSet_get_parameter(ms, HTS106_Label_get_string(label, i), NULL, sst->mean[state], sst->vari[state], NULL, k, j, parameter_iw[k]);
          }
          state++;
       }

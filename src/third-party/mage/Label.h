@@ -35,6 +35,8 @@
 #include "hts.h"
 #include "Constants.h"
 
+#include "core/question_matcher.h"
+
 using namespace std;
 
 namespace MAGE 
@@ -153,6 +155,9 @@ namespace MAGE
 
 //setters
 
+                        inline const RHVoice_parsed_label_string* getParsed() {return &parsed;}
+
+
 			/**
 			 *	This function sets a new value of the query to be used in the Label.
 			 *
@@ -250,5 +255,7 @@ namespace MAGE
 			 *	\brief It contains the ending time of the query used by a Label.
 			 */
 			int end;
+
+                        RHVoice_parsed_label_string parsed;
 	};
 } // namespace
