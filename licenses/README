@@ -3,3 +3,8 @@ relies on MAGE for better responsiveness. MAGE is distributed under
 GPL v3 or later, so the combination is under GPL v3 or later. If you
 want to use the library in your program under GPL v2 or LGPL, compile the
 library without MAGE.
+
+The following restrictions apply to some of the voices:
+
+1. The Tatar voice can only be used non-commercially.
+
