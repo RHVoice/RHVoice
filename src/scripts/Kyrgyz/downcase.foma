@@ -19,6 +19,7 @@ clear
 define KyrgyzDowncase 
 Ө : ө | 
 Ѳ : ѳ | 
+Ɵ : ɵ | 
 Ү : ү | 
 Υ : ү | 
 Ң : ң | 
