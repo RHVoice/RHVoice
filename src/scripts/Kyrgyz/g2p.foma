@@ -62,7 +62,7 @@ RussianFixTranscription ;
 
 define KyrgyzTranscribeConsonant б:b|в:v|г:g|д:d|ж:dzh|з:z|й:j|к:k|л:l|м:m|н:n|п:p|р:r|с:s|т:t|ф:f|х:h|ц:c|ч:ch|ш:sh|щ:sch|[ң|ӊ]:ng ; 
 
-define KyrgyzTranscribeNonJVowel {аа}:aa0|а:a0|и:i0|{оо}:oo0|о:o0|{уу}:uu0|у:u0|ы:y0|{ээ}:ee0|э:e0|{үү}:uuf0|ү:uf0|[{өө}|{ѳѳ}]:oof0|[ө|ѳ]:of0 ; 
+define KyrgyzTranscribeNonJVowel {аа}:aa0|а:a0|и:i0|{оо}:oo0|о:o0|{уу}:uu0|у:u0|ы:y0|{ээ}:ee0|э:e0|{үү}:uuf0|ү:uf0|[{өө}|{ѳѳ}|{ɵɵ}]:oof0|[ө|ѳ|ɵ]:of0 ; 
 
 define KyrgyzTranscribeJVowel е:e0|ё:o0|ю:u0|я:a0 ; 
 
@@ -76,7 +76,7 @@ KyrgyzTranscribeNonJVowel @-> ,,
 KyrgyzTranscribeJVowel @-> || \KyrgyzJVowelContext _ ,, 
 ь|ъ @-> 0 ; 
 
-define KyrgyzLetter а|б|в|г|д|е|ё|ж|з|и|й|к|л|м|н|о|п|р|с|т|у|ф|х|ц|ч|ш|щ|ь|ы|ъ|э|ю|я|ө|ѳ|ү|ң|ӊ | a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z ; 
+define KyrgyzLetter а|б|в|г|д|е|ё|ж|з|и|й|к|л|м|н|о|п|р|с|т|у|ф|х|ц|ч|ш|щ|ь|ы|ъ|э|ю|я|ө|ѳ|ɵ|ү|ң|ӊ | a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z ; 
 
 define KyrgyzWord KyrgyzLetter+ ; 
 
