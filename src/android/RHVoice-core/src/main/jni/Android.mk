@@ -45,5 +45,5 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := RHVoice_jni
 LOCAL_SRC_FILES := native.cpp
-LOCAL_STATIC_LIBRARIES := RHVoice_core sonic mage hts_engine
+LOCAL_WHOLE_STATIC_LIBRARIES := RHVoice_core sonic mage hts_engine
 include $(BUILD_SHARED_LIBRARY)
