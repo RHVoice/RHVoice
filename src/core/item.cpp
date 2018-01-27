@@ -37,46 +37,77 @@ namespace RHVoice
 
   value item::eval(const std::string& feature) const
   {
-    std::vector<std::string> parts;
-    str::tokenizer<str::is_equal_to> tokenizer(feature,str::is_equal_to('.'));
-    std::copy(tokenizer.begin(),tokenizer.end(),std::back_inserter(parts));
-    if(parts.empty())
+    std::string name;
+    const std::size_t n=feature.length();
+    if(n==0)
       throw std::invalid_argument("Invalid feature specification");
-    std::vector<std::string>::const_iterator it(parts.begin());
-    std::vector<std::string>::const_iterator end(parts.end());
-    --end;
+    std::size_t i=0;
+    std::size_t l=0;
     const item* cur_item=this;
-    for(;it!=end;++it)
+    for(std::size_t j=0;j<n;++j)
       {
-        if(str::startswith(*it,"R:"))
-          cur_item=&(cur_item->as(it->substr(2,std::string::npos)));
-        else if(*it=="n")
-          cur_item=&(cur_item->next());
-        else if(*it=="nn")
-          cur_item=&(cur_item->next().next());
-        else if(*it=="p")
-          cur_item=&(cur_item->prev());
-        else if(*it=="pp")
-          cur_item=&(cur_item->prev().prev());
-        else if(*it=="parent")
-          cur_item=&(cur_item->parent());
-        else if(*it=="daughter1")
-          cur_item=&(cur_item->first_child());
-        else if(*it=="daughter2")
-          cur_item=&(cur_item->first_child().next());
-        else if(*it=="daughtern")
-          cur_item=&(cur_item->last_child());
-        else if(*it=="first")
-          cur_item=&((cur_item->has_parent())?(cur_item->parent().first_child()):(cur_item->get_relation().first()));
-        else if(*it=="last")
-          cur_item=&((cur_item->has_parent())?(cur_item->parent().last_child()):(cur_item->get_relation().last()));
+        if(feature[j]!='.')
+          {
+            ++l;
+            continue;
+}
+        if(l==0)
+          throw std::invalid_argument("Invalid feature specification");
+        if(l==1)
+          {
+            if(feature[i]=='n')
+              cur_item=&(cur_item->next());
+            else if(feature[i]=='p')
+              cur_item=&(cur_item->prev());
+            else
+              throw std::invalid_argument("Invalid item path component");
+          }
+        else if(l==2)
+          {
+            if(feature[i]=='n'&&feature[i+1]=='n')
+              cur_item=&(cur_item->next().next());
+            else if(feature[i]=='p'&&feature[i+1]=='p')
+              cur_item=&(cur_item->prev().prev());
+            else
+              throw std::invalid_argument("Invalid item path component");
+          }
         else
-          throw std::invalid_argument("Invalid item path component");
+          {
+            if(feature[i]=='R'&&feature[i+1]==':')
+              {
+                name.assign(feature,i+2,l-2);
+                cur_item=&(cur_item->as(name));
+}
+            else if(feature.compare(i,l,"parent")==0)
+              cur_item=&(cur_item->parent());
+            else if(feature.compare(i,l-1,"daughter")==0)
+              {
+                if(feature[i+l-1]=='1')
+                  cur_item=&(cur_item->first_child());
+                else if(feature[i+l-1]=='2')
+                  cur_item=&(cur_item->first_child().next());
+                else if(feature[i+l-1]=='n')
+                  cur_item=&(cur_item->last_child());
+                else
+                  throw std::invalid_argument("Invalid item path component");
+ }
+            else if(feature.compare(i,l,"first")==0)
+              cur_item=&((cur_item->has_parent())?(cur_item->parent().first_child()):(cur_item->get_relation().first()));
+            else if(feature.compare(i,l,"last")==0)
+              cur_item=&((cur_item->has_parent())?(cur_item->parent().last_child()):(cur_item->get_relation().last()));
+            else
+              throw std::invalid_argument("Invalid item path component");
+          }
+        i=j+1;
+        l=0;
       }
-    const value& val=cur_item->get(parts.back(),true);
+    if(l==0)
+      throw std::invalid_argument("Invalid feature specification");
+    name.assign(feature,i,l);
+    const value& val=cur_item->get(name,true);
     if(!val.empty())
       return val;
-    return cur_item->get_relation().get_utterance().get_language().get_feature_function(parts.back()).eval(*cur_item);
+    return cur_item->get_relation().get_utterance().get_language().get_feature_function(name).eval(*cur_item);
   }
 
   value item::eval(const std::string& feature,const value& default_value) const
