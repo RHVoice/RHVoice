@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -73,14 +73,10 @@ namespace RHVoice
         else
           throw std::invalid_argument("Invalid item path component");
       }
-    try
-      {
-        return cur_item->get(parts.back());
-      }
-    catch(const feature_not_found&)
-      {
-        return cur_item->get_relation().get_utterance().get_language().get_feature_function(parts.back()).eval(*cur_item);
-      }
+    const value& val=cur_item->get(parts.back(),true);
+    if(!val.empty())
+      return val;
+    return cur_item->get_relation().get_utterance().get_language().get_feature_function(parts.back()).eval(*cur_item);
   }
 
   value item::eval(const std::string& feature,const value& default_value) const
