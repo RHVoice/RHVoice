@@ -13,46 +13,111 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <new>
 #include <algorithm>
 #include <cstring>
 #include "core/question_matcher.h"
 
+namespace
+{
+
+  bool prepare(RHVoice_parsed_label_string* p,const char* s)
+  {
+    RHVoice_parsed_label_string_init(p);
+    std::fill(&(p->index[0]),&(p->index[0])+128,-1);
+    if(s==0||s[0]==0)
+      return false;
+    p->label_string_length=std::strlen(s);
+    if(p->label_string_length>RHVOICE_PARSED_LABEL_STRING_MAX_LENGTH)
+      p->label_string_length=RHVOICE_PARSED_LABEL_STRING_MAX_LENGTH;
+    try
+      {
+        p->label_string=new char[p->label_string_length+1];
+        std::strncpy(p->label_string,s,p->label_string_length+1);
+        p->label_string[p->label_string_length]=0;
+        p->links=new short[p->label_string_length];
+        std::fill(&(p->links[0]),&(p->links[0])+p->label_string_length,-1);
+        return true;
+}
+    catch(const std::bad_alloc& e)
+      {
+        RHVoice_parsed_label_string_clear(p);
+        return false;
+}
+}
+
+  inline void set(RHVoice_parsed_label_string* p,short i,char c,short* last)
+  {
+    if(p->index[c]<0)
+      {
+        p->index[c]=i;
+}
+    else
+      {
+        p->links[last[c]]=i;
+}
+    last[c]=i;
+}
+
+}
+
 extern "C"
 {
 
-  void RHVoice_parse_label_string(const char* s,RHVoice_parsed_label_string* out)
+void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l)
+{
+  l->label_string=0;
+  l->label_string_length=0;
+  l->links=0;
+}
+
+  void RHVoice_parsed_label_string_clear(RHVoice_parsed_label_string* l)
   {
-    out->label_string[0]=0;
-    out->label_string_length=0;
-    std::fill(&(out->index[0][0]),&(out->index[0][0])+(sizeof(out->index)/sizeof(out->index[0][0])),0);
-    if(s==0)
-      return;
+    if(l->links!=0)
+      {
+        delete[] l->links;
+        l->links=0;
+}
+    if(l->label_string!=0)
+      {
+        delete[] l->label_string;
+        l->label_string=0;
+}
+    l->label_string_length=0;
+}
+
+  void RHVoice_parsed_label_string_destroy(RHVoice_parsed_label_string* l)
+  {
+    if(l!=0)
+      {
+        RHVoice_parsed_label_string_clear(l);
+        delete l;
+}
+}
+
+  int RHVoice_parse_label_string(const char* s,RHVoice_parsed_label_string* out)
+  {
+    if(!prepare(out,s))
+      return 0;
     short i=0;
     char c=0;
     char pc=0;
-    while(s[i]!=0&&i<RHVOICE_PARSED_LABEL_STRING_MAX_LENGTH)
+    short last[128]={-1};
+    while(i<out->label_string_length)
       {
         c=s[i];
-        out->label_string[i]=c;
         if((c>='a'&&c<='z')||(c>='A'&&c<='Z'))
           {
             if(pc=='/')
-              {
-                ++(out->index[c][0]);
-                out->index[c][out->index[c][0]]=i;
-              }
+              set(out,i,c,&(last[0]));
           }
         else if((c>='0'&&c<='9')||c>127) ;
         else
-          {
-            ++(out->index[c][0]);
-            out->index[c][out->index[c][0]]=i;
-}
+          set(out,i,c,&(last[0]));
         pc=c;
         ++i;
 }
-    out->label_string[i]=0;
-    out->label_string_length=i;
+    return 1;
 }
 
   int RHVoice_question_match(const RHVoice_parsed_label_string* l,const char* q)
@@ -101,17 +166,15 @@ extern "C"
         ++q0;
         --n;
 }
-    const short m=l->index[q0[0]][0];
-    short i,j,k;
-    for(i=1;i<=m;++i)
+    short j,k;
+    for(j=l->index[q0[0]];j>=0;j=l->links[j])
       {
-        j=l->index[q0[0]][i];
         k=l->label_string_length-j;
         if(k<n)
           return 0;
         if(strncmp(q0,l->label_string+j,n)==0)
           return 1;
-}
+      }
     return 0;
 }
 
