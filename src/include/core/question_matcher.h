@@ -23,12 +23,16 @@ extern "C" {
 
 typedef struct
 {
-  char label_string[RHVOICE_PARSED_LABEL_STRING_MAX_LENGTH];
+  char* label_string;
   short label_string_length;
-  short index[128][128];
+  short index[128];
+  short* links;
 } RHVoice_parsed_label_string;
 
-  void RHVoice_parse_label_string(const char* str,RHVoice_parsed_label_string* out);
+  int RHVoice_parse_label_string(const char* str,RHVoice_parsed_label_string* out);
+  void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l);
+  void RHVoice_parsed_label_string_clear(RHVoice_parsed_label_string* l);
+  void RHVoice_parsed_label_string_destroy(RHVoice_parsed_label_string* l);
   int RHVoice_question_match(const RHVoice_parsed_label_string* l,const char* q);
 #ifdef __cplusplus
 }
