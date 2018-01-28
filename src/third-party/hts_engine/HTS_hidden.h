@@ -184,7 +184,7 @@ size_t HTS_ModelSet_get_fperiod(HTS_ModelSet * ms);
 const char *HTS_ModelSet_get_option(HTS_ModelSet * ms, size_t stream_index);
 
 /* HTS_ModelSet_get_gv_flag: get GV flag */
-HTS_Boolean HTS_ModelSet_get_gv_flag(HTS_ModelSet * ms, const char *string);
+HTS_Boolean HTS_ModelSet_get_gv_flag(HTS_ModelSet * ms, const char *string, const RHVoice_parsed_label_string* parsed);
 
 /* HTS_ModelSet_get_nstate: get number of state */
 size_t HTS_ModelSet_get_nstate(HTS_ModelSet * ms);
@@ -226,21 +226,21 @@ size_t HTS_ModelSet_get_window_max_width(HTS_ModelSet * ms, size_t stream_index)
 HTS_Boolean HTS_ModelSet_use_gv(HTS_ModelSet * ms, size_t stream_index);
 
 /* HTS_ModelSet_get_duration_index: get index of duration tree and PDF */
-void HTS_ModelSet_get_duration_index(HTS_ModelSet * ms, size_t voice_index, const char *string, size_t * tree_index, size_t * pdf_index);
+void HTS_ModelSet_get_duration_index(HTS_ModelSet * ms, size_t voice_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index);
 
 /* HTS_ModelSet_get_duration: get duration using interpolation weight */
-void HTS_ModelSet_get_duration(HTS_ModelSet * ms, const char *string, const double *iw, double *mean, double *vari);
+void HTS_ModelSet_get_duration(HTS_ModelSet * ms, const char *string, const RHVoice_parsed_label_string* parsed, const double *iw, double *mean, double *vari);
 
 /* HTS_ModelSet_get_parameter_index: get index of parameter tree and PDF */
-void HTS_ModelSet_get_parameter_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, size_t state_index, const char *string, size_t * tree_index, size_t * pdf_index);
+void HTS_ModelSet_get_parameter_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, size_t state_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index);
 
 /* HTS_ModelSet_get_parameter: get parameter using interpolation weight */
-void HTS_ModelSet_get_parameter(HTS_ModelSet * ms, size_t stream_index, size_t state_index, const char *string, const double *const *iw, double *mean, double *vari, double *msd);
+void HTS_ModelSet_get_parameter(HTS_ModelSet * ms, size_t stream_index, size_t state_index, const char *string, const RHVoice_parsed_label_string* parsed, const double *const *iw, double *mean, double *vari, double *msd);
 
-void HTS_ModelSet_get_gv_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, const char *string, size_t * tree_index, size_t * pdf_index);
+void HTS_ModelSet_get_gv_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index);
 
 /* HTS_ModelSet_get_gv: get GV using interpolation weight */
-void HTS_ModelSet_get_gv(HTS_ModelSet * ms, size_t stream_index, const char *string, const double *const *iw, double *mean, double *vari);
+void HTS_ModelSet_get_gv(HTS_ModelSet * ms, size_t stream_index, const char *string, const RHVoice_parsed_label_string* parsed, const double *const *iw, double *mean, double *vari);
 
 /* HTS_ModelSet_clear: free model set */
 void HTS_ModelSet_clear(HTS_ModelSet * ms);
@@ -261,6 +261,8 @@ size_t HTS_Label_get_size(HTS_Label * label);
 
 /* HTS_Label_get_string: get label string */
 const char *HTS_Label_get_string(HTS_Label * label, size_t index);
+
+const RHVoice_parsed_label_string* HTS_Label_get_parsed(HTS_Label * label, size_t index);
 
 /* HTS_Label_get_start_frame: get start frame */
 double HTS_Label_get_start_frame(HTS_Label * label, size_t index);

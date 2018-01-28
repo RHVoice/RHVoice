@@ -57,6 +57,7 @@ HTS_ENGINE_H_START;
 
 #include <stdio.h>
 #include "core/bpf.h"
+#include "core/question_matcher.h"
 
 /* common ---------------------------------------------------------- */
 
@@ -170,6 +171,7 @@ typedef struct _HTS_LabelString {
    char *name;                  /* label string */
    double start;                /* start frame specified in the given label */
    double end;                  /* end frame specified in the given label */
+  RHVoice_parsed_label_string parsed;
 } HTS_LabelString;
 
 /* HTS_Label: list of label strings */

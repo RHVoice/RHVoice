@@ -618,7 +618,7 @@ void HTS_Engine_save_information(HTS_Engine * engine, FILE * fp)
       fprintf(fp, "  Duration\n");
       for (j = 0; j < HTS_ModelSet_get_nvoices(ms); j++) {
          fprintf(fp, "    Interpolation[%2lu]\n", (unsigned long) j);
-         HTS_ModelSet_get_duration_index(ms, j, HTS_Label_get_string(label, i), &k, &l);
+         HTS_ModelSet_get_duration_index(ms, j, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), &k, &l);
          fprintf(fp, "      Tree index                       -> %8lu\n", (unsigned long) k);
          fprintf(fp, "      PDF index                        -> %8lu\n", (unsigned long) l);
       }
@@ -635,7 +635,7 @@ void HTS_Engine_save_information(HTS_Engine * engine, FILE * fp)
             }
             for (l = 0; l < HTS_ModelSet_get_nvoices(ms); l++) {
                fprintf(fp, "      Interpolation[%2lu]\n", (unsigned long) l);
-               HTS_ModelSet_get_parameter_index(ms, l, k, j + 2, HTS_Label_get_string(label, i), &m, &n);
+               HTS_ModelSet_get_parameter_index(ms, l, k, j + 2, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), &m, &n);
                fprintf(fp, "        Tree index                     -> %8lu\n", (unsigned long) m);
                fprintf(fp, "        PDF index                      -> %8lu\n", (unsigned long) n);
             }

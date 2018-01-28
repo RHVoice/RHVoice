@@ -68,6 +68,8 @@ typedef unsigned __int32 uint32_t;
 #include <stdint.h>
 #endif                          /* WIN32 */
 
+#include "core/question_matcher.h"
+
 /* HTS_dp_match: recursive matching */
 static HTS_Boolean HTS_dp_match(const char *string, const char *pattern, size_t pos, size_t max)
 {
@@ -237,13 +239,23 @@ static HTS_Boolean HTS_Question_load(HTS_Question * question, HTS_File * fp)
 }
 
 /* HTS_Question_match: check given string match given question */
-static HTS_Boolean HTS_Question_match(HTS_Question * question, const char *string)
+static HTS_Boolean HTS_Question_match(HTS_Question * question, const char *string, const RHVoice_parsed_label_string* parsed)
 {
    HTS_Pattern *pattern;
 
    for (pattern = question->head; pattern; pattern = pattern->next)
-      if (HTS_pattern_match(string, pattern->string))
-         return TRUE;
+     {
+       if(parsed!=NULL)
+         {
+           if(RHVoice_question_match(parsed,pattern->string))
+             return TRUE;
+         }
+       else
+         {
+           if (HTS_pattern_match(string, pattern->string))
+             return TRUE;
+         }
+     }
 
    return FALSE;
 }
@@ -431,14 +443,14 @@ static HTS_Boolean HTS_Tree_load(HTS_Tree * tree, HTS_File * fp, HTS_Question * 
 }
 
 /* HTS_Node_search: tree search */
-static size_t HTS_Tree_search_node(HTS_Tree * tree, const char *string)
+static size_t HTS_Tree_search_node(HTS_Tree * tree, const char *string, const RHVoice_parsed_label_string* parsed)
 {
    HTS_Node *node = tree->root;
 
    while (node != NULL) {
       if (node->quest == NULL)
          return node->pdf;
-      if (HTS_Question_match(node->quest, string)) {
+      if (HTS_Question_match(node->quest, string, parsed)) {
          if (node->yes->pdf > 0)
             return node->yes->pdf;
          node = node->yes;
@@ -752,7 +764,7 @@ static HTS_Boolean HTS_Model_load(HTS_Model * model, HTS_File * pdf, HTS_File * 
 
 
 /* HTS_Model_get_index: get index of tree and PDF */
-static void HTS_Model_get_index(HTS_Model * model, size_t state_index, const char *string, size_t * tree_index, size_t * pdf_index)
+static void HTS_Model_get_index(HTS_Model * model, size_t state_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index)
 {
    HTS_Tree *tree;
    HTS_Pattern *pattern;
@@ -782,9 +794,9 @@ static void HTS_Model_get_index(HTS_Model * model, size_t state_index, const cha
    }
 
    if (tree != NULL) {
-      (*pdf_index) = HTS_Tree_search_node(tree, string);
+     (*pdf_index) = HTS_Tree_search_node(tree, string, parsed);
    } else {
-      (*pdf_index) = HTS_Tree_search_node(model->tree, string);
+     (*pdf_index) = HTS_Tree_search_node(model->tree, string, parsed);
    }
 }
 
@@ -1515,11 +1527,11 @@ const char *HTS_ModelSet_get_option(HTS_ModelSet * ms, size_t stream_index)
 }
 
 /* HTS_ModelSet_get_gv_flag: get GV flag */
-HTS_Boolean HTS_ModelSet_get_gv_flag(HTS_ModelSet * ms, const char *string)
+HTS_Boolean HTS_ModelSet_get_gv_flag(HTS_ModelSet * ms, const char *string, const RHVoice_parsed_label_string* parsed)
 {
    if (ms->gv_off_context == NULL)
       return TRUE;
-   else if (HTS_Question_match(ms->gv_off_context, string) == TRUE)
+   else if (HTS_Question_match(ms->gv_off_context, string, parsed) == TRUE)
       return FALSE;
    else
       return TRUE;
@@ -1607,13 +1619,13 @@ HTS_Boolean HTS_ModelSet_use_gv(HTS_ModelSet * ms, size_t stream_index)
 }
 
 /* HTS_Model_add_parameter: get parameter using interpolation weight */
-static void HTS_Model_add_parameter(HTS_Model * model, size_t state_index, const char *string, double *mean, double *vari, double *msd, double weight)
+static void HTS_Model_add_parameter(HTS_Model * model, size_t state_index, const char *string, const RHVoice_parsed_label_string* parsed, double *mean, double *vari, double *msd, double weight)
 {
    size_t i;
    size_t tree_index, pdf_index;
    size_t len = model->vector_length * model->num_windows;
 
-   HTS_Model_get_index(model, state_index, string, &tree_index, &pdf_index);
+   HTS_Model_get_index(model, state_index, string, parsed, &tree_index, &pdf_index);
    for (i = 0; i < len; i++) {
       mean[i] += weight * model->pdf[tree_index][pdf_index][i];
       vari[i] += weight * model->pdf[tree_index][pdf_index][i + len];
@@ -1623,13 +1635,13 @@ static void HTS_Model_add_parameter(HTS_Model * model, size_t state_index, const
 }
 
 /* HTS_ModelSet_get_duration_index: get duration PDF & tree index */
-void HTS_ModelSet_get_duration_index(HTS_ModelSet * ms, size_t voice_index, const char *string, size_t * tree_index, size_t * pdf_index)
+void HTS_ModelSet_get_duration_index(HTS_ModelSet * ms, size_t voice_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index)
 {
-   HTS_Model_get_index(&ms->duration[voice_index], 2, string, tree_index, pdf_index);
+   HTS_Model_get_index(&ms->duration[voice_index], 2, string, parsed, tree_index, pdf_index);
 }
 
 /* HTS_ModelSet_get_duration: get duration using interpolation weight */
-void HTS_ModelSet_get_duration(HTS_ModelSet * ms, const char *string, const double *iw, double *mean, double *vari)
+void HTS_ModelSet_get_duration(HTS_ModelSet * ms, const char *string, const RHVoice_parsed_label_string* parsed, const double *iw, double *mean, double *vari)
 {
    size_t i;
    size_t len = ms->num_states;
@@ -1640,17 +1652,17 @@ void HTS_ModelSet_get_duration(HTS_ModelSet * ms, const char *string, const doub
    }
    for (i = 0; i < ms->num_voices; i++)
       if (iw[i] != 0.0)
-         HTS_Model_add_parameter(&ms->duration[i], 2, string, mean, vari, NULL, iw[i]);
+         HTS_Model_add_parameter(&ms->duration[i], 2, string, parsed, mean, vari, NULL, iw[i]);
 }
 
 /* HTS_ModelSet_get_parameter_index: get paramter PDF & tree index */
-void HTS_ModelSet_get_parameter_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, size_t state_index, const char *string, size_t * tree_index, size_t * pdf_index)
+void HTS_ModelSet_get_parameter_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, size_t state_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index)
 {
-   HTS_Model_get_index(&ms->stream[voice_index][stream_index], state_index, string, tree_index, pdf_index);
+   HTS_Model_get_index(&ms->stream[voice_index][stream_index], state_index, string, parsed, tree_index, pdf_index);
 }
 
 /* HTS_ModelSet_get_parameter: get parameter using interpolation weight */
-void HTS_ModelSet_get_parameter(HTS_ModelSet * ms, size_t stream_index, size_t state_index, const char *string, const double *const *iw, double *mean, double *vari, double *msd)
+void HTS_ModelSet_get_parameter(HTS_ModelSet * ms, size_t stream_index, size_t state_index, const char *string, const RHVoice_parsed_label_string* parsed, const double *const *iw, double *mean, double *vari, double *msd)
 {
    size_t i;
    size_t len = ms->stream[0][stream_index].vector_length * ms->stream[0][stream_index].num_windows;
@@ -1664,17 +1676,17 @@ void HTS_ModelSet_get_parameter(HTS_ModelSet * ms, size_t stream_index, size_t s
 
    for (i = 0; i < ms->num_voices; i++)
       if (iw[i][stream_index] != 0.0)
-         HTS_Model_add_parameter(&ms->stream[i][stream_index], state_index, string, mean, vari, msd, iw[i][stream_index]);
+         HTS_Model_add_parameter(&ms->stream[i][stream_index], state_index, string, parsed, mean, vari, msd, iw[i][stream_index]);
 }
 
 /* HTS_ModelSet_get_gv_index: get gv PDF & tree index */
-void HTS_ModelSet_get_gv_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, const char *string, size_t * tree_index, size_t * pdf_index)
+void HTS_ModelSet_get_gv_index(HTS_ModelSet * ms, size_t voice_index, size_t stream_index, const char *string, const RHVoice_parsed_label_string* parsed, size_t * tree_index, size_t * pdf_index)
 {
-   HTS_Model_get_index(&ms->gv[voice_index][stream_index], 2, string, tree_index, pdf_index);
+   HTS_Model_get_index(&ms->gv[voice_index][stream_index], 2, string, parsed, tree_index, pdf_index);
 }
 
 /* HTS_ModelSet_get_gv: get GV using interpolation weight */
-void HTS_ModelSet_get_gv(HTS_ModelSet * ms, size_t stream_index, const char *string, const double *const *iw, double *mean, double *vari)
+void HTS_ModelSet_get_gv(HTS_ModelSet * ms, size_t stream_index, const char *string, const RHVoice_parsed_label_string* parsed, const double *const *iw, double *mean, double *vari)
 {
    size_t i;
    size_t len = ms->stream[0][stream_index].vector_length;
@@ -1685,7 +1697,7 @@ void HTS_ModelSet_get_gv(HTS_ModelSet * ms, size_t stream_index, const char *str
    }
    for (i = 0; i < ms->num_voices; i++)
       if (iw[i][stream_index] != 0.0)
-         HTS_Model_add_parameter(&ms->gv[i][stream_index], 2, string, mean, vari, NULL, iw[i][stream_index]);
+         HTS_Model_add_parameter(&ms->gv[i][stream_index], 2, string, parsed, mean, vari, NULL, iw[i][stream_index]);
 }
 
 HTS_MODEL_C_END;
