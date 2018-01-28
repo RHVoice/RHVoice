@@ -250,7 +250,7 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    duration_mean = (double *) HTS_calloc(sss->total_state, sizeof(double));
    duration_vari = (double *) HTS_calloc(sss->total_state, sizeof(double));
    for (i = 0; i < HTS_Label_get_size(label); i++)
-      HTS_ModelSet_get_duration(ms, HTS_Label_get_string(label, i), duration_iw, &duration_mean[i * sss->nstate], &duration_vari[i * sss->nstate]);
+      HTS_ModelSet_get_duration(ms, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), duration_iw, &duration_mean[i * sss->nstate], &duration_vari[i * sss->nstate]);
    if (phoneme_alignment_flag == TRUE) {
       /* use duration set by user */
       next_time = 0;
@@ -297,9 +297,9 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
          for (k = 0; k < sss->nstream; k++) {
             sst = &sss->sstream[k];
             if (sst->msd)
-               HTS_ModelSet_get_parameter(ms, k, j, HTS_Label_get_string(label, i), (const double *const *) parameter_iw, sst->mean[state], sst->vari[state], &sst->msd[state]);
+               HTS_ModelSet_get_parameter(ms, k, j, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), (const double *const *) parameter_iw, sst->mean[state], sst->vari[state], &sst->msd[state]);
             else
-               HTS_ModelSet_get_parameter(ms, k, j, HTS_Label_get_string(label, i), (const double *const *) parameter_iw, sst->mean[state], sst->vari[state], NULL);
+               HTS_ModelSet_get_parameter(ms, k, j, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), (const double *const *) parameter_iw, sst->mean[state], sst->vari[state], NULL);
          }
          state++;
       }
@@ -332,7 +332,7 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
       if (HTS_ModelSet_use_gv(ms, i)) {
          sst->gv_mean = (double *) HTS_calloc(sst->vector_length, sizeof(double));
          sst->gv_vari = (double *) HTS_calloc(sst->vector_length, sizeof(double));
-         HTS_ModelSet_get_gv(ms, i, HTS_Label_get_string(label, 0), (const double *const *) gv_iw, sst->gv_mean, sst->gv_vari);
+         HTS_ModelSet_get_gv(ms, i, HTS_Label_get_string(label, 0), HTS_Label_get_parsed(label, 0), (const double *const *) gv_iw, sst->gv_mean, sst->gv_vari);
       } else {
          sst->gv_mean = NULL;
          sst->gv_vari = NULL;
@@ -340,7 +340,7 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    }
 
    for (i = 0; i < HTS_Label_get_size(label); i++)
-      if (HTS_ModelSet_get_gv_flag(ms, HTS_Label_get_string(label, i)) == FALSE)
+      if (HTS_ModelSet_get_gv_flag(ms, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i)) == FALSE)
          for (j = 0; j < sss->nstream; j++)
             if (HTS_ModelSet_use_gv(ms, j) == TRUE)
                for (k = 0; k < sss->nstate; k++)

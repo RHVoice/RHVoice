@@ -128,6 +128,7 @@ static void HTS_Label_load(HTS_Label * label, size_t sampling_rate, size_t fperi
          lstring = (HTS_LabelString *) HTS_calloc(1, sizeof(HTS_LabelString));
          label->head = lstring;
       }
+      RHVoice_parsed_label_string_init(&(lstring->parsed));
       if (isdigit_string(buff)) {       /* has frame infomation */
          start = atof(buff);
          HTS_get_token_from_fp(fp, buff);
@@ -141,6 +142,8 @@ static void HTS_Label_load(HTS_Label * label, size_t sampling_rate, size_t fperi
       }
       lstring->next = NULL;
       lstring->name = HTS_strdup(buff);
+      if(!RHVoice_parse_label_string(lstring->name,&(lstring->parsed)))
+        HTS_error(1,"Cannot parse label string\n");
    }
    HTS_Label_check_time(label);
 }
@@ -180,6 +183,7 @@ void HTS_Label_load_from_strings(HTS_Label * label, size_t sampling_rate, size_t
          lstring = (HTS_LabelString *) HTS_calloc(1, sizeof(HTS_LabelString));
          label->head = lstring;
       }
+      RHVoice_parsed_label_string_init(&(lstring->parsed));
       data_index = 0;
       if (isdigit_string(lines[i])) {   /* has frame infomation */
          HTS_get_token_from_string(lines[i], &data_index, buff);
@@ -196,6 +200,8 @@ void HTS_Label_load_from_strings(HTS_Label * label, size_t sampling_rate, size_t
          lstring->name = HTS_strdup(lines[i]);
       }
       lstring->next = NULL;
+      if(!RHVoice_parse_label_string(lstring->name,&(lstring->parsed)))
+        HTS_error(1,"Cannot parse label string\n");
    }
    HTS_Label_check_time(label);
 }
@@ -217,6 +223,18 @@ const char *HTS_Label_get_string(HTS_Label * label, size_t index)
    if (!lstring)
       return NULL;
    return lstring->name;
+}
+
+const RHVoice_parsed_label_string* HTS_Label_get_parsed(HTS_Label * label, size_t index)
+{
+   size_t i;
+   HTS_LabelString *lstring = label->head;
+
+   for (i = 0; i < index && lstring; i++)
+      lstring = lstring->next;
+   if (!lstring)
+      return NULL;
+   return &(lstring->parsed);
 }
 
 /* HTS_Label_get_start_frame: get start frame */
@@ -253,6 +271,7 @@ void HTS_Label_clear(HTS_Label * label)
    for (lstring = label->head; lstring; lstring = next_lstring) {
       next_lstring = lstring->next;
       HTS_free(lstring->name);
+      RHVoice_parsed_label_string_clear(&(lstring->parsed));
       HTS_free(lstring);
    }
    HTS_Label_initialize(label);
