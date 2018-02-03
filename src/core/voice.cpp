@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -23,7 +23,7 @@ namespace RHVoice
 {
   voice::voice(const voice_info& info_):
     info(info_),
-    engine_pool(info_.get_data_path())
+    engine_pool(info_)
   {
   }
 
@@ -33,7 +33,8 @@ namespace RHVoice
     return call.execute();
   }
 
-  voice_info::voice_info(const std::string& data_path,language_list& languages):
+  voice_info::voice_info(unsigned int fmt,const std::string& data_path,language_list& languages):
+    format(fmt),
     gender("gender",RHVoice_voice_gender_unknown),
     enabled("enabled",true),
     preferred("preferred",false),
@@ -86,8 +87,8 @@ namespace RHVoice
               {
                 resource_description desc("voice",*it);
                 logger.log(tag,RHVoice_log_level_info,std::string("Voice resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
-                if(desc.format==3)
-                  v.reset(new voice_info(*it,languages));
+                if(desc.format>=3)
+                  v.reset(new voice_info(desc.format,*it,languages));
                 else
                   logger.log(tag,RHVoice_log_level_error,"Unsupported voice format");
               }

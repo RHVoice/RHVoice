@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -20,12 +20,30 @@
 
 namespace RHVoice
 {
-  class quality_setting: public numeric_property<int>
+  enum quality_t
+    {
+      quality_none=0,
+      quality_min=1,
+      quality_std,
+quality_max
+    };
+
+  class quality_setting: public enum_property<quality_t>
   {
   public:
     quality_setting():
-      numeric_property("quality",50,0,100)
+      enum_property<quality_t>("quality",quality_std)
     {
+      define("min",quality_min);
+      define("minimum",quality_min);
+      define("0",quality_min);
+      define("standard",quality_std);
+      define("std",quality_std);
+      define("default",quality_std);
+      define("50",quality_std);
+      define("max",quality_max);
+      define("maximum",quality_max);
+      define("100",quality_max);
     }
   };
 }

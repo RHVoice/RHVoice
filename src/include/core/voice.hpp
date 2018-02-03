@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -59,7 +59,7 @@ private:
   class voice_info: public resource_info<voice>
   {
   public:
-    voice_info(const std::string& data_path,language_list& languages);
+    voice_info(unsigned int fmt,const std::string& data_path,language_list& languages);
 
     language_list::const_iterator get_language() const
     {
@@ -84,6 +84,11 @@ private:
         return voice_language->get_country();
     }
 
+    unsigned int get_format() const
+    {
+      return format;
+    }
+
     voice_params settings;
 
     void register_settings(config& cfg);
@@ -104,6 +109,7 @@ private:
       return smart_ptr<voice>(new voice(*this));
     }
 
+    const unsigned int format;
     language_list::const_iterator voice_language;
     sample_rate_property sample_rate;
     enum_property<RHVoice_voice_gender> gender;

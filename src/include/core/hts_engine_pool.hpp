@@ -23,21 +23,26 @@
 #ifdef ENABLE_MAGE
 #include "mage_hts_engine_impl.hpp"
 #endif
+#include "quality_setting.hpp"
+
 
 namespace RHVoice
 {
+  class voice_info;
+
   class hts_engine_pool
   {
   public:
-    explicit hts_engine_pool(const std::string& voice_path)
+    explicit hts_engine_pool(const voice_info& info_):
+      info(info_)
     {
-      prototypes.push_back(hts_engine_impl::pointer(new std_hts_engine_impl(voice_path)));
+      prototypes.push_back(hts_engine_impl::pointer(new std_hts_engine_impl(info_)));
 #ifdef ENABLE_MAGE
-      prototypes.push_back(hts_engine_impl::pointer(new mage_hts_engine_impl(voice_path)));
+      prototypes.push_back(hts_engine_impl::pointer(new mage_hts_engine_impl(info_)));
 #endif
     }
 
-    hts_engine_impl::pointer acquire(int quality)
+    hts_engine_impl::pointer acquire(quality_t quality)
     {
       hts_engine_impl::pointer result(get_instance(quality));
       if(result.empty())
@@ -57,7 +62,7 @@ namespace RHVoice
 
     typedef std::list<hts_engine_impl::pointer> engine_list;
 
-    hts_engine_impl::pointer get_instance(int quality )
+    hts_engine_impl::pointer get_instance(quality_t quality )
     {
       hts_engine_impl::pointer result;
       threading::lock l(inst_mutex);
@@ -73,7 +78,7 @@ namespace RHVoice
       return result;
     }
 
-    hts_engine_impl::pointer get_prototype(int quality) const
+    hts_engine_impl::pointer get_prototype(quality_t quality) const
     {
       hts_engine_impl::pointer result;
       for(engine_list::const_iterator it=prototypes.begin();it!=prototypes.end();++it)
@@ -89,6 +94,7 @@ namespace RHVoice
 
     engine_list prototypes,instances;
     threading::mutex inst_mutex;
+    const voice_info& info;
   };
 }
 #endif
