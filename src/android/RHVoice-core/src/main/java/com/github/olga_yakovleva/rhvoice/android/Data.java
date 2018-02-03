@@ -39,7 +39,7 @@ public final class Data
         lang.addVoice(new VoicePack("Alan", lang, 3, 0, "https://www.dropbox.com/s/flnc1kkidc0sgse/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Bdl", lang, 3, 0, "https://www.dropbox.com/s/cqhj7nmgtizm051/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Clb", lang, 3, 0, "https://www.dropbox.com/s/f84xmcr5lc4je5o/data.zip?dl=1"));
-        lang.addVoice(new VoicePack("Slt", lang, 3, 0, "https://www.dropbox.com/s/x7idxdtn9amjsid/data.zip?dl=1"));
+        lang.addVoice(new VoicePack("Slt", lang, 4, 0, "https://www.dropbox.com/s/c7pfawkifvnbyt4/data.zip?dl=1"));
         addLanguage(lang);
         lang=new LanguagePack("Esperanto", "epo", "", 1, 2, "https://www.dropbox.com/s/dy78nluxxjozdza/data.zip?dl=1");
         lang.addVoice(new VoicePack("Spomenka", lang, 3, 0, "https://www.dropbox.com/s/eghhpy0hiq138lo/data.zip?dl=1"));
@@ -53,7 +53,7 @@ public final class Data
         addLanguage(lang);
         lang=new LanguagePack("Russian", "rus", "RUS", 2, 3, "https://www.dropbox.com/s/ejvyzyis2gkswn7/data.zip?dl=1");
         lang.addVoice(new VoicePack("Aleksandr", lang, 3, 0, "https://www.dropbox.com/s/by0ss7m92i5q5cp/data.zip?dl=1"));
-        lang.addVoice(new VoicePack("Anna", lang, 3, 0, "https://www.dropbox.com/s/0irrntqes1irx6f/data.zip?dl=1"));
+        lang.addVoice(new VoicePack("Anna", lang, 4, 0, "https://www.dropbox.com/s/gbojwczr3cnfplm/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Elena", lang, 3, 0, "https://www.dropbox.com/s/bmg8mci4jzsxae5/data.zip?dl=1"));
         lang.addVoice(new VoicePack("Irina", lang, 3, 0, "https://www.dropbox.com/s/17cmypgl7qhp8pr/data.zip?dl=1"));
         addLanguage(lang);

@@ -22,6 +22,7 @@
 #include "exception.hpp"
 #include "smart_ptr.hpp"
 #include "relation.hpp"
+#include "quality_setting.hpp"
 
 namespace RHVoice
 {
@@ -81,12 +82,12 @@ namespace RHVoice
       return *voice_ptr;
     }
 
-    void set_quality(int q)
+    void set_quality(quality_t q)
     {
       quality=q;
     }
 
-    int get_quality() const
+    quality_t get_quality() const
     {
       return quality;
     }
@@ -192,7 +193,7 @@ namespace RHVoice
 
     const language& language_ref;
     const voice* voice_ptr;
-    int quality;
+    quality_t quality;
     relation_map relations;
     double absolute_rate,relative_rate,absolute_pitch,relative_pitch,absolute_volume,relative_volume;
   };

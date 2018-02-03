@@ -2,8 +2,8 @@
 <resources>
   <string name="app_name">RHVoice</string>
   <string-array name="quality_values">
-    <item>0</item>
-    <item>50</item>
-    <item>100</item>
+    <item>min</item>
+    <item>std</item>
+    <item>max</item>
   </string-array>
 </resources>

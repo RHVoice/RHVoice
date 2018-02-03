@@ -110,7 +110,7 @@ public final class RHVoiceService extends TextToSpeechService
         {
             public Object load(SharedPreferences prefs,String key)
             {
-                return prefs.getString(key,"50");
+                return prefs.getString(key,std);
 }
 
             public String translate(Object value)
@@ -224,16 +224,28 @@ public final class RHVoiceService extends TextToSpeechService
     private class Player implements TTSClient
     {
         private SynthesisCallback callback;
+        private int sampleRate;
 
         public Player(SynthesisCallback callback)
         {
             this.callback=callback;
         }
 
+        public boolean setSampleRate(int sr)
+        {
+            if(sampleRate!=0)
+                return true;
+            sampleRate=sr;
+            callback.start(sampleRate,AudioFormat.ENCODING_PCM_16BIT,1);
+            return true;
+}
+
         public boolean playSpeech(short[] samples)
         {
             if(!speaking)
                 return false;
+            if(BuildConfig.DEBUG&&sampleRate==0)
+                throw new IllegalStateException();
             final ByteBuffer buffer=ByteBuffer.allocate(samples.length*2);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             buffer.asShortBuffer().put(samples);
@@ -592,7 +604,6 @@ public final class RHVoiceService extends TextToSpeechService
                 params.setRate(((double)rate)/100.0);
                 params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);
-                callback.start(24000,AudioFormat.ENCODING_PCM_16BIT,1);
                 tts.engine.speak(request.getText(),params,player);
                 callback.done();
             }

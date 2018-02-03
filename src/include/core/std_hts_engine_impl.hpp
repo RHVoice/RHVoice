@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -18,21 +18,21 @@
 
 #include <memory>
 #include "hts_engine_impl.hpp"
+#include "quality_setting.hpp"
 
 struct _HTS_Engine;
 
 namespace RHVoice
 {
+  class voice_info;
+
   class std_hts_engine_impl: public hts_engine_impl
   {
   public:
-    explicit std_hts_engine_impl(const std::string& voice_path);
+    explicit std_hts_engine_impl(const voice_info& info);
     ~std_hts_engine_impl();
 
-    virtual bool supports_quality(int q) const
-    {
-      return (q>75);
-}
+    virtual bool supports_quality(quality_t q) const;
 
   private:
     pointer do_create() const;

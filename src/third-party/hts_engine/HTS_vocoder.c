@@ -680,7 +680,7 @@ static void HTS_Vocoder_start_excitation(HTS_Vocoder * v, double pitch, double* 
       v->pitch_of_curr_point = pitch;
       v->pitch_counter = pitch;
    }
-   if(v->pitch_of_curr_point!=0)
+   if(bap!=NULL&&v->pitch_of_curr_point!=0)
      {
        for(int j=0;j<bpf->length;++j)
          {
@@ -911,7 +911,7 @@ void HTS_Vocoder_synthesize(HTS_Vocoder * v, size_t m, double lf0, double *spect
 
    /* first time */
    if (v->is_first == TRUE) {
-      HTS_Vocoder_initialize_excitation(v, p, bpf->length);
+     HTS_Vocoder_initialize_excitation(v, p, (bpf==NULL)?0:bpf->length);
       if (v->stage == 0) {      /* for MCP */
          HTS_mc2b(spectrum, v->c, m, alpha);
       } else {                  /* for LSP */

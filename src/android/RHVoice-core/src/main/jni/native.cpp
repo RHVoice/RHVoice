@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -281,6 +281,7 @@ namespace
     void operator()();
 
     bool play_speech(const short*,std::size_t);
+    bool set_sample_rate(int);
 
   private:
     JNIEnv* env;
@@ -289,6 +290,7 @@ namespace
     jobject params;
     jobject client_object;
     jmethodID client_playSpeech_method;
+    jmethodID client_setSampleRate_method;
 
     speak_impl(const speak_impl&);
     speak_impl& operator=(const speak_impl&);
@@ -303,6 +305,7 @@ namespace
   {
     jclass client_class=check(env,env->GetObjectClass(client_object));
     client_playSpeech_method=get_method(env,client_class,"playSpeech","([S)Z");
+    client_setSampleRate_method=get_method(env,client_class,"setSampleRate","(I)Z");
   }
 
   void speak_impl::operator()()
@@ -333,6 +336,11 @@ namespace
     env->DeleteLocalRef(jsamples);
     return res;
   }
+
+  bool speak_impl::set_sample_rate(int sr)
+  {
+    return check(env,env->CallBooleanMethod(client_object,client_setSampleRate_method,sr));
+}
 
   class java_logger_wrapper: public event_logger
   {

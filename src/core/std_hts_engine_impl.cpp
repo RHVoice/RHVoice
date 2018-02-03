@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,6 +15,7 @@
 
 #include <cmath>
 #include "core/std_hts_engine_impl.hpp"
+#include "core/voice.hpp"
 #include "HTS_engine.h"
 
 extern "C"
@@ -43,14 +44,14 @@ extern "C"
 
 namespace RHVoice
 {
-  std_hts_engine_impl::std_hts_engine_impl(const std::string& voice_path):
-    hts_engine_impl("standard",voice_path)
+  std_hts_engine_impl::std_hts_engine_impl(const voice_info& info):
+    hts_engine_impl("standard",info)
   {
   }
 
   hts_engine_impl::pointer std_hts_engine_impl::do_create() const
   {
-    return pointer(new std_hts_engine_impl(data_path));
+    return pointer(new std_hts_engine_impl(info));
   }
 
   void std_hts_engine_impl::do_initialize()
@@ -58,14 +59,14 @@ namespace RHVoice
     engine.reset(new HTS_Engine);
     HTS_Engine_initialize(engine.get());
     engine->audio.audio_interface=this;
-    std::string voice_path(path::join(data_path,"voice.data"));
+    std::string voice_path(path::join(model_path,"voice.data"));
     char* c_voice_path=const_cast<char*>(voice_path.c_str());
     if(!HTS_Engine_load(engine.get(),&c_voice_path,1))
       {
         HTS_Engine_clear(engine.get());
         throw initialization_error();
       }
-    std::string bpf_path(path::join(data_path,"bpf.txt"));
+    std::string bpf_path(path::join(model_path,"bpf.txt"));
     if(bpf_load(&engine->bpf,bpf_path.c_str())==0)
       {
         HTS_Engine_clear(engine.get());
@@ -152,4 +153,12 @@ namespace RHVoice
   {
     HTS_Engine_set_stop_flag(engine.get(),TRUE);
   }
+
+  bool std_hts_engine_impl::supports_quality(quality_t q) const
+    {
+      if(q<quality_max)
+        return false;
+      return true;
+}
+
 }
