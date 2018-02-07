@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rhvoice_settings">Налаштування RHVoice</string>
+    <string name="languages_and_voices_title">Мови і голоси</string>
+    <string name="default_voice_title">Типовий голос</string>
+    <string name="default_voice_dialog_title">Оберіть голос</string>
+    <string name="detect_language_title">Автоматично перемикатися між мовами</string>
+    <string name="voice_data">Голосові дані для RHVoice</string>
+    <string name="voice_data_installed">Голосові дані встановлено</string>
+    <string name="voice_data_not_installed">Голосові дані не встановлено</string>
+    <string name="speech_volume">Гучність мовлення</string>
+    <string name="speech_rate">Швидкість мовлення</string>
+    <string name="pseudo_english_title">Намагатися правильно читати англійські слова</string>
+</resources>
