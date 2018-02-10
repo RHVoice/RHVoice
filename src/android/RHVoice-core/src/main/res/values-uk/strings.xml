@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <!-- Translated by Maksym Bilak <bmiv@ukr.net>, Volodymyr Pyrih <vp88.mobile@gmail.com> -->
     <string name="rhvoice_settings">Налаштування RHVoice</string>
     <string name="languages_and_voices_title">Мови і голоси</string>
     <string name="default_voice_title">Типовий голос</string>

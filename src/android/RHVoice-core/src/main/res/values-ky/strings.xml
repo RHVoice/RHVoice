@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <!-- Translated by Iskender Sultanaliev <bishkek-fenomen@mail.ru> -->
     <string name="rhvoice_settings">RHVoice жөндөөлөрү</string>
     <string name="languages_and_voices_title">Тилдер жана үндөр</string>
     <string name="default_voice_title">Демейки үн</string>
