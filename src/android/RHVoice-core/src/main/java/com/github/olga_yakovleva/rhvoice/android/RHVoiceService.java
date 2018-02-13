@@ -110,7 +110,7 @@ public final class RHVoiceService extends TextToSpeechService
         {
             public Object load(SharedPreferences prefs,String key)
             {
-                return prefs.getString(key,std);
+                return prefs.getString(key,"std");
 }
 
             public String translate(Object value)
