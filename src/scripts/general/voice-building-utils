@@ -220,6 +220,8 @@ class htk_segmenter(task):
 				os.mkdir(dir)
 
 	def setup(self):
+		self.num_states=self.settings.get("seg_num_states",5)
+		assert(self.num_states in [3,5])
 		self.alppf_regex=re.compile("^.*average log prob per frame = (.+)$")
 		self.make_dirs()
 		self.workdir="htk"
@@ -250,7 +252,7 @@ class htk_segmenter(task):
 		self.mfcc_scp_path=os.path.join(self.workdir,"mfcc.scp")
 		self.param_conf_path=os.path.join(self.workdir,"param.conf")
 		self.hmmdir=os.path.join(self.workdir,"hmm")
-		self.proto5_path=os.path.join(self.workdir,"proto5")
+		self.proto_path=os.path.join(self.workdir,"proto")
 
 	def transcribe(self):
 		self.transcriptions=[]
@@ -391,7 +393,7 @@ class htk_segmenter(task):
 	def build_proto(self,n,ns):
 		proto=[]
 		proto.append("~o <VECSIZE> {} <{}>".format(n,self.param_settings["TARGETKIND"]))
-		proto.append('~h "proto{}"'.format(ns))
+		proto.append('~h "proto"')
 		proto.append("<BeginHMM>")
 		proto.append("<NumStates> {}".format(ns+2))
 		for i in xrange(2,ns+2):
@@ -408,16 +410,16 @@ class htk_segmenter(task):
 		return proto
 
 	def output_hmmdefs(self):
-		proto5=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto5"))
+		proto=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto"))
 		lines=[]
 		for p in self.phonelist:
 			lines.append('~h "{}"'.format(p))
-			lines.extend(proto5[4:])
+			lines.extend(proto[4:])
 		self.output_lines(lines,os.path.join(self.get_hmm_dir(0),"hmmdefs"))
 
 	def output_macros(self):
 		dir=self.get_hmm_dir(0)
-		lines=self.read_lines(os.path.join(dir,"proto5"))[:3]
+		lines=self.read_lines(os.path.join(dir,"proto"))[:3]
 		lines.extend(self.read_lines(os.path.join(dir,"vFloors")))
 		self.output_lines(lines,os.path.join(dir,"macros"))
 
@@ -556,13 +558,13 @@ class htk_segmenter(task):
 		self.expand_words_mlf()
 		self.output_phonelist()
 		self.code()
-		self.output_lines(self.build_proto(39,5),self.proto5_path)
-		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto5_path)
+		self.output_lines(self.build_proto(39,self.num_states),self.proto_path)
+		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
 		self.output_hmmdefs()
 		self.output_macros()
 		max_reest_iter=100
 		n=self.reest_until(0,1,0.1,max_reest_iter)
-		self.edit_hmm(n,"pau.hed")
+		self.edit_hmm(n,"pau{}.hed".format(self.num_states))
 		n+=1
 		n=self.reest_until(n,1,0.01,max_reest_iter)
 		self.align(n,2)
