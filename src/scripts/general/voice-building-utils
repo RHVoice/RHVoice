@@ -129,9 +129,8 @@ class task(object):
 	def get_filter_band_edges(self):
 		sr=self.settings["sample_rate"]
 		nyq_freq=sr//2
-		freq=1000
-		max_freq=min(16000,nyq_freq-freq)
-		edges=range(freq,max_freq+1,freq)
+		max_freq=min(16000,nyq_freq-2000)
+		edges=[1000]+range(2000,max_freq+1,2000)
 		return edges
 
 class configurator(task):
