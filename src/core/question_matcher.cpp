@@ -15,6 +15,7 @@
 
 #include <new>
 #include <algorithm>
+#include <stdexcept>
 #include <cstring>
 #include "core/question_matcher.h"
 
@@ -84,15 +85,6 @@ void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l)
         l->label_string=0;
 }
     l->label_string_length=0;
-}
-
-  void RHVoice_parsed_label_string_destroy(RHVoice_parsed_label_string* l)
-  {
-    if(l!=0)
-      {
-        RHVoice_parsed_label_string_clear(l);
-        delete l;
-}
 }
 
   int RHVoice_parse_label_string(const char* s,RHVoice_parsed_label_string* out)
@@ -178,4 +170,58 @@ void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l)
     return 0;
 }
 
+  int RHVoice_parsed_label_string_copy(const RHVoice_parsed_label_string* from,RHVoice_parsed_label_string* to)
+  {
+    if(from->label_string_length==0)
+      {
+        RHVoice_parsed_label_string_clear(to);
+        return 1;
+}
+    char* str=0;
+    try
+      {
+        str=new char[from->label_string_length+1];
+}
+    catch(const std::bad_alloc& e)
+      {
+        return 0;
+}
+    std::copy(from->label_string,from->label_string+from->label_string_length,str);
+    str[from->label_string_length]=0;
+    short* links=0;
+    try
+      {
+        links=new short[from->label_string_length];
+}
+    catch(const std::bad_alloc& e)
+      {
+        delete[] str;
+        return 0;
+}
+    std::copy(from->links,from->links+from->label_string_length,links);
+    RHVoice_parsed_label_string_clear(to);
+    to->label_string_length=from->label_string_length;
+    to->label_string=str;
+    to->links=links;
+    std::copy(&(from->index[0]),&(from->index[0])+128,&(to->index[0]));
+    return 1;
+}
+}
+
+namespace RHVoice
+{
+
+  void parsed_label_string::parse(const char* s)
+    {
+      if(data.label_string_length!=0)
+        throw std::logic_error("Already parsed");
+      if(!RHVoice_parse_label_string(s,&data))
+        throw std::runtime_error("Failed to parse");
+}
+
+  void parsed_label_string::copy(const parsed_label_string& other)
+    {
+      if(!RHVoice_parsed_label_string_copy(&(other.data),&data))
+        throw std::runtime_error("Cannot copy");
+}
 }

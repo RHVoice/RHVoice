@@ -15,6 +15,7 @@
 
 #ifndef RHVOICE_QUESTION_MATCHER_H
 #define RHVOICE_QUESTION_MATCHER_H
+
 #ifdef __cplusplus
 extern "C" {
   #endif
@@ -32,9 +33,71 @@ typedef struct
   int RHVoice_parse_label_string(const char* str,RHVoice_parsed_label_string* out);
   void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l);
   void RHVoice_parsed_label_string_clear(RHVoice_parsed_label_string* l);
-  void RHVoice_parsed_label_string_destroy(RHVoice_parsed_label_string* l);
+  int RHVoice_parsed_label_string_copy(const RHVoice_parsed_label_string* from,RHVoice_parsed_label_string* to);
   int RHVoice_question_match(const RHVoice_parsed_label_string* l,const char* q);
 #ifdef __cplusplus
+}
+#endif
+#endif
+
+#ifndef RHVOICE_QUESTION_MATCHER_HPP
+#define RHVOICE_QUESTION_MATCHER_HPP
+
+#ifdef __cplusplus
+
+namespace RHVoice
+{
+  struct parsed_label_string
+  {
+    parsed_label_string()
+    {
+      init();
+}
+
+    parsed_label_string(const parsed_label_string& other)
+    {
+      init();
+      copy(other);
+}
+
+    parsed_label_string& operator=(const parsed_label_string& other)
+    {
+      copy(other);
+}
+
+    ~parsed_label_string()
+    {
+      clear();
+}
+
+    const RHVoice_parsed_label_string* get_data() const
+    {
+      return &data;
+}
+
+    void parse(const char* s);
+
+    bool match(const char* q) const
+    {
+      return (RHVoice_question_match(&data,q)!=0);
+}
+
+  private:
+
+    void init()
+    {
+      RHVoice_parsed_label_string_init(&data);
+}
+
+    void clear()
+    {
+      RHVoice_parsed_label_string_clear(&data);
+    }
+
+    void copy(const parsed_label_string& other);
+
+    RHVoice_parsed_label_string data;
+  };
 }
 #endif
 #endif
