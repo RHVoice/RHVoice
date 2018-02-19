@@ -16,6 +16,7 @@
 #include <new>
 #include <algorithm>
 #include <stdexcept>
+#include <string>
 #include <cstring>
 #include "core/question_matcher.h"
 
@@ -214,7 +215,7 @@ namespace RHVoice
   void parsed_label_string::parse(const char* s)
     {
       if(data.label_string_length!=0)
-        throw std::logic_error("Already parsed");
+        throw std::logic_error(std::string("Already parsed"));
       if(!RHVoice_parse_label_string(s,&data))
         throw std::runtime_error("Failed to parse");
 }
