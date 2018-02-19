@@ -63,6 +63,7 @@ namespace RHVoice
     parsed_label_string& operator=(const parsed_label_string& other)
     {
       copy(other);
+      return *this;
 }
 
     ~parsed_label_string()
