@@ -35,7 +35,6 @@
 #include "hts.h"
 #include "Constants.h"
 
-#include "core/smart_ptr.hpp"
 #include "core/question_matcher.h"
 
 using namespace std;
@@ -156,7 +155,7 @@ namespace MAGE
 
 //setters
 
-                        inline const RHVoice_parsed_label_string* getParsed() {return parsed.get();}
+                        inline const RHVoice::parsed_label_string& getParsed() const {return parsed;}
 
 
 			/**
@@ -257,6 +256,6 @@ namespace MAGE
 			 */
 			int end;
 
-                        RHVoice::smart_ptr<RHVoice_parsed_label_string> parsed;
+                        RHVoice::parsed_label_string parsed;
 	};
 } // namespace

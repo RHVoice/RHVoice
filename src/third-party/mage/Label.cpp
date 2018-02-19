@@ -26,7 +26,6 @@
  /* 																								*/
  /* ----------------------------------------------------------------------------------------------- */
 
-#include <stdexcept>
 #include "Label.h"
 
 //	Constructor that allocates the required memory for a single Label query.
@@ -107,9 +106,7 @@ void MAGE::Label::parseQuery( string q )
 	this->speed = 1.0;
 	
 
-        parsed.reset(new RHVoice_parsed_label_string,&RHVoice_parsed_label_string_destroy);
-        if(!RHVoice_parse_label_string(this->query.c_str(), parsed.get()))
-           throw std::runtime_error("Cannot parse label string");
+        parsed.parse(this->query.c_str());
 
 	return;
 }

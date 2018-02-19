@@ -174,7 +174,7 @@ void MAGE::Model::computeDuration( MAGE::Engine * engine, MAGE::Label * label, d
 		iw = 1;
 	
 	// HTS106_ModelSet_get_duration: get duration using interpolation weight 
-	HTS106_ModelSet_get_duration( &ms, this->modelMemory.strQuery, label->getParsed(), this->modelMemory.duration_mean, 
+	HTS106_ModelSet_get_duration( &ms, this->modelMemory.strQuery, label->getParsed().get_data(), this->modelMemory.duration_mean, 
 									this->modelMemory.duration_vari, global.duration_iw );
 	
 	if( label->isDurationForced() ) // use duration set by user : -vp
@@ -293,12 +293,12 @@ void MAGE::Model::computeParameters( MAGE::Engine * engine, MAGE::Label * label,
 		{			
 			if(ms.stream[k].msd_flag)
 			{
-                          HTS106_ModelSet_get_parameter( &ms, strQuery, label->getParsed(), this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
+                          HTS106_ModelSet_get_parameter( &ms, strQuery, label->getParsed().get_data(), this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
 										   &lf0_msd, k, i+2, global.parameter_iw[k] ); 
 			}
 			else
 			{
-                          HTS106_ModelSet_get_parameter( &ms, strQuery, label->getParsed(), this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
+                          HTS106_ModelSet_get_parameter( &ms, strQuery, label->getParsed().get_data(), this->modelMemory.stream_mean[k], this->modelMemory.stream_vari[k], 
 										   NULL, k, i+2, global.parameter_iw[k] );
 				lf0_msd = defaultMSDflag;
 			}
