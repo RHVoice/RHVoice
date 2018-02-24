@@ -363,7 +363,8 @@ namespace RHVoice
 
   void hts_engine_call::set_output()
   {
-    player.set_sample_rate(engine_impl->get_sample_rate());
+    if(!player.configure(engine_impl->get_sample_rate()))
+      throw client_error("Cannot configure player");
     output.set_client(player);
     output.set_sample_rate(engine_impl->get_sample_rate());
     if(input.ebegin()!=input.eend())
