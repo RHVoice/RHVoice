@@ -29,7 +29,9 @@ extern "C" {
 
 typedef struct
 {
-  /* This is the only function the caller is *required* to provide. */
+  /* These are the functions the caller is *required* to provide. */
+/* This function will be called first. It will be called again if the sampling rate changes. Return 0 to signal an error. */
+  int (*set_sample_rate)(int sample_rate,void* user_data);
   /* Return 0 to stop synthesis. */
   int (*play_speech)(const short* samples,unsigned int count,void* user_data);
   /* These functions are optional, */

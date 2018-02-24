@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -88,10 +88,24 @@ namespace RHVoice
       return true;
     }
 
+    bool configure(int sr)
+    {
+      if(sr==sample_rate)
+        return true;
+      bool res=set_sample_rate(sr);
+      if(res)
+        sample_rate=sr;
+      return res;
+}
+
   protected:
-    client()
+    client():
+      sample_rate(0)
     {
     }
+
+  private:
+    int sample_rate;
   };
 }
 #endif

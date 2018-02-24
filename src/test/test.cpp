@@ -38,11 +38,6 @@ namespace
     void finish();
     bool set_sample_rate(int sample_rate);
 
-    int get_sample_rate() const
-    {
-      return stream.get_sample_rate();
-    }
-
   private:
     audio::playback_stream stream;
   };
