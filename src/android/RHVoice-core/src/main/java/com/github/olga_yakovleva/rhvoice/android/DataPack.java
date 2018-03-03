@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -211,7 +211,7 @@ public abstract class DataPack
     {
         if(tempLink!=null)
             return tempLink;
-        return String.format("https://bintray.com/olga-yakovleva/RHVoice/download_file?file_path=%s-v%s.apk",getBaseFileName(),getVersionString());
+        return String.format("https://dl.bintray.com/olga-yakovleva/Data/%s-v%s.zip",getBaseFileName(),getVersionString());
 }
 
     protected final File getDataDir(Context context)
