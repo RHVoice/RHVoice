@@ -36,7 +36,7 @@ public final class Data
     {
         LanguagePack lang=null;
         lang=new LanguagePack("English", "eng", "USA", 2, 2, null);
-        lang.addVoice(new VoicePack("Alan", lang, 3, 0, "https://www.dropbox.com/s/flnc1kkidc0sgse/data.zip?dl=1"));
+        lang.addVoice(new VoicePack("Alan", lang, 4, 0, null));
         lang.addVoice(new VoicePack("BDL", lang, 4, 0, null));
         lang.addVoice(new VoicePack("CLB", lang, 4, 0, null));
         lang.addVoice(new VoicePack("SLT", lang, 4, 0, null));
