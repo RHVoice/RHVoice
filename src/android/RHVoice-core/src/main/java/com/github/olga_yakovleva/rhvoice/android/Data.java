@@ -54,7 +54,7 @@ public final class Data
         lang=new LanguagePack("Russian", "rus", "RUS", 2, 3, null);
         lang.addVoice(new VoicePack("Aleksandr", lang, 4, 0, null));
         lang.addVoice(new VoicePack("Anna", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("Elena", lang, 3, 0, "https://www.dropbox.com/s/bmg8mci4jzsxae5/data.zip?dl=1"));
+        lang.addVoice(new VoicePack("Elena", lang, 4, 0, null));
         lang.addVoice(new VoicePack("Irina", lang, 3, 0, "https://www.dropbox.com/s/17cmypgl7qhp8pr/data.zip?dl=1"));
         addLanguage(lang);
         lang=new LanguagePack("Tatar", "tat", "RUS", 1, 5, "https://www.dropbox.com/s/5amabtqrqz5pxad/data.zip?dl=1");
