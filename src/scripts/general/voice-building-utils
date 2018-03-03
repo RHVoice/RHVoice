@@ -1218,17 +1218,10 @@ class voice_exporter(task):
 			info["name"]=name
 		if "language" not in info:
 			info["language"]=self.settings["language"].title()
-		info["sample_rate"]=str(self.settings["sample_rate"]//1000)+"k"
 		if "gender" not in info:
 			info["gender"]=self.settings["gender"].lower()
-		format=info.get("format",0)
-		revision=info.get("revision","0")
-		if format==self.voice_format:
-			revision=str(int(revision)+1)
-		else:
-			revision="0"
 		info["format"]=self.voice_format
-		info["revision"]=revision
+		info["revision"]="0"
 		self.save_config(info,path)
 
 	def save_params(self):
@@ -1240,11 +1233,11 @@ class voice_exporter(task):
 
 	def copy_voice(self):
 		inpath=os.path.join(self.indir,self.settings["dataset"]+"_"+self.settings["speaker"]+".htsvoice")
-		outpath=os.path.join(self.outdir,"voice.data")
+		outpath=os.path.join(self.modoutdir,"voice.data")
 		shutil.copy(inpath,outpath)
 
 	def make_conversion_config(self):
-		path=os.path.join(self.outdir,"convert.conf")
+		path=os.path.join(self.modoutdir,"convert.conf")
 		conf=collections.OrderedDict()
 		conf["NATURALREADORDER"]="T"
 		conf["NATURALWRITEORDER"]="F"
@@ -1252,12 +1245,12 @@ class voice_exporter(task):
 		return path
 
 	def make_conversion_script(self,set,type):
-		script_path=os.path.abspath(os.path.join(self.outdir,type+".hed"))
+		script_path=os.path.abspath(os.path.join(self.modoutdir,type+".hed"))
 		tree_path=os.path.abspath(os.path.join("trees","qst001",self.version_name,set,type+".inf.untied"))
 		with open(script_path,"w") as f:
 			f.write("LT {}\n".format(tree_path))
-			f.write("CT {}\n".format(self.outdir))
-			f.write("CM {}\n".format(self.outdir))
+			f.write("CT {}\n".format(self.modoutdir))
+			f.write("CM {}\n".format(self.modoutdir))
 		return script_path
 
 	def convert_model_and_tree(self,set,type,n,conf):
@@ -1268,21 +1261,21 @@ class voice_exporter(task):
 		cmd=[hhed,"-B","-C",conf,"-T","2","-p","-i","-H",mmf,script,lst]
 		subprocess.check_call(cmd)
 		os.remove(script)
-		os.rename(os.path.join(self.outdir,"trees.{}".format(n)),os.path.join(self.outdir,"tree-{}.inf".format(type)))
-		os.rename(os.path.join(self.outdir,"pdf.{}".format(n)),os.path.join(self.outdir,"{}.pdf".format(type)))
+		os.rename(os.path.join(self.modoutdir,"trees.{}".format(n)),os.path.join(self.modoutdir,"tree-{}.inf".format(type)))
+		os.rename(os.path.join(self.modoutdir,"pdf.{}".format(n)),os.path.join(self.modoutdir,"{}.pdf".format(type)))
 
 	def copy_windows(self,type,n):
 		for i in xrange(1,n+1):
 			file_name="{}.win{}".format(type,i)
-			shutil.copy2(os.path.join("data","win",file_name),os.path.join(self.outdir,file_name))
+			shutil.copy2(os.path.join("data","win",file_name),os.path.join(self.modoutdir,file_name))
 
 	def copy_lpf(self):
-		shutil.copy(os.path.join(self.indir,"tree-lpf.inf"),os.path.join(self.outdir,"tree-lpf.inf"))
-		shutil.copy(os.path.join(self.indir,"lpf.win1"),os.path.join(self.outdir,"lpf.win1"))
+		shutil.copy(os.path.join(self.indir,"tree-lpf.inf"),os.path.join(self.modoutdir,"tree-lpf.inf"))
+		shutil.copy(os.path.join(self.indir,"lpf.win1"),os.path.join(self.modoutdir,"lpf.win1"))
 		numtaps=31
 		numstates=5
 		with open(os.path.join(self.indir,"lpf.pdf"),"rb") as ifp:
-			with open(os.path.join(self.outdir,"lpf.pdf"),"wb") as ofp:
+			with open(os.path.join(self.modoutdir,"lpf.pdf"),"wb") as ofp:
 				ofp.write(struct.pack(">i",0))
 				ofp.write(struct.pack(">i",1))
 				ofp.write(struct.pack(">i",numtaps))
@@ -1299,7 +1292,7 @@ class voice_exporter(task):
 					ifp.read(4*numtaps)
 
 	def copy_bpf(self):
-		shutil.copy(os.path.join("data","bpf.txt"),os.path.join(self.outdir,"bpf.txt"))
+		shutil.copy(os.path.join("data","bpf.txt"),os.path.join(self.modoutdir,"bpf.txt"))
 
 	def convert_data(self):
 		conf_path=self.make_conversion_config()
@@ -1316,11 +1309,12 @@ class voice_exporter(task):
 	def __call__(self,args):
 		if args.version>0:
 			self._version=args.version
-		self.voice_format="3"
+		self.voice_format="4"
 		self.indir=os.path.abspath(os.path.join("voices","qst001",self.version_name))
 		self.outdir=os.path.abspath(self.settings["outdir"])
-		if not os.path.isdir(self.outdir):
-			os.makedirs(self.outdir)
+		self.modoutdir=os.path.join(self.outdir,str(self.settings["sample_rate"]))
+		if not os.path.isdir(self.modoutdir):
+			os.makedirs(self.modoutdir)
 		self.save_info()
 		self.save_params()
 		self.copy_voice()
