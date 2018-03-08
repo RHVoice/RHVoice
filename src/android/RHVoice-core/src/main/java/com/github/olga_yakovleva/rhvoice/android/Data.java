@@ -35,7 +35,7 @@ public final class Data
     static
     {
         LanguagePack lang=null;
-        lang=new LanguagePack("English", "eng", "USA", 2, 2, null);
+        lang=new LanguagePack("English", "eng", "USA", 2, 3, null);
         lang.addVoice(new VoicePack("Alan", lang, 4, 0, null));
         lang.addVoice(new VoicePack("BDL", lang, 4, 0, null));
         lang.addVoice(new VoicePack("CLB", lang, 4, 0, null));
