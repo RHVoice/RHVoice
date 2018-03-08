@@ -117,7 +117,8 @@ NZDigit Digit* @-> ... num ,,
 \[Letter | Digit] @-> ... sym ; 
 
 define CamelCaseTokenizer 
-[..] -> word || SmallLetter _ CapitalLetter , CapitalLetter _ CapitalLetter+ SmallLetter ; 
+CapitalLetter+ s word @-> || .#. | \Letter _ ,, 
+[..] @-> word || SmallLetter _ CapitalLetter , CapitalLetter _ CapitalLetter+ SmallLetter ; 
 
 define TagLetterSequences 
 word -> lseq || [.#.|word|num|dig|sym] LetterSequence _ ; 
