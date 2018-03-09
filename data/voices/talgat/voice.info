@@ -1,6 +1,5 @@
 name=Talgat
 language=Tatar
-sample_rate=24k
 gender=male
-format=3
+format=4
 revision=0
