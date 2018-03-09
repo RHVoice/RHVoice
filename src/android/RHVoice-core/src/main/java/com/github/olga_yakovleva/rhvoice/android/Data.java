@@ -44,8 +44,8 @@ public final class Data
         lang=new LanguagePack("Esperanto", "epo", "", 1, 2, "https://www.dropbox.com/s/dy78nluxxjozdza/data.zip?dl=1");
         lang.addVoice(new VoicePack("Spomenka", lang, 3, 0, "https://www.dropbox.com/s/eghhpy0hiq138lo/data.zip?dl=1"));
         addLanguage(lang);
-        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 6, "https://www.dropbox.com/s/ztk7s7kuye61mb4/data.zip?dl=1");
-        lang.addVoice(new VoicePack("Natia", lang, 3, 0, "https://www.dropbox.com/s/jyqfza4156n0ccc/data.zip?dl=1"));
+        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 6, null);
+        lang.addVoice(new VoicePack("Natia", lang, 4, 0, null));
         addLanguage(lang);
         lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 13, null);
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, null));
