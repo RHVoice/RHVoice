@@ -49,7 +49,7 @@ public final class Data
         addLanguage(lang);
         lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 13, null);
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("Nazgul", lang, 3, 0, "https://www.dropbox.com/s/x8k4wsxzq3hjedx/data.zip?dl=1"));
+        lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, null));
         addLanguage(lang);
         lang=new LanguagePack("Russian", "rus", "RUS", 2, 3, null);
         lang.addVoice(new VoicePack("Aleksandr", lang, 4, 0, null));
