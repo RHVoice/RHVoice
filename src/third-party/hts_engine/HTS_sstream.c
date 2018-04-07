@@ -80,6 +80,24 @@ static double HTS_set_default_duration(size_t * duration, double *mean, double *
    return (double) sum;
 }
 
+static double HTS_set_duration_by_speed(size_t * duration, double *mean, double *vari, size_t size, double speed)
+{
+   size_t i;
+   double temp;
+   size_t sum = 0;
+
+   for (i = 0; i < size; i++) {
+      temp = mean[i]/speed + 0.5;
+      if (temp < 1.0)
+         duration[i] = 1;
+      else
+         duration[i] = (size_t) temp;
+      sum += duration[i];
+   }
+
+   return (double) sum;
+}
+
 /* HTS_set_specified_duration: set duration from state duration probability distribution and specified frame length */
 static double HTS_set_specified_duration(size_t * duration, double *mean, double *vari, size_t size, double frame_length)
 {
@@ -270,12 +288,13 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    } else {
       /* determine frame length */
       if (speed != 1.0) {
-         temp = 0.0;
-         for (i = 0; i < sss->total_state; i++) {
-            temp += duration_mean[i];
-         }
-         frame_length = temp / speed;
-         HTS_set_specified_duration(sss->duration, duration_mean, duration_vari, sss->total_state, frame_length);
+         /* temp = 0.0; */
+         /* for (i = 0; i < sss->total_state; i++) { */
+         /*    temp += duration_mean[i]; */
+         /* } */
+         /* frame_length = temp / speed; */
+         /* HTS_set_specified_duration(sss->duration, duration_mean, duration_vari, sss->total_state, frame_length); */
+         HTS_set_duration_by_speed(sss->duration, duration_mean, duration_vari, sss->total_state, speed);
       } else {
          HTS_set_default_duration(sss->duration, duration_mean, duration_vari, sss->total_state);
       }
