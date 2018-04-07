@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,14 +15,14 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-public final class ConfirmVoiceRemovalDialogFragment extends DialogFragment
+public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFragment
 {
     public interface Listener
     {
@@ -85,13 +85,13 @@ public final class ConfirmVoiceRemovalDialogFragment extends DialogFragment
         onResponse(false);
 }
 
-    public static void show(Activity activity,VoicePack voice)
+    public static void show(AppCompatActivity activity,VoicePack voice)
     {
         Bundle args=new Bundle();
         args.putString(ARG_LANGUAGE,voice.getLanguage().getCode());
         args.putString(ARG_VOICE,voice.getName());
-        DialogFragment frag=new ConfirmVoiceRemovalDialogFragment();
+        ConfirmVoiceRemovalDialogFragment frag=new ConfirmVoiceRemovalDialogFragment();
         frag.setArguments(args);
-        frag.show(activity.getFragmentManager(),"confirm_voice_removal");
+        frag.show(activity.getSupportFragmentManager(),"confirm_voice_removal");
 }
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,13 +15,13 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public final class MainActivity extends Activity implements AvailableLanguagesFragment.Listener,AvailableVoicesFragment.Listener,ConfirmVoiceRemovalDialogFragment.Listener
+public final class MainActivity extends AppCompatActivity implements AvailableLanguagesFragment.Listener,AvailableVoicesFragment.Listener,ConfirmVoiceRemovalDialogFragment.Listener
 {
     @Override
     protected void onCreate(Bundle state)
@@ -29,7 +29,7 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
         super.onCreate(state);
         setContentView(R.layout.frame);
         if(state==null)
-            getFragmentManager().beginTransaction().replace(R.id.frame,new AvailableLanguagesFragment(),"languages").commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame,new AvailableLanguagesFragment(),"languages").commit();
 }
 
     public void onLanguageSelected(LanguagePack language)
@@ -38,7 +38,7 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
         args.putString(AvailableVoicesFragment.ARG_LANGUAGE,language.getCode());
         AvailableVoicesFragment frag=new AvailableVoicesFragment();
         frag.setArguments(args);
-        getFragmentManager().beginTransaction().replace(R.id.frame,frag,"voices").addToBackStack(null).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame,frag,"voices").addToBackStack(null).commit();
 }
 
     public void onVoiceSelected(VoicePack voice,boolean state)
@@ -47,7 +47,7 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
             {
                 voice.setEnabled(this,state);
                 startService(new Intent(this,DataService.class));
-                AvailableVoicesFragment frag=(AvailableVoicesFragment)(getFragmentManager().findFragmentByTag("voices"));
+                AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh();
             }
@@ -63,7 +63,7 @@ public final class MainActivity extends Activity implements AvailableLanguagesFr
             {
                 voice.setEnabled(this,false);
                 startService(new Intent(this,DataService.class));
-                AvailableVoicesFragment frag=(AvailableVoicesFragment)(getFragmentManager().findFragmentByTag("voices"));
+                AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh();
             }

@@ -16,7 +16,7 @@ defaultConfig {
 minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode 26
+versionCode 27
 versionName "0.7-a1"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
@@ -58,8 +58,15 @@ signingConfig signingConfigs.release
 }
 }
 
+repositories {
+jcenter()
+maven {url "https://maven.google.com" }
+}
+
 dependencies {
-compile 'com.android.support:support-core-utils:25.0.0'
+compile 'com.android.support:support-core-utils:27.1.0'
+compile 'com.android.support:appcompat-v7:27.1.0'
+compile 'com.takisoft.fix:preference-v7:27.1.0.0'
 }
 
 preBuild.dependsOn addConfigFile
