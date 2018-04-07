@@ -9,12 +9,12 @@ classpath 'com.android.tools.build:gradle:2.2.0'
 
 allprojects {
 ext.myMinSdkVersion=14
-ext.myCompileSdkVersion=21
+ext.myCompileSdkVersion=27
 ext.myTargetSdkVersion=23
 }
 
 if(!hasProperty('androidBuildToolsVersion')) {
-ext.androidBuildToolsVersion='25.0.0'
+ext.androidBuildToolsVersion='27.0.3'
 }
 
 if(hasProperty("signRelease")) {
