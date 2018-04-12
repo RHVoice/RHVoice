@@ -49,11 +49,17 @@ release {
 if(rootProject.signRelease) {
 signingConfig signingConfigs.release
 }
+minifyEnabled true
+shrinkResources true
+proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 }
 debug {
 if(rootProject.signDebug) {
 signingConfig signingConfigs.release
 }
+minifyEnabled true
+shrinkResources true
+proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 }
 }
 }
