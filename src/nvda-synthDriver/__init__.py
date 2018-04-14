@@ -170,7 +170,7 @@ class audio_player(object):
 		if player is None:
 			if self.__closed:
 				return None
-			player=nvwave.WavePlayer(channels=1,samplesPerSec=self.__sample_rate,bitsPerSample=16)
+			player=nvwave.WavePlayer(channels=1,samplesPerSec=self.__sample_rate,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
 			self.__players[self.__sample_rate]=player
 			if self.__paused:
 				player.pause(True)
