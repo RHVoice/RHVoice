@@ -660,12 +660,17 @@ else
     language_list::const_iterator lang_it=languages.find("English");
     if(lang_it==languages.end())
       return false;
-    const std::string& pos=token.get("pos").as<std::string>();
-    if(pos!="word"&&pos!="lseq")
+    std::string pos=token.get("pos").as<std::string>();
+    if(pos!="word"&&pos!="lseq"&&pos!="sym"&&pos!="char")
       return false;
     const std::string& name=token.get("name").as<std::string>();
     if(!lang_it->are_all_letters(str::utf8_string_begin(name),str::utf8_string_end(name)))
       return false;
+    if(name.length()==1)
+      {
+        pos="lseq";
+        token.set("pos",pos);
+}
     lang_it->get_instance().decode(token);
     for(item::iterator it=token.begin();it!=token.end();++it)
       {
