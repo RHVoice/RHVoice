@@ -98,6 +98,7 @@ namespace RHVoice
   {
     HTS_Engine_set_stop_flag(engine.get(),false);
     HTS_Engine_refresh(engine.get());
+    HTS_Engine_add_half_tone(engine.get(),0);
   }
 
   void std_hts_engine_impl::load_labels()
