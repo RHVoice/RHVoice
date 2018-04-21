@@ -50,6 +50,7 @@
     <receiver
         android:name=".OnPackageReceiver">
       <intent-filter>
+        <data android:scheme="package"/>
         <action android:name="android.intent.action.PACKAGE_ADDED"/>
         <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED"/>
       </intent-filter>
