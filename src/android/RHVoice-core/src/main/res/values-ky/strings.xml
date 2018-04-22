@@ -14,7 +14,7 @@
     <string name="wifi_only_desc">Wi-Fi боюнча гана үндү жүктөө</string>
     <string name="speech_quality">Сүйлөө сапаты</string>
     <string-array name="quality_labels">
-      <item>Мүмкүн болгон эң жакшы жооп</item>
+      <item>Ылдамдыктын жакшыртылган мүмкүнчүлүгү</item>
       <item>Стандарттык сапат</item>
       <item>Мүмкүн болгон эң жакшы сапат</item>
     </string-array>

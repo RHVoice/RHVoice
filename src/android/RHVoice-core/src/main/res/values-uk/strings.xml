@@ -14,7 +14,7 @@
     <string name="wifi_only_desc">Завантажувати голоси лише через Wi-Fi</string>
     <string name="speech_quality">Якість мовлення</string>
     <string-array name="quality_labels">
-      <item>Найкращий можливий відгук</item>
+      <item>Найкраща можлива швидкодія</item>
       <item>Стандартна якість</item>
       <item>Найкраща можлива якість</item>
     </string-array>
