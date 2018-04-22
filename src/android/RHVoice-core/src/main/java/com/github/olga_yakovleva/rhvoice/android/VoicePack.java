@@ -27,9 +27,9 @@ public final class VoicePack extends DataPack
         this.lang=lang;
 }
 
-    public VoicePack(String name,LanguagePack lang,int format,int revision,String tempLink)
+    public VoicePack(String name,LanguagePack lang,int format,int revision,String altLink,String tempLink)
     {
-        super(name,format,revision,tempLink);
+        super(name,format,revision,altLink,tempLink);
         this.lang=lang;
 }
 

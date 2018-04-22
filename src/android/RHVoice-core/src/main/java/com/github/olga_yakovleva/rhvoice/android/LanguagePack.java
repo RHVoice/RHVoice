@@ -37,9 +37,9 @@ public final class LanguagePack extends DataPack
         this.countryCode=countryCode;
 }
 
-    public LanguagePack(String name,String code,String countryCode,int format,int revision,String tempLink)
+    public LanguagePack(String name,String code,String countryCode,int format,int revision,String altLink,String tempLink)
     {
-        super(name,format,revision,tempLink);
+        super(name,format,revision,altLink,tempLink);
         this.code=code;
         this.countryCode=countryCode;
 }

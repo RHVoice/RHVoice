@@ -116,6 +116,7 @@ public abstract class DataPack
     protected final String name;
     protected final int format;
     protected final int revision;
+    protected String altLink;
     protected String tempLink;
 
     protected DataPack(String name,int format,int revision)
@@ -125,9 +126,10 @@ public abstract class DataPack
         this.revision=revision;
 }
 
-    protected DataPack(String name,int format,int revision,String tempLink)
+    protected DataPack(String name,int format,int revision,String altLink,String tempLink)
     {
         this(name,format,revision);
+        this.altLink=altLink;
         this.tempLink=tempLink;
 }
 
@@ -211,6 +213,8 @@ public abstract class DataPack
     {
         if(tempLink!=null)
             return tempLink;
+        if(altLink!=null)
+            return altLink;
         return String.format("https://dl.bintray.com/olga-yakovleva/Data/%s-v%s.zip",getBaseFileName(),getVersionString());
 }
 
