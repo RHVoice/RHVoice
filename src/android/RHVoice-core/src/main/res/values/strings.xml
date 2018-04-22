@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingTranslation">
+    xmlns:tools="http://schemas.android.com/tools">
     <string name="default_voice_title">Default voice</string>
     <string name="default_voice_dialog_title">Select a voice</string>
     <string name="detect_language_title">Language detection</string>
@@ -15,7 +14,7 @@
     <string name="wifi_only_desc">Download voices only on Wi-Fi</string>
     <string name="speech_quality">Speech quality</string>
     <string-array name="quality_labels">
-      <item>Best possible responsiveness</item>
+      <item>Best possible performance</item>
       <item>Standard quality</item>
       <item>Best possible quality</item>
     </string-array>

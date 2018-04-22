@@ -14,7 +14,7 @@
     <string name="wifi_only_desc">Загружать голоса только по Wi-Fi</string>
     <string name="speech_quality">Качество речи</string>
     <string-array name="quality_labels">
-      <item>Наилучший возможный отклик</item>
+      <item>Наилучшее возможное быстродействие</item>
       <item>Стандартное качество</item>
       <item>Наилучшее возможное качество</item>
     </string-array>
