@@ -52,7 +52,7 @@ public final class Data
         lang=new LanguagePack("Georgian", "kat", "GEO", 1, 7, null);
         lang.addVoice(new VoicePack("Natia", lang, 4, 0, null));
         addLanguage(lang);
-        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 13, null);
+        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 14, null);
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, null));
         lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, null));
         addLanguage(lang);
