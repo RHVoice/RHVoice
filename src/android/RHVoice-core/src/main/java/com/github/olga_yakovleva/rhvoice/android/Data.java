@@ -40,33 +40,33 @@ public final class Data
     static
     {
         LanguagePack lang=null;
-        lang=new LanguagePack("English", "eng", "USA", 2, 3, null);
-        lang.addVoice(new VoicePack("Alan", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("BDL", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("CLB", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("SLT", lang, 4, 0, null));
+        lang=new LanguagePack("English", "eng", "USA", 2, 3, null, null);
+        lang.addVoice(new VoicePack("Alan", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("BDL", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("CLB", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("SLT", lang, 4, 0, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Esperanto", "epo", "", 1, 2, null);
-        lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, null));
+        lang=new LanguagePack("Esperanto", "epo", "", 1, 2, null, null);
+        lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 7, null);
-        lang.addVoice(new VoicePack("Natia", lang, 4, 0, null));
+        lang=new LanguagePack("Georgian", "kat", "GEO", 1, 7, null, null);
+        lang.addVoice(new VoicePack("Natia", lang, 4, 0, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 14, null);
-        lang.addVoice(new VoicePack("Azamat", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, null));
+        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 14, null, null);
+        lang.addVoice(new VoicePack("Azamat", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Russian", "rus", "RUS", 2, 3, null);
-        lang.addVoice(new VoicePack("Aleksandr", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("Anna", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("Elena", lang, 4, 0, null));
-        lang.addVoice(new VoicePack("Irina", lang, 4, 0, null));
+        lang=new LanguagePack("Russian", "rus", "RUS", 2, 3, null, null);
+        lang.addVoice(new VoicePack("Aleksandr", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("Anna", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("Elena", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("Irina", lang, 4, 0, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Tatar", "tat", "RUS", 1, 6, null);
-        lang.addVoice(new VoicePack("Talgat", lang, 4, 0, null));
+        lang=new LanguagePack("Tatar", "tat", "RUS", 1, 6, null, null);
+        lang.addVoice(new VoicePack("Talgat", lang, 4, 0, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Ukrainian", "ukr", "UKR", 1, 3, null);
-        lang.addVoice(new VoicePack("Anatol", lang, 4, 0, null));
+        lang=new LanguagePack("Ukrainian", "ukr", "UKR", 1, 3, null, null);
+        lang.addVoice(new VoicePack("Anatol", lang, 4, 0, null, null));
         addLanguage(lang);
 }
 
