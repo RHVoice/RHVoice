@@ -1,4 +1,4 @@
-/* Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -33,6 +33,6 @@ public final class OnPackageReceiver extends BroadcastReceiver
         String packageName=intent.getData().getSchemeSpecificPart();
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Package "+packageName+" has been installed/updated/removed");
-        context.startService(new Intent(context,DataService.class));
+        Data.scheduleSync(context);
     }
 }

@@ -94,7 +94,11 @@ public final class LanguagePack extends DataPack
                 if(!voice.sync(context,callback))
                     done=false;
 }
+        if(callback.isStopped())
+            return true;
         done&=super.sync(context,callback);
+        if(callback.isStopped())
+            return true;
         return done;
 }
 
@@ -153,20 +157,24 @@ public final class LanguagePack extends DataPack
 }
 
     @Override
-    public boolean isSyncRequired(Context context)
+    protected void notifyRemoval(IDataSyncCallback callback)
     {
-        if(super.isSyncRequired(context))
-            return true;
-        for(VoicePack voice: voices)
-            {
-                if(voice.isSyncRequired(context))
-                    return true;
-}
-        return false;
+        callback.onLanguageRemoval(this);
 }
 
     public VoicePack findVoice(String name)
     {
         return index.get(name);
+}
+
+    @Override
+    public long getSyncFlags(Context context)
+    {
+        long flags=super.getSyncFlags(context);
+        for(VoicePack voice: voices)
+            {
+                flags|=voice.getSyncFlags(context);
+}
+        return flags;
 }
 }

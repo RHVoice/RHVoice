@@ -66,7 +66,10 @@ public final class AvailableVoicesFragment extends ListFragment
     public void onStart()
     {
         super.onStart();
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(voiceInstalledReceiver,new IntentFilter(DataService.ACTION_VOICE_INSTALLED));
+        refresh();
+        IntentFilter filter=new IntentFilter(DataSyncJob.ACTION_VOICE_INSTALLED);
+        filter.addAction(DataSyncJob.ACTION_VOICE_REMOVED);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(voiceInstalledReceiver,filter);
         ActionBar actionBar=((AppCompatActivity)getActivity()).getSupportActionBar();
         if(actionBar!=null)
             actionBar.setSubtitle(language.getDisplayName());

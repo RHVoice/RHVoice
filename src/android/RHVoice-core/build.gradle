@@ -73,6 +73,7 @@ dependencies {
 compile 'com.android.support:support-core-utils:27.1.0'
 compile 'com.android.support:appcompat-v7:27.1.0'
 compile 'com.takisoft.fix:preference-v7:27.1.0.0'
+compile 'com.evernote:android-job:1.2.5'
 }
 
 preBuild.dependsOn addConfigFile
