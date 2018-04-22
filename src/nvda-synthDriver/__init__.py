@@ -160,20 +160,17 @@ class audio_player(object):
 		self.__sample_rate=0
 		self.__players={}
 		self.__lock=threading.Lock()
-		self.__paused=False
 		self.__closed=False
 
 	def do_get_player(self):
+		if self.__closed:
+			return None
 		if self.__sample_rate==0:
 			return None
 		player=self.__players.get(self.__sample_rate,None)
 		if player is None:
-			if self.__closed:
-				return None
 			player=nvwave.WavePlayer(channels=1,samplesPerSec=self.__sample_rate,bitsPerSample=16,outputDevice=config.conf["speech"]["outputDevice"])
 			self.__players[self.__sample_rate]=player
-			if self.__paused:
-				player.pause(True)
 		return player
 
 	def get_player(self):
@@ -183,22 +180,24 @@ class audio_player(object):
 	def close(self):
 		with self.__lock:
 			self.__closed=True
-			for p in self.__players.values():
-				p.close()
+			players=list(self.__players.values())
+		for p in players:
+			p.close()
 
 	def set_sample_rate(self,sr):
 		with self.__lock:
 			if self.__closed:
 				return
+			if self.__sample_rate==0:
+				self.__sample_rate=sr
+				return
 			if self.__sample_rate==sr:
 				return
-			old_player=self.do_get_player()
-			self.__sample_rate=sr
-			new_player=self.do_get_player()
-			if self.__paused:
-				new_player.pause(True)
+			old_player=self.__players.get(self.__sample_rate,None)
 		if old_player is not None:
 			old_player.idle()
+		with self.__lock:
+			self.__sample_rate=sr
 
 	def play(self,data):
 		player=self.get_player()
@@ -208,21 +207,14 @@ class audio_player(object):
 				player.stop()
 
 	def stop(self):
-		with self.__lock:
-			player=self.do_get_player()
-			if player is not None:
-				player.stop()
+		player=self.get_player()
+		if player is not None:
+			player.stop()
 
 	def pause(self,switch):
-		with self.__lock:
-			if self.__closed:
-				return
-			if self.__paused==switch:
-				return
-			player=self.do_get_player()
-			self.__paused=switch
-			if player is not None:
-				player.pause(switch)
+		player=self.get_player()
+		if player is not None:
+			player.pause(switch)
 
 	def idle(self):
 		player=self.get_player()
