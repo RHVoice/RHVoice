@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -376,8 +376,6 @@ public final class RHVoiceService extends TextToSpeechService
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Initializing the engine");
-        if(Data.isSyncRequired(this))
-            startService(new Intent(this,DataService.class));
         List<String> paths=Data.getPaths(this);
         if(paths.isEmpty())
             {
@@ -429,7 +427,8 @@ public final class RHVoiceService extends TextToSpeechService
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Starting the service");
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,new IntentFilter(DataService.ACTION_DATA_STATE_CHANGED));
+        Data.scheduleSync(this);
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,new IntentFilter(DataSyncJob.ACTION_DATA_STATE_CHANGED));
         initialize();
         super.onCreate();
     }

@@ -46,7 +46,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
         if(state||!voice.isInstalled(this))
             {
                 voice.setEnabled(this,state);
-                startService(new Intent(this,DataService.class));
+                Data.scheduleSync(this);
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh();
@@ -62,7 +62,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
         if(response)
             {
                 voice.setEnabled(this,false);
-                startService(new Intent(this,DataService.class));
+                Data.scheduleSync(this);
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh();

@@ -200,8 +200,8 @@ import java.util.TreeMap;
         @Override
         public void onSharedPreferenceChanged(SharedPreferences prefs,String key)
         {
-            if(DataSyncAction.getWifiOnlyKey().equals(key))
-                getActivity().startService(new Intent(getActivity(),DataService.class));
+            if("wifi_only".equals(key))
+                Data.scheduleSync(getActivity());
         }
 
         @Override

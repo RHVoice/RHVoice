@@ -17,6 +17,8 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 import android.util.Log;
+import com.evernote.android.job.JobManager;
+import com.evernote.android.job.JobRequest;
 import com.github.olga_yakovleva.rhvoice.RHVoiceException;
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
@@ -25,6 +27,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.evernote.android.job.util.support.PersistableBundleCompat;
+
+
 
 public final class Data
 {
@@ -86,9 +91,13 @@ public final class Data
         boolean done=true;
         for(LanguagePack language: languages)
             {
+                if(callback.isStopped())
+                    break;
                 if(!language.sync(context,callback))
                     done=false;
 }
+        if(callback.isStopped())
+            done=true;
         return done;
 }
 
@@ -100,16 +109,6 @@ public final class Data
                 paths.addAll(language.getPaths(context));
 }
         return paths;
-}
-
-    public static boolean isSyncRequired(Context context)
-    {
-        for(LanguagePack language: languages)
-            {
-                if(language.isSyncRequired(context))
-                    return true;
-}
-        return false;
 }
 
     public static List<VoiceInfo> getVoices(Context context)
@@ -131,5 +130,46 @@ public final class Data
                 if(engine!=null)
                     engine.shutdown();
 }
+}
+
+    public static long getSyncFlags(Context context)
+    {
+        long flags=0;
+        for(LanguagePack language: languages)
+            {
+                flags|=language.getSyncFlags(context);
+}
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"SyncFlags="+flags);
+        return flags;
+}
+
+    public static JobRequest.NetworkType getNetworkTypeSetting(Context context)
+    {
+        boolean wifiOnly=DataPack.getPrefs(context).getBoolean("wifi_only",true);
+        return wifiOnly?JobRequest.NetworkType.UNMETERED:JobRequest.NetworkType.CONNECTED;
+}
+
+    public static void scheduleSync(Context context)
+    {
+        long flags=getSyncFlags(context);
+        if(flags==0)
+            return;
+        JobRequest.NetworkType networkType=JobRequest.NetworkType.ANY;
+        if((flags&SyncFlags.NETWORK)!=0)
+            networkType=getNetworkTypeSetting(context);
+        JobRequest.Builder builder=new JobRequest.Builder(DataSyncJob.JOB_TAG);
+        builder.setExecutionWindow(1,5000);
+        builder.setRequiredNetworkType(networkType);
+        if((flags&SyncFlags.NETWORK)!=0)
+            builder.setRequirementsEnforced(true);
+        PersistableBundleCompat extras=new PersistableBundleCompat();
+        extras.putLong("flags",flags);
+        builder.setExtras(extras);
+        builder.setUpdateCurrent(true);
+        JobRequest request=builder.build();
+        if(BuildConfig.DEBUG)
+            Log.i(TAG,"Scheduling job request");
+        request.schedule();
 }
 }

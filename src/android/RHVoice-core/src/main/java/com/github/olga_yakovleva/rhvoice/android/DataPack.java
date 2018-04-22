@@ -399,11 +399,12 @@ catch(PackageManager.NameNotFoundException e)
     protected abstract void notifyDownloadStart(IDataSyncCallback callback);
     protected abstract void notifyDownloadDone(IDataSyncCallback callback);
     protected abstract void notifyInstallation(IDataSyncCallback callback);
+    protected abstract void notifyRemoval(IDataSyncCallback callback);
 
     public boolean install(Context context,IDataSyncCallback callback)
     {
         if(isUpToDate(context))
-            throw new IllegalStateException();
+            return true;
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Installing "+getType()+" "+getName());
         File tempDir=getTempDir(context);
@@ -557,18 +558,21 @@ catch(PackageManager.NameNotFoundException e)
         return getDisplayName();
 }
 
-    public void uninstall(Context context)
+    public void uninstall(Context context,IDataSyncCallback callback)
     {
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Removing "+getType()+" "+getName());
         cleanup(context,0);
         getPrefs(context).edit().remove(getVersionKey()).apply();
+        notifyRemoval(callback);
 }
 
     public abstract boolean getEnabled(Context context);
 
     public boolean sync(Context context,IDataSyncCallback callback)
     {
+        if(callback.isStopped())
+            return true;
         if(getEnabled(context))
             {
                 if(!isUpToDate(context))
@@ -579,15 +583,33 @@ catch(PackageManager.NameNotFoundException e)
         else
             {
                 if(isInstalled(context))
-                    uninstall(context);
+                    uninstall(context,callback);
                 return true;
 }
 }
 
-    public boolean isSyncRequired(Context context)
+    public long getSyncFlags(Context context)
     {
         if(!getEnabled(context))
+            {
+                if(isInstalled(context))
+                    return SyncFlags.LOCAL;
+                else
+                    return 0;
+}
+        if(isUpToDate(context))
+            return 0;
+        if(canBeInstalledFromPackage(context))
+            return SyncFlags.LOCAL;
+        return SyncFlags.NETWORK;
+}
+
+    public boolean canBeInstalledFromPackage(Context context)
+    {
+        PackageInfo pi=getPackageInfo(context);
+        if(pi!=null&&pi.versionCode==getVersionCode())
+            return true;
+        else
             return false;
-        return (!isUpToDate(context));
 }
 }

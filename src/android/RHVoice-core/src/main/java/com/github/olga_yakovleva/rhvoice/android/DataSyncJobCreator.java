@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,20 +15,17 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+import com.evernote.android.job.Job;
+import com.evernote.android.job.JobCreator;
 
-public final class ConnectivityActionReceiver extends BroadcastReceiver
+public final class DataSyncJobCreator implements JobCreator
 {
-    private static final String TAG="RHVoice.ConnectivityActionReceiver";
-
     @Override
-    public void onReceive(Context context,Intent intent)
+    public Job create(String tag)
     {
-        if(BuildConfig.DEBUG)
-            Log.v(TAG,"Connectivity changed");
-        context.startService(new Intent(context,DataService.class));
+        if(DataSyncJob.JOB_TAG.equals(tag))
+            return new DataSyncJob();
+        else
+            return null;
 }
 }

@@ -57,8 +57,7 @@ public final class CheckTTSData extends Activity
                 if(notInstalled)
                     notInstalledLanguages.add(tag);
             }
-        if(Data.isSyncRequired(this))
-            startService(new Intent(this,DataService.class));
+        Data.scheduleSync(this);
 }
 
     @Override
