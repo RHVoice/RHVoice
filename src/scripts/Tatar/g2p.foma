@@ -1,4 +1,4 @@
-# Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -26,8 +26,8 @@ define RussianVTranscription в -> v ;
 define PrefixDict PrefixDict0 .o. RussianVTranscription ; 
 define WordDict WordDict0 .o. RussianVTranscription ; 
 
-define TatarVowelLetter а|ә|е|ё|и|о|ө|у|ү|ы|э|ю|я ; 
-define TatarConsonantLetter б|в|г|д|ж|җ|з|й|к|л|м|н|ң|п|р|с|т|ф|х|һ|ц|ч|ш|щ|ğ|q|w ; 
+define TatarVowelLetter а|ә|е|ё|и|о|ө|у|ү|ы|э|ю|я|і ; 
+define TatarConsonantLetter б|в|г|д|ж|җ|з|й|к|л|м|н|ң|п|р|с|т|ф|х|һ|ц|ч|ш|щ|ğ|q|w|ғ ; 
 define TatarLetter TatarVowelLetter | TatarConsonantLetter | ь | ъ ; 
 
 define Prefix0 PrefixDict.u ; 
@@ -62,13 +62,13 @@ define TatarWord WordDict .P. PrefixRule .P. [[TatarLetter|LatinLetter]+] ;
 define TatarConsonant b|v|g|d|zh|zhj|z|j|k|l|m|n|ng|p|r|s|t|f|hh|h|shj|sh|w ; 
 define TatarVowel a|af|e|i|y|o|of|u|uf ; 
 
-define TatarBasicConsonantTranscription б:b|в:w|г:g|д:d|[ж|j]:zh|җ:zhj|з:z|й:j|к:k|л:l|м:m|н:n|ң:ng|п:p|р:r|с:s|т:t|ф:f|х:hh|һ:h|ц:c|ч:shj|ш:sh|щ:shj|ğ:gh|q:kh|w:w|x:{ks}|c:{ts} ; 
+define TatarBasicConsonantTranscription б:b|в:w|[г|ғ]:g|д:d|[ж|j]:zh|җ:zhj|з:z|й:j|к:k|л:l|м:m|н:n|ң:ng|п:p|р:r|с:s|т:t|ф:f|х:hh|һ:h|ц:c|ч:shj|ш:sh|щ:shj|ğ:gh|q:kh|w:w|x:{ks}|c:{ts} ; 
 define TatarBasicConsonantsTranscription TatarBasicConsonantTranscription -> ; 
 
 define TatarIntervocalicCTranscription c -> {ts} || TatarVowelLetter _ TatarVowelLetter ; 
 define TatarDefaultCTranscription c -> s ; 
 
-define TatarBasicVowelTranscription а:a|ә:af|е:je|ё:jo|и:i|о:o|ө:of|у:u|ү:uf|ы:y|э:e|ю:ju|я:ja|y:i ; 
+define TatarBasicVowelTranscription а:a|ә:af|е:je|ё:jo|[и|і]:i|о:o|ө:of|у:u|ү:uf|ы:y|э:e|ю:ju|я:ja|y:i ; 
 define TatarBasicVowelsTranscription TatarBasicVowelTranscription -> ; 
 
 define TatarIntervocalicWInsertion 

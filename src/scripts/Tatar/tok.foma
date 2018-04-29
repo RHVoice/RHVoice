@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -14,12 +14,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 define Consonant 
-б|г|д|ж|җ|з|к|л|м|н|п|р|с|т|ф|х|һ|ц|ч|ш|щ|й|в|ң|Б|Г|Д|Ж|Җ|З|К|Л|М|Н|П|Р|С|Т|Ф|Х|Һ|Ц|Ч|Ш|Щ|Й|В|Ң | 
+б|г|д|ж|җ|з|к|л|м|н|п|р|с|т|ф|х|һ|ц|ч|ш|щ|й|в|ң|ғ|Б|Г|Д|Ж|Җ|З|К|Л|М|Н|П|Р|С|Т|Ф|Х|Һ|Ц|Ч|Ш|Щ|Й|В|Ң|Ғ | 
 b|v|w|g|ğ|d|j|c|z|y|k|q|l|m|n|p|r|s|t|f|x|h | 
 B|V|W|G|Ğ|D|J|C|Z|Y|K|Q|L|M|N|P|R|S|T|F|X|H ; 
 
 define Vowel 
-а|ә|е|и|о|у|ю|я|ы|э|ө|ү|А|Ә|Е|И|І|О|У|Ю|Я|Ы|Э|Ө|Ү | 
+а|ә|е|и|о|у|ю|я|ы|э|ө|ү|і|А|Ә|Е|И|І|О|У|Ю|Я|Ы|Э|Ө|Ү|І | 
 a|e|i|o|u | 
 A|E|I|O|U ; 
 
