@@ -13,13 +13,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-define Mapping 
+define MappingExceptions 
+[ax|ax0|ax1] -> a || .#. _ n ; 
+
+define DefaultMapping 
 aa -> a ,, 
 aa0 -> a ,, 
 aa1 -> a ,, 
-ae -> e ,, 
-ae0 -> e ,, 
-ae1 -> e ,, 
+ae -> a ,, 
+ae0 -> a ,, 
+ae1 -> a ,, 
 ah -> a ,, 
 ah0 -> a ,, 
 ah1 -> a ,, 
@@ -66,7 +69,7 @@ b -> b ,,
 ch -> chh ,, 
 d -> d ,, 
 dh -> z ,, 
-f -> v ,, 
+f -> ph ,, 
 g -> g ,, 
 hh -> h ,, 
 jh -> j ,, 
@@ -88,4 +91,5 @@ z -> z ,,
 zh -> zh ; 
 
 regex 
-Mapping ;
+MappingExceptions .o. 
+DefaultMapping ; 
