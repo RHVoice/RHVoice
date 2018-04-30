@@ -7,4 +7,6 @@ library without MAGE.
 The following restrictions apply to some of the voices:
 
 1. The Tatar voice can only be used non-commercially.
+2. The Georgian voice can only be used by individuals for personal use.
 
+See the documents in the voices subdirectory for more details.
