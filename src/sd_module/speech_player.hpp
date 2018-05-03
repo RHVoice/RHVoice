@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -107,6 +107,21 @@ namespace RHVoice
     private:
       std::vector<short> data;
     };
+
+    class sample_rate_setting: public synth_result
+    {
+    public:
+      explicit sample_rate_setting(int sr):
+        sample_rate(sr)
+      {
+      }
+
+      void output();
+
+    private:
+      int sample_rate;
+    };
+
 
     class index_mark: public synth_result
     {

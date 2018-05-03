@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -50,6 +50,7 @@ namespace RHVoice
 
       bool process_mark(const std::string& name);
       bool play_speech(const short* samples,std::size_t count);
+      bool set_sample_rate(int sample_rate);
 
     private:
       bool cancelled_or_pausing()
