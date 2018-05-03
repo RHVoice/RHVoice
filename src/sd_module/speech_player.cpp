@@ -111,6 +111,8 @@ namespace RHVoice
     {
       if(cancelled())
         return;
+      if(playback_stream.get_sample_rate()==sample_rate)
+        return;
       try
         {
           logger::log(2,"Setting sample rate");
