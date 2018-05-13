@@ -16,7 +16,7 @@ defaultConfig {
 minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode 32
+versionCode 33
 versionName "0.7.0"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
