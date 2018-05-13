@@ -59,7 +59,7 @@ public final class Data
         lang=new LanguagePack("Russian", "rus", "RUS", 2, 3, null, null);
         lang.addVoice(new VoicePack("Aleksandr", lang, 4, 1, null, null));
         lang.addVoice(new VoicePack("Anna", lang, 4, 0, null, null));
-        // lang.addVoice(new VoicePack("Elena", lang, 4, 0, null, null));
+        lang.addVoice(new VoicePack("Elena", lang, 4, 1, null, null));
         lang.addVoice(new VoicePack("Irina", lang, 4, 0, null, null));
         addLanguage(lang);
         // lang=new LanguagePack("Tatar", "tat", "RUS", 1, 8, null, null);
