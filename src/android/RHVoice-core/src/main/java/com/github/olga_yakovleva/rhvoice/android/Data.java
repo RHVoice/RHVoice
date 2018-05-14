@@ -159,9 +159,9 @@ public final class Data
         if((flags&SyncFlags.NETWORK)!=0)
             networkType=getNetworkTypeSetting(context);
         JobRequest.Builder builder=new JobRequest.Builder(DataSyncJob.JOB_TAG);
-        builder.setExecutionWindow(1,5000);
+        builder.setExecutionWindow(1,10);
         builder.setRequiredNetworkType(networkType);
-        if((flags&SyncFlags.NETWORK)!=0)
+        if((flags&SyncFlags.NETWORK)!=0&&(flags&SyncFlags.LOCAL)==0)
             builder.setRequirementsEnforced(true);
         PersistableBundleCompat extras=new PersistableBundleCompat();
         extras.putLong("flags",flags);
