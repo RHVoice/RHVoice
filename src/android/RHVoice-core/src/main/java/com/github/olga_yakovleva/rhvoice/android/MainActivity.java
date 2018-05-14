@@ -94,4 +94,11 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
                 return super.onOptionsItemSelected(item);
 }
 }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        Data.scheduleSync(this);
+}
 }
