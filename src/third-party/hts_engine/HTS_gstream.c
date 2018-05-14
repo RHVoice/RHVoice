@@ -57,6 +57,7 @@ HTS_GSTREAM_C_START;
 
 /* hts_engine libraries */
 #include "HTS_hidden.h"
+#include <math.h>
 
 /* HTS_GStreamSet_initialize: initialize generated parameter stream set */
 void HTS_GStreamSet_initialize(HTS_GStreamSet * gss)
