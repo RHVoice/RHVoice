@@ -1,5 +1,5 @@
-# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
-# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4 -*-
+# Copyright (C) 2012, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ import os
 
 Import("env","libRHVoice_core")
 local_env=env.Clone()
-local_env["libversion"]="0.0.0"
+local_env["libversion"]="1.0.0"
 local_env["liblevel"]=1
 src=["audio.cpp"]
 if "libao" in local_env["audio_libs"]:
