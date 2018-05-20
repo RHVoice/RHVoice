@@ -11,7 +11,7 @@ android:key="root">
         android:key="quality"
         android:entries="@array/quality_labels"
         android:entryValues="@array/quality_values"
-        android:defaultValue="50"
+        android:defaultValue="std"
         android:title="@string/speech_quality"
         android:dialogTitle="@string/speech_quality"/>
 </PreferenceScreen>
