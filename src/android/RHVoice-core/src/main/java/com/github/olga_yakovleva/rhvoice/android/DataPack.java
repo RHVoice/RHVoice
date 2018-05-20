@@ -44,74 +44,6 @@ import java.util.zip.ZipInputStream;
 
 public abstract class DataPack
 {
-    private static class HttpInputStream extends FilterInputStream
-    {
-        private final HttpURLConnection con;
-        private final IDataSyncCallback callback;
-
-        public HttpInputStream(HttpURLConnection con,IDataSyncCallback callback) throws IOException
-        {
-            super(con.getInputStream());
-            this.con=con;
-            this.callback=callback;
-}
-
-        @Override
-        public void close() throws IOException
-        {
-            try
-                {
-                    super.close();
-}
-            finally
-                {
-                    con.disconnect();
-}
-}
-
-        @Override
-        public int read() throws IOException
-        {
-            try
-                {
-                    return super.read();
-}
-            catch(IOException e)
-                {
-                    callback.onNetworkError();
-                    throw e;
-}
-}
-
-        @Override
-        public int read(byte[] b,int off,int len) throws IOException
-        {
-            try
-                {
-                    return super.read(b,off,len);
-}
-            catch(IOException e)
-                {
-                    callback.onNetworkError();
-                    throw e;
-}
-}
-
-        @Override
-        public int read(byte[] b) throws IOException
-        {
-            try
-                {
-                    return super.read(b);
-}
-            catch(IOException e)
-                {
-                    callback.onNetworkError();
-                    throw e;
-}
-}
-}
-
     private static final String TAG="RHVoiceDataPack";
     protected final String name;
     protected final int format;
@@ -218,6 +150,11 @@ public abstract class DataPack
         return String.format("https://dl.bintray.com/olga-yakovleva/Data/%s-v%s.zip",getBaseFileName(),getVersionString());
 }
 
+    private String getDownloadFileName()
+    {
+        return String.format("%s-v%s.zip",getBaseFileName(),getVersionString());
+}
+
     protected final File getDataDir(Context context)
     {
         return context.getDir("data",0).getAbsoluteFile();
@@ -227,6 +164,21 @@ public abstract class DataPack
     {
         return context.getDir("tmp",0);
     }
+
+    private File getDownloadsDir(Context context)
+    {
+        return context.getDir("downloads-"+getType()+"-"+getName().toLowerCase(),0);
+    }
+
+    private File getDownloadFile(Context context)
+    {
+        return new File(getDownloadsDir(context),getDownloadFileName());
+}
+
+    private File getTempDownloadFile(Context context)
+    {
+        return new File(getDownloadsDir(context),getDownloadFileName()+".tmp");
+}
 
     protected final boolean delete(File obj)
     {
@@ -305,6 +257,18 @@ public abstract class DataPack
         return getInstallationDir(context,getVersionCode()).exists();
 }
 
+    protected final void copyBytes(InputStream in,OutputStream out) throws IOException
+    {
+        byte[] buf=new byte[8092];
+        int numBytes;
+        while((numBytes=in.read(buf))!=-1)
+            {
+                if(numBytes>0)
+                    out.write(buf,0,numBytes);
+            }
+        out.flush();
+    }
+
     private InputStream openResource(Context context) throws IOException
     {
         if(BuildConfig.DEBUG)
@@ -348,6 +312,16 @@ catch(PackageManager.NameNotFoundException e)
     {
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Trying to open the link");
+        File file=getDownloadFile(context);
+        if(!file.exists())
+            downloadFile(context,callback);
+        return new FileInputStream(file);
+}
+
+    private void downloadFile(Context context,IDataSyncCallback callback) throws IOException
+    {
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Trying to download the file");
         if(!callback.isConnected())
             {
                 if(BuildConfig.DEBUG)
@@ -355,22 +329,37 @@ catch(PackageManager.NameNotFoundException e)
                 callback.onNetworkError();
                 throw new IOException("No connection");
             }
-        InputStream str=null;
+        if(!mkdir(getDownloadsDir(context)))
+            throw new IOException("Unable to create downloads directory");
+        File tempFile=getTempDownloadFile(context);
+        InputStream istr=null;
+        OutputStream ostr=null;
         HttpURLConnection con=null;
         try
             {
+                long start=0;
+                if(tempFile.exists())
+                    start=tempFile.length();
                 URL url=new URL(getLink());
                 con=(HttpURLConnection)url.openConnection();
+                con.setRequestProperty("Accept-Encoding","identity");
+                if(start>0)
+{
+    if(BuildConfig.DEBUG)
+        Log.v(TAG,"We already have "+start+" bytes, trying to download only the rest");
+    con.setRequestProperty("Range","bytes="+start+"-");
+}
                 con.connect();
                 int status=con.getResponseCode();
-                if(status!=HttpURLConnection.HTTP_OK)
-                    {
-                        if(BuildConfig.DEBUG)
-                            Log.e(TAG,"Http status: "+status);
-                        throw new IOException("Http Status: "+status);
-                    }
-                str=new HttpInputStream(con,callback);
-                return str;
+                if(BuildConfig.DEBUG)
+                    Log.e(TAG,"Http status: "+status);
+                if(status!=HttpURLConnection.HTTP_OK&&!(start>0&&status==HttpURLConnection.HTTP_PARTIAL))
+                    throw new IOException("Http Status: "+status);
+                istr=new BufferedInputStream(con.getInputStream());
+                ostr=new BufferedOutputStream(new FileOutputStream(tempFile,status==HttpURLConnection.HTTP_PARTIAL));
+                copyBytes(istr,ostr);
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"File downloaded");
 }
         catch(IOException e)
             {
@@ -379,9 +368,16 @@ catch(PackageManager.NameNotFoundException e)
 }
         finally
             {
-                if(con!=null&&str==null)
+                close(ostr);
+                close(istr);
+                if(con!=null)
                     con.disconnect();
 }
+        if(!tempFile.renameTo(getDownloadFile(context)))
+            {
+                tempFile.delete();
+                throw new IOException("Unable to rename the file");
+            }
 }
 
     private InputStream open(Context context,IDataSyncCallback callback) throws IOException
@@ -426,8 +422,6 @@ catch(PackageManager.NameNotFoundException e)
             }
         ZipInputStream inStream=null;
         OutputStream outStream=null;
-        byte[] buffer=new byte[4096];
-        int numBytes=0;
         try
             {
                 notifyDownloadStart(callback);
@@ -456,11 +450,8 @@ catch(PackageManager.NameNotFoundException e)
                                         return false;
                                     }
                                 outStream=new BufferedOutputStream(new FileOutputStream(outObj));
-                                while((numBytes=inStream.read(buffer))!=-1)
-                                    {
-                                        outStream.write(buffer,0,numBytes);
-                                    }
-                                outStream.close();
+                                copyBytes(inStream,outStream);
+                                close(outStream);
                             }
                         inStream.closeEntry();
                     }
@@ -502,6 +493,7 @@ catch(PackageManager.NameNotFoundException e)
 
     private void cleanup(Context context,int versionCode)
     {
+        delete(getDownloadsDir(context));
         String pkgName=getPackageName();
         File instDir=(versionCode>0)?getInstallationDir(context,versionCode):null;
         File dataDir=getDataDir(context);
