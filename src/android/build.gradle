@@ -1,9 +1,10 @@
 buildscript {
 repositories {
+google()
 jcenter()
     }
 dependencies {
-classpath 'com.android.tools.build:gradle:2.2.0'
+classpath 'com.android.tools.build:gradle:3.1.2'
     }
 }
 
@@ -29,4 +30,8 @@ ext.signDebug=Boolean.parseBoolean(signDebug)
 }
 else {
 ext.signDebug=false
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }

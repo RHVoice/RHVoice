@@ -16,7 +16,7 @@ defaultConfig {
 minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode 38
+versionCode 39
 versionName "0.7.1"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
@@ -66,14 +66,14 @@ proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.tx
 
 repositories {
 jcenter()
-maven {url "https://maven.google.com" }
+google()
 }
 
 dependencies {
-compile 'com.android.support:support-core-utils:27.1.0'
-compile 'com.android.support:appcompat-v7:27.1.0'
-compile 'com.takisoft.fix:preference-v7:27.1.0.0'
-compile 'com.evernote:android-job:1.2.5'
+implementation 'com.android.support:support-core-utils:27.1.0'
+implementation 'com.android.support:appcompat-v7:27.1.0'
+implementation 'com.takisoft.fix:preference-v7:27.1.0.0'
+implementation 'com.evernote:android-job:1.2.5'
 }
 
 preBuild.dependsOn addConfigFile
