@@ -55,6 +55,8 @@ minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 }
 
+flavorDimensions "package"
+
 productFlavors {
 myData.each {spec ->
 "${spec['flavor']}" {
@@ -62,6 +64,7 @@ applicationId spec["package"]
 versionCode spec["versionCode"]
 versionName spec["versionName"]
 resValue "string","app_name",spec["appName"]
+dimension "package"
 }
 }
 }
