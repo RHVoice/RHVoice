@@ -4,6 +4,7 @@
       android:sharedUserId="com.github.olga_yakovleva.rhvoice">
   <application
       android:label="@string/app_name"
-      android:icon="@drawable/ic_launcher">
+      android:icon="@mipmap/ic_launcher"
+      android:roundIcon="@mipmap/ic_launcher_round">
   </application>
 </manifest>
