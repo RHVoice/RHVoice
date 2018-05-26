@@ -53,7 +53,7 @@ public final class RHVoiceService extends TextToSpeechService
     private static final int[] languageSupportConstants={TextToSpeech.LANG_NOT_SUPPORTED,TextToSpeech.LANG_AVAILABLE,TextToSpeech.LANG_COUNTRY_AVAILABLE,TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE};
     private static final Pattern DEFAULT_VOICE_NAME_PATTERN=Pattern.compile("^([a-z]{3})-default$");
 
-    private final BroadcastReceiver receiver=new BroadcastReceiver()
+    private final BroadcastReceiver dataStateReceiver=new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context,Intent intent)
@@ -63,6 +63,8 @@ public final class RHVoiceService extends TextToSpeechService
                 initialize();
 }
         };
+
+    private final BroadcastReceiver packageReceiver=new OnPackageReceiver();
 
     private static interface SettingValueTranslator
     {
@@ -422,13 +424,22 @@ public final class RHVoiceService extends TextToSpeechService
         ttsManager.reset(tts);
     }
 
+    private void registerPackageReceiver()
+    {
+        IntentFilter filter=new IntentFilter(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
+        filter.addDataScheme("package");
+        registerReceiver(packageReceiver,filter);
+}
+
     @Override
     public void onCreate()
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Starting the service");
         Data.scheduleSync(this);
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver,new IntentFilter(DataSyncJob.ACTION_DATA_STATE_CHANGED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,new IntentFilter(DataSyncJob.ACTION_DATA_STATE_CHANGED));
+        registerPackageReceiver();
         initialize();
         super.onCreate();
     }
@@ -437,7 +448,8 @@ public final class RHVoiceService extends TextToSpeechService
     public void onDestroy()
     {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        unregisterReceiver(packageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(dataStateReceiver);
         ttsManager.destroy();
     }
 

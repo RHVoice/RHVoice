@@ -47,11 +47,9 @@
         android:exported="true">
     </activity>
     <receiver
-        android:name=".OnPackageReceiver">
+        android:name=".OnMyPackageReceiver">
       <intent-filter>
-        <data android:scheme="package"/>
-        <action android:name="android.intent.action.PACKAGE_ADDED"/>
-        <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED"/>
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
       </intent-filter>
     </receiver>    
     <activity
