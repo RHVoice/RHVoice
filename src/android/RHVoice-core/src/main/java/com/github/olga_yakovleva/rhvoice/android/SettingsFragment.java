@@ -30,7 +30,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
-import com.takisoft.fix.support.v7.preference.EditTextPreference;
+import com.takisoft.fix.support.v7.preference.AutoSummaryEditTextPreference;
 import com.takisoft.fix.support.v7.preference.PreferenceCategory;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 import java.util.ArrayList;
@@ -44,39 +44,6 @@ import java.util.TreeMap;
         private static final String TAG="RHVoiceSettingsActivity";
         public static final String NAME="settings";
         public static final String ARG_LANGUAGE_KEY="language_key";
-
-        private Preference.OnPreferenceChangeListener onValueChange=new Preference.OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference pref,Object obj)
-                {
-                    pref.setSummary(obj.toString());
-                    return true;
-                }
-            };
-
-        private Preference.OnPreferenceChangeListener onQualityChange=new Preference.OnPreferenceChangeListener() {
-                public boolean onPreferenceChange(Preference pref,Object obj)
-                {
-                    String value=obj.toString();
-                    Resources res=getResources();
-                    try
-                        {
-                            String[] labels=res.getStringArray(R.array.quality_labels);
-                            String[] values=res.getStringArray(R.array.quality_values);
-                            for(int i=0;i<values.length;++i)
-                                {
-                                    if(values[i].equals(value))
-                                        {
-                                            pref.setSummary(labels[i]);
-                                            break;
-                                        }
-                                }
-                        }
-                    catch(Resources.NotFoundException e)
-                        {
-                        }
-                    return true;
-                }
-            };
 
         private Map<String,List<VoiceInfo>> groupVoicesByLanguage(List<VoiceInfo> voices)
         {
@@ -110,10 +77,9 @@ import java.util.TreeMap;
             cat.setTitle(locale.getDisplayName());
             cat0.addPreference(cat);
             ListPreference voicePref=new ListPreference(ctx);
-            voicePref.setOnPreferenceChangeListener(onValueChange);
             voicePref.setKey("language."+code3+".voice");
             voicePref.setTitle(R.string.default_voice_title);
-            voicePref.setSummary(firstVoiceName);
+            voicePref.setSummary("%s");
             voicePref.setDialogTitle(R.string.default_voice_dialog_title);
             int voiceCount=voices.size();
             String[] voiceNames=new String[voiceCount];
@@ -125,7 +91,6 @@ import java.util.TreeMap;
             voicePref.setEntryValues(voiceNames);
             voicePref.setDefaultValue(firstVoiceName);
             cat.addPreference(voicePref);
-            voicePref.setSummary(voicePref.getEntry());
             CheckBoxPreference detectPref=new CheckBoxPreference(ctx);
             detectPref.setKey("language."+code3+".detect");
             detectPref.setTitle(R.string.detect_language_title);
@@ -142,7 +107,7 @@ import java.util.TreeMap;
                     cat.addPreference(engPref);
                 }
             InputFilter[] inputFilters=new InputFilter[]{new InputFilter.LengthFilter(3)};
-            EditTextPreference volumePref=new EditTextPreference(ctx);
+            AutoSummaryEditTextPreference volumePref=new AutoSummaryEditTextPreference(ctx);
             volumePref.setKey("language."+code3+".volume");
             volumePref.setTitle(R.string.speech_volume);
             volumePref.setDialogTitle(R.string.speech_volume);
@@ -150,10 +115,8 @@ import java.util.TreeMap;
             volumePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
             volumePref.getEditText().setSelectAllOnFocus(true);
             volumePref.getEditText().setFilters(inputFilters);
-            volumePref.setOnPreferenceChangeListener(onValueChange);
             cat.addPreference(volumePref);
-            volumePref.setSummary(volumePref.getText());
-            EditTextPreference ratePref=new EditTextPreference(ctx);
+            AutoSummaryEditTextPreference ratePref=new AutoSummaryEditTextPreference(ctx);
             ratePref.setKey("language."+code3+".rate");
             ratePref.setTitle(R.string.speech_rate);
             ratePref.setDialogTitle(R.string.speech_rate);
@@ -161,18 +124,13 @@ import java.util.TreeMap;
             ratePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
             ratePref.getEditText().setSelectAllOnFocus(true);
             ratePref.getEditText().setFilters(inputFilters);
-            ratePref.setOnPreferenceChangeListener(onValueChange);
             cat.addPreference(ratePref);
-            ratePref.setSummary(ratePref.getText());
         }
 
         @Override
         public void onCreatePreferencesFix(Bundle state,String rootKey)
         {
             setPreferencesFromResource(R.xml.settings,null);
-            ListPreference qPref=(ListPreference)findPreference("quality");
-            qPref.setSummary(qPref.getEntry());
-            qPref.setOnPreferenceChangeListener(onQualityChange);
             List<VoiceInfo> voices=Data.getVoices(getActivity());
             if(voices.isEmpty())
                 return;
