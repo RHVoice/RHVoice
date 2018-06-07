@@ -103,7 +103,8 @@ define Symbol
 %%:пайыз | 
 %#:торчо | 
 %*:жылдызча | 
-%@:маймылча ; 
+%@:маймылча | 
+%№:[катар белги] ; 
 
 regex 
 KyrgyzLetter | EnglishLetter | Digit | Whitespace | Punctuation | Symbol ; 

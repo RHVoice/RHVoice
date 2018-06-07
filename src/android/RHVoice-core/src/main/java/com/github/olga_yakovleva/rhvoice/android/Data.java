@@ -52,7 +52,7 @@ public final class Data
         lang=new LanguagePack("Georgian", "kat", "GEO", 1, 8, null, null);
         lang.addVoice(new VoicePack("Natia", lang, 4, 0, "http://blindaid.ge/files/RHVoice-voice-Georgian-Natia-v4.0.zip", null));
         addLanguage(lang);
-        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 14, null, null);
+        lang=new LanguagePack("Kyrgyz", "kir", "KGZ", 1, 15, null, null);
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, null, null));
         lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, null, null));
         addLanguage(lang);
