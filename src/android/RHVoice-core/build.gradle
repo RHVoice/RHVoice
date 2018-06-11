@@ -64,11 +64,6 @@ proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.tx
 }
 }
 
-repositories {
-jcenter()
-google()
-}
-
 dependencies {
 implementation 'com.android.support:support-core-utils:27.1.0'
 implementation 'com.android.support:appcompat-v7:27.1.0'
