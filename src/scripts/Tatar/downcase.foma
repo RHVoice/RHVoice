@@ -36,7 +36,8 @@ define TatarDowncase
 Ş : ş | 
 I : i | 
 І : і | 
-Ғ : ғ ; 
+Ғ : ғ | 
+Қ : қ ; 
 
 regex 
 TatarDowncase .P. [RussianDowncase | EnglishDowncase] -> ; 
