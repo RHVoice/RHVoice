@@ -16,14 +16,37 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import android.app.Application;
+import android.util.Log;
 import com.evernote.android.job.JobManager;
+import java.security.Provider;
+import java.security.Security;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import org.conscrypt.Conscrypt;
 
 public final class MyApplication extends Application
 {
+    private static final String TAG="RHVoice.MyApplication";
+
     @Override
     public void onCreate()
     {
         super.onCreate();
+        try
+            {
+                Provider provider=Conscrypt.newProvider();
+                Security.insertProviderAt(provider,1);
+                SSLContext context=SSLContext.getInstance("TLS",provider);
+                context.init(null,null,null);
+                HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+                if(BuildConfig.DEBUG)
+                    Log.d(TAG,"Replaced default ssl socket factory");
+            }
+        catch(Exception e)
+            {
+                if(BuildConfig.DEBUG)
+                    Log.e(TAG,"Error",e);
+}
         JobManager.create(this).addJobCreator(new DataSyncJobCreator());
 }
 }
