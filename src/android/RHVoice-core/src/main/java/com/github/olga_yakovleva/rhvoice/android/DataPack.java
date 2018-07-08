@@ -352,7 +352,7 @@ catch(PackageManager.NameNotFoundException e)
                 con.connect();
                 int status=con.getResponseCode();
                 if(BuildConfig.DEBUG)
-                    Log.e(TAG,"Http status: "+status);
+                    Log.v(TAG,"Http status: "+status);
                 if(status!=HttpURLConnection.HTTP_OK&&!(start>0&&status==HttpURLConnection.HTTP_PARTIAL))
                     throw new IOException("Http Status: "+status);
                 istr=new BufferedInputStream(con.getInputStream());
