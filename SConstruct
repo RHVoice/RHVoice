@@ -42,18 +42,12 @@ def CheckPKG(context,name):
     context.Result(result)
     return result
 
-def CheckVS(context):
-    context.Message("Checking for Visual Studio ... ")
+def CheckMSVC(context):
+    context.Message("Checking for Visual C++ ... ")
     result=0
-    for version in ("14.0","12.0"):
-        try:
-            with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\VisualStudio\{}\Setup\VC".format(version),_winreg.KEY_READ|_winreg.KEY_WOW64_32KEY) as key:
-                context.env["VCDir"]=_winreg.QueryValueEx(key,"ProductDir")[0]
-            result=1
-        except WindowsError:
-            pass
-        if result!=0:
-            break
+    version=context.env.get("MSVC_VERSION",None)
+    if version is not None:
+        result=1
     context.Result(result)
     return result
 
@@ -71,20 +65,6 @@ def CheckNSIS(context,unicode_nsis=False):
         result=0
     context.Result(result)
     return result
-
-def get_msvc_env_vars(env,arch):
-    var_names=["path","lib","libpath","include","tmp"]
-    setenv_script=os.path.join(env["VCDir"],"vcvarsall.bat")
-    output=subprocess.check_output(["cmd","/e:on","/v:on","/c",setenv_script,arch,"&&","set"])
-    vars=dict()
-    lines=output.split("\n")
-    for line in lines:
-        trimmed_line=line.strip()
-        if trimmed_line:
-            p=trimmed_line.split("=",1)
-            if p[0].lower() in var_names:
-                vars[p[0]]=p[1]
-    return vars
 
 def convert_flags(value):
     return value.split()
@@ -134,16 +114,13 @@ def create_user_vars():
     vars.Add("LINKFLAGS","Linker flags",["/LTCG","/OPT:REF","/OPT:ICF"] if sys.platform=="win32" else [],converter=convert_flags)
     return vars
 
-def create_base_env(vars):
-    env_args={}
+def create_base_env(user_vars):
+    env_args={"variables":user_vars}
     if sys.platform=="win32":
-        env_args["MSVC_USE_SCRIPT"]=None
-        env_args["tools"]=["msvc","mslink","mslib","newlines"]
-        env_args["MSVC_BATCH"]=True
+        env_args["tools"]=["newlines"]
     else:
         env_args["tools"]=["default","installer"]
     env_args["tools"].extend(["textfile","library"])
-    env_args["variables"]=vars
     env_args["LIBS"]=[]
     env_args["package_name"]="RHVoice"
     env_args["CPPDEFINES"]=[("RHVOICE","1")]
@@ -155,14 +132,6 @@ def create_base_env(vars):
         env.Append(CPPDEFINES=("WIN32",1))
         env.Append(CPPDEFINES=("UNICODE",1))
         env.Append(CPPDEFINES=("NOMINMAX",1))
-        env.AppendUnique(CCFLAGS=["/MT"])
-        env.AppendUnique(CXXFLAGS=["/EHsc"])
-    if "gcc" in env["TOOLS"]:
-        env.MergeFlags("-pthread")
-        env.AppendUnique(CXXFLAGS=["-std=c++03"])
-        env.AppendUnique(CFLAGS=["-std=c99"])
-    if sys.platform.startswith("linux"):
-        env.Append(SHLINKFLAGS="-Wl,-soname,${TARGET.file}.${libversion.split('.')[0]}")
     return env
 
 def display_help(env,vars):
@@ -173,14 +142,29 @@ def display_help(env,vars):
     Help("You may use the following configuration variables:\n")
     Help(vars.GenerateHelpText(env))
 
-def clone_base_env(base_env,arch=None):
-    env=base_env.Clone()
+def clone_base_env(base_env,user_vars,arch=None):
+    args={}
+    if sys.platform=="win32":
+        if arch is not None:
+            args["TARGET_ARCH"]=arch
+        args["tools"]=["msvc","mslink","mslib"]
+    env=base_env.Clone(**args)
+    user_vars.Update(env)
+    if env["PLATFORM"]=="win32":
+        env.AppendUnique(CCFLAGS=["/nologo","/MT"])
+        env.AppendUnique(LINKFLAGS=["/nologo"])
+        env.AppendUnique(CXXFLAGS=["/EHsc"])
+    if "gcc" in env["TOOLS"]:
+        env.MergeFlags("-pthread")
+        env.AppendUnique(CXXFLAGS=["-std=c++03"])
+        env.AppendUnique(CFLAGS=["-std=c99"])
+    if sys.platform.startswith("linux"):
+        env.Append(SHLINKFLAGS="-Wl,-soname,${TARGET.file}.${libversion.split('.')[0]}")
     if sys.platform=="win32":
         bits="64" if arch.endswith("64") else "32"
         env["BUILDDIR"]=os.path.join(BUILDDIR,arch)
         env["CPPPATH"]=env["CPPPATH"+bits]
         env["LIBPATH"]=env["LIBPATH"+bits]
-        env["ENV"]=get_msvc_env_vars(env,arch)
     else:
         env["BUILDDIR"]=BUILDDIR
     third_party_dir=os.path.join("src","third-party")
@@ -191,9 +175,17 @@ def clone_base_env(base_env,arch=None):
     return env
 
 def configure(env):
+    tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG}
+    if env["PLATFORM"]=="win32":
+        tests["CheckMSVC"]=CheckMSVC
     conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
                        log_file=os.path.join(env["BUILDDIR"],"configure.log"),
-                       custom_tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG})
+                       custom_tests=tests)
+    if env["PLATFORM"]=="win32":
+        if         not conf.CheckMSVC():
+            print("Error: Visual C++ is not installed")
+            exit(1)
+        print("Visual C++ version is {}".format(env["MSVC_VERSION"]))
     if not conf.CheckCC():
         print "The C compiler is not working"
         exit(1)
@@ -232,8 +224,8 @@ def configure(env):
         src_subdirs.append("include")
     return src_subdirs
 
-def build_binaries(base_env,arch=None):
-    env=clone_base_env(base_env,arch)
+def build_binaries(base_env,user_vars,arch=None):
+    env=clone_base_env(base_env,user_vars,arch)
     if env["BUILDDIR"]!=BUILDDIR:
         Execute(Mkdir(env["BUILDDIR"]))
     if arch:
@@ -245,8 +237,8 @@ def build_binaries(base_env,arch=None):
                    exports={"env":env},
                    duplicate=0)
 
-def build_for_linux(base_env):
-    build_binaries(base_env)
+def build_for_linux(base_env,user_vars):
+    build_binaries(base_env,user_vars)
     for subdir in ["data","config"]:
         SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env},
                    variant_dir=os.path.join(BUILDDIR,subdir),
@@ -255,19 +247,16 @@ def build_for_linux(base_env):
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
-                       custom_tests={"CheckVS":CheckVS,"CheckNSIS":CheckNSIS})
-    if not conf.CheckVS():
-        print("Error: Visual Studio is not installed")
-        exit(1)
+                       custom_tests={"CheckNSIS":CheckNSIS})
     if not conf.CheckNSIS(True):
         conf.CheckNSIS()
     conf.Finish()
 
-def build_for_windows(base_env):
+def build_for_windows(base_env,user_vars):
     preconfigure_for_windows(base_env)
-    build_binaries(base_env,"x86")
+    build_binaries(base_env,user_vars,"x86")
     if base_env["enable_x64"]:
-        build_binaries(base_env,"x64")
+        build_binaries(base_env,user_vars,"x86_64")
     SConscript(os.path.join("data","SConscript"),
                variant_dir=os.path.join(BUILDDIR,"data"),
                exports={"env":base_env},
@@ -293,6 +282,6 @@ base_env=create_base_env(vars)
 display_help(base_env,vars)
 vars.Save(var_cache,base_env)
 if sys.platform=="win32":
-    build_for_windows(base_env)
+    build_for_windows(base_env,vars)
 else:
-    build_for_linux(base_env)
+    build_for_linux(base_env,vars)

@@ -20,7 +20,7 @@ import RHVoicePackaging.windows
 packager=RHVoicePackaging.windows.app_packager("RHVoice",Dir("..").Dir("packages").Dir("sapi"),env,"RHVoice",env["package_version"])
 packager.add(Dir("..").Dir("x86").Dir("sapi").File("RHVoiceSvr.dll"),"lib32",regdll=True)
 if env["enable_x64"]:
-    packager.add(Dir("..").Dir("x64").Dir("sapi").File("RHVoiceSvr.dll"),"lib64",regdll=True,x64=True)
+    packager.add(Dir("..").Dir("x86_64").Dir("sapi").File("RHVoiceSvr.dll"),"lib64",regdll=True,x64=True)
 packager.add(Dir("..").File("RHVoice.ini"),"config-examples")
 packager.add_reg_value("HKLM",r"Software\RHVoice","path","$$INSTDIR")
 packager.add_reg_value("HKLM",r"Software\RHVoice","data_path",r'$$INSTDIR\data',True)
