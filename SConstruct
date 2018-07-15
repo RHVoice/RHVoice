@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011, 2012, 2013, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,6 +47,14 @@ def CheckMSVC(context):
     result=0
     version=context.env.get("MSVC_VERSION",None)
     if version is not None:
+        result=1
+    context.Result(result)
+    return result
+
+def CheckXPCompat(context):
+    context.Message("Checking for Windows XP compatibility ... ")
+    result=0
+    if context.env.get("xp_compat_enabled",False):
         result=1
     context.Result(result)
     return result
@@ -154,6 +162,7 @@ def clone_base_env(base_env,user_vars,arch=None):
         env.AppendUnique(CCFLAGS=["/nologo","/MT"])
         env.AppendUnique(LINKFLAGS=["/nologo"])
         env.AppendUnique(CXXFLAGS=["/EHsc"])
+        env.Tool("xp_compat")
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++03"])
@@ -178,14 +187,18 @@ def configure(env):
     tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG}
     if env["PLATFORM"]=="win32":
         tests["CheckMSVC"]=CheckMSVC
+        tests["CheckXPCompat"]=CheckXPCompat
     conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
                        log_file=os.path.join(env["BUILDDIR"],"configure.log"),
                        custom_tests=tests)
     if env["PLATFORM"]=="win32":
-        if         not conf.CheckMSVC():
+        if not conf.CheckMSVC():
             print("Error: Visual C++ is not installed")
             exit(1)
         print("Visual C++ version is {}".format(env["MSVC_VERSION"]))
+        if not conf.CheckXPCompat():
+            print("Error: Windows XP compatibility cannot be enabled")
+            exit(1)
     if not conf.CheckCC():
         print "The C compiler is not working"
         exit(1)

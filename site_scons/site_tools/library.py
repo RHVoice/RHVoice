@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,10 @@ def IsLibraryShared(env):
 
 def BuildLibrary(env,target,sources):
     if env.IsLibraryShared():
-        return env.SharedLibrary(target,sources)
+        if sys.platform=="win32":
+            return env.SharedLibrary(target,sources,MS_LINKER_SUBSYSTEM="WINDOWS")
+        else:
+            return env.SharedLibrary(target,sources)
     elif env["liblevel"]==0:
         if env.get("enable_shared",False):
             return env.SharedObject(sources)
