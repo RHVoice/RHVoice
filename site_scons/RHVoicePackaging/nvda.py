@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
-from archiving import archiver
+from .archiving import archiver
 
 class addon_packager(archiver):
 	def __init__(self,name,outdir,env,display_name,summary,description,version):

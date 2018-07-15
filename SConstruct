@@ -200,14 +200,14 @@ def configure(env):
             print("Error: Windows XP compatibility cannot be enabled")
             exit(1)
     if not conf.CheckCC():
-        print "The C compiler is not working"
+        print("The C compiler is not working")
         exit(1)
     if not conf.CheckCXX():
-        print "The C++ compiler is not working"
+        print("The C++ compiler is not working")
         exit(1)
 # has_sox=conf.CheckLibWithHeader("sox","sox.h","C",call='sox_init();',autoadd=0)
 # if not has_sox:
-#     print "Error: cannot link with libsox"
+#     print("Error: cannot link with libsox")
 #     exit(1)
 # env.PrependUnique(LIBS="sox")
     env["audio_libs"]=set()
