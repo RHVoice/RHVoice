@@ -3,9 +3,9 @@
 import sys
 import os
 import os.path
-from SimpleConfigParser import SimpleConfigParser
 import RHVoicePackaging.nvda
 import RHVoicePackaging.windows
+import RHVoiceInfoParser
 
 Import("env")
 local_env=env.Clone()
@@ -28,9 +28,7 @@ for dir_name in ["languages","voices"]:
 	for subdir_name in os.listdir(dir.abspath):
 		subdir=dir.Dir(subdir_name)
 		data_files=list_files(subdir)
-		cp=SimpleConfigParser()
-		cp.read(subdir.File(type+".info").abspath)
-		props=dict((name,cp.getoption(name)) for name in cp.getoptionslist())
+		props=RHVoiceInfoParser.parse(subdir.File(type+".info").abspath)
 		if type=="language":
 			props["language"]=props["name"]
 		props["type"]=type
@@ -50,5 +48,5 @@ for dir_name in ["languages","voices"]:
 			for f in data_files:
 				packagers["nvda"].add(f,os.path.normpath(os.path.join("data",os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
 				packagers["sapi"].add(f,os.path.normpath(os.path.join("data",type+"s",props["name"],os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
-		for p in packagers.itervalues():
+		for p in packagers.values():
 			p.package()

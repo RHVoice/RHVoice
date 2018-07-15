@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ def exists(env):
     else:
         return True
 
-def Install(env,src,instpath,instname=None,sysdir=True,mode=0644):
+def Install(env,src,instpath,instname=None,sysdir=True,mode=0o644):
     destpath=env.subst("$DESTDIR"+instpath)
     env.Alias("install",destpath)
     if instname:
@@ -35,7 +35,7 @@ def Install(env,src,instpath,instname=None,sysdir=True,mode=0644):
     return inst
 
 def InstallProgram(env,src):
-    return Install(env,src,"$bindir",mode=0755)
+    return Install(env,src,"$bindir",mode=0o755)
 
 def InstallData(env,src,dest=None):
     if dest:
@@ -60,13 +60,13 @@ def InstallSharedLibrary(env,src):
     if sys.platform.startswith("linux"):
         name=os.path.split(str(src[0]))[1]
         version=env["libversion"]
-        inst=Install(env,src,"$libdir",instname=name+"."+version,mode=0755)
+        inst=Install(env,src,"$libdir",instname=name+"."+version,mode=0o755)
         libpath=os.path.split(inst[0].path)[0]
         for s in [name+"."+version.split(".")[0],name]:
             inst+=env.Command(os.path.join(libpath,s),inst[0],"ln -s ${SOURCE.file} ${TARGET.file}",chdir=1)
-            env.AddPostAction(inst[-1],Chmod("$TARGET",0755))
+            env.AddPostAction(inst[-1],Chmod("$TARGET",0o755))
     else:
-        inst=Install(env,src,"$libdir",mode=0755)
+        inst=Install(env,src,"$libdir",mode=0o755)
     return inst
 
 def InstallLibrary(env,src):
