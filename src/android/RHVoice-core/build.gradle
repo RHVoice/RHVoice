@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+ext.supportLibraryVersion='27.1.1'
+
 ext.myConfigFile=file("../../../config/RHVoice.conf")
 ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
 
@@ -16,7 +18,7 @@ defaultConfig {
 minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode 44
+versionCode 45
 versionName "0.7.1"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
@@ -65,9 +67,9 @@ proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.tx
 }
 
 dependencies {
-implementation 'com.android.support:support-core-utils:27.1.0'
-implementation 'com.android.support:appcompat-v7:27.1.0'
-implementation 'com.takisoft.fix:preference-v7:27.1.0.0'
+implementation "com.android.support:support-core-utils:${supportLibraryVersion}"
+implementation "com.android.support:appcompat-v7:${supportLibraryVersion}"
+implementation "com.takisoft.fix:preference-v7:${supportLibraryVersion}.2"
 implementation 'com.evernote:android-job:1.2.6'
 implementation 'org.conscrypt:conscrypt-android:1.1.4'
 }
