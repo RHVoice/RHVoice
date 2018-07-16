@@ -1,6 +1,6 @@
-# -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,18 +20,24 @@ import os
 import os.path
 from SCons.Script import File,Dir,Entry,Value
 
+try:
+	base_string_type=basestring
+except NameError:
+	base_string_type=str
+
 class file_info(object):
 	def __init__(self,infile,outdir,contents,attrs):
+		global base_string_type
 		if contents is not None:
 			self.infile=Value(contents,contents)
 			self.on_disk=False
 			filename=infile
 		else:
-			self.infile=File(infile) if isinstance(infile,basestring) else infile
+			self.infile=File(infile) if isinstance(infile,base_string_type) else infile
 			self.on_disk=True
 			filename=os.path.basename(self.infile.path)
 		self.outpath=os.path.join(outdir,filename) if outdir else filename
-		for name,value in attrs.iteritems():
+		for name,value in attrs.items():
 			setattr(self,name,value)
 
 	def get(self,name):

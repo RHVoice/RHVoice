@@ -20,7 +20,10 @@ import subprocess
 import platform
 import datetime
 if sys.platform=="win32":
-    import _winreg
+    if sys.version_info[0]>=3:
+        import winreg
+    else:
+        import _winreg as winreg
 
 def get_version(is_release):
     next_version="0.7.1"
@@ -67,10 +70,10 @@ def CheckNSIS(context,unicode_nsis=False):
         context.Message("Checking for NSIS... ")
     key_name=r"SOFTWARE\NSIS"+(r"\Unicode" if unicode_nsis else "")
     try:
-        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,key_name) as key:
-            context.env["makensis"]=File(os.path.join(_winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,key_name,0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
+            context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
     except WindowsError:
-        result=0
+         result=0
     context.Result(result)
     return result
 
