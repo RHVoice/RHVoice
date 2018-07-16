@@ -32,7 +32,7 @@ class app_packager(packager):
 		self.uninstaller="uninstall-{}.exe".format(name)
 		self.uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
 		uninst_info=self.get_uninstall_info()
-		for n,v in uninst_info.iteritems():
+		for n,v in uninst_info.items():
 			self.add_reg_value("HKLM",self.uninst_reg_key,n,v)
 
 	def add_reg_value(self,root_key,key,name,value,x64=False):

@@ -36,11 +36,11 @@ class addon_packager(archiver):
 		else:
 			properties=self.strings
 			outdir=None
-		contents="".join("{} = {}\n".format(k,v.encode("UTF-8")) for k,v in properties.iteritems())
+		contents=u"".join(u"{} = {}\n".format(k,v) for k,v in properties.items()).encode("UTF-8")
 		self.add("manifest.ini",outdir,contents)
 
 	def package(self):
 		self.build_manifest()
-		for lang in self.translations.iterkeys():
+		for lang in self.translations.keys():
 			self.build_manifest(lang)
 		return super(addon_packager,self).package()

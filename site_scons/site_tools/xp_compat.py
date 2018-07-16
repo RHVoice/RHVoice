@@ -13,8 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import _winreg
+import sys
 import os.path
+
+if sys.version_info[0]>=3:
+    import winreg
+else:
+    import _winreg as winreg
 
 __sdk_dir=None
 __checked=False
@@ -24,12 +29,12 @@ def get_sdk_dir():
     if __checked:
         return __sdk_dir
     try:
-        with _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1A",_winreg.KEY_READ|_winreg.KEY_WOW64_32KEY) as key:
-            dir=_winreg.QueryValueEx(key,"InstallationFolder")[0]
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1A",0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
+            dir=winreg.QueryValueEx(key,"InstallationFolder")[0]
     except WindowsError:
         return None
     finally:
-        __checked=False
+        __checked=True
     if not os.path.isdir(dir):
         return None
     __sdk_dir=dir
