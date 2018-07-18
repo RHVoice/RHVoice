@@ -101,6 +101,7 @@ def create_user_vars():
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
+        vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",True))
     else:
         vars.Add("prefix","Installation prefix","/usr/local")
         vars.Add("bindir","Program installation directory","$prefix/bin")
@@ -165,7 +166,8 @@ def clone_base_env(base_env,user_vars,arch=None):
         env.AppendUnique(CCFLAGS=["/nologo","/MT"])
         env.AppendUnique(LINKFLAGS=["/nologo"])
         env.AppendUnique(CXXFLAGS=["/EHsc"])
-        env.Tool("xp_compat")
+        if env["enable_xp_compat"]:
+            env.Tool("xp_compat")
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++03"])
@@ -199,7 +201,7 @@ def configure(env):
             print("Error: Visual C++ is not installed")
             exit(1)
         print("Visual C++ version is {}".format(env["MSVC_VERSION"]))
-        if not conf.CheckXPCompat():
+        if env["enable_xp_compat"] and not conf.CheckXPCompat():
             print("Error: Windows XP compatibility cannot be enabled")
             exit(1)
     if not conf.CheckCC():
