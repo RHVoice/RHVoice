@@ -389,7 +389,6 @@ public final class RHVoiceService extends TextToSpeechService
             {
                 File configDir=Config.getDir(this);
                 tts.engine=new TTSEngine("",configDir.getAbsolutePath(),paths,CoreLogger.instance);
-                tts.engine.configure("max_volume","4.0");
             }
         catch(Exception e)
             {
