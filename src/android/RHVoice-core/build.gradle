@@ -19,7 +19,7 @@ minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
 versionCode 49
-versionName "0.7.1"
+versionName "0.7.2"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
 }
