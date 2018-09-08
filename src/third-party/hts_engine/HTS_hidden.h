@@ -105,7 +105,7 @@ int HTS_feof(HTS_File * fp);
 int HTS_fseek(HTS_File * fp, long offset, int origin);
 
 /* HTS_ftell: wrapper for ftell */
-size_t HTS_ftell(HTS_File * fp);
+long HTS_ftell(HTS_File * fp);
 
 /* HTS_fread_big_endian: fread with byteswap */
 size_t HTS_fread_big_endian(void *buf, size_t size, size_t n, HTS_File * fp);
