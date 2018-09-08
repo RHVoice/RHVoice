@@ -240,18 +240,12 @@ int HTS_fseek(HTS_File * fp, long offset, int origin)
 }
 
 /* HTS_ftell: rapper for ftell */
-size_t HTS_ftell(HTS_File * fp)
+long HTS_ftell(HTS_File * fp)
 {
    if (fp == NULL) {
       return 0;
    } else if (fp->type == HTS_FILE) {
-      fpos_t pos;
-      fgetpos((FILE *) fp->pointer, &pos);
-#if defined(_WIN32) || defined(__CYGWIN__) || defined(__APPLE__) || defined(__ANDROID__)
-      return (size_t) pos;
-#else
-      return (size_t) pos.__pos;
-#endif                          /* _WIN32 || __CYGWIN__ || __APPLE__ || __ANDROID__ */
+     return ftell((FILE*)fp->pointer);
    } else if (fp->type == HTS_DATA) {
       HTS_Data *d = (HTS_Data *) fp->pointer;
       return d->index;
