@@ -172,8 +172,6 @@ def clone_base_env(base_env,user_vars,arch=None):
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++03"])
         env.AppendUnique(CFLAGS=["-std=c99"])
-    if sys.platform.startswith("linux"):
-        env.Append(SHLINKFLAGS="-Wl,-soname,${TARGET.file}.${libversion.split('.')[0]}")
     if sys.platform=="win32":
         bits="64" if arch.endswith("64") else "32"
         env["BUILDDIR"]=os.path.join(BUILDDIR,arch)

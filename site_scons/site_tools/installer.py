@@ -24,13 +24,16 @@ def exists(env):
     else:
         return True
 
-def Install(env,src,instpath,instname=None,sysdir=True,mode=0o644):
+def Install(env,src,instpath,instname=None,sysdir=True,mode=0o644,shlib=False):
     destpath=env.subst("$DESTDIR"+instpath)
     env.Alias("install",destpath)
     if instname:
         inst=env.InstallAs(os.path.join(destpath,instname),src)
     else:
-        inst=env.Install(destpath,src)
+        if shlib:
+            inst=env.InstallVersionedLib(destpath,src)
+        else:
+            inst=env.Install(destpath,src)
     env.AddPostAction(inst,Chmod("$TARGET",mode))
     return inst
 
@@ -57,17 +60,7 @@ def InstallStaticLibrary(env,src):
     return Install(env,src,"$libdir")
 
 def InstallSharedLibrary(env,src):
-    if sys.platform.startswith("linux"):
-        name=os.path.split(str(src[0]))[1]
-        version=env["libversion"]
-        inst=Install(env,src,"$libdir",instname=name+"."+version,mode=0o755)
-        libpath=os.path.split(inst[0].path)[0]
-        for s in [name+"."+version.split(".")[0],name]:
-            inst+=env.Command(os.path.join(libpath,s),inst[0],"ln -s ${SOURCE.file} ${TARGET.file}",chdir=1)
-            env.AddPostAction(inst[-1],Chmod("$TARGET",0o755))
-    else:
-        inst=Install(env,src,"$libdir",mode=0o755)
-    return inst
+    return Install(env,src,"$libdir",shlib=True,mode=0o755)
 
 def InstallLibrary(env,src):
     if env.IsLibraryShared():
