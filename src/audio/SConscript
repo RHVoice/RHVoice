@@ -16,7 +16,7 @@
 
 import os
 
-Import("env","libRHVoice_core")
+Import("env")
 local_env=env.Clone()
 local_env["libversion"]="1.0.0"
 local_env["liblevel"]=1
@@ -33,8 +33,7 @@ if "portaudio" in local_env["audio_libs"]:
 	src.append("portaudio.cpp")
 	local_env.Append(CPPDEFINES=("WITH_PORTAUDIO","1"))
 	local_env.MergeFlags(["!pkg-config --cflags --libs portaudio-2.0"])
-local_env.Prepend(LIBS=libRHVoice_core)
-libRHVoice_audio=local_env.BuildLibrary("RHVoice_audio",src)
+local_env.Prepend(LIBS=local_env["libcore"])
+lib=local_env.BuildLibrary(local_env["libaudio"],src)
 if local_env["PLATFORM"]!="win32":
-	local_env.InstallLibrary(libRHVoice_audio)
-Export("libRHVoice_audio")
+	local_env.InstallLibrary(lib)

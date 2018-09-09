@@ -15,11 +15,11 @@
 
 import os.path
 
-Import(["env","libRHVoice_core"])
+Import(["env"])
 local_env=env.Clone()
 local_env["liblevel"]=2
 local_env.Prepend(LIBS=["comsuppw","advapi32","shell32"])
-local_env.Prepend(LIBS=libRHVoice_core)
+local_env.Prepend(LIBS=local_env["libcore"])
 
 dll_name="RHVoiceSvr"
 dll_src=["com.cpp",

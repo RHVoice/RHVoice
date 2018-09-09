@@ -144,6 +144,8 @@ def create_base_env(user_vars):
         env.Append(CPPDEFINES=("WIN32",1))
         env.Append(CPPDEFINES=("UNICODE",1))
         env.Append(CPPDEFINES=("NOMINMAX",1))
+    env["libcore"]="RHVoice_core"
+    env["libaudio"]="RHVoice_audio"
     return env
 
 def display_help(env,vars):
@@ -227,11 +229,13 @@ def configure(env):
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
+    env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"core"))
     src_subdirs=["third-party","core","lib","utils"]
     if env["audio_libs"]:
         src_subdirs.append("audio")
         src_subdirs.append("test")
         src_subdirs.append("sd_module")
+        env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"audio"))
     if has_giomm:
         src_subdirs.append("service")
     if env["PLATFORM"]=="win32":

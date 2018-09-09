@@ -16,10 +16,9 @@
 
 import os.path
 
-Import("env","libRHVoice_core","libRHVoice_audio")
+Import("env")
 local_env=env.Clone()
-for lib in [libRHVoice_core,libRHVoice_audio]:
-	local_env.Prepend(LIBS=lib)
+local_env.Prepend(LIBS=[local_env["libcore"],local_env["libaudio"]])
 src=["main.cpp",
 	 "base.cpp",
 	 "state.cpp",

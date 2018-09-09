@@ -1,5 +1,5 @@
-# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# -*- mode: Python; indent-tabs-mode: t -*-
+# Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
 
 import os.path
 
-Import("env","libRHVoice_core")
+Import("env")
 local_env=env.Clone()
-local_env.Prepend(LIBS=libRHVoice_core)
+local_env.Prepend(LIBS=local_env["libcore"])
 
 transcriptor=local_env.Program("RHVoice-transcribe-sentences","transcribe-sentences.cpp")
 hts_labeller=local_env.Program("RHVoice-make-hts-labels","make-hts-labels.cpp")
