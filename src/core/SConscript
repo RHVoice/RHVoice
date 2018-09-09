@@ -67,7 +67,6 @@ for lib in [libhts_engine,libsonic]:
 	src.extend(lib)
 if local_env["enable_mage"]:
 	src.extend(libmage)
-libRHVoice_core=local_env.BuildLibrary("RHVoice_core",src)
+lib=local_env.BuildLibrary(local_env["libcore"],src)
 if env["PLATFORM"]!="win32":
-	local_env.InstallLibrary(libRHVoice_core)
-Export("libRHVoice_core")
+	local_env.InstallLibrary(lib)
