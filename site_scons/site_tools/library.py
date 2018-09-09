@@ -27,7 +27,7 @@ def BuildLibrary(env,target,sources):
         if sys.platform=="win32":
             return env.SharedLibrary(target,sources,MS_LINKER_SUBSYSTEM="WINDOWS")
         else:
-            return env.SharedLibrary(target,sources)
+            return env.SharedLibrary(target,sources,SHLIBVERSION=env["libversion"])
     elif env["liblevel"]==0:
         if env.get("enable_shared",False):
             return env.SharedObject(sources)
