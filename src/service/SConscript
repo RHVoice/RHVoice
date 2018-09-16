@@ -26,4 +26,4 @@ client=local_env.Program("RHVoice-client",["client.cpp","common.cpp"])
 if local_env["PLATFORM"]!="win32":
     local_env.InstallProgram(service)
     local_env.InstallProgram(client)
-	local_env.InstallServiceFile("com.github.OlgaYakovleva.RHVoice.service.in")
+    local_env.InstallServiceFile("com.github.OlgaYakovleva.RHVoice.service.in")
