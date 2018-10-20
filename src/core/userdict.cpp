@@ -97,6 +97,7 @@ namespace RHVoice
     {
       text.clear();
       stress.reset();
+      initialism=false;
       changed=false;
     }
 
