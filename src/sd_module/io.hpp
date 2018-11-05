@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -52,6 +52,7 @@ namespace RHVoice
       template<typename A>
       void operator()(const A& arg)
       {
+        start();
         stream << arg << std::endl;
         flash();
       }
@@ -59,6 +60,7 @@ namespace RHVoice
       template<typename A1,typename A2>
       void operator()(const A1& arg1,const A2& arg2)
       {
+        start();
         stream << arg1 << arg2 << std::endl;
         flash();
       }
@@ -66,6 +68,7 @@ namespace RHVoice
       template<typename A1,typename A2,typename A3>
       void operator()(const A1& arg1,const A2& arg2,const A3& arg3)
       {
+        start();
         stream << arg1 << arg2 << arg3 << std::endl;
         flash();
       }
@@ -73,6 +76,7 @@ namespace RHVoice
       template<typename A1,typename A2,typename A3,typename A4>
       void operator()(const A1& arg1,const A2& arg2,const A3& arg3,const A4& arg4)
       {
+        start();
         stream << arg1 << arg2 << arg3 << arg4 << std::endl;
         flash();
       }
@@ -80,6 +84,7 @@ namespace RHVoice
       template<typename A1,typename A2,typename A3,typename A4,typename A5>
       void operator()(const A1& arg1,const A2& arg2,const A3& arg3,const A4& arg4,const A5& arg5)
       {
+        start();
         stream << arg1 << arg2 << arg3 << arg4 << arg5 << std::endl;
         flash();
       }
@@ -87,9 +92,13 @@ namespace RHVoice
       template<typename A1,typename A2,typename A3,typename A4,typename A5,typename A6>
       void operator()(const A1& arg1,const A2& arg2,const A3& arg3,const A4& arg4,const A5& arg5,const A6& arg6)
       {
+        start();
         stream << arg1 << arg2 << arg3 << arg4 << arg5 << arg6 << std::endl;
         flash();
       }
+
+    protected:
+      std::ostream& stream;
 
     private:
       basic_message(const basic_message&);
@@ -103,9 +112,12 @@ namespace RHVoice
             throw broken_pipe();
       }
 
+      virtual void start()
+      {
+}
+
       static threading::mutex stream_mutex;
 
-      std::ostream& stream;
       bool throw_exceptions;
       threading::lock stream_lock;
     };
@@ -178,6 +190,9 @@ namespace RHVoice
       {
       public:
         log_message();
+
+      private:
+        void start();
       };
     };
 
