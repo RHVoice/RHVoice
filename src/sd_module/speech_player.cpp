@@ -111,11 +111,11 @@ namespace RHVoice
     {
       if(cancelled())
         return;
+      logger::log(2,"Setting sample rate to ",sample_rate,", current sample rate is ",playback_stream.get_sample_rate());
       if(playback_stream.get_sample_rate()==sample_rate)
         return;
       try
         {
-          logger::log(2,"Setting sample rate");
           if(playback_stream.is_open())
             {
               logger::log(2,"Playback stream is already open, draining");
