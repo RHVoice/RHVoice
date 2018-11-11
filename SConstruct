@@ -77,6 +77,12 @@ def CheckNSIS(context,unicode_nsis=False):
     context.Result(result)
     return result
 
+def CheckLibspeechdVersionH(context):
+    header="speech-dispatcher/libspeechd_version.h"
+    result=context.CheckCHeader(header)
+    if not result:
+        print("Warning: unable to determine the version of Speech Dispatcher")
+
 def convert_flags(value):
     return value.split()
 
@@ -185,7 +191,7 @@ def clone_base_env(base_env,user_vars,arch=None):
     for path in Glob(os.path.join(third_party_dir,"*"),strings=True):
         if os.path.isdir(path):
             env.Prepend(CPPPATH=("#"+path))
-    env.Prepend(CPPPATH=(".",os.path.join("#src","include")))
+    env.Prepend(CPPPATH=(os.path.join("#"+env["BUILDDIR"],"include"),".",os.path.join("#src","include")))
     return env
 
 def configure(env):
@@ -195,6 +201,7 @@ def configure(env):
         tests["CheckXPCompat"]=CheckXPCompat
     conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
                        log_file=os.path.join(env["BUILDDIR"],"configure.log"),
+                       config_h=os.path.join(env["BUILDDIR"],"include","config.h"),
                        custom_tests=tests)
     if env["PLATFORM"]=="win32":
         if not conf.CheckMSVC():
@@ -225,6 +232,8 @@ def configure(env):
             env["audio_libs"].add("libao")
         if conf.CheckPKG("portaudio-2.0"):
             env["audio_libs"].add("portaudio")
+        if env["audio_libs"]:
+            CheckLibspeechdVersionH(conf)
 #        has_giomm=conf.CheckPKG("giomm-2.4")
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
