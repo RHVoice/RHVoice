@@ -27,6 +27,13 @@
       style="@android:style/Widget.ProgressBar.Small"/>
   </LinearLayout>
   <ImageButton
+      android:id="@+id/play"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:focusable="true"
+      android:contentDescription="@string/play"
+      android:src="@drawable/ic_play"/>
+  <ImageButton
       android:id="@+id/action"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

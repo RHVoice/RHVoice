@@ -22,4 +22,6 @@
     <string name="voice_remove_question">Uninstall this voice</string>
     <string name="install">Install</string>
     <string name="uninstall">Uninstall</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
 </resources>
