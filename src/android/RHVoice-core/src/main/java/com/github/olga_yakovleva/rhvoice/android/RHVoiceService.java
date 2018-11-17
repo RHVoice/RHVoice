@@ -45,9 +45,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.os.Bundle;
 
 public final class RHVoiceService extends TextToSpeechService
 {
+    public static final String KEY_PARAM_TEST_VOICE="com.github.olga_yakovleva.rhvoice.android.param_test_voice";
+
     private static final String TAG="RHVoiceTTSService";
 
     private static final int[] languageSupportConstants={TextToSpeech.LANG_NOT_SUPPORTED,TextToSpeech.LANG_AVAILABLE,TextToSpeech.LANG_COUNTRY_AVAILABLE,TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE};
@@ -338,13 +341,23 @@ public final class RHVoiceService extends TextToSpeechService
         return code;
 }
 
-    private Candidate findBestVoice(Tts tts,String language,String country,String variant,String voiceName,Map<String,LanguageSettings> languageSettings)
+    private Candidate findBestVoice(Tts tts,String language,String country,String variant,String voiceName,boolean testing,Map<String,LanguageSettings> languageSettings)
     {
         if(!TextUtils.isEmpty(voiceName))
             {
-                AndroidVoiceInfo voice=tts.voiceIndex.get(voiceName);
+                AndroidVoiceInfo voice=tts.voiceIndex.get(voiceName.toLowerCase());
                 if(voice!=null)
-                    return new Candidate(voice,language,country,"");
+                    {
+                        if(testing)
+                            {
+                                Candidate c=new Candidate();
+                                c.voice=voice;
+                                c.score=3;
+                                return c;
+                            }
+                        else
+                            return new Candidate(voice,language,country,"");
+                    }
 }
         Candidate best=new Candidate();
         for(AndroidVoiceInfo voice: tts.voices)
@@ -403,7 +416,7 @@ public final class RHVoiceService extends TextToSpeechService
                 if(BuildConfig.DEBUG)
                     Log.i(TAG,"Found voice "+nextVoice.toString());
                 tts.voices.add(nextVoice);
-                tts.voiceIndex.put(nextVoice.getName(),nextVoice);
+                tts.voiceIndex.put(nextVoice.getName().toLowerCase(),nextVoice);
                 LanguageInfo engineLanguage=engineVoice.getLanguage();
                 tts.languageIndex.put(engineLanguage.getAlpha3Code(),engineLanguage);
             }
@@ -459,7 +472,7 @@ public final class RHVoiceService extends TextToSpeechService
                 if(tts!=null)
                     {
                         Locale locale=Locale.getDefault();
-                        Candidate bestMatch=findBestVoice(tts,locale.getISO3Language(),locale.getISO3Country(),"","",getLanguageSettings(tts));
+                        Candidate bestMatch=findBestVoice(tts,locale.getISO3Language(),locale.getISO3Country(),"","",false,getLanguageSettings(tts));
                         if(bestMatch.voice!=null)
                             voice=bestMatch.voice;
                     }
@@ -488,7 +501,7 @@ public final class RHVoiceService extends TextToSpeechService
                     Log.w(TAG,"Not initialized yet");
                 return TextToSpeech.LANG_NOT_SUPPORTED;
             }
-        Candidate bestMatch=findBestVoice(tts,language,country,variant,"",null);
+        Candidate bestMatch=findBestVoice(tts,language,country,variant,"",false,null);
         int result=languageSupportConstants[bestMatch.score];
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Result: "+result);
@@ -549,7 +562,13 @@ public final class RHVoiceService extends TextToSpeechService
                 String variant=request.getVariant();
                 Map<String,LanguageSettings> languageSettings=getLanguageSettings(tts);
                 String voiceName="";
-                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
+                boolean testing=false;
+                Bundle requestParams=request.getParams();
+                if(requestParams!=null&&requestParams.containsKey(KEY_PARAM_TEST_VOICE))
+                    testing=true;
+                if(testing)
+                    voiceName=requestParams.getString(KEY_PARAM_TEST_VOICE);
+                else if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
                     {
                         voiceName=request.getVoiceName();
                         if(!TextUtils.isEmpty(voiceName))
@@ -568,7 +587,7 @@ public final class RHVoiceService extends TextToSpeechService
 }
                             }
                     }
-                final Candidate bestMatch=findBestVoice(tts,language,country,variant,voiceName,languageSettings);
+                final Candidate bestMatch=findBestVoice(tts,language,country,variant,voiceName,testing,languageSettings);
                 if(bestMatch.voice==null)
                     {
                         if(BuildConfig.DEBUG)
@@ -686,7 +705,7 @@ public final class RHVoiceService extends TextToSpeechService
                     Log.v(TAG,"Default voice name for "+code);
                 return TextToSpeech.SUCCESS;
 }
-        if(tts.voiceIndex.containsKey(name))
+        if(tts.voiceIndex.containsKey(name.toLowerCase()))
             {
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Voice found");

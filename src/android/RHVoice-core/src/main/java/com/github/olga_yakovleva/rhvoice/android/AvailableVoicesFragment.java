@@ -80,6 +80,9 @@ public final class AvailableVoicesFragment extends ListFragment
     {
         super.onStop();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(voiceInstalledReceiver);
+        PlayerFragment pf=(PlayerFragment)(getActivity().getSupportFragmentManager().findFragmentByTag("player"));
+        if(pf!=null)
+            pf.stopPlayback();
 }
 
     public void refresh()

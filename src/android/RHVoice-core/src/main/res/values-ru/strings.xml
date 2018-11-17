@@ -22,4 +22,6 @@
     <string name="voice_remove_question">Удалить этот голос?</string>
     <string name="install">Установить</string>
     <string name="uninstall">Удалить</string>
+    <string name="play">Воспроизвести</string>
+    <string name="stop">Остановить</string>
 </resources>

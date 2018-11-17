@@ -29,7 +29,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
         super.onCreate(state);
         setContentView(R.layout.frame);
         if(state==null)
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame,new AvailableLanguagesFragment(),"languages").commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame,new AvailableLanguagesFragment(),"languages").add(new PlayerFragment(),"player").commit();
 }
 
     public void onLanguageSelected(LanguagePack language)
