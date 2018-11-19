@@ -173,13 +173,6 @@ public final class PlayerFragment extends Fragment
         return getResId(name,"string");
     }
 
-    private void refreshUI()
-    {
-        AvailableVoicesFragment frag=(AvailableVoicesFragment)(getActivity().getSupportFragmentManager().findFragmentByTag("voices"));
-                if(frag!=null)
-                    frag.refresh();
-}
-
     private void abandonAudioFocus()
     {
         if(audioFocusListener==null)
@@ -228,6 +221,17 @@ public final class PlayerFragment extends Fragment
 
     private abstract class PlayerState
     {
+        protected void refreshUI()
+    {
+        AvailableVoicesFragment frag=(AvailableVoicesFragment)(getActivity().getSupportFragmentManager().findFragmentByTag("voices"));
+                if(frag!=null)
+                    {
+                        if(playerVoice==null)
+                            throw new IllegalStateException();
+                        frag.refresh(playerVoice,VoiceViewChange.PLAYING);
+                    }
+}
+
         public void stop()
         {
         }
@@ -305,7 +309,6 @@ public final class PlayerFragment extends Fragment
         {
             player.release();
             player=null;
-            playerVoice=null;
             playerState=new UninitializedPlayerState();
         }
 
@@ -495,6 +498,18 @@ public final class PlayerFragment extends Fragment
 
     private abstract class TTSState
     {
+        protected void refreshUI()
+    {
+        AvailableVoicesFragment frag=(AvailableVoicesFragment)(getActivity().getSupportFragmentManager().findFragmentByTag("voices"));
+                if(frag!=null)
+                    {
+                        if(ttsVoice==null)
+                            throw new IllegalStateException();
+                        frag.refresh(ttsVoice,VoiceViewChange.PLAYING);
+                    }
+}
+
+
         public void release()
         {
 }

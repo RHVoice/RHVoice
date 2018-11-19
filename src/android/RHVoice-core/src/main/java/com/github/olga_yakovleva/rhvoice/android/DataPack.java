@@ -630,4 +630,17 @@ catch(PackageManager.NameNotFoundException e)
         else
             return false;
 }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if(this==other)
+            return true;
+        if(other==null)
+            return false;
+        if(getClass()!=other.getClass())
+            return false;
+        DataPack pack=(DataPack)other;
+        return (name.equalsIgnoreCase(pack.name)&&format==pack.format&&revision==pack.revision);
+}
 }

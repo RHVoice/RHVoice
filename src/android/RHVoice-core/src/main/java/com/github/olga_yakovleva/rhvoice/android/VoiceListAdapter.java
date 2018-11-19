@@ -26,8 +26,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import android.support.v7.widget.RecyclerView;
 
-public final class VoiceListAdapter extends BaseAdapter
+public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder>
 {
     private class ActionButtonListener implements View.OnClickListener
     {
@@ -43,8 +44,6 @@ public final class VoiceListAdapter extends BaseAdapter
         public void onClick(View v)
         {
             ((AvailableVoicesFragment.Listener)activity).onVoiceSelected(voice,flag);
-            if(flag)
-                notifyDataSetChanged();
 }
 }
 
@@ -84,24 +83,13 @@ public final class VoiceListAdapter extends BaseAdapter
         inflater=(LayoutInflater)activity.getSystemService(FragmentActivity.LAYOUT_INFLATER_SERVICE);
         voices=new ArrayList<VoicePack>(lang.getVoices());
         Collections.<VoicePack>sort(voices,new DataPackNameComparator<VoicePack>());
+        setHasStableIds(true);
 }
 
     @Override
-    public boolean hasStableIds()
-    {
-        return true;
-}
-
-    @Override
-    public int getCount()
+    public int getItemCount()
     {
         return voices.size();
-}
-
-    @Override
-    public VoicePack getItem(int pos)
-    {
-        return voices.get(pos);
 }
 
     @Override
@@ -111,65 +99,92 @@ public final class VoiceListAdapter extends BaseAdapter
 }
 
     @Override
-    public View getView(int pos,View convertView,ViewGroup parent)
+    public VoiceViewHolder onCreateViewHolder(ViewGroup parent,int viewType)
     {
-        View v=convertView;
-        if(v==null)
-            v=inflater.inflate(R.layout.voice_list_item,parent,false);
-        VoicePack voice=voices.get(pos);
-        boolean enabled=voice.getEnabled(activity);
-        boolean installed=voice.isInstalled(activity);
-        boolean upToDate=voice.isUpToDate(activity);
-        TextView textView=(TextView)v.findViewById(R.id.voice);
-        textView.setText(voice.getName());
-        ProgressBar progressBar=(ProgressBar)v.findViewById(R.id.progress);
-        if(enabled&&!upToDate)
-            progressBar.setVisibility(View.VISIBLE);
+        return new VoiceViewHolder(inflater.inflate(R.layout.voice_list_item,parent,false));
+}
+
+    @Override
+    public void onBindViewHolder(VoiceViewHolder vh,int pos)
+    {
+        onBindViewHolder(vh,pos,null);
+}
+
+    @Override
+    public void onBindViewHolder(VoiceViewHolder vh,int pos,List<Object> changes)
+    {
+        long flags=0;
+        if(changes==null||changes.isEmpty())
+            flags=VoiceViewChange.ALL;
         else
-            progressBar.setVisibility(View.GONE);
-        ImageButton actionButton=(ImageButton)(v.findViewById(R.id.action));
-        if(enabled)
+            {
+                for(Object change: changes)
+                    flags|=((Long)change);
+}
+        VoicePack voice=voices.get(pos);
+        if((flags&VoiceViewChange.NAME)!=0)
+            vh.nameView.setText(voice.getName());
+        if((flags&VoiceViewChange.INSTALLED)!=0)
+            {
+                boolean enabled=voice.getEnabled(activity);
+                boolean installed=voice.isInstalled(activity);
+                boolean upToDate=voice.isUpToDate(activity);
+                if(enabled&&!upToDate)
+                    vh.progressBar.setVisibility(View.VISIBLE);
+                else
+                    vh.progressBar.setVisibility(View.GONE);
+                if(enabled)
             {
                 if(installed)
                     {
-                        actionButton.setImageResource(R.drawable.ic_delete);
-                        actionButton.setContentDescription(activity.getString(R.string.uninstall));
-}
+                        vh.actionButton.setImageResource(R.drawable.ic_delete);
+                        vh.actionButton.setContentDescription(activity.getString(R.string.uninstall));
+                    }
                 else
                     {
-                        actionButton.setImageResource(R.drawable.ic_cancel);
-                        actionButton.setContentDescription(activity.getString(android.R.string.cancel));
-}
-                actionButton.setOnClickListener(this.new ActionButtonListener(voice,false));
-}
-        else
-            {
-                actionButton.setImageResource(R.drawable.ic_download);
-                actionButton.setContentDescription(activity.getString(R.string.install));
-                actionButton.setOnClickListener(this.new ActionButtonListener(voice,true));
+                        vh.actionButton.setImageResource(R.drawable.ic_cancel);
+                        vh.actionButton.setContentDescription(activity.getString(android.R.string.cancel));
+                    }
+                vh.actionButton.setOnClickListener(this.new ActionButtonListener(voice,false));
             }
-        PlayerFragment pf=findPlayerFragment();
-        ImageButton playButton=(ImageButton)(v.findViewById(R.id.play));
-        if(pf!=null&&pf.canPlay(voice))
-            {
-                if(pf.isPlaying(voice))
-                    {
-                        playButton.setImageResource(R.drawable.ic_stop);
-                        playButton.setContentDescription(activity.getString(R.string.stop));
-}
                 else
                     {
-                        playButton.setImageResource(R.drawable.ic_play);
-                        playButton.setContentDescription(activity.getString(R.string.play));
-}
-                playButton.setVisibility(View.VISIBLE);
-                playButton.setOnClickListener(this.new PlayButtonListener(voice));
-}
-        else
-            {
-                playButton.setOnClickListener(null);
-                playButton.setVisibility(View.GONE);
+                        vh.actionButton.setImageResource(R.drawable.ic_download);
+                        vh.actionButton.setContentDescription(activity.getString(R.string.install));
+                        vh.actionButton.setOnClickListener(this.new ActionButtonListener(voice,true));
+                    }
             }
-        return v;
+        if((flags&VoiceViewChange.PLAYING)!=0)
+            {
+                PlayerFragment pf=findPlayerFragment();
+                if(pf!=null&&pf.canPlay(voice))
+                    {
+                        if(pf.isPlaying(voice))
+                    {
+                        vh.playButton.setImageResource(R.drawable.ic_stop);
+                        vh.playButton.setContentDescription(activity.getString(R.string.stop));
+                    }
+                        else
+                            {
+                                vh.playButton.setImageResource(R.drawable.ic_play);
+                                vh.playButton.setContentDescription(activity.getString(R.string.play));
+                            }
+                        vh.playButton.setVisibility(View.VISIBLE);
+                        vh.playButton.setOnClickListener(this.new PlayButtonListener(voice));
+                    }
+                else
+                    {
+                        vh.playButton.setOnClickListener(null);
+                        vh.playButton.setVisibility(View.GONE);
+                    }
+            }
+}
+
+    public void notifyVoiceItemChanged(VoicePack v, Long change)
+    {
+        int i=voices.indexOf(v);
+        if(i<0)
+            throw new IllegalArgumentException();
+        notifyItemChanged(i,change);
 }
 }
