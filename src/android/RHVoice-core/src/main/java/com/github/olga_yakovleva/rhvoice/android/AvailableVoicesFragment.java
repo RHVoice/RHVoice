@@ -20,16 +20,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.ViewGroup;
 import java.util.ArrayList;
 
-public final class AvailableVoicesFragment extends ListFragment
+public final class AvailableVoicesFragment extends Fragment
 {
     public interface Listener
     {
@@ -46,10 +48,17 @@ public final class AvailableVoicesFragment extends ListFragment
             public void onReceive(Context context,Intent intent)
             {
                 String name=intent.getStringExtra("name");
-                if(language.findVoice(name)!=null)
-                    adapter.notifyDataSetChanged();
+                VoicePack voice=language.findVoice(name);
+                if(voice!=null)
+                    refresh(voice,VoiceViewChange.INSTALLED);
 }
         };
+
+    @Override
+    public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle state)
+    {
+        return inflater.inflate(R.layout.voice_list,container,false);
+}
 
     @Override
     public void onActivityCreated(Bundle state)
@@ -57,9 +66,10 @@ public final class AvailableVoicesFragment extends ListFragment
         super.onActivityCreated(state);
         language=Data.getLanguage(getArguments().getString(ARG_LANGUAGE));
         adapter=new VoiceListAdapter(getActivity(),language);
-        ListView listView=getListView();
-        listView.setChoiceMode(ListView.CHOICE_MODE_NONE);
-        setListAdapter(adapter);
+        RecyclerView listView=getView().findViewById(R.id.voice_list);
+        listView.setHasFixedSize(true);
+        listView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            listView.setAdapter(adapter);
 }
 
     @Override
@@ -88,5 +98,15 @@ public final class AvailableVoicesFragment extends ListFragment
     public void refresh()
     {
         adapter.notifyDataSetChanged();
+}
+
+    public void refresh(VoicePack v)
+    {
+        adapter.notifyVoiceItemChanged(v,VoiceViewChange.ALL);
+}
+
+    public void refresh(VoicePack v,Long flags)
+    {
+        adapter.notifyVoiceItemChanged(v,flags);
 }
 }

@@ -49,7 +49,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
                 Data.scheduleSync(this);
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
-                    frag.refresh();
+                    frag.refresh(voice,VoiceViewChange.INSTALLED);
             }
         else
             {
@@ -65,7 +65,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
                 Data.scheduleSync(this);
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
-                    frag.refresh();
+                    frag.refresh(voice,VoiceViewChange.INSTALLED);
             }
     }
 
