@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 
-ext.supportLibraryVersion='27.1.1'
+ext.supportLibraryVersion='28.0.0'
 
 ext.myConfigFile=file("../../../config/RHVoice.conf")
 ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
@@ -67,10 +67,10 @@ proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.tx
 }
 
 dependencies {
-implementation "com.android.support:support-core-utils:${supportLibraryVersion}"
+implementation "com.android.support:localbroadcastmanager:${supportLibraryVersion}"
 implementation "com.android.support:appcompat-v7:${supportLibraryVersion}"
 implementation "com.android.support:recyclerview-v7:${supportLibraryVersion}"
-implementation "com.takisoft.fix:preference-v7:${supportLibraryVersion}.2"
+implementation "com.takisoft.fix:preference-v7:${supportLibraryVersion}.0"
 implementation 'com.evernote:android-job:1.2.6'
 implementation 'org.conscrypt:conscrypt-android:1.4.1'
 }
