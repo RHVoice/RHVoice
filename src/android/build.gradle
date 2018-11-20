@@ -15,7 +15,7 @@ jcenter()
     }
 
 ext.myMinSdkVersion=14
-ext.myCompileSdkVersion=27
+ext.myCompileSdkVersion=28
 ext.myTargetSdkVersion=27
 }
 
