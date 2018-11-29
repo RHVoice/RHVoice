@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -32,6 +32,18 @@ namespace RHVoice
                   return false;
                 else
                   return it->second->set_from_string(value);
+  }
+
+  bool config::reset(const std::string& name)
+  {
+    registration_map::iterator it=registered_settings.find(name);
+                if(it==registered_settings.end())
+                  return false;
+                else
+                  {
+                    it->second->reset();
+                    return true;
+                  }
   }
 
   void config::reset()

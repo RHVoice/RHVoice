@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -48,6 +48,7 @@ namespace RHVoice
     }
 
     bool set(const std::string& name,const std::string& value);
+    bool reset(const std::string& name);
 
     void reset();
 
