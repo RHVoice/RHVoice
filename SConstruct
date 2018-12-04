@@ -19,6 +19,7 @@ import os.path
 import subprocess
 import platform
 import datetime
+import re
 if sys.platform=="win32":
     if sys.version_info[0]>=3:
         import winreg
@@ -77,11 +78,25 @@ def CheckNSIS(context,unicode_nsis=False):
     context.Result(result)
     return result
 
-def CheckLibspeechdVersionH(context):
-    header="speech-dispatcher/libspeechd_version.h"
-    result=context.CheckCHeader(header)
-    if not result:
-        print("Warning: unable to determine the version of Speech Dispatcher")
+def validate_spd_version(key,val,env):
+    m=re.match(r"^\d+\.\d+",val)
+    if m is None:
+        raise Exception("Invalid value of spd_version: {}".format(val))
+
+def CheckSpdVersion(ctx):
+    ctx.Message("Checking Speech Dispatcher version ... ")
+    ver=ctx.env.get("spd_version",None)
+    if ver is not None:
+        ctx.Result(ver)
+        return ver
+    src='#include <stdio.h>\n#include <speech-dispatcher/libspeechd_version.h>\nint main() {\nint major=LIBSPEECHD_MAJOR_VERSION;\nint minor=LIBSPEECHD_MINOR_VERSION;\nprintf("%d.%d",major,minor);\nreturn 0;}'
+    res,ver=ctx.TryRun(src,".c")
+    if not res:
+        ctx.Result(res)
+        return res
+    ctx.env["spd_version"]=ver
+    ctx.Result(ver)
+    return ver
 
 def convert_flags(value):
     return value.split()
@@ -104,6 +119,7 @@ def create_user_vars():
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
+    vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
@@ -195,7 +211,7 @@ def clone_base_env(base_env,user_vars,arch=None):
     return env
 
 def configure(env):
-    tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG}
+    tests={"CheckPKGConfig":CheckPKGConfig,"CheckPKG":CheckPKG,"CheckSpdVersion":CheckSpdVersion}
     if env["PLATFORM"]=="win32":
         tests["CheckMSVC"]=CheckMSVC
         tests["CheckXPCompat"]=CheckXPCompat
@@ -233,7 +249,7 @@ def configure(env):
         if conf.CheckPKG("portaudio-2.0"):
             env["audio_libs"].add("portaudio")
         if env["audio_libs"]:
-            CheckLibspeechdVersionH(conf)
+            conf.CheckSpdVersion()
 #        has_giomm=conf.CheckPKG("giomm-2.4")
     if env["PLATFORM"]=="win32":
         env.AppendUnique(LIBS="kernel32")
