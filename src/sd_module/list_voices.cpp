@@ -14,10 +14,6 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <set>
-#include "config.h"
-#ifdef HAVE_SPEECH_DISPATCHER_LIBSPEECHD_VERSION_H
-#include <speech-dispatcher/libspeechd_version.h>
-#endif
 #include "core/engine.hpp"
 #include "core/voice_profile.hpp"
 #include "list_voices.hpp"
@@ -25,15 +21,11 @@
 
 namespace
 {
-#ifdef HAVE_SPEECH_DISPATCHER_LIBSPEECHD_VERSION_H
-#if ((LIBSPEECHD_MAJOR_VERSION==0) && (LIBSPEECHD_MINOR_VERSION<9))
+#if ((SPD_MAJOR==0) && (SPD_MINOR<9))
   const char sep=' ';
 #else
   const char sep='\t';
   #endif
-#else
-  const char sep=' ';
-#endif
 }
 
 namespace RHVoice

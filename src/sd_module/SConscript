@@ -15,10 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import re
 
 Import("env")
 local_env=env.Clone()
 local_env.Prepend(LIBS=[local_env["libcore"],local_env["libaudio"]])
+ver=local_env.get("spd_version","0.8")
+m=re.match(r"^(\d+)\.(\d+)\D?",ver)
+major=m.group(1)
+minor=m.group(2)
+local_env.Append(CPPDEFINES=("SPD_MAJOR",major))
+local_env.Append(CPPDEFINES=("SPD_MINOR",minor))
 src=["main.cpp",
 	 "base.cpp",
 	 "state.cpp",
