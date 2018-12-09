@@ -114,10 +114,21 @@ def setup():
     Execute(Mkdir(BUILDDIR))
     SConsignFile(os.path.join(BUILDDIR,"scons"))
 
+def create_languages_user_var():
+    names=sorted(os.listdir(Dir("#data").Dir("languages").abspath))
+    langs=[name.lower() for name in names]
+    name_map=dict(zip(names,langs))
+    def_langs=langs
+    if sys.platform!="win32":
+        def_langs=[lang for lang in langs if lang not in["georgian"]]
+    help="Which languages to install"
+    return ListVariable("languages",help,def_langs,langs,name_map)
+
 def create_user_vars():
     args={"DESTDIR":""}
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
+    vars.Add(create_languages_user_var())
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
     vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
     vars.Add(BoolVariable("release","Whether we are building a release",True))
