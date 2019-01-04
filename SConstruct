@@ -180,6 +180,7 @@ def create_base_env(user_vars):
     if env["training"]:
         env["prefix"]=os.path.abspath("local")
         env["datadir"]=os.path.abspath("data")
+        env["RPATH"]=env.Dir("$libdir").abspath
     env["package_version"]=get_version(env["release"])
     env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
     env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
