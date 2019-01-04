@@ -133,6 +133,7 @@ def create_user_vars():
     args={"DESTDIR":""}
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
+    vars.Add(BoolVariable("training","The build will only be used to train voices: no global installation, run from the source directory, compile helper utilities",False))
     vars.Add(create_languages_user_var())
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
     vars.Add(create_audio_libs_user_var())
