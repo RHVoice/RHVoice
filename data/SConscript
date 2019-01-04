@@ -39,7 +39,7 @@ for dir_name in ["languages","voices"]:
 		name=name_format_string.format(**props)
 		description_format_string="{name} - {language} voice for RHVoice" if type=="voice" else "{name} language pack for RHVoice"
 		description=description_format_string.format(**props)
-		if sys.platform!="win32":
+		if sys.platform!="win32" and not local_env["training"]:
 			for f in data_files:
 				local_env.InstallData(f,os.path.relpath(f.Dir(".").abspath,root_dir.abspath))
 		packagers=dict()
