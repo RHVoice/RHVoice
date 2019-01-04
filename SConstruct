@@ -277,7 +277,9 @@ def configure(env):
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
     env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"core"))
-    src_subdirs=["third-party","core","lib","utils"]
+    src_subdirs=["third-party","core","lib"]
+    if env["training"]:
+        src_subdirs.append("utils")
     if env["audio_libs"]:
         src_subdirs.append("audio")
         src_subdirs.append("test")
