@@ -37,6 +37,7 @@ from scipy.io import wavfile
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
+RHVoice_bindir=os.path.normpath(os.path.join(scriptdir,"..","..","..","local","bin"))
 workdir=os.path.abspath(".")
 parser=argparse.ArgumentParser(description="A few helper commands augmenting the standard HTS demo script")
 subparsers=parser.add_subparsers()
@@ -259,7 +260,7 @@ class htk_segmenter(task):
 		self.lex={"SILENCE":[["pau"]]}
 		phoneset=set()
 		trans_path=os.path.join(self.workdir,"transcription")
-		subprocess.check_call(["RHVoice-transcribe-sentences","-b","ssil",self.settings["text"],trans_path])
+		subprocess.check_call([os.path.join(RHVoice_bindir,"RHVoice-transcribe-sentences"),"-b","ssil",self.settings["text"],trans_path])
 		i=-1
 		with open(trans_path,"r") as f:
 			for line in f:
@@ -588,8 +589,8 @@ class labeller(task):
 		for dir in [labdir,testdir]:
 			if not os.path.isdir(dir):
 				os.mkdir(dir)
-		subprocess.check_call(["RHVoice-make-hts-labels","-l",os.path.join("data","labels","mono"),self.settings["text"],labdir])
-		subprocess.check_call(["RHVoice-make-hts-labels","-p","test",self.settings["test"],testdir])
+		subprocess.check_call([os.path.join(RHVoice_bindir,"RHVoice-make-hts-labels"),"-l",os.path.join("data","labels","mono"),self.settings["text"],labdir])
+		subprocess.check_call([os.path.join(RHVoice_bindir,"RHVoice-make-hts-labels"),"-p","test",self.settings["test"],testdir])
 		os.chdir("data")
 		subprocess.check_call(["make","mlf"])
 		subprocess.check_call(["make","list"])
