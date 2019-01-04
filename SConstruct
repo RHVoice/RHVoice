@@ -177,6 +177,8 @@ def create_base_env(user_vars):
     env_args["package_name"]="RHVoice"
     env_args["CPPDEFINES"]=[("RHVOICE","1")]
     env=Environment(**env_args)
+    if env["training"]:
+        env["prefix"]=os.path.abspath("local")
     env["package_version"]=get_version(env["release"])
     env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
     env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
