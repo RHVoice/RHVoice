@@ -731,28 +731,32 @@ class f0_extracter(task):
 						lf0=math.log(f0)
 					f.write(struct.pack("=f",lf0))
 
-class f0_stats_computer(f0_extracter):
+class f0_range_computer(f0_extracter):
 	def register(self):
-		subparser=subparsers.add_parser("f0-stats")
+		subparser=subparsers.add_parser("guess-f0-range")
 		subparser.set_defaults(func=self)
 
 	def __call__(self,args):
 		raw_dir=os.path.join("data","raw")
-		all_values=list()
+		data=list()
 		for name in sorted(os.listdir(raw_dir)):
 			print("Processing {}".format(name))
-			values=self.extract_with_sptk(os.path.join(raw_dir,name),"sptk_reaper",40,600)
-			all_values.extend([v for v in values if v!=0])
-		s={}
-		for p in [1,2,3,4,5,10,25,50,75,90,95,96,97,98,99]:
-			v=stats.scoreatpercentile(all_values,p)
-			s[p]=v
-			print("p{}={}".format(p,v))
-		min_f0=numpy.int(numpy.round(0.72*stats.scoreatpercentile(all_values,35)))
-		max_f0=numpy.int(numpy.round(1.9*stats.scoreatpercentile(all_values,65)))
-		print("Suggested f0 range:")
-		print("Minimum={}".format(min_f0))
-		print("Maximum={}".format(max_f0))
+			values=self.extract_with_sptk(os.path.join(raw_dir,name),"sptk_rapt",40,700)
+			values=[v for v in values if v!=0]
+			data.extend(numpy.log(values))
+		data=numpy.array(data)
+		m=numpy.mean(data)
+		d=3.0*numpy.std(data)
+		min_f0=numpy.int(numpy.round(numpy.exp(m-d)))
+		max_f0=numpy.int(numpy.round(numpy.exp(m+d)))
+		with open("training.cfg") as f:
+			settings=json.load(f,object_pairs_hook=collections.OrderedDict)
+		settings["lower_f0"]=min_f0
+		settings["upper_f0"]=max_f0
+		with open("tmp.cfg","w") as f:
+			json.dump(settings,f,indent=0)
+		os.rename("tmp.cfg","training.cfg")
+		print("Saved in training.cfg: {} - {} HZ".format(min_f0,max_f0))
 
 class synthesizer(task):
 	def register(self):
@@ -1495,7 +1499,7 @@ class bap_extractor(task):
 			self.process(base)
 
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_stats_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
