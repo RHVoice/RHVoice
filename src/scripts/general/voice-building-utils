@@ -148,7 +148,7 @@ class configurator(task):
 		params["DATASET"]=dataset
 		params["SAMPFREQ"]=self.settings["sample_rate"]
 		params.update(self.get_analysis_params())
-		params["USEGV"]=1 if self.settings["use_gv"] else 0
+		params["USEGV"]=1 if self.settings.get("use_gv",False) else 0
 		params["USEMSPF"]=0
 		params["NITER"]=10
 		return params
@@ -199,7 +199,7 @@ class recordings_importer(task):
 			 os.path.join(workdir,"data","wav",outname+".wav"),
 			 os.path.join(workdir,"data","raw",outname+".raw"),
 			 str(self.settings["sample_rate"]),
-			 "1" if self.settings["invert"] else "0",
+			 "1" if self.settings.get("invert",False) else "0",
 				 str(self.settings.get("silence_threshold",-40))]
 		subprocess.check_call(cmd)
 
@@ -1116,7 +1116,11 @@ class initializer(task):
 
 	def __call__(self,args):
 		assert(len(os.listdir(workdir))==0)
-		shutil.copy2(os.path.join(scriptdir,"training.cfg"),workdir)
+		with open(os.path.join(scriptdir,"training.cfg")) as ifp:
+			settings=json.load(ifp,object_pairs_hook=collections.OrderedDict)
+		settings["outdir"]=voxdir
+		with open(os.path.join(workdir,"training.cfg"),"w") as ofp:
+			json.dump(settings,ofp,indent=0)
 		htsdir=os.path.abspath(os.path.join(scriptdir,"..","hts"))
 		for name in sorted(os.listdir(htsdir)):
 			inpath=os.path.join(htsdir,name)
