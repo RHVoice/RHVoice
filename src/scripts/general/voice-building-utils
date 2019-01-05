@@ -42,6 +42,7 @@ datadir=os.path.normpath(os.path.join(scriptdir,"..","..","..","data"))
 langdir=os.path.join(datadir,"languages")
 voxdir=os.path.join(datadir,"voices")
 workdir=os.path.abspath(".")
+dataset="RHVoice"
 parser=argparse.ArgumentParser(description="A few helper commands augmenting the standard HTS demo script")
 subparsers=parser.add_subparsers()
 
@@ -144,7 +145,7 @@ class configurator(task):
 		for name in ["--with-sptk-search-path","--with-hts-search-path","--with-hts-engine-search-path"]:
 			params[name]=self.settings["bindir"]
 		params["SPEAKER"]=self.settings["speaker"]
-		params["DATASET"]=self.settings["dataset"]
+		params["DATASET"]=dataset
 		params["SAMPFREQ"]=self.settings["sample_rate"]
 		params.update(self.get_analysis_params())
 		params["USEGV"]=1 if self.settings["use_gv"] else 0
@@ -187,7 +188,7 @@ class recordings_importer(task):
 			files.append([inpath,inname,key])
 		files.sort(key=lambda x: x[-1])
 		for i,item in enumerate(files):
-			item[-1]="{}_{}_{:04}".format(self.settings["dataset"],self.settings["speaker"],i+1)
+			item[-1]="{}_{}_{:04}".format(dataset,self.settings["speaker"],i+1)
 		return files
 
 	def process(self,inpath,inname,outname):
@@ -1067,7 +1068,7 @@ class realigner(task):
 
 	def update_mlf(self):
 		fmt_args={}
-		fmt_args["dataset"]=self.settings["dataset"]
+		fmt_args["dataset"]=dataset
 		fmt_args["speaker"]=self.settings["speaker"]
 		fmt_args["dir"]=os.path.abspath(self.workdir)
 		for type in ["mono","full"]:
@@ -1240,7 +1241,7 @@ class voice_exporter(task):
 		self.save_config(params,path)
 
 	def copy_voice(self):
-		inpath=os.path.join(self.indir,self.settings["dataset"]+"_"+self.settings["speaker"]+".htsvoice")
+		inpath=os.path.join(self.indir,dataset+"_"+self.settings["speaker"]+".htsvoice")
 		outpath=os.path.join(self.modoutdir,"voice.data")
 		shutil.copy(inpath,outpath)
 
