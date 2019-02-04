@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2016, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -28,6 +28,7 @@
 #include "core/ukrainian.hpp"
 #include "core/kyrgyz.hpp"
 #include "core/tatar.hpp"
+#include "core/brazilian_portuguese.hpp"
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 
@@ -1058,6 +1059,7 @@ else
     register_language<ukrainian_info>("Ukrainian",1);
     register_language<kyrgyz_info>("Kyrgyz",1);
     register_language<tatar_info>("Tatar",1);
+    register_language<brazilian_portuguese_info>("Brazilian-Portuguese",1);
     for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));

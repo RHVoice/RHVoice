@@ -1,0 +1,93 @@
+# Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define DefiniteArticle 
+o | a | os | as ; 
+
+define IndefiniteArticle 
+um | uma | uns | umas ; 
+
+define PersonalPronoun 
+eu | tu | você | ele | ela | nós | vós | vocês | eles | elas ; 
+
+define PersonalReflexivePronoun 
+me | te | nos | vos | la | lo | las | los | se ; 
+
+define DemonstrativePronoun 
+este | esta | estes | estas | neste | nesta | nestes | nestas | deste | desta | destes | destas | esse | essa | esses | essas | desse | dessa | desses | dessas | nesse | nessa | nesses | nessas | aquele | aquela | aqueles | aquelas | daquele | daquela | daqueles | daquelas | naquele | naquela | naqueles | naquelas | que ; 
+
+define PossessiveAdjective 
+meu | minha | meus | minhas | teu | tua | teus | tuas | seu | sua | seus | suas | nosso | nossa | nossos | nossas | vosso | vossa | vossos | vossas | dele | dela | deles | delas | nele | nela | neles | nelas ; 
+
+define Preposition 
+de | do | da | dos | das | dum | duma | duns | dumas | em | no | na | nos | nas | num | numa | nuns | numas | por | pelo | pela | pelos | pelas | ao | à | aos | às | para | pro | pra | pros | pras | com | sem | até | desde | entre | sobre | sob ; 
+
+define UnstressedConjunction 
+e | ou | se | mas | como ; 
+
+define Conjunction 
+porém | todavia | contudo | assim | portanto | porque | pois | embora | apesar | caso | apenas | enquanto ; 
+
+define Ser 
+ser | sou | és | é | somos | sois | são | era | eras | éramos | éreis | eram | fui | foste | foi | fomos | fostes | foram | serei | serás | será | seremos | sereis | serão | seria | serias | seríamos | seríeis | seriam ;
+
+define Estar 
+estar | estou | estás | está | estamos | estais | estão | estava | estavas | estávamos | estão | estive | esteve | estivemos | estiveram | estarei | estarás | estará | estaremos | estarão ; 
+
+define Ter 
+ter | tenho | tens | tem | temos | tendes | têm | tinha | tinhas | tínhamos | tínheis | tinham | tive | tiveste | teve | tivemos | tivestes | tiveram | terei | terás | terá | teremos | tereis | terão | teria | terias | teríamos | teriam ; 
+
+define Fazer 
+fazer | faço | faz | fazemos | fazem ; 
+
+define Poder 
+poder | posso | podes | pode | podemos | podeis | podem | podia | podias | podíamos | podíeis | podiam | pude | pôde | pudemos | puderam | poderei | poderás | poderá | poderemos | podereis | poderão | poderia | poderias | poderíamos | poderiam ; 
+
+define Ir 
+ir | vou | vais | vai | vamos | vão | ia | ias | íamos | iam | irei | irás | irá | iremos | irão ; 
+
+define Haver 
+haver | há | hei | havemos | hão | havia | haviam | havíamos | haverei | haverá | haverás | haveremos | haverão | haveria | haveríamos | haveriam ; 
+
+define AuxiliaryVerb 
+Ser | Estar | Ter | Haver ; 
+
+define FunctionWord 
+DefiniteArticle | 
+IndefiniteArticle | 
+PersonalPronoun | 
+PersonalReflexivePronoun | 
+DemonstrativePronoun | 
+PossessiveAdjective | 
+Preposition | 
+UnstressedConjunction | 
+Conjunction | 
+AuxiliaryVerb ; 
+
+regex 
+DefiniteArticle -> def ,, 
+IndefiniteArticle -> indef ,, 
+PersonalPronoun -> pp ,, 
+PersonalReflexivePronoun -> prp ,, 
+DemonstrativePronoun -> dp ,, 
+PossessiveAdjective -> pos ,, 
+[Preposition -nos] -> prep ,, 
+[UnstressedConjunction - se] -> uconj ,, 
+Conjunction -> conj ,, 
+Ser -> cop ,, 
+Estar -> cop ,, 
+Ter -> aux ,, 
+Haver -> aux ,, 
+\FunctionWord -> content ; 
