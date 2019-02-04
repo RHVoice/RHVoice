@@ -1,0 +1,69 @@
+# Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Digit 
+%0 : zero | 
+1:um | 
+2:dois | 
+3:três | 
+4:quatro | 
+5:cinco | 
+6:seis | 
+7:sete | 
+8:oito | 
+9:nove ; 
+
+define Letter 
+{a|A}:a | 
+[À|à]:a | 
+[Á|á]:a | 
+[Â|â]:a | 
+[Ã|ã]:ã | 
+[b|B]:bê | 
+[c|C]:cê | 
+[Ç|ç]:cê | 
+[d|D]:dê | 
+[e|E]:é | 
+[É|é]:é | 
+[Ê|ê]:ê | 
+{f|F}:éfe | 
+[g|G]:gê | 
+[h|H]:agá | 
+[i|I]:i | 
+[j|J]:jóta | 
+[k|K]:cá | 
+[l|L]:éle | 
+[m|M]:ême | 
+[n|N]:êne | 
+[o|O]:ó | 
+[Ó|ó]:ó | 
+[Ô|ô]:ô | 
+[Õ|õ]:õ | 
+[p|P]:pê | 
+[q|Q]:quê | 
+[r|R]:érre | 
+[s|S]:ésse | 
+[t|T]:tê | 
+[u|U]:u | 
+[Ú|ú]:ú | 
+[Ü|ü]:ü | 
+[v|V]:vê | 
+[w|W]:dáblio | 
+[x|X]:xis | 
+[y|Y]:ípsilon | 
+[z|Z]:zê ; 
+
+regex 
+[Letter|Digit] -> ; 

@@ -1,0 +1,124 @@
+# Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9 ; 
+define Digit %0|NZDigit ; 
+define Number [NZDigit Digit^<15] ; 
+
+define Unit 
+1:um | 
+2:dois | 
+3:três | 
+4:quatro | 
+5:cinco | 
+6:seis | 
+7:sete | 
+8:oito | 
+9:nove ; 
+
+define Teen 
+1:onze | 
+2:doze | 
+3:treze | 
+4:catorze | 
+5:quinze | 
+6:dezesseis | 
+7:dezessete | 
+8:dezoito | 
+9:dezenove ; 
+
+define Ten 
+1:dez | 
+2:vinte | 
+3:trinta | 
+4:quarenta | 
+5:cinquenta | 
+6:sessenta | 
+7:setenta | 
+8:oitenta | 
+9:noventa ; 
+
+define Hundred 
+1:cento | 
+2:duzentos | 
+3:trezentos | 
+4:quatrocentos | 
+5:quinhentos | 
+6:seiscentos | 
+7:setecentos | 
+8:oitocentos | 
+9:novecentos ; 
+
+define PowerOfThousandSymbol ths|mln|bln|tln ; 
+define PowerOfTenSymbol ten|hnd0|hnd|PowerOfThousandSymbol ; 
+
+define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 [.#.|\Digit] ; 
+
+define SeparateHundreds 
+[..] -> hnd || Digit _ Digit^2 ; 
+
+define Mark100s 
+hnd -> hnd0 || 1 _ {00} ; 
+
+define SeparateTens 
+[..] -> ten || Digit _ Digit ; 
+
+define RemoveZeros 
+%0 PowerOfTenSymbol -> 0 || _ ,, %0 -> 0 || _ .#. ; 
+
+define MarkTeens 
+[[1 ten]:0] NZDigit [0:teen] -> ; 
+
+define InsertAnds 
+[..] -> and || 
+NZDigit ten _ NZDigit , 
+NZDigit hnd _ (%0 ten) NZDigit , 
+NZDigit PowerOfThousandSymbol _ [NZDigit [hnd|hnd0] %0 ten %0] | [%0 hnd (%0 ten) NZDigit] ; 
+
+define RemoveOnes 
+1 -> 0 || .#. _ ths ; 
+
+define Translate 
+Unit -> || _ .#. | PowerOfThousand ,, 
+Teen [teen:0] -> || _ ,, 
+Ten [ten:0] -> || _ ,, 
+Hundred [hnd:0] -> || _ ,, 
+1 hnd0 -> cem || _ ,, 
+ths -> mil || _ ,, 
+and -> e || _ ,, 
+[mln:milhão | bln:bilhão | tln:trilhão] -> || 1 _ ,, 
+[mln:milhães | bln:bilhães | tln:trilhães] -> || [NZDigit - 1] _ ; 
+
+define NumberRules 
+Number .o. 
+SeparatePowerOfThousand(ths) .o. 
+SeparatePowerOfThousand(mln) .o. 
+SeparatePowerOfThousand(bln) .o. 
+SeparatePowerOfThousand(tln) .o. 
+SeparateHundreds .o. 
+Mark100s .o. 
+SeparateTens .o. 
+MarkTeens .o. 
+InsertAnds .o. 
+RemoveZeros .o. 
+RemoveOnes .o. 
+Translate ; 
+
+define ZeroRule 
+%0 : zero ; 
+
+regex 
+ZeroRule | NumberRules ; 
+

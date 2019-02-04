@@ -1,0 +1,283 @@
+# Copyright (C) 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define FunctionWord 
+{o} | {a} | {os} | {as} | 
+{um} | {uma} | {uns} | {umas} | 
+{eu} | {tu} | {você} | {ele} | {ela} | {nós} | {vós} | {vocês} | {eles} | {elas} | 
+{me} | {te} | {nos} | {vos} | {la} | {lo} | {las} | {los} | {se} | 
+{este} | {esta} | {estes} | {estas} | {neste} | {nesta} | {nestes} | {nestas} | {deste} | {desta} | {destes} | {destas} | {esse} | {essa} | {esses} | {essas} | {desse} | {dessa} | {desses} | {dessas} | {nesse} | {nessa} | {nesses} | {nessas} | {aquele} | {aquela} | {aqueles} | {aquelas} | {daquele} | {daquela} | {daqueles} | {daquelas} | {naquele} | {naquela} | {naqueles} | {naquelas} | {que} | 
+{meu} | {minha} | {meus} | {minhas} | {teu} | {tua} | {teus} | {tuas} | {seu} | {sua} | {seus} | {suas} | {nosso} | {nossa} | {nossos} | {nossas} | {vosso} | {vossa} | {vossos} | {vossas} | {dele} | {dela} | {deles} | {delas} | {nele} | {nela} | {neles} | {nelas} | 
+{de} | {do} | {da} | {dos} | {das} | {dum} | {duma} | {duns} | {dumas} | {em} | {no} | {na} | {nos} | {nas} | {num} | {numa} | {nuns} | {numas} | {por} | {pelo} | {pela} | {pelos} | {pelas} | {ao} | {à} | {aos} | {às} | {para} | {pro} | {pra} | {pros} | {pras} | {com} | {sem} | {até} | {desde} | {entre} | {sobre} | {sob} | 
+{e} | {ou} | {se} | {mas} | {como} ; 
+
+define StressTag OX|PAR|PRO ; 
+define Tag StressTag | FUNC ; 
+
+define RemoveTags Tag -> 0 ; 
+
+define EndOfWord .#. | Tag ; 
+define StartOfWord .#. ; 
+
+define VowelLetterA a|à|á|â|ã ; 
+define VowelLetterE e|é|ê ; 
+define VowelLetterI i|í ; 
+define VowelLetterO o|ó|ô|õ ;
+define VowelLetterU u|ú|ü ; 
+define VowelLetterEOrI VowelLetterE|VowelLetterI ; 
+define VowelLetter VowelLetterA|VowelLetterEOrI|VowelLetterO|VowelLetterU; 
+define AccentedVowelLetter á|â|é|ê|í|ó|ô|ú ; 
+define ConsonantLetter b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z ; 
+define Letter VowelLetter | ConsonantLetter ; 
+define Word Letter+ ; 
+
+ define StressedVowel a1|aN1|E1|e1|"e1?"|eN1|i1|iN1|O1|o1|"o1?"|oN1|u1|uN1 ; 
+ define UnstressedVowel a|aN|e|E|eN|i|iN|o|O|oN|u|uN ; 
+ define Vowel StressedVowel | UnstressedVowel  ; 
+define NasalVowel aN|aN1|eN|eN1|iN|iN1|oN|oN1|uN|uN1 ; 
+define OralVowel Vowel - NasalVowel ; 
+define NotIVowel OralVowel - [i|i1] ; 
+define NotUVowel OralVowel - [u|u1] ; 
+define Stop b|p|d|t|g|k ; 
+define Fricative v|f|z|s|S|Z ; 
+define Affricate dZ|tS ; 
+define Nasal m|n|J ; 
+define Liquid l|L|r|R ; 
+define Glide j|w|jN|wN ; 
+ define Consonant Stop|Fricative|Affricate|Nasal|Liquid|Glide ; 
+define VoicedConsonant b|d|g|v|z|Z|dZ|Nasal|Liquid ; 
+
+define FirstConsonantInCluster Stop|f|v ; 
+
+define UnstressedEnding [[a|e|o] (s)] | {am} | {em} | {ens} ; 
+
+define BasicUnaccentedParoxytone [Letter - AccentedVowelLetter]* [VowelLetter - AccentedVowelLetter] [Letter - AccentedVowelLetter]* UnstressedEnding ; 
+define UnaccentedParoxytoneException [ConsonantLetter* [g|q] [u|ü] UnstressedEnding] | [?* [{ãe}|{ão}|{õe}] (s)] | [{ao} (s)] ; 
+define UnaccentedParoxytone BasicUnaccentedParoxytone - UnaccentedParoxytoneException ; 
+
+define TagUnaccentedParoxytone [..] -> PAR || StartOfWord UnaccentedParoxytone _ [Tag - StressTag]* .#. ; 
+
+define TagFunctionWord 
+[..] -> FUNC || StartOfWord FunctionWord _ EndOfWord ; 
+
+define GuQuExceptionsRule 
+u -> ü || 
+StartOfWord {freq} _ VowelLetterE , 
+StartOfWord {seq} _ VowelLetterE {str} ; 
+
+define SHRule 
+{sh} -> {ch} ; 
+
+define IntervocalicSRule s -> z || VowelLetter _ VowelLetter ;
+
+define TransRule 
+{tr} VowelLetterA n [s:z] -> || StartOfWord _ VowelLetter ; 
+
+define InitialEXVowelRule 
+VowelLetterE [x:z] -> || StartOfWord _ VowelLetter ; 
+
+define XAfterDiphthongRule 
+x @-> S || [[[VowelLetterA|VowelLetterE] i] | [VowelLetterO u]] _ VowelLetter ,, 
+x @-> s || StartOfWord {au} _ ,, 
+{trou} [x:s] @-> || StartOfWord _ VowelLetterE ; 
+
+define XBeforeVowelRule 
+m VowelLetterE [x:S] @-> || _ VowelLetter ,, 
+VowelLetterE n [x:S] @-> || _ VowelLetter ,, 
+x @-> S || StartOfWord _ VowelLetter ; 
+
+define XBeforeConsonantRule 
+x -> s || _ ConsonantLetter ; 
+
+define CRule 
+{tch} @-> tS ,, 
+{ch} @-> S || _ ,, 
+[c:s] VowelLetterEOrI @-> || _ ,, 
+c @-> k || _ ,, 
+ç @-> s || _ ; 
+
+define DoubleSRule 
+{ss} @-> s ; 
+
+define YAsIRule 
+y -> i || StartOfWord | ConsonantLetter _ EndOfWord | ConsonantLetter ; 
+
+define GRule 
+g -> Z || _ VowelLetterEOrI ; 
+
+define UAsWRule 
+ü -> w || [g|q] _ VowelLetter ,, 
+u -> w || [g|q] _ VowelLetterA | VowelLetterO ,, 
+u -> 0 || [g|q] _ VowelLetterEOrI ; 
+
+define QRule 
+q -> k ; 
+
+define DefaultRRule 
+r -> R ; 
+
+define DoubleRRule 
+{RR} @-> R ; 
+
+define RAsTapRule 
+R -> r || VowelLetter | FirstConsonantInCluster _ VowelLetter ; 
+
+define JRule 
+j -> Z ; 
+
+define YRule 
+y -> j ; 
+
+define HRule 
+([n:J]|[l:L]) [h:0] @-> ; 
+
+define VowelWithDiacriticRule 
+á|â -> a1 || _ ,, 
+à -> a || _ ,, 
+ã -> aN || _ ,, 
+é -> E1 || _ ,, 
+ê -> e1 || _ ,, 
+í -> i1 || _ ,, 
+ó -> O1 || _ ,, 
+ô -> o1 || _ ,, 
+õ -> oN || _ ,, 
+ú -> u1 || _ ,, 
+ü -> u || _ ; 
+
+define AAsNasal a:aN|a1:aN1; 
+define EAsNasal e:eN|e1:eN1|E1:eN1; 
+define IAsNasal i:iN|i1:iN1 ; 
+define OAsNasal o:oN|o1:oN1|O1:oN1 ; 
+define UAsNasal u:uN|u1:uN1 ; 
+define VowelAsNasal AAsNasal| EAsNasal | IAsNasal | OAsNasal | UAsNasal ; 
+
+define NasalDiphthongRule1 
+AAsNasal [m:wN] -> || _ EndOfWord ,, 
+EAsNasal [m:jN] -> || _ EndOfWord ,, 
+EAsNasal [n:jN] -> || _ s EndOfWord ; 
+
+define NasalDiphthongRule2 
+e -> jN || [aN|oN] _ ,, 
+o -> wN || aN _ ,, 
+{ui} -> [uN jN] || StartOfWord m _ (t [o|a] (s)) EndOfWord ; 
+
+define NasalVowelRule 
+VowelAsNasal [[m|n]:0] -> || _ Consonant | x | EndOfWord ; 
+
+define DoubleConsonantAsSingle 
+b b:0 | d d:0 | f f:0 | g g:0 | k k:0 | l l:0 | m m:0 | n n:0 | p p:0 | t t:0 | v v:0 | z z:0 ; 
+
+define DoubleConsonantRule 
+DoubleConsonantAsSingle @-> ; 
+
+define Onset 0|Consonant | [FirstConsonantInCluster [l|r]] | [[g|k] w] | x ; 
+
+define DiphthongRule 
+[[a|a1] i [u:w]] | [NotIVowel [i:j]] | [NotUVowel [u:w]] @-> || _ EndOfWord | s | [(Onset - J) Vowel] ,, 
+a [o:w] (s) @-> || StartOfWord _ EndOfWord ; 
+
+define StressVowel a:a1|aN:aN1|e:"e1?"|eN:eN1|i:i1|iN:iN1|o:"o1?"|oN:oN1|u:u1|uN:uN1 ; 
+define UnstressVowel a1:a | aN1:aN | [e1|"e1?"]:e | E1:E | eN1:eN | i1:i | iN1:iN | [o1|"o1?"]:o | O1:O | oN1:oN | u1:u | uN1:uN ; 
+
+define StressParoxytone StressVowel -> || _ [\Vowel]* Vowel [\Vowel]* PAR ; 
+
+define StressOxytone StressVowel -> || .#. [\StressedVowel]* _ [\Vowel]* .#. ; 
+
+define UnstressFunctionWord 
+UnstressVowel -> || StartOfWord [\Vowel]* _ [\Vowel]* FUNC ; 
+
+define DefaultStressedMidVowelRule 
+"e1?" -> E1 , "o1?" -> O1 ; 
+
+define RisingDiphthongRule 
+i -> j , u -> w || _ [a|e|o] (s) EndOfWord ; 
+
+define VowelRaisingRule 
+e -> i , o -> u || _ (s) EndOfWord ; 
+
+define LVocalizationRule 
+l -> w || NotUVowel _ [\Vowel] | EndOfWord ; 
+
+define PalatalizationRule 
+d -> dZ , t -> tS || _ i|i1|iN|iN1 ; 
+
+define SVoicingRule 
+s -> z || _ VoicedConsonant ; 
+
+define ZDevoicingRule 
+z -> s || _ EndOfWord ; 
+
+define XRule 
+x -> {ks} ; 
+
+define Rules 
+Word .o. 
+TagFunctionWord .o. 
+GuQuExceptionsRule .o. 
+SHRule .o. 
+YAsIRule .o.
+TagUnaccentedParoxytone .o. 
+IntervocalicSRule .o. 
+TransRule .o. 
+InitialEXVowelRule .o. 
+XBeforeConsonantRule .o. 
+XAfterDiphthongRule .o. 
+XBeforeVowelRule .o. 
+CRule .o. 
+GRule .o. 
+UAsWRule .o. 
+QRule .o. 
+DefaultRRule .o. 
+RAsTapRule .o. 
+DoubleRRule .o. 
+JRule .o. 
+YRule .o. 
+HRule .o. 
+VowelWithDiacriticRule .o. 
+NasalDiphthongRule1 .o. 
+NasalDiphthongRule2 .o. 
+DoubleConsonantRule .o. 
+NasalVowelRule .o. 
+DiphthongRule .o. 
+StressParoxytone .o. 
+StressOxytone .o. 
+UnstressFunctionWord .o. 
+DefaultStressedMidVowelRule .o. 
+LVocalizationRule .o. 
+RisingDiphthongRule .o. 
+VowelRaisingRule .o. 
+PalatalizationRule .o. 
+DoubleSRule .o. 
+SVoicingRule .o. 
+ZDevoicingRule .o. 
+XRule .o. 
+RemoveTags ; 
+
+define Mapping 
+aN:an | aN1:an1 | 
+E:ee | E1:ee1 | eN:en | eN1:en1 | 
+iN:in | iN1:in1 | 
+O:oo | O1:oo1 | oN:on | oN1:on1 | 
+uN:un | uN1:un1 | 
+jN:jn | wN:wn | 
+R:rh | 
+L:lj | J:nj | 
+S:sh | Z:zh | 
+tS:tj | dZ:dj ; 
+
+define Rename Mapping -> ; 
+
+regex 
+Rules .o. Rename ; 
