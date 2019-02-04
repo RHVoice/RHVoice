@@ -133,7 +133,7 @@ def create_user_vars():
     args={"DESTDIR":""}
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
-    vars.Add(BoolVariable("training","The build will only be used to train voices: no global installation, run from the source directory, compile helper utilities",False))
+    vars.Add(BoolVariable("dev","The build will only be used for development: no global installation, run from the source directory, compile helper utilities",False))
     vars.Add(create_languages_user_var())
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
     vars.Add(create_audio_libs_user_var())
@@ -177,7 +177,7 @@ def create_base_env(user_vars):
     env_args["package_name"]="RHVoice"
     env_args["CPPDEFINES"]=[("RHVOICE","1")]
     env=Environment(**env_args)
-    if env["training"]:
+    if env["dev"]:
         env["prefix"]=os.path.abspath("local")
         env["RPATH"]=env.Dir("$libdir").abspath
     env["package_version"]=get_version(env["release"])
@@ -278,7 +278,7 @@ def configure(env):
     conf.Finish()
     env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"core"))
     src_subdirs=["third-party","core","lib"]
-    if env["training"]:
+    if env["dev"]:
         src_subdirs.append("utils")
     if env["audio_libs"]:
         src_subdirs.append("audio")
