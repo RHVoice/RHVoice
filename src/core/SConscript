@@ -23,7 +23,7 @@ if env["enable_mage"]:
 local_env=env.Clone()
 local_env["libversion"]="1.1.0"
 local_env["liblevel"]=1
-local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else ((r'\"'+local_env.Dir("#data").abspath+r'\"') if local_env["training"] else local_env.subst(r'\"$datadir/$package_name\"'))))
+local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else ((r'\"'+local_env.Dir("#data").abspath+r'\"') if local_env["dev"] else local_env.subst(r'\"$datadir/$package_name\"'))))
 local_env.Append(CPPDEFINES=("CONFIG_PATH",r'\"config\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$sysconfdir/$package_name\"')))
 if local_env["enable_mage"]:
 	local_env.Append(CPPDEFINES=("ENABLE_MAGE","1"))
