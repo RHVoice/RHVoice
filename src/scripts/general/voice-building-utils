@@ -210,8 +210,12 @@ class recordings_importer(task):
 			if not os.path.isdir(dir):
 				os.mkdir(dir)
 		files=self.get_file_list()
+		mapping=collections.OrderedDict()
 		for inpath,inname,outname in files:
 			self.process(inpath,inname,outname)
+			mapping[outname]=os.path.splitext(inname)[0]
+		with open("file_name_mapping.json","w") as f:
+			json.dump(mapping,f,indent=0)
 
 class htk_segmenter(task):
 	def register(self):
