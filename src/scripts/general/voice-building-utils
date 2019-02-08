@@ -262,6 +262,8 @@ class htk_segmenter(task):
 		self.param_conf_path=os.path.join(self.workdir,"param.conf")
 		self.hmmdir=os.path.join(self.workdir,"hmm")
 		self.proto_path=os.path.join(self.workdir,"proto")
+		with open("file_name_mapping.json") as f:
+			self.file_name_mapping=json.load(f)
 
 	def transcribe(self):
 		self.transcriptions=[]
@@ -515,6 +517,23 @@ class htk_segmenter(task):
 		self.hrun("HVite","-o","SW","-l","*","-b","SILENCE","-C",self.param_conf_path,"-a","-H",os.path.join(moddir,"macros"),"-H",os.path.join(moddir,"hmmdefs"),"-i",outmlf1,"-m","-t","250.0","150.0","1000.0","-y","lab","-I",inmlf,"-S",self.mfcc_scp_path,dict_path,phlist,tag="align{}".format(j))
 		print("Done")
 		self.hrun("HLEd","-l","*","-i",outmlf2,os.path.join(scriptdir,"pau.led"),outmlf1,tag="fixpau{}".format(j))
+		self.find_problematic_alignments(j)
+
+	def find_problematic_alignments(self,j):
+		stats=collections.Counter()
+		lines=self.read_lines(os.path.join(self.workdir,"log","HVite_align{}".format(j)))
+		for line in lines:
+			m=re.match(u"^Aligning File: .+/([^/]+)\\.mfcc$",line)
+			if m:
+				name=m.group(1)
+				src_name=self.file_name_mapping[name]
+				continue
+			if not line.startswith("No tokens survived to final node of network"):
+				continue
+			stats[src_name]+=1
+		with codecs.open(os.path.join(self.workdir,"problematic_files_{}.txt".format(j)),"w","utf-8") as f:
+			for name,count in stats.most_common():
+				f.write(u"{}\t{}\n".format(name,count))
 
 	def load_alignments(self,j):
 		path=os.path.join(self.workdir,"phones{}.mlf".format(j))
