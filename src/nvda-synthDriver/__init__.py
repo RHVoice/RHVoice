@@ -1,5 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 # Copyright (C) 2010, 2011, 2012, 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,7 +17,10 @@
 
 import sys
 import os.path
-import Queue
+try:
+	import Queue
+except ImportError:
+	import queue as Queue
 from collections import OrderedDict,defaultdict
 import threading
 import ctypes
@@ -30,9 +34,19 @@ import speech
 import languageHandler
 import addonHandler
 
-module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
+try:
+	module_dir=os.path.dirname(__file__.decode("mbcs"))
+except AttributeError:
+	module_dir=os.path.dirname(__file__)
 lib_path=os.path.join(module_dir,"RHVoice.dll")
 config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
+
+try:
+	basestring
+	unicode
+except NameError:
+	basestring = str
+	unicode = str
 
 class RHVoice_tts_engine_struct(Structure):
 	pass
@@ -110,7 +124,10 @@ class RHVoice_synth_params(Structure):
 			  ("capitals_mode",c_int)]
 
 def load_tts_library():
-	lib=ctypes.CDLL(lib_path.encode(sys.getfilesystemencoding()))
+	try:
+		lib=ctypes.CDLL(lib_path.encode("mbcs"))
+	except TypeError:
+		lib=ctypes.CDLL(lib_path)
 	lib.RHVoice_get_version.restype=c_char_p
 	lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
 	lib.RHVoice_new_tts_engine.restype=RHVoice_tts_engine
@@ -305,7 +322,7 @@ class speak_text(object):
 		self.__synth_params.absolute_volume=volume/50.0-1
 
 	def set_voice_profile(self,name):
-		self.__synth_params.voice_profile=name
+		self.__synth_params.voice_profile=name.encode("mbcs")
 
 	def __call__(self):
 		if self.__cancel_flag.is_set():
@@ -383,16 +400,16 @@ class SynthDriver(SynthDriver):
 		native_voices=self.__lib.RHVoice_get_voices(self.__tts_engine)
 		self.__voice_languages=dict()
 		self.__languages=set()
-		for i in xrange(number_of_voices):
+		for i in range(number_of_voices):
 			native_voice=native_voices[i]
-			self.__voice_languages[native_voice.name]=native_voice.language
-			self.__languages.add(native_voice.language)
+			self.__voice_languages[native_voice.name.decode("mbcs")]=native_voice.language.decode("mbcs")
+			self.__languages.add(native_voice.language.decode("mbcs"))
 		self.__profile=None
 		self.__profiles=list()
 		number_of_profiles=self.__lib.RHVoice_get_number_of_voice_profiles(self.__tts_engine)
 		native_profile_names=self.__lib.RHVoice_get_voice_profiles(self.__tts_engine)
-		for i in xrange(number_of_profiles):
-			name=native_profile_names[i]
+		for i in range(number_of_profiles):
+			name=native_profile_names[i].decode("mbcs")
 			self.__profiles.append(name)
 			if (self.__profile is None) and (nvda_language==self.__voice_languages[name.split("+")[0]]):
 				self.__profile=name
