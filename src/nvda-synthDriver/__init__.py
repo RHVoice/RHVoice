@@ -1,5 +1,5 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
-# Copyright (C) 2010, 2011, 2012, 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 # Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -322,7 +322,7 @@ class speak_text(object):
 		self.__synth_params.absolute_volume=volume/50.0-1
 
 	def set_voice_profile(self,name):
-		self.__synth_params.voice_profile=name.encode("mbcs")
+		self.__synth_params.voice_profile=name.encode("utf-8")
 
 	def __call__(self):
 		if self.__cancel_flag.is_set():
@@ -402,14 +402,14 @@ class SynthDriver(SynthDriver):
 		self.__languages=set()
 		for i in range(number_of_voices):
 			native_voice=native_voices[i]
-			self.__voice_languages[native_voice.name.decode("mbcs")]=native_voice.language.decode("mbcs")
-			self.__languages.add(native_voice.language.decode("mbcs"))
+			self.__voice_languages[native_voice.name.decode("utf-8")]=native_voice.language.decode("utf-8")
+			self.__languages.add(native_voice.language.decode("utf-8"))
 		self.__profile=None
 		self.__profiles=list()
 		number_of_profiles=self.__lib.RHVoice_get_number_of_voice_profiles(self.__tts_engine)
 		native_profile_names=self.__lib.RHVoice_get_voice_profiles(self.__tts_engine)
 		for i in range(number_of_profiles):
-			name=native_profile_names[i].decode("mbcs")
+			name=native_profile_names[i].decode("utf-8")
 			self.__profiles.append(name)
 			if (self.__profile is None) and (nvda_language==self.__voice_languages[name.split("+")[0]]):
 				self.__profile=name
