@@ -1,4 +1,5 @@
 # Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +21,10 @@ import shutil
 import config
 
 def onInstall():
-    module_dir=os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
+    try:
+        module_dir=os.path.dirname(__file__.decode("mbcs"))
+    except AttributeError:
+        module_dir=os.path.dirname(__file__)
     config_dir=os.path.join(module_dir,"synthDrivers","RHVoice","config")
     user_config_dir=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
     if not os.path.isdir(user_config_dir):
