@@ -92,5 +92,25 @@ _
 <feature name="num_words_in_utt"/>
 -
 <feature name="num_phrases_in_utt"/>
+/K:
+<feature name="dist_to_prev_stressed_syl_in_word"/>
+_
+<feature name="dist_to_next_stressed_syl_in_word"/>
+/L:
+<feature name="pos_in_word_fw"/>
+_
+<feature name="pos_in_word_bw"/>
+/M:
+<feature name="next_syl_vowel"/>
+#
+<feature name="prev_syl_vowel"/>
+#
+<feature name="next_syl_vowel_in_word"/>
+$
+<feature name="prev_syl_vowel_in_word"/>
+#
+<feature name="next_next_syl_vowel_in_word"/>
+&amp;
+<feature name="prev_prev_syl_vowel_in_word"/>
 </format>
 </labelling>
