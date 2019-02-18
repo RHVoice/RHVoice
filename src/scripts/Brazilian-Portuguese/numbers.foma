@@ -91,7 +91,7 @@ define RemoveOnes
 1 -> 0 || .#. _ ths ; 
 
 define Translate 
-Unit -> || _ .#. | PowerOfThousand ,, 
+Unit -> || _ .#. | PowerOfThousandSymbol ,, 
 Teen [teen:0] -> || _ ,, 
 Ten [ten:0] -> || _ ,, 
 Hundred [hnd:0] -> || _ ,, 
