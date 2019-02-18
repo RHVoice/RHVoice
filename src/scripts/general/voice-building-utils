@@ -1011,6 +1011,8 @@ class questions_maker(task):
 		if m:
 			for phonemes,question in phonetic_questions.iteritems():
 				if set(phonemes).intersection(set(values)):
+					if "vowel" in feature.name and set(phonemes).difference(self.vowels):
+						continue
 					if feature.name.endswith("name"):
 						prefix=feature.name[:-4]
 					else:
@@ -1034,6 +1036,8 @@ class questions_maker(task):
 		qstdir=os.path.join("data","questions")
 		if not os.path.isdir(qstdir):
 			os.mkdir(qstdir)
+		self.phoneset=self.get_phoneset()
+		self.vowels=set(phone for phone,features in self.phoneset.iteritems() if features.get("vc")=="+")
 		phonetic_questions=self.generate_phonetic_questions()
 		hts_features=self.load_hts_features()
 		all_values=self.extract_values(hts_features)
