@@ -35,7 +35,7 @@
 <phoneme name="rh" vc="-" son="-" ctype="r" cplace="v" cvox="+" cons="+" liq="+"/>
 <phoneme name="j" vc="-" son="+" ctype="g" cplace="p" cvox="+" cons="-" vheight="h" vclose="+" vfront="f" vrnd="-" nas="-"/>
 <phoneme name="jn" vc="-" son="+" ctype="g" cplace="p" cvox="+" cons="-" vheight="h" vclose="+" vfront="f" vrnd="-" nas="+"/>
-<phoneme name="w" vc="-" son="+" ctype="g" cplace="b" clab="+" cvox="+" cons="+" vheight="h" vclose="+" vfront="b" vrnd="+" nas="-"/>
-<phoneme name="wn" vc="-" son="+" ctype="g" cplace="b" clab="+" cvox="+" cons="+" vheight="h" vclose="+" vfront="b" vrnd="+" nas="+"/>
+<phoneme name="w" vc="-" son="+" ctype="g" cplace="b" clab="+" cvox="+" cons="-" vheight="h" vclose="+" vfront="b" vrnd="+" nas="-"/>
+<phoneme name="wn" vc="-" son="+" ctype="g" cplace="b" clab="+" cvox="+" cons="-" vheight="h" vclose="+" vfront="b" vrnd="+" nas="+"/>
 <phoneme name="pau"/>
 </phonemes>
