@@ -1347,7 +1347,7 @@ class voice_exporter(task):
 			self._version=args.version
 		self.voice_format="4"
 		self.indir=os.path.abspath(os.path.join("voices","qst001",self.version_name))
-		self.outdir=os.path.abspath(os.path.join(self.settings["outdir"],self.settings["speaker"]).lower())
+		self.outdir=os.path.abspath(os.path.join(self.settings["outdir"],self.settings["speaker"].lower()))
 		self.modoutdir=os.path.join(self.outdir,str(self.settings["sample_rate"]))
 		if not os.path.isdir(self.modoutdir):
 			os.makedirs(self.modoutdir)
