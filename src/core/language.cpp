@@ -914,7 +914,7 @@ else
         item& word=trans_rel.append(*word_iter);
         assign_pronunciation(word);
         if(!word.has_children())
-          throw g2p_error();
+          throw g2p_error(word);
         std::copy(word.begin(),word.end(),seg_rel.back_inserter());
       }
   }

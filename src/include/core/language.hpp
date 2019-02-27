@@ -118,8 +118,8 @@ namespace RHVoice
   class g2p_error: public language_error
   {
   public:
-    g2p_error():
-      language_error("G2p failed")
+    g2p_error(const item& word):
+      language_error("G2p failed: "+word.get("name").as<std::string>())
     {
     }
   };
