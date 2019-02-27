@@ -26,7 +26,7 @@ define Digit
 9:nove ; 
 
 define Letter 
-{a|A}:a | 
+[a|A]:a | 
 [À|à]:a | 
 [Á|á]:a | 
 [Â|â]:a | 
@@ -38,7 +38,7 @@ define Letter
 [e|E]:é | 
 [É|é]:é | 
 [Ê|ê]:ê | 
-{f|F}:éfe | 
+[f|F]:éfe | 
 [g|G]:gê | 
 [h|H]:agá | 
 [i|I]:i | 
@@ -66,4 +66,4 @@ define Letter
 [z|Z]:zê ; 
 
 regex 
-[Letter|Digit] -> ; 
+Letter|Digit ; 
