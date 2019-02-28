@@ -101,4 +101,21 @@ namespace RHVoice
       g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
     return transcription;
   }
+
+  void brazilian_portuguese::before_g2p(item& w) const
+  {
+    item& pw=w.as("Phrase");
+    const std::string& name=w.get("name").as<std::string>();
+    if(pw.has_next())
+      return;
+    if(!w.as("TokStructure").parent().has_feature("one-letter"))
+      return;
+    if(pw.has_prev())
+      {
+        if(name!="e"&&name!="o")
+          return;
+      }
+    w.set<std::string>("gpos","content");
+    w.set("lseq",true);
+}
 }

@@ -51,6 +51,9 @@ namespace RHVoice
     std::vector<std::string> get_word_transcription(const item& word) const;
 
   private:
+
+    void before_g2p(item& w) const;
+
     const brazilian_portuguese_info& info;
     const fst g2p_fst;
     const fst lseq_fst;
