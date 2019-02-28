@@ -627,6 +627,8 @@ else
             token.set("name",name);
             pos=*it;
             token.set("pos",pos);
+            if(((token_start+1)==token_end)&&(pos=="word"||pos=="lseq"))
+              token.set("one-letter",true);
             token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
             if((pos=="word")&&(stress.get_state()!=stress_pattern::undefined))
               token.set("stress_pattern",stress);
@@ -911,6 +913,7 @@ else
     relation& trans_rel=u.add_relation("Transcription");
     for(relation::iterator word_iter=word_rel.begin();word_iter!=word_rel.end();++word_iter)
       {
+        before_g2p(*word_iter);
         item& word=trans_rel.append(*word_iter);
         assign_pronunciation(word);
         if(!word.has_children())

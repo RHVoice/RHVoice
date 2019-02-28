@@ -13,32 +13,32 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-define StressedVowel a1|an1|e1|ee1|en1|i1|in1|o1|oo1|on1|u1|un1 ; 
 define UnstressVowel a1:a|an1:an|e1:e|ee1:ee|en1:en|i1:i|in1:in|o1:o|oo1:oo|on1:on|u1:u|un1:un ; 
 
 define Letter 
 a:a1 | 
-á:a1 | 
-â:a1 | 
+á:a1| 
+â:a1| 
 à:a1 | 
 ã:an1 | 
 b:[b e1] | 
 c:[s e1] | 
 ç:[s e1] | 
 d:[d e1] | 
-e:ee1 | 
+e:e1 | 
 é:ee1 | 
 ê:e1 | 
 f:[ee1 f i] | 
 g:[zh e1] | 
 h:[a g a1] | 
 i:i1 | 
+í:i1 | 
 j:[zh oo1 t a] | 
 k:[k a1] | 
 l:[ee1 l i] | 
 m:[e1 m i] | 
 n:[e1 n i] | 
-o:oo1 | 
+o:o1 | 
 ó:oo1 | 
 ô:o1 | 
 õ:on1 | 
@@ -58,10 +58,10 @@ z:[z e1] ;
 
 define LetterSequence Letter+ ; 
 
-define FixStress 
-UnstressVowel -> || _ ?* StressedVowel [\StressedVowel]* .#. ; 
+define Unstress 
+UnstressVowel -> ; 
 
 define Rules 
-LetterSequence .o. FixStress ; 
+(LetterSequence .o. Unstress) Letter ; 
 
 regex Rules ; 

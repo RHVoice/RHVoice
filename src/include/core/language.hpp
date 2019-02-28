@@ -227,6 +227,10 @@ namespace RHVoice
     bool decode_as_english(item& tok) const;
     std::vector<std::string> get_english_word_transcription(const item& word) const;
 
+    virtual void before_g2p(item& word) const
+{
+}
+
     std::map<std::string,smart_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
     hts_labeller labeller;

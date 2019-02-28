@@ -26,39 +26,40 @@ define Digit
 9:nove ; 
 
 define Letter 
-[a|A]:a | 
-[À|à]:a | 
-[Á|á]:a | 
-[Â|â]:a | 
-[Ã|ã]:ã | 
+[a|A]:á | 
+[À|à]:[á crase] | 
+[Á|á]:[á agudo] | 
+[Â|â]:[á circunflexo] | 
+[Ã|ã]:[á til] | 
 [b|B]:bê | 
 [c|C]:cê | 
-[Ç|ç]:cê | 
+[Ç|ç]:[cê cedilha] | 
 [d|D]:dê | 
-[e|E]:é | 
-[É|é]:é | 
-[Ê|ê]:ê | 
+[e|E]:ê | 
+[É|é]:[ê agudo] | 
+[Ê|ê]:[ê circunflexo] | 
 [f|F]:éfe | 
 [g|G]:gê | 
 [h|H]:agá | 
-[i|I]:i | 
+[i|I]:í | 
+[í|Í]:[í agudo] | 
 [j|J]:jóta | 
 [k|K]:cá | 
 [l|L]:éle | 
 [m|M]:ême | 
 [n|N]:êne | 
-[o|O]:ó | 
-[Ó|ó]:ó | 
-[Ô|ô]:ô | 
-[Õ|õ]:õ | 
+[o|O]:ô | 
+[Ó|ó]:[ô agudo] | 
+[Ô|ô]:[ô circunflexo] | 
+[Õ|õ]:[ô til] | 
 [p|P]:pê | 
 [q|Q]:quê | 
 [r|R]:érre | 
 [s|S]:ésse | 
 [t|T]:tê | 
-[u|U]:u | 
-[Ú|ú]:ú | 
-[Ü|ü]:ü | 
+[u|U]:ú | 
+[Ú|ú]:[ú agudo] | 
+[Ü|ü]:[ú trema] | 
 [v|V]:vê | 
 [w|W]:dáblio | 
 [x|X]:xis | 
