@@ -7,7 +7,7 @@ regex=re.compile(r"^\s*([^\s=]+)\s*=\s*((:?\S+\s+)*\S+)\s*$")
 
 def parse(path):
 	props=dict()
-	with io.open(path,"rt",encoding="ascii") as f:
+	with io.open(path,"rt",encoding="utf-8") as f:
 		for line in f:
 			match=regex.match(line)
 			if match:

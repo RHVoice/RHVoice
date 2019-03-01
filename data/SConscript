@@ -35,9 +35,9 @@ for dir_name in ["languages","voices"]:
 			continue
 		props["type"]=type
 		version="{format}.{revision}".format(**props)
-		name_format_string="RHVoice-voice-{language}-{name}" if type=="voice" else "RHVoice-language-{name}"
+		name_format_string=u"RHVoice-voice-{language}-{name}" if type=="voice" else "RHVoice-language-{name}"
 		name=name_format_string.format(**props)
-		description_format_string="{name} - {language} voice for RHVoice" if type=="voice" else "{name} language pack for RHVoice"
+		description_format_string=u"{name} - {language} voice for RHVoice" if type=="voice" else "{name} language pack for RHVoice"
 		description=description_format_string.format(**props)
 		if sys.platform!="win32" and not local_env["dev"]:
 			for f in data_files:
