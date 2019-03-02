@@ -63,18 +63,16 @@ def CheckXPCompat(context):
     context.Result(result)
     return result
 
-def CheckNSIS(context,unicode_nsis=False):
-    result=1
-    if unicode_nsis:
-        context.Message("Checking for Unicode NSIS... ")
-    else:
-        context.Message("Checking for NSIS... ")
-    key_name=r"SOFTWARE\NSIS"+(r"\Unicode" if unicode_nsis else "")
+def CheckNSIS(context):
+    result=0
+    context.Message("Checking for NSIS Unicode")
+    key_name=r"SOFTWARE\NSIS\Unicode"
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,key_name,0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
-            context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+                context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+                result=1
     except WindowsError:
-         result=0
+         pass
     context.Result(result)
     return result
 
@@ -317,8 +315,7 @@ def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
                        custom_tests={"CheckNSIS":CheckNSIS})
-    if not conf.CheckNSIS(True):
-        conf.CheckNSIS()
+    conf.CheckNSIS()
     conf.Finish()
 
 def build_for_windows(base_env,user_vars):
