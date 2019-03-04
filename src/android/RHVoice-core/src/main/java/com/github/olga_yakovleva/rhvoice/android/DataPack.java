@@ -41,6 +41,7 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.io.InputStreamReader;
 
 public abstract class DataPack
 {
@@ -50,19 +51,31 @@ public abstract class DataPack
     protected final int revision;
     protected String altLink;
     protected String tempLink;
+    private final String id;
 
-    protected DataPack(String name,int format,int revision)
+    protected DataPack(String id,String name,int format,int revision)
     {
+        this.id=id;
         this.name=name;
         this.format=format;
         this.revision=revision;
 }
 
-    protected DataPack(String name,int format,int revision,String altLink,String tempLink)
+    protected DataPack(String name,int format,int revision)
     {
-        this(name,format,revision);
+        this(null,name,format,revision);
+}
+
+    protected DataPack(String id,String name,int format,int revision,String altLink,String tempLink)
+    {
+        this(id,name,format,revision);
         this.altLink=altLink;
         this.tempLink=tempLink;
+}
+
+    protected DataPack(String name,int format,int revision,String altLink,String tempLink)
+    {
+        this(null,name,format,revision,altLink,tempLink);
 }
 
     public abstract String getType();
@@ -70,6 +83,14 @@ public abstract class DataPack
     public final String getName()
     {
         return name;
+}
+
+    public final String getId()
+    {
+        if(id!=null)
+            return id;
+        else
+            return name.toLowerCase().replace("-","_");
 }
 
     public abstract String getDisplayName();
@@ -94,11 +115,11 @@ public abstract class DataPack
     protected final int getVersionCode(File dir) throws IOException
     {
         File file=new File(dir,getType()+".info");
-        InputStream str=new BufferedInputStream(new FileInputStream(file));
+        InputStreamReader reader=new InputStreamReader(new BufferedInputStream(new FileInputStream(file)),"utf-8");
         try
             {
                 Properties props=new Properties();
-                props.load(str);
+                props.load(reader);
                 String strFormat=props.getProperty("format");
                 if(strFormat==null)
                     return 0;
@@ -116,13 +137,13 @@ public abstract class DataPack
 }
         finally
             {
-                close(str);
+                close(reader);
 }
 }
 
     public final String getPackageName()
     {
-        return String.format("com.github.olga_yakovleva.rhvoice.android.%s.%s",getType(),getName().toLowerCase());
+        return String.format("com.github.olga_yakovleva.rhvoice.android.%s.%s",getType(),getId());
 }
 
     public final PackageInfo getPackageInfo(Context context)
@@ -167,7 +188,7 @@ public abstract class DataPack
 
     private File getDownloadsDir(Context context)
     {
-        return context.getDir("downloads-"+getType()+"-"+getName().toLowerCase(),0);
+        return context.getDir("downloads-"+getType()+"-"+getId(),0);
     }
 
     private File getDownloadFile(Context context)
@@ -517,7 +538,7 @@ catch(PackageManager.NameNotFoundException e)
 
     protected final String getVersionKey()
     {
-        return String.format("%s.%s.version",getType(),getName().toLowerCase());
+        return String.format("%s.%s.version",getType(),getId());
 }
 
     public final String getPath(Context context)

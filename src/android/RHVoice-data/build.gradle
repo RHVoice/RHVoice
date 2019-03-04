@@ -8,27 +8,38 @@ ext.myVoiceNames=myVoicesDir.list()
 
 def getDataItemSpec(type,baseDir,dirName) {
 def spec=["type":type,"dirName":dirName]
-spec["outDataDir"]=new File(new File(new File(project.buildDir,"data"),"${type}s"),dirName)
 spec["inDataDir"]=new File(baseDir,dirName)
-spec["resDir"]=new File(spec["outDataDir"],"res")
-spec["rawDir"]=new File(spec["resDir"],"raw")
 def infoFile=new File(spec["inDataDir"],"${type}.info")
-def reader=new BufferedReader(new FileReader(infoFile))
+def reader=new BufferedReader(new InputStreamReader(new FileInputStream(infoFile),"utf-8"))
 def props=new Properties()
 props.load(reader)
 reader.close()
+if(!props.containsKey("file_name")) {
+                                    props.setProperty("file_name",props.getProperty("name"));
+}
+if(!props.containsKey("android_id")) {
+                                     props.setProperty("android_id",props.getProperty("name").replace("-","_"));
+}
+spec["outDataDir"]=new File(new File(new File(project.buildDir,"data"),"${type}s"),props.getProperty("file_name"))
+spec["resDir"]=new File(spec["outDataDir"],"res")
+spec["rawDir"]=new File(spec["resDir"],"raw")
 spec["format"]=Integer.parseInt(props.getProperty("format"))
 spec["revision"]=Integer.parseInt(props.getProperty("revision"))
-spec["name"]=props.getProperty("name")
+spec["id"]=props.getProperty("android_id")
+spec["file_name"]=props.getProperty("file_name")
 if(type.equals("voice")) {
+spec["display_name"]=props.getProperty("name")
 spec["language"]=props.getProperty("language")
+spec["display_language"]=spec["language"].replace("-"," ")
+} else {
+spec["display_name"]=props.getProperty("name").replace("-"," ")
 }
 spec["versionCode"]=1000*spec["format"]+10*spec["revision"]
 spec["versionName"]="${spec['format']}.${spec['revision']}"
-spec["package"]="com.github.olga_yakovleva.rhvoice.android.${type}.${dirName.toLowerCase()}"
-spec["flavor"]=type.equals("voice")?"voice-${spec['language']}-${spec['name']}":"language-${spec['name']}"
-spec["appName"]=type.equals("voice")?"RHVoice ${spec['language']} ${spec['name']}":"RHVoice ${spec['name']}"
-spec["task"]="pack_${type}_${spec['name']}"
+spec["package"]="com.github.olga_yakovleva.rhvoice.android.${type}.${spec['id'].toLowerCase()}"
+spec["flavor"]=type.equals("voice")?"voice-${spec['language']}-${spec['file_name']}":"language-${spec['file_name']}"
+spec["appName"]=type.equals("voice")?"RHVoice ${spec['display_language']} ${spec['display_name']}":"RHVoice ${spec['display_name']}"
+spec["task"]="pack_${type}_${spec['id']}"
 return spec
 }
 

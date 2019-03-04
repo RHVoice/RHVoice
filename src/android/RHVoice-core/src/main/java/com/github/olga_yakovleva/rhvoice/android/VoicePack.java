@@ -21,16 +21,26 @@ public final class VoicePack extends DataPack
 {
     private final LanguagePack lang;
 
-    public VoicePack(String name,LanguagePack lang,int format,int revision)
+    public VoicePack(String id,String name,LanguagePack lang,int format,int revision)
     {
-        super(name,format,revision);
+        super(id,name,format,revision);
         this.lang=lang;
+}
+
+    public VoicePack(String id,String name,LanguagePack lang,int format,int revision,String altLink,String tempLink)
+    {
+        super(id,name,format,revision,altLink,tempLink);
+        this.lang=lang;
+}
+
+public VoicePack(String name,LanguagePack lang,int format,int revision)
+    {
+        this(null,name,lang,format,revision);
 }
 
     public VoicePack(String name,LanguagePack lang,int format,int revision,String altLink,String tempLink)
     {
-        super(name,format,revision,altLink,tempLink);
-        this.lang=lang;
+        this(null,name,lang,format,revision,altLink,tempLink);
 }
 
     public String getType()
@@ -50,7 +60,7 @@ public final class VoicePack extends DataPack
 
     private String getEnabledKey()
     {
-        return String.format("voice.%s.enabled",getName().toLowerCase());
+        return String.format("voice.%s.enabled",getId());
 }
 
     @Override
