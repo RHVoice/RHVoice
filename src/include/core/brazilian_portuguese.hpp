@@ -34,6 +34,11 @@ namespace RHVoice
     }
     #endif
 
+    std::string get_country() const
+    {
+      return "BRA/BR";
+    }
+
   private:
     smart_ptr<language> create_instance() const;
   };
