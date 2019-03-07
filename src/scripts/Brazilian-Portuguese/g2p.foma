@@ -671,5 +671,8 @@ tS:tj | dZ:dj ;
 
 define Rename Mapping -> ; 
 
+define Exceptions 
+[{setecentos}:[s E tS i s eN1 t u s]] ; 
+
 regex 
-Rules .o. Rename ; 
+[Exceptions .P. Rules] .o. Rename ; 
