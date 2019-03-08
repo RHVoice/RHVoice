@@ -217,7 +217,10 @@ define OpenWord
 # Words with the combination "elh"
 [{velho}(s)] | 
 [{evangelho}(s)] | 
-[{velha}(s)] ; 
+[{velha}(s)] | 
+# Words ending in "oxo(s), oxa(s)"
+[?*{dox}[o|a](s)] ; 
+
 
 define CloseWordPattern 
 NotAccentedPrefix CloseWordEnding ; 
@@ -409,7 +412,10 @@ define CloseWord
 [{oca}(s)] | 
 [{bobhecha}(s)] | 
 [{arroba}] | 
-[{escopo}(s)] ; 
+[{escopo}(s)] | 
+{poderoso} | 
+[{planeja}(s)] | 
+{oi} ; 
 
 
 define TagCloseWord 
