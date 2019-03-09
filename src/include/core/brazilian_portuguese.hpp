@@ -16,6 +16,7 @@
 #ifndef RHVOICE_BRAZILIAN_PORTUGUESE_HPP
 #define RHVOICE_BRAZILIAN_PORTUGUESE_HPP
 
+#include <memory>
 #include "str.hpp"
 #include "fst.hpp"
 #include "language.hpp"
@@ -58,10 +59,13 @@ namespace RHVoice
   private:
 
     void before_g2p(item& w) const;
+    void post_lex(utterance& u) const;
+    void process_homographs(utterance& u) const;
 
     const brazilian_portuguese_info& info;
     const fst g2p_fst;
     const fst lseq_fst;
+    std::auto_ptr<fst> h_fst;
   };
 }
 #endif

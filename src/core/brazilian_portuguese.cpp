@@ -89,6 +89,13 @@ namespace RHVoice
     g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
     lseq_fst(path::join(info_.get_data_path(),"lseq.fst"))
   {
+    try
+      {
+        h_fst.reset(new fst(path::join(info.get_data_path(),"homographs.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   std::vector<std::string> brazilian_portuguese::get_word_transcription(const item& word) const
@@ -117,5 +124,47 @@ namespace RHVoice
       }
     w.set<std::string>("gpos","content");
     w.set("lseq",true);
+}
+
+  void brazilian_portuguese::post_lex(utterance& u) const
+  {
+    process_homographs(u);
+}
+
+  void brazilian_portuguese::process_homographs(utterance& u) const
+  {
+    if(h_fst.get()==0)
+      return;
+    std::string name;
+    relation& phrase_rel=u.get_relation("Phrase");
+    for(relation::iterator phrase_iter(phrase_rel.begin());phrase_iter!=phrase_rel.end();++phrase_iter)
+      {
+        h_fst->translate(phrase_iter->begin(),phrase_iter->end(),set_feature_iterator<std::string>("homograph",phrase_iter->begin(),phrase_iter->end()));
+        for(item::iterator word_iter(phrase_iter->begin());word_iter!=phrase_iter->end();++word_iter)
+          {
+            const std::string& h=word_iter->get("homograph").as<std::string>();
+            if(h=="H0")
+              continue;
+            item& syls=word_iter->as("SylStructure");
+            for(item::reverse_iterator syl_iter=syls.rbegin();syl_iter!=syls.rend();++syl_iter)
+              {
+                if(syl_iter->get("stress").as<std::string>()!="1")
+                  continue;
+                item::iterator vowel_pos=std::find_if(syl_iter->begin(),syl_iter->end(),feature_equals<std::string>("ph_vc","+"));
+                if(vowel_pos==syl_iter->end())
+                  break;
+                name=vowel_pos->get("name").as<std::string>();
+                if(h=="H1")
+                  {
+                    if(name=="ee")
+                      name="e";
+                    else if(name=="oo")
+                      name="o";
+}
+                vowel_pos->set<std::string>("name",name);
+                break;
+}
+          }
+      }
 }
 }
