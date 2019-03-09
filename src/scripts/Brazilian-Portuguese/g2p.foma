@@ -444,7 +444,8 @@ StartOfWord {eq} _ {estre} (s) EndOfWord ,
 StartOfWord {antig} _ {idade} (s) EndOfWord , 
 StartOfWord {antiq} _ {íssim} [o|a] (s) EndOfWord , 
 StartOfWord {ling} _ VowelLetterEOrI , 
-StartOfWord  {quinq} _ {ênio} EndOfWord ; 
+StartOfWord  {quinq} _ {ênio} EndOfWord , 
+{seq} _ VowelLetterE n ; 
 
 define SHRule 
 {sh} -> {ch} ; 
