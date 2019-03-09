@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -785,6 +785,7 @@ namespace RHVoice
     };
 
     void load_all();
+    void load_dir(const std::string& path);
     void load_file(const std::string& file_path);
     bool should_ignore_token(const position& pos) const;
 

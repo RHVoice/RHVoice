@@ -1052,6 +1052,15 @@ else
     text_settings.register_self(cfg,prefix);
   }
 
+  std::vector<std::string> language_info::get_userdict_paths() const
+  {
+    std::string internal_root(path::join(get_data_path(),"userdict"));
+    std::vector<std::string> paths;
+    paths.push_back(path::join(internal_root,"src"));
+    paths.push_back(userdict_path);
+    return paths;
+}
+
   language_list::language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path,const event_logger& logger)
   {
     const std::string tag="language_list";

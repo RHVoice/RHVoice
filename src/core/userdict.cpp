@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -434,7 +434,15 @@ namespace RHVoice
 
     void userdict::dict::load_all()
     {
-      std::string dir_path=lang.get_userdict_path();
+      std::vector<std::string> paths(lang.get_userdict_paths());
+      for(std::vector<std::string>::const_iterator it=paths.begin();it!=paths.end();++it)
+        {
+          load_dir(*it);
+}
+}
+
+    void userdict::dict::load_dir(const std::string& dir_path)
+    {
       if(!path::isdir(dir_path))
         return;
       std::vector<std::string> file_paths;
