@@ -415,7 +415,8 @@ define CloseWord
 [{escopo}(s)] | 
 {poderoso} | 
 [{planeja}(s)] | 
-{oi} ; 
+{oi} | 
+{pedro} ; 
 
 
 define TagCloseWord 
