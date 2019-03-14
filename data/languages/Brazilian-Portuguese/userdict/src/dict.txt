@@ -117,6 +117,7 @@ wordpress=uôrdprés
 r(oo=u)t
 p(a=á)ssword
 nvda=enivedeá
+word=uôrd
 
 ; historical/famous person  s
 Alzheimer=alsráimer
