@@ -77,7 +77,9 @@ DemonstrativePronoun |
 PossessiveAdjective | 
 de | 
 em | 
-com ; 
+com | 
+do | 
+no ; 
 
 define NounRule 
 NounVerbHomograph -> H1 || BeforeNounWord _ ; 
