@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2017, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -121,6 +121,8 @@ namespace RHVoice
     {
       return cfg.set(key,value);
 }
+
+    voice_profile get_fallback_voice_profile() const;
 
   private:
     engine(const engine&);

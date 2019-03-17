@@ -102,6 +102,8 @@ namespace RHVoice
                   new_voice=voice1;
               }
           }
+        if(new_voice.empty()&&current_voice.empty())
+          new_voice=tts_engine->get_fallback_voice_profile();
         if(!new_voice.empty())
           {
             current_voice=new_voice;
