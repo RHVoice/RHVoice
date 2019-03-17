@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -127,4 +127,30 @@ namespace RHVoice
           voice_profiles.insert(profile);
       }
   }
+
+  voice_profile engine::get_fallback_voice_profile() const
+  {
+    voice_profile p;
+    if(voices.empty())
+      return p;
+    for(voice_list::const_iterator it=voices.begin();it!=voices.end();++it)
+      {
+        if(it->get_language()->get_alpha3_code()=="eng")
+          {
+            p.add(it);
+            break;
+}
+}
+    for(voice_list::const_iterator it=voices.begin();it!=voices.end();++it)
+      {
+        if(it->get_language()->get_alpha3_code()=="rus")
+          {
+            p.add(it);
+            break;
+}
+}
+    if(p.empty())
+      p.add(voices.begin());
+    return p;
+}
 }
