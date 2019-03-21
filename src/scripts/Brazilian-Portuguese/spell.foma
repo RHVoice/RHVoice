@@ -66,5 +66,51 @@ define Letter
 [y|Y]:ípsilon | 
 [z|Z]:zê ; 
 
+define Whitespace 
+tab:tab | 
+nl:[nova linha] | 
+cr:retôrno | 
+sp:espaço | 
+nbsp:[espaço sem quebra] ; 
+
+define Symbol 
+%! : exclamação | 
+%" : aspas | 
+%# : número | 
+%$ : cifrão | 
+%£ : libra | 
+%€ : euro | 
+%¢ : centavos | 
+%¥ : iene | 
+%₹ : rúpya | 
+%% : porcento | 
+%& : [êh comercial] | 
+%' : apóstrofo | 
+%( : [abre parêntesis] | 
+%) : [fecha parêntesis] | 
+%* : asterisco | 
+%+ : mais | 
+%, : vírgula | 
+%- : hífen | 
+%. : ponto | 
+%/ : barra | 
+%: : [dois pontos] | 
+%; : [ponto e vírgula] | 
+%< : menor | 
+%> : maior | 
+%= : igual | 
+%? : interrogação | 
+%@ : arrôba | 
+%[ : [abre colchete] | 
+%] : [fecha colchete] | 
+%\ : [barra invertida] | 
+%^ : circunflexo | 
+%_ : sublinha | 
+%` : grave | 
+%{ : [abre chave] | 
+%} : [fecha chave] | 
+%| : [barra vertical] | 
+%~ : til ; 
+
 regex 
-Letter|Digit ; 
+Letter|Digit | Whitespace | Symbol ; 
