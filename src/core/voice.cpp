@@ -64,6 +64,13 @@ namespace RHVoice
     language_list::iterator lang=languages.find(language_name);
     voice_language=lang;
     settings.default_to(voice_language->voice_settings);
+    std::string c(get_country());
+    if(c.size()>=3)
+      {
+        alpha3_country_code=c.substr(c.size()-3,3);
+        if(c.size()==6)
+          alpha2_country_code=c.substr(0,2);
+}
   }
 
   void voice_info::register_settings(config& cfg)
