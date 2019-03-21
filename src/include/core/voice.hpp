@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -66,6 +66,16 @@ private:
       return voice_language;
     }
 
+    const std::string& get_alpha2_country_code() const
+    {
+      return alpha2_country_code;
+    }
+
+    const std::string& get_alpha3_country_code() const
+    {
+      return alpha3_country_code;
+    }
+
     sample_rate_t get_sample_rate() const
     {
       return sample_rate;
@@ -111,6 +121,8 @@ private:
 
     const unsigned int format;
     language_list::const_iterator voice_language;
+    std::string alpha2_country_code;
+    std::string alpha3_country_code;
     sample_rate_property sample_rate;
     enum_property<RHVoice_voice_gender> gender;
     bool_property enabled,preferred;
