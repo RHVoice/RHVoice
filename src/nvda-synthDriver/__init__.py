@@ -96,7 +96,8 @@ class RHVoice_voice_gender:
 class RHVoice_voice_info(Structure):
 	_fields_=[("language",c_char_p),
 			  ("name",c_char_p),
-			  ("gender",c_int)]
+			  ("gender",c_int),
+			  ("country",c_char_p)]
 
 class RHVoice_punctuation_mode:
 	default=0
@@ -368,6 +369,17 @@ class SynthDriver(SynthDriver):
 	def check(cls):
 		return os.path.isfile(lib_path)
 
+	def __languages_match(self,code1,code2,full=True):
+		lang1=code1.split("_")
+		lang2=code2.split("_")
+		if lang1[0]!=lang2[0]:
+			return False
+		if len(lang1)<2 or len(lang2)<2:
+			return True
+		if not full:
+			return True
+		return (lang1[1]==lang2[1])
+
 	def __init__(self):
 		self.__lib=load_tts_library()
 		self.__cancel_flag=threading.Event()
@@ -395,15 +407,19 @@ class SynthDriver(SynthDriver):
 		self.__tts_engine=self.__lib.RHVoice_new_tts_engine(byref(init_params))
 		if not self.__tts_engine:
 			raise RuntimeError("RHVoice: initialization error")
-		nvda_language=languageHandler.getLanguage().split("_")[0]
+		nvda_language=languageHandler.getLanguage()
 		number_of_voices=self.__lib.RHVoice_get_number_of_voices(self.__tts_engine)
 		native_voices=self.__lib.RHVoice_get_voices(self.__tts_engine)
 		self.__voice_languages=dict()
 		self.__languages=set()
 		for i in range(number_of_voices):
 			native_voice=native_voices[i]
-			self.__voice_languages[native_voice.name.decode("utf-8")]=native_voice.language.decode("utf-8")
-			self.__languages.add(native_voice.language.decode("utf-8"))
+			voice_language=native_voice.language.decode("utf-8")
+			if native_voice.country:
+				self.__languages.add(voice_language)
+				voice_language=voice_language+"_"+native_voice.country.decode("utf-8")
+			self.__voice_languages[native_voice.name.decode("utf-8")]=voice_language
+			self.__languages.add(voice_language)
 		self.__profile=None
 		self.__profiles=list()
 		number_of_profiles=self.__lib.RHVoice_get_number_of_voice_profiles(self.__tts_engine)
@@ -411,7 +427,7 @@ class SynthDriver(SynthDriver):
 		for i in range(number_of_profiles):
 			name=native_profile_names[i].decode("utf-8")
 			self.__profiles.append(name)
-			if (self.__profile is None) and (nvda_language==self.__voice_languages[name.split("+")[0]]):
+			if (self.__profile is None) and self.__languages_match(nvda_language,self.__voice_languages[name.split("+")[0]]):
 				self.__profile=name
 		if self.__profile is None:
 			self.__profile=self.__profiles[0]
@@ -452,12 +468,12 @@ class SynthDriver(SynthDriver):
 					language_changed=False
 				if not item.lang:
 					continue
-				new_language=item.lang.split("_")[0]
+				new_language="_".join(item.lang.split("_")[:2])
 				if new_language not in self.__languages:
 					continue
-				elif new_language==self.__voice_languages[self.__profile.split("+")[0]]:
+				elif self.__languages_match(new_language,self.__voice_languages[self.__profile.split("+")[0]]):
 					continue
-				text_list.append(u'<voice xml:lang="{}">'.format(new_language))
+				text_list.append(u'<voice xml:lang="{}">'.format(new_language.replace("_","-")))
 				language_changed=True
 			elif isinstance(item,speech.SpeechCommand):
 				log.debugWarning("Unsupported speech command: %s"%item)
