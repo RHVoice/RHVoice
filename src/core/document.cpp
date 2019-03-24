@@ -44,7 +44,7 @@ namespace RHVoice
         c=utf8::next(pos,name.end());
         item& token=parent_token.append_child();
         token.set("name",std::string(prev_pos,pos));
-        token.set<std::string>("pos",lang_info.is_letter(c)?"lseq":"sym");
+        token.set<std::string>("pos","sym");
         token.set("verbosity",verbosity_level);
       }
   }
