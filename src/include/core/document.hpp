@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -104,25 +104,27 @@ namespace RHVoice
     class append_token: public command<command_token>
     {
     public:
-      explicit append_token(const text_token& token):
+      explicit append_token(const text_token& prev_token,const text_token& token):
         position(token.position),
         length(token.length)
     {
       std::copy(token.text.begin(),token.text.end(),str::utf8_inserter(std::back_inserter(name)));
+      if(!prev_token.whitespace.empty())
+        std::copy(prev_token.whitespace.begin(),prev_token.whitespace.end(),str::utf8_inserter(std::back_inserter(whitespace)));
     }
 
       void execute(utterance& u) const;
 
     protected:
-      std::string name;
+      std::string name,whitespace;
       std::size_t position,length;
     };
 
     class append_chars: public append_token
     {
     public:
-      explicit append_chars(const text_token& token):
-        append_token(token),
+      explicit append_chars(const text_token& prev_token,const text_token& token):
+        append_token(prev_token,token),
         verbosity_level(verbosity_spell|((token.type==content_glyphs)?verbosity_full_name:verbosity_name))
     {
     }
@@ -136,8 +138,8 @@ namespace RHVoice
     class append_key: public append_token
     {
     public:
-      explicit append_key(const text_token& token):
-        append_token(token)
+      explicit append_key(const text_token& prev_token,const text_token& token):
+        append_token(prev_token,token)
     {
     }
 
@@ -521,11 +523,11 @@ namespace RHVoice
         else if(language_and_voice.first==languages.end())
           language_and_voice=markup_language_and_voice;
         if(next_token.type==content_text)
-          commands.push_back(command_ptr(new append_token(next_token)));
+          commands.push_back(command_ptr(new append_token(prev_token,next_token)));
         else if(next_token.type==content_key)
-          commands.push_back(command_ptr(new append_key(next_token)));
+          commands.push_back(command_ptr(new append_key(prev_token,next_token)));
         else
-          commands.push_back(command_ptr(new append_chars(next_token)));
+          commands.push_back(command_ptr(new append_chars(prev_token,next_token)));
         prev_token=next_token;
         length+=prev_token.text.size();
         ++num_tokens;

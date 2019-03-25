@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -21,6 +21,7 @@ namespace RHVoice
   void sentence::append_token::execute(utterance& u) const
   {
     item& token=u.get_language().append_token(u,name);
+    token.set("whitespace",whitespace);
     token.set("position",position);
     token.set("length",length);
     u.get_relation("Event",true).append(token);
@@ -31,6 +32,7 @@ namespace RHVoice
     const language_info& lang_info=u.get_language().get_info();
     item& parent_token=u.get_relation("TokStructure",true).append();
     parent_token.set("name",name);
+    parent_token.set("whitespace",whitespace);
     parent_token.set("position",position);
     parent_token.set("length",length);
     u.get_relation("Token",true).append(parent_token);
@@ -54,6 +56,7 @@ namespace RHVoice
     const language_info& lang_info=u.get_language().get_info();
     item& parent_token=u.get_relation("TokStructure",true).append();
     parent_token.set("name",name);
+    parent_token.set("whitespace",whitespace);
     parent_token.set("position",position);
     parent_token.set("length",length);
     u.get_relation("Token",true).append(parent_token);
