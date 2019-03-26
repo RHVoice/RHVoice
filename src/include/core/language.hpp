@@ -230,6 +230,7 @@ namespace RHVoice
     virtual void before_g2p(item& word) const
 {
 }
+    bool check_for_f123(const item& tok,const std::string& name) const;
 
     std::map<std::string,smart_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;

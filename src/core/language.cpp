@@ -651,6 +651,34 @@ else
     return parent_token.as("Token");
   }
 
+  bool language::check_for_f123(const item& tok,const std::string& name) const
+  {
+    if(name!="123")
+      return false;
+    item::const_iterator it=tok.get_iterator();
+    if(tok.has_prev())
+      --it;
+    else
+      {
+        if(!tok.parent().has_prev()||!tok.parent().prev().has_children())
+          return false;
+        if(tok.parent().get("whitespace").as<std::string>()!=" ")
+          return false;
+        it=tok.parent().prev().last_child().get_iterator();
+      }
+    if(it->get("pos").as<std::string>()!="lseq")
+      return false;
+    const std::string& p_name=it->get("name").as<std::string>();
+    if(p_name!="F"&&p_name!="f")
+      return false;
+    if(!it->has_prev())
+      return true;
+    --it;
+    if(it->get("pos").as<std::string>()=="sym")
+      return true;
+    return false;
+  }
+
   bool language::decode_as_english(item& token) const
   {
     if(token.has_children())
@@ -695,7 +723,12 @@ else
     else if(token_pos=="lseq")
                 decode_as_letter_sequence(token,token_name);
     else if(token_pos=="num")
-      decode_as_number(token,token_name);
+      {
+        if(check_for_f123(token,token_name))
+          decode_as_digit_string(token,token_name);
+else
+  decode_as_number(token,token_name);
+      }
     else if(token_pos=="dig")
       decode_as_digit_string(token,token_name);
     else if(token_pos=="sym")
