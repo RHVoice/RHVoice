@@ -40,6 +40,7 @@ for dir_name in ["languages","voices"]:
 		version="{format}.{revision}".format(**props)
 		name_format_string="RHVoice-voice-{language}-{file_name}" if type=="voice" else "RHVoice-language-{language}"
 		name=name_format_string.format(**props)
+		package_name=props.get("package_name",name)
 		description_format_string=u"{name} - {display_language} voice for RHVoice" if type=="voice" else "{display_language} language pack for RHVoice"
 		description=description_format_string.format(**props)
 		if sys.platform!="win32" and not local_env["dev"]:
@@ -48,8 +49,8 @@ for dir_name in ["languages","voices"]:
 		packagers=dict()
 		if sys.platform=="win32":
 			pkgdir=Dir("..").Dir("packages")
-			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(name,pkgdir.Dir("nvda"),local_env,name,description,description,version)
-			packagers["sapi"]=RHVoicePackaging.windows.app_packager(name,pkgdir.Dir("sapi"),local_env,description,version,True)
+			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,version)
+			packagers["sapi"]=RHVoicePackaging.windows.app_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version,True)
 			for f in data_files:
 				packagers["nvda"].add(f,os.path.normpath(os.path.join("data",os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
 				packagers["sapi"].add(f,os.path.normpath(os.path.join("data",type+"s",props["file_name"],os.path.relpath(f.Dir(".").abspath,subdir.abspath))))

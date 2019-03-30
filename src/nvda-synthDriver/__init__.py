@@ -25,6 +25,7 @@ from collections import OrderedDict,defaultdict
 import threading
 import ctypes
 from ctypes import c_char_p,c_wchar_p,c_void_p,c_short,c_int,c_uint,c_double,POINTER,Structure,sizeof,string_at,CFUNCTYPE,byref,cast
+import re
 
 import config
 import nvwave
@@ -47,6 +48,8 @@ try:
 except NameError:
 	basestring = str
 	unicode = str
+
+data_addon_name_pattern=re.compile("^RHVoice-.*(voice|language).*")
 
 class RHVoice_tts_engine_struct(Structure):
 	pass
@@ -390,7 +393,7 @@ class SynthDriver(SynthDriver):
 		self.__c_speech_callback=RHVoice_callback_types.play_speech(self.__speech_callback)
 		self.__mark_callback=mark_callback(self.__lib)
 		self.__c_mark_callback=RHVoice_callback_types.process_mark(self.__mark_callback)
-		resource_paths=[os.path.join(addon.path,"data").encode("UTF-8") for addon in addonHandler.getRunningAddons() if (addon.name.startswith("RHVoice-language") or addon.name.startswith("RHVoice-voice"))]
+		resource_paths=[os.path.join(addon.path,"data").encode("UTF-8") for addon in addonHandler.getRunningAddons() if data_addon_name_pattern.match(addon.name)]
 		c_resource_paths=(c_char_p*(len(resource_paths)+1))(*(resource_paths+[None]))
 		init_params=RHVoice_init_params(None,
 										config_path.encode("utf-8"),
