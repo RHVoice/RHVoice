@@ -20,7 +20,7 @@ import os.path
 from .archiving import archiver
 
 class addon_packager(archiver):
-	def __init__(self,name,outdir,env,display_name,summary,description,version):
+	def __init__(self,name,outdir,env,display_name,summary,description,version,data_package=False):
 		from datetime import datetime
 		now=datetime.now()
 		package_name="{}-{}".format(name,version)
@@ -32,7 +32,10 @@ class addon_packager(archiver):
 		self.set_string("url","http://github.com/Olga-Yakovleva/RHVoice")
 		self.set_string("version",version)
 		self.set_string("minimumNVDAVersion", "2012.2.0")
-		self.set_string("lastTestedNVDAVersion", "{major}.{minor}.0".format(major=now.year, minor=(now.month-1)//3+1))
+		if data_package:
+			self.set_string("lastTestedNVDAVersion", "2099.4.0")
+		else:
+			self.set_string("lastTestedNVDAVersion", "{major}.{minor}.0".format(major=now.year, minor=(now.month-1)//3+1))
 
 	def build_manifest(self,lang=None):
 		if lang:
