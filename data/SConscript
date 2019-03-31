@@ -49,7 +49,7 @@ for dir_name in ["languages","voices"]:
 		packagers=dict()
 		if sys.platform=="win32":
 			pkgdir=Dir("..").Dir("packages")
-			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,version)
+			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,version,True)
 			packagers["sapi"]=RHVoicePackaging.windows.app_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version,True)
 			for f in data_files:
 				packagers["nvda"].add(f,os.path.normpath(os.path.join("data",os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
