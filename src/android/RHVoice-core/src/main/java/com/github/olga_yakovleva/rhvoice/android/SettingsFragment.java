@@ -104,24 +104,19 @@ import java.util.TreeMap;
                     engPref.setDefaultValue(true);
                     cat.addPreference(engPref);
                 }
-            InputFilter[] inputFilters=new InputFilter[]{new InputFilter.LengthFilter(3)};
-            AutoSummaryEditTextPreference volumePref=new AutoSummaryEditTextPreference(ctx);
-            volumePref.setKey("language."+code3+".volume");
+            SeekBarPreference volumePref=new SeekBarPreference(ctx);
+            volumePref.setKey("language."+code3+".volume2");
             volumePref.setTitle(R.string.speech_volume);
-            volumePref.setDialogTitle(R.string.speech_volume);
-            volumePref.setDefaultValue("100");
-            volumePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
-            volumePref.getEditText().setSelectAllOnFocus(true);
-            volumePref.getEditText().setFilters(inputFilters);
+            volumePref.setMin(25);
+            volumePref.setMax(400);
+            volumePref.setDefaultValue(100);
             cat.addPreference(volumePref);
-            AutoSummaryEditTextPreference ratePref=new AutoSummaryEditTextPreference(ctx);
-            ratePref.setKey("language."+code3+".rate");
+            SeekBarPreference ratePref=new SeekBarPreference(ctx);
+            ratePref.setKey("language."+code3+".rate2");
             ratePref.setTitle(R.string.speech_rate);
-            ratePref.setDialogTitle(R.string.speech_rate);
-            ratePref.setDefaultValue("100");
-            ratePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
-            ratePref.getEditText().setSelectAllOnFocus(true);
-            ratePref.getEditText().setFilters(inputFilters);
+            ratePref.setMin(50);
+            ratePref.setMax(300);
+            ratePref.setDefaultValue(100);
             cat.addPreference(ratePref);
         }
 

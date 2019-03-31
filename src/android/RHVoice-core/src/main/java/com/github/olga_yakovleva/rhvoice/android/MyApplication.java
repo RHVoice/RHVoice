@@ -48,5 +48,6 @@ public final class MyApplication extends Application
                     Log.e(TAG,"Error",e);
 }
         JobManager.create(this).addJobCreator(new DataSyncJobCreator());
+        PrefsMigrator.migrate(this);
 }
 }
