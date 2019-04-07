@@ -70,7 +70,7 @@ public final class Data
         lang.addVoice(new VoicePack("Natalia", lang, 4, 0, null, null));
         addLanguage(lang);
         lang=new LanguagePack("Brazilian-Portuguese", "por", "BRA", 1, 0, null, "https://www.dropbox.com/s/25b2z7xqi0wh1d8/data-1.0.zip?dl=1");
-        lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 0, null, "https://www.dropbox.com/s/p8gd0iw5o5cqkgb/voice-4.0.zip?dl=1"));
+        lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 1, "https://public.f123.org/download/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.1.zip", null));
         addLanguage(lang);
 }
 
