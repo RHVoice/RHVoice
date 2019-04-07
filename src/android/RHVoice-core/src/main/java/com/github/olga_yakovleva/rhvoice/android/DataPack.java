@@ -341,8 +341,9 @@ catch(PackageManager.NameNotFoundException e)
 
     private void downloadFile(Context context,IDataSyncCallback callback) throws IOException
     {
+        String link=getLink();
         if(BuildConfig.DEBUG)
-            Log.v(TAG,"Trying to download the file");
+            Log.v(TAG,"Trying to download the file from "+link);
         if(!callback.isConnected())
             {
                 if(BuildConfig.DEBUG)
@@ -361,7 +362,7 @@ catch(PackageManager.NameNotFoundException e)
                 long start=0;
                 if(tempFile.exists())
                     start=tempFile.length();
-                URL url=new URL(getLink());
+                URL url=new URL(link);
                 con=(HttpURLConnection)url.openConnection();
                 con.setRequestProperty("Accept-Encoding","identity");
                 if(start>0)
