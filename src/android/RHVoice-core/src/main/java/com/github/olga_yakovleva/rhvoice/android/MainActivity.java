@@ -35,7 +35,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
     public void onLanguageSelected(LanguagePack language)
     {
         Bundle args=new Bundle();
-        args.putString(AvailableVoicesFragment.ARG_LANGUAGE,language.getCode());
+        args.putString(AvailableVoicesFragment.ARG_LANGUAGE,language.getTag());
         AvailableVoicesFragment frag=new AvailableVoicesFragment();
         frag.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.frame,frag,"voices").addToBackStack(null).commit();

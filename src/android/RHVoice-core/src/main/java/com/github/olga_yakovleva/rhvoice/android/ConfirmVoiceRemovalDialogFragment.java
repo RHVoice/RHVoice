@@ -88,7 +88,7 @@ public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFrag
     public static void show(AppCompatActivity activity,VoicePack voice)
     {
         Bundle args=new Bundle();
-        args.putString(ARG_LANGUAGE,voice.getLanguage().getCode());
+        args.putString(ARG_LANGUAGE,voice.getLanguage().getTag());
         args.putString(ARG_VOICE,voice.getName());
         ConfirmVoiceRemovalDialogFragment frag=new ConfirmVoiceRemovalDialogFragment();
         frag.setArguments(args);
