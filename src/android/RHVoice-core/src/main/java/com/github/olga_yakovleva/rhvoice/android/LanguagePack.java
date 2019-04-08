@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -26,22 +26,26 @@ import android.text.TextUtils;
 public final class LanguagePack extends DataPack
 {
     private final String code;
+    private final String oldCode;
     private final String countryCode;
+    private final String oldCountryCode;
+    private final boolean showCountry;
     private final List<VoicePack> voices=new ArrayList<VoicePack>();
     private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
 
-    public LanguagePack(String name,String code,String countryCode,int format,int revision)
+    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision)
     {
-        super(name,format,revision);
-        this.code=code;
-        this.countryCode=countryCode;
+        this(name,code,oldCode,countryCode,oldCountryCode,showCountry,format,revision,null,null);
 }
 
-    public LanguagePack(String name,String code,String countryCode,int format,int revision,String altLink,String tempLink)
+    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,String altLink,String tempLink)
     {
         super(name,format,revision,altLink,tempLink);
         this.code=code;
+        this.oldCode=oldCode;
         this.countryCode=countryCode;
+        this.oldCountryCode=oldCountryCode;
+        this.showCountry=showCountry;
 }
 
     public String getType()
@@ -51,8 +55,8 @@ public final class LanguagePack extends DataPack
 
     public String getDisplayName()
     {
-        Locale loc=new Locale(code);
-        return loc.getDisplayLanguage();
+        Locale loc=showCountry?new Locale(oldCode,oldCountryCode):new Locale(oldCode);
+        return loc.getDisplayName();
 }
 
     protected String getBaseFileName()
