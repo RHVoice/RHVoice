@@ -72,7 +72,7 @@ implementation "com.android.support:appcompat-v7:${supportLibraryVersion}"
 implementation "com.android.support:recyclerview-v7:${supportLibraryVersion}"
 implementation "com.takisoft.fix:preference-v7:${supportLibraryVersion}.0"
 implementation 'com.evernote:android-job:1.2.6'
-implementation 'org.conscrypt:conscrypt-android:1.4.1'
+implementation 'org.conscrypt:conscrypt-android:2.1.0'
 }
 
 preBuild.dependsOn addConfigFile
