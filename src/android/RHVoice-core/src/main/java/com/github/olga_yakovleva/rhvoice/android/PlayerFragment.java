@@ -770,7 +770,7 @@ public final class PlayerFragment extends Fragment
     public void play(VoicePack v)
     {
         stopPlayback();
-        if(v.isInstalled(getActivity()))
+        if(v.getEnabled(getActivity())&&v.isInstalled(getActivity()))
             ttsState.play(v);
         else
             playerState.play(v);
