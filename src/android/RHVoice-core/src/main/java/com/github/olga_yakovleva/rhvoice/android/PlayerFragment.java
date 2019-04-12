@@ -163,7 +163,7 @@ public final class PlayerFragment extends Fragment
 
     private int getDemoResId(VoicePack v)
     {
-        String name="demo_"+v.getName().toLowerCase();
+        String name="demo_"+v.getId();
         return getResId(name,"raw");
     }
 
