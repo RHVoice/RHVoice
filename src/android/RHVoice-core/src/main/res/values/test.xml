@@ -3,5 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="MissingTranslation">
     <string name="test_eng">If you can hear this message, then the voice is installed and working.</string>
-    <string name="test_rus">Если вы слышите это сообщение, значит, голос установлен и работает.</string>
+    <string name="test_rus">Если вы слышите это сообщение, значит,
+    голос установлен и работает.</string>
+    <string name="test_por">Se você consegue ouvir esta mensagem, a voz está instalada e funcionando.</string>
 </resources>
