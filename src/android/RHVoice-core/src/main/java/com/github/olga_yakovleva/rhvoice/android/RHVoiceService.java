@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -56,14 +56,21 @@ public final class RHVoiceService extends TextToSpeechService
     private static final int[] languageSupportConstants={TextToSpeech.LANG_NOT_SUPPORTED,TextToSpeech.LANG_AVAILABLE,TextToSpeech.LANG_COUNTRY_AVAILABLE,TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE};
     private static final Pattern DEFAULT_VOICE_NAME_PATTERN=Pattern.compile("^([a-z]{3})-default$");
 
+    public static final String ACTION_CHECK_DATA="com.github.olga_yakovleva.rhvoice.android.action.service_check_data";
     private final BroadcastReceiver dataStateReceiver=new BroadcastReceiver()
         {
             @Override
             public void onReceive(Context context,Intent intent)
             {
                 if(BuildConfig.DEBUG)
-                    Log.v(TAG,"Data state changed");
-                initialize();
+                    Log.v(TAG,"Checking data");
+                List<String> oldPaths=paths;
+                paths=Data.getPaths(context);
+                boolean changed=!paths.equals(oldPaths);
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"Paths changed: "+changed);
+                if(changed)
+                    initialize();
 }
         };
 
@@ -218,6 +225,7 @@ public final class RHVoiceService extends TextToSpeechService
     private final TtsManager ttsManager=new TtsManager();
     private volatile AndroidVoiceInfo currentVoice;
     private volatile boolean speaking=false;
+    private List<String> paths=new ArrayList<String>();
 
     private class Player implements TTSClient
     {
@@ -358,6 +366,8 @@ public final class RHVoiceService extends TextToSpeechService
                         else
                             return new Candidate(voice,language,country,"");
                     }
+                else if(testing)
+                    return new Candidate();
 }
         Candidate best=new Candidate();
         for(AndroidVoiceInfo voice: tts.voices)
@@ -384,7 +394,6 @@ public final class RHVoiceService extends TextToSpeechService
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Initializing the engine");
-        List<String> paths=Data.getPaths(this);
         if(paths.isEmpty())
             {
                 Log.w(TAG,"No voice data");
@@ -443,8 +452,9 @@ public final class RHVoiceService extends TextToSpeechService
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Starting the service");
+        paths=Data.getPaths(this);
         Data.scheduleSync(this);
-        LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,new IntentFilter(DataSyncJob.ACTION_DATA_STATE_CHANGED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,new IntentFilter(ACTION_CHECK_DATA));
         registerPackageReceiver();
         initialize();
         super.onCreate();

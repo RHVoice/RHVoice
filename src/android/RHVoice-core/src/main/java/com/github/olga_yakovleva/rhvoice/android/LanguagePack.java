@@ -120,6 +120,8 @@ public final class LanguagePack extends DataPack
                 if(voicePath!=null)
                     paths.add(voicePath);
 }
+        if(paths.isEmpty()&&code!="eng")
+            return paths;
         paths.add(languagePath);
         return paths;
 }
