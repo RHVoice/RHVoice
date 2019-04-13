@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Translated by Cleverson Casarin Uliana -->
+  <string name="default_voice_title">Voz padrão</string>
+  <string name="default_voice_dialog_title">Selecione uma voz</string>
+  <string name="detect_language_title">Detecção de idioma</string>
+  <string name="detect_language_desc">Mudança automática de idioma</string>
+  <string name="speech_volume">Volume da fala</string>
+  <string name="speech_rate">Velocidade da fala</string>
+  <string name="pseudo_english_title">Palavras em Inglês</string>
+  <string name="pseudo_english_desc">Tenta ler palavras em Inglês corretamente</string>
+  <string name="settings">Configurações</string>
+  <string name="wifi_only_title">Somente Wi-Fi</string>
+  <string name="wifi_only_desc">Baixar vozes somente por Wi-Fi</string>
+  <string name="speech_quality">Qualidade da fala</string>
+  <string-array name="quality_labels">
+    <item>Melhor desempenho possível</item>
+    <item>Qualidade padrão</item>
+    <item>Melhor qualidade possível</item>
+  </string-array>
+  <string name="languages">Idiomas</string>
+  <string name="voice_remove_question">Tem certeza que quer desinstalar esta voz?</string>
+  <string name="install">Instalar</string>
+  <string name="uninstall">Desinstalar</string>
+  <string name="play">Reproduzir</string>
+  <string name="stop">Parar</string>
+</resources>
