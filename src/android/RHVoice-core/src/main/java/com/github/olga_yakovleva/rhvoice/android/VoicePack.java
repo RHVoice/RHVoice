@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,7 +15,9 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.support.v4.content.LocalBroadcastManager;
 import android.content.Context;
+import android.content.Intent;
 
 public final class VoicePack extends DataPack
 {
@@ -71,7 +73,10 @@ public VoicePack(String name,LanguagePack lang,int format,int revision)
 
     public final void setEnabled(Context context,boolean value)
     {
+        boolean oldValue=getEnabled(context);
         getPrefs(context).edit().putBoolean(getEnabledKey(),value).apply();
+        if(value!=oldValue)
+            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
 }
 
     @Override

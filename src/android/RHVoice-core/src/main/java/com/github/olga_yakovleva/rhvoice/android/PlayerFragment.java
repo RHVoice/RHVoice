@@ -84,7 +84,15 @@ public final class PlayerFragment extends Fragment
             @Override
             public void onError(String uttId)
             {
+                if(BuildConfig.DEBUG)
+                    Log.w(TAG,"TTS error in utt "+uttId);
                 ttsHandler.post(new TTSErrorEvent(uttId));
+}
+
+            @Override
+            public void onError(String uttId,int code)
+            {
+                onError(uttId);
 }
         };
 
@@ -726,7 +734,6 @@ public final class PlayerFragment extends Fragment
         public void pause()
         {
             tts.stop();
-            ++ttsUttId;
             ttsState=new PausedTTSState();
 }
 }
@@ -742,6 +749,7 @@ public final class PlayerFragment extends Fragment
         @Override
         public void resume()
         {
+            ++ttsUttId;
             if(doPlay(ttsVoice))
                 return;
             ttsState=new InitializedTTSState();

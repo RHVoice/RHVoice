@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -25,7 +25,6 @@ public final class DataSyncJob extends Job implements IDataSyncCallback
 {
     public static final String JOB_TAG="data_sync_job_tag";
 
-    public static final String ACTION_DATA_STATE_CHANGED="com.github.olga_yakovleva.rhvoice.android.action.data_state_changed";
     public static final String ACTION_VOICE_DOWNLOADED="com.github.olga_yakovleva.rhvoice.android.action.voice_downloaded";
     public static final String ACTION_VOICE_INSTALLED="com.github.olga_yakovleva.rhvoice.android.action.voice_installed";
     public static final String ACTION_VOICE_REMOVED="com.github.olga_yakovleva.rhvoice.android.action.voice_removed";
@@ -42,11 +41,8 @@ public final class DataSyncJob extends Job implements IDataSyncCallback
             connected=false;
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Running, flags="+flags);
-        List<String> oldPaths=Data.getPaths(getContext());
         boolean done=Data.sync(getContext(),this);
-        List<String> newPaths=Data.getPaths(getContext());
-        if(!oldPaths.equals(newPaths))
-            LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(ACTION_DATA_STATE_CHANGED));
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Finished this run, done="+done);
         return done?Result.SUCCESS:Result.RESCHEDULE;

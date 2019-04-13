@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -485,6 +485,12 @@ catch(PackageManager.NameNotFoundException e)
                             Log.w(TAG,"Version mismatch");
                         return false;
                     }
+                if(!getEnabled(context))
+                    {
+                        if(BuildConfig.DEBUG)
+                            Log.w(TAG,"Installation was canceled while downloading");
+                        return false;
+}
                 if(!tempDir.renameTo(getInstallationDir(context,versionCode)))
                     {
                         if(BuildConfig.DEBUG)
@@ -594,7 +600,19 @@ catch(PackageManager.NameNotFoundException e)
         if(getEnabled(context))
             {
                 if(!isUpToDate(context))
-                    return install(context,callback);
+                    {
+                    boolean installed=install(context,callback);
+                    if(getEnabled(context))
+                        return installed;
+                    else
+                        {
+                            if(installed)
+                                uninstall(context,callback);
+                            else
+                                cleanup(context,0);
+                            return true;
+                        }
+                    }
                 else
                     return true;
 }
@@ -602,6 +620,8 @@ catch(PackageManager.NameNotFoundException e)
             {
                 if(isInstalled(context))
                     uninstall(context,callback);
+                else
+                    cleanup(context,0);
                 return true;
 }
 }
