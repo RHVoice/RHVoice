@@ -73,6 +73,8 @@ public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFrag
     public Dialog onCreateDialog(Bundle state)
     {
         AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
+        if(voice!=null)
+            builder.setTitle(voice.getName());
         builder.setMessage(R.string.voice_remove_question);
         builder.setPositiveButton(android.R.string.ok,this.new ClickListener(true));
         builder.setNegativeButton(android.R.string.cancel,this.new ClickListener(false));
