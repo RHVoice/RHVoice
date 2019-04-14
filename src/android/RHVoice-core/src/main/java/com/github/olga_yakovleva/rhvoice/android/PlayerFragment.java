@@ -342,16 +342,7 @@ public final class PlayerFragment extends Fragment
         {
             player.stop();
             onStop();
-            try
-                {
-                    player.prepare();
-}
-            catch(IOException e)
-                {
-                    if(BuildConfig.DEBUG)
-                        Log.e(TAG,"Error",e);
-                    playerState.reset();
-}
+            playerState.reset();
         }
 
         @Override
