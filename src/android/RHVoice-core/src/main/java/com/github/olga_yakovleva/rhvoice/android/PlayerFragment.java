@@ -429,7 +429,7 @@ public final class PlayerFragment extends Fragment
             try
                 {
                     afd=getActivity().getResources().openRawResourceFd(demoId);
-                    player.setDataSource(afd);
+                    player.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
                     player.prepare();
                     onOpen(v);
 }
