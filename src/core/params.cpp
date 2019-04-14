@@ -30,16 +30,12 @@ namespace
 #define MIN_SONIC_RATE 1
 #endif
 
-#ifndef MAX_RATE
-#define MAX_RATE 2
-#endif
-
 namespace RHVoice
 {
   voice_params::voice_params():
     default_rate("default_rate",1,0.2,MAX_MAX_RATE),
     min_rate("min_rate",0.5,0.2,1),
-    max_rate("max_rate",MAX_RATE,1,MAX_MAX_RATE),
+    max_rate("max_rate",2,1,MAX_MAX_RATE),
     default_pitch("default_pitch",1,0.5,2),
     min_pitch("min_pitch",0.5,0.5,1),
     max_pitch("max_pitch",2,1,2),

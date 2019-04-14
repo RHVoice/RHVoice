@@ -86,15 +86,22 @@ public final class RHVoiceService extends TextToSpeechService
         {
             public Object load(SharedPreferences prefs,String key)
             {
-                return prefs.getInt(key,100);
+                return prefs.getString(key,"100");
 }
 
             public String translate(Object value)
             {
-                int n=(Integer)value;
-                float f=n/100.0f;
-                return String.valueOf(f);
-            }
+                try
+                    {
+                        int n=Integer.parseInt((String)value);
+                        float f=n/100.0f;
+                        return String.valueOf(f);
+}
+                catch(NumberFormatException e)
+                    {
+                        return "1";
+}
+}
         };
 
     private static final SettingValueTranslator yesSettingValueTranslator=new SettingValueTranslator()
@@ -431,8 +438,8 @@ public final class RHVoiceService extends TextToSpeechService
             }
         for(String lang: tts.languageIndex.keySet())
             {
-                tts.mappedSettings.add(new MappedSetting("language."+lang+".volume2","languages."+lang+".default_volume",prosodySettingValueTranslator));
-                tts.mappedSettings.add(new MappedSetting("language."+lang+".rate2","languages."+lang+".default_rate",prosodySettingValueTranslator));
+                tts.mappedSettings.add(new MappedSetting("language."+lang+".volume","languages."+lang+".default_volume",prosodySettingValueTranslator));
+                tts.mappedSettings.add(new MappedSetting("language."+lang+".rate","languages."+lang+".default_rate",prosodySettingValueTranslator));
                 tts.mappedSettings.add(new MappedSetting("language."+lang+".use_pseudo_english","languages."+lang+".use_pseudo_english",yesSettingValueTranslator));
 }
         tts.mappedSettings.add(new MappedSetting("quality","quality",qualitySettingValueTranslator));
