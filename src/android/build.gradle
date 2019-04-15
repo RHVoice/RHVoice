@@ -14,7 +14,7 @@ google()
 jcenter()
     }
 
-ext.myMinSdkVersion=14
+ext.myMinSdkVersion=16
 ext.myCompileSdkVersion=28
 ext.myTargetSdkVersion=28
 }
