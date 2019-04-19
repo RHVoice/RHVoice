@@ -107,16 +107,20 @@ static double HTS_mlsafir(const double x, const double *b, const int m, const do
    int i;
 
    d[0] = x;
-   d[1] = aa * d[0] + a * d[1];
+   double t1 = aa * d[0] + a * d[1];
+   d[1] = t1;
+
+   double t2;
 
    for (i = 2; i <= m; i++)
-      d[i] += a * (d[i + 1] - d[i - 1]);
+     {
+       t2=d[i] + a * (d[i + 1] - t1);
+       y += t2 * b[i];
+       d[i] = t1;
+       t1=t2;
+ }
 
-   for (i = 2; i <= m; i++)
-      y += d[i] * b[i];
-
-   for (i = m + 1; i > 1; i--)
-      d[i] = d[i - 1];
+   d[m+1]=t1;
 
    return (y);
 }
@@ -293,11 +297,16 @@ static void HTS_c2ir(const double *c, const int nc, double *h, const int leng)
    double d;
 
    h[0] = exp(c[0]);
+
+   double t[IRLENG];
+   for(k=1; k< leng; ++k)
+     t[k]=k*c[k];
+
    for (n = 1; n < leng; n++) {
       d = 0;
       upl = (n >= nc) ? nc - 1 : n;
       for (k = 1; k <= upl; k++)
-         d += k * c[k] * h[n - k];
+         d += t[k] * h[n - k];
       h[n] = d / n;
    }
 }
@@ -711,21 +720,33 @@ static double HTS_Vocoder_excite_unvoiced_frame(HTS_Vocoder * v, double noise)
 /* HTS_Vocoder_excite_vooiced_frame: ping noise and pulse to ring buffer */
 static double HTS_Vocoder_excite_voiced_frame(HTS_Vocoder * v, double noise, double pulse)
 {
-   size_t i;
-   size_t j;
-   size_t k;
    double x=0.0;
-
    v->pulses_ring_buff[v->excite_buff_index]=pulse;
    v->noise_ring_buff[v->excite_buff_index]=noise;
-
-   for(i=0,j=v->excite_buff_size-1;i<v->excite_buff_size;++i,--j)
+   const size_t m=v->excite_buff_index+1;
+   const double* pulse_sig_ptr=v->pulses_ring_buff+m;
+   const double* pulse_coef_ptr=v->pulse_filter;
+   const double* noise_sig_ptr=v->noise_ring_buff+m;
+   const double* noise_coef_ptr=v->noise_filter;
+   const size_t n=v->excite_buff_size-m;
+   size_t i=n;
+   while(i!=0)
      {
-       k=(v->excite_buff_index+1+i) % v->excite_buff_size;
-       x+=(v->pulse_filter[j]*v->pulses_ring_buff[k]);
-       x+=(v->noise_filter[j]*v->noise_ring_buff[k]);
-}
-
+       --i;
+       x+=pulse_sig_ptr[i]*pulse_coef_ptr[i];
+       x+=noise_sig_ptr[i]*noise_coef_ptr[i];
+     }
+   pulse_sig_ptr=v->pulses_ring_buff;
+   noise_sig_ptr=v->noise_ring_buff;
+   pulse_coef_ptr+=n;
+   noise_coef_ptr+=n;
+   i=m;
+   while(i!=0)
+     {
+       --i;
+       x+=pulse_sig_ptr[i]*pulse_coef_ptr[i];
+       x+=noise_sig_ptr[i]*noise_coef_ptr[i];
+     }
    return x;
 }
 
