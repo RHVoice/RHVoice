@@ -3,3 +3,5 @@ gradle.properties
 .gradle/
 .externalNativeBuild/
 build/
+binary_cache/
+perf.data
