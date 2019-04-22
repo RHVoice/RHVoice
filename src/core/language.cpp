@@ -583,7 +583,8 @@ else
   {
     const language_info& lang_info=get_info();
     utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
-    bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
+    bool supports_stress_marks=lang_info.supports_stress_marks(),
+         stress_marker_is_set=lang_info.text_settings.stress_marker.is_set(true);
     std::vector<utf8::uint32_t> chars;
     std::vector<bool> stress_mask;
     utf8::uint32_t cp;
@@ -591,19 +592,27 @@ else
     while(it!=text.end())
       {
         cp=utf8::next(it,text.end());
-        if(process_stress_marks&&
-           (!chars.empty())&&
-           (chars.back()==stress_marker)&&
-           (lang_info.is_vowel_letter(cp)))
+        if(supports_stress_marks&&
+           (!chars.empty()))
           {
-            chars.back()=cp;
-            stress_mask.back()=true;
+            if(stress_marker_is_set&&
+               chars.back()==stress_marker&&
+               lang_info.is_vowel_letter(cp))
+              {
+                chars.back()=cp;
+                stress_mask.back()=true;
+                continue;
+              }
+            enum {COMBINING_ACUTE_ACCENT = 0x0301};
+            if(cp==COMBINING_ACUTE_ACCENT&&
+               lang_info.is_vowel_letter(chars.back()))
+            {
+              stress_mask.back()=true;
+              continue;
+            }
           }
-        else
-          {
-            chars.push_back(cp);
-            stress_mask.push_back(false);
-          }
+        chars.push_back(cp);
+        stress_mask.push_back(false);
       }
     std::vector<std::string> tokens;
     if(!tok_fst.translate(chars.begin(),chars.end(),std::back_inserter(tokens)))
