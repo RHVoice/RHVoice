@@ -124,12 +124,18 @@ def create_languages_user_var():
     help="Which languages to install"
     return ListVariable("languages",help,def_langs,langs,name_map)
 
+def create_audio_libs_user_var():
+    libs=["pulse","libao","portaudio"]
+    help="Which audio libraries to use if they are available"
+    return ListVariable("audio_libs",help,libs,libs)
+
 def create_user_vars():
     args={"DESTDIR":""}
     args.update(ARGUMENTS)
     vars=Variables(var_cache,args)
     vars.Add(create_languages_user_var())
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
+    vars.Add(create_audio_libs_user_var())
     vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
@@ -249,16 +255,15 @@ def configure(env):
 #     print("Error: cannot link with libsox")
 #     exit(1)
 # env.PrependUnique(LIBS="sox")
-    env["audio_libs"]=set()
     has_giomm=False
     has_pkg_config=conf.CheckPKGConfig()
     if has_pkg_config:
-        if conf.CheckPKG("libpulse-simple"):
-            env["audio_libs"].add("pulse")
-        if conf.CheckPKG("ao"):
-            env["audio_libs"].add("libao")
-        if conf.CheckPKG("portaudio-2.0"):
-            env["audio_libs"].add("portaudio")
+        if "pulse" in env["audio_libs"] and not conf.CheckPKG("libpulse-simple"):
+            env["audio_libs"].remove("pulse")
+        if "libao" in env["audio_libs"] and not conf.CheckPKG("ao"):
+            env["audio_libs"].remove("libao")
+        if "portaudio" in env["audio_libs"] and not conf.CheckPKG("portaudio-2.0"):
+            env["audio_libs"].remove("portaudio")
         if env["audio_libs"]:
             conf.CheckSpdVersion()
 #        has_giomm=conf.CheckPKG("giomm-2.4")
