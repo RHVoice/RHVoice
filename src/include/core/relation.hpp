@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -69,10 +69,20 @@ namespace RHVoice
       return *head;
     }
 
+    const item* first_ptr() const
+    {
+      return head;
+}
+
     item& first()
     {
       return const_cast<item&>(static_cast<const relation&>(*this).first());
     }
+
+    item* first_ptr()
+    {
+      return head;
+}
 
     const item& last() const
     {
@@ -81,10 +91,20 @@ namespace RHVoice
       return *tail;
     }
 
+    const item* last_ptr() const
+    {
+      return tail;
+}
+
     item& last()
     {
       return const_cast<item&>(static_cast<const relation&>(*this).last());
     }
+
+    item* last_ptr()
+    {
+      return tail;
+}
 
     bool empty() const
     {
