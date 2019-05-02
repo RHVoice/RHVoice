@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -146,6 +146,19 @@ namespace RHVoice
       return const_cast<item&>(static_cast<const item&>(*this).as(relation_name));
     }
 
+    const item* as_ptr(const std::string& relation_name) const
+    {
+      self_ref_map::const_iterator it(data->self_refs.find(relation_name));
+      if(it==data->self_refs.end())
+        return 0;
+      return (it->second);
+    }
+
+    item* as_ptr(const std::string& relation_name)
+    {
+      return const_cast<item*>(static_cast<const item&>(*this).as_ptr(relation_name));
+    }
+
     bool in(const std::string& relation_name) const
     {
       return (data->self_refs.find(relation_name)!=data->self_refs.end());
@@ -177,6 +190,16 @@ namespace RHVoice
       return const_cast<item&>(static_cast<const item&>(*this).next());
     }
 
+    const item* next_ptr() const
+    {
+      return next_item;
+    }
+
+    item* next_ptr()
+    {
+      return next_item;
+    }
+
     bool has_prev() const
     {
       return (prev_item!=0);
@@ -191,6 +214,16 @@ namespace RHVoice
     item& prev()
     {
       return const_cast<item&>(static_cast<const item&>(*this).prev());
+    }
+
+    const item* prev_ptr() const
+    {
+      return prev_item;
+    }
+
+    item* prev_ptr()
+    {
+      return prev_item;
     }
 
     bool has_parent() const
@@ -209,6 +242,16 @@ namespace RHVoice
       return const_cast<item&>(static_cast<const item&>(*this).parent());
     }
 
+    const item* parent_ptr() const
+    {
+      return parent_item;
+    }
+
+    item* parent_ptr()
+    {
+      return parent_item;
+    }
+
     bool has_children() const
     {
       return (first_child_item!=0);
@@ -225,6 +268,16 @@ namespace RHVoice
       return const_cast<item&>(static_cast<const item&>(*this).first_child());
     }
 
+    const item* first_child_ptr() const
+    {
+      return first_child_item;
+    }
+
+    item* first_child_ptr()
+    {
+      return first_child_item;
+    }
+
     const item& last_child() const
     {
       check(last_child_item);
@@ -236,6 +289,35 @@ namespace RHVoice
       return const_cast<item&>(static_cast<const item&>(*this).last_child());
     }
 
+    const item* last_child_ptr() const
+    {
+      return last_child_item;
+    }
+
+    item* last_child_ptr()
+    {
+      return last_child_item;
+    }
+
+    const item* relative_ptr(const std::string& path) const;
+
+    item* relative_ptr(const std::string& path)
+    {
+      return const_cast<item*>(static_cast<const item&>(*this).relative_ptr(path));
+    }
+
+    const item& relative(const std::string& path) const
+    {
+      const item* ptr=relative_ptr(path);
+      check(ptr);
+      return *ptr;
+}
+
+    item& relative(const std::string& path)
+    {
+      return const_cast<item&>(static_cast<const item&>(*this).relative(path));
+    }
+
   private:
     item* append_item(item* other);
     item* prepend_item(item* other);
@@ -245,6 +327,8 @@ namespace RHVoice
       if(ptr==0)
         throw item_not_found();
     }
+
+    std::pair<std::string,std::string> split_feat_spec(const std::string& spec) const;
 
   public:
     item& append();

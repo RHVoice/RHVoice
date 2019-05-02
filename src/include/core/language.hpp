@@ -151,6 +151,15 @@ namespace RHVoice
         return *(it->second);
     }
 
+    const feature_function* get_feature_function_ptr(const std::string& name) const
+    {
+      std::map<std::string,smart_ptr<feature_function> >::const_iterator it(feature_functions.find(name));
+      if(it==feature_functions.end())
+        return 0;
+      else
+        return (it->second.get());
+    }
+
     const hts_labeller& get_hts_labeller() const
     {
       return labeller;

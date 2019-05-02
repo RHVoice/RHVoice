@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -35,86 +35,125 @@ namespace RHVoice
         throw duplicate_item();
   }
 
-  value item::eval(const std::string& feature) const
+  const item* item::relative_ptr(const std::string& path) const
   {
-    std::string name;
-    const std::size_t n=feature.length();
+    const std::size_t n=path.length();
     if(n==0)
-      throw std::invalid_argument("Invalid feature specification");
-    std::size_t i=0;
-    std::size_t l=0;
+      throw std::invalid_argument("Invalid item path specification");
+    std::string name;
     const item* cur_item=this;
-    for(std::size_t j=0;j<n;++j)
+    std::size_t i=0;
+    std::size_t j=0;
+    std::size_t l=0;
+    while(i<n && cur_item!=0)
       {
-        if(feature[j]!='.')
+        for(;j<n;++j)
           {
-            ++l;
-            continue;
+            if(path[j]=='.')
+              break;
 }
+        l=j-i;
         if(l==0)
-          throw std::invalid_argument("Invalid feature specification");
+          throw std::invalid_argument("Invalid item path specification");
         if(l==1)
           {
-            if(feature[i]=='n')
-              cur_item=&(cur_item->next());
-            else if(feature[i]=='p')
-              cur_item=&(cur_item->prev());
+            if(path[i]=='n')
+              cur_item=cur_item->next_ptr();
+            else if(path[i]=='p')
+              cur_item=cur_item->prev_ptr();
             else
               throw std::invalid_argument("Invalid item path component");
           }
         else if(l==2)
           {
-            if(feature[i]=='n'&&feature[i+1]=='n')
-              cur_item=&(cur_item->next().next());
-            else if(feature[i]=='p'&&feature[i+1]=='p')
-              cur_item=&(cur_item->prev().prev());
+            if(path[i]=='n'&&path[i+1]=='n')
+              cur_item=cur_item->has_next()?cur_item->next().next_ptr():0;
+            else if(path[i]=='p'&&path[i+1]=='p')
+              cur_item=cur_item->has_prev()?cur_item->prev().prev_ptr():0;
             else
               throw std::invalid_argument("Invalid item path component");
           }
         else
           {
-            if(feature[i]=='R'&&feature[i+1]==':')
+            if(path[i]=='R'&&path[i+1]==':')
               {
-                name.assign(feature,i+2,l-2);
-                cur_item=&(cur_item->as(name));
+                name.assign(path,i+2,l-2);
+                cur_item=cur_item->as_ptr(name);
 }
-            else if(feature.compare(i,l,"parent")==0)
-              cur_item=&(cur_item->parent());
-            else if(feature.compare(i,l-1,"daughter")==0)
+            else if(path.compare(i,l,"parent")==0)
+              cur_item=cur_item->parent_ptr();
+            else if(path.compare(i,l-1,"daughter")==0)
               {
-                if(feature[i+l-1]=='1')
-                  cur_item=&(cur_item->first_child());
-                else if(feature[i+l-1]=='2')
-                  cur_item=&(cur_item->first_child().next());
-                else if(feature[i+l-1]=='n')
-                  cur_item=&(cur_item->last_child());
+                if(path[i+l-1]=='1')
+                  cur_item=cur_item->first_child_ptr();
+                else if(path[i+l-1]=='2')
+                  cur_item=cur_item->has_children()?cur_item->first_child().next_ptr():0;
+                else if(path[i+l-1]=='n')
+                  cur_item=cur_item->last_child_ptr();
                 else
                   throw std::invalid_argument("Invalid item path component");
  }
-            else if(feature.compare(i,l,"first")==0)
-              cur_item=&((cur_item->has_parent())?(cur_item->parent().first_child()):(cur_item->get_relation().first()));
-            else if(feature.compare(i,l,"last")==0)
-              cur_item=&((cur_item->has_parent())?(cur_item->parent().last_child()):(cur_item->get_relation().last()));
+            else if(path.compare(i,l,"first")==0)
+              cur_item=(cur_item->has_parent())?(cur_item->parent().first_child_ptr()):(cur_item->get_relation().first_ptr());
+            else if(path.compare(i,l,"last")==0)
+              cur_item=(cur_item->has_parent())?(cur_item->parent().last_child_ptr()):(cur_item->get_relation().last_ptr());
             else
               throw std::invalid_argument("Invalid item path component");
           }
-        i=j+1;
-        l=0;
+        ++j;
+        i=j;
       }
-    if(l==0)
-      throw std::invalid_argument("Invalid feature specification");
-    name.assign(feature,i,l);
-    const value& val=cur_item->get(name,true);
-    if(!val.empty())
-      return val;
-    return cur_item->get_relation().get_utterance().get_language().get_feature_function(name).eval(*cur_item);
+    return cur_item;
+  }
+
+  std::pair<std::string,std::string> item::split_feat_spec(const std::string& spec) const
+  {
+    std::pair<std::string,std::string> res;
+    std::string::size_type pos=spec.rfind('.');
+    if(pos==std::string::npos)
+      res.second=spec;
+else
+      {
+        if(pos==0)
+          throw std::invalid_argument("Invalid feature specification");
+          res.first.assign(spec,0,pos);
+        ++pos;
+        if(pos==spec.length())
+          throw std::invalid_argument("Invalid feature specification");
+        res.second.assign(spec,pos,spec.length()-pos);
+}
+    return res;
+}
+
+  value item::eval(const std::string& feature) const
+  {
+    std::pair<std::string,std::string> p(split_feat_spec(feature));
+    const item& i=p.first.empty()?*this:relative(p.first);
+    const value& v=i.get(p.second,true);
+    if(!v.empty())
+      return v;
+    return get_relation().get_utterance().get_language().get_feature_function(p.second).eval(i);
   }
 
   value item::eval(const std::string& feature,const value& default_value) const
   {
+    std::pair<std::string,std::string> p(split_feat_spec(feature));
+    const item* i=this;
+    if(!p.first.empty())
+      {
+        i=relative_ptr(p.first);
+        if(i==0)
+          return default_value;
+}
+    const value& v=i->get(p.second,true);
+    if(!v.empty())
+      return v;
+    const feature_function* f=get_relation().get_utterance().get_language().get_feature_function_ptr(p.second);
+    if(f==0)
+      return default_value;
     try
       {
-        return eval(feature);
+        return f->eval(*i);
       }
     catch(const lookup_error&)
       {
