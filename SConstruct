@@ -264,6 +264,8 @@ def configure(env):
             env["audio_libs"].remove("libao")
         if "portaudio" in env["audio_libs"] and not conf.CheckPKG("portaudio-2.0"):
             env["audio_libs"].remove("portaudio")
+    else:
+        env["audio_libs"]=[]
         if env["audio_libs"]:
             conf.CheckSpdVersion()
 #        has_giomm=conf.CheckPKG("giomm-2.4")
