@@ -114,11 +114,13 @@ namespace RHVoice
     mage->reset();
     HTS_Vocoder_clear(vocoder.get());
     MAGE::FrameQueue* fq=mage->getFrameQueue();
-    mage->setFrameQueue(0);
-    delete fq;
+    unsigned int n=fq->getNumOfItems();
+    if(n!=0)
+      fq->pop(n);
     MAGE::ModelQueue* mq=mage->getModelQueue();
-    mage->setModelQueue(0);
-    delete mq;
+    n=mq->getNumOfItems();
+    if(n!=0)
+      mq->pop(n);
   }
 
   void mage_hts_engine_impl::append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name) const
