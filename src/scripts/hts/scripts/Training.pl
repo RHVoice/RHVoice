@@ -235,7 +235,7 @@ $HRest         = "$HREST     -A    -C $cfg{'trn'} -D -T 1 -S $scp{'trn'}        
 $HERest{'mon'} = "$HEREST    -A    -C $cfg{'trn'} -D -T 1 -S $scp{'trn'} -I $mlf{'mon'} -m 1 -u tmvwdmv -w $wf -t $beam ";
 $HERest{'ful'} = "$HEREST    -A -B -C $cfg{'trn'} -D -T 1 -S $scp{'trn'} -I $mlf{'ful'} -m 1 -u tmvwdmv -w $wf -t $beam ";
 $HERest{'gv'}  = "$HEREST    -A    -C $cfg{'trn'} -D -T 1 -S $scp{'gv'}  -I $mlf{'gv'}  -m 1 ";
-$HHEd{'trn'}   = "$HHED      -A -B -C $cfg{'trn'} -D -T 1 -p -i ";
+$HHEd{'trn'}   = "$HHED      -r 1 -A -B -C $cfg{'trn'} -D -T 1 -p -i ";
 $HSMMAlign     = "$HSMMALIGN -A    -C $cfg{'trn'} -D -T 1 -S $scp{'trn'} -I $mlf{'mon'} -t $beam -w 1.0 ";
 $HMGenS        = "$HMGENS    -A -B -C $cfg{'syn'} -D -T 1                               -t $beam ";
 
