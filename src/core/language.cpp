@@ -31,6 +31,7 @@
 #include "core/brazilian_portuguese.hpp"
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
+#include "core/emoji.hpp"
 
 namespace RHVoice
 {
@@ -527,6 +528,13 @@ else
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        emoji_fst.reset(new fst(path::join(info_.get_data_path(),"emoji.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -650,6 +658,123 @@ else
       throw tokenization_error();
     return parent_token.as("Token");
   }
+
+  bool language::translate_emoji(item& parent_token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const
+  {
+    std::vector<std::string> annotation;
+    if(!emoji_fst->translate(start,end,std::back_inserter(annotation)))
+      return false;
+    std::vector<std::string> tok_result;
+    std::string name,pos;
+    verbosity_t v=verbosity_name;
+    item* word=0;
+    for(std::vector<std::string>::const_iterator it1=annotation.begin();it1!=annotation.end();++it1)
+      {
+        tok_result.clear();
+        if(!tok_fst.translate(str::utf8_string_begin(*it1),str::utf8_string_end(*it1),std::back_inserter(tok_result)))
+          continue;
+        name.clear();
+        for(std::vector<std::string>::const_iterator it2=tok_result.begin();it2!=tok_result.end();++it2)
+          {
+            if(str::is_single_char(*it2))
+              {
+                name.append(*it2);
+                continue;
+}
+            pos=*it2;
+            item& token=parent_token.append_child();
+            token.set("name",name);
+            token.set("pos",pos);
+            v=verbosity_name;
+            if(pos=="sym"&&name!="*"&&name!="#")
+              {
+                v=verbosity_silent;
+                if(word!=0)
+                  {
+                    if(((it2+1)==tok_result.end()&&(name==":"||name==","||name==")"))||
+                    (it2==(tok_result.begin()+1)&&(name=="(")))
+                      word->set("emoji_break",true);
+}
+              }
+            else
+              {
+                word=&token;
+}
+            token.set("verbosity",v);
+            name.clear();
+}
+}
+    if(word!=0)
+      word->set("emoji_break",true);
+    return true;
+}
+
+  void language::translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const
+  {
+    if(translate_emoji(token,start,end))
+      return;
+    std::vector<utf8::uint32_t>::const_iterator second=start+1;
+    if(second==end)
+      return;
+    emoji_char_t c=find_emoji_char(*second);
+    bool mod=(c.p&emoji_property_emoji_modifier);
+    if(mod&&(second+1)!=end&&translate_emoji(token,start,second+1))
+      return;
+    if(!translate_emoji(token,start,second))
+      return;
+    if(mod)
+      translate_emoji(token,second,second+1);
+}
+
+  std::vector<utf8::uint32_t> language::remove_emoji_presentation_selectors(const std::string& text) const
+  {
+    std::vector<utf8::uint32_t> seq;
+    utf8::uint32_t cp;
+    std::string::const_iterator it(text.begin());
+    while(it!=text.end())
+      {
+        cp=utf8::next(it,text.end());
+        if(cp!=emoji_presentation_selector)
+          seq.push_back(cp);
+      }
+    return seq;
+}
+
+  void language::translate_emoji_sequence(item& token,const std::string& text) const
+  {
+    const std::vector<utf8::uint32_t> seq(remove_emoji_presentation_selectors(text));
+    std::vector<utf8::uint32_t>::const_iterator end=std::find(seq.begin(),seq.end(),zwj);
+    if(end==seq.end())
+      {
+        translate_emoji_element(token,seq.begin(),seq.end());
+        return;
+}
+    if(translate_emoji(token,seq.begin(),seq.end()))
+      return;
+    std::vector<utf8::uint32_t>::const_iterator start=seq.begin();
+    translate_emoji_element(token,start,end);
+    while(end!=seq.end())
+      {
+        start=end+1;
+        if(start==seq.end())
+          break;
+        end=std::find(start,seq.end(),zwj);
+        translate_emoji_element(token,start,end);
+}
+}
+
+item& language::append_emoji(utterance& u,const std::string& text) const
+{
+  if(!supports_emoji())
+    throw language_error("This language doesn't support emoji");
+    relation& token_rel=u.get_relation("Token",true);
+    relation& tokstruct_rel=u.get_relation("TokStructure",true);
+    item& token=tokstruct_rel.append(token_rel.append());
+    token.set("name",text);
+    token.set("emoji",true);
+    translate_emoji_sequence(token,text);
+    return token.as("Token");
+}
 
   bool language::check_for_f123(const item& tok,const std::string& name) const
   {
@@ -871,8 +996,31 @@ else
       }
   }
 
+  bool language::should_break_emoji(const item& word) const
+  {
+    const item& w=word.as("Word");
+    if(!w.has_next())
+      return false;
+    const item& tw=word.as("Token");
+    if(!tw.has_next())
+      {
+        const item& t=w.next().as("Token").parent();
+        if(t.has_feature("emoji"))
+          return true;
+}
+    if(!tw.parent().has_feature("emoji"))
+      return false;
+    if(!tw.has_next())
+      return true;
+    if(w.as("TokStructure").parent().has_feature("emoji_break"))
+      return true;
+    return false;
+}
+
   break_strength language::get_word_break(const item& word) const
   {
+    if(should_break_emoji(word))
+      return break_phrase;
     if(!word.as("Token").has_next())
       {
         const value& strength_val=word.as("Token").parent().get("break_strength",true);

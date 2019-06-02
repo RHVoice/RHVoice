@@ -51,6 +51,15 @@ namespace RHVoice
       }
   }
 
+  void sentence::append_emoji::execute(utterance& u) const
+  {
+    item& token=u.get_language().supports_emoji()?u.get_language().append_emoji(u,name):u.get_language().append_token(u,name);
+    token.set("whitespace",whitespace);
+    token.set("position",position);
+    token.set("length",length);
+    u.get_relation("Event",true).append(token);
+  }
+
   void sentence::append_key::execute(utterance& u) const
   {
     const language_info& lang_info=u.get_language().get_info();
@@ -278,6 +287,8 @@ namespace RHVoice
         relation& tokstruct_rel=u.get_relation("TokStructure");
         for(relation::iterator parent_token_iter=tokstruct_rel.begin();parent_token_iter!=tokstruct_rel.end();++parent_token_iter)
           {
+            if(parent_token_iter->has_feature("emoji"))
+              continue;
             for(item::iterator token_iter=parent_token_iter->begin();token_iter!=parent_token_iter->end();++token_iter)
               {
                 const std::string& pos=token_iter->get("pos").as<std::string>();
