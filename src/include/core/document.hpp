@@ -32,6 +32,7 @@
 #include "client.hpp"
 #include "params.hpp"
 #include "quality_setting.hpp"
+#include "emoji.hpp"
 
 #ifndef RHVOICE_DOCUMENT_HPP
 #define RHVOICE_DOCUMENT_HPP
@@ -139,6 +140,17 @@ namespace RHVoice
     {
     public:
       explicit append_key(const text_token& prev_token,const text_token& token):
+        append_token(prev_token,token)
+    {
+    }
+
+      void execute(utterance& u) const;
+    };
+
+    class append_emoji: public append_token
+    {
+    public:
+      explicit append_emoji(const text_token& prev_token,const text_token& token):
         append_token(prev_token,token)
     {
     }
@@ -469,7 +481,38 @@ namespace RHVoice
     else if((markup_info.say_as!=content_text)&&str::isspace(*text_start))
       ++token_end;
     else
-      for(std::size_t i=0;(token_end!=text_end)&&(i<max_token_length)&&!str::isspace(*token_end);++token_end,++i);
+      {
+        emoji_scanner es;
+        for(std::size_t i=0;(token_end!=text_end)&&(i<max_token_length)&&!str::isspace(*token_end);++token_end,++i)
+          {
+            if(!es.process(*token_end))
+              continue;
+            text_iterator emoji_start=token_end;
+            text_iterator emoji_end=emoji_start;
+            ++emoji_end;
+            for(;emoji_end!=text_end;++emoji_end)
+              {
+                if(es.get_result()!=0&&emoji_start!=text_start)
+                  break;
+                if(!es.process(*emoji_end))
+                  break;
+}
+            if(es.get_result()==0)
+              {
+                es.reset();
+                continue;
+}
+            if(emoji_start!=text_start)
+              {
+                token_end=emoji_start;
+                break;
+}
+            token_end=emoji_start;
+            std::advance(token_end,es.get_result());
+            next_token.type=content_emoji;
+            break;
+}
+      }
     next_token.text.assign(text_start,token_end);
     next_token.length=token_end.offset()-next_token.position;
     return token_end;
@@ -524,6 +567,8 @@ namespace RHVoice
           language_and_voice=markup_language_and_voice;
         if(next_token.type==content_text)
           commands.push_back(command_ptr(new append_token(prev_token,next_token)));
+        else if(next_token.type==content_emoji)
+          commands.push_back(command_ptr(new append_emoji(prev_token,next_token)));
         else if(next_token.type==content_key)
           commands.push_back(command_ptr(new append_key(prev_token,next_token)));
         else

@@ -37,7 +37,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 LOCAL_MODULE := RHVoice_core
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(MY_INCLUDE_DIR) $(LOCAL_PATH)/$(MY_UTF8_DIR) $(LOCAL_PATH)/$(MY_RAPIDXML_DIR) $(LOCAL_PATH)/$(MY_SONIC_DIR) $(LOCAL_PATH)/$(MY_HTS_ENGINE_DIR) $(LOCAL_PATH)/$(MY_MAGE_DIR)
-LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%, %, $(filter-out $(LOCAL_PATH)/$(MY_CORE_DIR)/unidata.cpp, $(wildcard $(LOCAL_PATH)/$(MY_CORE_DIR)/*.cpp)))
+LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%, %, $(filter-out $(LOCAL_PATH)/$(MY_CORE_DIR)/unidata.cpp $(LOCAL_PATH)/$(MY_CORE_DIR)/emoji_data.cpp, $(wildcard $(LOCAL_PATH)/$(MY_CORE_DIR)/*.cpp)))
 LOCAL_CFLAGS := $(MY_DEFINES)
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 include $(BUILD_STATIC_LIBRARY)

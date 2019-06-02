@@ -1,0 +1,164 @@
+#!/usr/bin/python
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
+
+# Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import os
+import os.path
+from collections import OrderedDict, defaultdict
+import xml.etree.ElementTree as ET
+import subprocess
+
+if __name__!="__main__":
+	sys.exit()
+
+emoji_pres_sel=chr(0xfe0f)
+text_pres_sel=chr(0xfe0e)
+
+languages={
+	"English":
+	{
+		"ids":["en"]
+	 },
+	"Russian":
+	{
+		"ids":["ru"]
+	 },
+	"Brazilian-Portuguese":
+	{
+		"ids":["pt"]
+	 },
+	"Georgian":
+	{
+		"ids":["ka"]
+	 },
+	"Kyrgyz":
+	{
+		"ids":["ky"]
+	 },
+	"Ukrainian":
+	{
+		"ids":["uk"]
+	 }
+	   }
+
+sets=defaultdict(set)
+annotations=None
+
+emoji_data_path=sys.argv[1]
+cldr_path=sys.argv[2]
+
+def load_emoji_data_file(path):
+	with open(path,"r",encoding="utf-8") as fp:
+		for line in fp:
+			text=line.strip()
+			if not text:
+				continue
+			i=text.find("#")
+			if i>=0:
+				text=text[:i].strip()
+				if not text:
+					continue
+			fields=[f.strip() for f in text.split(";")]
+			if ".." in fields[0]:
+				first, last=fields[0].split("..")
+				first=int(first,16)
+				last=int(last,16)
+				for i in range(first, last+1):
+					c=chr(i)
+					sets[fields[1]].add(c)
+			else:
+				s="".join([chr(i) for i in [int(t,16) for t in fields[0].split()]])
+				sets[fields[1]].add(s)
+
+print("Loading Emoji data file")
+load_emoji_data_file(os.path.join(emoji_data_path,"emoji-data.txt"))
+
+def gen_emoji_data_cpp():
+	cps=sorted(sets["Emoji"] | sets["Emoji_Component"])
+	all_props=sorted(sets.keys())
+	with open("src/core/emoji_data.cpp","w",encoding="ascii") as fp:
+		fp.write("const emoji_char_t emoji_chars[]={\n")
+		first=True
+		for cp in cps:
+			props=[p for p in all_props if cp in sets[p]]
+			props_str="|".join(["emoji_property_{}".format(p.lower()) for p in props])
+			if first:
+				first=False
+			else:
+				fp.write(",\n")
+			fp.write("{{0x{:x}, {}}}".format(ord(cp),props_str))
+		fp.write("};\n\n")
+		fp.write("const unsigned int num_emoji_chars={};\n".format(len(cps)))
+
+print("Creating emoji_data.cpp")
+gen_emoji_data_cpp()
+
+def load_annotations(path):
+	tree=ET.parse(path)
+	for e in tree.getroot().findall("./annotations/annotation[@type='tts']"):
+		cp=e.get("cp")
+		name=e.text.strip()
+		if not cp or not name:
+			continue
+		if not all([c in sets["Emoji"] or c in sets["Emoji_Component"] for c in cp]):
+			continue
+		annotations[cp]=name
+
+def format_word(word):
+	return "".join(("%"+c for c in word))
+
+def format_name(name):
+	return ("[ "+" ".join((format_word(w) for w in name.split()))+" ]")
+
+def format_cp(cp):
+	return ("[{"+cp+"}]")
+
+def write_script_source(path):
+	with open(path,"w",encoding="utf-8") as fp:
+		fp.write("define Emoji \n")
+		first=True
+		for cp, name in annotations.items():
+			if first:
+				first=False
+			else:
+				fp.write(" | \n")
+			fp.write("[ {} : {} ]".format(format_cp(cp),format_name(name)))
+		fp.write(" ; \n\n")
+		fp.write("regex Emoji;\nwrite att /tmp/emoji.att\n")
+
+for lang_name, lang_props in sorted(languages.items()):
+	print("Processing {}".format(lang_name))
+	lang_ids=lang_props["ids"]
+	annotations=OrderedDict()
+	for lang_id in lang_ids:
+		print("Loading annotations from {}.xml".format(lang_id))
+		load_annotations(os.path.join(cldr_path,"common","annotations",lang_id+".xml"))
+	for lang_id in lang_ids:
+		print("Loading derived annotations from {}.xml".format(lang_id))
+		load_annotations(os.path.join(cldr_path,"common","annotationsDerived",lang_id+".xml"))
+		src_path=os.path.join("src","scripts",lang_name,"emoji.foma")
+		print("Creating the language-dependent script")
+	write_script_source(src_path)
+	print("Executing the script")
+	subprocess.check_call(["foma","-q","-f",src_path])
+	att2bin=os.path.join(os.path.dirname(__file__),"att2bin")
+	inpath="/tmp/emoji.att"
+	outpath=os.path.join("data","languages",lang_name,"emoji.fst")
+	print("Creating {}".format(outpath))
+	subprocess.check_call([att2bin,inpath,outpath])
+	os.remove(inpath)

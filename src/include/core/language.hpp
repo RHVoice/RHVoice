@@ -34,6 +34,7 @@
 #include "fst.hpp"
 #include "dtree.hpp"
 #include "userdict.hpp"
+#include "str.hpp"
 
 namespace RHVoice
 {
@@ -171,6 +172,13 @@ namespace RHVoice
     }
 
     item& append_token(utterance& u,const std::string& text) const;
+
+    bool supports_emoji() const
+    {
+      return (emoji_fst.get()!=0);
+}
+
+    item& append_emoji(utterance& u,const std::string& text) const;
     void do_text_analysis(utterance& u) const;
     void do_pos_tagging(utterance& u) const;
     void phrasify(utterance& u) const;
@@ -233,6 +241,7 @@ namespace RHVoice
 
     void indicate_case_if_necessary(item& token) const;
     break_strength get_word_break(const item& word) const;
+    bool should_break_emoji(const item& word) const;
     bool decode_as_english(item& tok) const;
     std::vector<std::string> get_english_word_transcription(const item& word) const;
 
@@ -240,6 +249,12 @@ namespace RHVoice
 {
 }
     bool check_for_f123(const item& tok,const std::string& name) const;
+
+    bool translate_emoji(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
+    std::vector<utf8::uint32_t> remove_emoji_presentation_selectors(const std::string& text) const;
+    void translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
+    void translate_emoji_sequence(item& token,const std::string& text) const;
+
 
     std::map<std::string,smart_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
@@ -253,6 +268,7 @@ namespace RHVoice
     std::vector<std::string> msg_cap_letter,msg_char_code;
     std::map<utf8::uint32_t,std::string> whitespace_symbols;
     std::auto_ptr<fst> english_phone_mapping_fst;
+    std::auto_ptr<fst> emoji_fst;
     userdict::dict udict;
 
   protected:
