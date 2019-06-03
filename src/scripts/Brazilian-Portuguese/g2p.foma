@@ -416,8 +416,11 @@ define CloseWord
 {poderoso} | 
 [{planeja}(s)] | 
 {oi} | 
-{pedro} ; 
-
+{pedro} | 
+[{colchete} (s)] | 
+{escolho} | 
+{generoso} | 
+{gaveta} ; 
 
 define TagCloseWord 
 [..] -> CLOSE || StartOfWord CloseWord _ EndOfWord ; 
@@ -484,7 +487,8 @@ StartOfWord {fa} _ {ina} (s) EndOfWord ,
 {pu} _ VowelLetter , 
 StartOfWord {sobreta} _ a (s) EndOfWord , 
 StartOfWord {po} _ a EndOfWord , 
-{gra} _ VowelLetter ,, 
+{gra} _ VowelLetter , 
+StartOfWord {xi} _ i EndOfWord ,, 
 x -> s || 
 StartOfWord m [a|á] _ VowelLetter , 
 {pr} [o|ó] _ VowelLetter ; 
@@ -680,7 +684,8 @@ tS:tj | dZ:dj ;
 define Rename Mapping -> ; 
 
 define Exceptions 
-[{setecentos}:[s E tS i s eN1 t u s]] ; 
+[{setecentos}:[s E tS i s eN1 t u s]] | 
+[{dosvox} : [d O z v O1 k s ]] ; 
 
 regex 
 [Exceptions .P. Rules] .o. Rename ; 
