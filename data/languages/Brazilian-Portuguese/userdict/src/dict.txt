@@ -61,9 +61,11 @@ up=ãp
 update=apideite
 updater=apidêiter
 upgrade=apigreide
-yahoo=iaru
+yahoo=iarru
 f(a=ei)ke
 news=niús
+Instagr(am=ã)
+Telegr(am=ã)
 
 ; foreign product names
 (A=á)ccess
