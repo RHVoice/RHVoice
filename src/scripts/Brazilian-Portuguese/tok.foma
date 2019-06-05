@@ -23,7 +23,10 @@ b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|z ;
 
 define Letter VowelLetter | ConsonantLetter ; 
 
-define Word Letter+ ; 
+define ExceptionalWord 
+[[e|E] [t|T] [c|C] %.] ; 
+
+define Word Letter+ | ExceptionalWord ; 
 
 define LetterSequence ConsonantLetter+ ; 
 
