@@ -15,7 +15,10 @@
 
 define NZDigit 1|2|3|4|5|6|7|8|9 ; 
 define Digit %0|NZDigit ; 
-define Number [NZDigit Digit^<15] ; 
+
+define UnformattedNumber [NZDigit Digit^<15] ; 
+define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
+define Number UnformattedNumber | FormattedNumber ; 
 
 define Unit 
 1:um | 
@@ -101,8 +104,12 @@ and -> e || _ ,,
 [mln:milhão | bln:bilhão | tln:trilhão] -> || 1 _ ,, 
 [mln:milhães | bln:bilhães | tln:trilhães] -> || [NZDigit - 1] _ ; 
 
+define RemoveThousandsSeparators 
+%. -> 0 ; 
+
 define NumberRules 
 Number .o. 
+RemoveThousandsSeparators .o. 
 SeparatePowerOfThousand(ths) .o. 
 SeparatePowerOfThousand(mln) .o. 
 SeparatePowerOfThousand(bln) .o. 
