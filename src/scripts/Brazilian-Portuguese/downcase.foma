@@ -26,7 +26,7 @@ define PortugueseDowncase
 Ê:ê | 
 Í:í | 
 Ó:ó | 
-Ô:ô | 
+[Ô|Ö|ö]:ô | 
 Õ:õ | 
 Ú:ú | 
 Ü:ü ; 

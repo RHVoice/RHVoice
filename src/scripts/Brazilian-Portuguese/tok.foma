@@ -14,8 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 define VowelLetter 
-A|À|Á|Â|Ã | E|É|Ê | I|Í | O|Ó|Ô|Õ | U|Ú|Ü | Y | 
-a|à|á|â|ã | e|é|ê | i|í | o|ó|ô|õ | u|ú|ü | y ; 
+A|À|Á|Â|Ã | E|É|Ê | I|Í | O|Ó|Ô|Õ | U|Ú|Ü | Y | Ö | 
+a|à|á|â|ã | e|é|ê | i|í | o|ó|ô|õ | u|ú|ü | y | ö ; 
 
 define ConsonantLetter 
 B|C|Ç|D|F|G|H|J|K|L|M|N|P|Q|R|S|T|V|W|X|Z | 
