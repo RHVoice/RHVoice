@@ -76,6 +76,15 @@ def CheckNSIS(context):
     context.Result(result)
     return result
 
+def CheckWiX(context):
+    result=0
+    context.Message("Checking for WiX toolset")
+    if "WIX" in os.environ:
+        context.env["WIX"]=os.environ["WIX"]
+        result=1
+    context.Result(result)
+    return result
+
 def validate_spd_version(key,val,env):
     m=re.match(r"^\d+\.\d+",val)
     if m is None:
@@ -314,8 +323,9 @@ def build_for_linux(base_env,user_vars):
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
-                       custom_tests={"CheckNSIS":CheckNSIS})
+                       custom_tests={"CheckNSIS":CheckNSIS,"CheckWiX":CheckWiX})
     conf.CheckNSIS()
+    conf.CheckWiX()
     conf.Finish()
 
 def build_for_windows(base_env,user_vars):

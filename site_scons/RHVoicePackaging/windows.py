@@ -18,169 +18,125 @@
 import codecs
 import os.path
 from collections import OrderedDict
+import xml.etree.cElementTree as etree
 from .common import *
 
 def __save__(target,source,env):
 	v=source[0].read()
 	with open(str(target[0]),"wb") as f:
-		f.write(codecs.BOM_UTF8)
+#		f.write(codecs.BOM_UTF8)
 		f.write(v)
 
-class app_packager(packager):
-	def __init__(self,name,outdir,env,display_name,version,data_package=False):
+ns="{http://schemas.microsoft.com/wix/2006/wi}"
+
+def SubElement(parent,tag,ns=ns,empty=False):
+	el=etree.SubElement(parent,ns+tag)
+	if not empty:
+		el.text="\n"
+	el.tail="\n"
+	return el
+
+class data_packager(packager):
+	def __init__(self,uuid,name,outdir,env,display_name,version):
 		package_name="{}-v{}-setup".format(name,version)
-		super(app_packager,self).__init__(package_name,outdir,env,"exe")
+		super(data_packager,self).__init__(package_name,outdir,env,"msi")
 		self.product_name=name
 		self.display_name=display_name
 		self.version=version
-		self.script=self.outdir.File(name+".nsi")
-		self.data_package=data_package
-		self.reg_values=list()
-		self.uninstaller="uninstall-{}.exe".format(name)
-		self.uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
-		uninst_info=self.get_uninstall_info()
-		for n,v in uninst_info.items():
-			self.add_reg_value("HKLM",self.uninst_reg_key,n,v)
+		self.uuid=uuid
+		tmp_dir=self.outdir.Dir("tmp")
+		self.src=tmp_dir.Dir("src").File(name+".wxs")
+		self.obj=tmp_dir.Dir("obj").File(name+".wixobj")
+		self.root=etree.Element(ns+"Wix")
+		self.root.text="\n"
+		self.doc=etree.ElementTree(self.root)
+		self.create_product_element()
+		self.create_package_element()
+		self.create_media_template_element()
+		self.create_major_upgrade_element()
+		self.create_feature_element()
+		self.create_directory_element()
 
-	def add_reg_value(self,root_key,key,name,value,x64=False):
-		self.reg_values.append((root_key,key,name,value,x64))
+	def create_product_element(self):
+		self.product=SubElement(self.root,"Product")
+		self.product.set("Id","*")
+		self.product.set("Codepage","0")
+		self.product.set("Language","0")
+		self.product.set("Manufacturer","Olga Yakovleva")
+		self.product.set("Name",self.product_name)
+		self.product.set("UpgradeCode",self.uuid)
+		self.product.set("Version",self.version)
 
-	def add_line(self,*args):
-		self.lines.append(u" ".join(args))
+	def create_package_element(self):
+		pkg=SubElement(self.product,"Package",empty=True)
+		pkg.set("Compressed","yes")
+		pkg.set("Description","Installs "+self.product_name)
+		pkg.set("InstallScope","perMachine")
+		pkg.set("Manufacturer",self.product.get("Manufacturer"))
+		pkg.set("SummaryCodepage","0")
 
-	def get_uninstall_info(self):
-		i=OrderedDict()
-		i["DisplayName"]=self.display_name
-		i["UninstallString"]=r'$INSTDIR\uninstall\{}'.format(self.uninstaller)
-		i["Publisher"]="Olga Yakovleva"
-		i["InstallLocation"]="$INSTDIR"
-		i["DisplayVersion"]=self.version
-		i["URLUpdateInfo"]="http://github.com/Olga-Yakovleva/RHVoice"
-		i["NoModify"]=1
-		i["NoRepair"]=1
-		return i
+	def create_media_template_element(self):
+		mt=SubElement(self.product,"MediaTemplate",empty=True)
+		mt.set("EmbedCab","yes")
 
-	def gen_includes(self):
-		self.add_line('!include "LogicLib.nsh"')
-		if not self.data_package:
-			self.add_line('!include "Library.nsh"')
-			self.add_line('!include "x64.nsh"')
+	def create_major_upgrade_element(self):
+		mu=SubElement(self.product,"MajorUpgrade",empty=True)
+		mu.set("AllowDowngrades","yes")
+		mu.set("Schedule","afterInstallInitialize")
 
-	def gen_language_includes(self):
-		for lang in ["English","Russian"]:
-			self.add_line(r'LoadLanguageFile "${{NSISDIR}}\Contrib\Language files\{}.nlf"'.format(lang))
+	def create_feature_element(self):
+		f=SubElement(self.product,"Feature",empty=True)
+		f.set("Id","Main")
+		f.set("Title","Main")
+		f.set("Level","1")
+		f.set("Absent","disallow")
 
-	def gen_settings(self):
-		self.add_line("SetCompressor /solid lzma")
-		self.add_line("SetOverwrite on")
-		self.add_line("AllowSkipFiles off")
-		self.add_line("AutoCloseWindow false")
-		self.add_line("CRCCheck on")
-		self.add_line("ShowInstDetails show")
-		self.add_line("ShowUninstDetails show")
-		self.add_line(r'InstallDir "$PROGRAMFILES\RHVoice"')
-		self.add_line(r'InstallDirRegKey HKLM "Software\RHVoice" "path"')
-		self.add_line('Name',u'"{} v{}"'.format(self.display_name,self.version))
-		self.add_line('OutFile','"'+os.path.basename(self.outfile.path)+'"')
-		self.add_line('RequestExecutionLevel admin')
+	def create_directory_element(self):
+		dir=SubElement(self.product,"Directory")
+		dir.set("Id","TARGETDIR")
+		dir.set("Name","SourceDir")
+		dir=SubElement(dir,"Directory")
+		dir.set("Id","ProgramFilesFolder")
+		self.directory=SubElement(dir,"Directory")
+		self.directory.set("Id","files_RHVoice")
+		self.directory.set("Name","com.github.Olga-Yakovleva.RHVoice")
 
-	def gen_pages(self):
-		if not self.data_package:
-			self.add_line('Page directory')
-		self.add_line("Page instfiles")
-		self.add_line("UninstPage uninstConfirm")
-		self.add_line("UninstPage instfiles")
+	def get_subdirectory_element(self,dir,path):
+		p=path.split(os.sep,1)
+		subdir=dir.find("*[@Name='{}']".format(p[0]))
+		if subdir is None:
+			subdir=SubElement(dir,"Directory")
+			subdir.set("Id",dir.get("Id")+"_"+p[0].replace("-","_"))
+			subdir.set("Name",p[0])
+		if len(p)==1:
+			return subdir
+		else:
+			return self.get_subdirectory_element(subdir,p[1])
 
-	def gen_uninst_prev(self):
-		self.add_line('ReadRegStr $R0 HKLM "{}" "UninstallString"'.format(self.uninst_reg_key))
-		self.add_line('${If} $R0 != ""')
-		self.add_line('ReadRegStr $R1 HKLM "{}" "InstallLocation"'.format(self.uninst_reg_key))
-		self.add_line('${If} $R1 != ""')
-		self.add_line("ExecWait '\"$R0\" /S _?=$R1'")
-		self.add_line('Delete "$R0"')
-		self.add_line('${EndIf}')
-		self.add_line('${EndIf}')
+	def create_file_component_element(self,f):
+		dir_path,file_name=os.path.split(f.outpath.lower())
+		dir=self.get_subdirectory_element(self.directory,dir_path)
+		cmp=SubElement(dir,"Component")
+		file=SubElement(cmp,"File",empty=True)
+		file.set("Id",dir.get("Id")+"_"+file_name.replace("-","_"))
+		cmp.set("Id","cmp_"+file.get("Id"))
+		cmp.set("Guid","*")
+		cmp.set("Feature","Main")
+		file.set("KeyPath","yes")
+		file.set("Name",file_name)
+		file.set("Source",f.infile.abspath)
 
-	def gen_inst_section(self):
-		self.add_line('Section')
-		self.gen_uninst_prev()
+	def process_files(self):
 		for f in self.files:
-			srcpath=os.path.relpath(f.infile.path,self.outdir.path)
-			dir,basename=os.path.split(f.outpath)
-			outdir=os.path.join('$INSTDIR',dir) if dir else '$INSTDIR'
-			self.add_line('SetOutPath','"'+outdir+'"')
-			if f.get("regdll"):
-				if f.get("x64"):
-					self.add_line('!define LIBRARY_X64')
-					self.add_line('${If} ${RunningX64}')
-				self.add_line('!insertmacro installLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED {} "{}" $INSTDIR'.format(srcpath,basename))
-				if f.get("x64"):
-					self.add_line('${EndIf}')
-					self.add_line('!undef LIBRARY_X64')
-			else:
-				self.add_line('File',srcpath)
-		for root_key,key,name,value,x64 in self.reg_values:
-			if isinstance(value,int):
-				cmd='WriteRegDWORD {} "{}" "{}" {}'.format(root_key,key,name,value)
-			else:
-				cmd=u'WriteRegStr {} "{}" "{}" "{}"'.format(root_key,key,name,value)
-			self.add_line(cmd)
-			if self.env["enable_x64"] and x64:
-				self.add_line('${If} ${RunningX64}')
-				self.add_line('SetRegView 64')
-				self.add_line(cmd)
-				self.add_line('SetRegView 32')
-				self.add_line('${EndIf}')
-		self.add_line(r'SetOutPath $INSTDIR\uninstall')
-		self.add_line(r'WriteUninstaller "uninstall\{}"'.format(self.uninstaller))
-		self.add_line('SectionEnd')
+			self.create_file_component_element(f)
 
-	def gen_uninst_section(self):
-		self.add_line("Function un.onInit")
-		self.add_line(r'ReadRegStr $INSTDIR HKLM "Software\RHVoice" "path"')
-		self.add_line("FunctionEnd")
-		self.add_line('Section UnInstall')
-		dirs=set(['$INSTDIR',r'$INSTDIR\uninstall'])
-		for f in self.files:
-			if f.get("regdll"):
-				if f.get("x64"):
-					self.add_line('!define LIBRARY_X64')
-					self.add_line('${If} ${RunningX64}')
-				self.add_line(r'!insertmacro UnInstallLib REGDLL NOTSHARED NOREBOOT_NOTPROTECTED "$INSTDIR\{}"'.format(f.outpath))
-				if f.get("x64"):
-					self.add_line('${EndIf}')
-					self.add_line('!undef LIBRARY_X64')
-			else:
-				self.add_line('Delete','"'+os.path.join('$INSTDIR',f.outpath)+'"')
-			dir=os.path.dirname(f.outpath)
-			while dir:
-				dirs.add(os.path.join('$INSTDIR',dir))
-				dir=os.path.dirname(dir)
-		self.add_line(r'Delete "$INSTDIR\uninstall\{}"'.format(self.uninstaller))
-		for dir in reversed(sorted(dirs)):
-			self.add_line('Rmdir','"'+dir+'"')
-		reg_keys=set([(r[0],r[1]) for r in self.reg_values])
-		reg_keys_x64=set([(r[0],r[1]) for r in self.reg_values if r[-1]])
-		for root_key,key in reversed(sorted(reg_keys)):
-			cmd='DeleteRegKey {} "{}"'.format(root_key,key)
-			self.add_line(cmd)
-			if self.env["enable_x64"] and ((root_key,key) in reg_keys_x64):
-				self.add_line('${If} ${RunningX64}')
-				self.add_line('SetRegView 64')
-				self.add_line(cmd)
-				self.add_line('SetRegView 32')
-				self.add_line('${EndIf}')
-		self.add_line('SectionEnd')
+	def make_src(self,target,source,env):
+		self.doc.write(str(target[0]),encoding="utf-8",xml_declaration=True)
 
 	def package(self):
-		self.lines=list()
-		self.gen_includes()
-		self.gen_language_includes()
-		self.gen_settings()
-		self.gen_pages()
-		self.gen_inst_section()
-		self.gen_uninst_section()
-		text=u"".join([u"{}\n".format(line) for line in self.lines]).encode("utf-8")
+		self.process_files()
+		text=etree.tostring(self.root,encoding="utf-8")
 		value=self.env.Value(text,text)
-		s=self.env.Command(self.script,value,__save__)
-		self.env.Command(self.outfile,s,"$makensis $SOURCE")
+		src=self.env.Command(self.src,value,self.make_src)
+		obj=self.env.Command(self.obj,src,r'"${WIX}bin\candle.exe" -nologo -arch x86 -out $TARGET $SOURCE')
+		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -out $TARGET $SOURCE')
