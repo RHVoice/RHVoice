@@ -6,3 +6,5 @@ language=Brazilian-Portuguese
 gender=female
 format=4
 revision=3
+uuid=2ebfef41-9fd5-47aa-b158-706c360006eb
+>>>>>>> Windows: start work on switching to the WIX for installers
