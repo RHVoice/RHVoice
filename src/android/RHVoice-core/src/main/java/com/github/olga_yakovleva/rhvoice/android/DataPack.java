@@ -35,13 +35,17 @@ import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import java.io.InputStreamReader;
 
 public abstract class DataPack
 {
@@ -52,30 +56,32 @@ public abstract class DataPack
     protected String altLink;
     protected String tempLink;
     private final String id;
+    protected final byte[] checksum;
 
-    protected DataPack(String id,String name,int format,int revision)
+    protected DataPack(String id,String name,int format,int revision,byte[] checksum)
     {
         this.id=id;
         this.name=name;
         this.format=format;
         this.revision=revision;
+        this.checksum=checksum;
 }
 
-    protected DataPack(String name,int format,int revision)
+    protected DataPack(String name,int format,int revision,byte[] checksum)
     {
-        this(null,name,format,revision);
+        this(null,name,format,revision,checksum);
 }
 
-    protected DataPack(String id,String name,int format,int revision,String altLink,String tempLink)
+    protected DataPack(String id,String name,int format,int revision,byte[] checksum,String altLink,String tempLink)
     {
-        this(id,name,format,revision);
+        this(id,name,format,revision,checksum);
         this.altLink=altLink;
         this.tempLink=tempLink;
 }
 
-    protected DataPack(String name,int format,int revision,String altLink,String tempLink)
+    protected DataPack(String name,int format,int revision,byte[] checksum,String altLink,String tempLink)
     {
-        this(null,name,format,revision,altLink,tempLink);
+        this(null,name,format,revision,checksum,altLink,tempLink);
 }
 
     public abstract String getType();
@@ -329,6 +335,58 @@ catch(PackageManager.NameNotFoundException e)
         return resources.openRawResource(id);
 }
 
+    private void verifyFile(File file) throws IOException
+    {
+        if(checksum==null)
+            {
+                if(BuildConfig.DEBUG)
+                    Log.w(TAG,"Checksum unknown");
+                return;
+            }
+        InputStream str=null;
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Verifying file integrity: "+file.getName());
+        MessageDigest md=null;
+        try
+            {
+                md=MessageDigest.getInstance("MD5");
+            }
+        catch(NoSuchAlgorithmException e)
+            {
+                if(BuildConfig.DEBUG)
+                    Log.e(TAG,"Failed to get MessageDigest instance",e);
+                return;
+}
+try
+    {
+        str=new BufferedInputStream(new FileInputStream(file));
+        byte[] buf=new byte[8092];
+        int numBytes;
+        while((numBytes=str.read(buf))!=-1)
+            {
+                if(numBytes>0)
+                    md.update(buf,0,numBytes);
+            }
+        close(str);
+        str=null;
+        byte[] value=md.digest();
+        if(MessageDigest.isEqual(checksum,value))
+            {
+                if(BuildConfig.DEBUG)
+                    Log.v(TAG,"File integrity verified: "+file.getName());
+                return;
+}
+        if(BuildConfig.DEBUG)
+            Log.e(TAG,"File integrity verification failed: "+file.getName());
+        file.delete();
+        throw new IOException("Bad file");
+}
+finally
+    {
+        close(str);
+}
+}
+
     private InputStream openLink(Context context,IDataSyncCallback callback) throws IOException
     {
         if(BuildConfig.DEBUG)
@@ -374,7 +432,36 @@ catch(PackageManager.NameNotFoundException e)
                 con.connect();
                 int status=con.getResponseCode();
                 if(BuildConfig.DEBUG)
-                    Log.v(TAG,"Http status: "+status);
+                    {
+                        Log.v(TAG,"Http status: "+status);
+                        Log.v(TAG,"Http headers:");
+                        Map<String,List<String>> headers=con.getHeaderFields();
+                        for(Map.Entry<String,List<String>> header: headers.entrySet())
+                            {
+                                StringBuilder b=new StringBuilder();
+                                b.append(header.getKey());
+                                boolean first=true;
+                                for(String value: header.getValue())
+                                    {
+                                        if(first)
+                                            {
+                                                first=false;
+                                                b.append(": ");
+}
+                                        else
+                                            b.append(", ");
+                                        b.append(value);
+}
+                                Log.v(TAG,"Header field "+b.toString());
+}
+                    }
+                if(start>0&&status==416)
+                    {
+                        if(BuildConfig.DEBUG)
+                            Log.w(TAG,"Received range not satisfiable");
+                        tempFile.delete();
+                        throw new IOException("Range not satisfiable");
+}
                 if(status!=HttpURLConnection.HTTP_OK&&!(start>0&&status==HttpURLConnection.HTTP_PARTIAL))
                     throw new IOException("Http Status: "+status);
                 istr=new BufferedInputStream(con.getInputStream());
@@ -395,6 +482,7 @@ catch(PackageManager.NameNotFoundException e)
                 if(con!=null)
                     con.disconnect();
 }
+        verifyFile(tempFile);
         if(!tempFile.renameTo(getDownloadFile(context)))
             {
                 tempFile.delete();
@@ -474,9 +562,12 @@ catch(PackageManager.NameNotFoundException e)
                                 outStream=new BufferedOutputStream(new FileOutputStream(outObj));
                                 copyBytes(inStream,outStream);
                                 close(outStream);
+                                outStream=null;
                             }
                         inStream.closeEntry();
                     }
+                close(inStream);
+                inStream=null;
                 notifyDownloadDone(callback);
                 int versionCode=getVersionCode(tempDir);
                 if(versionCode!=getVersionCode())
