@@ -23,26 +23,26 @@ public final class VoicePack extends DataPack
 {
     private final LanguagePack lang;
 
-    public VoicePack(String id,String name,LanguagePack lang,int format,int revision)
+    public VoicePack(String id,String name,LanguagePack lang,int format,int revision,byte[] checksum)
     {
-        super(id,name,format,revision);
+        super(id,name,format,revision,checksum);
         this.lang=lang;
 }
 
-    public VoicePack(String id,String name,LanguagePack lang,int format,int revision,String altLink,String tempLink)
+    public VoicePack(String id,String name,LanguagePack lang,int format,int revision,byte[] checksum,String altLink,String tempLink)
     {
-        super(id,name,format,revision,altLink,tempLink);
+        super(id,name,format,revision,checksum,altLink,tempLink);
         this.lang=lang;
 }
 
-public VoicePack(String name,LanguagePack lang,int format,int revision)
+    public VoicePack(String name,LanguagePack lang,int format,int revision,byte[] checksum)
     {
-        this(null,name,lang,format,revision);
+        this(null,name,lang,format,revision,checksum);
 }
 
-    public VoicePack(String name,LanguagePack lang,int format,int revision,String altLink,String tempLink)
+    public VoicePack(String name,LanguagePack lang,int format,int revision,byte[] checksum,String altLink,String tempLink)
     {
-        this(null,name,lang,format,revision,altLink,tempLink);
+        this(null,name,lang,format,revision,checksum,altLink,tempLink);
 }
 
     public String getType()

@@ -33,14 +33,14 @@ public final class LanguagePack extends DataPack
     private final List<VoicePack> voices=new ArrayList<VoicePack>();
     private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
 
-    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision)
+    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,byte[] checksum)
     {
-        this(name,code,oldCode,countryCode,oldCountryCode,showCountry,format,revision,null,null);
+        this(name,code,oldCode,countryCode,oldCountryCode,showCountry,format,revision,checksum,null,null);
 }
 
-    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,String altLink,String tempLink)
+    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,byte[] checksum,String altLink,String tempLink)
     {
-        super(name,format,revision,altLink,tempLink);
+        super(name,format,revision,checksum,altLink,tempLink);
         this.code=code;
         this.oldCode=oldCode;
         this.countryCode=countryCode;
