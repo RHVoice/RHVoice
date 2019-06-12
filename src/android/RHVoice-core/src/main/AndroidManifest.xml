@@ -44,7 +44,6 @@ android:networkSecurityConfig="@xml/netsec">
     <activity
         android:name=".SettingsActivity"
         android:label="@string/settings"
-        android:theme="@style/PreferenceFixTheme"
         android:exported="true">
     </activity>
     <receiver

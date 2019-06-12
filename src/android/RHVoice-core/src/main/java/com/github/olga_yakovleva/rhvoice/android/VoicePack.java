@@ -15,7 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.content.Context;
 import android.content.Intent;
 
@@ -73,10 +73,15 @@ public final class VoicePack extends DataPack
 
     public final void setEnabled(Context context,boolean value)
     {
+        boolean langEnabled=lang.getEnabled(context);
         boolean oldValue=getEnabled(context);
         getPrefs(context).edit().putBoolean(getEnabledKey(),value).apply();
-        if(value!=oldValue)
+        if(value==oldValue)
+            return;
             LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
+            if(lang.getEnabled(context)!=langEnabled)
+                lang.scheduleSync(context,true);
+            scheduleSync(context,true);
 }
 
     @Override
@@ -106,5 +111,12 @@ public final class VoicePack extends DataPack
     public LanguagePack getLanguage()
     {
         return lang;
+}
+
+    @Override
+    protected androidx.work.Data.Builder setWorkInput(androidx.work.Data.Builder b)
+    {
+        lang.setWorkInput(b);
+        return super.setWorkInput(b);
 }
 }

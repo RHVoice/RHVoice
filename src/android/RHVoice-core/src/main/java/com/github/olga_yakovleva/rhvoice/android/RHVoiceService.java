@@ -28,7 +28,7 @@ import android.speech.tts.SynthesisRequest;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeechService;
 import android.speech.tts.Voice;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import com.github.olga_yakovleva.rhvoice.*;
@@ -460,7 +460,7 @@ public final class RHVoiceService extends TextToSpeechService
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Starting the service");
         paths=Data.getPaths(this);
-        Data.scheduleSync(this);
+        Data.scheduleSync(this,false);
         LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,new IntentFilter(ACTION_CHECK_DATA));
         registerPackageReceiver();
         initialize();

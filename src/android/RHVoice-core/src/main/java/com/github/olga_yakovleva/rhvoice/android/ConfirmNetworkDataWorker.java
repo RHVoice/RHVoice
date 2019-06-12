@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,17 +15,23 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import com.evernote.android.job.Job;
-import com.evernote.android.job.JobCreator;
+import android.content.Context;
+import android.util.Log;
+import androidx.work.WorkerParameters;
 
-public final class DataSyncJobCreator implements JobCreator
+public class ConfirmNetworkDataWorker extends DataWorker
 {
-    @Override
-    public Job create(String tag)
+    public ConfirmNetworkDataWorker(Context context,WorkerParameters params)
     {
-        if(DataSyncJob.JOB_TAG.equals(tag))
-            return new DataSyncJob();
-        else
-            return null;
+        super(context,params);
+}
+
+    @Override
+    protected Result doWork(DataPack p)
+    {
+        boolean confirmed=(p.getSyncFlag(getApplicationContext())==SyncFlags.NETWORK);
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Network requirement confirmation result: "+confirmed);
+        return confirmed?Result.success(getInputData()):Result.failure();
 }
 }

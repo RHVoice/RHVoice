@@ -17,7 +17,6 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.app.Application;
 import android.util.Log;
-import com.evernote.android.job.JobManager;
 import java.security.Provider;
 import java.security.Security;
 import javax.net.ssl.HttpsURLConnection;
@@ -47,6 +46,5 @@ public final class MyApplication extends Application
                 if(BuildConfig.DEBUG)
                     Log.e(TAG,"Error",e);
 }
-        JobManager.create(this).addJobCreator(new DataSyncJobCreator());
 }
 }

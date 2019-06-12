@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,7 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -46,7 +46,6 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
         if(state||!voice.isInstalled(this))
             {
                 voice.setEnabled(this,state);
-                Data.scheduleSync(this);
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh(voice,VoiceViewChange.INSTALLED);
@@ -62,7 +61,6 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
         if(response)
             {
                 voice.setEnabled(this,false);
-                Data.scheduleSync(this);
                 AvailableVoicesFragment frag=(AvailableVoicesFragment)(getSupportFragmentManager().findFragmentByTag("voices"));
                 if(frag!=null)
                     frag.refresh(voice,VoiceViewChange.INSTALLED);
@@ -99,6 +97,6 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
     public void onStart()
     {
         super.onStart();
-        Data.scheduleSync(this);
+        Data.scheduleSync(this,false);
 }
 }

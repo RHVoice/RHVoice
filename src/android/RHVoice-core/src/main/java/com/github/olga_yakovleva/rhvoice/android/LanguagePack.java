@@ -32,6 +32,7 @@ public final class LanguagePack extends DataPack
     private final boolean showCountry;
     private final List<VoicePack> voices=new ArrayList<VoicePack>();
     private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
+    private final Map<String,VoicePack> idIndex=new HashMap<String,VoicePack>();
 
     public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,byte[] checksum)
     {
@@ -73,6 +74,7 @@ public final class LanguagePack extends DataPack
     {
         voices.add(voice);
         index.put(voice.getName(),voice);
+        idIndex.put(voice.getId(),voice);
         return this;
 }
 
@@ -87,23 +89,6 @@ public final class LanguagePack extends DataPack
                     return true;
 }
         return false;
-}
-
-    @Override
-    public boolean sync(Context context,IDataSyncCallback callback)
-    {
-        boolean done=true;
-        for(VoicePack voice: voices)
-            {
-                if(!voice.sync(context,callback))
-                    done=false;
-}
-        if(callback.isStopped())
-            return true;
-        done&=super.sync(context,callback);
-        if(callback.isStopped())
-            return true;
-        return done;
 }
 
     public List<String> getPaths(Context context)
@@ -173,14 +158,8 @@ public final class LanguagePack extends DataPack
         return index.get(name);
 }
 
-    @Override
-    public long getSyncFlags(Context context)
+    public VoicePack findVoiceById(String id)
     {
-        long flags=super.getSyncFlags(context);
-        for(VoicePack voice: voices)
-            {
-                flags|=voice.getSyncFlags(context);
-}
-        return flags;
+        return idIndex.get(id);
 }
 }

@@ -26,6 +26,12 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import androidx.work.Constraints;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkContinuation;
+import androidx.work.WorkManager;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -41,6 +47,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -57,6 +64,16 @@ public abstract class DataPack
     protected String tempLink;
     private final String id;
     protected final byte[] checksum;
+    protected final String workName;
+
+    private String createWorkName()
+    {
+        StringBuilder b=new StringBuilder();
+        b.append(Data.WORK_PREFIX_STRING).append('.');
+        b.append(getType()).append('.');
+        b.append(getId());
+        return b.toString();
+}
 
     protected DataPack(String id,String name,int format,int revision,byte[] checksum)
     {
@@ -65,6 +82,7 @@ public abstract class DataPack
         this.format=format;
         this.revision=revision;
         this.checksum=checksum;
+        this.workName=createWorkName();
 }
 
     protected DataPack(String name,int format,int revision,byte[] checksum)
@@ -97,6 +115,11 @@ public abstract class DataPack
             return id;
         else
             return name.toLowerCase().replace("-","_");
+}
+
+    public final String getWorkName()
+    {
+        return workName;
 }
 
     public abstract String getDisplayName();
@@ -189,7 +212,7 @@ public abstract class DataPack
 
     protected final File getTempDir(Context context)
     {
-        return context.getDir("tmp",0);
+        return context.getDir("tmp-"+getType()+"-"+getId(),0);
     }
 
     private File getDownloadsDir(Context context)
@@ -240,6 +263,20 @@ public abstract class DataPack
             return false;
     }
 
+    protected final boolean safeDelete(Context context,File file)
+    {
+        if(!file.exists())
+            return true;
+        if(!file.isDirectory())
+            return delete(file);
+        File tempDir=getTempDir(context);
+        if(!delete(tempDir))
+            return false;
+        if(!file.renameTo(tempDir))
+            return false;
+        return delete(tempDir);
+}
+
     protected final Boolean mkdir(File dir)
     {
         if(dir.isDirectory())
@@ -284,7 +321,7 @@ public abstract class DataPack
         return getInstallationDir(context,getVersionCode()).exists();
 }
 
-    protected final void copyBytes(InputStream in,OutputStream out) throws IOException
+    protected final void copyBytes(InputStream in,OutputStream out,IDataSyncCallback callback) throws IOException
     {
         byte[] buf=new byte[8092];
         int numBytes;
@@ -292,6 +329,13 @@ public abstract class DataPack
             {
                 if(numBytes>0)
                     out.write(buf,0,numBytes);
+                if(callback!=null&&callback.isTaskStopped())
+                    {
+                        out.flush();
+                        if(BuildConfig.DEBUG)
+                            Log.v(TAG,"The work was cancelled before we have downloaded the file");
+                        throw new IOException("Cancelled");
+}
             }
         out.flush();
     }
@@ -392,13 +436,16 @@ finally
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Trying to open the link");
         File file=getDownloadFile(context);
-        if(!file.exists())
+        if(file.exists())
+            verifyFile(file);
+        else
             downloadFile(context,callback);
         return new FileInputStream(file);
 }
 
     private void downloadFile(Context context,IDataSyncCallback callback) throws IOException
     {
+        checkIfStopped(callback);
         String link=getLink();
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Trying to download the file from "+link);
@@ -406,7 +453,6 @@ finally
             {
                 if(BuildConfig.DEBUG)
                     Log.w(TAG,"No suitable internet connection");
-                callback.onNetworkError();
                 throw new IOException("No connection");
             }
         if(!mkdir(getDownloadsDir(context)))
@@ -422,6 +468,8 @@ finally
                     start=tempFile.length();
                 URL url=new URL(link);
                 con=(HttpURLConnection)url.openConnection();
+                con.setConnectTimeout(60000);
+                con.setReadTimeout(60000);
                 con.setRequestProperty("Accept-Encoding","identity");
                 if(start>0)
 {
@@ -430,6 +478,7 @@ finally
     con.setRequestProperty("Range","bytes="+start+"-");
 }
                 con.connect();
+                checkIfStopped(callback);
                 int status=con.getResponseCode();
                 if(BuildConfig.DEBUG)
                     {
@@ -464,16 +513,12 @@ finally
 }
                 if(status!=HttpURLConnection.HTTP_OK&&!(start>0&&status==HttpURLConnection.HTTP_PARTIAL))
                     throw new IOException("Http Status: "+status);
-                istr=new BufferedInputStream(con.getInputStream());
+                istr=con.getInputStream();
+                checkIfStopped(callback);
                 ostr=new BufferedOutputStream(new FileOutputStream(tempFile,status==HttpURLConnection.HTTP_PARTIAL));
-                copyBytes(istr,ostr);
+                copyBytes(istr,ostr,callback);
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"File downloaded");
-}
-        catch(IOException e)
-            {
-                callback.onNetworkError();
-                throw e;
 }
         finally
             {
@@ -511,6 +556,15 @@ finally
     protected abstract void notifyInstallation(IDataSyncCallback callback);
     protected abstract void notifyRemoval(IDataSyncCallback callback);
 
+    private void checkIfStopped(IDataSyncCallback callback) throws IOException
+    {
+        if(!callback.isTaskStopped())
+            return;
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Interrupting the work, because it has been cancelled");
+        throw new IOException("Cancelled");
+}
+
     public boolean install(Context context,IDataSyncCallback callback)
     {
         if(isUpToDate(context))
@@ -539,6 +593,7 @@ finally
                 ZipEntry entry;
                 while((entry=inStream.getNextEntry())!=null)
                     {
+                        checkIfStopped(callback);
                         if(BuildConfig.DEBUG)
                             Log.v(TAG,"Extracting "+entry.getName()+" from "+getName());
                         File outObj=new File(tempDir,entry.getName());
@@ -560,7 +615,7 @@ finally
                                         return false;
                                     }
                                 outStream=new BufferedOutputStream(new FileOutputStream(outObj));
-                                copyBytes(inStream,outStream);
+                                copyBytes(inStream,outStream,null);
                                 close(outStream);
                                 outStream=null;
                             }
@@ -588,7 +643,7 @@ finally
                             Log.e(TAG,"Failed to rename temporary directory");
                         return false;
                     }
-                getPrefs(context).edit().putInt(getVersionKey(),versionCode).apply();
+                getPrefs(context).edit().putInt(getVersionKey(),versionCode).commit();
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Installed "+getType()+" "+getName());
                 cleanup(context,versionCode);
@@ -625,7 +680,7 @@ finally
                     continue;
                 if(instDir!=null&&instDir.getPath().equals(dir.getPath()))
                     continue;
-                delete(dir);
+                safeDelete(context,dir);
 }
 }
 
@@ -678,7 +733,7 @@ finally
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Removing "+getType()+" "+getName());
         cleanup(context,0);
-        getPrefs(context).edit().remove(getVersionKey()).apply();
+        getPrefs(context).edit().remove(getVersionKey()).commit();
         notifyRemoval(callback);
 }
 
@@ -686,8 +741,6 @@ finally
 
     public boolean sync(Context context,IDataSyncCallback callback)
     {
-        if(callback.isStopped())
-            return true;
         if(getEnabled(context))
             {
                 if(!isUpToDate(context))
@@ -717,7 +770,12 @@ finally
 }
 }
 
-    public long getSyncFlags(Context context)
+    public long getSyncFlag(Context context)
+    {
+        return getSyncFlag(context,false);
+}
+
+    public long getSyncFlag(Context context,boolean checkPkg)
     {
         if(!getEnabled(context))
             {
@@ -728,7 +786,7 @@ finally
 }
         if(isUpToDate(context))
             return 0;
-        if(canBeInstalledFromPackage(context))
+        if(checkPkg&&canBeInstalledFromPackage(context))
             return SyncFlags.LOCAL;
         return SyncFlags.NETWORK;
 }
@@ -753,5 +811,35 @@ finally
             return false;
         DataPack pack=(DataPack)other;
         return (name.equalsIgnoreCase(pack.name)&&format==pack.format&&revision==pack.revision);
+}
+
+    public static NetworkType getNetworkTypeSetting(Context context)
+    {
+        boolean wifiOnly=getPrefs(context).getBoolean("wifi_only",true);
+        return wifiOnly?NetworkType.UNMETERED:NetworkType.CONNECTED;
+}
+
+    protected androidx.work.Data.Builder setWorkInput(androidx.work.Data.Builder b)
+    {
+        b.putString(getType()+"_id",getId());
+        return b;
+}
+
+    public final void scheduleSync(Context context,boolean replace)
+    {
+        long flag=getSyncFlag(context);
+        if(flag==0)
+            return;
+        if(BuildConfig.DEBUG)
+            Log.v(TAG,"Scheduling "+getWorkName()+", replace="+replace);
+        ExistingWorkPolicy policy=replace?ExistingWorkPolicy.REPLACE:ExistingWorkPolicy.KEEP;
+        OneTimeWorkRequest localRequest=(new OneTimeWorkRequest.Builder(DataSyncWorker.class)).addTag(Data.WORK_TAG).setInputData(setWorkInput(new androidx.work.Data.Builder()).build()).build();
+        WorkContinuation cont=WorkManager.getInstance().beginUniqueWork(getWorkName(),policy,localRequest);
+        if(flag==SyncFlags.NETWORK)
+            {
+                cont=cont.then((new OneTimeWorkRequest.Builder(ConfirmNetworkDataWorker.class)).addTag(Data.WORK_TAG).build());
+                cont=cont.then((new OneTimeWorkRequest.Builder(NetworkDataSyncWorker.class)).addTag(Data.WORK_TAG).setConstraints((new Constraints.Builder()).setRequiredNetworkType(getNetworkTypeSetting(context)).build()).build());
+}
+        cont.enqueue();
 }
 }
