@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2016, 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2016, 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -21,18 +21,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v7.preference.CheckBoxPreference;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceManager;
-import android.support.v7.preference.PreferenceScreen;
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
 import android.text.InputFilter;
 import android.text.InputType;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
-import com.takisoft.fix.support.v7.preference.AutoSummaryEditTextPreference;
-import com.takisoft.fix.support.v7.preference.PreferenceCategory;
-import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
+import com.takisoft.preferencex.AutoSummaryEditTextPreference;
+import com.takisoft.preferencex.PreferenceCategory;
+import com.takisoft.preferencex.PreferenceFragmentCompat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -157,7 +157,7 @@ import java.util.TreeMap;
         public void onSharedPreferenceChanged(SharedPreferences prefs,String key)
         {
             if("wifi_only".equals(key))
-                Data.scheduleSync(getActivity());
+                Data.scheduleSync(getActivity(),true);
         }
 
         @Override

@@ -1,8 +1,8 @@
-/* Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
-/* the Free Software Foundation, either version 2.1 of the License, or */
+/* the Free Software Foundation, either version 3 of the License, or */
 /* (at your option) any later version. */
 
 /* This program is distributed in the hope that it will be useful, */
@@ -15,24 +15,29 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
+import androidx.work.WorkerParameters;
 
-public final class OnPackageReceiver extends BroadcastReceiver
+public class NetworkDataSyncWorker extends DataSyncWorker
 {
-    private static final String TAG="RHVoiceOnPackageReceiver";
+    @Override
+    public boolean isConnected()
+    {
+        return true;
+}
+
+    public NetworkDataSyncWorker(Context context,WorkerParameters params)
+    {
+        super(context,params);
+}
 
     @Override
-    public void onReceive(Context context,Intent intent)
+    protected Result doWork(DataPack p)
     {
-        int uid=context.getApplicationInfo().uid;
-        if(intent.getIntExtra(Intent.EXTRA_UID,uid)!=uid)
-            return;
-        String packageName=intent.getData().getSchemeSpecificPart();
+        boolean done=doSync(p);
         if(BuildConfig.DEBUG)
-            Log.i(TAG,"Package "+packageName+" has been installed/updated/removed");
-        Data.scheduleSync(context,true);
-    }
+            Log.v(TAG,"Network download of "+p.getId()+" finished with result "+done);
+        return done?Result.success():Result.retry();
+}
 }

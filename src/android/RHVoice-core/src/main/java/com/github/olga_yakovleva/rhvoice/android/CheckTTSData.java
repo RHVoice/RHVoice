@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2016  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2016, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -57,7 +57,7 @@ public final class CheckTTSData extends Activity
                 if(notInstalled)
                     notInstalledLanguages.add(tag);
             }
-        Data.scheduleSync(this);
+        Data.scheduleSync(this,false);
 }
 
     @Override

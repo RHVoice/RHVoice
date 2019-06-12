@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,44 +15,20 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import com.evernote.android.job.Job;
-import java.util.List;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.work.WorkerParameters;
 
-public final class DataSyncJob extends Job implements IDataSyncCallback
+public class DataSyncWorker extends DataWorker implements IDataSyncCallback
 {
-    public static final String JOB_TAG="data_sync_job_tag";
-
     public static final String ACTION_VOICE_DOWNLOADED="com.github.olga_yakovleva.rhvoice.android.action.voice_downloaded";
     public static final String ACTION_VOICE_INSTALLED="com.github.olga_yakovleva.rhvoice.android.action.voice_installed";
     public static final String ACTION_VOICE_REMOVED="com.github.olga_yakovleva.rhvoice.android.action.voice_removed";
 
-    private static final String TAG="RHVoice.DataSyncJob";
-    private Boolean connected;
-    private long flags;
-
-    @Override
-        protected Job.Result onRunJob(Job.Params params)
-    {
-        flags=params.getExtras().getLong("flags",0);
-        if((flags&SyncFlags.NETWORK)==0)
-            connected=false;
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Running, flags="+flags);
-        boolean done=Data.sync(getContext(),this);
-        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Finished this run, done="+done);
-        return done?Result.SUCCESS:Result.RESCHEDULE;
-}
-
     public boolean isConnected()
     {
-        if(connected==null)
-            connected=isRequirementNetworkTypeMet();
-        return connected;
+        return false;
 }
 
     public void onLanguageDownloadStart(LanguagePack language)
@@ -84,29 +60,45 @@ public final class DataSyncJob extends Job implements IDataSyncCallback
     {
         Intent event=new Intent(ACTION_VOICE_DOWNLOADED);
         event.putExtra("name",voice.getName());
-        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(event);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
 }
 
     public void onVoiceInstallation(VoicePack voice)
     {
         Intent event=new Intent(ACTION_VOICE_INSTALLED);
         event.putExtra("name",voice.getName());
-        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(event);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
 }
 
     public void onVoiceRemoval(VoicePack voice)
     {
         Intent event=new Intent(ACTION_VOICE_REMOVED);
         event.putExtra("name",voice.getName());
-        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(event);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
 }
 
-    public void onNetworkError()
+    public final boolean isTaskStopped()
     {
+        return isStopped();
 }
 
-    public boolean isStopped()
+    public DataSyncWorker(Context context,WorkerParameters params)
     {
-        return isCanceled();
+        super(context,params);
+}
+
+    protected final boolean doSync(DataPack p)
+    {
+        boolean done=p.sync(getApplicationContext(),this);
+        if(done)
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
+        return done;
+}
+
+    @Override
+    protected Result doWork(DataPack p)
+    {
+        doSync(p);
+        return (p.getSyncFlag(getApplicationContext())!=SyncFlags.LOCAL)?Result.success(getInputData()):Result.retry();
 }
 }

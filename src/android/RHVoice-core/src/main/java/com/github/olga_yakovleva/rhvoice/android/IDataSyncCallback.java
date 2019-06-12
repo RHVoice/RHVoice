@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -26,6 +26,5 @@ interface IDataSyncCallback
     public void onVoiceDownloadDone(VoicePack voice);
     public void onVoiceInstallation(VoicePack voice);
     public void onVoiceRemoval(VoicePack voice);
-    public void onNetworkError();
-    public boolean isStopped();
+    public boolean isTaskStopped();
 }

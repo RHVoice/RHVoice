@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -17,8 +17,6 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 import android.util.Log;
-import com.evernote.android.job.JobManager;
-import com.evernote.android.job.JobRequest;
 import com.github.olga_yakovleva.rhvoice.RHVoiceException;
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
@@ -27,15 +25,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.evernote.android.job.util.support.PersistableBundleCompat;
-
-
 
 public final class Data
 {
     private static final String TAG="RHVoice.Data";
     private final static List<LanguagePack> languages=new ArrayList<LanguagePack>();
     private static final Map<String,LanguagePack> index=new HashMap<String,LanguagePack>();
+    private static final Map<String,LanguagePack> idIndex=new HashMap<String,LanguagePack>();
+    public static final String WORK_PREFIX_STRING="com.github.olga_yakovleva.rhvoice.android";
+    public static final String WORK_TAG=WORK_PREFIX_STRING+".data";
 
     static
     {
@@ -79,6 +77,11 @@ public final class Data
         return index.get(name);
     }
 
+    public static LanguagePack getLanguageById(String id)
+    {
+        return idIndex.get(id);
+}
+
     public static List<LanguagePack> getLanguages()
     {
         return languages;
@@ -88,21 +91,7 @@ public final class Data
     {
         languages.add(language);
         index.put(language.getTag(),language);
-}
-
-    public static boolean sync(Context context,IDataSyncCallback callback)
-    {
-        boolean done=true;
-        for(LanguagePack language: languages)
-            {
-                if(callback.isStopped())
-                    break;
-                if(!language.sync(context,callback))
-                    done=false;
-}
-        if(callback.isStopped())
-            done=true;
-        return done;
+        idIndex.put(language.getId(),language);
 }
 
     public static List<String> getPaths(Context context)
@@ -136,44 +125,13 @@ public final class Data
 }
 }
 
-    public static long getSyncFlags(Context context)
+    public static void scheduleSync(Context context,boolean replace)
     {
-        long flags=0;
-        for(LanguagePack language: languages)
+        for(LanguagePack lang: languages)
             {
-                flags|=language.getSyncFlags(context);
+                lang.scheduleSync(context,replace);
+                for(VoicePack voice: lang.getVoices())
+                    voice.scheduleSync(context,replace);
 }
-        if(BuildConfig.DEBUG)
-            Log.v(TAG,"SyncFlags="+flags);
-        return flags;
-}
-
-    public static JobRequest.NetworkType getNetworkTypeSetting(Context context)
-    {
-        boolean wifiOnly=DataPack.getPrefs(context).getBoolean("wifi_only",true);
-        return wifiOnly?JobRequest.NetworkType.UNMETERED:JobRequest.NetworkType.CONNECTED;
-}
-
-    public static void scheduleSync(Context context)
-    {
-        long flags=getSyncFlags(context);
-        if(flags==0)
-            return;
-        JobRequest.NetworkType networkType=JobRequest.NetworkType.ANY;
-        if((flags&SyncFlags.NETWORK)!=0)
-            networkType=getNetworkTypeSetting(context);
-        JobRequest.Builder builder=new JobRequest.Builder(DataSyncJob.JOB_TAG);
-        builder.setExecutionWindow(1,10);
-        builder.setRequiredNetworkType(networkType);
-        if((flags&SyncFlags.NETWORK)!=0&&(flags&SyncFlags.LOCAL)==0)
-            builder.setRequirementsEnforced(true);
-        PersistableBundleCompat extras=new PersistableBundleCompat();
-        extras.putLong("flags",flags);
-        builder.setExtras(extras);
-        builder.setUpdateCurrent(true);
-        JobRequest request=builder.build();
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Scheduling job request");
-        request.schedule();
 }
 }

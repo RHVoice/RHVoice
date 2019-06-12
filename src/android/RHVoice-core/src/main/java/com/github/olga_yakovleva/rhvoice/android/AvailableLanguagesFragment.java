@@ -15,10 +15,10 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBar;
+import androidx.fragment.app.ListFragment;
+import androidx.appcompat.app.ActionBar;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
