@@ -81,7 +81,7 @@ class data_packager(packager):
 
 	def create_major_upgrade_element(self):
 		mu=SubElement(self.product,"MajorUpgrade",empty=True)
-		mu.set("AllowDowngrades","yes")
+		mu.set("DowngradeErrorMessage","A newer version of [ProductName] is already installed.")
 		mu.set("Schedule","afterInstallInitialize")
 
 	def create_feature_element(self):
@@ -98,7 +98,7 @@ class data_packager(packager):
 		dir=SubElement(dir,"Directory")
 		dir.set("Id","ProgramFilesFolder")
 		self.directory=SubElement(dir,"Directory")
-		self.directory.set("Id","files_RHVoice")
+		self.directory.set("Id","RHV")
 		self.directory.set("Name","com.github.Olga-Yakovleva.RHVoice")
 
 	def get_subdirectory_element(self,dir,path):
@@ -106,7 +106,7 @@ class data_packager(packager):
 		subdir=dir.find("*[@Name='{}']".format(p[0]))
 		if subdir is None:
 			subdir=SubElement(dir,"Directory")
-			subdir.set("Id",dir.get("Id")+"_"+p[0].replace("-","_"))
+			subdir.set("Id",dir.get("Id")+"_"+p[0].replace("-","").replace("_",""))
 			subdir.set("Name",p[0])
 		if len(p)==1:
 			return subdir
@@ -118,7 +118,7 @@ class data_packager(packager):
 		dir=self.get_subdirectory_element(self.directory,dir_path)
 		cmp=SubElement(dir,"Component")
 		file=SubElement(cmp,"File",empty=True)
-		file.set("Id",dir.get("Id")+"_"+file_name.replace("-","_"))
+		file.set("Id",dir.get("Id")+"_"+file_name.replace("-","").replace("_",""))
 		cmp.set("Id","cmp_"+file.get("Id"))
 		cmp.set("Guid","*")
 		cmp.set("Feature","Main")
@@ -139,4 +139,4 @@ class data_packager(packager):
 		value=self.env.Value(text,text)
 		src=self.env.Command(self.src,value,self.make_src)
 		obj=self.env.Command(self.obj,src,r'"${WIX}bin\candle.exe" -nologo -arch x86 -out $TARGET $SOURCE')
-		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -out $TARGET $SOURCE')
+		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -sacl -out $TARGET $SOURCE')
