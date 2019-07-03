@@ -1094,6 +1094,28 @@ namespace RHVoice
       }
     };
 
+    struct hts_utt_type: public feature_function
+    {
+      hts_utt_type():
+        feature_function("utt_type")
+      {
+      }
+
+        value eval(const item& seg) const
+      {
+        const utterance& utt=seg.get_relation().get_utterance();
+        const item& word=utt.get_relation("Word").last().as("TokStructure");
+        const item& token=word.parent();
+        const item& parent_token=token.parent();
+        std::string result("s");
+        if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","?"))!=parent_token.end())
+          result="q";
+        else if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","!"))!=parent_token.end())
+          result="e";
+        return result;
+      }
+    };
+
     struct hts_num_consonants_to_end_of_cluster: public feature_function
     {
       hts_num_consonants_to_end_of_cluster():
