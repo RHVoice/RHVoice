@@ -21,12 +21,6 @@ from collections import OrderedDict
 import xml.etree.cElementTree as etree
 from .common import *
 
-def __save__(target,source,env):
-	v=source[0].read()
-	with open(str(target[0]),"wb") as f:
-#		f.write(codecs.BOM_UTF8)
-		f.write(v)
-
 ns="{http://schemas.microsoft.com/wix/2006/wi}"
 
 def SubElement(parent,tag,ns=ns,empty=False):
@@ -40,7 +34,6 @@ class data_packager(packager):
 	def __init__(self,uuid,name,outdir,env,display_name,version):
 		package_name="{}-v{}-setup".format(name,version)
 		super(data_packager,self).__init__(package_name,outdir,env,"msi")
-		self.product_name=name
 		self.display_name=display_name
 		self.version=version
 		self.uuid=uuid
@@ -60,20 +53,20 @@ class data_packager(packager):
 	def create_product_element(self):
 		self.product=SubElement(self.root,"Product")
 		self.product.set("Id","*")
-		self.product.set("Codepage","0")
+		self.product.set("Codepage","1252")
 		self.product.set("Language","0")
 		self.product.set("Manufacturer","Olga Yakovleva")
-		self.product.set("Name",self.product_name)
+		self.product.set("Name",self.display_name)
 		self.product.set("UpgradeCode",self.uuid)
 		self.product.set("Version",self.version)
 
 	def create_package_element(self):
 		pkg=SubElement(self.product,"Package",empty=True)
 		pkg.set("Compressed","yes")
-		pkg.set("Description","Installs "+self.product_name)
+		pkg.set("Description","Installs [ProductName]")
 		pkg.set("InstallScope","perMachine")
 		pkg.set("Manufacturer",self.product.get("Manufacturer"))
-		pkg.set("SummaryCodepage","0")
+		pkg.set("SummaryCodepage",self.product.get("Codepage"))
 
 	def create_media_template_element(self):
 		mt=SubElement(self.product,"MediaTemplate",empty=True)
