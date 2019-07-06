@@ -37,6 +37,8 @@ class data_packager(packager):
 		self.display_name=display_name
 		self.version=version
 		self.uuid=uuid
+		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
+		self.nsis_uninstaller_file_name="uninstall-{}.exe".format(name)
 		tmp_dir=self.outdir.Dir("tmp")
 		self.src=tmp_dir.Dir("src").File(name+".wxs")
 		self.obj=tmp_dir.Dir("obj").File(name+".wixobj")
@@ -47,6 +49,9 @@ class data_packager(packager):
 		self.create_package_element()
 		self.create_media_template_element()
 		self.create_major_upgrade_element()
+		self.create_nsis_uninstaller_search()
+		self.create_nsis_install_location_search()
+		self.create_nsis_uninstall_action()
 		self.create_feature_element()
 		self.create_directory_element()
 
@@ -76,6 +81,48 @@ class data_packager(packager):
 		mu=SubElement(self.product,"MajorUpgrade",empty=True)
 		mu.set("DowngradeErrorMessage","A newer version of [ProductName] is already installed.")
 		mu.set("Schedule","afterInstallInitialize")
+
+	def create_nsis_uninstaller_search(self):
+		p=SubElement(self.product,"Property")
+		p.set("Id","NSIS_UNINSTALLER")
+		self.nsis_uninstaller_property=p
+		rs=SubElement(p,"RegistrySearch")
+		rs.set("Id","nsis_uninstaller_registry_search")
+		rs.set("Root","HKLM")
+		rs.set("Key",self.nsis_uninst_reg_key)
+		rs.set("Name","UninstallString")
+		rs.set("Type","file")
+		fs=SubElement(rs,"FileSearch",empty=True)
+		fs.set("Id","nsis_uninstaller_file_search")
+		fs.set("Name",self.nsis_uninstaller_file_name)
+
+	def create_nsis_install_location_search(self):
+		p=SubElement(self.product,"Property")
+		p.set("Id","NSIS_INSTALL_LOCATION")
+		self.nsis_install_location_property=p
+		rs=SubElement(p,"RegistrySearch")
+		rs.set("Id","nsis_install_location_registry_search")
+		rs.set("Root","HKLM")
+		rs.set("Key",self.nsis_uninst_reg_key)
+		rs.set("Name","InstallLocation")
+		rs.set("Type","directory")
+		ds=SubElement(rs,"DirectorySearch",empty=True)
+		ds.set("Id","nsis_install_location_directory_search")
+		ds.set("Path","[{}]".format(p.get("Id")))
+
+	def create_nsis_uninstall_action(self):
+		a=SubElement(self.product,"CustomAction",empty=True)
+		a.set("Id","nsis_uninstall_action")
+		a.set("Impersonate","no")
+		a.set("Execute","deferred")
+		a.set("Return","check")
+		a.set("Property",self.nsis_uninstaller_property.get("Id"))
+		a.set("ExeCommand","/S /D[{}]".format(self.nsis_install_location_property.get("Id")))
+		s=SubElement(self.product,"InstallExecuteSequence")
+		c=SubElement(s,"Custom")
+		c.set("Action",a.get("Id"))
+		c.set("After","RemoveExistingProducts")
+		c.text="NOT Installed AND {} AND {}".format(self.nsis_uninstaller_property.get("Id"),self.nsis_install_location_property.get("Id"))
 
 	def create_feature_element(self):
 		f=SubElement(self.product,"Feature",empty=True)
