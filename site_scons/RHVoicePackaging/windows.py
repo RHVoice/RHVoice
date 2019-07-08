@@ -42,6 +42,7 @@ class msi_packager(packager):
 		self.create_package_element()
 		self.create_media_template_element()
 		self.create_major_upgrade_element()
+		self.create_no_modify_property()
 		self.create_nsis_uninstaller_search()
 		self.create_nsis_install_location_search()
 		self.create_nsis_uninstall_action()
@@ -81,6 +82,11 @@ class msi_packager(packager):
 		mu=self.SubElement(self.product,"MajorUpgrade",empty=True)
 		mu.set("DowngradeErrorMessage","A newer version of [ProductName] is already installed.")
 		mu.set("Schedule","afterInstallInitialize")
+
+	def create_no_modify_property(self):
+		p=self.SubElement(self.product,"Property",empty=True)
+		p.set("Id","ARPNOMODIFY")
+		p.set("Value","1")
 
 	def create_nsis_uninstaller_search(self):
 		p=self.SubElement(self.product,"Property")
