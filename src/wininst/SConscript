@@ -1,3 +1,5 @@
+# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
+
 # Copyright (C) 2013, 2014, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -15,14 +17,59 @@
 
 Import(["env"])
 
-#import RHVoicePackaging.windows
+import RHVoicePackaging.windows
+import RHVoicePackaging.common
 
-#packager=RHVoicePackaging.windows.app_packager("RHVoice",Dir("..").Dir("packages").Dir("sapi"),env,"RHVoice",env["package_version"])
-# packager.add(Dir("..").Dir("x86").Dir("sapi").File("RHVoiceSvr.dll"),"lib32",regdll=True)
-# if env["enable_x64"]:
-#     packager.add(Dir("..").Dir("x86_64").Dir("sapi").File("RHVoiceSvr.dll"),"lib64",regdll=True,x64=True)
-# packager.add(Dir("..").File("RHVoice.ini"),"config-examples")
-# packager.add_reg_value("HKLM",r"Software\RHVoice","path","$INSTDIR")
-# packager.add_reg_value("HKLM",r"Software\RHVoice","data_path",r'$INSTDIR\data',True)
-# packager.add_reg_value("HKLM",r"Software\Microsoft\Speech\Voices\TokenEnums\RHVoice","CLSID","{d7577808-7ade-4dea-a5b7-ee314d6ef3a1}",True)
-#packager.package()
+class core_packager(RHVoicePackaging.windows.msi_packager):
+	def __init__(self,uuid,x64_flag):
+		self.x64_flag=x64_flag
+		display_name="RHVoice ({}-bit)".format(64 if self.x64_flag else 32)
+		name="RHVoice-"+self.get_arch()
+		version=env["package_version"]
+		outdir=Dir("..").Dir("packages").Dir("sapi")
+		super(core_packager,self).__init__(uuid,name,outdir,env,display_name,version,"RHVoice")
+		self.dll=Dir("..").Dir("x86_64" if x64_flag else "x86").Dir("sapi").File("RHVoiceSvr.dll")
+		env.Depends(self.outfile,self.dll)
+		self.token_enum_clsid="{d7577808-7ade-4dea-a5b7-ee314d6ef3a1}"
+		self.engine_clsid="{9f215c97-3d3b-489d-8419-6b9abbf31ec2}"
+
+	def is_64_bit(self):
+		return self.x64_flag
+
+	def get_parent_directory_id(self):
+		return "ProgramFiles64Folder" if self.x64_flag else "ProgramFilesFolder"
+
+	def create_com_server_component_element(self):
+		cmp,file=self.create_file_component_element(RHVoicePackaging.common.file_info(self.dll,"lib",None,{}))
+		for clsid in [self.engine_clsid,self.token_enum_clsid]:
+			cls=self.SubElement(file,"Class",empty=True)
+			cls.set("Id",clsid)
+			cls.set("Context","InprocServer32")
+			cls.set("ThreadingModel","both")
+
+	def create_token_enum_component_element(self):
+		dir=self.directory.find("*[@Name='lib']")
+		cmp=self.SubElement(dir,"Component")
+		cmp.set("Id","cmp_token_enum_clsid")
+		cmp.set("Guid","*")
+		cmp.set("Feature","Main")
+		rv=self.SubElement(cmp,"RegistryValue",empty=True)
+		rv.set("Action","write")
+		rv.set("Id","reg_token_enum_clsid")
+		rv.set("Key",r"Software\Microsoft\Speech\Voices\TokenEnums\RHVoice")
+		rv.set("KeyPath","yes")
+		rv.set("Name","CLSID")
+		rv.set("Root","HKLM")
+		rv.set("Type","string")
+		rv.set("Value",self.token_enum_clsid)
+
+	def do_package(self):
+		self.create_com_server_component_element()
+		self.create_token_enum_component_element()
+
+p32=core_packager("3794ffaa-7bc4-48cb-ae7d-67cb2560398a",False)
+p32.package()
+if env["enable_x64"]:
+	p64=core_packager("b48a841e-f35c-45e1-9206-a4be459fc0b2",True)
+	p64.package()
+

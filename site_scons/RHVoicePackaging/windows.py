@@ -21,23 +21,56 @@ from collections import OrderedDict
 import xml.etree.cElementTree as etree
 from .common import *
 
-ns="{http://schemas.microsoft.com/wix/2006/wi}"
+ns_wix="{http://schemas.microsoft.com/wix/2006/wi}"
 
-class msi_packager(packager):
+class wix_packager(packager):
 	def __init__(self,uuid,name,outdir,env,display_name,version):
 		package_name="{}-v{}-setup".format(name,version)
-		super(msi_packager,self).__init__(package_name,outdir,env,"msi")
+		super(wix_packager,self).__init__(package_name,outdir.Dir(self.get_file_ext()),env,self.get_file_ext())
 		self.display_name=display_name
 		self.version=version
 		self.uuid=uuid
-		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(name)
-		self.nsis_uninstaller_file_name="uninstall-{}.exe".format(name)
 		tmp_dir=self.outdir.Dir("tmp")
-		self.src=tmp_dir.Dir("src").File(name+".msi.wxs")
-		self.obj=tmp_dir.Dir("obj").File(name+".msi.wixobj")
-		self.root=etree.Element(ns+"Wix")
+		self.src=tmp_dir.Dir("src").File(name+"."+self.get_file_ext()+".wxs")
+		self.obj=tmp_dir.Dir("obj").File(name+"."+self.get_file_ext()+".wixobj")
+		self.root=etree.Element(ns_wix+"Wix")
 		self.root.text="\n"
 		self.doc=etree.ElementTree(self.root)
+
+	def SubElement(self,parent,tag,ns=ns_wix,empty=False):
+		el=etree.SubElement(parent,ns+tag)
+		if not empty:
+			el.text="\n"
+		el.tail="\n"
+		return el
+
+	def get_arch(self):
+		return "x64" if self.is_64_bit() else "x86"
+
+	def is_64_bit(self):
+		return False
+
+	def make_src(self,target,source,env):
+		self.doc.write(str(target[0]),encoding="utf-8",xml_declaration=True)
+
+	def get_exts(self):
+		return {}
+
+	def package(self):
+		self.do_package()
+		text=etree.tostring(self.root,encoding="utf-8")
+		value=self.env.Value(text,text)
+		src=self.env.Command(self.src,value,self.make_src)
+		exts=" "+" ".join(["-ext "+ext for ext in self.get_exts()])+" "
+		obj=self.env.Command(self.obj,src,r'"${WIX}bin\candle.exe" -nologo -arch '+self.get_arch()+exts+' -out $TARGET $SOURCE')
+		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -sacl -spdb'+exts+" -out $TARGET $SOURCE")
+
+class msi_packager(wix_packager):
+	def __init__(self,uuid,name,outdir,env,display_name,version,nsis_name=None):
+		super(msi_packager,self).__init__(uuid,name,outdir,env,display_name,version)
+		self.nsis_name=nsis_name if nsis_name else name
+		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(self.nsis_name)
+		self.nsis_uninstaller_file_name="uninstall-{}.exe".format(self.nsis_name)
 		self.create_product_element()
 		self.create_package_element()
 		self.create_media_template_element()
@@ -48,13 +81,6 @@ class msi_packager(packager):
 		self.create_nsis_uninstall_action()
 		self.create_feature_element()
 		self.create_directory_element()
-
-	def SubElement(self,parent,tag,ns=ns,empty=False):
-		el=etree.SubElement(parent,ns+tag)
-		if not empty:
-			el.text="\n"
-		el.tail="\n"
-		return el
 
 	def create_product_element(self):
 		self.product=self.SubElement(self.root,"Product")
@@ -148,9 +174,12 @@ class msi_packager(packager):
 		dir.set("Name","SourceDir")
 		dir=self.SubElement(dir,"Directory")
 		dir.set("Id",self.get_parent_directory_id())
+		dir=self.SubElement(dir,"Directory")
+		dir.set("Id","MyFolder")
+		dir.set("Name",self.product.get("Manufacturer"))
 		self.directory=self.SubElement(dir,"Directory")
 		self.directory.set("Id","RHV")
-		self.directory.set("Name","com.github.Olga-Yakovleva.RHVoice")
+		self.directory.set("Name","RHVoice")
 
 	def get_subdirectory_element(self,dir,path):
 		p=path.split(os.sep,1)
@@ -182,22 +211,8 @@ class msi_packager(packager):
 		for f in self.files:
 			self.create_file_component_element(f)
 
-	def make_src(self,target,source,env):
-		self.doc.write(str(target[0]),encoding="utf-8",xml_declaration=True)
-
-	def get_arch(self):
-		return "x64" if self.is_64_bit() else "x86"
-
-	def is_64_bit(self):
-		return False
-
-	def package(self):
-		self.do_package()
-		text=etree.tostring(self.root,encoding="utf-8")
-		value=self.env.Value(text,text)
-		src=self.env.Command(self.src,value,self.make_src)
-		obj=self.env.Command(self.obj,src,r'"${WIX}bin\candle.exe" -nologo -arch '+self.get_arch()+' -out $TARGET $SOURCE')
-		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -sacl -out $TARGET $SOURCE')
+	def get_file_ext(self):
+		return "msi"
 
 class data_packager(msi_packager):
 	def get_parent_directory_id(self):
