@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -37,6 +37,10 @@ namespace RHVoice
       smart_ptr<engine> get_engine();
 
     private:
+
+      std::vector<std::string> get_resource_paths(int id, std::string name) const;
+      std::vector<std::string> get_resource_paths() const;
+
       static threading::mutex engine_mutex;
       static smart_ptr<engine> engine_ptr;
     };
