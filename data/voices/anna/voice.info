@@ -3,4 +3,5 @@ language=Russian
 gender=female
 format=4
 revision=0
-uuid=01912c01-faf6-4aab-a76f-0463f54d4ed9
+msi_upgrade_code=01912c01-faf6-4aab-a76f-0463f54d4ed9
+exe_upgrade_code=95470a97-2468-4112-8c70-d3196ad79ac6

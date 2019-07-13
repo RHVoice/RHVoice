@@ -3,4 +3,5 @@ language=English
 gender=female
 format=4
 revision=0
-uuid=bea7e1fb-7d24-4f86-a9bf-5a02f2e4d470
+msi_upgrade_code=bea7e1fb-7d24-4f86-a9bf-5a02f2e4d470
+exe_upgrade_code=da7e1f50-5364-4cc7-8961-d5ed96a378c7

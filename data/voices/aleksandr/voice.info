@@ -3,4 +3,5 @@ language=Russian
 gender=male
 format=4
 revision=1
-uuid=30bed95d-e276-4f8c-ae13-671ee36c39c2
+msi_upgrade_code=30bed95d-e276-4f8c-ae13-671ee36c39c2
+exe_upgrade_code=a8bda941-6270-4f9a-a29f-5596d9f423ed

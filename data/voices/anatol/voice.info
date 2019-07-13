@@ -3,4 +3,5 @@ language=Ukrainian
 gender=male
 format=4
 revision=1
-uuid=2839a929-bf75-4d34-a78c-ab8a2f22136d
+msi_upgrade_code=2839a929-bf75-4d34-a78c-ab8a2f22136d
+exe_upgrade_code=202424cf-868d-4ce1-b83e-22fad1e4e185

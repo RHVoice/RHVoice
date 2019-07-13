@@ -2,5 +2,4 @@ name=Brazilian-Portuguese
 package_name=RHVoice-F123-Brazilian-Portuguese-language
 format=1
 revision=5
-uuid=58cf0f12-f99d-4e40-ab78-d77b6c231493
->>>>>>> Windows: start work on switching to the WIX for installers
+msi_upgrade_code=58cf0f12-f99d-4e40-ab78-d77b6c231493

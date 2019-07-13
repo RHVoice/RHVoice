@@ -4,4 +4,5 @@ sample_rate=24k
 gender=male
 format=4
 revision=0
-uuid=54044159-4b4a-418f-9dca-d0c02f41661d
+msi_upgrade_code=54044159-4b4a-418f-9dca-d0c02f41661d
+exe_upgrade_code=d146399b-b1a4-4c98-9d79-dece598514f7

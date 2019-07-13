@@ -22,14 +22,15 @@ import xml.etree.cElementTree as etree
 from .common import *
 
 ns_wix="{http://schemas.microsoft.com/wix/2006/wi}"
+ns_bal="{http://schemas.microsoft.com/wix/BalExtension}"
 
 class wix_packager(packager):
-	def __init__(self,uuid,name,outdir,env,display_name,version):
+	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
 		package_name="{}-v{}-setup".format(name,version)
 		super(wix_packager,self).__init__(package_name,outdir.Dir(self.get_file_ext()),env,self.get_file_ext())
 		self.display_name=display_name
 		self.version=version
-		self.uuid=uuid
+		self.upgrade_code=upgrade_code
 		tmp_dir=self.outdir.Dir("tmp")
 		self.src=tmp_dir.Dir("src").File(name+"."+self.get_file_ext()+".wxs")
 		self.obj=tmp_dir.Dir("obj").File(name+"."+self.get_file_ext()+".wixobj")
@@ -66,8 +67,9 @@ class wix_packager(packager):
 		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -sacl -spdb'+exts+" -out $TARGET $SOURCE")
 
 class msi_packager(wix_packager):
-	def __init__(self,uuid,name,outdir,env,display_name,version,nsis_name=None):
-		super(msi_packager,self).__init__(uuid,name,outdir,env,display_name,version)
+	def __init__(self,upgrade_code,name,outdir,env,display_name,version,nsis_name=None):
+		super(msi_packager,self).__init__(upgrade_code,name,outdir,env,display_name,version)
+		self.visible="yes"
 		self.nsis_name=nsis_name if nsis_name else name
 		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(self.nsis_name)
 		self.nsis_uninstaller_file_name="uninstall-{}.exe".format(self.nsis_name)
@@ -89,7 +91,7 @@ class msi_packager(wix_packager):
 		self.product.set("Language","0")
 		self.product.set("Manufacturer","Olga Yakovleva")
 		self.product.set("Name",self.display_name)
-		self.product.set("UpgradeCode",self.uuid)
+		self.product.set("UpgradeCode",self.upgrade_code)
 		self.product.set("Version",self.version)
 
 	def create_package_element(self):
@@ -220,3 +222,44 @@ class data_packager(msi_packager):
 
 	def do_package(self):
 		self.create_file_component_elements()
+
+class bundle_packager(wix_packager):
+	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
+		super(bundle_packager,self).__init__(upgrade_code,name,outdir,env,display_name,version)
+		self.msis=[]
+		self.create_bundle_element()
+		self.configure_bootstrapper_application()
+
+	def get_file_ext(self):
+		return "exe"
+
+	def get_exts(self):
+		return ["WixBalExtension"]
+
+	def create_bundle_element(self):
+		self.bundle=self.SubElement(self.root,"Bundle")
+		self.bundle.set("Manufacturer","Olga Yakovleva")
+		self.bundle.set("Name",self.display_name)
+		self.bundle.set("UpgradeCode",self.upgrade_code)
+		self.bundle.set("Version",self.version)
+
+	def configure_bootstrapper_application(self):
+		ref=self.SubElement(self.bundle,"BootstrapperApplicationRef")
+		ref.set("Id","WixStandardBootstrapperApplication.HyperlinkLicense")
+		ref.set(ns_bal+"UseUILanguages","yes")
+		app=self.SubElement(ref,"WixStandardBootstrapperApplication",ns=ns_bal,empty=True)
+		app.set("LicenseUrl","")
+		app.set("ShowFilesInUse","yes")
+		app.set("SuppressOptionsUI","yes")
+
+	def do_package(self):
+		self.chain=self.SubElement(self.bundle,"Chain")
+		for msi in self.msis:
+			self.env.Depends(self.outfile,msi.outfile)
+			pkg=self.SubElement(self.chain,"MsiPackage",empty=True)
+			pkg.set("Compressed","yes")
+			if msi.is_64_bit():
+				pkg.set("InstallCondition","VersionNT64")
+			pkg.set("SourceFile",msi.outfile.abspath)
+			pkg.set("Visible",msi.visible)
+			pkg.set("DisplayInternalUI","yes")

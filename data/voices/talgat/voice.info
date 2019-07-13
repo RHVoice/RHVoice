@@ -3,4 +3,5 @@ language=Tatar
 gender=male
 format=4
 revision=0
-uuid=d0118df8-8aa3-43a0-aab9-eefdafa0c9a6
+msi_upgrade_code=d0118df8-8aa3-43a0-aab9-eefdafa0c9a6
+exe_upgrade_code=af06a69a-11e9-4571-8b66-4108c28a651c

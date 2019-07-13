@@ -3,4 +3,5 @@ language=Esperanto
 gender=female
 format=4
 revision=0
-uuid=8cc73060-fc16-4cc3-93cd-20aa952d0019
+msi_upgrade_code=8cc73060-fc16-4cc3-93cd-20aa952d0019
+exe_upgrade_code=0deb6ea0-97a5-4231-9f18-a72384b51ef7

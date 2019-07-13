@@ -3,4 +3,5 @@ language=Georgian
 gender=female
 format=4
 revision=0
-uuid=d49b5332-d27b-43c5-b080-ae89ece7cbe4
+msi_upgrade_code=d49b5332-d27b-43c5-b080-ae89ece7cbe4
+exe_upgrade_code=7cf0c298-48bf-47ee-a1e6-b45438229cce

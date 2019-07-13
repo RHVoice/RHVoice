@@ -3,4 +3,5 @@ language=Kyrgyz
 gender=female
 format=4
 revision=0
-uuid=0ad07315-cdaa-46db-9828-b24b1e93b62c
+msi_upgrade_code=0ad07315-cdaa-46db-9828-b24b1e93b62c
+exe_upgrade_code=c0a3636a-7017-488f-864c-c2c3683589fe

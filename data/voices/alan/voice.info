@@ -3,4 +3,5 @@ language=English
 gender=male
 format=4
 revision=0
-uuid=13481d4a-acba-44fe-9440-ef1260476768
+msi_upgrade_code=13481d4a-acba-44fe-9440-ef1260476768
+exe_upgrade_code=991b4cec-2c09-4907-8e08-5c2e913ee9da
