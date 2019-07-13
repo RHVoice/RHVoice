@@ -63,19 +63,6 @@ def CheckXPCompat(context):
     context.Result(result)
     return result
 
-def CheckNSIS(context):
-    result=0
-    context.Message("Checking for NSIS Unicode")
-    key_name=r"SOFTWARE\NSIS\Unicode"
-    try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,key_name,0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
-                context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
-                result=1
-    except WindowsError:
-         pass
-    context.Result(result)
-    return result
-
 def CheckWiX(context):
     result=0
     context.Message("Checking for WiX toolset")
@@ -323,8 +310,7 @@ def build_for_linux(base_env,user_vars):
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
-                       custom_tests={"CheckNSIS":CheckNSIS,"CheckWiX":CheckWiX})
-    conf.CheckNSIS()
+                       custom_tests={"CheckWiX":CheckWiX})
     conf.CheckWiX()
     conf.Finish()
 
@@ -333,6 +319,11 @@ def build_for_windows(base_env,user_vars):
     build_binaries(base_env,user_vars,"x86")
     if base_env["enable_x64"]:
         build_binaries(base_env,user_vars,"x86_64")
+    if "WIX" in base_env:
+        SConscript(os.path.join("src","wininst","SConscript"),
+                   variant_dir=os.path.join(BUILDDIR,"wininst"),
+                   exports={"env":base_env},
+                   duplicate=0)
     SConscript(os.path.join("data","SConscript"),
                variant_dir=os.path.join(BUILDDIR,"data"),
                exports={"env":base_env},
@@ -346,11 +337,6 @@ def build_for_windows(base_env,user_vars):
                variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
                exports={"env":base_env},
                duplicate=0)
-    if "makensis" in base_env:
-        SConscript(os.path.join("src","wininst","SConscript"),
-                   variant_dir=os.path.join(BUILDDIR,"wininst"),
-                   exports={"env":base_env},
-                   duplicate=0)
 
 setup()
 vars=create_user_vars()
