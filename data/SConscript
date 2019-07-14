@@ -62,7 +62,7 @@ for dir_name in ["languages","voices"]:
 				lang_msis[props["name"]]=packagers["msi"]
 			else:
 				packagers["msi"].visible="no"
-				packagers["exe"]=RHVoicePackaging.windows.bundle_packager(props["exe_upgrade_code"],package_name,pkgdir.Dir("sapi"),local_env,description,version+build_number)
+				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version+build_number)
 				packagers["exe"].msis.append(local_env["WindowsInstallers_core_32"])
 				if env["enable_x64"]:
 					packagers["exe"].msis.append(local_env["WindowsInstallers_core_64"])
