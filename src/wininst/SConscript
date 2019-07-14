@@ -71,7 +71,7 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 msi32=core_packager("3794ffaa-7bc4-48cb-ae7d-67cb2560398a",False)
 msi32.package()
 env["WindowsInstallers_core_32"]=msi32
-exe=RHVoicePackaging.windows.bundle_packager("19ed9ab7-49dd-4448-a80f-c5f575f4e261","RHVoice",outdir,env,"RHVoice",msi32.version)
+exe=RHVoicePackaging.windows.nsis_bootstrapper_packager("RHVoice",outdir,env,"RHVoice",msi32.version)
 exe.msis.append(msi32)
 if env["enable_x64"]:
 	msi64=core_packager("b48a841e-f35c-45e1-9206-a4be459fc0b2",True)

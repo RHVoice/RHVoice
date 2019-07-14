@@ -24,16 +24,20 @@ from .common import *
 ns_wix="{http://schemas.microsoft.com/wix/2006/wi}"
 ns_bal="{http://schemas.microsoft.com/wix/BalExtension}"
 
-class wix_packager(packager):
-	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
+class windows_packager(packager):
+	def __init__(self,name,outdir,env,display_name,version):
 		package_name="{}-v{}-setup".format(name,version)
-		super(wix_packager,self).__init__(package_name,outdir.Dir(self.get_file_ext()),env,self.get_file_ext())
+		super(windows_packager,self).__init__(package_name,outdir.Dir(self.get_file_ext()),env,self.get_file_ext())
 		self.display_name=display_name
 		self.version=version
+		self.tmp_dir=self.outdir.Dir("tmp")
+		self.src=self.tmp_dir.Dir("src").File(name+"."+self.get_file_ext()+"."+self.get_src_ext())
+
+class wix_packager(windows_packager):
+	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
+		super(wix_packager,self).__init__(name,outdir,env,display_name,version)
 		self.upgrade_code=upgrade_code
-		tmp_dir=self.outdir.Dir("tmp")
-		self.src=tmp_dir.Dir("src").File(name+"."+self.get_file_ext()+".wxs")
-		self.obj=tmp_dir.Dir("obj").File(name+"."+self.get_file_ext()+".wixobj")
+		self.obj=self.tmp_dir.Dir("obj").File(name+"."+self.get_file_ext()+".wixobj")
 		self.root=etree.Element(ns_wix+"Wix")
 		self.root.text="\n"
 		self.doc=etree.ElementTree(self.root)
@@ -51,6 +55,9 @@ class wix_packager(packager):
 	def is_64_bit(self):
 		return False
 
+	def get_src_ext(self):
+		return "wxs"
+
 	def make_src(self,target,source,env):
 		self.doc.write(str(target[0]),encoding="utf-8",xml_declaration=True)
 
@@ -58,6 +65,8 @@ class wix_packager(packager):
 		return {}
 
 	def package(self):
+		if "WIX" not in self.env:
+			return
 		self.do_package()
 		text=etree.tostring(self.root,encoding="utf-8")
 		value=self.env.Value(text,text)
@@ -263,3 +272,75 @@ class bundle_packager(wix_packager):
 			pkg.set("SourceFile",msi.outfile.abspath)
 			pkg.set("Visible",msi.visible)
 			pkg.set("DisplayInternalUI","yes")
+
+class nsis_bootstrapper_packager(windows_packager):
+	def __init__(self,name,outdir,env,display_name,version):
+		super(nsis_bootstrapper_packager,self).__init__(name,outdir,env,display_name,version)
+		self.msis=[]
+		self.script=["Unicode true"]
+		self.languages=["English","Russian"]
+		self.add_includes()
+		self.add_settings()
+
+	def get_file_ext(self):
+		return "exe"
+
+	def get_src_ext(self):
+		return "nsi"
+
+	def write_src(self,target,source,env):
+		v=source[0].read()
+		with open(str(target[0]),"wb") as f:
+			f.write(codecs.BOM_UTF8)
+			f.write(v)
+
+	def add_includes(self):
+		self.script.append('!include "LogicLib.nsh"')
+		self.script.append('!include "x64.nsh"')
+		for lang in self.languages:
+			self.script.append(r'LoadLanguageFile "${{NSISDIR}}\Contrib\Language files\{}.nlf"'.format(lang))
+
+	def add_settings(self):
+		self.script.append("SetOverwrite on")
+		self.script.append("AllowSkipFiles off")
+		self.script.append("CRCCheck on")
+		self.script.append(r'InstallDir "$PROGRAMFILES\Olga Yakovleva\RHVoice"')
+		self.script.append(u'Name "{} V{}"'.format(self.display_name,self.version))
+		self.script.append(u'OutFile "{}"'.format(self.outfile.abspath))
+		self.script.append('RequestExecutionLevel admin')
+		self.script.append("Page instfiles")
+
+	def add_files(self):
+		self.script.append("Section")
+		outpath=r"$INSTDIR\packages"
+		self.script.append('SetOutPath {}'.format(outpath))
+		for msi in self.msis:
+			self.env.Depends(self.outfile,msi.outfile)
+			file_name=os.path.split(msi.outfile.path)[1]
+			file_path=outpath+"\\"+file_name
+			if msi.is_64_bit():
+				self.script.append('${If} ${RunningX64}')
+			self.script.append(u"File {}".format(msi.outfile.abspath))
+			self.script.append("ClearErrors")
+			self.script.append(r"""ExecWait 'msiexec /i "{}"'""".format(file_path))
+			self.script.append("${If} ${Errors}")
+			self.script.append("Delete {}".format(file_path))
+			self.script.append("RMDir {}".format(outpath))
+			self.script.append("Abort")
+			self.script.append("${EndIf}")
+			self.script.append("Delete {}".format(file_path))
+			if msi.is_64_bit():
+				self.script.append("${EndIf}")
+		self.script.append("SetOutPath $INSTDIR")
+		self.script.append("RMDir {}".format(outpath))
+		self.script.append("SectionEnd")
+
+	def package(self):
+		if "makensis" not in self.env:
+			return
+		self.add_files()
+		text=u"".join([u"{}\n".format(line) for line in self.script]).encode("utf-8")
+		value=self.env.Value(text,text)
+		src=self.env.Command(self.src,value,self.write_src)
+		self.env.Command(self.outfile,src,"$makensis $SOURCE")
+

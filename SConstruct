@@ -63,6 +63,19 @@ def CheckXPCompat(context):
     context.Result(result)
     return result
 
+def CheckNSIS(context):
+    result=0
+    context.Message("Checking for NSIS")
+    key_name=r"SOFTWARE\NSIS"
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,key_name,0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
+                context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+                result=1
+    except WindowsError:
+         pass
+    context.Result(result)
+    return result
+
 def CheckWiX(context):
     result=0
     context.Message("Checking for WiX toolset")
@@ -310,8 +323,9 @@ def build_for_linux(base_env,user_vars):
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
                        log_file=os.path.join(BUILDDIR,"configure.log"),
-                       custom_tests={"CheckWiX":CheckWiX})
+                       custom_tests={"CheckNSIS":CheckNSIS,"CheckWiX":CheckWiX})
     conf.CheckWiX()
+    conf.CheckNSIS()
     conf.Finish()
 
 def build_for_windows(base_env,user_vars):
