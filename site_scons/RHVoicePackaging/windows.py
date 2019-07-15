@@ -305,6 +305,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		self.script.append("SetOverwrite on")
 		self.script.append("AllowSkipFiles off")
 		self.script.append("CRCCheck on")
+		self.script.append("ShowInstDetails show")
 		self.script.append(r'InstallDir "$PROGRAMFILES\Olga Yakovleva\RHVoice"')
 		self.script.append(u'Name "{} V{}"'.format(self.display_name,self.version))
 		self.script.append(u'OutFile "{}"'.format(self.outfile.abspath))
