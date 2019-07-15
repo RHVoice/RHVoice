@@ -109,6 +109,7 @@ class msi_packager(wix_packager):
 		pkg.set("Description","Installs [ProductName]")
 		pkg.set("InstallScope","perMachine")
 		pkg.set("Manufacturer",self.product.get("Manufacturer"))
+		pkg.set("Languages",self.product.get("Language"))
 		pkg.set("SummaryCodepage",self.product.get("Codepage"))
 
 	def create_media_template_element(self):
