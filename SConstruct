@@ -27,12 +27,8 @@ if sys.platform=="win32":
         import _winreg as winreg
 
 def get_version(is_release):
-    next_version="0.7.2"
-    if is_release:
-        return next_version
-    else:
-        date=datetime.date.today()
-        return "{}-pre-{}{:02}{:02}".format(next_version,date.year,date.month,date.day)
+    next_version="0.8.0"
+    return next_version
 
 def CheckPKGConfig(context):
     context.Message("Checking for pkg-config... ")
