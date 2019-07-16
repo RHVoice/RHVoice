@@ -145,6 +145,7 @@ def create_user_vars():
     if sys.platform=="win32":
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
         vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",True))
+        vars.Add(PathVariable("msi_repo","Where the msi packages are kept for reuse",None,PathVariable.PathIsDir))
     else:
         vars.Add("prefix","Installation prefix","/usr/local")
         vars.Add("bindir","Program installation directory","$prefix/bin")

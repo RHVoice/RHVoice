@@ -18,8 +18,11 @@
 import codecs
 import os.path
 from collections import OrderedDict
+import uuid
 import xml.etree.cElementTree as etree
 from .common import *
+
+uuid_namespace=uuid.UUID(hex="de5ba08b-8b9f-46e3-b0ee-d6bbac37017c")
 
 ns_wix="{http://schemas.microsoft.com/wix/2006/wi}"
 ns_bal="{http://schemas.microsoft.com/wix/BalExtension}"
@@ -32,6 +35,9 @@ class windows_packager(packager):
 		self.version=version
 		self.tmp_dir=self.outdir.Dir("tmp")
 		self.src=self.tmp_dir.Dir("src").File(name+"."+self.get_file_ext()+"."+self.get_src_ext())
+		self.msi_repo=env.get("msi_repo",None)
+		if self.msi_repo:
+			self.msi_repo=Dir(self.msi_repo)
 
 class wix_packager(windows_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
@@ -78,6 +84,8 @@ class wix_packager(windows_packager):
 class msi_packager(wix_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version,nsis_name=None):
 		super(msi_packager,self).__init__(upgrade_code,name,outdir,env,display_name,version)
+		msi_file_name=os.path.split(self.outfile.path)[1]
+		self.product_code=str(uuid.uuid5(uuid_namespace,msi_file_name)).upper()
 		self.visible="yes"
 		self.nsis_name=nsis_name if nsis_name else name
 		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(self.nsis_name)
@@ -95,7 +103,7 @@ class msi_packager(wix_packager):
 
 	def create_product_element(self):
 		self.product=self.SubElement(self.root,"Product")
-		self.product.set("Id","*")
+		self.product.set("Id",self.product_code)
 		self.product.set("Codepage","1252")
 		self.product.set("Language","0")
 		self.product.set("Manufacturer","Olga Yakovleva")
@@ -306,7 +314,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		self.script.append("AllowSkipFiles off")
 		self.script.append("CRCCheck on")
 		self.script.append("ShowInstDetails show")
-		self.script.append(r'InstallDir "$PROGRAMFILES\Olga Yakovleva\RHVoice"')
+		self.script.append(r'InstallDir "$TEMP\Olga Yakovleva\RHVoice"')
 		self.script.append(u'Name "{} V{}"'.format(self.display_name,self.version))
 		self.script.append(u'OutFile "{}"'.format(self.outfile.abspath))
 		self.script.append('RequestExecutionLevel admin')
@@ -317,24 +325,29 @@ class nsis_bootstrapper_packager(windows_packager):
 		outpath=r"$INSTDIR\packages"
 		self.script.append('SetOutPath {}'.format(outpath))
 		for msi in self.msis:
-			self.env.Depends(self.outfile,msi.outfile)
 			file_name=os.path.split(msi.outfile.path)[1]
+			file=msi.outfile
+			if self.msi_repo:
+				repo_file=self.msi_repo.File(file_name)
+				if os.path.isfile(repo_file.path):
+					file=repo_file
+			self.env.Depends(self.outfile,file)
 			file_path=outpath+"\\"+file_name
+			delete_command="Delete {}".format(file_path)
+			abort_command=delete_command+"\nAbort"
 			if msi.is_64_bit():
 				self.script.append('${If} ${RunningX64}')
-			self.script.append(u"File {}".format(msi.outfile.abspath))
+			self.script.append(u"File {}".format(file.abspath))
 			self.script.append("ClearErrors")
-			self.script.append(r"""ExecWait 'msiexec /i "{}"'""".format(file_path))
+			self.script.append(r"""ExecWait 'msiexec /i "{}" /qn' $0""".format(file_path))
 			self.script.append("${If} ${Errors}")
-			self.script.append("Delete {}".format(file_path))
-			self.script.append("RMDir {}".format(outpath))
-			self.script.append("Abort")
+			self.script.append(abort_command)
+			self.script.append("${ElseIf} $0 <> 0\n${AndIf} $0 <> 1638")
+			self.script.append(abort_command)
 			self.script.append("${EndIf}")
-			self.script.append("Delete {}".format(file_path))
+			self.script.append(delete_command)
 			if msi.is_64_bit():
 				self.script.append("${EndIf}")
-		self.script.append("SetOutPath $INSTDIR")
-		self.script.append("RMDir {}".format(outpath))
 		self.script.append("SectionEnd")
 
 	def package(self):
