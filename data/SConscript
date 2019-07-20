@@ -24,7 +24,8 @@ root_dir=Dir(".").srcnode()
 
 lang_msis=dict()
 
-build_number=".0"
+msi_build_number=".0"
+exe_build_number=".0"
 
 for dir_name in ["languages","voices"]:
 	type=dir_name[:-1]
@@ -54,7 +55,7 @@ for dir_name in ["languages","voices"]:
 		if sys.platform=="win32":
 			pkgdir=Dir("..").Dir("packages")
 			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,version,True)
-			packagers["msi"]=RHVoicePackaging.windows.data_packager(props["msi_upgrade_code"],package_name,pkgdir.Dir("sapi"),local_env,description,version)
+			packagers["msi"]=RHVoicePackaging.windows.data_packager(props["msi_upgrade_code"],package_name,pkgdir.Dir("sapi"),local_env,description,version+msi_build_number)
 			for f in data_files:
 				packagers["nvda"].add(f,os.path.normpath(os.path.join("data",os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
 				packagers["msi"].add(f,os.path.normpath(os.path.join("data",type+"s",props["file_name"],os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
@@ -62,10 +63,10 @@ for dir_name in ["languages","voices"]:
 				lang_msis[props["name"]]=packagers["msi"]
 			else:
 				packagers["msi"].visible="no"
-				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version+build_number)
-				packagers["exe"].msis.append(local_env["WindowsInstallers_core_32"])
+				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version+exe_build_number)
 				if env["enable_x64"]:
 					packagers["exe"].msis.append(local_env["WindowsInstallers_core_64"])
+				packagers["exe"].msis.append(local_env["WindowsInstallers_core_32"])
 				packagers["exe"].msis.append(lang_msis[props["language"]])
 				packagers["exe"].msis.append(packagers["msi"])
 		for p in packagers.values():

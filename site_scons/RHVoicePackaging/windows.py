@@ -19,7 +19,7 @@ import codecs
 import os.path
 from collections import OrderedDict
 import uuid
-import xml.etree.cElementTree as etree
+from lxml import etree
 from .common import *
 
 uuid_namespace=uuid.UUID(hex="de5ba08b-8b9f-46e3-b0ee-d6bbac37017c")
@@ -38,6 +38,9 @@ class windows_packager(packager):
 		self.msi_repo=env.get("msi_repo",None)
 		if self.msi_repo:
 			self.msi_repo=Dir(self.msi_repo)
+
+	def make_uuid(self,name):
+		return str(uuid.uuid5(uuid_namespace,name)).upper()
 
 class wix_packager(windows_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
@@ -85,21 +88,22 @@ class msi_packager(wix_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version,nsis_name=None):
 		super(msi_packager,self).__init__(upgrade_code,name,outdir,env,display_name,version)
 		msi_file_name=os.path.split(self.outfile.path)[1]
-		self.product_code=str(uuid.uuid5(uuid_namespace,msi_file_name)).upper()
+		self.product_code=self.make_uuid("Product: {}".format(msi_file_name))
 		self.visible="yes"
 		self.nsis_name=nsis_name if nsis_name else name
 		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(self.nsis_name)
 		self.nsis_uninstaller_file_name="uninstall-{}.exe".format(self.nsis_name)
+		self.old_dir_props={}
 		self.create_product_element()
 		self.create_package_element()
 		self.create_media_template_element()
 		self.create_major_upgrade_element()
-		self.create_no_modify_property()
-		self.create_nsis_uninstaller_search()
 		self.create_nsis_install_location_search()
-		self.create_nsis_uninstall_action()
+		self.create_nsis_uninstaller_search()
+		self.create_no_modify_property()
 		self.create_feature_element()
 		self.create_directory_element()
+		self.temp_directory=None
 
 	def create_product_element(self):
 		self.product=self.SubElement(self.root,"Product")
@@ -155,14 +159,47 @@ class msi_packager(wix_packager):
 		self.nsis_install_location_property=p
 		rs=self.SubElement(p,"RegistrySearch")
 		rs.set("Win64","no")
-		rs.set("Id","nsis_install_location_registry_search")
+		rs.set("Id","reg_search_old_inst")
 		rs.set("Root","HKLM")
 		rs.set("Key",self.nsis_uninst_reg_key)
 		rs.set("Name","InstallLocation")
 		rs.set("Type","directory")
 		ds=self.SubElement(rs,"DirectorySearch",empty=True)
-		ds.set("Id","nsis_install_location_directory_search")
+		ds.set("Id","dir_search_old_inst")
 		ds.set("Path","[{}]".format(p.get("Id")))
+		self.old_dir_props["."]=(p,ds)
+
+	def create_component_search(self,str_uuid):
+		cmp_uuid=uuid.UUID(hex=str_uuid)
+		id="cmp_search_"+cmp_uuid.hex
+		p=self.SubElement(self.product,"Property")
+		p.set("Id",id.upper())
+		s=self.SubElement(p,"ComponentSearch")
+		s.set("Id",id)
+		s.set("Guid",str_uuid)
+		s.set("Type","file")
+		return p
+
+	def get_directory_path_property_element(self,path):
+		if path in self.old_dir_props:
+			return self.old_dir_props[path]
+		parts=path.rsplit(os.sep,1)
+		if len(parts)==1:
+			p0,ds0=self.old_dir_props["."]
+		else:
+			p0,ds0=self.get_directory_path_property_element(parts[0])
+		p=self.SubElement(self.product,"Property")
+		dsr0=self.SubElement(p,"DirectorySearchRef")
+		dsr0.set("Id",ds0.get("Id"))
+		dsr0.set("Parent",ds0.getparent().get("Id"))
+		dsr0.set("Path",ds0.get("Path"))
+		ds=self.SubElement(dsr0,"DirectorySearch")
+		ds.set("Id",dsr0.get("Id")+"_"+parts[-1].replace("-","").replace("_",""))
+		ds.set("Path",parts[-1])
+		ds.set("AssignToProperty","yes")
+		p.set("Id",ds.get("Id").upper())
+		self.old_dir_props[path]=(p,ds)
+		return (p,ds)
 
 	def create_nsis_uninstall_action(self):
 		a=self.SubElement(self.product,"CustomAction",empty=True)
@@ -188,10 +225,25 @@ class msi_packager(wix_packager):
 	def get_parent_directory_id(self):
 		return "ProgramFilesFolder"
 
+	def get_temp_directory_element(self):
+		if self.temp_directory is not None:
+			return self.temp_directory
+		dir=self.SubElement(self.root_directory,"Directory")
+		self.temp_directory=dir
+		dir.set("Id","TempFolder")
+		dir=self.SubElement(dir,"Directory")
+		dir.set("Id","MyTempFolder")
+		dir.set("Name",self.product.get("Manufacturer"))
+		dir=self.SubElement(dir,"Directory")
+		dir.set("Id","RHVoiceTempFolder")
+		dir.set("Name","RHVoice")
+		return self.temp_directory
+
 	def create_directory_element(self):
 		dir=self.SubElement(self.product,"Directory")
 		dir.set("Id","TARGETDIR")
 		dir.set("Name","SourceDir")
+		self.root_directory=dir
 		dir=self.SubElement(dir,"Directory")
 		dir.set("Id",self.get_parent_directory_id())
 		dir=self.SubElement(dir,"Directory")
@@ -227,9 +279,68 @@ class msi_packager(wix_packager):
 		file.set("Source",f.infile.abspath)
 		return (cmp,file)
 
+	def create_remove_file_component_element(self,file_path):
+		file_path=file_path.lower()
+		cmp=self.SubElement(self.get_temp_directory_element(),"Component")
+		cmp.set("Feature","Main")
+		cmp.set("Guid",self.make_uuid("Remove old file: {}".format(file_path)))
+		cmp.set("KeyPath","yes")
+		dir_path,file_name=os.path.split(file_path)
+		dp,ds=self.get_directory_path_property_element(dir_path)
+		cond=self.SubElement(cmp,"Condition")
+		cond.text="NOT Installed AND {}".format(dp.get("Id"))
+		rmf=self.SubElement(cmp,"RemoveFile",empty=True)
+		rmf.set("Id","rm_"+file_path.replace("_","").replace("-","").replace(os.sep,"_"))
+		cmp.set("Id","cmp_"+rmf.get("Id"))
+		cmp.set("Win64","no")
+		rmf.set("Name",file_name)
+		rmf.set("Property",dp.get("Id"))
+		rmf.set("On","install")
+		return cmp
+
+	def create_remove_folder_component_element(self,dir_path):
+		dir_path=dir_path.lower()
+		cmp=self.SubElement(self.get_temp_directory_element(),"Component")
+		cmp.set("Feature","Main")
+		cmp.set("Guid",self.make_uuid("Remove old folder: {}, upgradeCode=".format(dir_path,self.upgrade_code)))
+		cmp.set("KeyPath","yes")
+		cmp.set("Win64","no")
+		dp,ds=self.get_directory_path_property_element(dir_path)
+		cond=self.SubElement(cmp,"Condition")
+		cond.text="NOT Installed AND {}".format(dp.get("Id"))
+		rmf=self.SubElement(cmp,"RemoveFolder",empty=True)
+		rmf.set("Id","rm_"+dir_path.replace("_","").replace("-","").replace(os.sep,"_"))
+		cmp.set("Id","cmp_"+rmf.get("Id"))
+		rmf.set("Property",dp.get("Id"))
+		rmf.set("On","install")
+
+	def create_remove_folder_component_elements(self):
+		for dir_path in sorted(self.old_dir_props.keys()):
+			self.create_remove_folder_component_element(dir_path)
+
 	def create_file_component_elements(self):
 		for f in self.files:
 			self.create_file_component_element(f)
+
+	def create_rm_reg_key(self,cmp,key,root="HKLM",id=None):
+		if not id:
+			id="rm_"+root.lower()+"_"+key.lower().replace("\\","_")+"_"+("64" if cmp.get("Win64","no")=="yes" else "32")
+		rk=self.SubElement(cmp,"RemoveRegistryKey")
+		rk.set("Id",id)
+		rk.set("Action","removeOnInstall")
+		rk.set("Key",key)
+		rk.set("Root",root)
+
+	def create_rm_clsid_reg_key(self,cmp,str_clsid,id=None):
+		clsid=uuid.UUID(hex=str_clsid)
+		key=r"Software\Classes\CLSID\{{{}}}".format(str(clsid))
+		if not id:
+			id="rm_clsid_"+clsid.hex+"_"+("64" if cmp.get("Win64","no")=="yes" else "32")
+		self.create_rm_reg_key(cmp,key,id=id)
+
+	def create_remove_nsis_uninstaller_component_element(self):
+		cmp=self.create_remove_file_component_element(os.path.join("uninstall",self.nsis_uninstaller_file_name))
+		self.create_rm_reg_key(cmp,self.nsis_uninst_reg_key,id="rm_reg_old_uninstall_key")
 
 	def get_file_ext(self):
 		return "msi"
@@ -240,6 +351,8 @@ class data_packager(msi_packager):
 
 	def do_package(self):
 		self.create_file_component_elements()
+		self.create_nsis_uninstall_action()
+		self.create_remove_nsis_uninstaller_component_element()
 
 class bundle_packager(wix_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version):
