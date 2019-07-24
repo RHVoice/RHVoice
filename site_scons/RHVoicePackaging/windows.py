@@ -101,6 +101,7 @@ class msi_packager(wix_packager):
 		self.create_nsis_install_location_search()
 		self.create_nsis_uninstaller_search()
 		self.create_no_modify_property()
+		self.create_msi_fast_install_property()
 		self.create_feature_element()
 		self.create_directory_element()
 		self.temp_directory=None
@@ -136,6 +137,11 @@ class msi_packager(wix_packager):
 	def create_no_modify_property(self):
 		p=self.SubElement(self.product,"Property",empty=True)
 		p.set("Id","ARPNOMODIFY")
+		p.set("Value","1")
+
+	def create_msi_fast_install_property(self):
+		p=self.SubElement(self.product,"Property",empty=True)
+		p.set("Id","MSIFASTINSTALL")
 		p.set("Value","1")
 
 	def create_nsis_uninstaller_search(self):
