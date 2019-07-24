@@ -308,7 +308,7 @@ class msi_packager(wix_packager):
 		dir_path=dir_path.lower()
 		cmp=self.SubElement(self.get_temp_directory_element(),"Component")
 		cmp.set("Feature","Main")
-		cmp.set("Guid",self.make_uuid("Remove old folder: {}, upgradeCode=".format(dir_path,self.upgrade_code)))
+		cmp.set("Guid",self.make_uuid("Remove old folder: {}, upgradeCode={}".format(dir_path,self.upgrade_code)))
 		cmp.set("KeyPath","yes")
 		cmp.set("Win64","no")
 		dp,ds=self.get_directory_path_property_element(dir_path)
