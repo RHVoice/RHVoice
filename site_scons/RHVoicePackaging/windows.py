@@ -102,6 +102,7 @@ class msi_packager(wix_packager):
 		self.create_nsis_uninstaller_search()
 		self.create_no_modify_property()
 		self.create_msi_fast_install_property()
+		self.disable_shutdowns()
 		self.create_feature_element()
 		self.create_directory_element()
 		self.temp_directory=None
@@ -143,6 +144,11 @@ class msi_packager(wix_packager):
 		p=self.SubElement(self.product,"Property",empty=True)
 		p.set("Id","MSIFASTINSTALL")
 		p.set("Value","1")
+
+	def disable_shutdowns(self):
+		p=self.SubElement(self.product,"Property",empty=True)
+		p.set("Id","MSIRESTARTMANAGERCONTROL")
+		p.set("Value","DisableShutdown")
 
 	def create_nsis_uninstaller_search(self):
 		p=self.SubElement(self.product,"Property")
@@ -458,7 +464,7 @@ class nsis_bootstrapper_packager(windows_packager):
 				self.script.append('${If} ${RunningX64}')
 			self.script.append(u"File {}".format(file.abspath))
 			self.script.append("ClearErrors")
-			self.script.append(r"""ExecWait 'msiexec /i "{}" /qn' $0""".format(file_path))
+			self.script.append(r"""ExecWait 'msiexec /i "{}" /qf' $0""".format(file_path))
 			self.script.append("${If} ${Errors}")
 			self.script.append(abort_command)
 			self.script.append("${ElseIf} $0 <> 0\n${AndIf} $0 <> 1638")
