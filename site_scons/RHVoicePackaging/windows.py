@@ -29,6 +29,7 @@ ns_bal="{http://schemas.microsoft.com/wix/BalExtension}"
 
 class windows_packager(packager):
 	def __init__(self,name,outdir,env,display_name,version):
+		self.short_name=name
 		package_name="{}-v{}-setup".format(name,version)
 		super(windows_packager,self).__init__(package_name,outdir.Dir(self.get_file_ext()),env,self.get_file_ext())
 		self.display_name=display_name
@@ -106,6 +107,9 @@ class msi_packager(wix_packager):
 		self.create_feature_element()
 		self.create_directory_element()
 		self.temp_directory=None
+
+	def get_unique_subdirectory_element(self):
+		return self.directory.find(ns_wix+"Directory")
 
 	def create_product_element(self):
 		self.product=self.SubElement(self.root,"Product")
@@ -293,9 +297,9 @@ class msi_packager(wix_packager):
 
 	def create_remove_file_component_element(self,file_path):
 		file_path=file_path.lower()
-		cmp=self.SubElement(self.get_temp_directory_element(),"Component")
+		cmp=self.SubElement(self.get_unique_subdirectory_element(),"Component")
 		cmp.set("Feature","Main")
-		cmp.set("Guid",self.make_uuid("Remove old file: {}".format(file_path)))
+		cmp.set("Guid",self.make_uuid("Remove old file: {} (1)".format(file_path)))
 		cmp.set("KeyPath","yes")
 		dir_path,file_name=os.path.split(file_path)
 		dp,ds=self.get_directory_path_property_element(dir_path)
@@ -304,7 +308,6 @@ class msi_packager(wix_packager):
 		rmf=self.SubElement(cmp,"RemoveFile",empty=True)
 		rmf.set("Id","rm_"+file_path.replace("_","").replace("-","").replace(os.sep,"_"))
 		cmp.set("Id","cmp_"+rmf.get("Id"))
-		cmp.set("Win64","no")
 		rmf.set("Name",file_name)
 		rmf.set("Property",dp.get("Id"))
 		rmf.set("On","install")
@@ -312,11 +315,10 @@ class msi_packager(wix_packager):
 
 	def create_remove_folder_component_element(self,dir_path):
 		dir_path=dir_path.lower()
-		cmp=self.SubElement(self.get_temp_directory_element(),"Component")
+		cmp=self.SubElement(self.get_unique_subdirectory_element(),"Component")
 		cmp.set("Feature","Main")
-		cmp.set("Guid",self.make_uuid("Remove old folder: {}, upgradeCode={}".format(dir_path,self.upgrade_code)))
+		cmp.set("Guid",self.make_uuid("Remove old folder: {}, upgradeCode={} (1)".format(dir_path,self.upgrade_code)))
 		cmp.set("KeyPath","yes")
-		cmp.set("Win64","no")
 		dp,ds=self.get_directory_path_property_element(dir_path)
 		cond=self.SubElement(cmp,"Condition")
 		cond.text="NOT Installed AND {}".format(dp.get("Id"))
@@ -360,6 +362,9 @@ class msi_packager(wix_packager):
 class data_packager(msi_packager):
 	def get_parent_directory_id(self):
 		return "CommonAppDataFolder"
+
+	def get_unique_subdirectory_element(self):
+		return super(data_packager,self).get_unique_subdirectory_element().find(ns_wix+"Directory").find(ns_wix+"Directory")
 
 	def do_package(self):
 		self.create_file_component_elements()
@@ -451,7 +456,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		self.script.append('SetOutPath {}'.format(outpath))
 		for msi in self.msis:
 			file_name=os.path.split(msi.outfile.path)[1]
-			log_path=os.path.join(outpath,os.path.splitext(file_name)[0]+".log")
+			log_path=os.path.join(outpath,msi.short_name+".log")
 			file=msi.outfile
 			if self.msi_repo:
 				repo_file=self.msi_repo.File(file_name)
@@ -463,7 +468,7 @@ class nsis_bootstrapper_packager(windows_packager):
 			abort_command=delete_command+"\nAbort"
 			if msi.is_64_bit():
 				self.script.append('${If} ${RunningX64}')
-				self.script.append("Delete {}".format(log_path))
+			self.script.append("Delete {}".format(log_path))
 			self.script.append(u"File {}".format(file.abspath))
 			self.script.append("ClearErrors")
 			self.script.append(r"""ExecWait 'msiexec /i "{}" /l*vx "{}" /qf' $0""".format(file_path,log_path))

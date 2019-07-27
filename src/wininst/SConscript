@@ -55,7 +55,7 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 		return cmp
 
 	def create_token_enum_component_element(self):
-		dir=self.directory.find("*[@Name='lib']")
+		dir=self.directory.find(RHVoicePackaging.windows.ns_wix+"Directory[@Name='lib']")
 		cmp=self.SubElement(dir,"Component")
 		cmp.set("Id","cmp_token_enum_clsid")
 		cmp.set("Guid","*")
@@ -72,11 +72,11 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 
 	def create_remove_old_reg_keys_component_element(self,win64):
 		b=64 if win64 else 32
-		cmp=self.SubElement(self.get_temp_directory_element(),"Component")
+		cmp=self.SubElement(self.get_unique_subdirectory_element(),"Component")
 		cmp.set("Id","cmp_rm_old_reg_keys_{}".format(b))
 		cmp.set("Feature","Main")
 		cmp.set("KeyPath","yes")
-		cmp.set("Guid",self.make_uuid("Remove old registry keys: sapi5, {} bit".format(b)))
+		cmp.set("Guid",self.make_uuid("Remove old registry keys: sapi5, {} bit (1)".format(b)))
 		cmp.set("Win64","yes" if win64 else "no")
 		cond=self.SubElement(cmp,"Condition")
 		cond.text="NOT Installed"
@@ -93,11 +93,9 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 		self.create_token_enum_component_element()
 		self.create_remove_old_reg_keys_component_element(self.is_64_bit())
 		self.create_remove_old_lib_component_element(self.is_64_bit())
-		if self.is_64_bit():
-			self.create_remove_old_reg_keys_component_element(False)
-			self.create_remove_old_lib_component_element(False)
-		self.create_remove_file_component_element(os.path.join("config-examples","RHVoice.ini"))
-		self.create_remove_nsis_uninstaller_component_element()
+		if not self.is_64_bit():
+			self.create_remove_file_component_element(os.path.join("config-examples","RHVoice.ini"))
+			self.create_remove_nsis_uninstaller_component_element()
 		self.create_remove_folder_component_elements()
 
 msi32=core_packager("3794ffaa-7bc4-48cb-ae7d-67cb2560398a",False)
