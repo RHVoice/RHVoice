@@ -451,6 +451,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		self.script.append('SetOutPath {}'.format(outpath))
 		for msi in self.msis:
 			file_name=os.path.split(msi.outfile.path)[1]
+			log_path=os.path.join(outpath,os.path.splitext(file_name)[0]+".log")
 			file=msi.outfile
 			if self.msi_repo:
 				repo_file=self.msi_repo.File(file_name)
@@ -462,9 +463,10 @@ class nsis_bootstrapper_packager(windows_packager):
 			abort_command=delete_command+"\nAbort"
 			if msi.is_64_bit():
 				self.script.append('${If} ${RunningX64}')
+				self.script.append("Delete {}".format(log_path))
 			self.script.append(u"File {}".format(file.abspath))
 			self.script.append("ClearErrors")
-			self.script.append(r"""ExecWait 'msiexec /i "{}" /qf' $0""".format(file_path))
+			self.script.append(r"""ExecWait 'msiexec /i "{}" /l*vx "{}" /qf' $0""".format(file_path,log_path))
 			self.script.append("${If} ${Errors}")
 			self.script.append(abort_command)
 			self.script.append("${ElseIf} $0 <> 0\n${AndIf} $0 <> 1638")
