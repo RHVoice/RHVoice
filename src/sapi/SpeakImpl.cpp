@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -113,6 +113,7 @@ namespace RHVoice
         {
           if(!check_actions())
             return false;
+          written=remaining;
           if(FAILED(caller->Write(ptr,remaining,&written)))
             return false;
           if(written>remaining)
@@ -120,7 +121,6 @@ namespace RHVoice
           bytes_written+=written;
           remaining-=written;
           ptr+=written;
-          written=0;
         }
       return true;
     }
