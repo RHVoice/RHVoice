@@ -1559,6 +1559,7 @@ namespace RHVoice
     define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_stressed_syl_in_word));
     define_feature(smart_ptr<feature_function>(new hts_dist_to_next_stressed_syl_in_word));
     define_feature(smart_ptr<feature_function>(new hts_utt_is_question));
+define_feature(smart_ptr<feature_function>(new hts_utt_type));
     define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_end_of_cluster));
     define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_start_of_cluster));
     define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_next_vowel));
