@@ -81,7 +81,7 @@ _
 =
 <feature name="phrase_pos_in_utt_bw"/>
 |
-<feature name="utt_is_question"/>
+<feature name="utt_type"/>
 /I:
 <feature name="num_syls_in_next_phrase"/>
 =
