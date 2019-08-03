@@ -153,3 +153,8 @@ R(o=ó)bert
 V(a=á)lter
 Washington=uóshinton
 Wellington=uélinton
+
+MBA/i
+IBM/i
+NSA/i
+OMB/i
