@@ -64,10 +64,14 @@ define Hundred
 8:oitocentos | 
 9:novecentos ; 
 
-define PowerOfThousandSymbol ths|mln|bln|tln ; 
-define PowerOfTenSymbol ten|hnd0|hnd|PowerOfThousandSymbol ; 
+define PowerOfThousandSymbol ths|mlns|blns|tlns ; 
+define TenOrHundredSymbol ten|hnd0|hnd ; 
+define PowerOfTenSymbol TenOrHundredSymbol|PowerOfThousandSymbol ; 
 
 define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 [.#.|\Digit] ; 
+
+define RemoveSilentGroups 
+%0^3 (PowerOfThousandSymbol) @-> 0 ; 
 
 define SeparateHundreds 
 [..] -> hnd || Digit _ Digit^2 ; 
@@ -79,7 +83,7 @@ define SeparateTens
 [..] -> ten || Digit _ Digit ; 
 
 define RemoveZeros 
-%0 PowerOfTenSymbol -> 0 || _ ,, %0 -> 0 || _ .#. ; 
+%0 (TenOrHundredSymbol) @-> 0 ; 
 
 define MarkTeens 
 [[1 ten]:0] NZDigit [0:teen] -> ; 
@@ -88,10 +92,13 @@ define InsertAnds
 [..] -> and || 
 NZDigit ten _ NZDigit , 
 NZDigit hnd _ (%0 ten) NZDigit , 
-NZDigit PowerOfThousandSymbol _ [NZDigit [hnd|hnd0] %0 ten %0] | [%0 hnd (%0 ten) NZDigit] ; 
+PowerOfThousandSymbol _ [[NZDigit [hnd|hnd0] %0 ten %0] | [%0 hnd (%0 ten) NZDigit]] .#. ; 
 
 define RemoveOnes 
 1 -> 0 || .#. _ ths ; 
+
+define PowerOfThousandSymbolsToSingular 
+[mlns:mln|blns:bln|tlns:tln] -> || [[PowerOfThousandSymbol (and)]|.#.] 1 _ ; 
 
 define Translate 
 Unit -> || _ .#. | PowerOfThousandSymbol ,, 
@@ -101,8 +108,8 @@ Hundred [hnd:0] -> || _ ,,
 1 hnd0 -> cem || _ ,, 
 ths -> mil || _ ,, 
 and -> e || _ ,, 
-[mln:milhão | bln:bilhão | tln:trilhão] -> || 1 _ ,, 
-[mln:milhães | bln:bilhães | tln:trilhães] -> || [NZDigit - 1] _ ; 
+[mln:milhão | bln:bilhão | tln:trilhão] -> || _ ,, 
+[mlns:milhães | blns:bilhães | tlns:trilhães] -> || _ ; 
 
 define RemoveThousandsSeparators 
 %. -> 0 ; 
@@ -111,15 +118,17 @@ define NumberRules
 Number .o. 
 RemoveThousandsSeparators .o. 
 SeparatePowerOfThousand(ths) .o. 
-SeparatePowerOfThousand(mln) .o. 
-SeparatePowerOfThousand(bln) .o. 
-SeparatePowerOfThousand(tln) .o. 
+SeparatePowerOfThousand(mlns) .o. 
+SeparatePowerOfThousand(blns) .o. 
+SeparatePowerOfThousand(tlns) .o. 
+RemoveSilentGroups .o. 
 SeparateHundreds .o. 
 Mark100s .o. 
 SeparateTens .o. 
 MarkTeens .o. 
 InsertAnds .o. 
 RemoveZeros .o. 
+PowerOfThousandSymbolsToSingular .o. 
 RemoveOnes .o. 
 Translate ; 
 
