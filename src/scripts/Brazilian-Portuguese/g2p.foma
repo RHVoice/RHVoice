@@ -420,7 +420,10 @@ define CloseWord
 [{colchete} (s)] | 
 {escolho} | 
 {generoso} | 
-{gaveta} ; 
+{gaveta} | 
+{leia} | 
+{veio} ; 
+
 
 define TagCloseWord 
 [..] -> CLOSE || StartOfWord CloseWord _ EndOfWord ; 
