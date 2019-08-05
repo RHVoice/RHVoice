@@ -160,5 +160,5 @@ NSA/i
 OMB/i
 url/i
 
-s(=a)ite
+s(i=ai)te
 repl(a=e)y
