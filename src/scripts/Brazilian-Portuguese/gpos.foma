@@ -64,6 +64,9 @@ haver | há | hei | havemos | hão | havia | haviam | havíamos | haverei | have
 define AuxiliaryVerb 
 Ser | Estar | Ter | Haver ; 
 
+define WhWord 
+que | quem | quens | quando | onde | aonde | quanto | quanta | quantos | quantas | quão | qual | quais | como ; 
+
 define FunctionWord 
 DefiniteArticle | 
 IndefiniteArticle | 
