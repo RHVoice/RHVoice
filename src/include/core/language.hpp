@@ -182,6 +182,7 @@ namespace RHVoice
     void do_text_analysis(utterance& u) const;
     void do_pos_tagging(utterance& u) const;
     void phrasify(utterance& u) const;
+    void detect_utt_type(utterance& u) const;
     void do_g2p(utterance& u) const;
     void syllabify(utterance& u) const;
     void insert_pauses(utterance& u) const;
@@ -269,6 +270,7 @@ namespace RHVoice
     std::map<utf8::uint32_t,std::string> whitespace_symbols;
     std::auto_ptr<fst> english_phone_mapping_fst;
     std::auto_ptr<fst> emoji_fst;
+std::auto_ptr<fst> qst_fst;
     userdict::dict udict;
 
   protected:

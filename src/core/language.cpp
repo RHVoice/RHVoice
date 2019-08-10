@@ -535,6 +535,13 @@ else
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        qst_fst.reset(new fst(path::join(info_.get_data_path(),"qst.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -1054,6 +1061,38 @@ else
         while(word_iter!=word_rel.end());
       }
   }
+
+  void language::detect_utt_type(utterance& utt) const
+  {
+        const item& word=utt.get_relation("Word").last().as("TokStructure");
+        const item& token=word.parent();
+        const item& parent_token=token.parent();
+        std::string utt_type("s");
+        if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","?"))!=parent_token.end())
+          utt_type="q";
+        else if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","!"))!=parent_token.end())
+          utt_type="e";
+        utt.set_utt_type(utt_type);
+        if(utt_type!="q"||qst_fst.get()==0)
+          return;
+        std::vector<std::string> words;
+        const relation& phr_rel=utt.get_relation("Phrase");
+        for(relation::const_iterator phr_it=phr_rel.begin();phr_it!=phr_rel.end();++phr_it)
+          {
+            if(!words.empty())
+              words.push_back("-");
+            for(item::const_iterator word_it=phr_it->begin();word_it!=phr_it->end();++word_it)
+              {
+                words.push_back(word_it->get("name").as<std::string>());
+}
+}
+        std::vector<std::string> out;
+        if(!qst_fst->translate(words.begin(),words.end(),std::back_inserter(out)))
+          return;
+        if(out.empty())
+          return;
+        utt.set_utt_type(out.front());
+}
 
   std::vector<std::string> language::get_english_word_transcription(const item& word) const
   {

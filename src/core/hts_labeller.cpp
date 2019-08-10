@@ -1104,15 +1104,7 @@ namespace RHVoice
         value eval(const item& seg) const
       {
         const utterance& utt=seg.get_relation().get_utterance();
-        const item& word=utt.get_relation("Word").last().as("TokStructure");
-        const item& token=word.parent();
-        const item& parent_token=token.parent();
-        std::string result("s");
-        if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","?"))!=parent_token.end())
-          result="q";
-        else if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","!"))!=parent_token.end())
-          result="e";
-        return result;
+        return utt.get_utt_type();
       }
     };
 
