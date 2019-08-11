@@ -422,7 +422,8 @@ define CloseWord
 {generoso} | 
 {gaveta} | 
 {leia} | 
-{veio} ; 
+{veio} | 
+[ConsonantLetter [e|o]] ; 
 
 
 define TagCloseWord 
