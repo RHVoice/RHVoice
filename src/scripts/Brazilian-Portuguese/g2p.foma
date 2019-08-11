@@ -423,8 +423,11 @@ define CloseWord
 {gaveta} | 
 {leia} | 
 {veio} | 
-[ConsonantLetter [e|o]] ; 
-
+[ConsonantLetter [e|o]] | 
+{bandeja} | 
+{chamego} | 
+{boi} | 
+{cocho} ; 
 
 define TagCloseWord 
 [..] -> CLOSE || StartOfWord CloseWord _ EndOfWord ; 
