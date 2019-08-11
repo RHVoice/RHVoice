@@ -145,7 +145,8 @@ define CloseWordEnding
 # Words with the combination "elh"
 [{elh} UnstressedEnding] | 
 # Words with the combination "eij"
-[{eij} UnstressedEnding] ; 
+[{eij} UnstressedEnding] | 
+{oso} ; 
 
 define OpenWord 
 # Words ending in "ele(s)"
