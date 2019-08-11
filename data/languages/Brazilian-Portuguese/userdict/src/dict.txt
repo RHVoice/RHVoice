@@ -67,6 +67,11 @@ news=niús
 Instagr(am=ã)
 Telegr(am=ã)
 
+galaxy=gálaksi
+bluetooth=blutuf
+OneDrive=wandraive
+Hangouts=rengauts
+
 ; foreign product names
 (A=á)ccess
 adobe=adoube
