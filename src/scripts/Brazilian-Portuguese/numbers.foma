@@ -109,7 +109,7 @@ Hundred [hnd:0] -> || _ ,,
 ths -> mil || _ ,, 
 and -> e || _ ,, 
 [mln:milhão | bln:bilhão | tln:trilhão] -> || _ ,, 
-[mlns:milhães | blns:bilhães | tlns:trilhães] -> || _ ; 
+[mlns:milhões | blns:bilhões | tlns:trilhões] -> || _ ; 
 
 define RemoveThousandsSeparators 
 %. -> 0 ; 
