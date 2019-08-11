@@ -55,7 +55,8 @@ v:[v e1] |
 w:[d a1 b l i u] | 
 x:[sh i1 s] | 
 y:[i1 p s i l on] | 
-z:[z e1] ; 
+z:[z e1] | 
+%':0 ; 
 
 define LetterSequence Letter+ ; 
 

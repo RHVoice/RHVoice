@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+define Apos %'|%’ ; 
+
 define VowelLetter 
 A|À|Á|Â|Ã | E|É|Ê | I|Í | O|Ó|Ô|Õ | U|Ú|Ü | Y | Ö | 
 a|à|á|â|ã | e|é|ê | i|í | o|ó|ô|õ | u|ú|ü | y | ö ; 
@@ -26,9 +28,9 @@ define Letter VowelLetter | ConsonantLetter ;
 define ExceptionalWord 
 [[e|E] [t|T] [c|C] %.] ; 
 
-define Word Letter+ | ExceptionalWord ; 
+define Word [Letter+ [Apos Letter+]*] | ExceptionalWord ; 
 
-define LetterSequence ConsonantLetter+ ; 
+define LetterSequence [ConsonantLetter+]/Apos ; 
 
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
