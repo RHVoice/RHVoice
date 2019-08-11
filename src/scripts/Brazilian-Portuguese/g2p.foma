@@ -41,7 +41,7 @@ define VowelLetter VowelLetterA|VowelLetterEOrI|VowelLetterO|VowelLetterU;
 define AccentedVowelLetter á|â|é|ê|í|ó|ô|ú ; 
 define ConsonantLetter b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z ; 
 define Letter VowelLetter | ConsonantLetter ; 
-define Word Letter+ ; 
+define Word [Letter|ñ]+ ; 
 
  define StressedVowel a1|aN1|E1|e1|"e1?"|eN1|i1|iN1|O1|o1|"o1?"|oN1|u1|uN1 ; 
  define UnstressedVowel a|aN|e|E|eN|i|iN|o|O|oN|u|uN ; 
@@ -632,8 +632,11 @@ z -> s || _ EndOfWord ;
 define XRule 
 x -> {ks} ; 
 
+define EnTilRule ñ -> {nh} ; 
+
 define Rules 
 Word .o. 
+EnTilRule .o. 
 TagFunctionWord .o. 
 TagCloseWord .o. 
 GuQuExceptionsRule .o. 

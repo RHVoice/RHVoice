@@ -18,8 +18,8 @@ A|À|Á|Â|Ã | E|É|Ê | I|Í | O|Ó|Ô|Õ | U|Ú|Ü | Y | Ö |
 a|à|á|â|ã | e|é|ê | i|í | o|ó|ô|õ | u|ú|ü | y | ö ; 
 
 define ConsonantLetter 
-B|C|Ç|D|F|G|H|J|K|L|M|N|P|Q|R|S|T|V|W|X|Z | 
-b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|z ; 
+B|C|Ç|D|F|G|H|J|K|L|M|N|P|Q|R|S|T|V|W|X|Z|Ñ | 
+b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|z|ñ ; 
 
 define Letter VowelLetter | ConsonantLetter ; 
 
