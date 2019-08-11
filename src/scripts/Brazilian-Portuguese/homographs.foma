@@ -68,7 +68,8 @@ aterro |
 desprezo | 
 suborno | 
 decoro | 
-acerca ; 
+acerca | 
+esgoto ; 
 
 define BeforeNounWord 
 DefiniteArticle | 
