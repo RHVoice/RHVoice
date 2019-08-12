@@ -700,7 +700,8 @@ define Rename Mapping -> ;
 define Exceptions 
 [{setecentos}:[s E tS i s eN1 t u s]] | 
 [{dosvox} : [d O z v O1 k s ]] | 
-[{etc.} : [e t s E1 t e r a]] ; 
+[{etc.} : [e t s E1 t e r a]] | 
+[[{wi} (%-) {fi}] : [u a j f a1 j]] ; 
 
 regex 
 [Exceptions .P. Rules] .o. Rename ; 

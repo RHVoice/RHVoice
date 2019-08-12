@@ -26,7 +26,8 @@ b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|z|ñ ;
 define Letter VowelLetter | ConsonantLetter ; 
 
 define ExceptionalWord 
-[[e|E] [t|T] [c|C] %.] ; 
+[[e|E] [t|T] [c|C] %.] | 
+[[w|W] [i|I] %- [f|F] [i|I]] ; 
 
 define Word [Letter+ [Apos Letter+]*] | ExceptionalWord ; 
 
