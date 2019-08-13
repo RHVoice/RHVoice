@@ -69,7 +69,8 @@ desprezo |
 suborno | 
 decoro | 
 acerca | 
-esgoto ; 
+esgoto | 
+apoio ; 
 
 define BeforeNounWord 
 DefiniteArticle | 
