@@ -428,7 +428,10 @@ define CloseWord
 {bandeja} | 
 {chamego} | 
 {boi} | 
-{cocho} ; 
+{cocho} | 
+[{professora} (s)] | 
+[{impressora} (s)] | 
+{conosco} ; 
 
 define TagCloseWord 
 [..] -> CLOSE || StartOfWord CloseWord _ EndOfWord ; 
