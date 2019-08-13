@@ -9,7 +9,7 @@ backup=bacãpe
 software=sóftuer
 hardware=rárduer
 E(x=ks)pl(o=ó)rer
-Facebook=feicibuk
+Facebook=feicibuke
 Cl(e=é)verson
 Ba(h=r)amas
 backup
@@ -165,5 +165,10 @@ NSA/i
 OMB/i
 url/i
 
-s(i=ai)te
+s(i=ai)te{,s}
 repl(a=e)y
+when=uén
+web=uéb
+(byte=baite){,s}
+blog=blogue
+link=linke
