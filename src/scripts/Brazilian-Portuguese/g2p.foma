@@ -479,6 +479,12 @@ x @-> S || [[[VowelLetterA|VowelLetterE] i] | [VowelLetterO u]] _ VowelLetter ,,
 x @-> s || StartOfWord {au} _ ,, 
 {trou} [x:s] @-> || StartOfWord _ VowelLetterE ; 
 
+define XBeforeVowelExceptionRule 
+x -> ks || 
+StartOfWord {ma} _ {imiz} ; 
+
+define RestoreXRule ks -> x ; 
+
 define XBeforeVowelRule 
 x -> S || 
 m VowelLetterE _ VowelLetter , 
@@ -654,7 +660,9 @@ TransRule .o.
 InitialEXVowelRule .o. 
 XBeforeConsonantRule .o. 
 XAfterDiphthongRule .o. 
+XBeforeVowelExceptionRule .o. 
 XBeforeVowelRule .o. 
+RestoreXRule .o. 
 CRule .o. 
 GRule .o. 
 UAsWRule .o. 
