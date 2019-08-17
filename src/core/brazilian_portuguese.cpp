@@ -161,6 +161,13 @@ namespace RHVoice
                     else if(name=="oo")
                       name="o";
 }
+                else if(h=="H2")
+                  {
+                    if(name=="e")
+                      name="ee";
+                    else if(name=="o")
+                      name="oo";
+}
                 vowel_pos->set<std::string>("name",name);
                 break;
 }
