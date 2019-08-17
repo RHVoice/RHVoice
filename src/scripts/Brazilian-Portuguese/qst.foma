@@ -24,13 +24,18 @@ define StartOfWhQuestion
 [[(o) (por) que] | 
 [(Preposition) WhWord]] ; 
 
-define WhQuestion 
-(?+ %-) StartOfWhQuestion ?* ; 
+define DefaultTagger 
+[..] -> %= q || _ .#. ; 
 
-define DefaultTagger [?+] : q ; 
+define WhWordTagger 
+StartOfWhQuestion [0:[%+ whw]] -> || .#. | %- _ ; 
 
-define WhTagger WhQuestion : whq ; 
+define WhQuestionTagger 
+q -> whq || %+ whw ?* %= _ .#. ; 
 
-define Tagger WhTagger .P. DefaultTagger ; 
+define Tagger 
+DefaultTagger .o. 
+WhWordTagger .o. 
+WhQuestionTagger ; 
 
 regex Tagger ; 

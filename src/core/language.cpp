@@ -1115,7 +1115,7 @@ else
 
   void language::detect_utt_type(utterance& utt) const
   {
-    const relation& word_rel=utt.get_relation("Word");
+    relation& word_rel=utt.get_relation("Word");
     if(word_rel.empty())
       return;
         const item& word=word_rel.last().as("TokStructure");
@@ -1140,12 +1140,42 @@ else
                 words.push_back(word_it->get("name").as<std::string>());
 }
 }
-        std::vector<std::string> out;
-        if(!qst_fst->translate(words.begin(),words.end(),std::back_inserter(out)))
+        std::vector<std::string> qst;
+        if(!qst_fst->translate(words.begin(),words.end(),std::back_inserter(qst)))
           return;
-        if(out.empty())
+        if(qst.empty())
           return;
-        utt.set_utt_type(out.front());
+        std::vector<std::string>::const_iterator qst_it=qst.begin();
+        for(relation::iterator word_it=word_rel.begin();word_it!=word_rel.end();++word_it)
+          {
+            if(word_it->get("name").as<std::string>()!=*qst_it)
+              throw fst_error();
+            ++qst_it;
+            if(qst_it==qst.end())
+              throw fst_error();
+            if(*qst_it=="+")
+              {
+                ++qst_it;
+                if(qst_it==qst.end())
+                  throw fst_error();
+                word_it->set("gpos",*qst_it);
+                ++qst_it;
+                if(qst_it==qst.end())
+                  throw fst_error();
+}
+            if(*qst_it=="-")
+              {
+                ++qst_it;
+                if(qst_it==qst.end())
+                  throw fst_error();
+}
+}
+        if(*qst_it!="=")
+          throw fst_error();
+        ++qst_it;
+        if(qst_it==qst.end())
+          throw fst_error();
+        utt.set_utt_type(*qst_it);
 }
 
   void language::set_pitch_modifications(utterance& u) const

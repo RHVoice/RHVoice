@@ -135,6 +135,15 @@ namespace RHVoice
       }
     };
 
+    class fst_error: public language_error
+    {
+    public:
+      fst_error():
+        language_error("Unexpected fst output")
+      {
+      }
+    };
+
   class language
   {
   public:
