@@ -55,10 +55,14 @@ word -> lseq || [.#.|word|num|dig|sym] LetterSequence _ ;
 define F123Rule 
 num -> dig || [.#. | sym] F lseq {123} _ ; 
 
+define TagOrdinalNumbers 
+[num:0] [%º|%ª] [sym:num] -> ; 
+
 define Tokenizer 
 BasicTokenizer .o. 
 TagLetterSequences .o. 
 UntagLargeNumbers .o. 
+TagOrdinalNumbers .o. 
 F123Rule ; 
 
 regex Tokenizer ; 
