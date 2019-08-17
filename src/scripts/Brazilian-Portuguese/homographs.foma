@@ -16,7 +16,7 @@
 source gpos.foma
 clear
 
-define Tag H0 | H1 ; 
+define Tag H0 | H1 | H2 ; 
 
 define NounVerbHomograph 
 governo | 
@@ -88,14 +88,18 @@ com |
 do | 
 no ; 
 
-define NounRule 
+define RecognitionRule 
 NounVerbHomograph -> H1 || BeforeNounWord _ ; 
 
 define DefaultRule 
+NounVerbHomograph -> H2 ; 
+
+define ElseRule 
 \Tag -> H0 ; 
 
 define Rules 
-NounRule .o. 
-DefaultRule ; 
+RecognitionRule .o. 
+DefaultRule .o. 
+ElseRule ; 
 
 regex Rules ; 
