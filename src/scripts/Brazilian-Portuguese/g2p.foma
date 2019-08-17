@@ -219,15 +219,23 @@ define OpenWord
 [{velho}(s)] | 
 [{evangelho}(s)] | 
 [{velha}(s)] | 
-# Words ending in "oxo(s), oxa(s)"
-[?*{dox}[o|a](s)] ; 
-
+{peles} | 
+[{tora} (s)] ; 
 
 define CloseWordPattern 
 NotAccentedPrefix CloseWordEnding ; 
 
+define OpenWordEnding 
+# Words ending in "oxo(s), oxa(s)"
+[{dox}[o|a](s)] | 
+
+{redor} ; 
+
+define OpenWordPattern 
+NotAccentedPrefix OpenWordEnding ; 
+
 define CloseWord 
-[CloseWordPattern - OpenWord] | 
+[CloseWordPattern - [OpenWordPattern | OpenWord]] | 
 [{alqueire}(s)] | 
 [{foi}] | 
 [{dois}] | 
@@ -431,7 +439,25 @@ define CloseWord
 {cocho} | 
 [{professora} (s)] | 
 [{impressora} (s)] | 
-{conosco} ; 
+{conosco} | 
+{dorso} | 
+[{pescoço} (s)] | 
+{teres} | 
+[{mancebo} (s)] | 
+{afazeres} | 
+[{tolo} (s)] | 
+[{galego} (s)] | 
+{prometeste} | 
+{viveram} | 
+[{ostra} (s)] | 
+{lobos} | 
+[{morcego} (s)] | 
+[{cebola} (s)] | 
+[{violeta} (s)] | 
+[{grega} (s)] | 
+[{grego} (s)] | 
+[{bochecha} (s)] | 
+[{bolha} (s)] ; 
 
 define TagCloseWord 
 [..] -> CLOSE || StartOfWord CloseWord _ EndOfWord ; 
