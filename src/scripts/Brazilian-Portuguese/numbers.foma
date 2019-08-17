@@ -13,12 +13,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+define MaleOrdChar %º ; 
+define FemaleOrdChar %ª ; 
+define OrdChar MaleOrdChar | FemaleOrdChar ; 
+
 define NZDigit 1|2|3|4|5|6|7|8|9 ; 
 define Digit %0|NZDigit ; 
 
 define UnformattedNumber [NZDigit Digit^<15] ; 
 define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
-define Number UnformattedNumber | FormattedNumber ; 
+define Number [UnformattedNumber | FormattedNumber] (OrdChar) ; 
 
 define Unit 
 1:um | 
@@ -30,6 +34,29 @@ define Unit
 7:sete | 
 8:oito | 
 9:nove ; 
+
+define MaleOrdUnit 
+1:primeiro | 
+2:segundo | 
+3:terceiro | 
+4:quarto | 
+5:quinto | 
+6:sexto | 
+7:sétimo | 
+8:oitavo | 
+9:nono ; 
+
+define FemaleOrdUnit 
+1:primeira | 
+2:segunda | 
+3:terceira | 
+4:quarta | 
+5:quinta | 
+6:sexta | 
+7:sétima | 
+8:oitava | 
+9:nona ; 
+
 
 define Teen 
 1:onze | 
@@ -53,6 +80,29 @@ define Ten
 8:oitenta | 
 9:noventa ; 
 
+define MaleOrdTen 
+1:décimo | 
+2:vigésimo | 
+3:trigésimo | 
+4:quadragésimo | 
+5:quinquagésimo | 
+6:sexagésimo | 
+7:setuagésimo | 
+8:octogésimo | 
+9:nonagésimo ; 
+
+define FemaleOrdTen 
+1:décima | 
+2:vigésima | 
+3:trigésima | 
+4:quadragésima | 
+5:quinquagésima | 
+6:sexagésima | 
+7:setuagésima | 
+8:octogésima | 
+9:nonagésima ; 
+
+
 define Hundred 
 1:cento | 
 2:duzentos | 
@@ -64,9 +114,35 @@ define Hundred
 8:oitocentos | 
 9:novecentos ; 
 
-define PowerOfThousandSymbol ths|mlns|blns|tlns ; 
+define MaleOrdHundred 
+1:centésimo | 
+2:ducentésimo | 
+3:trecentésimo | 
+4:quatringentésimo | 
+5:quingentésimo | 
+6:sessentésimo | 
+7:setingentésimo | 
+8:octocentésimo | 
+9:noningentésimo ; 
+
+define FemaleOrdHundred 
+1:centésima | 
+2:ducentésima | 
+3:trecentésima | 
+4:quatringentésima | 
+5:quingentésima | 
+6:sessentésima | 
+7:setingentésima | 
+8:octocentésima | 
+9:noningentésima ; 
+
+define PowerOfThousandSymbol ths|mlns|blns|tlns|mln|bln|tln ; 
 define TenOrHundredSymbol ten|hnd0|hnd ; 
 define PowerOfTenSymbol TenOrHundredSymbol|PowerOfThousandSymbol ; 
+
+define OrdPowerOfThousandSymbol thth|mlnth|blnth|tlnth ; 
+define OrdTenOrHundredSymbol tenth|hndth ; 
+define OrdPowerOfTenSymbol OrdTenOrHundredSymbol|OrdPowerOfThousandSymbol ; 
 
 define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 [.#.|\Digit] ; 
 
@@ -82,8 +158,20 @@ hnd -> hnd0 || 1 _ {00} ;
 define SeparateTens 
 [..] -> ten || Digit _ Digit ; 
 
+define MarkTenth 
+ten -> tenth || Digit _ Digit OrdChar ; 
+
+define MarkHundredth 
+[hnd|hnd0] -> hndth || Digit _ Digit tenth ; 
+
+define MarkThousandth 
+ths -> thth || Digit _ [Digit hndth] | OrdChar ; 
+
+define MarkOrdPowerOfThousand 
+mlns:mlnth | blns:blnth | tlns:tlnth -> || _ OrdChar ; 
+
 define RemoveZeros 
-%0 (TenOrHundredSymbol) @-> 0 ; 
+%0 ([TenOrHundredSymbol | OrdTenOrHundredSymbol]) @-> 0 ; 
 
 define MarkTeens 
 [[1 ten]:0] NZDigit [0:teen] -> ; 
@@ -95,21 +183,30 @@ NZDigit hnd _ (%0 ten) NZDigit ,
 PowerOfThousandSymbol _ [[NZDigit [hnd|hnd0] %0 ten %0] | [%0 hnd (%0 ten) NZDigit]] .#. ; 
 
 define RemoveOnes 
-1 -> 0 || .#. _ ths ; 
+1 -> 0 || .#. _ ths | OrdPowerOfThousandSymbol ; 
 
 define PowerOfThousandSymbolsToSingular 
 [mlns:mln|blns:bln|tlns:tln] -> || [[PowerOfThousandSymbol (and)]|.#.] 1 _ ; 
 
 define Translate 
-Unit -> || _ .#. | PowerOfThousandSymbol ,, 
+OrdChar -> 0 ,, 
+Unit -> || _ .#. | PowerOfThousandSymbol | OrdPowerOfThousandSymbol ,, 
+MaleOrdUnit -> || _ MaleOrdChar .#. ,, 
+FemaleOrdUnit -> || _ FemaleOrdChar .#. ,, 
 Teen [teen:0] -> || _ ,, 
 Ten [ten:0] -> || _ ,, 
+MaleOrdTen [tenth:0] -> || _ ?* MaleOrdChar .#. ,, 
+FemaleOrdTen [tenth:0] -> || _ ?* FemaleOrdChar .#. ,, 
 Hundred [hnd:0] -> || _ ,, 
 1 hnd0 -> cem || _ ,, 
+MaleOrdHundred [hndth:0] -> || _ ?* MaleOrdChar .#. ,, 
+FemaleOrdHundred [hndth:0] -> || _ ?* FemaleOrdChar .#. ,, 
 ths -> mil || _ ,, 
 and -> e || _ ,, 
 [mln:milhão | bln:bilhão | tln:trilhão] -> || _ ,, 
-[mlns:milhões | blns:bilhões | tlns:trilhões] -> || _ ; 
+[mlns:milhões | blns:bilhões | tlns:trilhões] -> || _ ,, 
+[thth:milésimo | mlnth:milionésimo | blnth:bilionésimo | tlnth:trilionésimo] -> || _ ?* MaleOrdChar .#. ,, 
+[thth:milésima | mlnth:milionésima | blnth:bilionésima | tlnth:trilionésima] -> || _ ?* FemaleOrdChar .#. ; 
 
 define RemoveThousandsSeparators 
 %. -> 0 ; 
@@ -125,6 +222,10 @@ RemoveSilentGroups .o.
 SeparateHundreds .o. 
 Mark100s .o. 
 SeparateTens .o. 
+MarkTenth .o. 
+MarkHundredth .o. 
+MarkThousandth .o. 
+MarkOrdPowerOfThousand .o. 
 MarkTeens .o. 
 InsertAnds .o. 
 RemoveZeros .o. 
@@ -133,7 +234,9 @@ RemoveOnes .o.
 Translate ; 
 
 define ZeroRule 
-%0 : zero ; 
+%0 : zero | 
+[%0 MaleOrdChar] : zerésimo | 
+[%0 FemaleOrdChar] : zerésima ; 
 
 regex 
 ZeroRule | NumberRules ; 
