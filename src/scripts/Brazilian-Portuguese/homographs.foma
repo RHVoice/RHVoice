@@ -88,8 +88,15 @@ com |
 do | 
 no ; 
 
+define NextToNounWord 
+comum | 
+comuns | 
+há ; 
+
 define RecognitionRule 
-NounVerbHomograph -> H1 || BeforeNounWord _ ; 
+NounVerbHomograph -> H1 || 
+BeforeNounWord | NextToNounWord _ , 
+_ NextToNounWord ; 
 
 define DefaultRule 
 NounVerbHomograph -> H2 ; 
