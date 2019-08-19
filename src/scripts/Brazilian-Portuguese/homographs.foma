@@ -93,13 +93,77 @@ comum |
 comuns | 
 há ; 
 
+define NounGenderHomograph 
+corte | 
+cortes ; 
+
+define BeforeFemNounWord 
+a | 
+as | 
+da | 
+das | 
+na | 
+nas | 
+uma | 
+umas | 
+duma | 
+dumas | 
+numa | 
+numas | 
+pela | 
+pelas | 
+à | 
+às | 
+pra | 
+pras | 
+minha | 
+minhas | 
+tua | 
+tuas | 
+sua | 
+suas | 
+nossa | 
+nossas | 
+vossa | 
+vossas | 
+esta | 
+estas | 
+desta | 
+destas | 
+nesta | 
+nestas | 
+essa | 
+essas | 
+dessa | 
+dessas | 
+nessa | 
+nessas | 
+aquela | 
+aquelas | 
+daquela | 
+daquelas | 
+naquela | 
+naquelas | 
+alguma | 
+algumas | 
+muita | 
+muitas | 
+pouca | 
+poucas | 
+outra | 
+outras | 
+várias | 
+diversas ; 
+
 define RecognitionRule 
 NounVerbHomograph -> H1 || 
 BeforeNounWord | NextToNounWord _ , 
-_ NextToNounWord ; 
+_ NextToNounWord ,, 
+NounGenderHomograph -> H1 || 
+BeforeFemNounWord _ ; 
 
 define DefaultRule 
-NounVerbHomograph -> H2 ; 
+NounVerbHomograph | NounGenderHomograph -> H2 ; 
 
 define ElseRule 
 \Tag -> H0 ; 
