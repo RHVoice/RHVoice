@@ -172,3 +172,6 @@ web=uéb
 (byte=baite){,s}
 blog=blogue
 link=linke
+
+lagarti(x=ch)a{,s}
+Ale(x=ch)andria
