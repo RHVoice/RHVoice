@@ -20,7 +20,7 @@ define IndefiniteArticle
 um | uma | uns | umas ; 
 
 define PersonalPronoun 
-eu | tu | você | ele | ela | nós | vós | vocês | eles | elas ; 
+eu | tu | você | ele | ela | nós | vós | vocês | eles | elas | lhe ; 
 
 define PersonalReflexivePronoun 
 me | te | nos | vos | la | lo | las | los | se ; 

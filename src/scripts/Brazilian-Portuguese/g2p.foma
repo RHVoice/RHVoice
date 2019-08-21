@@ -16,7 +16,7 @@
 define FunctionWord 
 {o} | {a} | {os} | {as} | 
 {um} | {uma} | {uns} | {umas} | 
-{eu} | {tu} | {você} | {ele} | {ela} | {nós} | {vós} | {vocês} | {eles} | {elas} | 
+{eu} | {tu} | {você} | {ele} | {ela} | {nós} | {vós} | {vocês} | {eles} | {elas} | {lhe} | 
 {me} | {te} | {nos} | {vos} | {la} | {lo} | {las} | {los} | {se} | 
 {este} | {esta} | {estes} | {estas} | {neste} | {nesta} | {nestes} | {nestas} | {deste} | {desta} | {destes} | {destas} | {esse} | {essa} | {esses} | {essas} | {desse} | {dessa} | {desses} | {dessas} | {nesse} | {nessa} | {nesses} | {nessas} | {aquele} | {aquela} | {aqueles} | {aquelas} | {daquele} | {daquela} | {daqueles} | {daquelas} | {naquele} | {naquela} | {naqueles} | {naquelas} | {que} | 
 {meu} | {minha} | {meus} | {minhas} | {teu} | {tua} | {teus} | {tuas} | {seu} | {sua} | {seus} | {suas} | {nosso} | {nossa} | {nossos} | {nossas} | {vosso} | {vossa} | {vossos} | {vossas} | {dele} | {dela} | {deles} | {delas} | {nele} | {nela} | {neles} | {nelas} | 
