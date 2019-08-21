@@ -77,22 +77,20 @@ PossessiveAdjective |
 Preposition | 
 UnstressedConjunction | 
 Conjunction | 
-AuxiliaryVerb | 
-WhWord ; 
+AuxiliaryVerb ; 
 
 regex 
 DefiniteArticle -> def ,, 
 IndefiniteArticle -> indef ,, 
 PersonalPronoun -> pp ,, 
 PersonalReflexivePronoun -> prp ,, 
-[DemonstrativePronoun -que] -> dp ,, 
+DemonstrativePronoun -> dp ,, 
 PossessiveAdjective -> pos ,, 
 [Preposition -nos] -> prep ,, 
-[UnstressedConjunction - [se|como]] -> uconj ,, 
+[UnstressedConjunction - se] -> uconj ,, 
 Conjunction -> conj ,, 
 Ser -> cop ,, 
 Estar -> cop ,, 
 Ter -> aux ,, 
 Haver -> aux ,, 
-WhWord -> whw ,, 
 \FunctionWord -> content ; 
