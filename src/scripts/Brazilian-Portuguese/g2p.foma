@@ -146,7 +146,10 @@ define CloseWordEnding
 [{elh} UnstressedEnding] | 
 # Words with the combination "eij"
 [{eij} UnstressedEnding] | 
-{oso} ; 
+{oso} | 
+{bera} | 
+[{oir} ({os} | {as})] | 
+[{ssora} (s)] ; 
 
 define OpenWord 
 # Words ending in "ele(s)"
@@ -437,8 +440,8 @@ define CloseWord
 {chamego} | 
 {boi} | 
 {cocho} | 
-[{professora} (s)] | 
-[{impressora} (s)] | 
+#[{professora} (s)] | 
+#[{impressora} (s)] | 
 {conosco} | 
 {dorso} | 
 [{pescoço} (s)] | 
