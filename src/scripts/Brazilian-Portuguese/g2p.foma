@@ -24,7 +24,8 @@ define FunctionWord
 {e} | {ou} | {se} | {mas} | {como} ; 
 
 define StressTag OX|PAR|PRO ; 
-define Tag StressTag | FUNC | CLOSE ; 
+define LowerMidTag LM3 | LM4 | LM5 ; 
+define Tag StressTag | FUNC | CLOSE | LowerMidTag ; 
 
 define RemoveTags Tag -> 0 ; 
 
@@ -471,6 +472,22 @@ define UnaccentedParoxytone BasicUnaccentedParoxytone - UnaccentedParoxytoneExce
 
 define TagUnaccentedParoxytone [..] -> PAR || StartOfWord UnaccentedParoxytone _ [Tag - StressTag]* .#. ; 
 
+define MenteSuffix {mente} ; 
+
+define ProparoxytoneBase [?* [
+{orica} 
+]] ; 
+
+define AddLowerMidTag3 
+[..] -> LM5 || StartOfWord ProparoxytoneBase MenteSuffix _ [Tag - LowerMidTag]* .#. ; 
+
+define AddLowerMidTag2 
+[..] -> LM4 || StartOfWord [UnaccentedParoxytone - CloseWord] MenteSuffix _ [Tag - LowerMidTag]* .#. ; 
+
+define AddLowerMidTag1 
+[..] -> LM3 || StartOfWord [[[Letter - AccentedVowelLetter]*] - CloseWord] MenteSuffix _ [Tag - LowerMidTag]* .#. ; 
+
+
 define TagFunctionWord 
 [..] -> FUNC || StartOfWord FunctionWord _ EndOfWord ; 
 
@@ -674,6 +691,10 @@ define EnTilRule ñ -> {nh} ;
 
 define AposRule %' -> 0 ; 
 
+define ApplyLowerMidTag3 [e:E|o:O] -> || _ [Consonant* Vowel]^2 Consonant* Tag* LM3 Tag* .#. ; 
+define ApplyLowerMidTag4 [e:E|o:O] -> || _ [Consonant* Vowel]^3 Consonant* Tag* LM4 Tag* .#. ; 
+define ApplyLowerMidTag5 [e:E|o:O] -> || _ [Consonant* Vowel]^4 Consonant* Tag* LM5 Tag* .#. ; 
+
 define Rules 
 Word .o. 
 AposRule .o. 
@@ -684,6 +705,9 @@ GuQuExceptionsRule .o.
 SHRule .o. 
 YAsIRule .o.
 TagUnaccentedParoxytone .o. 
+AddLowerMidTag3 .o. 
+AddLowerMidTag2 .o. 
+AddLowerMidTag1 .o. 
 IntervocalicSRule .o. 
 TransRule .o. 
 InitialEXVowelRule .o. 
@@ -721,6 +745,9 @@ DoubleSRule .o.
 SVoicingRule .o. 
 ZDevoicingRule .o. 
 XRule .o. 
+ApplyLowerMidTag3 .o. 
+ApplyLowerMidTag4 .o. 
+ApplyLowerMidTag5 .o. 
 RemoveTags ; 
 
 define Mapping 
