@@ -40,7 +40,7 @@ define VowelLetterU u|ú|ü ;
 define VowelLetterEOrI VowelLetterE|VowelLetterI ; 
 define VowelLetter VowelLetterA|VowelLetterEOrI|VowelLetterO|VowelLetterU; 
 define AccentedVowelLetter á|â|é|ê|í|ó|ô|ú ; 
-define ConsonantLetter b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z ; 
+define ConsonantLetter b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|y|z|ñ ; 
 define Letter VowelLetter | ConsonantLetter ; 
 define Word [Letter|ñ|%']+ ; 
 
@@ -54,7 +54,7 @@ define NotUVowel OralVowel - [u|u1] ;
 define Stop b|p|d|t|g|k ; 
 define Fricative v|f|z|s|S|Z ; 
 define Affricate dZ|tS ; 
-define Nasal m|n|J ; 
+define Nasal m|n|J|Js ; 
 define Liquid l|L|r|R ; 
 define Glide j|w|jN|wN ; 
  define Consonant Stop|Fricative|Affricate|Nasal|Liquid|Glide ; 
@@ -687,7 +687,7 @@ z -> s || _ EndOfWord ;
 define XRule 
 x -> {ks} ; 
 
-define EnTilRule ñ -> {nh} ; 
+define NTildeRule ñ -> Js ; 
 
 define AposRule %' -> 0 ; 
 
@@ -698,7 +698,6 @@ define ApplyLowerMidTag5 [e:E|o:O] -> || _ [Consonant* Vowel]^4 Consonant* Tag* 
 define Rules 
 Word .o. 
 AposRule .o. 
-EnTilRule .o. 
 TagFunctionWord .o. 
 TagCloseWord .o. 
 GuQuExceptionsRule .o. 
@@ -726,6 +725,7 @@ DoubleRRule .o.
 JRule .o. 
 YRule .o. 
 HRule .o. 
+NTildeRule .o. 
 VowelWithDiacriticRule .o. 
 NasalDiphthongRule1 .o. 
 NasalDiphthongRule2 .o. 
@@ -758,7 +758,7 @@ O:oo | O1:oo1 | oN:on | oN1:on1 |
 uN:un | uN1:un1 | 
 jN:jn | wN:wn | 
 R:rh | 
-L:lj | J:nj | 
+L:lj | J:nj | [Js:[n i]] | 
 S:sh | Z:zh | 
 tS:tj | dZ:dj ; 
 
