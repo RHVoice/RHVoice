@@ -25,7 +25,7 @@ root_dir=Dir(".").srcnode()
 lang_msis=dict()
 
 msi_build_number=".1"
-exe_build_number=".3"
+exe_build_number=".4"
 
 for dir_name in ["languages","voices"]:
 	type=dir_name[:-1]
