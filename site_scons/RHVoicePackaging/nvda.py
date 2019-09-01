@@ -21,8 +21,6 @@ from .archiving import archiver
 
 class addon_packager(archiver):
 	def __init__(self,name,outdir,env,display_name,summary,description,version,data_package=False):
-		from datetime import datetime
-		now=datetime.now()
 		package_name="{}-{}".format(name,version)
 		super(addon_packager,self).__init__(package_name,outdir,env,"nvda-addon")
 		self.set_string("name",display_name)
@@ -35,7 +33,7 @@ class addon_packager(archiver):
 		if data_package:
 			self.set_string("lastTestedNVDAVersion", "2099.4.0")
 		else:
-			self.set_string("lastTestedNVDAVersion", "{major}.{minor}.0".format(major=now.year, minor=(now.month-1)//3+1))
+			self.set_string("lastTestedNVDAVersion", "2019.2.0")
 
 	def build_manifest(self,lang=None):
 		if lang:
