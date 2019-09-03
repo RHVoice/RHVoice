@@ -413,11 +413,12 @@ class nvda_speak_argument_converter(object):
 		out.write(u'>')
 
 class nvda_speech_item_converter(nvda_speak_argument_converter):
-	def get_min_api_version(self):
-		return api_version_0
-
-	def check_api_version(self):
-		return (self.get_min_api_version()<=api_version)
+	def check_item_class(self):
+		try:
+			cls=self.get_item_class()
+			return True
+		except AttributeError:
+			return False
 
 	def accepts(self,item):
 		return isinstance(item,self.get_item_class())
@@ -546,7 +547,7 @@ class nvda_lang_change_command_converter(nvda_speech_mode_command_converter):
 		self.lang=src.lang
 
 all_speech_item_converters=[nvda_lang_change_command_converter(),nvda_char_mode_command_converter(),nvda_index_command_converter(),nvda_text_item_converter()]
-speech_item_converters=[cnv for cnv in all_speech_item_converters if cnv.check_api_version()]
+speech_item_converters=[cnv for cnv in all_speech_item_converters if cnv.check_item_class()]
 speech_command_converters=[cnv for cnv in speech_item_converters if cnv.converts_speech_command()]
 mode_command_converters=[cnv for cnv in speech_command_converters if cnv.converts_mode_command()]
 content_item_converters=[cnv for cnv in speech_item_converters if not cnv.converts_mode_command()]
