@@ -389,7 +389,7 @@ namespace RHVoice
             if(it->notify_client())
               continue;
             else
-              break;
+              return;
           }
         const_iterator tmp_it=it;
         ++tmp_it;
@@ -403,8 +403,10 @@ namespace RHVoice
         u=it->create_utterance(pos);
         if((u.get()!=0)&&(u->has_voice()))
           if(!(u->get_voice().synthesize(*u,get_owner())))
-            break;
+            return;
         pos=sentence_position_middle;
       }
+    if(owner->get_supported_events()&event_done)
+      owner->done();
   }
 }

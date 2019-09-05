@@ -42,6 +42,7 @@ typedef struct
   int (*sentence_starts)(unsigned int position,unsigned int length,void* user_data);
   int (*sentence_ends)(unsigned int position,unsigned int length,void* user_data);
   int(*play_audio)(const char* src,void *user_data);
+  void (*done)(void* user_data);
 } RHVoice_callbacks;
 
   typedef enum {

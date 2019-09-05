@@ -64,6 +64,29 @@ except NameError:
 	basestring = str
 	unicode = str
 
+class nvda_notification_wrapper(object):
+	def __init__(self,name,lst):
+		self.name=name
+		try:
+			self.target=getattr(synthDriverHandler,name)
+			lst.append(self.target)
+		except AttributeError:
+			self.target=None
+
+	def is_supported(self):
+		return (self.target is not None)
+
+	def notify(self,synth,**kw0):
+		if not self.is_supported():
+			return;
+		kw={"synth":synth}
+		kw.update(kw0)
+		self.target.notify(**kw)
+
+nvda_notifications=[]
+nvda_notification_synthIndexReached=nvda_notification_wrapper("synthIndexReached",nvda_notifications)
+nvda_notification_synthDoneSpeaking=nvda_notification_wrapper("synthDoneSpeaking",nvda_notifications)
+
 data_addon_name_pattern=re.compile("^RHVoice-.*(voice|language).*")
 
 class RHVoice_tts_engine_struct(Structure):
@@ -83,6 +106,7 @@ class RHVoice_callback_types:
 	sentence_starts=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
 	sentence_ends=CFUNCTYPE(c_int,c_uint,c_uint,c_void_p)
 	play_audio=CFUNCTYPE(c_int,c_char_p,c_void_p)
+	done=CFUNCTYPE(None,c_void_p)
 
 class RHVoice_callbacks(Structure):
 	_fields_=[("set_sample_rate",RHVoice_callback_types.set_sample_rate),
@@ -92,7 +116,8 @@ class RHVoice_callbacks(Structure):
 			  ("word_ends",RHVoice_callback_types.word_ends),
 			  ("sentence_starts",RHVoice_callback_types.sentence_starts),
 			  ("sentence_ends",RHVoice_callback_types.sentence_ends),
-			  ("play_audio",RHVoice_callback_types.play_audio)]
+			  ("play_audio",RHVoice_callback_types.play_audio),
+			  ("done",RHVoice_callback_types.done)]
 
 class RHVoice_init_params(Structure):
 	_fields_=[("data_path",c_char_p),
@@ -191,7 +216,8 @@ def escape_text(text):
 	return u"".join(parts)
 
 class audio_player(object):
-	def __init__(self,cancel_flag):
+	def __init__(self,synth,cancel_flag):
+		self.__synth=synth
 		self.__cancel_flag=cancel_flag
 		self.__sample_rate=0
 		self.__players={}
@@ -235,12 +261,22 @@ class audio_player(object):
 		with self.__lock:
 			self.__sample_rate=sr
 
-	def play(self,data):
+	def do_play(self,data,index=None):
 		player=self.get_player()
 		if player is not None and not self.__cancel_flag.is_set():
-			player.feed(data)
-			if self.__cancel_flag_is_set():
+			if index is None:
+				player.feed(data)
+			else:
+				player.feed(data,onDone=lambda synth=self.__synth,next_index=index: nvda_notification_synthIndexReached.notify(synth,index=next_index))
+			if self.__cancel_flag.is_set():
 				player.stop()
+
+	def play(self,data):
+		if self.__prev_data is None:
+			self.__prev_data=data
+			return
+		self.do_play(self.__prev_data)
+		self.__prev_data=data
 
 	def stop(self):
 		player=self.get_player()
@@ -256,6 +292,22 @@ class audio_player(object):
 		player=self.get_player()
 		if player is not None:
 			player.idle()
+
+	def on_new_message(self):
+		self.__prev_data=None
+
+	def on_done(self):
+		if self.__prev_data is None:
+			return
+		self.do_play(self.__prev_data)
+		self.__prev_data=None
+
+	def on_index(self,index):
+		data=self.__prev_data
+		self.__prev_data=None
+		if data is None:
+			data=b""
+		self.do_play(data,index)
 
 class sample_rate_callback(object):
 	def __init__(self,lib,player):
@@ -290,8 +342,9 @@ class speech_callback(object):
 			return 0
 
 class mark_callback(object):
-	def __init__(self,lib):
+	def __init__(self,lib,player):
 		self.__lib=lib
+		self.__player=player
 		self.__lock=threading.Lock()
 		self.__index=None
 
@@ -307,11 +360,34 @@ class mark_callback(object):
 
 	def __call__(self,name,user_data):
 		try:
-			self.index=int(name)
+			index=int(name)
+			if nvda_notification_synthIndexReached.is_supported():
+				self.__player.on_index(index)
+			else:
+				self.index=index
 			return 1
 		except:
 			log.error("RHVoice mark callback",exc_info=True)
 			return 0
+
+class done_callback(object):
+	def __init__(self,synth,lib,player,cancel_flag):
+		self.__synth=synth
+		self.__lib=lib
+		self.__player=player
+		self.__cancel_flag=cancel_flag
+
+	def __call__(self,user_data):
+		try:
+			if self.__cancel_flag.is_set():
+				return
+			self.__player.on_done()
+			self.__player.idle()
+			if self.__cancel_flag.is_set():
+				return
+			nvda_notification_synthDoneSpeaking.notify(self.__synth)
+		except:
+			log.error("RHVoice done callback",exc_info=True)
 
 class speak_text(object):
 	def __init__(self,lib,tts_engine,text,cancel_flag,player):
@@ -353,6 +429,7 @@ class speak_text(object):
 										   byref(self.__synth_params),
 										   None)
 		if msg:
+			self.__player.on_new_message()
 			self.__lib.RHVoice_speak(msg)
 			self.__player.idle()
 			self.__lib.RHVoice_delete_message(msg)
@@ -546,7 +623,42 @@ class nvda_lang_change_command_converter(nvda_speech_mode_command_converter):
 	def on_clone(self,src):
 		self.lang=src.lang
 
-all_speech_item_converters=[nvda_lang_change_command_converter(),nvda_char_mode_command_converter(),nvda_index_command_converter(),nvda_text_item_converter()]
+class nvda_prosody_command_converter(nvda_speech_mode_command_converter):
+	def get_ssml_tag_name(self):
+		return u"prosody"
+
+	def get_ssml_attribute_name(self):
+		raise NotImplementedError
+
+	def get_ssml_attributes(self):
+		value="{}%".format(int(round(self.item.multiplier*100.0)))
+		return {self.get_ssml_attribute_name():value}
+
+	def is_default(self):
+		return (self.item is None or self.item.multiplier==1)
+
+class nvda_pitch_command_converter(nvda_prosody_command_converter):
+	def get_item_class(self):
+		return speech.PitchCommand
+
+	def get_ssml_attribute_name(self):
+		return "pitch"
+
+class nvda_volume_command_converter(nvda_prosody_command_converter):
+	def get_item_class(self):
+		return speech.VolumeCommand
+
+	def get_ssml_attribute_name(self):
+		return "volume"
+
+class nvda_rate_command_converter(nvda_prosody_command_converter):
+	def get_item_class(self):
+		return speech.RateCommand
+
+	def get_ssml_attribute_name(self):
+		return "rate"
+
+all_speech_item_converters=[nvda_lang_change_command_converter(),nvda_pitch_command_converter(),nvda_rate_command_converter(),nvda_volume_command_converter(),nvda_char_mode_command_converter(),nvda_index_command_converter(),nvda_text_item_converter()]
 speech_item_converters=[cnv for cnv in all_speech_item_converters if cnv.check_item_class()]
 speech_command_converters=[cnv for cnv in speech_item_converters if cnv.converts_speech_command()]
 mode_command_converters=[cnv for cnv in speech_command_converters if cnv.converts_mode_command()]
@@ -598,6 +710,10 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 					   synthDriverHandler.SynthDriver.PitchSetting(),
 					   synthDriverHandler.SynthDriver.VolumeSetting())
 
+	if api_version>=api_version_2019_3:
+		supportedCommands=frozenset([cnv.get_item_class() for cnv in speech_command_converters])
+		supportedNotifications=frozenset(nvda_notifications)
+
 	@classmethod
 	def check(cls):
 		return os.path.isfile(lib_path)
@@ -616,13 +732,15 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 	def __init__(self):
 		self.__lib=load_tts_library()
 		self.__cancel_flag=threading.Event()
-		self.__player=audio_player(self.__cancel_flag)
+		self.__player=audio_player(self,self.__cancel_flag)
 		self.__sample_rate_callback=sample_rate_callback(self.__lib,self.__player)
 		self.__c_sample_rate_callback=RHVoice_callback_types.set_sample_rate(self.__sample_rate_callback)
 		self.__speech_callback=speech_callback(self.__lib,self.__player,self.__cancel_flag)
 		self.__c_speech_callback=RHVoice_callback_types.play_speech(self.__speech_callback)
-		self.__mark_callback=mark_callback(self.__lib)
+		self.__mark_callback=mark_callback(self.__lib,self.__player)
 		self.__c_mark_callback=RHVoice_callback_types.process_mark(self.__mark_callback)
+		self.__done_callback=done_callback(self,self.__lib,self.__player,self.__cancel_flag)
+		self.__c_done_callback=RHVoice_callback_types.done(self.__done_callback)
 		resource_paths=[os.path.join(addon.path,"data").encode("UTF-8") for addon in addonHandler.getRunningAddons() if data_addon_name_pattern.match(addon.name)]
 		c_resource_paths=(c_char_p*(len(resource_paths)+1))(*(resource_paths+[None]))
 		init_params=RHVoice_init_params(None,
@@ -635,7 +753,8 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 														  cast(None,RHVoice_callback_types.word_ends),
 														  cast(None,RHVoice_callback_types.sentence_starts),
 														  cast(None,RHVoice_callback_types.sentence_ends),
-														  cast(None,RHVoice_callback_types.play_audio)),
+														  cast(None,RHVoice_callback_types.play_audio),
+														  self.__c_done_callback),
 										0)
 		self.__tts_engine=self.__lib.RHVoice_new_tts_engine(byref(init_params))
 		if not self.__tts_engine:
@@ -688,7 +807,6 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		cnv.write(out)
 		text=out.getvalue()
 		out.close()
-		log.info(u"RHVoice generated ssml: {}".format(text))
 		task=speak_text(self.__lib,self.__tts_engine,text,self.__cancel_flag,self.__player)
 		task.set_voice_profile(self.__profile)
 		task.set_rate(self.__rate)

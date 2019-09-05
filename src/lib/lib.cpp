@@ -76,6 +76,11 @@ struct RHVoice_message_struct: public client
     return callbacks.set_sample_rate(sr,user_data);
 }
 
+  void done()
+  {
+    callbacks.done(user_data);
+}
+
   void speak()
   {
     doc_ptr->synthesize();
@@ -264,6 +269,8 @@ event_mask RHVoice_message_struct::get_supported_events() const
     result|=event_sentence_ends;
   if(callbacks.play_audio)
     result|=event_audio;
+  if(callbacks.done)
+    result|=event_done;
   return result;
 }
 
