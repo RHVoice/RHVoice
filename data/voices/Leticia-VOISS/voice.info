@@ -5,6 +5,6 @@ package_name=RHVoice-Brazilian-Portuguese-voice-Leticia-VOISS
 language=Brazilian-Portuguese
 gender=female
 format=4
-revision=3
+revision=4
 msi_upgrade_code=2ebfef41-9fd5-47aa-b158-706c360006eb
 exe_upgrade_code=711485ad-842e-4726-8374-801b0f298e68
