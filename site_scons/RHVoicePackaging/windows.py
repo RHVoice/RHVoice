@@ -471,7 +471,7 @@ class nsis_bootstrapper_packager(windows_packager):
 			self.script.append("Delete {}".format(log_path))
 			self.script.append(u"File {}".format(file.abspath))
 			self.script.append("ClearErrors")
-			self.script.append(r"""ExecWait 'msiexec /i "{}" /l*vx "{}" /qf' $0""".format(file_path,log_path))
+			self.script.append(r"""ExecWait 'msiexec /i "{}" /l*v "{}" /qf' $0""".format(file_path,log_path))
 			self.script.append("${If} ${Errors}")
 			self.script.append(abort_command)
 			self.script.append("${ElseIf} $0 <> 0\n${AndIf} $0 <> 1638")
