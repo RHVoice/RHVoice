@@ -729,6 +729,17 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 			return True
 		return (lang1[1]==lang2[1])
 
+	def __get_resource_paths(self):
+		paths=[]
+		for addon in addonHandler.getRunningAddons():
+			if not data_addon_name_pattern.match(addon.name):
+				continue
+			for name in ["data","langdata"]:
+				data_path=os.path.join(addon.path,name)
+				if os.path.isdir(data_path):
+					paths.append(data_path.encode("UTF-8"))
+		return paths
+
 	def __init__(self):
 		self.__lib=load_tts_library()
 		self.__cancel_flag=threading.Event()
@@ -741,7 +752,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		self.__c_mark_callback=RHVoice_callback_types.process_mark(self.__mark_callback)
 		self.__done_callback=done_callback(self,self.__lib,self.__player,self.__cancel_flag)
 		self.__c_done_callback=RHVoice_callback_types.done(self.__done_callback)
-		resource_paths=[os.path.join(addon.path,"data").encode("UTF-8") for addon in addonHandler.getRunningAddons() if data_addon_name_pattern.match(addon.name)]
+		resource_paths=self.__get_resource_paths()
 		c_resource_paths=(c_char_p*(len(resource_paths)+1))(*(resource_paths+[None]))
 		init_params=RHVoice_init_params(None,
 										config_path.encode("utf-8"),
