@@ -175,3 +175,5 @@ link=linke
 
 lagarti(x=ch)a{,s}
 Ale(x=ch)andria
+light=laite
+
