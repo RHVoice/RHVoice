@@ -95,8 +95,12 @@ namespace RHVoice
   template<class T>
   class resource_list
   {
+  protected:
+    typedef std::pair<unsigned int,unsigned int> version_info;
+
   private:
     typedef std::map<std::string,smart_ptr<T>,str::less> container;
+    typedef std::map<std::string,version_info> version_map;
 
     struct resource_enabled: public std::unary_function<const typename container::value_type&,bool>
     {
@@ -283,9 +287,20 @@ namespace RHVoice
     {
     }
 
-    void add(const smart_ptr<T>& obj)
+    bool can_add(const std::string& name,const version_info& ver) const
     {
-      elements.insert(typename container::value_type(obj->get_name(),obj));
+      version_map::const_iterator it=versions.find(name);
+      if(it==versions.end())
+        return true;
+      return (it->second<ver);
+}
+
+    void add(const smart_ptr<T>& obj,const version_info& ver)
+    {
+      if(!can_add(obj->get_name(),ver))
+        return;
+      elements[obj->get_name()]=obj;
+      versions[obj->get_name()]=ver;
     }
 
   private:
@@ -293,6 +308,7 @@ namespace RHVoice
     resource_list& operator=(const resource_list&);
 
     container elements;
+    version_map versions;
   };
 
   class resource_description

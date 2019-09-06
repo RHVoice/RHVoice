@@ -90,11 +90,13 @@ namespace RHVoice
           {
             logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it));
             smart_ptr<voice_info> v;
+            version_info ver;
             try
               {
                 resource_description desc("voice",*it);
                 logger.log(tag,RHVoice_log_level_info,std::string("Voice resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
-                if(desc.format>=3)
+                ver=version_info(desc.format,desc.revision);
+                if(desc.format>=3&&can_add(desc.name,ver))
                   v.reset(new voice_info(desc.format,*it,languages));
                 else
                   logger.log(tag,RHVoice_log_level_error,"Unsupported voice format");
@@ -104,7 +106,7 @@ namespace RHVoice
                 logger.log(tag,RHVoice_log_level_error,"Voice info creation failed");
               }
             if(!v.empty())
-              add(v);
+              add(v,ver);
           }
       }
   }

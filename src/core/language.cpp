@@ -1303,9 +1303,12 @@ else
             logger.log(tag,RHVoice_log_level_warning,"Unsupported language format");
             continue;
           }
+        version_info ver(desc.format,desc.revision);
+        if(!can_add(desc.name,ver))
+          continue;
         smart_ptr<language_info> lang=(it2->second)->create(*it1,path::join(userdict_path,desc.name));
         lang->all_languages=this;
-        add(lang);
+        add(lang,ver);
       }
   }
 
