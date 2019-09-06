@@ -25,6 +25,7 @@ def list_files(dir):
 root_dir=Dir(".").srcnode()
 
 lang_msis=dict()
+lang_files=dict()
 
 msi_build_number=".1"
 exe_build_number=".4"
@@ -40,6 +41,8 @@ for dir_name in ["languages","voices"]:
 			props["language"]=props["name"]
 		if props["language"].lower() not in local_env["languages"]:
 			continue
+		if type=="language":
+			lang_files[props["name"]]=data_files
 		props["display_language"]=props["language"].replace("-"," ")
 		props["type"]=type
 		if "file_name" not in props:
@@ -63,8 +66,11 @@ for dir_name in ["languages","voices"]:
 				packagers["msi"].add(f,os.path.normpath(os.path.join("data",type+"s",props["file_name"],os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
 			if type=="language":
 				lang_msis[props["name"]]=packagers["msi"]
+				lang_files[props["name"]]=data_files
 			else:
 				packagers["msi"].visible="no"
+				for f in lang_files[props["language"]]:
+					packagers["nvda"].add(f,os.path.normpath(os.path.join("langdata",os.path.relpath(f.Dir(".").abspath,root_dir.Dir("languages").Dir(props["language"]).abspath))))
 				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version+exe_build_number)
 				if env["enable_x64"]:
 					packagers["exe"].msis.append(local_env["WindowsInstallers_core_64"])
