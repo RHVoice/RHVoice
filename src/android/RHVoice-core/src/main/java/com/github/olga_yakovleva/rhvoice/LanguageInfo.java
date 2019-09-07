@@ -63,6 +63,8 @@ public final class LanguageInfo
 
     public String getAlpha2CountryCode()
     {
+        if(TextUtils.isEmpty(alpha2_country_code))
+            return "ZZ";
         return alpha2_country_code;
     }
 
@@ -73,6 +75,8 @@ public final class LanguageInfo
 
     public String getAlpha3CountryCode()
     {
+        if(TextUtils.isEmpty(alpha3_country_code))
+            return "ZZZ";
         return alpha3_country_code;
     }
 
