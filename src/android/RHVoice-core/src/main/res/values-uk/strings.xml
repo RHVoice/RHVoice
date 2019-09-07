@@ -22,4 +22,6 @@
     <string name="voice_remove_question">Вилучити цей голос?</string>
     <string name="install">Встановити</string>
     <string name="uninstall">Видалити</string>
+  <string name="play">Відтворити</string>
+  <string name="stop">Зупинити</string>
 </resources>
