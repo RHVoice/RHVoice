@@ -25,7 +25,7 @@ final class Checksums
     public static final byte[] LANGUAGE_ESPERANTO={105, 98, 27, -24, 57, 87, 19, -14, 118, 34, 41, 126, 56, -34, 108, 117};
     public static final byte[] VOICE_SPOMENKA={-53, 69, 50, 3, 85, 56, 63, -80, -65, 106, -101, -111, -24, 49, 11, 94};
     public static final byte[] LANGUAGE_GEORGIAN={-51, -125, 27, 13, -10, -38, 110, 24, 22, 27, -22, -119, -100, 84, 0, -99};
-    public static final byte[] VOICE_NATIA=null;
+    public static final byte[] VOICE_NATIA={-105, -39, 70, -9, 41, 97, 111, 58, 99, 15, -88, -20, 22, 82, -92, 63};;
     public static final byte[] LANGUAGE_KYRGYZ={53, 123, -19, 75, 63, 19, 73, -124, 51, 23, 77, 65, -60, 114, -12, 66};
     public static final byte[] VOICE_AZAMAT={-78, 113, 65, -47, 113, -38, 116, -78, 108, -99, -57, 41, -100, 42, 40, 11};
     public static final byte[] VOICE_NAZGUL={-80, 20, 58, 56, 5, 86, -18, -72, 29, 88, -59, -101, -21, -69, 51, -50};
