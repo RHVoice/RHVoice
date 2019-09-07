@@ -40,5 +40,5 @@ final class Checksums
     public static final byte[] VOICE_ANATOL={62, -55, -8, -28, 29, 115, 55, -85, -60, 52, 126, -11, -103, -16, -72, 13};
     public static final byte[] VOICE_NATALIA={-20, -13, 29, -69, -124, -59, 104, 44, 86, -28, 13, -89, 38, 83, 34, -86};
     public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={73, -101, -96, -96, -42, 31, 63, 45, -61, -74, 32, 95, 95, -12, -29, 123};
-    public static final byte[] VOICE_LETICIA={54, 27, -40, -71, 62, 45, -108, 120, -118, -122, 43, -86, -25, -74, 65, 10};
+    public static final byte[] VOICE_LETICIA={-51, 29, 124, -109, -33, -67, 92, 2, 102, -48, -101, 81, -21, 103, -54, -127};
 }
