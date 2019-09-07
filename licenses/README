@@ -7,6 +7,9 @@ library without MAGE.
 The following restrictions apply to some of the voices:
 
 1. The Tatar voice can only be used non-commercially.
+
 2. The Georgian voice can only be used by individuals for personal use.
+
+3. The Brazilian Portuguese voice is distributed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
 See the documents in the voices subdirectory for more details.
