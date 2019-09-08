@@ -1064,7 +1064,10 @@ else
 
   void language::detect_utt_type(utterance& utt) const
   {
-        const item& word=utt.get_relation("Word").last().as("TokStructure");
+    const relation& word_rel=utt.get_relation("Word");
+    if(word_rel.empty())
+      return;
+        const item& word=word_rel.last().as("TokStructure");
         const item& token=word.parent();
         const item& parent_token=token.parent();
         std::string utt_type("s");
