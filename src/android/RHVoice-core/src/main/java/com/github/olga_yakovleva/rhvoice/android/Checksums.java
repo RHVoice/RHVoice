@@ -24,9 +24,9 @@ final class Checksums
     public static final byte[] VOICE_SLT={64, -87, -25, -52, 35, 111, -34, 3, 24, 48, 40, 29, -77, -120, 113, 109};
     public static final byte[] LANGUAGE_ESPERANTO={105, 98, 27, -24, 57, 87, 19, -14, 118, 34, 41, 126, 56, -34, 108, 117};
     public static final byte[] VOICE_SPOMENKA={-53, 69, 50, 3, 85, 56, 63, -80, -65, 106, -101, -111, -24, 49, 11, 94};
-    public static final byte[] LANGUAGE_GEORGIAN={-51, -125, 27, 13, -10, -38, 110, 24, 22, 27, -22, -119, -100, 84, 0, -99};
+    public static final byte[] LANGUAGE_GEORGIAN={116, 103, -30, -56, -115, 67, -63, 103, 61, 31, 90, -101, -102, -14, 96, -15};
     public static final byte[] VOICE_NATIA={-105, -39, 70, -9, 41, 97, 111, 58, 99, 15, -88, -20, 22, 82, -92, 63};;
-    public static final byte[] LANGUAGE_KYRGYZ={53, 123, -19, 75, 63, 19, 73, -124, 51, 23, 77, 65, -60, 114, -12, 66};
+    public static final byte[] LANGUAGE_KYRGYZ={-100, 38, -84, 121, -128, 57, 47, -33, 49, -13, -127, -51, -67, -83, 106, -13};
     public static final byte[] VOICE_AZAMAT={-78, 113, 65, -47, 113, -38, 116, -78, 108, -99, -57, 41, -100, 42, 40, 11};
     public static final byte[] VOICE_NAZGUL={-80, 20, 58, 56, 5, 86, -18, -72, 29, 88, -59, -101, -21, -69, 51, -50};
     public static final byte[] LANGUAGE_RUSSIAN={35, 109, -65, 61, -101, 89, 75, 121, -87, 77, 73, -85, -123, -107, -45, 95};
@@ -36,7 +36,7 @@ final class Checksums
     public static final byte[] VOICE_IRINA={57, 77, -88, 102, -117, -52, 126, 6, -52, -87, 60, -7, -79, 16, -100, -125};
     public static final byte[] LANGUAGE_TATAR={-72, -84, -112, 54, 105, 117, 59, -122, -46, 113, -121, -23, -73, -13, 51, 9};
     public static final byte[] VOICE_TALGAT={-2, -85, -97, 61, -71, 7, 22, -113, 12, 63, 123, 50, -101, -27, -116, -122};
-    public static final byte[] LANGUAGE_UKRAINIAN={64, 66, -90, -25, 24, -91, -62, 15, 104, 44, 111, -56, 82, 48, 16, 12};
+    public static final byte[] LANGUAGE_UKRAINIAN={-82, -61, 57, 88, 16, 105, 86, -75, 8, -3, -3, 123, -109, -35, 75, 78};
     public static final byte[] VOICE_ANATOL={62, -55, -8, -28, 29, 115, 55, -85, -60, 52, 126, -11, -103, -16, -72, 13};
     public static final byte[] VOICE_NATALIA={-20, -13, 29, -69, -124, -59, 104, 44, 86, -28, 13, -89, 38, 83, 34, -86};
     public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={73, -101, -96, -96, -42, 31, 63, 45, -61, -74, 32, 95, 95, -12, -29, 123};
