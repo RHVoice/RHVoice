@@ -47,10 +47,10 @@ public final class Data
         lang=new LanguagePack("Esperanto", "epo", "eo", "", "", false, 1, 2, Checksums.LANGUAGE_ESPERANTO, null, null);
         lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, Checksums.VOICE_SPOMENKA, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Georgian", "kat", "ka", "GEO", "GE", false, 1, 8, Checksums.LANGUAGE_GEORGIAN, null, null);
+        lang=new LanguagePack("Georgian", "kat", "ka", "GEO", "GE", false, 1, 9, Checksums.LANGUAGE_GEORGIAN, null, null);
         lang.addVoice(new VoicePack("Natia", lang, 4, 0, Checksums.VOICE_NATIA, "http://blindaid.ge/files/RHVoice-voice-Georgian-Natia-v4.0.zip", null));
         addLanguage(lang);
-        lang=new LanguagePack("Kyrgyz", "kir", "ky", "KGZ", "KG", false, 1, 15, Checksums.LANGUAGE_KYRGYZ, null, null);
+        lang=new LanguagePack("Kyrgyz", "kir", "ky", "KGZ", "KG", false, 1, 16, Checksums.LANGUAGE_KYRGYZ, null, null);
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, Checksums.VOICE_AZAMAT, null, null));
         lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, Checksums.VOICE_NAZGUL, null, null));
         addLanguage(lang);
@@ -63,7 +63,7 @@ public final class Data
         lang=new LanguagePack("Tatar", "tat", "tt", "RUS", "RU", false, 1, 10, Checksums.LANGUAGE_TATAR, null, null);
         lang.addVoice(new VoicePack("Talgat", lang, 4, 0, Checksums.VOICE_TALGAT, "https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0.zip", null));
         addLanguage(lang);
-        lang=new LanguagePack("Ukrainian", "ukr", "uk", "UKR", "UA", false, 1, 4, Checksums.LANGUAGE_UKRAINIAN, null, null);
+        lang=new LanguagePack("Ukrainian", "ukr", "uk", "UKR", "UA", false, 1, 5, Checksums.LANGUAGE_UKRAINIAN, null, null);
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
         lang.addVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
