@@ -2,6 +2,6 @@ name=Bdl
 language=English
 gender=male
 format=4
-revision=0
+revision=1
 msi_upgrade_code=dbed50e0-74ee-44ea-8634-2c9ae587d40a
 exe_upgrade_code=f14178a2-c93b-4f38-aa60-e7ba4e00115d
