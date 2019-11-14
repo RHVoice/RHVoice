@@ -129,6 +129,7 @@ namespace RHVoice
   void brazilian_portuguese::post_lex(utterance& u) const
   {
     process_homographs(u);
+    fix_whw_stress(u);
 }
 
   void brazilian_portuguese::process_homographs(utterance& u) const
@@ -173,5 +174,21 @@ namespace RHVoice
 }
           }
       }
+}
+
+  void brazilian_portuguese::fix_whw_stress(utterance& u) const
+  {
+    if(u.get_utt_type()!="whq")
+      return;
+    relation& rel=u.get_relation("SylStructure");
+    for(relation::iterator word_iter=rel.begin();word_iter!=rel.end();++word_iter)
+      {
+        if(word_iter->get("gpos").as<std::string>()!="whw")
+          continue;
+        const std::string& name=word_iter->get("name").as<std::string>();
+        if(name!="que"&&name!="como")
+          continue;
+        word_iter->first_child().set<std::string>("stress","1");
+}
 }
 }

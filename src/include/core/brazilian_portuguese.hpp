@@ -61,6 +61,7 @@ namespace RHVoice
     void before_g2p(item& w) const;
     void post_lex(utterance& u) const;
     void process_homographs(utterance& u) const;
+    void fix_whw_stress(utterance& u) const;
 
     const brazilian_portuguese_info& info;
     const fst g2p_fst;
