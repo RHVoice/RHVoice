@@ -28,7 +28,7 @@ define DefaultTagger
 [..] -> %= q || _ .#. ; 
 
 define WhWordTagger 
-StartOfWhQuestion [0:[%+ whw]] -> || .#. | %- _ ; 
+StartOfWhQuestion [0:[%+ whw]] -> || .#. _ ; 
 
 define WhQuestionTagger 
 q -> whq || %+ whw ?* %= _ .#. ; 
