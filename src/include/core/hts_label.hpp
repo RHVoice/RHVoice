@@ -21,7 +21,6 @@
 #include "item.hpp"
 #include "relation.hpp"
 #include "utterance.hpp"
-#include "language.hpp"
 #include "hts_labeller.hpp"
 
 namespace RHVoice
@@ -32,19 +31,13 @@ namespace RHVoice
     explicit hts_label(const item& segment_):
       segment(&segment_),
       time(-1),
-      duration(0)
+      duration(0),
+      position(-1),
+      length(0)
     {
     }
 
-    const std::string& get_name() const
-    {
-      if(name.empty())
-        {
-          const hts_labeller& labeller=segment->get_relation().get_utterance().get_language().get_hts_labeller();
-          name=labeller.eval_segment_label(*segment);
-        }
-      return name;
-    }
+    const std::string& get_name() const;
 
     double get_rate() const;
     double get_pitch() const;
@@ -61,6 +54,16 @@ namespace RHVoice
       return time;
     }
 
+    void set_position(int position_)    // in frames
+    {
+      position=position_;
+    }
+
+    int get_position() const
+    {
+      return position;
+    }
+
     void set_duration(int dur)  // in samples
     {
       duration=dur;
@@ -71,6 +74,21 @@ namespace RHVoice
       return duration;
     }
 
+    void set_length(int dur)  // in frames
+    {
+      length=dur;
+    }
+
+    int get_length() const
+    {
+      return length;
+    }
+
+    const item& get_segment() const
+    {
+      return *segment;
+}
+
   private:
     double calculate_speech_param(double absolute_change,double relative_change,double default_value,double min_value,double max_value) const;
 
@@ -78,7 +96,7 @@ namespace RHVoice
 
     const item* segment;
     mutable std::string name;
-    int time,duration;
+    int time,duration,position,length;
   };
 
   typedef std::list<hts_label> label_sequence;

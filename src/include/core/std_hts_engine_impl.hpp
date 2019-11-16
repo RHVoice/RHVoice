@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -42,8 +42,8 @@ namespace RHVoice
     void do_stop();
     void load_labels();
     void set_time_info();
-    void set_pitch();
     void set_speed();
+    void edit_pitch();
 
     std::auto_ptr<_HTS_Engine> engine;
   };

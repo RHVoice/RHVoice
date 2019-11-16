@@ -270,6 +270,8 @@ double HTS_Label_get_start_frame(HTS_Label * label, size_t index);
 /* HTS_Label_get_end_frame: get end frame */
 double HTS_Label_get_end_frame(HTS_Label * label, size_t index);
 
+double HTS_Label_get_dur_mod(HTS_Label * label, size_t index);
+
 /* HTS_Label_clear: free label */
 void HTS_Label_clear(HTS_Label * label);
 

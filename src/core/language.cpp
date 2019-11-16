@@ -32,6 +32,7 @@
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 #include "core/emoji.hpp"
+#include <iostream>
 
 namespace RHVoice
 {
@@ -441,6 +442,26 @@ else
       }
     };
 
+    struct feat_syl_onset_size: public feature_function
+    {
+      feat_syl_onset_size():
+        feature_function("syl_onsetsize")
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& syl_in_word=syl.as("Syllable").as("SylStructure");
+        item::const_iterator vowel_pos=std::find_if(syl_in_word.begin(),syl_in_word.end(),feature_equals<std::string>("ph_vc","+"));
+        unsigned int result;
+        if(vowel_pos==syl_in_word.end())
+          result=std::distance(syl_in_word.begin(),syl_in_word.end());
+else
+  result=std::distance(syl_in_word.begin(),vowel_pos);
+        return result;
+      }
+    };
+
 
     class phoneme_feature_function: public feature_function
     {
@@ -506,6 +527,20 @@ else
         return (result.empty()?default_result:result);
       }
     };
+
+    struct feat_utt_type: public feature_function
+    {
+      feat_utt_type():
+        feature_function("utt_type")
+      {
+      }
+
+        value eval(const item& i) const
+      {
+        const utterance& utt=i.get_relation().get_utterance();
+        return utt.get_utt_type();
+      }
+    };
   }
 
   language::language(const language_info& info_):
@@ -538,6 +573,20 @@ else
     try
       {
         qst_fst.reset(new fst(path::join(info_.get_data_path(),"qst.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        pitch_mod_dtree.reset(new dtree(path::join(info_.get_data_path(),"pitch-mod.dt")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        dur_mod_dtree.reset(new dtree(path::join(info_.get_data_path(),"dur-mod.dt")));
       }
     catch(const io::open_error& e)
       {
@@ -593,6 +642,8 @@ else
     register_feature(smart_ptr<feature_function>(new feat_phrases_in));
     register_feature(smart_ptr<feature_function>(new feat_phrases_out));
     register_feature(smart_ptr<feature_function>(new feat_syl_coda_size));
+    register_feature(smart_ptr<feature_function>(new feat_syl_onset_size));
+    register_feature(smart_ptr<feature_function>(new feat_utt_type));
   }
 
   item& language::append_token(utterance& u,const std::string& text) const
@@ -1095,6 +1146,55 @@ else
         if(out.empty())
           return;
         utt.set_utt_type(out.front());
+}
+
+  void language::set_pitch_modifications(utterance& u) const
+  {
+    relation& pm_rel=u.get_relation("PitchMod",true);
+    if(pitch_mod_dtree.get()==0)
+      return;
+    relation& syl_rel=u.get_relation("Syllable");
+    bool mod_flag=false;
+    for(relation::iterator it=syl_rel.begin();it!=syl_rel.end();++it)
+      {
+        const std::string& s=pitch_mod_dtree->predict(*it).as<std::string>();
+        if(s=="NONE")
+          {
+            if(mod_flag)
+              pm_rel.last().append_child(*it);
+            continue;
+}
+        pitch::target_list_t pts=pts_parser.parse(s);
+        if(pts.front().first||pm_rel.empty())
+          {
+            pm_rel.append();
+            mod_flag=true;
+          }
+        pm_rel.last().append_child(*it);
+        for(pitch::target_list_t::const_iterator pt_it=pts.begin();pt_it!=pts.end();++pt_it)
+          {
+            const pitch::target_t& pt=*pt_it;
+            item& trg=pm_rel.last().last_child().append_child();
+            trg.set("time",pt.time);
+            trg.set("value",pt.value);
+}
+        if(pts.back().last)
+          mod_flag=false;
+}
+}
+
+  void language::set_duration_modifications(utterance& u) const
+  {
+    if(dur_mod_dtree.get()==0)
+      return;
+    relation& seg_rel=u.get_relation("Segment");
+    double d=1.0;
+    for(relation::iterator it=seg_rel.begin();it!=seg_rel.end();++it)
+      {
+        const unsigned int p=dur_mod_dtree->predict(*it).as<unsigned int>();
+        d=p/100.0;
+        it->set("dur_mod",d);
+}
 }
 
   std::vector<std::string> language::get_english_word_transcription(const item& word) const

@@ -38,7 +38,8 @@ namespace RHVoice
     gender("gender",RHVoice_voice_gender_unknown),
     enabled("enabled",true),
     preferred("preferred",false),
-    country("country")
+    country("country"),
+    extra_utt_types("extra_utt_types")
   {
     gender.define("male",RHVoice_voice_gender_male);
     gender.define("female",RHVoice_voice_gender_female);
@@ -55,6 +56,7 @@ namespace RHVoice
     cfg.register_setting(country);
     cfg.register_setting(sample_rate);
     cfg.register_setting(gender);
+    cfg.register_setting(extra_utt_types);
     cfg.load(path::join(data_path,"voice.info"));
     if(!name.is_set())
       throw file_format_error("Voice name is not set");

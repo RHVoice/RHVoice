@@ -470,10 +470,16 @@ HTS_Boolean HTS_Engine_generate_state_sequence_from_fn(HTS_Engine * engine, cons
 }
 
 /* HTS_Engine_generate_state_sequence_from_strings: generate state sequence from strings (1st synthesis step) */
-HTS_Boolean HTS_Engine_generate_state_sequence_from_strings(HTS_Engine * engine, char **lines, size_t num_lines)
+HTS_Boolean HTS_Engine_generate_state_sequence_from_strings(HTS_Engine * engine, char **lines, size_t num_lines, double* dur_mods)
 {
    HTS_Engine_refresh(engine);
    HTS_Label_load_from_strings(&engine->label, engine->condition.sampling_frequency, engine->condition.fperiod, lines, num_lines);
+   if(dur_mods)
+     {
+       double* dur_mod=dur_mods;
+       for(HTS_LabelString* lstring=engine->label.head; lstring; lstring=lstring->next,++dur_mod)
+         lstring->dur_mod=*dur_mod;
+}
    return HTS_Engine_generate_state_sequence(engine);
 }
 

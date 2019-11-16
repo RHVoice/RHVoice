@@ -172,6 +172,7 @@ typedef struct _HTS_LabelString {
    double start;                /* start frame specified in the given label */
    double end;                  /* end frame specified in the given label */
   RHVoice_parsed_label_string parsed;
+  double dur_mod;
 } HTS_LabelString;
 
 /* HTS_Label: list of label strings */
@@ -443,7 +444,7 @@ HTS_Boolean HTS_Engine_synthesize_from_strings(HTS_Engine * engine, char **lines
 HTS_Boolean HTS_Engine_generate_state_sequence_from_fn(HTS_Engine * engine, const char *fn);
 
 /* HTS_Engine_generate_state_sequence_from_strings: generate state sequence from string list (1st synthesis step) */
-HTS_Boolean HTS_Engine_generate_state_sequence_from_strings(HTS_Engine * engine, char **lines, size_t num_lines);
+HTS_Boolean HTS_Engine_generate_state_sequence_from_strings(HTS_Engine * engine, char **lines, size_t num_lines, double* speeds);
 
 /* HTS_Engine_generate_parameter_sequence: generate parameter sequence (2nd synthesis step) */
 HTS_Boolean HTS_Engine_generate_parameter_sequence(HTS_Engine * engine);

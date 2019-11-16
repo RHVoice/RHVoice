@@ -124,4 +124,14 @@ namespace RHVoice
       }
     return false;
   }
+
+  const std::string& hts_label::get_name() const
+    {
+      if(name.empty())
+        {
+          const hts_labeller& labeller=segment->get_relation().get_utterance().get_language().get_hts_labeller();
+          name=labeller.eval_segment_label(*segment);
+        }
+      return name;
+    }
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -16,6 +16,7 @@
 #include <cmath>
 #include "core/std_hts_engine_impl.hpp"
 #include "core/voice.hpp"
+#include "core/pitch.hpp"
 #include "HTS_engine.h"
 
 extern "C"
@@ -40,6 +41,11 @@ extern "C"
   void HTS_Audio_clear(HTS_Audio * audio)
   {
   }
+
+  size_t HTS_PStreamSet_get_total_frame(HTS_PStreamSet * pss);
+double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index, size_t vector_index);
+double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
+HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
 }
 
 namespace RHVoice
@@ -85,11 +91,11 @@ namespace RHVoice
   void std_hts_engine_impl::do_synthesize()
   {
     set_speed();
-    set_pitch();
     load_labels();
     set_time_info();
     if(!HTS_Engine_generate_parameter_sequence(engine.get()))
       throw synthesis_error();
+    edit_pitch();
     if(!HTS_Engine_generate_sample_sequence(engine.get()))
       throw synthesis_error();
   }
@@ -106,11 +112,15 @@ namespace RHVoice
     if(input->lbegin()==input->lend())
       throw synthesis_error();
     std::vector<char*> pointers;
+    std::vector<double> dur_mods;
     for(label_sequence::const_iterator it=input->lbegin();it!=input->lend();++it)
       {
         pointers.push_back(const_cast<char*>(it->get_name().c_str()));
+        dur_mods.push_back(1);
+        if(it->get_segment().has_feature("dur_mod"))
+          dur_mods.back()=it->get_segment().get("dur_mod").as<double>();
       }
-    if(!HTS_Engine_generate_state_sequence_from_strings(engine.get(),&pointers[0],pointers.size()))
+    if(!HTS_Engine_generate_state_sequence_from_strings(engine.get(),&pointers[0],pointers.size(),&dur_mods[0]))
       throw synthesis_error();
   }
 
@@ -118,29 +128,20 @@ namespace RHVoice
   {
     int fperiod=HTS_Engine_get_fperiod(engine.get());
     int n=HTS_Engine_get_nstate(engine.get());
-    int time=0;
-    int dur=0;
+    int pos=0;
+    int len=0;
     int i=0;
     for(label_sequence::iterator lab_iter=input->lbegin();lab_iter!=input->lend();++lab_iter,++i)
       {
-        lab_iter->set_time(time);
-        dur=0;
+        lab_iter->set_position(pos);
+        lab_iter->set_time(pos*fperiod);
+        len=0;
         for(int j=0;j<n;++j)
-          dur+=HTS_Engine_get_state_duration(engine.get(),i*n+j)*fperiod;
-        lab_iter->set_duration(dur);
-        time+=dur;
+          len+=HTS_Engine_get_state_duration(engine.get(),i*n+j);
+        lab_iter->set_length(len);
+        lab_iter->set_duration(len*fperiod);
+        pos+=len;
       }
-  }
-
-  void std_hts_engine_impl::set_pitch()
-  {
-    if(input->lbegin()==input->lend())
-      return;
-    double factor=input->lbegin()->get_pitch();
-    if(factor==1)
-      return;
-    double shift=std::log(factor)*12;
-    HTS_Engine_add_half_tone(engine.get(),shift);
   }
 
   void std_hts_engine_impl::set_speed()
@@ -162,4 +163,36 @@ namespace RHVoice
       return true;
 }
 
+  void std_hts_engine_impl::edit_pitch()
+  {
+    if(!pitch_editor.has_work()&&pitch_shift==0)
+      return;
+    std::size_t n=HTS_PStreamSet_get_total_frame(&engine->pss);
+    std::size_t m=0;
+    if(pitch_editor.has_work())
+      {
+        for(std::size_t i=0;i<n;++i)
+          {
+            if(HTS_PStreamSet_get_msd_flag(&engine->pss,1,i))
+              {
+                pitch_editor.append(HTS_PStreamSet_get_parameter(&engine->pss,1,m,0));
+                ++m;
+              }
+            else
+              pitch_editor.append();
+          }
+        pitch_editor.finish();
+        m=0;
+      }
+    for(std::size_t i=0;i<n;++i)
+      {
+        if(HTS_PStreamSet_get_msd_flag(&engine->pss,1,i))
+          {
+            double v=pitch_editor.has_work()?pitch_editor.get_result(i):HTS_PStreamSet_get_parameter(&engine->pss,1,m,0);
+            v+=pitch_shift;
+            HTS_PStreamSet_get_parameter_vector(&engine->pss,1,m)[0]=v;
+            ++m;
+          }
+}
+}
 }

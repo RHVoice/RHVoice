@@ -278,6 +278,8 @@ namespace RHVoice
     language_ref.syllabify(u);
     language_ref.insert_pauses(u);
     language_ref.do_post_lexical_processing(u);
+    language_ref.set_pitch_modifications(u);
+    language_ref.set_duration_modifications(u);
   }
 
   void sentence::apply_verbosity_settings(utterance& u) const

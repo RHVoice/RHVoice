@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -27,15 +27,15 @@ namespace RHVoice
     quality(quality_none),
     beta("beta",0.4,-0.8,0.8),
     gain("gain",1.0,0.5,2.0),
+    int_key("key",200,50,500),
+    emph_shift("emph_shift",0,-12,12),
     input(0),
     output(0),
     rate(1.0),
+    pitch_shift(0),
     name(impl_name)
   {
-    config cfg2;
-    cfg2.register_setting(beta);
-    cfg2.register_setting(gain);
-    cfg2.load(path::join(data_path,"voice.params"));
+    load_configs();
   }
 
   void hts_engine_impl::synthesize()
@@ -53,6 +53,8 @@ namespace RHVoice
     output=0;
     input=0;
     rate=1.0;
+    pitch_shift=0;
+    pitch_editor.reset();
   }
 
   void hts_engine_impl::load_configs()
@@ -60,7 +62,11 @@ namespace RHVoice
     config cfg2;
     cfg2.register_setting(beta);
     cfg2.register_setting(gain);
+    cfg2.register_setting(int_key);
+    cfg2.register_setting(emph_shift);
     cfg2.load(path::join(data_path,"voice.params"));
+    if(int_key.is_set())
+      pitch_editor.set_key(int_key);
   }
 
   hts_engine_impl::pointer hts_engine_impl::create(quality_t q) const
