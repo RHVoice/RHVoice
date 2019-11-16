@@ -378,5 +378,30 @@ namespace RHVoice
       return *this;
     }
   };
+
+  class stringset_property: public property<std::set<std::string> >
+  {
+  private:
+    typedef std::set<std::string> stringset;
+
+  public:
+    stringset_property(const std::string& name):
+      property<stringset>(name,stringset())
+    {
+    }
+
+    bool set_from_string(const std::string& s)
+    {
+      str::tokenizer<str::is_equal_to> tok(s,str::is_equal_to(','));
+      stringset val(tok.begin(),tok.end());
+      return this->set_value(val);
+    }
+
+    bool includes(const std::string& s) const
+    {
+      const stringset& val=get_value();
+      return (val.find(s)!=val.end());
+    }
+  };
 }
 #endif

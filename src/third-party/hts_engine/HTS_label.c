@@ -142,6 +142,7 @@ static void HTS_Label_load(HTS_Label * label, size_t sampling_rate, size_t fperi
       }
       lstring->next = NULL;
       lstring->name = HTS_strdup(buff);
+      lstring->dur_mod=1.0;
       if(!RHVoice_parse_label_string(lstring->name,&(lstring->parsed)))
         HTS_error(1,"Cannot parse label string\n");
    }
@@ -199,6 +200,7 @@ void HTS_Label_load_from_strings(HTS_Label * label, size_t sampling_rate, size_t
          lstring->end = -1.0;
          lstring->name = HTS_strdup(lines[i]);
       }
+      lstring->dur_mod=1.0;
       lstring->next = NULL;
       if(!RHVoice_parse_label_string(lstring->name,&(lstring->parsed)))
         HTS_error(1,"Cannot parse label string\n");
@@ -262,6 +264,19 @@ double HTS_Label_get_end_frame(HTS_Label * label, size_t index)
       return -1.0;
    return lstring->end;
 }
+
+double HTS_Label_get_dur_mod(HTS_Label * label, size_t index)
+{
+   size_t i;
+   HTS_LabelString *lstring = label->head;
+
+   for (i = 0; i < index && lstring; i++)
+      lstring = lstring->next;
+   if (!lstring)
+      return 1.0;
+   return lstring->dur_mod;
+}
+
 
 /* HTS_Label_clear: free label */
 void HTS_Label_clear(HTS_Label * label)

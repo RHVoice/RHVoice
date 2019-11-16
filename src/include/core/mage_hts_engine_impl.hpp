@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -19,6 +19,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <queue>
 #include "hts_engine_impl.hpp"
 #include "bpf.h"
 #include "quality_setting.hpp"
@@ -75,6 +76,18 @@ namespace RHVoice
     void append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name="") const;
     void configure_for_sample_rate();
 
+    struct frame_t
+    {
+      double mgc[32];
+      double lf0;
+      double ap[16];
+      bool voiced;
+      std::size_t index;
+    };
+
+    void do_generate_samples(frame_t& f);
+    void do_generate_samples();
+
     std::auto_ptr<MAGE::Mage> mage;
     std::auto_ptr<_HTS_Vocoder> vocoder;
     int frame_shift;
@@ -82,7 +95,9 @@ namespace RHVoice
     int mgc_order;
     int bap_order;
     BPF bpf;
-    std::vector<double> mgc,ap,speech;
+    std::vector<double> speech;
+    std::queue<frame_t> frames;
+    std::size_t num_frames;
   };
 }
 #endif

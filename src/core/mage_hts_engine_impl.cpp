@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -89,24 +89,29 @@ namespace RHVoice
       }
     mage.reset(new MAGE::Mage("default",c_args.size(),&c_args[0]));
     vocoder.reset(new HTS_Vocoder);
+    num_frames=0;
   }
 
   void mage_hts_engine_impl::do_synthesize()
   {
     setup();
-    int time=0;
-    int dur=0;
+    int pos=0;
+    int len=0;
     for(label_sequence::iterator label_iter=input->lbegin();label_iter!=input->lend();++label_iter)
       {
-        label_iter->set_time(time);
+        label_iter->set_position(pos);
+        label_iter->set_time(pos*MAGE::defaultFrameRate);
         generate_parameters(*label_iter);
-        dur=mage->getDuration()*MAGE::defaultFrameRate;
-        label_iter->set_duration(dur);
-        time+=dur;
+        len=mage->getDuration();
+        label_iter->set_length(len);
+        label_iter->set_duration(len*MAGE::defaultFrameRate);
+        pos+=len;
         generate_samples(*label_iter);
         if(output->is_stopped())
           return;
       }
+    pitch_editor.finish();
+    do_generate_samples();
   }
 
   void mage_hts_engine_impl::do_reset()
@@ -121,6 +126,9 @@ namespace RHVoice
     n=mq->getNumOfItems();
     if(n!=0)
       mq->pop(n);
+    num_frames=0;
+    while(!frames.empty())
+      frames.pop();
   }
 
   void mage_hts_engine_impl::append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name) const
@@ -146,8 +154,11 @@ namespace RHVoice
   void mage_hts_engine_impl::generate_parameters(hts_label& lab)
   {
     MAGE::Label mlab(lab.get_name());
-    if(rate!=1)
-      mlab.setSpeed(rate);
+    double dur_mod=rate;
+    if(lab.get_segment().has_feature("dur_mod"))
+      dur_mod/=lab.get_segment().get("dur_mod").as<double>();
+    if(dur_mod!=1)
+      mlab.setSpeed(dur_mod);
     if(lab.get_time()==0)
       {
         mlab.setEnd(250000);
@@ -162,34 +173,40 @@ namespace RHVoice
 
   void mage_hts_engine_impl::generate_samples(hts_label& lab)
   {
-    double pitch=lab.get_pitch();
     MAGE::FrameQueue* fq=mage->getFrameQueue();
+    frame_t f;
+    f.index=num_frames;
     while(!(output->is_stopped()||fq->isEmpty()))
       {
-        MAGE::Frame* f=fq->get();
-        std::copy(f->streams[MAGE::mgcStreamIndex],f->streams[MAGE::mgcStreamIndex]+mgc.size(),mgc.begin());
-  std::copy(f->streams[MAGE::bapStreamIndex],f->streams[MAGE::bapStreamIndex]+ap.size(),ap.begin());
-  for(int i=0;i<ap.size();++i)
+        MAGE::Frame* f0=fq->get();
+        std::copy(f0->streams[MAGE::mgcStreamIndex],f0->streams[MAGE::mgcStreamIndex]+mgc_order+1,f.mgc);
+  std::copy(f0->streams[MAGE::bapStreamIndex],f0->streams[MAGE::bapStreamIndex]+bap_order+1,f.ap);
+  for(int i=0;i<=bap_order;++i)
     {
-      if(ap[i]>0)
-        ap[i]=0;
-      ap[i]=std::pow(10.0,ap[i]/10.0);
+      if(f.ap[i]>0)
+        f.ap[i]=0;
+      f.ap[i]=std::pow(10.0,f.ap[i]/10.0);
     }
-        double lf0=(f->voiced)?(f->streams[MAGE::lf0StreamIndex][0]):LZERO;
-        if(f->voiced&&(pitch!=1))
-          {
-            double f0=std::exp(lf0)*pitch;
-            if(f0<20)
-              f0=20;
-            lf0=std::log(f0);
-          }
+  f.voiced=f0->voiced;
+        f.lf0=(f0->voiced)?(f0->streams[MAGE::lf0StreamIndex][0]):LZERO;
         fq->pop();
-        HTS_Vocoder_synthesize(vocoder.get(),mgc_order,lf0,&(mgc[0]),&(ap[0]),&bpf,alpha,beta,1,&(speech[0]),0);
-        for(int i=0;i<frame_shift;++i)
+        if(pitch_editor.has_work())
           {
-            speech[i]/=32768.0;
-          }
-        output->process(&(speech[0]),frame_shift);
+            if(f.voiced)
+              pitch_editor.append(f.lf0);
+            else
+              pitch_editor.append();
+            frames.push(f);
+            do_generate_samples();
+}
+        else
+          {
+            if(f.voiced)
+              f.lf0+pitch_shift;
+            do_generate_samples(f);
+}
+        ++f.index;
+        ++num_frames;
       }
   }
 
@@ -220,9 +237,30 @@ namespace RHVoice
         bap_order=(info.get_format()==3)?11:6;
         break;
 }
-    mgc.resize(mgc_order+1,0);
-    ap.resize(bap_order+1,0);
     speech.resize(frame_shift,0);
 }
 
+  void mage_hts_engine_impl::do_generate_samples(frame_t& f)
+  {
+        HTS_Vocoder_synthesize(vocoder.get(),mgc_order,f.lf0,&(f.mgc[0]),&(f.ap[0]),&bpf,alpha,beta,1,&(speech[0]),0);
+        for(int i=0;i<frame_shift;++i)
+          {
+            speech[i]/=32768.0;
+          }
+        output->process(&(speech[0]),frame_shift);
+}
+
+  void mage_hts_engine_impl::do_generate_samples()
+  {
+    while(!output->is_stopped()&&!frames.empty())
+      {
+        frame_t& f=frames.front();
+        if(!pitch_editor.has_result(f.index))
+          return;
+        if(f.voiced)
+          f.lf0=pitch_editor.get_result(f.index)+pitch_shift;
+        do_generate_samples(f);
+        frames.pop();
+}
+}
 }

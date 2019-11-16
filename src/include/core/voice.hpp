@@ -113,6 +113,13 @@ private:
       return preferred;
     }
 
+    bool supports_utt_type(const std::string& ut) const
+    {
+      if(ut=="s")
+        return true;
+      return extra_utt_types.includes(ut);
+}
+
   private:
     smart_ptr<voice> create_instance() const
     {
@@ -127,6 +134,7 @@ private:
     enum_property<RHVoice_voice_gender> gender;
     bool_property enabled,preferred;
     string_property country;
+    stringset_property extra_utt_types;
   };
 
   class voice_list: public resource_list<voice_info>

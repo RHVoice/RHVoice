@@ -198,6 +198,7 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    double frame_length;
    size_t next_time;
    size_t next_state;
+   double label_dur_mod;
 
    if (HTS_Label_get_size(label) == 0)
       return FALSE;
@@ -268,7 +269,12 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    duration_mean = (double *) HTS_calloc(sss->total_state, sizeof(double));
    duration_vari = (double *) HTS_calloc(sss->total_state, sizeof(double));
    for (i = 0; i < HTS_Label_get_size(label); i++)
-      HTS_ModelSet_get_duration(ms, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), duration_iw, &duration_mean[i * sss->nstate], &duration_vari[i * sss->nstate]);
+     {
+       HTS_ModelSet_get_duration(ms, HTS_Label_get_string(label, i), HTS_Label_get_parsed(label, i), duration_iw, &duration_mean[i * sss->nstate], &duration_vari[i * sss->nstate]);
+       label_dur_mod=HTS_Label_get_dur_mod(label, i);
+       for(j=0; j < sss->nstate; ++j)
+         duration_mean[i*sss->nstate+j]*=label_dur_mod;
+     }
    if (phoneme_alignment_flag == TRUE) {
       /* use duration set by user */
       next_time = 0;

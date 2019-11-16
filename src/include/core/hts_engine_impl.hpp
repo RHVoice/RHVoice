@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -18,12 +18,14 @@
 
 #include <vector>
 #include <string>
+#include <cmath>
 #include "exception.hpp"
 #include "smart_ptr.hpp"
 #include "sample_rate.hpp"
 #include "hts_input.hpp"
 #include "speech_processing_chain.hpp"
 #include "quality_setting.hpp"
+#include "pitch.hpp"
 
 struct _HTS_Audio;
 extern "C" void HTS_Audio_write(_HTS_Audio * audio, short sample);
@@ -86,6 +88,13 @@ namespace RHVoice
     void set_input(hts_input& input_)
     {
       input=&input_;
+      if(input->lbegin()!=input->lend())
+        {
+          pitch_shift=std::log(input->lbegin()->get_pitch());
+          if(input->lbegin()->get_segment().get_relation().get_utterance().get_utt_type()=="e")
+            pitch_shift+=std::log(2.0)*emph_shift/12.0;
+        }
+      pitch_editor.init(input);
     }
 
     void set_output(speech_processing_chain& output_)
@@ -124,10 +133,19 @@ namespace RHVoice
     numeric_property<double> beta;
     numeric_property<double> gain;
     quality_t quality;
+    numeric_property<unsigned int> int_key;
+    numeric_property<double> emph_shift;
+
+    double get_emph_shift() const
+    {
+      return std::log(2.0)*emph_shift/12.0;
+}
 
     hts_input* input;
     speech_processing_chain* output;
     double rate;
+    double pitch_shift;
+    pitch::editor pitch_editor;
 
   private:
     hts_engine_impl(const hts_engine_impl&);

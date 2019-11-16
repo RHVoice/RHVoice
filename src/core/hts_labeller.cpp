@@ -24,6 +24,7 @@
 #include "core/item.hpp"
 #include "core/io.hpp"
 #include "core/language.hpp"
+#include "core/voice.hpp"
 #include "core/hts_labeller.hpp"
 
 namespace RHVoice
@@ -1104,7 +1105,10 @@ namespace RHVoice
         value eval(const item& seg) const
       {
         const utterance& utt=seg.get_relation().get_utterance();
-        return utt.get_utt_type();
+        std::string type=utt.get_utt_type();
+        if(utt.has_voice()&&!utt.get_voice().get_info().supports_utt_type(type))
+          type="s";
+        return type;
       }
     };
 
