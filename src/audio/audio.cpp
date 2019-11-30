@@ -76,8 +76,10 @@ namespace RHVoice
       if(impl.get()==0)
         {
           std::auto_ptr<playback_stream_impl> new_impl;
-          for(std::vector<smart_ptr<library> >::const_iterator it=libraries.begin();it!=libraries.end();++it)
+          for(std::vector<smart_ptr<library> >::iterator it=libraries.begin();it!=libraries.end();++it)
             {
+              if(!(*it)->supports_backend(params.backend))
+                continue;
               if(params.lib==lib_default)
                 {
                   try

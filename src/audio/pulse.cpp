@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -112,9 +112,14 @@ namespace RHVoice
       return lib_pulse;
     }
 
-    playback_stream_impl* pulse_library::new_playback_stream_impl(const playback_params& params) const
+    playback_stream_impl* pulse_library::create_playback_stream_impl(const playback_params& params) const
     {
       return new pulse_playback_stream_impl(params);
     }
+
+    bool pulse_library::supports_backend(backend_id id) const
+    {
+      return ((id==backend_pulse)||(id==backend_default));
+}
   }
 }

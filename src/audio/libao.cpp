@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -144,12 +144,12 @@ namespace RHVoice
       }
     }
 
-    libao_library::libao_library()
+    void libao_library::initialize()
     {
       ao_initialize();
     }
 
-    libao_library::~libao_library()
+    void libao_library::release()
     {
       ao_shutdown();
     }
@@ -159,9 +159,18 @@ namespace RHVoice
       return lib_libao;
     }
 
-    playback_stream_impl* libao_library::new_playback_stream_impl(const playback_params& params) const
+    playback_stream_impl* libao_library::create_playback_stream_impl(const playback_params& params) const
     {
       return new libao_playback_stream_impl(params);
     }
+
+    bool libao_library::supports_backend(backend_id id) const
+    {
+      return ((id==backend_default)||
+              (id==backend_pulse)||
+              (id==backend_alsa)||
+              (id==backend_oss)||
+              (id==backend_file));
+}
   }
 }
