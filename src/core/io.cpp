@@ -53,5 +53,21 @@ namespace RHVoice
       if(!stream.is_open())
         throw open_error(path);
     }
+
+    void open_ofstream(std::ofstream& stream,const std::string& path,bool binary)
+    {
+      std::ofstream::openmode mode=std::ofstream::out;
+      if(binary)
+        mode|=std::ofstream::binary;
+      #ifdef WIN32
+      std::wstring wpath;
+      utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
+      stream.open(wpath.c_str(),mode);
+      #else
+      stream.open(path.c_str(),mode);
+      #endif
+      if(!stream.is_open())
+        throw open_error(path);
+    }
   }
 }

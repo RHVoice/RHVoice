@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -26,6 +26,8 @@
 #ifdef WITH_PORTAUDIO
 #include "portaudio.hpp"
 #endif
+
+#include "file_playback_stream_impl.hpp"
 
 namespace RHVoice
 {
@@ -76,6 +78,13 @@ namespace RHVoice
       if(impl.get()==0)
         {
           std::auto_ptr<playback_stream_impl> new_impl;
+          if(params.backend==backend_file)
+            {
+              new_impl.reset(new file_playback_stream_impl(params));
+              new_impl->open(params.sample_rate);
+              impl=new_impl;
+              return;
+            }
           for(std::vector<smart_ptr<library> >::iterator it=libraries.begin();it!=libraries.end();++it)
             {
               if(!(*it)->supports_backend(params.backend))
