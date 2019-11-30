@@ -49,6 +49,7 @@ namespace RHVoice
 
     file_handle open_file(const std::string& path,const std::string& mode);
     void open_ifstream(std::ifstream& stream,const std::string& path,bool binary=false);
+    void open_ofstream(std::ofstream& stream,const std::string& path,bool binary=false);
 
     union host_endianness
     {

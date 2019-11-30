@@ -20,7 +20,7 @@ Import("env")
 local_env=env.Clone()
 local_env["libversion"]="1.0.0"
 local_env["liblevel"]=1
-src=["audio.cpp"]
+src=["audio.cpp", "file_playback_stream_impl.cpp"]
 if "libao" in local_env["audio_libs"]:
 	src.append("libao.cpp")
 	local_env.Append(CPPDEFINES=("WITH_LIBAO","1"))

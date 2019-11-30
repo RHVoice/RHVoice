@@ -284,9 +284,9 @@ def configure(env):
     src_subdirs=["third-party","core","lib"]
     if env["dev"]:
         src_subdirs.append("utils")
+    src_subdirs.append("audio")
+    src_subdirs.append("test")
     if env["audio_libs"]:
-        src_subdirs.append("audio")
-        src_subdirs.append("test")
         src_subdirs.append("sd_module")
         env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"audio"))
     if has_giomm:
