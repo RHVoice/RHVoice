@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -163,13 +163,13 @@ namespace RHVoice
       }
     }
 
-    portaudio_library::portaudio_library()
+    void portaudio_library::initialize()
     {
       if(Pa_Initialize()!=paNoError)
         throw initialization_error();
     }
 
-    portaudio_library::~portaudio_library()
+    void portaudio_library::release()
     {
       Pa_Terminate();
     }
@@ -179,9 +179,16 @@ namespace RHVoice
       return lib_portaudio;
     }
 
-    playback_stream_impl* portaudio_library::new_playback_stream_impl(const playback_params& params) const
+    playback_stream_impl* portaudio_library::create_playback_stream_impl(const playback_params& params) const
     {
       return new portaudio_playback_stream_impl(params);
     }
+
+    bool portaudio_library::supports_backend(backend_id id) const
+    {
+      return ((id==backend_alsa)||
+              (id==backend_oss)||
+              (id==backend_default));
+}
   }
 }
