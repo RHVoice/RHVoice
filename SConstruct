@@ -147,6 +147,7 @@ def create_user_vars():
         vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",True))
         vars.Add(PathVariable("msi_repo","Where the msi packages are kept for reuse",None,PathVariable.PathIsDir))
     else:
+        vars.Add("targetcross","Target cross-compile prefix","")
         vars.Add("prefix","Installation prefix","/usr/local")
         vars.Add("bindir","Program installation directory","$prefix/bin")
         vars.Add("libdir","Library installation directory","$prefix/lib")
@@ -193,6 +194,11 @@ def create_base_env(user_vars):
         env.Append(CPPDEFINES=("NOMINMAX",1))
     env["libcore"]="RHVoice_core"
     env["libaudio"]="RHVoice_audio"
+
+    if "" != env.Dir("$targetcross"):
+        env["CC"] =str(env.Dir("$targetcross")) + env["CC"]
+        env["CXX"]=str(env.Dir("$targetcross")) + env["CXX"]
+
     return env
 
 def display_help(env,vars):
