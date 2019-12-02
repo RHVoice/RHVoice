@@ -288,7 +288,7 @@ def configure(env):
     src_subdirs.append("test")
     if env["audio_libs"]:
         src_subdirs.append("sd_module")
-        env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"audio"))
+    env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"audio"))
     if has_giomm:
         src_subdirs.append("service")
     if env["PLATFORM"]=="win32":
