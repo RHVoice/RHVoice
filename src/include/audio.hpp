@@ -233,8 +233,8 @@ namespace RHVoice
       playback_stream(const playback_stream&);
       playback_stream& operator=(const playback_stream&);
 
-      template<class LIB,typename OUT>
-      static void init_library(OUT out);
+      template<class LIB_TYPE,typename OUT_TYPE>
+      static void init_library(OUT_TYPE o);
 
       static std::vector<smart_ptr<library> > init_libraries();
 
@@ -243,13 +243,13 @@ namespace RHVoice
       static std::vector<smart_ptr<library> > libraries;
     };
 
-    template<class LIB,typename OUT>
-    void playback_stream::init_library(OUT out)
+    template<class LIB_TYPE,typename OUT_TYPE>
+    void playback_stream::init_library(OUT_TYPE o)
     {
       try
         {
-          *out=smart_ptr<library>(new LIB);
-          ++out;
+          *o=smart_ptr<library>(new LIB_TYPE);
+          ++o;
         }
       catch(const error& e)
         {
