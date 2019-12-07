@@ -868,7 +868,5 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		return self.__profile
 
 	def _set_voice(self,voice):
-		try:
-			self.__profile=self.availableVoices[voice].ID
-		except:
-			pass
+		if voice in self.__profiles:
+			self.__profile=voice
