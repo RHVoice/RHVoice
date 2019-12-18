@@ -173,7 +173,7 @@ int main(int argc,const char* argv[])
             throw std::runtime_error("Cannot open the input file");
         }
       audio_player player(GET_CLI_PARAM_VALUE(outpath_arg));
-      player.set_sample_rate(GET_CLI_PARAM_VALUE(sample_rate));
+      player.set_sample_rate(sample_rate.getValue());
       player.set_buffer_size(20);
       std::shared_ptr<engine> eng(new engine);
       voice_profile profile;
