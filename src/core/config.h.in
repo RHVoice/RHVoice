@@ -1,0 +1,2 @@
+const char CONFIG_PATH[] = "@CONFIG_PATH@";
+const char DATA_PATH[] = "@DATA_PATH@";

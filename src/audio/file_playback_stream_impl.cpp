@@ -44,7 +44,7 @@ namespace RHVoice
       num_samples+=count;
     }
 
-    void file_playback_stream_impl::open(int sample_rate)
+    void file_playback_stream_impl::open(uint32_t sample_rate)
     {
       if(!piping)
         io::open_ofstream(fstream,file_path,true);

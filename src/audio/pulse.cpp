@@ -32,7 +32,7 @@ namespace RHVoice
         void write(const short* samples,std::size_t count);
         void drain();
         void flush();
-        void open(int sample_rate);
+        void open(uint32_t sample_rate);
         bool is_open() const;
         void close();
 
@@ -55,7 +55,7 @@ namespace RHVoice
           throw backend_error();
       }
 
-    void pulse_playback_stream_impl::open(int sample_rate)
+    void pulse_playback_stream_impl::open(uint32_t sample_rate)
     {
       pa_sample_spec sample_spec={PA_SAMPLE_S16NE,sample_rate,1};
       pa_buffer_attr attr={default_value,default_value,default_value,default_value,default_value};

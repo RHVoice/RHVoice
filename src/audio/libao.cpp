@@ -61,7 +61,7 @@ namespace RHVoice
       public:
         explicit libao_playback_stream_impl(const playback_params& params);
         void write(const short* samples,std::size_t count);
-        void open(int sample_rate);
+        void open(uint32_t sample_rate);
         bool is_open() const;
         void close();
 
@@ -106,9 +106,12 @@ namespace RHVoice
           throw backend_error();
       }
 
-    void libao_playback_stream_impl::open(int sample_rate)
+    void libao_playback_stream_impl::open(uint32_t sample_rate)
     {
-      ao_sample_format sample_format={16,sample_rate,1,AO_FMT_NATIVE,0};
+      if(sample_rate > std::numeric_limits<int>::max()){
+        throw disallowed_sample_rate();
+      }
+      ao_sample_format sample_format={16,static_cast<int>(sample_rate),1,AO_FMT_NATIVE,0};
       if(is_file)
         device_handle=ao_open_file(driver_id,device_name.c_str(),1,&sample_format,0);
       else
