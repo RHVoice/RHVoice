@@ -31,7 +31,7 @@ namespace RHVoice
         void drain();
         void flush();
         void idle();
-        void open(int sample_rate);
+        void open(uint32_t sample_rate);
         bool is_open() const;
         void close();
 
@@ -90,7 +90,7 @@ namespace RHVoice
           throw backend_error();
       }
 
-    void portaudio_playback_stream_impl::open(int sample_rate)
+    void portaudio_playback_stream_impl::open(uint32_t sample_rate)
     {
       PaStreamParameters params;
       params.device=get_device();

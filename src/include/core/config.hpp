@@ -16,6 +16,7 @@
 #ifndef RHVOICE_CONFIG_HPP
 #define RHVOICE_CONFIG_HPP
 
+#include "config.h"
 #include <string>
 #include <map>
 #include "str.hpp"

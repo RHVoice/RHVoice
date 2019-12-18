@@ -34,6 +34,14 @@ namespace RHVoice
       }
     };
 
+    struct disallowed_sample_rate: public error
+    {
+      disallowed_sample_rate():
+        error("This sample rate is unsupported")
+      {
+      }
+    };
+
     struct initialization_error: public error
     {
       initialization_error():

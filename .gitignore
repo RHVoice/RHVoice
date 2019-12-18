@@ -1,3 +1,4 @@
 build/
 local/
 *.pyc
+/src/include/core/config.h

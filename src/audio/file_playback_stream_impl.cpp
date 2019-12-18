@@ -35,7 +35,7 @@ namespace RHVoice
       num_samples+=count;
     }
 
-    void file_playback_stream_impl::open(int sample_rate)
+    void file_playback_stream_impl::open(uint32_t sample_rate)
     {
       io::open_ofstream(stream,file_path,true);
       stream.write("RIFF",4);
