@@ -16,6 +16,7 @@
 #include "core/path.hpp"
 #include "core/config.hpp"
 #include "core/engine.hpp"
+#include "config.h"
 
 namespace
 {

@@ -27,20 +27,22 @@ namespace RHVoice
       sample_rate_24k=24000,
       sample_rate_32k=32000,
       sample_rate_44k=44100,
-      sample_rate_48k=48000
+      sample_rate_48k=48000,
+      sample_rate_96k=96000
     };
 
   class sample_rate_property: public enum_property<sample_rate_t>
   {
   public:
     sample_rate_property():
-      enum_property<sample_rate_t>("sample_rate",sample_rate_24k)
+      enum_property<sample_rate_t>("sample_rate",sample_rate_48k)
     {
       define("16k",sample_rate_16k);
       define("22k",sample_rate_22k);
       define("32k",sample_rate_32k);
       define("44k",sample_rate_44k);
       define("48k",sample_rate_48k);
+      define("96k",sample_rate_96k);
     }
 
     sample_rate_property& operator=(sample_rate_t val)

@@ -149,10 +149,10 @@ namespace RHVoice
             item& syls=word_iter->as("SylStructure");
             for(item::reverse_iterator syl_iter=syls.rbegin();syl_iter!=syls.rend();++syl_iter)
               {
-                if(syl_iter->get("stress").as<std::string>()!="1")
+                if((*syl_iter).get("stress").as<std::string>()!="1")
                   continue;
-                item::iterator vowel_pos=std::find_if(syl_iter->begin(),syl_iter->end(),feature_equals<std::string>("ph_vc","+"));
-                if(vowel_pos==syl_iter->end())
+                item::iterator vowel_pos=std::find_if((*syl_iter).begin(),(*syl_iter).end(),feature_equals<std::string>("ph_vc","+"));
+                if(vowel_pos==(*syl_iter).end())
                   break;
                 name=vowel_pos->get("name").as<std::string>();
                 if(h=="H1")

@@ -16,6 +16,7 @@
 #ifndef RHVOICE_AUDIO_HPP
 #define RHVOICE_AUDIO_HPP
 
+#include <limits>
 #include <string>
 #include <vector>
 #include <memory>
@@ -30,6 +31,14 @@ namespace RHVoice
     {
       explicit error(const std::string& msg):
         exception(msg)
+      {
+      }
+    };
+
+    struct disallowed_sample_rate: public error
+    {
+      disallowed_sample_rate():
+        error("This sample rate is unsupported")
       {
       }
     };
