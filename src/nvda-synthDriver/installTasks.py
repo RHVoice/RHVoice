@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 # Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@ import sys
 import os.path
 import shutil
 
-import config
+import globalVars
 
 def onInstall():
     try:
@@ -26,7 +26,7 @@ def onInstall():
     except AttributeError:
         module_dir=os.path.dirname(__file__)
     config_dir=os.path.join(module_dir,"synthDrivers","RHVoice","config")
-    user_config_dir=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
+    user_config_dir=os.path.join(globalVars.appArgs.configPath,"RHVoice-config")
     if not os.path.isdir(user_config_dir):
         shutil.move(config_dir,user_config_dir)
     else:

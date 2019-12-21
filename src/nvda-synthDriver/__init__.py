@@ -34,6 +34,7 @@ except ImportError:
 	from StringIO import StringIO
 
 import config
+import globalVars
 import nvwave
 from logHandler import log
 import synthDriverHandler
@@ -55,7 +56,7 @@ try:
 except AttributeError:
 	module_dir=os.path.dirname(__file__)
 lib_path=os.path.join(module_dir,"RHVoice.dll")
-config_path=os.path.join(config.getUserDefaultConfigPath(),"RHVoice-config")
+config_path=os.path.join(globalVars.appArgs.configPath,"RHVoice-config")
 
 try:
 	basestring
