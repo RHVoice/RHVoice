@@ -62,7 +62,7 @@ namespace RHVoice
             else if(path[i]=='p')
               cur_item=cur_item->prev_ptr();
             else
-              throw std::invalid_argument("Invalid item path component");
+              throw std::invalid_argument("Invalid item path component: "+path);
           }
         else if(l==2)
           {
@@ -71,7 +71,7 @@ namespace RHVoice
             else if(path[i]=='p'&&path[i+1]=='p')
               cur_item=cur_item->has_prev()?cur_item->prev().prev_ptr():0;
             else
-              throw std::invalid_argument("Invalid item path component");
+              throw std::invalid_argument("Invalid item path component: "+path);
           }
         else
           {
@@ -91,14 +91,14 @@ namespace RHVoice
                 else if(path[i+l-1]=='n')
                   cur_item=cur_item->last_child_ptr();
                 else
-                  throw std::invalid_argument("Invalid item path component");
+                  throw std::invalid_argument("Invalid item path component: "+path);
  }
             else if(path.compare(i,l,"first")==0)
               cur_item=(cur_item->has_parent())?(cur_item->parent().first_child_ptr()):(cur_item->get_relation().first_ptr());
             else if(path.compare(i,l,"last")==0)
               cur_item=(cur_item->has_parent())?(cur_item->parent().last_child_ptr()):(cur_item->get_relation().last_ptr());
             else
-              throw std::invalid_argument("Invalid item path component");
+              throw std::invalid_argument("Invalid item path component: "+path);
           }
         ++j;
         i=j;
