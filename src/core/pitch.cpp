@@ -270,13 +270,14 @@ namespace RHVoice
     {
       if(!is_voiced(i))
         return orig_values[i];
-      if(i<orig_base_values.size())
+      if(i<orig_base_values.size()&&orig_base_values[i]!=lzero)
         return orig_base_values[i];
       const interval_t& v=voiced_intervals[voiced_interval_numbers[i]];
       if(!v.complete)
         return lzero;
       stylizer::result_t base(base_extractor.stylize(orig_values.begin()+v.start,orig_values.begin()+v.start+v.length));
-      orig_base_values.resize(v.start+v.length,lzero);
+      if(orig_base_values.size()<(v.start+v.length))
+        orig_base_values.resize(v.start+v.length,lzero);
       std::copy(base.begin(),base.end(),orig_base_values.begin()+v.start);
       return orig_base_values[i];
 }
@@ -291,8 +292,6 @@ namespace RHVoice
           return extra_top_pitch;
         case 'b':
           return bottom_pitch;
-        case 'B':
-          return extra_bottom_pitch;
         case 'm':
           return key;
         default:
@@ -334,8 +333,8 @@ namespace RHVoice
         }
       if(v>extra_top_pitch)
         v=extra_top_pitch;
-      else if(v<extra_bottom_pitch)
-        v=extra_bottom_pitch;
+      else if(v<bottom_pitch)
+        v=bottom_pitch;
       return v;
       }
 
@@ -536,9 +535,8 @@ namespace RHVoice
     {
       key=std::log(k);
       bottom_pitch=key-octave/2.0;
-      extra_bottom_pitch=bottom_pitch-octave/6.0;
       top_pitch=key+octave/2.0;
-      extra_top_pitch=top_pitch+octave/2.0;
+      extra_top_pitch=top_pitch+octave/6.0;
 }
 
     std::size_t editor::get_first_voiced_in_interval(interval_t i) const

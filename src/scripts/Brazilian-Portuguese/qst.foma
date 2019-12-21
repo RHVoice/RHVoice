@@ -33,9 +33,13 @@ StartOfWhQuestion [0:[%+ whw]] -> || .#. _ \[%-|%=] ;
 define WhQuestionTagger 
 q -> whq || %+ whw ?* %= _ .#. ; 
 
+define AltQuestionTagger 
+q -> altq || \%- ou \%- ?* %= _ .#. ; 
+
 define Tagger 
 DefaultTagger .o. 
 WhWordTagger .o. 
-WhQuestionTagger ; 
+WhQuestionTagger .o. 
+AltQuestionTagger ; 
 
 regex Tagger ; 
