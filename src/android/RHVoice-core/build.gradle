@@ -1,5 +1,9 @@
 apply plugin: 'com.android.application'
 
+ext.major_version=1
+ext.minor_version=0
+ext.revision_number=3
+
 ext.myConfigFile=file("../../../config/RHVoice.conf")
 ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
 
@@ -16,8 +20,8 @@ defaultConfig {
 minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode 61
-versionName "1.0.1"
+versionCode (10000*major_version+100*minor_version+revision_number)
+versionName "${major_version}.${minor_version}.${revision_number}"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
 }
