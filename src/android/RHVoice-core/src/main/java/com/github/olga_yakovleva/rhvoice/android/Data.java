@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import android.text.TextUtils;
 
 public final class Data
 {
@@ -42,7 +43,7 @@ public final class Data
         lang.addVoice(new VoicePack("Alan", lang, 4, 0, Checksums.VOICE_ALAN, null, null));
         lang.addVoice(new VoicePack("BDL", lang, 4, 1, Checksums.VOICE_BDL, null, null));
         lang.addVoice(new VoicePack("CLB", lang, 4, 0, Checksums.VOICE_CLB, null, null));
-        lang.addVoice(new VoicePack("SLT", lang, 4, 0, Checksums.VOICE_SLT, null, null));
+        lang.addDefaultVoice(new VoicePack("SLT", lang, 4, 0, Checksums.VOICE_SLT, null, null));
         addLanguage(lang);
         lang=new LanguagePack("Esperanto", "epo", "eo", "", "", false, 1, 2, Checksums.LANGUAGE_ESPERANTO, null, null);
         lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, Checksums.VOICE_SPOMENKA, null, null));
@@ -56,7 +57,7 @@ public final class Data
         addLanguage(lang);
         lang=new LanguagePack("Russian", "rus", "ru", "RUS", "RU", false, 2, 4, Checksums.LANGUAGE_RUSSIAN, null, null);
         lang.addVoice(new VoicePack("Aleksandr", lang, 4, 1, Checksums.VOICE_ALEKSANDR, null, null));
-        lang.addVoice(new VoicePack("Anna", lang, 4, 0, Checksums.VOICE_ANNA, null, null));
+        lang.addDefaultVoice(new VoicePack("Anna", lang, 4, 0, Checksums.VOICE_ANNA, null, null));
         lang.addVoice(new VoicePack("Elena", lang, 4, 1, Checksums.VOICE_ELENA, null, null));
         lang.addVoice(new VoicePack("Irina", lang, 4, 0, Checksums.VOICE_IRINA, null, null));
         addLanguage(lang);
@@ -65,7 +66,7 @@ public final class Data
         addLanguage(lang);
         lang=new LanguagePack("Ukrainian", "ukr", "uk", "UKR", "UA", false, 1, 6, Checksums.LANGUAGE_UKRAINIAN, null, null);
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
-        lang.addVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
+        lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
         lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 10, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, "https://dl.bintray.com/olga-yakovleva/Data/RHVoice-F123-Brazilian-Portuguese-language-v1.10.zip", null);
         lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-VOISS", lang, 4, 4, Checksums.VOICE_LETICIA, "https://public.f123.org/download/RHVoice-Brazilian-Portuguese-voice-Leticia-VOISS-v4.4.zip", null));
@@ -133,5 +134,29 @@ public final class Data
                 for(VoicePack voice: lang.getVoices())
                     voice.scheduleSync(context,replace);
 }
+}
+
+    public static LanguagePack findMatchingLanguage(String code,String cCode)
+    {
+        LanguagePack res=null;
+        for(LanguagePack lang: languages)
+            {
+                if(!lang.getCode().equalsIgnoreCase(code))
+                    continue;
+                if(res==null)
+                    {
+                        res=lang;
+                        if(TextUtils.isEmpty(cCode))
+                            break;
+}
+                if(TextUtils.isEmpty(lang.getCountryCode()))
+                    continue;
+                if(lang.getCountryCode().equalsIgnoreCase(cCode))
+                    {
+                        res=lang;
+                        break;
+}
+}
+        return res;
 }
 }

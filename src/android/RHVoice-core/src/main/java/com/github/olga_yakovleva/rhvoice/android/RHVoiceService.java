@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2018, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -22,15 +22,17 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.SynthesisCallback;
 import android.speech.tts.SynthesisRequest;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeechService;
 import android.speech.tts.Voice;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.github.olga_yakovleva.rhvoice.*;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import java.io.File;
@@ -45,7 +47,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import android.os.Bundle;
 
 public final class RHVoiceService extends TextToSpeechService
 {
@@ -233,6 +234,7 @@ public final class RHVoiceService extends TextToSpeechService
     private volatile AndroidVoiceInfo currentVoice;
     private volatile boolean speaking=false;
     private List<String> paths=new ArrayList<String>();
+    private Handler handler;
 
     private class Player implements TTSClient
     {
@@ -454,11 +456,38 @@ public final class RHVoiceService extends TextToSpeechService
         registerReceiver(packageReceiver,filter);
 }
 
+    private class VoiceInstaller implements Runnable
+    {
+        private final String languageCode;
+        private final String countryCode;
+
+        public VoiceInstaller(String languageCode,String countryCode)
+        {
+            this.languageCode=languageCode;
+            this.countryCode=countryCode;
+}
+
+        public void run()
+        {
+            LanguagePack lang=Data.findMatchingLanguage(languageCode,countryCode);
+            if(lang==null)
+                return;
+            for(VoicePack voice: lang.getVoices())
+                {
+                    if(voice.getEnabled(RHVoiceService.this))
+                        return;
+}
+            VoicePack voice=lang.getDefaultVoice();
+            voice.setEnabled(RHVoiceService.this,true);
+}
+}
+
     @Override
     public void onCreate()
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Starting the service");
+        handler=new Handler();
         paths=Data.getPaths(this);
         Data.scheduleSync(this,false);
         LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,new IntentFilter(ACTION_CHECK_DATA));
@@ -563,11 +592,17 @@ public final class RHVoiceService extends TextToSpeechService
                 Log.v(TAG,"onSynthesize called");
                 logLanguage(request.getLanguage(),request.getCountry(),request.getVariant());
             }
+        boolean testing=false;
+                Bundle requestParams=request.getParams();
+                if(requestParams!=null&&requestParams.containsKey(KEY_PARAM_TEST_VOICE))
+                    testing=true;
         Tts tts=ttsManager.acquireForSynthesis();
         if(tts==null)
             {
                 if(BuildConfig.DEBUG)
                     Log.w(TAG,"Not initialized yet");
+                if(!testing)
+                    handler.post(new VoiceInstaller(request.getLanguage(),request.getCountry()));
                 callback.error();
                 return;
             }
@@ -579,10 +614,6 @@ public final class RHVoiceService extends TextToSpeechService
                 String variant=request.getVariant();
                 Map<String,LanguageSettings> languageSettings=getLanguageSettings(tts);
                 String voiceName="";
-                boolean testing=false;
-                Bundle requestParams=request.getParams();
-                if(requestParams!=null&&requestParams.containsKey(KEY_PARAM_TEST_VOICE))
-                    testing=true;
                 if(testing)
                     voiceName=requestParams.getString(KEY_PARAM_TEST_VOICE);
                 else if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
@@ -609,6 +640,8 @@ public final class RHVoiceService extends TextToSpeechService
                     {
                         if(BuildConfig.DEBUG)
                             Log.e(TAG,"Unsupported language");
+                        if(!testing)
+                            handler.post(new VoiceInstaller(language,country));
                         callback.error();
                         return;
                     }
