@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -33,6 +33,7 @@ public final class LanguagePack extends DataPack
     private final List<VoicePack> voices=new ArrayList<VoicePack>();
     private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
     private final Map<String,VoicePack> idIndex=new HashMap<String,VoicePack>();
+    private VoicePack defaultVoice;
 
     public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,byte[] checksum)
     {
@@ -70,11 +71,25 @@ public final class LanguagePack extends DataPack
         return voices;
 }
 
+    public VoicePack getDefaultVoice()
+    {
+        return defaultVoice;
+}
+
     public LanguagePack addVoice(VoicePack voice)
     {
         voices.add(voice);
         index.put(voice.getName(),voice);
         idIndex.put(voice.getId(),voice);
+        if(defaultVoice==null)
+            defaultVoice=voice;
+        return this;
+}
+
+    public LanguagePack addDefaultVoice(VoicePack voice)
+    {
+        addVoice(voice);
+        defaultVoice=voice;
         return this;
 }
 
