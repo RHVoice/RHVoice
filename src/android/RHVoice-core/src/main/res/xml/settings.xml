@@ -6,7 +6,7 @@ android:key="root">
         android:title="@string/wifi_only_title"
         android:summary="@string/wifi_only_desc"
         android:key="wifi_only"
-        android:defaultValue="true"/>
+        android:defaultValue="false"/>
     <ListPreference
         android:key="quality"
         android:entries="@array/quality_labels"
