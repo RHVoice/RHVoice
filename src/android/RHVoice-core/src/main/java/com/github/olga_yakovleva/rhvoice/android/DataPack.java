@@ -815,7 +815,7 @@ finally
 
     public static NetworkType getNetworkTypeSetting(Context context)
     {
-        boolean wifiOnly=getPrefs(context).getBoolean("wifi_only",true);
+        boolean wifiOnly=getPrefs(context).getBoolean("wifi_only",false);
         return wifiOnly?NetworkType.UNMETERED:NetworkType.CONNECTED;
 }
 
