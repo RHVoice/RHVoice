@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2018, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -28,6 +28,10 @@ namespace
 
 #ifndef MIN_SONIC_RATE
 #define MIN_SONIC_RATE 1
+#endif
+
+#ifndef DEFAULT_PUNCTUATION_MODE
+#define DEFAULT_PUNCTUATION_MODE RHVoice_punctuation_none
 #endif
 
 namespace RHVoice
@@ -121,7 +125,7 @@ namespace RHVoice
   }
 
   verbosity_params::verbosity_params():
-    punctuation_mode("punctuation_mode",RHVoice_punctuation_none),
+    punctuation_mode("punctuation_mode",DEFAULT_PUNCTUATION_MODE),
     punctuation_list("punctuation_list","+=<>~@#$%^&*/\\|"),
     capitals_mode("indicate_capitals",RHVoice_capitals_off)
   {
