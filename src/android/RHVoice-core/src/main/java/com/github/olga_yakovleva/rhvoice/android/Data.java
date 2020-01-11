@@ -68,8 +68,8 @@ public final class Data
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
         lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 10, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, "https://dl.bintray.com/olga-yakovleva/Data/RHVoice-F123-Brazilian-Portuguese-language-v1.10.zip", null);
-        lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-VOISS", lang, 4, 4, Checksums.VOICE_LETICIA, "https://public.f123.org/download/RHVoice-Brazilian-Portuguese-voice-Leticia-VOISS-v4.4.zip", null));
+        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 12, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, "https://dl.bintray.com/olga-yakovleva/Data/RHVoice-F123-Brazilian-Portuguese-language-v1.12.zip", null);
+        lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 6, Checksums.VOICE_LETICIA, "https://public.f123.org/download/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.zip", "https://www.dropbox.com/s/lwxdszkvgeeyqin/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.zip?dl=1"));
         addLanguage(lang);
 }
 
