@@ -202,7 +202,7 @@ namespace RHVoice
         else
           {
             if(f.voiced)
-              f.lf0+pitch_shift;
+              f.lf0+=pitch_shift;
             do_generate_samples(f);
 }
         ++f.index;
