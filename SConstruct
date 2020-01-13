@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2018, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ if sys.platform=="win32":
         import _winreg as winreg
 
 def get_version(is_release):
-    next_version="1.1.0"
+    next_version="1.1.1"
     return next_version
 
 def CheckPKGConfig(context):
