@@ -23,4 +23,7 @@
   <string name="uninstall">Uninstall</string>
   <string name="play">Play</string>
   <string name="stop">Stop</string>
+  <string name="increase">Increase</string>
+  <string name="decrease">Decrease</string>
+  <string name="reset">Reset</string>
 </resources>

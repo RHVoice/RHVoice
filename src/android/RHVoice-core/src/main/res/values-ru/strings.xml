@@ -24,4 +24,7 @@
     <string name="uninstall">Удалить</string>
     <string name="play">Воспроизвести</string>
     <string name="stop">Остановить</string>
+    <string name="increase">Увеличить</string>
+    <string name="decrease">Уменьшить</string>
+    <string name="reset">Сброс</string>
 </resources>

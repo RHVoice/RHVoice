@@ -18,10 +18,11 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
-public final class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback
+public final class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback
 {
     @Override
     public void onCreate(Bundle state)
@@ -45,6 +46,19 @@ public final class SettingsActivity extends AppCompatActivity implements Prefere
         SettingsFragment frag=new SettingsFragment();
         frag.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.frame,frag,key).addToBackStack(null).commit();
+        return true;
+}
+
+    @Override
+    public boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller,Preference pref)
+    {
+        if(!(pref instanceof ProsodyPreference))
+            return false;
+        if(getSupportFragmentManager().findFragmentByTag(ProsodyPreferenceDialogFragment.TAG)!=null)
+            return true;
+        ProsodyPreferenceDialogFragment f=ProsodyPreferenceDialogFragment.newInstance(pref.getKey());
+        f.setTargetFragment(caller,0);
+        f.show(getSupportFragmentManager(),ProsodyPreferenceDialogFragment.TAG);
         return true;
 }
 }
