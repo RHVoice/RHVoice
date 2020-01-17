@@ -104,24 +104,11 @@ import java.util.TreeMap;
                     engPref.setDefaultValue(true);
                     cat.addPreference(engPref);
                 }
-            InputFilter[] inputFilters=new InputFilter[]{new InputFilter.LengthFilter(3)};
-            AutoSummaryEditTextPreference volumePref=new AutoSummaryEditTextPreference(ctx);
+            VolumePreference volumePref=new VolumePreference(ctx);
             volumePref.setKey("language."+code3+".volume");
-            volumePref.setTitle(R.string.speech_volume);
-            volumePref.setDialogTitle(R.string.speech_volume);
-            volumePref.setDefaultValue("100");
-            volumePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
-            volumePref.getEditText().setSelectAllOnFocus(true);
-            volumePref.getEditText().setFilters(inputFilters);
             cat.addPreference(volumePref);
-            AutoSummaryEditTextPreference ratePref=new AutoSummaryEditTextPreference(ctx);
+            RatePreference ratePref=new RatePreference(ctx);
             ratePref.setKey("language."+code3+".rate");
-            ratePref.setTitle(R.string.speech_rate);
-            ratePref.setDialogTitle(R.string.speech_rate);
-            ratePref.setDefaultValue("100");
-            ratePref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
-            ratePref.getEditText().setSelectAllOnFocus(true);
-            ratePref.getEditText().setFilters(inputFilters);
             cat.addPreference(ratePref);
         }
 
