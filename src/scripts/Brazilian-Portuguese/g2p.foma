@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2018, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -150,7 +150,12 @@ define CloseWordEnding
 {oso} | 
 {bera} | 
 [{oir} ({os} | {as})] | 
-[{ssora} (s)] ; 
+[{ssora} (s)] | 
+[{oço} (s)] | 
+[{evo} (s)] | 
+[{ete} (s)] | 
+{ova} | 
+{esse} ; 
 
 define OpenWord 
 # Words ending in "ele(s)"
@@ -224,7 +229,72 @@ define OpenWord
 [{evangelho}(s)] | 
 [{velha}(s)] | 
 {peles} | 
-[{tora} (s)] ; 
+[{tora} (s)] | 
+{basquete} | 
+{cova} | 
+{sova} | 
+{acesse} | 
+{comesse} | 
+{confesse} | 
+{coubesse} | 
+{dissesse} | 
+{estresse} | 
+{fizesse} | 
+{houvesse} | 
+{processe} | 
+{professe} | 
+{pudesse} | 
+{pusesse} | 
+{quisesse} | 
+{soubesse} | 
+{tivesse} | 
+{trouxesse} | 
+{viesse} | 
+{abstivesse} | 
+{adviesse} | 
+{arremesse} | 
+{ativesse} | 
+{atravesse} | 
+{bendissesse} | 
+{compusesse} | 
+{condissesse} | 
+{conviesse} | 
+{depusesse} | 
+{desdissesse} | 
+{desfizesse} | 
+{detivesse} | 
+{dispusesse} | 
+{estivesse} | 
+{expusesse} | 
+{impusesse} | 
+{maldissesse} | 
+{mantivesse} | 
+{obtivesse} | 
+{opusesse} | 
+{predissesse} | 
+{preprocesse} | 
+{propusesse} | 
+{proviesse} | 
+{refizesse} | 
+{reouvesse} | 
+{reprocesse} | 
+{repusesse} | 
+{requisesse} | 
+{retivesse} | 
+{supusesse} | 
+{transpusesse} | 
+{antepusesse} | 
+{contradissesse} | 
+{contrafizesse} | 
+{contrapusesse} | 
+{decompusesse} | 
+{indispusesse} | 
+{interpusesse} | 
+{interviesse} | 
+{liquefizesse} | 
+{multiprocesse} | 
+{satisfizesse} | 
+[{ador} UnstressedEnding] ; 
 
 define CloseWordPattern 
 NotAccentedPrefix CloseWordEnding ; 
@@ -232,7 +302,6 @@ NotAccentedPrefix CloseWordEnding ;
 define OpenWordEnding 
 # Words ending in "oxo(s), oxa(s)"
 [{dox}[o|a](s)] | 
-
 {redor} ; 
 
 define OpenWordPattern 
@@ -461,7 +530,30 @@ define CloseWord
 [{grega} (s)] | 
 [{grego} (s)] | 
 [{bochecha} (s)] | 
-[{bolha} (s)] ; 
+[{bolha} (s)] | 
+{desassossego} | 
+{espessa} | 
+{espessas} | 
+{deva} | 
+{mexeram} | 
+{remexeram} | 
+{selos} | 
+{percorreram} | 
+{intrometa} | 
+{intrometam} | 
+{intrometas} | 
+{teta} | 
+{desgostos} | 
+{maroto} | 
+{marotos} | 
+{moita} | 
+{moitas} | 
+{perdoe} | 
+{raposa} | 
+{raposas} | 
+{seda} | 
+{sedas} | 
+[{doid} [o|a] (s)] ; 
 
 define TagCloseWord 
 [..] -> CLOSE || StartOfWord CloseWord _ EndOfWord ; 
@@ -485,7 +577,7 @@ define AddLowerMidTag2
 [..] -> LM4 || StartOfWord [UnaccentedParoxytone - CloseWord] MenteSuffix _ [Tag - LowerMidTag]* .#. ; 
 
 define AddLowerMidTag1 
-[..] -> LM3 || StartOfWord [[[Letter - AccentedVowelLetter]*] - CloseWord] MenteSuffix _ [Tag - LowerMidTag]* .#. ; 
+[..] -> LM3 || StartOfWord [[[[[Letter - AccentedVowelLetter]*] - CloseWord] MenteSuffix] | [{sozinh} [a|o] (s)]] _ [Tag - LowerMidTag]* .#. ; 
 
 
 define TagFunctionWord 
@@ -551,7 +643,8 @@ StartOfWord {fa} _ {ina} (s) EndOfWord ,
 StartOfWord {sobreta} _ a (s) EndOfWord , 
 StartOfWord {po} _ a EndOfWord , 
 {gra} _ VowelLetter , 
-StartOfWord {xi} _ i EndOfWord ,, 
+StartOfWord {xi} _ i EndOfWord , 
+StartOfWord {bru} _ a ({ria}) EndOfWord ,, 
 x -> s || 
 StartOfWord m [a|á] _ VowelLetter , 
 {pr} [o|ó] _ VowelLetter ; 
