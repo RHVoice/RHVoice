@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -12,6 +12,8 @@
 
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+source bp_roman.foma
 
 define Apos %'|%’ ; 
 
@@ -52,6 +54,9 @@ num -> dig || Digit^16 _ ;
 define TagLetterSequences 
 word -> lseq || [.#.|word|num|dig|sym] LetterSequence _ ; 
 
+define TagRomanNumerals 
+word -> num || [.#.|sym] BPRomanNumeral _ [.#.|[? sym]] ; 
+
 define F123Rule 
 num -> dig || [.#. | sym] F lseq {123} _ ; 
 
@@ -60,6 +65,7 @@ define TagOrdinalNumbers
 
 define Tokenizer 
 BasicTokenizer .o. 
+TagRomanNumerals .o. 
 TagLetterSequences .o. 
 UntagLargeNumbers .o. 
 TagOrdinalNumbers .o. 
