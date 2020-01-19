@@ -1,0 +1,95 @@
+# Copyright (C) 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Roman1 I ; 
+define Roman5 V ; 
+define Roman10 X ; 
+define Roman2 Roman1^2 ; 
+define Roman3 Roman1^3 ; 
+define Roman4 Roman1 Roman5 ; 
+define Roman6 Roman5 Roman1 ; 
+define Roman7 Roman5 Roman2 ; 
+define Roman8 Roman5 Roman3 ; 
+define Roman9 Roman1 Roman10 ; 
+define Roman11 Roman10 Roman1 ; 
+define Roman12 Roman10 Roman2 ; 
+define Roman13 Roman10 Roman3 ; 
+define Roman14 Roman10 Roman4 ; 
+define Roman15 Roman10 Roman5 ; 
+define Roman16 Roman10 Roman6 ; 
+define Roman17 Roman10 Roman7 ; 
+define Roman18 Roman10 Roman8 ; 
+define Roman19 Roman10 Roman9 ; 
+define Roman20 Roman10^2 ; 
+define Roman21 Roman20 Roman1 ; 
+define Roman22 Roman20 Roman2 ; 
+define Roman23 Roman20 Roman3 ; 
+define Roman24 Roman20 Roman4 ; 
+define Roman25 Roman20 Roman5 ; 
+define Roman26 Roman20 Roman6 ; 
+define Roman27 Roman20 Roman7 ; 
+define Roman28 Roman20 Roman8 ; 
+define Roman29 Roman20 Roman9 ; 
+define Roman30 Roman10^3 ; 
+define Roman31 Roman30 Roman1 ; 
+define Roman32 Roman30 Roman2 ; 
+define Roman33 Roman30 Roman3 ; 
+define Roman34 Roman30 Roman4 ; 
+define Roman35 Roman30 Roman5 ; 
+define Roman36 Roman30 Roman6 ; 
+define Roman37 Roman30 Roman7 ; 
+define Roman38 Roman30 Roman8 ; 
+define Roman39 Roman30 Roman9 ; 
+
+define RomanMapping 
+Roman1 : 1 | 
+Roman5 : 5 | 
+Roman10 : {10} | 
+Roman2 : 2 | 
+Roman3 : 3 | 
+Roman4 : 4 | 
+Roman6 : 6 | 
+Roman7 : 7 | 
+Roman8 : 8 | 
+Roman9 : 9 | 
+Roman11 : {11} | 
+Roman12 : {12} | 
+Roman13 : {13} | 
+Roman14 : {14} | 
+Roman15 : {15} | 
+Roman16 : {16} | 
+Roman17 : {17} | 
+Roman18 : {18} | 
+Roman19 : {19} | 
+Roman20 : {20} | 
+Roman21 : {21} | 
+Roman22 : {22} | 
+Roman23 : {23} | 
+Roman24 : {24} | 
+Roman25 : {25} | 
+Roman26 : {26} | 
+Roman27 : {27} | 
+Roman28 : {28} | 
+Roman29 : {29} | 
+Roman30 : {30} | 
+Roman31 : {31} | 
+Roman32 : {32} | 
+Roman33 : {33} | 
+Roman34 : {34} | 
+Roman35 : {35} | 
+Roman36 : {36} | 
+Roman37 : {37} | 
+Roman38 : {38} | 
+Roman39 : {39} ; 

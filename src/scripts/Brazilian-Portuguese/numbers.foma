@@ -1,4 +1,4 @@
-# Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+source bp_roman.foma
+
+define MapRomanNumeral 
+BPRomanMapping -> || .#. _ .#. ; 
+
 define MaleOrdChar %º ; 
 define FemaleOrdChar %ª ; 
 define OrdChar MaleOrdChar | FemaleOrdChar ; 
@@ -22,7 +27,7 @@ define Digit %0|NZDigit ;
 
 define UnformattedNumber [NZDigit Digit^<15] ; 
 define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
-define Number [UnformattedNumber | FormattedNumber] (OrdChar) ; 
+define Number [[UnformattedNumber | FormattedNumber] (OrdChar)] | BPRomanNumeral ; 
 
 define Unit 
 1:um | 
@@ -213,6 +218,7 @@ define RemoveThousandsSeparators
 
 define NumberRules 
 Number .o. 
+MapRomanNumeral .o. 
 RemoveThousandsSeparators .o. 
 SeparatePowerOfThousand(ths) .o. 
 SeparatePowerOfThousand(mlns) .o. 
