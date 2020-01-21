@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2016, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -18,7 +18,7 @@ define UkrainianLetter
 [[б|Б]:бе] | 
 [[в|В]:ве] | 
 [[г|Г]:ге] | 
-[{Ґ|ґ}:ґе] | 
+[[Ґ|ґ]:ґе] | 
 [[д|Д]:де] | 
 [[е|Е]:е] | 
 [[э|Э] : [російска е]] | 
