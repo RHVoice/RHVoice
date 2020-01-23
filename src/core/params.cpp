@@ -130,7 +130,7 @@ namespace RHVoice
 
   verbosity_params::verbosity_params():
     punctuation_mode("punctuation_mode",DEFAULT_PUNCTUATION_MODE),
-    punctuation_list("punctuation_list","+=<>~@#$%^&*/\\|"),
+    punctuation_list("punctuation_list","+=<>~@#$%^&*|"),
     capitals_mode("indicate_capitals",RHVoice_capitals_off)
   {
     punctuation_mode.define("none",RHVoice_punctuation_none);
