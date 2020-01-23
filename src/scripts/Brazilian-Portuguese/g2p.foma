@@ -759,8 +759,11 @@ define StressedCloseMidVowelRule
 define DefaultStressedMidVowelRule 
 "e1?" -> E1 , "o1?" -> O1 ; 
 
+define RisingDiphthongContext [a|e|o] (s) EndOfWord ; 
+
 define RisingDiphthongRule 
-i -> j , u -> w || _ [a|e|o] (s) EndOfWord ; 
+i -> j || \[t|d] _ RisingDiphthongContext ,, 
+u -> w || _ RisingDiphthongContext ; 
 
 define VowelRaisingRule 
 e -> i , o -> u || _ (s) EndOfWord ; 
