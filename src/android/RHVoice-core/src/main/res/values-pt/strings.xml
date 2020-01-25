@@ -24,4 +24,7 @@
   <string name="uninstall">Desinstalar</string>
   <string name="play">Reproduzir</string>
   <string name="stop">Parar</string>
+  <string name="increase">Aumentar</string>
+  <string name="decrease">Diminuir</string>
+  <string name="reset">Restaurar</string>
 </resources>
