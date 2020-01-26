@@ -7,7 +7,7 @@
     <string name="detect_language_desc">Автоматично перемикатися між мовами</string>
     <string name="speech_volume">Гучність мовлення</string>
     <string name="speech_rate">Швидкість мовлення</string>
-    <string name="pseudo_english_title">Англійскі слова</string>
+    <string name="pseudo_english_title">Англійські слова</string>
     <string name="pseudo_english_desc">Намагатися правильно читати англійські слова</string>
     <string name="settings">Налаштування</string>
     <string name="wifi_only_title">Лише Wi-Fi</string>
@@ -24,4 +24,7 @@
     <string name="uninstall">Видалити</string>
   <string name="play">Відтворити</string>
   <string name="stop">Зупинити</string>
+  <string name="increase">Збільшити</string>
+  <string name="decrease">Зменшити</string>
+  <string name="reset">Скинути</string>
 </resources>
