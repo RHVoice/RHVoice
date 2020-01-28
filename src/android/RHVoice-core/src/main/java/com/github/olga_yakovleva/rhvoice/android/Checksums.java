@@ -39,6 +39,6 @@ final class Checksums
     public static final byte[] LANGUAGE_UKRAINIAN={-124, -98, 69, -94, -105, 61, -127, -89, 105, 99, -124, 15, -121, 81, -5, 71};
     public static final byte[] VOICE_ANATOL={62, -55, -8, -28, 29, 115, 55, -85, -60, 52, 126, -11, -103, -16, -72, 13};
     public static final byte[] VOICE_NATALIA={-20, -13, 29, -69, -124, -59, 104, 44, 86, -28, 13, -89, 38, 83, 34, -86};
-    public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={-123, 41, -112, -122, -77, -37, -2, 64, -97, -82, -46, 87, -51, 75, -95, 19};
+    public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={-42, -75, 127, 89, 85, -82, 78, 108, -113, 91, -104, -87, -38, 118, 32, -119};
     public static final byte[] VOICE_LETICIA={73, 46, -107, 59, -104, 94, 58, -36, -68, 30, -43, 4, 120, 51, -34, 7};
 }
