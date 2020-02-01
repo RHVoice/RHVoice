@@ -2,6 +2,6 @@ name=Elena
 language=Russian
 gender=female
 format=4
-revision=1
+revision=2
 msi_upgrade_code=28f61d97-69bf-4cd1-94b4-8a17e2a14985
 exe_upgrade_code=45b94491-5921-471d-ac35-14714e335876

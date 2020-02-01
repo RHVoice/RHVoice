@@ -2,6 +2,6 @@ name=Irina
 language=Russian
 gender=female
 format=4
-revision=0
+revision=1
 msi_upgrade_code=b9e1f961-c332-46a6-bcdf-38eba9304ac9
 exe_upgrade_code=3fef1774-6f39-40ea-9a1b-b1bfece98ab6
