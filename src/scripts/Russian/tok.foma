@@ -1,4 +1,4 @@
-# Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2014, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -124,6 +124,6 @@ define Stage3
 PlusOrMinus Digit -> ... num || _ Digit+ dig;
 
 define Stage4 
-num %% sym @-> %% num ; 
+[num:0] [%%|%°] [sym:num] -> ; 
 
 regex Stage1 .o. Stage2 .o. Stage3 .o. Stage4;
