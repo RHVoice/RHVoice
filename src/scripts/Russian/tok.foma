@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+source rus_roman.foma
+
 define CaseVariants 
 а -> а|А , 
 б -> б|Б , 
@@ -126,4 +128,52 @@ PlusOrMinus Digit -> ... num || _ Digit+ dig;
 define Stage4 
 [num:0] [%%|%°] [sym:num] -> ; 
 
-regex Stage1 .o. Stage2 .o. Stage3 .o. Stage4;
+
+define Apos %'|%’ ; 
+
+define VowelLetter 
+A|À|Á|Â|Ã | E|É|Ê | I|Í | O|Ó|Ô|Õ | U|Ú|Ü | Y | Ö | 
+a|à|á|â|ã | e|é|ê | i|í | o|ó|ô|õ | u|ú|ü | y | ö ; 
+
+define ConsonantLetter 
+B|C|Ç|D|F|G|H|J|K|L|M|N|P|Q|R|S|T|V|W|X|Z|Ñ | 
+b|c|ç|d|f|g|h|j|k|l|m|n|p|q|r|s|t|v|w|x|z|ñ ; 
+
+define Letter VowelLetter | ConsonantLetter ; 
+
+define ExceptionalWord 
+[[e|E] [t|T] [c|C] %.] | 
+[[w|W] [i|I] %- [f|F] [i|I]] ; 
+
+define Word [Letter+ [Apos Letter+]*] | ExceptionalWord ; 
+
+define LetterSequence [ConsonantLetter+]/Apos ; 
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
+
+define BasicTokenizer 
+Word @-> ... word || _ \Letter | .#. ,, 
+FormattedNumber @-> ... num || _ .#. | \Digit ,, 
+NZDigit Digit* @-> ... num ,, 
+%0 Digit+ @-> ... dig ,, 
+%0 @-> ... num ,, 
+\[Letter | Digit] @-> ... sym ; 
+
+define UntagLargeNumbers 
+num -> dig || Digit^16 _ ; 
+
+define TagLetterSequences 
+word -> lseq || [.#.|word|num|dig|sym] LetterSequence _ ; 
+
+define TagRomanNumerals 
+word -> num || [.#.|sym] RusRomanNumeral _ [.#.|[? sym]] ; 
+
+regex 
+Stage1 .o. 
+TagRomanNumerals .o. 
+Stage2 .o. 
+Stage3 .o. 
+Stage4;
