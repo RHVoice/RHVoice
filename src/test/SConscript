@@ -16,10 +16,12 @@
 
 import os.path
 
-Import("env")
+Import("env","libcore","libaudio")
 local_env=env.Clone()
 local_env.Prepend(LIBS=[local_env["libcore"],local_env["libaudio"]])
 
 test=local_env.Program("RHVoice-test","test.cpp")
+local_env.Depends(test,libcore)
+local_env.Depends(test,libaudio)
 if local_env["PLATFORM"]!="win32":
     local_env.InstallProgram(test)

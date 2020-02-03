@@ -16,12 +16,14 @@
 
 import os.path
 
-Import("env")
+Import("env","libcore")
 local_env=env.Clone()
 local_env.Prepend(LIBS=local_env["libcore"])
 
 transcriptor=local_env.Program("RHVoice-transcribe-sentences","transcribe-sentences.cpp")
+local_env.Depends(transcriptor,libcore)
 hts_labeller=local_env.Program("RHVoice-make-hts-labels","make-hts-labels.cpp")
+local_env.Depends(hts_labeller,libcore)
 if local_env["PLATFORM"]!="win32":
     local_env.InstallProgram(transcriptor)
     local_env.InstallProgram(hts_labeller)
