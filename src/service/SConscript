@@ -16,13 +16,15 @@
 
 import os.path
 
-Import("env")
+Import("env","libcore")
 local_env=env.Clone()
 local_env.MergeFlags(["!pkg-config --cflags --libs giomm-2.4"])
 local_env.Prepend(LIBS=local_env["libcore"])
 
 service=local_env.Program("RHVoice-service",["service.cpp","common.cpp"])
 client=local_env.Program("RHVoice-client",["client.cpp","common.cpp"])
+local_env.Depends(service,libcore)
+local_env.Depends(client,libcore)
 if local_env["PLATFORM"]!="win32":
     local_env.InstallProgram(service)
     local_env.InstallProgram(client)

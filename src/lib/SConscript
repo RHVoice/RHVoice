@@ -15,7 +15,7 @@
 
 import os
 import os.path
-Import(["env"])
+Import(["env","libcore"])
 local_env=env.Clone()
 local_env["libversion"]="4.0.0"
 local_env["liblevel"]=2
@@ -24,5 +24,6 @@ src=["lib.cpp"]
 if env["PLATFORM"]=="win32":
     src.append("lib.def")
 lib=local_env.BuildLibrary("RHVoice",src)
+local_env.Depends(lib,libcore)
 if env["PLATFORM"]!="win32":
     local_env.InstallLibrary(lib)
