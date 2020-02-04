@@ -24,4 +24,7 @@
     <string name="uninstall">Өчүрүү</string>
   <string name="play">Ойнотуу</string>
   <string name="stop">Токтотуу</string>
+  <string name="increase">Чоңойтуу</string>
+  <string name="decrease">Азайтуу</string>
+  <string name="reset">Баштапкы калыбына келтирүү</string>
 </resources>
