@@ -18,7 +18,7 @@ import os
 
 Import("env","libcore")
 local_env=env.Clone()
-local_env["libversion"]="1.0.0"
+local_env["libversion"]="1.1.0"
 local_env["liblevel"]=1
 src=["audio.cpp", "file_playback_stream_impl.cpp"]
 if "libao" in local_env["audio_libs"]:
