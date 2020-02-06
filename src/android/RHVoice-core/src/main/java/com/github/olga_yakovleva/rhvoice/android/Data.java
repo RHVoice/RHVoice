@@ -55,11 +55,11 @@ public final class Data
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, Checksums.VOICE_AZAMAT, null, null));
         lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, Checksums.VOICE_NAZGUL, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Russian", "rus", "ru", "RUS", "RU", false, 2, 4, Checksums.LANGUAGE_RUSSIAN, null, null);
-        lang.addVoice(new VoicePack("Aleksandr", lang, 4, 1, Checksums.VOICE_ALEKSANDR, null, null));
-        lang.addDefaultVoice(new VoicePack("Anna", lang, 4, 0, Checksums.VOICE_ANNA, null, null));
-        lang.addVoice(new VoicePack("Elena", lang, 4, 1, Checksums.VOICE_ELENA, null, null));
-        lang.addVoice(new VoicePack("Irina", lang, 4, 0, Checksums.VOICE_IRINA, null, null));
+        lang=new LanguagePack("Russian", "rus", "ru", "RUS", "RU", false, 2, 5, Checksums.LANGUAGE_RUSSIAN, null, null);
+        lang.addVoice(new VoicePack("Aleksandr", lang, 4, 2, Checksums.VOICE_ALEKSANDR, null, null));
+        lang.addDefaultVoice(new VoicePack("Anna", lang, 4, 1, Checksums.VOICE_ANNA, null, null));
+        lang.addVoice(new VoicePack("Elena", lang, 4, 2, Checksums.VOICE_ELENA, null, null));
+        lang.addVoice(new VoicePack("Irina", lang, 4, 1, Checksums.VOICE_IRINA, null, null));
         addLanguage(lang);
         lang=new LanguagePack("Tatar", "tat", "tt", "RUS", "RU", false, 1, 10, Checksums.LANGUAGE_TATAR, null, null);
         lang.addVoice(new VoicePack("Talgat", lang, 4, 0, Checksums.VOICE_TALGAT, "https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0.zip", null));
