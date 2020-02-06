@@ -21,7 +21,7 @@ Import("env","libsonic","libhts_engine")
 if env["enable_mage"]:
 	Import("libmage")
 local_env=env.Clone()
-local_env["libversion"]="2.0.0"
+local_env["libversion"]="3.0.1"
 local_env["liblevel"]=1
 local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else ((r'\"'+local_env.Dir("#data").abspath+r'\"') if local_env["dev"] else local_env.subst(r'\"$datadir/$package_name\"'))))
 local_env.Append(CPPDEFINES=("CONFIG_PATH",r'\"config\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$sysconfdir/$package_name\"')))
