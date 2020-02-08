@@ -1118,14 +1118,30 @@ else
     relation& word_rel=utt.get_relation("Word");
     if(word_rel.empty())
       return;
-        const item& word=word_rel.last().as("TokStructure");
-        const item& token=word.parent();
-        const item& parent_token=token.parent();
-        std::string utt_type("s");
-        if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","?"))!=parent_token.end())
-          utt_type="q";
-        else if(std::find_if(++(token.get_iterator()),parent_token.end(),feature_equals<std::string>("name","!"))!=parent_token.end())
-          utt_type="e";
+        std::string utt_type;
+        const relation& tok_rel=utt.get_relation("TokStructure");
+        for(relation::const_reverse_iterator it1=tok_rel.rbegin();it1!=tok_rel.rend();++it1)
+          {
+            for(item::const_reverse_iterator it2=it1->rbegin();it2!=it1->rend();++it2)
+              {
+                if(it2->has_children())
+                  utt_type="s";
+                else
+                  {
+                    const std::string& name=it2->get("name").as<std::string>();
+                    if(name=="?")
+                      utt_type="q";
+                    else if(name=="!")
+                      utt_type="e";
+                  }
+                if(!utt_type.empty())
+                  break;
+}
+            if(!utt_type.empty())
+              break;
+}
+        if(utt_type.empty())
+          utt_type="s";
         utt.set_utt_type(utt_type);
         if(utt_type!="q"||qst_fst.get()==0)
           return;
