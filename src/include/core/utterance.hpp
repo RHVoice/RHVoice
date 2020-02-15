@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -59,7 +59,8 @@ namespace RHVoice
     relative_pitch(1.0),
     absolute_volume(0),
     relative_volume(1.0),
-    utt_type("s")
+    utt_type("s"),
+    flags(0)
     {
     }
 
@@ -92,6 +93,16 @@ namespace RHVoice
     {
       return quality;
     }
+
+    int get_flags() const
+    {
+      return flags;
+}
+
+    void set_flags(int value)
+    {
+      flags=value;
+}
 
     double get_absolute_rate() const
     {
@@ -208,6 +219,7 @@ namespace RHVoice
     relation_map relations;
     double absolute_rate,relative_rate,absolute_pitch,relative_pitch,absolute_volume,relative_volume;
     std::string utt_type;
+    int flags;
   };
 
   class utterance_function

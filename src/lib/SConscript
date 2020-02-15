@@ -17,7 +17,7 @@ import os
 import os.path
 Import(["env","libcore"])
 local_env=env.Clone()
-local_env["libversion"]="4.0.0"
+local_env["libversion"]="5.0.0"
 local_env["liblevel"]=2
 local_env.Prepend(LIBS=local_env["libcore"])
 src=["lib.cpp"]
