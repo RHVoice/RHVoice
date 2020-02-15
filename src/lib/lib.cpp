@@ -187,6 +187,8 @@ RHVoice_voice_info RHVoice_tts_engine_struct::convert_voice_info::operator()(con
   const std::string& country_code=info.get_alpha2_country_code().empty()?info.get_alpha3_country_code():info.get_alpha2_country_code();
   if(!country_code.empty())
     result.country=country_code.c_str();
+  else
+    result.country=0;
   result.name=info.get_name().c_str();
   result.gender=info.get_gender();
   return result;
