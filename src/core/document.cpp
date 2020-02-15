@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -355,6 +355,7 @@ namespace RHVoice
     apply_verbosity_settings(*u);
     apply_language_processing(*u);
     u->set_quality(parent->quality);
+    u->set_flags(parent->get_flags());
     return u;
   }
 

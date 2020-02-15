@@ -111,6 +111,8 @@ typedef struct
     /* This mode only applies to reading by characters. */
     /* If your program doesn't support this setting, set to RHVoice_capitals_default. */
     RHVoice_capitals_mode capitals_mode;
+/* Set to 0 for defaults. */
+    int flags;
   } RHVoice_synth_params;
 
   const char* RHVoice_get_version();

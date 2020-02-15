@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -153,6 +153,16 @@ namespace RHVoice
       if(!((min_val<=default_val)&&(default_val<=max_val)))
         throw std::invalid_argument("Invalid range");
     }
+
+    T get_min() const
+    {
+      return min_value;
+}
+
+    T get_max() const
+    {
+      return max_value;
+}
 
     bool set_from_string(const std::string& s)
     {

@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -18,8 +18,11 @@
 
 namespace RHVoice
 {
-  double hts_label::calculate_speech_param(double absolute_change,double relative_change,double default_value,double min_value,double max_value) const
+  double hts_label::calculate_speech_param(double absolute_change,double relative_change,const numeric_property<double>& default_setting,const numeric_property<double>& min_setting,const numeric_property<double>& max_setting,bool clip) const
   {
+    double default_value=default_setting;
+    double min_value=min_setting;
+    double max_value=max_setting;
     if(!(min_value<=max_value))
       return 1;
     if(default_value>max_value)
@@ -42,6 +45,11 @@ namespace RHVoice
           result+=absolute_change*(default_value-min_value);
       }
     result*=relative_change;
+    if(!clip)
+      {
+        min_value=min_setting.get_min();
+        max_value=max_setting.get_max();
+}
     if(result<min_value)
       result=min_value;
     else if(result>max_value)
@@ -67,11 +75,13 @@ namespace RHVoice
     const voice_params&voice_settings=utt.get_voice().get_info().settings;
     double absolute_rate=utt.get_absolute_rate();
     double relative_rate=utt.get_relative_rate();
+    bool clip_rate=(utt.get_flags()&RHVoice_synth_flag_dont_clip_rate)?false:true;
     double rate=calculate_speech_param(absolute_rate,
                                         relative_rate,
                                         voice_settings.default_rate,
-                                        voice_settings.min_rate,
-                                        voice_settings.max_rate);
+                                       voice_settings.min_rate,
+                                       voice_settings.max_rate,
+clip_rate);
     return rate;
   }
 
@@ -88,7 +98,8 @@ namespace RHVoice
                                         relative_pitch,
                                         voice_settings.default_pitch,
                                         voice_settings.min_pitch,
-                                        voice_settings.max_pitch);
+                                        voice_settings.max_pitch,
+true);
     return pitch;
   }
 
@@ -102,7 +113,8 @@ namespace RHVoice
                                         relative_volume,
                                         voice_settings.default_volume,
                                         voice_settings.min_volume,
-                                        voice_settings.max_volume);
+                                         voice_settings.max_volume,
+true);
     return volume;
   }
 

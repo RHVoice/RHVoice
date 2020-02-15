@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -22,6 +22,7 @@
 #include "relation.hpp"
 #include "utterance.hpp"
 #include "hts_labeller.hpp"
+#include "property.hpp"
 
 namespace RHVoice
 {
@@ -90,7 +91,7 @@ namespace RHVoice
 }
 
   private:
-    double calculate_speech_param(double absolute_change,double relative_change,double default_value,double min_value,double max_value) const;
+    double calculate_speech_param(double absolute_change,double relative_change,const numeric_property<double>& default_value,const numeric_property<double>& min_value,const numeric_property<double>& max_value,bool clip) const;
 
     const item* get_token() const;
 

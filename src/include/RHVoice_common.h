@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -45,4 +45,8 @@ typedef enum
     RHVoice_log_level_warning,
     RHVoice_log_level_error
   } RHVoice_log_level;
+
+typedef enum {
+              RHVoice_synth_flag_dont_clip_rate=1
+} RHVoice_synth_flag;
 #endif

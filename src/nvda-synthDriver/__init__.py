@@ -156,6 +156,9 @@ class RHVoice_capitals_mode:
 	pitch=3
 	sound=4
 
+class RHVoice_synth_flag:
+	dont_clip_rate=1
+
 class RHVoice_synth_params(Structure):
 	_fields_=[("voice_profile",c_char_p),
 			  ("absolute_rate",c_double),
@@ -166,7 +169,8 @@ class RHVoice_synth_params(Structure):
 			  ("relative_volume",c_double),
 			  ("punctuation_mode",c_int),
 			  ("punctuation_list",c_char_p),
-			  ("capitals_mode",c_int)]
+			  ("capitals_mode",c_int),
+			  ("flags",c_int)]
 
 def load_tts_library():
 	try:
@@ -406,7 +410,8 @@ class speak_text(object):
 												 relative_volume=1,
 												 punctuation_mode=RHVoice_punctuation_mode.default,
 												 punctuation_list=None,
-												 capitals_mode=RHVoice_capitals_mode.default)
+												 capitals_mode=RHVoice_capitals_mode.default,
+												 flags=0)
 
 	def set_rate(self,rate):
 		self.__synth_params.absolute_rate=rate/50.0-1
@@ -419,6 +424,12 @@ class speak_text(object):
 
 	def set_voice_profile(self,name):
 		self.__synth_params.voice_profile=name.encode("utf-8")
+
+	def configure_rate_boost(self,flag):
+		if not flag:
+			return
+		self.__synth_params.relative_rate=2.5
+		self.__synth_params.flags|=RHVoice_synth_flag.dont_clip_rate
 
 	def __call__(self):
 		if self.__cancel_flag.is_set():
@@ -706,10 +717,12 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 	name="RHVoice"
 	description="RHVoice"
 
-	supportedSettings=(synthDriverHandler.SynthDriver.VoiceSetting(),
+	supportedSettings=[synthDriverHandler.SynthDriver.VoiceSetting(),
 					   synthDriverHandler.SynthDriver.RateSetting(),
 					   synthDriverHandler.SynthDriver.PitchSetting(),
-					   synthDriverHandler.SynthDriver.VolumeSetting())
+					   synthDriverHandler.SynthDriver.VolumeSetting()]
+	if hasattr(synthDriverHandler.SynthDriver,"RateBoostSetting"):
+		supportedSettings.append(synthDriverHandler.SynthDriver.RateBoostSetting())
 
 	if api_version>=api_version_2019_3:
 		supportedCommands=frozenset([cnv.get_item_class() for cnv in speech_command_converters])
@@ -798,6 +811,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		self.__rate=50
 		self.__pitch=50
 		self.__volume=50
+		self.__rate_boost=False
 		self.__tts_queue=Queue.Queue()
 		self.__tts_thread=TTSThread(self.__tts_queue)
 		self.__tts_thread.start()
@@ -824,6 +838,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		task.set_rate(self.__rate)
 		task.set_pitch(self.__pitch)
 		task.set_volume(self.__volume)
+		task.configure_rate_boost(self.__rate_boost)
 		self.__tts_queue.put(task)
 
 	def pause(self,switch):
@@ -871,3 +886,9 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 	def _set_voice(self,voice):
 		if voice in self.__profiles:
 			self.__profile=voice
+
+	def _get_rateBoost(self):
+		return self.__rate_boost
+
+	def _set_rateBoost(self,flag):
+		self.__rate_boost=flag

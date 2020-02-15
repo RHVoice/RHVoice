@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -302,7 +302,8 @@ namespace RHVoice
       engine_ptr(engine_ptr_),
       profile(profile_),
       owner(0),
-      current_sentence(sentences.end())
+      current_sentence(sentences.end()),
+      flags(0)
     {
       verbosity_settings.default_to(engine_ptr->verbosity_settings);
       quality.default_to(engine_ptr->quality);
@@ -342,6 +343,16 @@ namespace RHVoice
     {
       return profile;
     }
+
+    int get_flags() const
+    {
+      return flags;
+}
+
+    void set_flags(int value)
+    {
+      flags=value;
+}
 
     template<typename some_iterator>
     static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const voice_profile& profile=voice_profile())
@@ -452,6 +463,7 @@ namespace RHVoice
     std::list<sentence> sentences;
     std::list<sentence>::iterator current_sentence;
     voice_profile profile;
+    int flags;
   };
 
   template<typename text_iterator>
