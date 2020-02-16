@@ -98,7 +98,8 @@ class msi_packager(wix_packager):
 		self.create_product_element()
 		self.create_package_element()
 		self.create_media_template_element()
-		self.create_major_upgrade_element()
+		# self.create_major_upgrade_element()
+		self.configure_upgrade()
 		self.create_nsis_install_location_search()
 		self.create_nsis_uninstaller_search()
 		self.create_no_modify_property()
@@ -138,6 +139,30 @@ class msi_packager(wix_packager):
 		mu=self.SubElement(self.product,"MajorUpgrade",empty=True)
 		mu.set("DowngradeErrorMessage","A newer version of [ProductName] is already installed.")
 		mu.set("Schedule","afterInstallInitialize")
+
+	def create_upgrade_version_element(self):
+		u=self.SubElement(self.product,"Upgrade")
+		u.set("Id",self.upgrade_code)
+		uv=self.SubElement(u,"UpgradeVersion",empty=True)
+		return uv
+
+	def get_exts(self):
+		return ["WixUtilExtension"]
+
+	def configure_upgrade(self):
+		uv1=self.create_upgrade_version_element()
+		uv1.set("Minimum","0.0.0")
+		uv1.set("Maximum",self.version)
+		uv1.set("Property","OLDERVERSIONBEINGUPGRADED")
+		self.install_execute=self.SubElement(self.product,"InstallExecuteSequence")
+		rm=self.SubElement(self.install_execute,"RemoveExistingProducts",empty=True)
+		rm.set("After","InstallInitialize")
+		uv2=self.create_upgrade_version_element()
+		uv2.set("Minimum",self.version)
+		uv2.set("OnlyDetect","yes")
+		uv2.set("Property","NEWERVERSIONDETECTED")
+		c=self.SubElement(self.product,"CustomActionRef",empty=True)
+		c.set("Id","WixExitEarlyWithSuccess")
 
 	def create_no_modify_property(self):
 		p=self.SubElement(self.product,"Property",empty=True)
@@ -225,8 +250,7 @@ class msi_packager(wix_packager):
 		a.set("Return","check")
 		a.set("Property",self.nsis_uninstaller_property.get("Id"))
 		a.set("ExeCommand","/S /D[{}]".format(self.nsis_install_location_property.get("Id")))
-		s=self.SubElement(self.product,"InstallExecuteSequence")
-		c=self.SubElement(s,"Custom")
+		c=self.SubElement(self.install_execute,"Custom")
 		c.set("Action",a.get("Id"))
 		c.set("After","RemoveExistingProducts")
 		c.text="NOT Installed AND {} AND {}".format(self.nsis_uninstaller_property.get("Id"),self.nsis_install_location_property.get("Id"))
