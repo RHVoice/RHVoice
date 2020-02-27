@@ -4,7 +4,7 @@ google()
 jcenter()
     }
 dependencies {
-classpath 'com.android.tools.build:gradle:3.3.2'
+classpath 'com.android.tools.build:gradle:3.6.0'
     }
 }
 
@@ -15,12 +15,13 @@ jcenter()
     }
 
 ext.myMinSdkVersion=16
-ext.myCompileSdkVersion=28
-ext.myTargetSdkVersion=28
+ext.myCompileSdkVersion=29
+ext.myTargetSdkVersion=29
+ext.myNdkVersion="21.0.6113669"
 }
 
 if(!hasProperty('androidBuildToolsVersion')) {
-ext.androidBuildToolsVersion='28.0.3'
+ext.androidBuildToolsVersion='29.0.3'
 }
 
 if(hasProperty("signRelease")) {
