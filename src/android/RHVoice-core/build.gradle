@@ -13,7 +13,6 @@ into myExtraCoreAssetsDir
 }
 
 android {
-ndkVersion myNdkVersion
 compileSdkVersion myCompileSdkVersion
 buildToolsVersion rootProject.androidBuildToolsVersion
 

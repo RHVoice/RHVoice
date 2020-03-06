@@ -4,7 +4,7 @@ google()
 jcenter()
     }
 dependencies {
-classpath 'com.android.tools.build:gradle:3.6.0'
+classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
@@ -17,7 +17,6 @@ jcenter()
 ext.myMinSdkVersion=16
 ext.myCompileSdkVersion=29
 ext.myTargetSdkVersion=29
-ext.myNdkVersion="21.0.6113669"
 }
 
 if(!hasProperty('androidBuildToolsVersion')) {
