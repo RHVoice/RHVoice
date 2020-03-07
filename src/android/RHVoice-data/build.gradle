@@ -59,7 +59,6 @@ from spec["inDataDir"]
 
 android {
 compileSdkVersion myCompileSdkVersion
-buildToolsVersion rootProject.androidBuildToolsVersion
 
 defaultConfig {
 minSdkVersion myMinSdkVersion
