@@ -86,10 +86,10 @@ sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
 if(rootProject.signRelease||rootProject.signDebug) {
 signingConfigs {
 release {
-storeFile file(rootProject.keyStore)
-storePassword rootProject.keyStorePassword
-keyAlias rootProject.keyAlias
-keyPassword rootProject.keyPassword
+storeFile file(rootProject.property("RHVoice.keyStore"))
+storePassword rootProject.property("RHVoice.keyStorePassword")
+keyAlias rootProject.property("RHVoice.keyAlias")
+keyPassword rootProject.property("RHVoice.keyPassword")
 }
 }
 }

@@ -19,15 +19,15 @@ ext.myCompileSdkVersion=29
 ext.myTargetSdkVersion=29
 }
 
-if(hasProperty("signRelease")) {
-ext.signRelease=Boolean.parseBoolean(signRelease)
+if(hasProperty("RHVoice.signRelease")) {
+ext.signRelease=Boolean.parseBoolean(property("RHVoice.signRelease"))
 }
 else {
 ext.signRelease=false
 }
 
-if(hasProperty("signDebug")) {
-ext.signDebug=Boolean.parseBoolean(signDebug)
+if(hasProperty("RHVoice.signDebug")) {
+ext.signDebug=Boolean.parseBoolean(property("RHVoice.signDebug"))
 }
 else {
 ext.signDebug=false
