@@ -19,10 +19,6 @@ ext.myCompileSdkVersion=29
 ext.myTargetSdkVersion=29
 }
 
-if(!hasProperty('androidBuildToolsVersion')) {
-ext.androidBuildToolsVersion='29.0.3'
-}
-
 if(hasProperty("signRelease")) {
 ext.signRelease=Boolean.parseBoolean(signRelease)
 }

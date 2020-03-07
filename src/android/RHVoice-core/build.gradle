@@ -14,7 +14,6 @@ into myExtraCoreAssetsDir
 
 android {
 compileSdkVersion myCompileSdkVersion
-buildToolsVersion rootProject.androidBuildToolsVersion
 
     defaultConfig {
 minSdkVersion myMinSdkVersion
