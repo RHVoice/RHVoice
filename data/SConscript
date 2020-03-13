@@ -3,8 +3,9 @@
 import sys
 import os
 import os.path
-import RHVoicePackaging.nvda
-import RHVoicePackaging.windows
+if sys.platform=="win32":
+	import RHVoicePackaging.nvda
+	import RHVoicePackaging.windows
 import RHVoiceInfoParser
 
 Import("env")
