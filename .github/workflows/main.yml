@@ -7,7 +7,7 @@ on:
 
 jobs:
   androidBuild:
-    name: Build a debug apk
+    name: Build android app
     runs-on: ubuntu-18.04
 
     steps:
