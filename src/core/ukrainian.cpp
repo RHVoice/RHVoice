@@ -70,8 +70,8 @@ namespace RHVoice
     language(info_),
     info(info_),
     g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
-    lseq_fst(path::join(info_.get_data_path(),"lseq.fst")),
     untranslit_fst(path::join(info_.get_data_path(),"untranslit.fst")),
+    lseq_fst(path::join(info_.get_data_path(),"lseq.fst")),
     stress_fst(path::join(info_.get_data_path(),"stress.fst")),
     stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
   {
