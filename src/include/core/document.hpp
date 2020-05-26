@@ -300,9 +300,9 @@ namespace RHVoice
 
     explicit document(const smart_ptr<engine>& engine_ptr_,const voice_profile& profile_=voice_profile()):
       engine_ptr(engine_ptr_),
-      profile(profile_),
       owner(0),
       current_sentence(sentences.end()),
+      profile(profile_),
       flags(0)
     {
       verbosity_settings.default_to(engine_ptr->verbosity_settings);

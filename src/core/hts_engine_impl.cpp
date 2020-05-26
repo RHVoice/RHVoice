@@ -24,9 +24,9 @@ namespace RHVoice
   hts_engine_impl::hts_engine_impl(const std::string& impl_name,const voice_info& info_):
     info(info_),
     data_path(info_.get_data_path()),
-    quality(quality_none),
     beta("beta",0.4,-0.8,0.8),
     gain("gain",1.0,0.5,2.0),
+    quality(quality_none),
     int_key("key",200,50,500),
     emph_shift("emph_shift",0,-12,12),
     input(0),

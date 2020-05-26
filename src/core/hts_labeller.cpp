@@ -1404,8 +1404,8 @@ namespace RHVoice
 
     public:
       hts_ext_phon_feat(const std::string& hts_prefix,const std::string& path,const std::string& short_name):
-        full_name(path+"ph_ext_"+short_name),
-        feature_function(hts_prefix+"ext_"+short_name)
+        feature_function(hts_prefix+"ext_"+short_name),
+        full_name(path+"ph_ext_"+short_name)
       {
       }
 

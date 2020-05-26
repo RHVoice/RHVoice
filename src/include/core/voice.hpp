@@ -147,8 +147,8 @@ private:
   {
   public:
     voice_search_criteria():
-      preferred(false),
-      voice_language(0)
+      voice_language(0),
+      preferred(false)
     {
     }
 
