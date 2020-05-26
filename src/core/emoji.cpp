@@ -48,13 +48,13 @@ namespace RHVoice
     class initial_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
     };
 
     class first_ri_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
     };
 
     class second_ri_scanner_state: public emoji_scanner_state
@@ -66,13 +66,13 @@ namespace RHVoice
     class first_keycap_seq_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
     };
 
     class second_keycap_seq_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
     };
 
     class third_keycap_seq_scanner_state: public emoji_scanner_state
@@ -84,7 +84,7 @@ namespace RHVoice
     class tag_spec_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
     };
 
     class tag_term_scanner_state: public emoji_scanner_state
@@ -96,7 +96,7 @@ namespace RHVoice
     class zwj_element_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
       bool can_end_emoji() const;
 
     protected:
@@ -116,7 +116,7 @@ namespace RHVoice
       {
 }
 
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
 
     private:
       emoji_char_t chr;
@@ -143,12 +143,12 @@ namespace RHVoice
     class zwj_scanner_state: public emoji_scanner_state
     {
     public:
-      std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const;
+      std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const;
     };
 
-    std::auto_ptr<emoji_scanner_state> initial_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> initial_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if(is_regional_indicator(c))
         res.reset(new first_ri_scanner_state);
       else if(c.p&emoji_property_emoji)
@@ -161,9 +161,9 @@ namespace RHVoice
       return res;
 }
 
-    std::auto_ptr<emoji_scanner_state> zwj_element_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> zwj_element_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if(c.cp==zwj)
         res.reset(new zwj_scanner_state);
       else if(first&&is_tag_spec_char(c))
@@ -176,9 +176,9 @@ namespace RHVoice
       return true;
 }
 
-    std::auto_ptr<emoji_scanner_state> emoji_char_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> emoji_char_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res(zwj_element_scanner_state::next(c));
+      std::unique_ptr<emoji_scanner_state> res(zwj_element_scanner_state::next(c));
       if(res.get()!=0)
         return res;
       if(c.cp==emoji_presentation_selector)
@@ -188,17 +188,17 @@ namespace RHVoice
       return res;
 }
 
-    std::auto_ptr<emoji_scanner_state> zwj_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> zwj_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if((c.p&emoji_property_emoji)&&!is_key_char(c))
         res.reset(new emoji_char_scanner_state(c,false));
       return res;
 }
 
-    std::auto_ptr<emoji_scanner_state> first_ri_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> first_ri_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if(is_regional_indicator(c))
         res.reset(new second_ri_scanner_state);
       return res;
@@ -209,17 +209,17 @@ namespace RHVoice
       return true;
 }
 
-    std::auto_ptr<emoji_scanner_state> first_keycap_seq_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> first_keycap_seq_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if(c.cp==emoji_presentation_selector)
         res.reset(new second_keycap_seq_scanner_state);
       return res;
 }
 
-    std::auto_ptr<emoji_scanner_state> second_keycap_seq_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> second_keycap_seq_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if(c.cp==keycap)
         res.reset(new third_keycap_seq_scanner_state);
       return res;
@@ -230,9 +230,9 @@ namespace RHVoice
       return true;
 }
 
-    std::auto_ptr<emoji_scanner_state> tag_spec_scanner_state::next(emoji_char_t c) const
+    std::unique_ptr<emoji_scanner_state> tag_spec_scanner_state::next(emoji_char_t c) const
     {
-      std::auto_ptr<emoji_scanner_state> res;
+      std::unique_ptr<emoji_scanner_state> res;
       if(c.cp==cancel_tag)
         res.reset(new tag_term_scanner_state);
       else if(is_tag_spec_char(c))
@@ -273,10 +273,10 @@ namespace RHVoice
     emoji_char_t c=find_emoji_char(cp);
     if(!c.valid())
       return false;
-    std::auto_ptr<emoji_scanner_state> new_state=state->next(c);
+    std::unique_ptr<emoji_scanner_state> new_state=state->next(c);
     if(new_state.get()==0)
       return false;
-    state=new_state;
+    state.reset(new_state.release());
     ++length;
     if(state->can_end_emoji())
       result=length;

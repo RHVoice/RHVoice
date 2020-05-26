@@ -68,9 +68,9 @@ emoji_property_extended_pictographic=32
       return false;
 }
 
-    virtual std::auto_ptr<emoji_scanner_state> next(emoji_char_t c) const
+    virtual std::unique_ptr<emoji_scanner_state> next(emoji_char_t c) const
     {
-      return std::auto_ptr<emoji_scanner_state>();
+      return std::unique_ptr<emoji_scanner_state>();
 }
 
   private:
@@ -97,7 +97,7 @@ emoji_property_extended_pictographic=32
     bool process(utf8::uint32_t c);
 
   private:
-    std::auto_ptr<emoji_scanner_state> state;
+    std::unique_ptr<emoji_scanner_state> state;
     std::size_t result;
     std::size_t length;
   };

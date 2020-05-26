@@ -726,7 +726,7 @@ namespace RHVoice
       template<class T>
       static inline ruleset* create()
       {
-        std::auto_ptr<ruleset> rs(new ruleset);
+        std::unique_ptr<ruleset> rs(new ruleset);
         rs->append<T>();
         return rs.release();
       }
@@ -734,7 +734,7 @@ namespace RHVoice
       template<class T,typename A>
       static inline ruleset* create(const A& a)
       {
-        std::auto_ptr<ruleset> rs(new ruleset);
+        std::unique_ptr<ruleset> rs(new ruleset);
         rs->append<T,A>(a);
         return rs.release();
       }
@@ -753,7 +753,7 @@ namespace RHVoice
 
     struct parse_state
     {
-      std::auto_ptr<ruleset> result;
+      std::unique_ptr<ruleset> result;
       bool error;
 
       parse_state():
