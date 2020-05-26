@@ -53,7 +53,7 @@ namespace RHVoice
     ini_parser& operator=(const ini_parser&);
     std::string unescape(const std::string& s) const;
 
-    std::auto_ptr<std::ifstream> instream;
+    std::unique_ptr<std::ifstream> instream;
     bool standard_format;
     std::string section,key,value;
   };

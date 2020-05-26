@@ -225,11 +225,11 @@ namespace RHVoice
 
     private:
       std::string feature_name;
-      std::auto_ptr<condition> question;
-      std::auto_ptr<node> yes_node,no_node;
+      std::unique_ptr<condition> question;
+      std::unique_ptr<node> yes_node,no_node;
     };
 
-    std::auto_ptr<node> root;
+    std::unique_ptr<node> root;
 
     dtree(const dtree&);
     dtree& operator=(const dtree&);
@@ -252,13 +252,13 @@ namespace RHVoice
 
     const value& predict(const item& i) const
     {
-      std::auto_ptr<item_features> f(new item_features(i));
+      std::unique_ptr<item_features> f(new item_features(i));
       return predict(*f);
     }
 
     const value& predict(const std::map<std::string,value>& m) const
     {
-      std::auto_ptr<explicit_features> f(new explicit_features(m));
+      std::unique_ptr<explicit_features> f(new explicit_features(m));
       return predict(*f);
     }
   };

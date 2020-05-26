@@ -130,7 +130,7 @@ namespace RHVoice
       template<typename forward_iterator>
       pointer add_child(forward_iterator first,forward_iterator last)
       {
-        std::auto_ptr<node> child(new node(first,last));
+        std::unique_ptr<node> child(new node(first,last));
         children.push_back(child.get());
         return child.release();
       }
@@ -138,7 +138,7 @@ namespace RHVoice
       void split(label_iterator pos)
       {
         label_type new_label(label_iterator(label.begin()),pos);
-        std::auto_ptr<node> child(new node(pos,label_iterator(label.end())));
+        std::unique_ptr<node> child(new node(pos,label_iterator(label.end())));
         child->children.reserve(1);
         child->value=value;
         value=0;
@@ -178,7 +178,7 @@ namespace RHVoice
     template<typename forward_iterator>
     value_type& insert(forward_iterator first,forward_iterator last)
     {
-      std::auto_ptr<value_type> val(new value_type());
+      std::unique_ptr<value_type> val(new value_type());
       node* child=get_node(first,last);
       if(child->value==0)
         child->value=val.release();
@@ -188,7 +188,7 @@ namespace RHVoice
     template<typename forward_iterator>
     value_type& insert(forward_iterator first,forward_iterator last,const value_type& value)
     {
-      std::auto_ptr<value_type> val(new value_type(value));
+      std::unique_ptr<value_type> val(new value_type(value));
       node* child=get_node(first,last);
       delete child->value;
       child->value=val.release();

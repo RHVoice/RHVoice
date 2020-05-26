@@ -280,11 +280,11 @@ namespace RHVoice
     const fst syl_fst;
     std::vector<std::string> msg_cap_letter,msg_char_code;
     std::map<utf8::uint32_t,std::string> whitespace_symbols;
-    std::auto_ptr<fst> english_phone_mapping_fst;
-    std::auto_ptr<fst> emoji_fst;
-std::auto_ptr<fst> qst_fst;
-    std::auto_ptr<dtree> pitch_mod_dtree;
-    std::auto_ptr<dtree> dur_mod_dtree;
+    std::unique_ptr<fst> english_phone_mapping_fst;
+    std::unique_ptr<fst> emoji_fst;
+std::unique_ptr<fst> qst_fst;
+    std::unique_ptr<dtree> pitch_mod_dtree;
+    std::unique_ptr<dtree> dur_mod_dtree;
     pitch::targets_spec_parser pts_parser;
     userdict::dict udict;
 

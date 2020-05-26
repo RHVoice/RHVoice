@@ -206,10 +206,10 @@ namespace RHVoice
     return result;
   }
 
-  std::auto_ptr<utterance> sentence::new_utterance() const
+  std::unique_ptr<utterance> sentence::new_utterance() const
   {
     const voice_profile& profile=parent->get_voice_profile();
-    std::auto_ptr<utterance> u;
+    std::unique_ptr<utterance> u;
     const language_list& languages=parent->get_engine().get_languages();
     language_list::const_iterator current_language=language_and_voice.first;
     const voice_list& voices=parent->get_engine().get_voices();
@@ -345,9 +345,9 @@ namespace RHVoice
     subtoken.set("verbosity",level);
   }
 
-  std::auto_ptr<utterance> sentence::create_utterance(sentence_position pos) const
+  std::unique_ptr<utterance> sentence::create_utterance(sentence_position pos) const
   {
-    std::auto_ptr<utterance> u=new_utterance();
+    std::unique_ptr<utterance> u=new_utterance();
     apply_speech_settings(*u);
     execute_commands(*u);
     if(pos==sentence_position_single)
@@ -383,7 +383,7 @@ namespace RHVoice
   {
     if(!has_owner())
       return;
-    std::auto_ptr<utterance> u;
+    std::unique_ptr<utterance> u;
     sentence_position pos=sentence_position_initial;
     for(iterator it(begin());it!=end();++it)
       {

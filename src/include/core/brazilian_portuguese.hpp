@@ -66,7 +66,7 @@ namespace RHVoice
     const brazilian_portuguese_info& info;
     const fst g2p_fst;
     const fst lseq_fst;
-    std::auto_ptr<fst> h_fst;
+    std::unique_ptr<fst> h_fst;
   };
 }
 #endif

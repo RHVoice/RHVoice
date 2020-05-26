@@ -88,8 +88,8 @@ namespace RHVoice
     void do_generate_samples(frame_t& f);
     void do_generate_samples();
 
-    std::auto_ptr<MAGE::Mage> mage;
-    std::auto_ptr<_HTS_Vocoder> vocoder;
+    std::unique_ptr<MAGE::Mage> mage;
+    std::unique_ptr<_HTS_Vocoder> vocoder;
     int frame_shift;
     double alpha;
     int mgc_order;

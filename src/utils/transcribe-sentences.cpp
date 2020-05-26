@@ -40,13 +40,13 @@ int main(int argc,const char* argv[])
         throw std::runtime_error("Cannot open the input file");
       std::istreambuf_iterator<char> text_start(f_in);
       std::istreambuf_iterator<char> text_end;
-      std::auto_ptr<document> doc=document::create_from_ssml(eng,text_start,text_end);
+      std::unique_ptr<document> doc=document::create_from_ssml(eng,text_start,text_end);
       std::ofstream f_out(outpath_arg.getValue().c_str());
       if(!f_out.is_open())
         throw std::runtime_error("Cannot open the output file");
       for(document::iterator it(doc->begin());it!=doc->end();++it)
         {
-          std::auto_ptr<utterance> utt=it->create_utterance(sentence_position_single);
+          std::unique_ptr<utterance> utt=it->create_utterance(sentence_position_single);
           const relation& seg_rel=utt->get_relation("Segment");
           for(relation::const_iterator seg_iter(seg_rel.begin());seg_iter!=seg_rel.end();++seg_iter)
             {

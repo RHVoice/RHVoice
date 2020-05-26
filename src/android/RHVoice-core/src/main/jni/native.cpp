@@ -315,7 +315,7 @@ namespace
     if(profile.empty())
       throw voice_not_found();
     std::string text=jstring_to_string(env,input);
-    std::auto_ptr<document> doc;
+    std::unique_ptr<document> doc;
     if(check(env,env->CallBooleanMethod(params,SynthesisParameters_getSSMLMode_method)))
       doc=document::create_from_ssml(data->engine_ptr,text.begin(),text.end(),profile);
     else
@@ -440,7 +440,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
 {
   TRY
   clear_native_field(env,obj,data_field);
-  std::auto_ptr<Data> data(new Data);
+  std::unique_ptr<Data> data(new Data);
   engine::init_params params;
   params.data_path=jstring_to_string(env,data_path);
   params.config_path=jstring_to_string(env,config_path);

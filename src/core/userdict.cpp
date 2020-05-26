@@ -153,7 +153,7 @@ namespace RHVoice
         {
         }
 
-        std::auto_ptr<token> get_next_token();
+        std::unique_ptr<token> get_next_token();
 
       private:
         lexer(const lexer&);
@@ -330,7 +330,7 @@ namespace RHVoice
 
         const language_info& lang;
         const chars32& input;
-        std::auto_ptr<token> next_token;
+        std::unique_ptr<token> next_token;
         chars32::const_iterator pos;
       };
 
@@ -339,7 +339,7 @@ namespace RHVoice
       public:
         compiler(const language_info& lng,const std::string& file_path);
         ~compiler();
-        std::auto_ptr<ruleset> compile();
+        std::unique_ptr<ruleset> compile();
 
       private:
         compiler(const compiler&);
@@ -352,10 +352,10 @@ namespace RHVoice
         void* parser;
       };
 
-      std::auto_ptr<token> lexer::get_next_token()
+      std::unique_ptr<token> lexer::get_next_token()
       {
         if(pos==input.end())
-          return std::auto_ptr<token>();
+          return std::unique_ptr<token>();
         next_token.reset(new token);
         match_native_letters()||
           match_english_letters()||
@@ -373,7 +373,7 @@ namespace RHVoice
           match_newline()||
           match_comment()||
           match_symbol();
-        return next_token;
+        return std::move(next_token);
       }
     }
 
@@ -394,11 +394,11 @@ namespace RHVoice
       userdictParseFree(parser,std::free);
     }
 
-    std::auto_ptr<ruleset> compiler::compile()
+    std::unique_ptr<ruleset> compiler::compile()
     {
       lexer lxr(lang,source);
       parse_state ps;
-      std::auto_ptr<token> tok;
+      std::unique_ptr<token> tok;
       while((tok=lxr.get_next_token()).get()!=0)
         {
           int type=tok->get_type();
@@ -411,7 +411,7 @@ namespace RHVoice
               ps.error=false;
             }
         }
-      return ps.result;
+      return std::move(ps.result);
     }
 
     void compiler::read_source(const std::string& file_path)
@@ -464,7 +464,7 @@ namespace RHVoice
       try
         {
           compiler comp(lang,file_path);
-          std::auto_ptr<ruleset> result(comp.compile());
+          std::unique_ptr<ruleset> result(comp.compile());
           for(ruleset::iterator it=result->begin();it!=result->end();++it)
             {
               chars32 key=it->get_key();
