@@ -103,7 +103,7 @@ private:
 
     void register_settings(config& cfg);
 
-    bool is_enabled()
+    virtual bool is_enabled() const
     {
       return enabled&&voice_language->is_enabled();
     }
