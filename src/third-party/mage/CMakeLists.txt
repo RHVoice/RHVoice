@@ -21,7 +21,7 @@ target_include_directories(libmage PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(libmage "libhts_engine")
 harden(libmage)
 set_target_properties("libmage" PROPERTIES PREFIX "")
-target_compile_definitions(libmage PRIVATE "-DRHVOICE=1")
+target_compile_definitions(libmage PRIVATE RHVOICE)
 install(TARGETS "libmage"
 	COMPONENT "libmage"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"

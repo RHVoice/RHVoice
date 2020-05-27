@@ -43,7 +43,7 @@ else()
 	set(CONFIG_PATH "${config_dir}")
 endif()
 
-set(VERSION 0)
+set(VERSION 1.2.0)
 
 target_compile_definitions(RHVoice_core PRIVATE DATA_PATH="${DATA_PATH}" CONFIG_PATH="${CONFIG_PATH}" VERSION="${VERSION}")
 
