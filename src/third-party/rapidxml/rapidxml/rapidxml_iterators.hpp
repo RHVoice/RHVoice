@@ -3,7 +3,7 @@
 
 // Copyright (C) 2006, 2009 Marcin Kalicinski
 // Version 1.13
-// Revision $DateTime: 2009/05/13 01:46:17 $
+// Revision $DateTime: 2009/05/15 23:02:39 $
 //! \file rapidxml_iterators.hpp This file contains rapidxml iterators
 
 #include "rapidxml.hpp"
@@ -12,7 +12,7 @@ namespace rapidxml
 {
 
     //! Iterator of child nodes of xml_node
-    template<class Ch>
+    template<class Ch = char>
     class node_iterator
     {
     
@@ -29,7 +29,7 @@ namespace rapidxml
         {
         }
 
-        node_iterator(xml_node<Ch> *node)
+        node_iterator(const xml_node<Ch> *node)
             : m_node(node->first_node())
         {
         }
@@ -56,11 +56,11 @@ namespace rapidxml
         node_iterator operator++(int)
         {
             node_iterator tmp = *this;
-            ++this;
+            this->operator++();
             return tmp;
         }
 
-        node_iterator& operator--()
+        node_iterator &operator--()
         {
             assert(m_node && m_node->previous_sibling());
             m_node = m_node->previous_sibling();
@@ -70,16 +70,16 @@ namespace rapidxml
         node_iterator operator--(int)
         {
             node_iterator tmp = *this;
-            ++this;
+            this->operator--();
             return tmp;
         }
 
-        bool operator ==(const node_iterator<Ch> &rhs)
+        bool operator==(const node_iterator<Ch> &rhs) const
         {
             return m_node == rhs.m_node;
         }
 
-        bool operator !=(const node_iterator<Ch> &rhs)
+        bool operator!=(const node_iterator<Ch> &rhs) const
         {
             return m_node != rhs.m_node;
         }
@@ -91,7 +91,7 @@ namespace rapidxml
     };
 
     //! Iterator of child attributes of xml_node
-    template<class Ch>
+    template<class Ch = char>
     class attribute_iterator
     {
     
@@ -108,7 +108,7 @@ namespace rapidxml
         {
         }
 
-        attribute_iterator(xml_node<Ch> *node)
+        attribute_iterator(const xml_node<Ch> *node)
             : m_attribute(node->first_attribute())
         {
         }
@@ -125,7 +125,7 @@ namespace rapidxml
             return m_attribute;
         }
 
-        attribute_iterator& operator++()
+        attribute_iterator &operator++()
         {
             assert(m_attribute);
             m_attribute = m_attribute->next_attribute();
@@ -135,7 +135,7 @@ namespace rapidxml
         attribute_iterator operator++(int)
         {
             attribute_iterator tmp = *this;
-            ++this;
+            this->operator++();
             return tmp;
         }
 
@@ -149,16 +149,16 @@ namespace rapidxml
         attribute_iterator operator--(int)
         {
             attribute_iterator tmp = *this;
-            ++this;
+            this->operator--();
             return tmp;
         }
 
-        bool operator ==(const attribute_iterator<Ch> &rhs)
+        bool operator ==(const attribute_iterator<Ch> &rhs) const
         {
             return m_attribute == rhs.m_attribute;
         }
 
-        bool operator !=(const attribute_iterator<Ch> &rhs)
+        bool operator !=(const attribute_iterator<Ch> &rhs) const
         {
             return m_attribute != rhs.m_attribute;
         }
@@ -166,9 +166,58 @@ namespace rapidxml
     private:
 
         xml_attribute<Ch> *m_attribute;
-
     };
 
+    // Range-based for loop support
+    template<class Iterator>
+    class iterator_range
+    {
+
+    public:
+        using const_iterator = Iterator;
+        using iterator = Iterator;
+
+        iterator_range(Iterator first, Iterator last) noexcept
+            : m_first(first)
+            , m_last(last)
+        {
+        }
+
+        Iterator begin() const noexcept
+        {
+            return m_first;
+        }
+        Iterator end() const noexcept
+        {
+            return m_last;
+        }
+
+    private:
+        Iterator m_first;
+        Iterator m_last;
+    };
+
+    template<class Ch>
+    using node_range = iterator_range<node_iterator<Ch>>;
+
+    template<class Ch>
+    using attribute_range = iterator_range<attribute_iterator<Ch>>;
+
+    //! \pre `parent` is not equal to `nullptr`.
+    //! \return A range of pointers to the children of `parent`.
+    template<class Ch>
+    node_range<Ch> nodes(const xml_node<Ch> *parent) noexcept
+    {
+        return {node_iterator<Ch>{parent}, {}};
+    }
+
+    //! \pre `node` is not equal to `nullptr`.
+    //! \remarks The range offers range-based for loop support.
+    template<class Ch>
+    attribute_range<Ch> attributes(const xml_node<Ch> *node) noexcept
+    {
+        return {attribute_iterator<Ch>{node}, {}};
+    }
 }
 
 #endif
