@@ -219,7 +219,7 @@ def clone_base_env(base_env,user_vars,arch=None):
             env.Tool("xp_compat")
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
-        env.AppendUnique(CXXFLAGS=["-std=c++03"])
+        env.AppendUnique(CXXFLAGS=["-std=c++11"])
         env.AppendUnique(CFLAGS=["-std=c99"])
     if sys.platform=="win32":
         bits="64" if arch.endswith("64") else "32"
