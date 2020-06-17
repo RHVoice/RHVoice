@@ -108,7 +108,7 @@ namespace RHVoice
         pos+=len;
         generate_samples(*label_iter);
         if(output->is_stopped())
-          return;
+          break;
       }
     pitch_editor.finish();
     do_generate_samples();
