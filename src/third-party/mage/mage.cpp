@@ -648,8 +648,8 @@ void MAGE::Mage::addEngine( std::string EngineName )
 	// a lock will be necessary around this insert (! we're out of audio thread)
 	this->engine[EngineName] = tmpEngine;
 	
-	// NO check for the interpolation weights
-	//this->checkInterpolationFunctions();
+	// check for the interpolation weights
+	this->checkInterpolationFunctions();
 
 	if( this->defaultEngine.empty() )
 	{
