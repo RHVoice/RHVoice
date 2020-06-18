@@ -94,7 +94,7 @@ namespace RHVoice
     {
       try
         {
-          std::auto_ptr<document> doc;
+          std::unique_ptr<document> doc;
           switch(msg.type)
             {
             case tts_message_text:

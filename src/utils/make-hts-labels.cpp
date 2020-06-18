@@ -148,7 +148,7 @@ int main(int argc,const char* argv[])
         throw std::runtime_error("Cannot open the input file");
       std::istreambuf_iterator<char> text_start(f_in);
       std::istreambuf_iterator<char> text_end;
-      std::auto_ptr<document> doc=document::create_from_ssml(eng,text_start,text_end);
+      std::unique_ptr<document> doc=document::create_from_ssml(eng,text_start,text_end);
       document::iterator sentence_iter=doc->begin();
       if(labpath_arg.isSet())
         {
@@ -157,7 +157,7 @@ int main(int argc,const char* argv[])
             {
               if(sentence_iter==doc->end())
                 throw std::runtime_error("Sentence count mismatch");
-              std::auto_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
+              std::unique_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
               load_mono_labels(*utt,path::join(labpath_arg.getValue(),*it));
               output_labels(*utt,path::join(outpath_arg.getValue(),*it));
               ++sentence_iter;
@@ -173,7 +173,7 @@ int main(int argc,const char* argv[])
               s << "_";
               s << index;
               s << ".lab";
-              std::auto_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
+              std::unique_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
               output_labels(*utt,path::join(outpath_arg.getValue(),s.str()));
               ++index;
             }

@@ -217,7 +217,7 @@ namespace RHVoice
           throw file_format_error(err_msg);
         if(key_length!=0)
           {
-            std::auto_ptr<record> data(new record(key_length));
+            std::unique_ptr<record> data(new record(key_length));
             if(!reader(f,data->value))
               throw file_format_error(err_msg);
             st.data=data.release();

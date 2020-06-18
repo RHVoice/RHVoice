@@ -252,7 +252,7 @@ namespace RHVoice
       return commands.empty();
     }
 
-    std::auto_ptr<utterance> create_utterance(sentence_position position) const;
+    std::unique_ptr<utterance> create_utterance(sentence_position position) const;
 
     template<typename text_iterator>
     text_iterator add_text(const text_iterator& text_start,const text_iterator& text_end,const tts_markup& markup_info);
@@ -283,7 +283,7 @@ namespace RHVoice
     bool next_token_starts_new_sentence(const tts_markup& markup_info) const;
     voice_list::const_iterator determine_next_token_voice() const;
     language_voice_pair get_language_and_voice_from_markup(const tts_markup& markup_info) const;
-    std::auto_ptr<utterance> new_utterance() const;
+    std::unique_ptr<utterance> new_utterance() const;
     void execute_commands(utterance& u) const;
     void apply_speech_settings(utterance& u) const;
     void set_spell_single_symbol(utterance& u) const;
@@ -355,7 +355,7 @@ namespace RHVoice
 }
 
     template<typename some_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const voice_profile& profile=voice_profile())
+    static std::unique_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const voice_profile& profile=voice_profile())
     {
       #ifdef _MSC_VER
       return create_from_plain_text(engine_ptr,text_start,text_end,say_as,profile,std::iterator_traits<some_iterator>::iterator_category());
@@ -365,7 +365,7 @@ namespace RHVoice
     }
 
     template<typename input_iterator>
-    static std::auto_ptr<document> create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile=voice_profile());
+    static std::unique_ptr<document> create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile=voice_profile());
 
     typedef std::list<sentence>::iterator iterator;
     typedef std::list<sentence>::const_iterator const_iterator;
@@ -427,7 +427,7 @@ namespace RHVoice
     }
 
     template<typename input_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,content_type say_as,const voice_profile& profile,std::input_iterator_tag)
+    static std::unique_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,content_type say_as,const voice_profile& profile,std::input_iterator_tag)
     {
       #ifdef _MSC_VER
       typedef std::iterator_traits<input_iterator>::value_type char_type;
@@ -437,7 +437,7 @@ namespace RHVoice
       std::vector<char_type> tmp_buf(text_start,text_end);
       tts_markup m;
       m.say_as=say_as;
-      std::auto_ptr<document> doc_ptr(new document(engine_ptr,profile));
+      std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
       #ifdef _MSC_VER
       typedef utf::text_iterator<std::vector<char_type>::const_iterator> char_iterator;
       #else
@@ -448,9 +448,9 @@ namespace RHVoice
     }
 
     template<typename forward_iterator>
-    static std::auto_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const voice_profile& profile,std::forward_iterator_tag)
+    static std::unique_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const voice_profile& profile,std::forward_iterator_tag)
     {
-      std::auto_ptr<document> doc_ptr(new document(engine_ptr,profile));
+      std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
       typedef utf::text_iterator<forward_iterator> text_iterator;
       tts_markup m;
       m.say_as=say_as;
@@ -604,9 +604,9 @@ namespace RHVoice
   }
 
   template<typename input_iterator>
-  std::auto_ptr<document> document::create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile)
+  std::unique_ptr<document> document::create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile)
   {
-    std::auto_ptr<document> doc_ptr(new document(engine_ptr,profile));
+    std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
     #ifdef _MSC_VER
     typedef std::iterator_traits<input_iterator>::value_type char_type;
     #else

@@ -140,17 +140,9 @@ namespace RHVoice
     class playback_stream
     {
     public:
-      explicit playback_stream(const playback_params& params_=playback_params()):
-        params(params_),
-        impl(0)
-      {
-      }
+      explicit playback_stream(const playback_params& params_=playback_params());
 
-      ~playback_stream()
-      {
-        if(is_open())
-          close();
-      }
+      ~playback_stream();
 
       bool is_initialized() const
       {
@@ -239,7 +231,7 @@ namespace RHVoice
       static std::vector<smart_ptr<library> > init_libraries();
 
       playback_params params;
-      std::auto_ptr<playback_stream_impl> impl;
+      std::unique_ptr<playback_stream_impl> impl;
       static std::vector<smart_ptr<library> > libraries;
     };
 

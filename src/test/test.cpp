@@ -116,7 +116,7 @@ int main(int argc,const char* argv[])
         profile=eng->create_voice_profile(voice_arg.getValue());
       std::istreambuf_iterator<char> text_start(f_in.is_open()?f_in:std::cin);
       std::istreambuf_iterator<char> text_end;
-      std::auto_ptr<document> doc;
+      std::unique_ptr<document> doc;
       if(ssml_switch.getValue())
         doc=document::create_from_ssml(eng,text_start,text_end,profile);
       else

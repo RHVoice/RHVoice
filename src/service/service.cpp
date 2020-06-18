@@ -313,7 +313,7 @@ namespace
     Glib::ustring text;
 
   private:
-    virtual std::auto_ptr<RHVoice::document> create_document() const=0;
+    virtual std::unique_ptr<RHVoice::document> create_document() const=0;
     double pitch,rate,volume;
   };
 
@@ -343,7 +343,7 @@ namespace
     }
 
   private:
-    std::auto_ptr<RHVoice::document> create_document() const;
+    std::unique_ptr<RHVoice::document> create_document() const;
   };
 
   session::session(const Glib::RefPtr<Gio::DBus::Connection>& connection_,const Glib::ustring& name_):
@@ -433,7 +433,7 @@ namespace
   {
     try
       {
-        std::auto_ptr<RHVoice::document> doc=create_document();
+        std::unique_ptr<RHVoice::document> doc=create_document();
         if(!parent.is_stopping())
           {
             doc->speech_settings.absolute.rate=rate;
@@ -461,7 +461,7 @@ namespace
       }
   }
 
-  std::auto_ptr<RHVoice::document> text_task::create_document() const
+  std::unique_ptr<RHVoice::document> text_task::create_document() const
   {
     return RHVoice::document::create_from_plain_text(local_engine_ref,text.begin(),text.end(),RHVoice::content_text,speakers);
   }
