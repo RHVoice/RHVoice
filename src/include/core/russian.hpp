@@ -96,7 +96,7 @@ namespace RHVoice
     const fst dict_fst;
     const fst stress_fst;
     const rules<uint8_t> stress_rules;
-    std::auto_ptr<fst> rulex_dict_fst,rulex_rules_fst;
+    std::unique_ptr<fst> rulex_dict_fst,rulex_rules_fst;
   };
 }
 #endif

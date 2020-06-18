@@ -90,7 +90,7 @@ private:
   RHVoice_message_struct(const RHVoice_message_struct&);
   RHVoice_message_struct& operator=(const RHVoice_message_struct&);
 
-  std::auto_ptr<document> doc_ptr;
+  std::unique_ptr<document> doc_ptr;
   RHVoice_callbacks callbacks;
   void* user_data;
 };

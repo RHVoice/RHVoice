@@ -45,7 +45,7 @@ namespace RHVoice
     void set_speed();
     void edit_pitch();
 
-    std::auto_ptr<_HTS_Engine> engine;
+    std::unique_ptr<_HTS_Engine> engine;
   };
 }
 #endif
