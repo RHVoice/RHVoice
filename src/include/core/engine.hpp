@@ -120,7 +120,7 @@ namespace RHVoice
     bool configure(const std::string& key,const std::string& value)
     {
       return cfg.set(key,value);
-}
+    }
 
     voice_profile get_fallback_voice_profile() const;
 

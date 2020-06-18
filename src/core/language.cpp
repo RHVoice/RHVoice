@@ -552,9 +552,9 @@ else
     gpos_fst(path::join(info_.get_data_path(),"gpos.fst")),
     phrasing_dtree(path::join(info_.get_data_path(),"phrasing.dt")),
     syl_fst(path::join(info_.get_data_path(),"syl.fst")),
+    udict(info_),
     spell_fst(path::join(info_.get_data_path(),"spell.fst")),
-    downcase_fst(path::join(info_.get_data_path(),"downcase.fst")),
-    udict(info_)
+    downcase_fst(path::join(info_.get_data_path(),"downcase.fst"))
   {
     try
       {
@@ -1395,10 +1395,10 @@ else
 
 
   language_info::language_info(const std::string& name,const std::string& data_path_,const std::string& userdict_path_):
+    use_pseudo_english("use_pseudo_english",true),
     enabled("enabled",true),
     all_languages(0),
-    userdict_path(userdict_path_),
-    use_pseudo_english("use_pseudo_english",true)
+    userdict_path(userdict_path_)
   {
     set_name(name);
     set_data_path(data_path_);

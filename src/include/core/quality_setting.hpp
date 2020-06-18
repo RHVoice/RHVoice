@@ -25,7 +25,7 @@ namespace RHVoice
       quality_none=0,
       quality_min=1,
       quality_std,
-quality_max
+      quality_max
     };
 
   class quality_setting: public enum_property<quality_t>
