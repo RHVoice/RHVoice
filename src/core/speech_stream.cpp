@@ -20,8 +20,8 @@ namespace RHVoice
 {
   speech_stream::speech_stream(int sample_rate,double speed):
     buffer_size(0.1*sample_rate),
-    start_offset(0),
     offset(0),
+    start_offset(0),
     sonic_stream(0)
   {
     if(speed!=1)

@@ -93,8 +93,8 @@ namespace RHVoice
     rate(1),
     pitch(1),
     volume(1),
-    length(0),
     language_and_voice(parent->get_engine().get_languages().end(),parent->get_engine().get_voices().end()),
+    length(0),
     num_tokens(0)
     {
     }
