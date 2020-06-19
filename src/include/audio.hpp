@@ -201,6 +201,11 @@ namespace RHVoice
           params.client_name=client_name;
       }
 
+      unsigned int get_buffer_size() const
+      {
+        return params.buffer_size;
+      }
+
       void set_buffer_size(unsigned int buffer_size)
       {
         if(is_initialized())
