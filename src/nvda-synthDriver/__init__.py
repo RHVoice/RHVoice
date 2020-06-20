@@ -33,7 +33,7 @@ try:
 except ImportError:
 	from StringIO import StringIO
 
-from RHVoice import RHVoice_tts_engine, RHVoice_message
+from RHVoice import RHVoice_tts_engine, RHVoice_message, RHVoice_lib_path
 
 import config
 import globalVars
@@ -57,7 +57,7 @@ try:
 	module_dir=os.path.dirname(__file__.decode("mbcs"))
 except AttributeError:
 	module_dir=os.path.dirname(__file__)
-lib_path=os.path.join(module_dir,"RHVoice.dll")
+RHVoice_lib_path=os.path.join(module_dir,"RHVoice.dll")
 config_path=os.path.join(globalVars.appArgs.configPath,"RHVoice-config")
 
 try:
@@ -168,9 +168,9 @@ class RHVoice_synth_params(Structure):
 
 def load_tts_library():
 	try:
-		lib=ctypes.CDLL(lib_path.encode("mbcs"))
+		lib=ctypes.CDLL(RHVoice_lib_path.encode("mbcs"))
 	except TypeError:
-		lib=ctypes.CDLL(lib_path)
+		lib=ctypes.CDLL(RHVoice_lib_path)
 	lib.RHVoice_get_version.restype=c_char_p
 	lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
 	lib.RHVoice_new_tts_engine.restype=RHVoice_tts_engine
@@ -724,7 +724,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 
 	@classmethod
 	def check(cls):
-		return os.path.isfile(lib_path)
+		return os.path.isfile(RHVoice_lib_path)
 
 	def __languages_match(self,code1,code2,full=True):
 		lang1=code1.split("_")
