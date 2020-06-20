@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import os.path
 try:
 	import Queue
@@ -23,8 +22,7 @@ except ImportError:
 	import queue as Queue
 from collections import OrderedDict,defaultdict
 import threading
-import ctypes
-from ctypes import c_char_p,c_wchar_p,c_void_p,c_short,c_int,c_uint,c_double,POINTER,Structure,sizeof,string_at,CFUNCTYPE,byref,cast
+from ctypes import c_char_p,c_short,sizeof,string_at,byref,cast
 import re
 import copy
 
@@ -33,10 +31,9 @@ try:
 except ImportError:
 	from StringIO import StringIO
 
-from RHVoice import RHVoice_tts_engine, RHVoice_message, RHVoice_lib_path
+from RHVoice import RHVoice_tts_engine, RHVoice_lib_path
 from RHVoice import RHVoice_init_params, RHVoice_callback_types, RHVoice_callbacks
 from RHVoice import RHVoice_synth_params
-from RHVoice import RHVoice_voice_info
 from RHVoice import load_tts_library
 
 import config
