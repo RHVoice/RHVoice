@@ -33,6 +33,8 @@ try:
 except ImportError:
 	from StringIO import StringIO
 
+from RHVoice import RHVoice_tts_engine
+
 import config
 import globalVars
 import nvwave
@@ -89,10 +91,6 @@ nvda_notification_synthIndexReached=nvda_notification_wrapper("synthIndexReached
 nvda_notification_synthDoneSpeaking=nvda_notification_wrapper("synthDoneSpeaking",nvda_notifications)
 
 data_addon_name_pattern=re.compile("^RHVoice-.*(voice|language).*")
-
-class RHVoice_tts_engine_struct(Structure):
-	pass
-RHVoice_tts_engine=POINTER(RHVoice_tts_engine_struct)
 
 class RHVoice_message_struct(Structure):
 	pass
