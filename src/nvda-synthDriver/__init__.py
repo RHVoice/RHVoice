@@ -35,6 +35,8 @@ except ImportError:
 
 from RHVoice import RHVoice_tts_engine, RHVoice_message, RHVoice_lib_path
 from RHVoice import RHVoice_init_params, RHVoice_callback_types, RHVoice_callbacks
+from RHVoice import RHVoice_synth_params
+from RHVoice import RHVoice_voice_info
 
 import config
 import globalVars
@@ -103,12 +105,6 @@ class RHVoice_voice_gender:
 	male=1
 	female=2
 
-class RHVoice_voice_info(Structure):
-	_fields_=[("language",c_char_p),
-			  ("name",c_char_p),
-			  ("gender",c_int),
-			  ("country",c_char_p)]
-
 class RHVoice_punctuation_mode:
 	default=0
 	none=1
@@ -124,19 +120,6 @@ class RHVoice_capitals_mode:
 
 class RHVoice_synth_flag:
 	dont_clip_rate=1
-
-class RHVoice_synth_params(Structure):
-	_fields_=[("voice_profile",c_char_p),
-			  ("absolute_rate",c_double),
-			  ("absolute_pitch",c_double),
-			  ("absolute_volume",c_double),
-			  ("relative_rate",c_double),
-			  ("relative_pitch",c_double),
-			  ("relative_volume",c_double),
-			  ("punctuation_mode",c_int),
-			  ("punctuation_list",c_char_p),
-			  ("capitals_mode",c_int),
-			  ("flags",c_int)]
 
 def load_tts_library():
 	try:
