@@ -139,7 +139,7 @@ namespace RHVoice
               throw playback_error();
           }
         res=Pa_WriteStream(stream,samples,count);
-        if(res!=paNoError)
+        if((res!=paNoError)&&(res!=paOutputUnderflowed))
           throw playback_error();
       }
 
