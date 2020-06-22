@@ -20,7 +20,7 @@
 #include <string>
 #include <cmath>
 #include "exception.hpp"
-#include "smart_ptr.hpp"
+
 #include "sample_rate.hpp"
 #include "hts_input.hpp"
 #include "speech_processing_chain.hpp"
@@ -45,7 +45,7 @@ namespace RHVoice
     friend void ::HTS106_Audio_write(_HTS106_Audio * audio, short sample);
     #endif
   public:
-    typedef smart_ptr<hts_engine_impl> pointer;
+    typedef std::shared_ptr<hts_engine_impl> pointer;
 
     class error: public exception
     {

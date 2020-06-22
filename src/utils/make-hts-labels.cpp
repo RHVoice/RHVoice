@@ -21,7 +21,6 @@
 #include <list>
 #include <iterator>
 #include "tclap/CmdLine.h"
-#include "core/smart_ptr.hpp"
 #include "core/str.hpp"
 #include "core/path.hpp"
 #include "core/engine.hpp"
@@ -142,7 +141,7 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<std::string> prefix_arg("p","prefix","output file names will start with this prefix",true,"test","string");
       cmd.xorAdd(labpath_arg,prefix_arg);
       cmd.parse(argc,argv);
-      smart_ptr<engine> eng(new engine);
+      std::shared_ptr<engine> eng(new engine);
       std::ifstream f_in(inpath_arg.getValue().c_str());
       if(!f_in.is_open())
         throw std::runtime_error("Cannot open the input file");

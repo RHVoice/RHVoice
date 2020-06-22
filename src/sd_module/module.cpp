@@ -100,7 +100,7 @@ namespace RHVoice
           playback_stream.close();
           logger::log(2,"Closed the playback stream");
         }
-      if(!tts_engine.empty())
+      if(tts_engine)
         {
           tts_engine.reset();
           logger::log(2,"Freed the engine");

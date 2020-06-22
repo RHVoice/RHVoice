@@ -33,7 +33,7 @@ namespace RHVoice
       #else
       file_handle result(std::fopen(path.c_str(),mode.c_str()),std::fclose);
       #endif
-      if(result.empty())
+      if(! result)
         throw open_error(path);
       return result;
     }

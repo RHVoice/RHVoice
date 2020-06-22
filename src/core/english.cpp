@@ -69,9 +69,9 @@ namespace RHVoice
       register_vowel_letter(english_vowel_letters[i]);
   }
 
-  smart_ptr<language> english_info::create_instance() const
+  std::shared_ptr<language> english_info::create_instance() const
   {
-    return smart_ptr<language>(new english(*this));
+    return std::shared_ptr<language>(new english(*this));
   }
 
   english::english(const english_info& info_):
@@ -83,7 +83,7 @@ namespace RHVoice
     accents_dtree(path::join(info_.get_data_path(),"accents.dt")),
     tones_dtree(path::join(info_.get_data_path(),"tones.dt"))
   {
-    register_feature(smart_ptr<feature_function>(new feat_syl_in_question));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_in_question));
   }
 
   void english::decode_as_special_symbol(item& token,const std::string& token_name,const std::string& token_type) const

@@ -45,7 +45,7 @@ namespace RHVoice
     hts_engine_impl::pointer acquire(quality_t quality)
     {
       hts_engine_impl::pointer result(get_instance(quality));
-      if(result.empty())
+      if(! result)
         result=get_prototype(quality)->create(quality);
       return result;
     }

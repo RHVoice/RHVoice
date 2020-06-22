@@ -113,9 +113,9 @@ namespace RHVoice
     register_vowel_letter(4323);
   }
 
-  smart_ptr<language> georgian_info::create_instance() const
+  std::shared_ptr<language> georgian_info::create_instance() const
   {
-    return smart_ptr<language>(new georgian(*this));
+    return std::shared_ptr<language>(new georgian(*this));
   }
 
   georgian::georgian(const georgian_info& info_):
@@ -124,8 +124,8 @@ namespace RHVoice
     g2p_fst(path::join(info_.get_data_path(),"g2p.fst"))
   {
     hts_labeller& labeller=get_hts_labeller();
-    labeller.define_feature(smart_ptr<feature_function>(new hts_initial_in_harmonic_cluster));
-    labeller.define_feature(smart_ptr<feature_function>(new hts_final_in_harmonic_cluster));
+    labeller.define_feature(std::shared_ptr<feature_function>(new hts_initial_in_harmonic_cluster));
+    labeller.define_feature(std::shared_ptr<feature_function>(new hts_final_in_harmonic_cluster));
   }
 
   std::vector<std::string> georgian::get_word_transcription(const item& word) const

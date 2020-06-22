@@ -20,7 +20,7 @@
 #include <functional>
 #include <set>
 #include "RHVoice_common.h"
-#include "smart_ptr.hpp"
+
 #include "str.hpp"
 #include "property.hpp"
 #include "resource.hpp"
@@ -121,9 +121,9 @@ private:
 }
 
   private:
-    smart_ptr<voice> create_instance() const
+    std::shared_ptr<voice> create_instance() const
     {
-      return smart_ptr<voice>(new voice(*this));
+      return std::shared_ptr<voice>(new voice(*this));
     }
 
     const unsigned int format;

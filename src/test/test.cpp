@@ -20,7 +20,7 @@
 #include <iterator>
 #include <algorithm>
 #include "tclap/CmdLine.h"
-#include "core/smart_ptr.hpp"
+
 #include "core/engine.hpp"
 #include "core/document.hpp"
 #include "core/client.hpp"
@@ -127,7 +127,7 @@ int main(int argc,const char* argv[])
         }
       audio_player player(outpath_arg.getValue());
       player.set_buffer_size(20);
-      smart_ptr<engine> eng(new engine);
+      std::shared_ptr<engine> eng(new engine);
       voice_profile profile;
       if(!voice_arg.getValue().empty())
         profile=eng->create_voice_profile(voice_arg.getValue());

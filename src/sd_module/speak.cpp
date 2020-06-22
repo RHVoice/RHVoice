@@ -81,7 +81,7 @@ namespace RHVoice
 
       bool speak::is_valid() const
       {
-        return ((!tts_engine.empty())&&
+        return ((!(tts_engine == nullptr))&&
                 playback_stream.is_initialized()&&
                 (!state::Test(state::speaking)));
       }

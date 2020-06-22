@@ -267,7 +267,7 @@ namespace
     {
     }
 
-    smart_ptr<engine> engine_ptr;
+    std::shared_ptr<engine> engine_ptr;
 
   private:
     Data(const Data&);
@@ -454,7 +454,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
           params.resource_paths.push_back(jstring_to_string(env,static_cast<jstring>(jstr)));
         }
     }
-  params.logger=smart_ptr<event_logger>(new java_logger_wrapper(env,logger));
+  params.logger=std::shared_ptr<event_logger>(new java_logger_wrapper(env,logger));
   data->engine_ptr=engine::create(params);
   if(data->engine_ptr->get_voices().empty())
     throw no_voices();

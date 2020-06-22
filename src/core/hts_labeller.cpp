@@ -1463,7 +1463,7 @@ namespace RHVoice
     s.imbue(std::locale::classic());
     for(std::vector<hts_feature>::const_iterator it(features.begin());it!=features.end();++it)
       {
-        if(it->function.empty())
+        if(! it->function)
           throw hts_feature_undefined(it->name);
         s << it->prefix;
         s << it->function->eval(seg);
@@ -1471,7 +1471,7 @@ namespace RHVoice
     return s.str();
   }
 
-  void hts_labeller::define_feature(const smart_ptr<feature_function>& f)
+  void hts_labeller::define_feature(const std::shared_ptr<feature_function>& f)
   {
     std::string name(f->get_name());
     for(std::vector<hts_feature>::iterator it(features.begin());it!=features.end();++it)
@@ -1483,103 +1483,103 @@ namespace RHVoice
 
   void hts_labeller::define_default_features()
   {
-    define_feature(smart_ptr<feature_function>(new hts_none));
-    define_feature(smart_ptr<feature_function>(new hts_prev_prev_name));
-    define_feature(smart_ptr<feature_function>(new hts_prev_name));
-    define_feature(smart_ptr<feature_function>(new hts_name));
-    define_feature(smart_ptr<feature_function>(new hts_next_name));
-    define_feature(smart_ptr<feature_function>(new hts_next_next_name));
-    define_feature(smart_ptr<feature_function>(new hts_pos_in_syl_fw));
-    define_feature(smart_ptr<feature_function>(new hts_pos_in_syl_bw));
-    define_feature(smart_ptr<feature_function>(new hts_prev_syl_stress));
-    define_feature(smart_ptr<feature_function>(new hts_prev_syl_accented));
-    define_feature(smart_ptr<feature_function>(new hts_prev_syl_length));
-    define_feature(smart_ptr<feature_function>(new hts_syl_stress));
-    define_feature(smart_ptr<feature_function>(new hts_syl_accented));
-    define_feature(smart_ptr<feature_function>(new hts_syl_length));
-    define_feature(smart_ptr<feature_function>(new hts_syl_pos_in_word_fw));
-    define_feature(smart_ptr<feature_function>(new hts_syl_pos_in_word_bw));
-    define_feature(smart_ptr<feature_function>(new hts_syl_pos_in_phrase_fw));
-    define_feature(smart_ptr<feature_function>(new hts_syl_pos_in_phrase_bw));
-    define_feature(smart_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_before_this_syl));
-    define_feature(smart_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_after_this_syl));
-    define_feature(smart_ptr<feature_function>(new hts_num_accented_syls_in_phrase_before_this_syl));
-    define_feature(smart_ptr<feature_function>(new hts_num_accented_syls_in_phrase_after_this_syl));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_stressed_syl_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_next_stressed_syl_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_accented_syl_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_next_accented_syl_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_syl_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_next_syl_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_next_next_syl_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_prev_syl_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_prev_prev_syl_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_next_syl_vowel_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_next_next_syl_vowel_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_prev_syl_vowel_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_prev_prev_syl_vowel_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_first_syl_vowel_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_last_syl_vowel_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_next_syl_stress));
-    define_feature(smart_ptr<feature_function>(new hts_next_syl_accented));
-    define_feature(smart_ptr<feature_function>(new hts_next_syl_length));
-    define_feature(smart_ptr<feature_function>(new hts_prev_word_gpos));
-    define_feature(smart_ptr<feature_function>(new hts_prev_word_clitic));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_prev_word));
-    define_feature(smart_ptr<feature_function>(new hts_word_gpos));
-    define_feature(smart_ptr<feature_function>(new hts_word_clitic));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_word_pos_in_phrase_fw));
-    define_feature(smart_ptr<feature_function>(new hts_word_pos_in_phrase_bw));
-    define_feature(smart_ptr<feature_function>(new hts_num_content_words_in_phrase_before_this_word));
-    define_feature(smart_ptr<feature_function>(new hts_num_content_words_in_phrase_after_this_word));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_content_word_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_next_content_word_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_next_word_gpos));
-    define_feature(smart_ptr<feature_function>(new hts_next_word_clitic));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_next_word));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_prev_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_num_words_in_prev_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_num_words_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_phrase_pos_in_utt_fw));
-    define_feature(smart_ptr<feature_function>(new hts_phrase_pos_in_utt_bw));
-    define_feature(smart_ptr<feature_function>(new hts_phrase_end_tone));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_next_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_num_words_in_next_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_num_syls_in_utt));
-    define_feature(smart_ptr<feature_function>(new hts_num_words_in_utt));
-    define_feature(smart_ptr<feature_function>(new hts_num_phrases_in_utt));
-    define_feature(smart_ptr<feature_function>(new hts_pos_in_word_fw));
-    define_feature(smart_ptr<feature_function>(new hts_pos_in_word_bw));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_prev_stressed_syl_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_dist_to_next_stressed_syl_in_word));
-    define_feature(smart_ptr<feature_function>(new hts_utt_is_question));
-define_feature(smart_ptr<feature_function>(new hts_utt_type));
-    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_end_of_cluster));
-    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_start_of_cluster));
-    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_next_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_num_consonants_to_prev_vowel));
-    define_feature(smart_ptr<feature_function>(new hts_num_consonants_in_cluster));
-    define_feature(smart_ptr<feature_function>(new hts_num_intervocalic_consonants));
-    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_start_of_word));
-    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_end_of_word));
-    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_start_of_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_num_vowels_to_end_of_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_syl_part));
-    define_feature(smart_ptr<feature_function>(new hts_first_gpos_in_phrase));
-    define_feature(smart_ptr<feature_function>(new hts_last_gpos_in_phrase));
-define_feature(smart_ptr<feature_function>(new hts_prev_syl_coda_length));
-define_feature(smart_ptr<feature_function>(new hts_syl_coda_length));
-define_feature(smart_ptr<feature_function>(new hts_next_syl_coda_length));
+    define_feature(std::shared_ptr<feature_function>(new hts_none));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_prev_name));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_name));
+    define_feature(std::shared_ptr<feature_function>(new hts_name));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_name));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_next_name));
+    define_feature(std::shared_ptr<feature_function>(new hts_pos_in_syl_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_pos_in_syl_bw));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_stress));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_accented));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_length));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_stress));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_accented));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_length));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_bw));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_bw));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_before_this_syl));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_after_this_syl));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_accented_syls_in_phrase_before_this_syl));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_accented_syls_in_phrase_after_this_syl));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_prev_stressed_syl_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_next_stressed_syl_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_prev_accented_syl_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_next_accented_syl_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_syl_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_next_syl_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_prev_syl_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_syl_vowel_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_next_syl_vowel_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_vowel_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_prev_syl_vowel_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_first_syl_vowel_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_last_syl_vowel_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_syl_stress));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_syl_accented));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_syl_length));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_word_gpos));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_word_clitic));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_prev_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_word_gpos));
+    define_feature(std::shared_ptr<feature_function>(new hts_word_clitic));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_word_pos_in_phrase_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_word_pos_in_phrase_bw));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_content_words_in_phrase_before_this_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_content_words_in_phrase_after_this_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_prev_content_word_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_next_content_word_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_word_gpos));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_word_clitic));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_next_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_prev_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_words_in_prev_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_words_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_phrase_pos_in_utt_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_phrase_pos_in_utt_bw));
+    define_feature(std::shared_ptr<feature_function>(new hts_phrase_end_tone));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_next_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_words_in_next_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_utt));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_words_in_utt));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_phrases_in_utt));
+    define_feature(std::shared_ptr<feature_function>(new hts_pos_in_word_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_pos_in_word_bw));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_prev_stressed_syl_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_dist_to_next_stressed_syl_in_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_utt_is_question));
+define_feature(std::shared_ptr<feature_function>(new hts_utt_type));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_consonants_to_end_of_cluster));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_consonants_to_start_of_cluster));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_consonants_to_next_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_consonants_to_prev_vowel));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_consonants_in_cluster));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_intervocalic_consonants));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_vowels_to_start_of_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_vowels_to_end_of_word));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_vowels_to_start_of_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_num_vowels_to_end_of_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_part));
+    define_feature(std::shared_ptr<feature_function>(new hts_first_gpos_in_phrase));
+    define_feature(std::shared_ptr<feature_function>(new hts_last_gpos_in_phrase));
+define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_coda_length));
+define_feature(std::shared_ptr<feature_function>(new hts_syl_coda_length));
+define_feature(std::shared_ptr<feature_function>(new hts_next_syl_coda_length));
   }
 
   void hts_labeller::define_extra_phonetic_feature(const std::string& name)
   {
-    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("","",name)));
-    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("next_","n.",name)));
-    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("prev_","p.",name)));
-    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("next_next_","n.n.",name)));
-    define_feature(smart_ptr<feature_function>(new hts_ext_phon_feat("prev_prev_","p.p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("","",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("next_","n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("prev_","p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("next_next_","n.n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("prev_prev_","p.p.",name)));
 }
 }

@@ -49,9 +49,9 @@ namespace RHVoice
       register_vowel_letter(esperanto_vowel_letters[i]);
   }
 
-  smart_ptr<language> esperanto_info::create_instance() const
+  std::shared_ptr<language> esperanto_info::create_instance() const
   {
-    return smart_ptr<language>(new esperanto(*this));
+    return std::shared_ptr<language>(new esperanto(*this));
   }
 
   #ifdef WIN32

@@ -20,7 +20,7 @@
 #include <map>
 #include <algorithm>
 #include "exception.hpp"
-#include "smart_ptr.hpp"
+
 #include "relation.hpp"
 #include "quality_setting.hpp"
 
@@ -211,7 +211,7 @@ namespace RHVoice
     utterance(const utterance&);
     utterance& operator=(const utterance&);
 
-    typedef std::map<std::string,smart_ptr<relation> > relation_map;
+    typedef std::map<std::string,std::shared_ptr<relation> > relation_map;
 
     const language& language_ref;
     const voice* voice_ptr;

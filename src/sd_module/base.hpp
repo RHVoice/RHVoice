@@ -16,7 +16,7 @@
 #ifndef RHVOICE_SD_BASE_HPP
 #define RHVOICE_SD_BASE_HPP
 
-#include "core/smart_ptr.hpp"
+
 #include "core/engine.hpp"
 #include "core/voice_profile.hpp"
 #include "state.hpp"
@@ -47,7 +47,7 @@ namespace RHVoice
       }
 
       static tts_params tts_settings;
-      static smart_ptr<engine> tts_engine;
+      static std::shared_ptr<engine> tts_engine;
       static voice_profile current_voice;
       static audio_params audio_settings;
       static audio::playback_stream playback_stream;
