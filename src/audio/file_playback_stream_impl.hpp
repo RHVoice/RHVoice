@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -40,8 +40,11 @@ namespace RHVoice
         stream.write(reinterpret_cast<char*>(&num),sizeof(num));
 }
 
-      std::string file_path;
-      std::ofstream stream;
+      const std::string file_path;
+      const bool piping;
+      std::ofstream fstream;
+      std::ostream& stream;
+      bool header_written;
       std::size_t num_samples;
     };
   }
