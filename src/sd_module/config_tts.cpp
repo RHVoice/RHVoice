@@ -31,7 +31,7 @@ namespace RHVoice
 
       bool config_tts::is_valid() const
       {
-        return !tts_engine.empty();
+        return !(tts_engine == nullptr);
       }
 
       action_t config_tts::execute()

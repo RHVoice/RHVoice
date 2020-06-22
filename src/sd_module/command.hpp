@@ -16,7 +16,7 @@
 #ifndef RHVOICE_SD_COMMAND_HPP
 #define RHVOICE_SD_COMMAND_HPP
 
-#include "core/smart_ptr.hpp"
+
 #include "base.hpp"
 #include "speech_synthesizer.hpp"
 
@@ -52,7 +52,7 @@ namespace RHVoice
       virtual action_t execute()=0;
     };
 
-    typedef smart_ptr<command> cmd_ptr;
+    typedef std::shared_ptr<command> cmd_ptr;
   }
 }
 #endif

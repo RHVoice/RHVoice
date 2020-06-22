@@ -18,13 +18,13 @@
 
 #include <string>
 #include <vector>
-#include "smart_ptr.hpp"
+
 #include "exception.hpp"
 
 namespace RHVoice
 {
   class item;
-  class feature_function; 
+  class feature_function;
 
   class hts_feature_undefined: public lookup_error
   {
@@ -44,7 +44,7 @@ namespace RHVoice
       define_default_features();
     }
 
-    void define_feature(const smart_ptr<feature_function>& f);
+    void define_feature(const std::shared_ptr<feature_function>& f);
     void define_extra_phonetic_feature(const std::string& name);
     std::string eval_segment_label(const item& seg) const;
 
@@ -55,7 +55,7 @@ namespace RHVoice
     struct hts_feature
     {
       std::string name,prefix;
-      smart_ptr<feature_function> function;
+      std::shared_ptr<feature_function> function;
     };
 
     std::vector<hts_feature> features;

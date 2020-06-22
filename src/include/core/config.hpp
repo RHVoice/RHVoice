@@ -18,9 +18,10 @@
 
 #include <string>
 #include <map>
+#include <memory>
+
 #include "str.hpp"
 #include "property.hpp"
-#include "smart_ptr.hpp"
 #include "event_logger.hpp"
 
 namespace RHVoice
@@ -30,7 +31,7 @@ namespace RHVoice
   private:
     typedef std::map<std::string,abstract_property*,str::less> registration_map;
     registration_map registered_settings;
-    smart_ptr<event_logger> logger;
+    std::shared_ptr<event_logger> logger;
 
     config(const config&);
     config& operator=(const config&);
@@ -54,10 +55,10 @@ namespace RHVoice
 
     void load(const std::string& file_path);
 
-    void set_logger(const smart_ptr<event_logger>& logger_)
+    void set_logger(const std::shared_ptr<event_logger>& logger_)
     {
       logger=logger_;
     }
   };
 }
-#endif 
+#endif

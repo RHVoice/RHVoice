@@ -18,7 +18,7 @@
 #include <iterator>
 #include <algorithm>
 #include <functional>
-#include "core/smart_ptr.hpp"
+
 #include "core/engine.hpp"
 #include "core/document.hpp"
 #include "core/client.hpp"
@@ -32,7 +32,7 @@ using namespace RHVoice;
 struct RHVoice_message_struct: public client
 {
   template<typename ch>
-  RHVoice_message_struct(const smart_ptr<engine>& engine_ptr,const RHVoice_callbacks& callbacks_,const ch* text,unsigned int length,RHVoice_message_type message_type,const RHVoice_synth_params* synth_params,void* user_data_);
+  RHVoice_message_struct(const std::shared_ptr<engine>& engine_ptr,const RHVoice_callbacks& callbacks_,const ch* text,unsigned int length,RHVoice_message_type message_type,const RHVoice_synth_params* synth_params,void* user_data_);
 
   bool play_speech(const short* samples,std::size_t count)
   {
@@ -144,7 +144,7 @@ private:
     }
   };
 
-  smart_ptr<engine> engine_ptr;
+  std::shared_ptr<engine> engine_ptr;
   RHVoice_callbacks callbacks;
   std::vector<RHVoice_voice_info> voice_info_array;
   std::vector<const char*> voice_profile_names_array;
@@ -212,7 +212,7 @@ bool RHVoice_tts_engine_struct::are_languages_compatible(const char* language1,c
 }
 
 template<typename ch>
-RHVoice_message_struct::RHVoice_message_struct(const smart_ptr<engine>& engine_ptr,const RHVoice_callbacks& callbacks_,const ch* text,unsigned int length,RHVoice_message_type message_type,const RHVoice_synth_params* synth_params,void* user_data_):
+RHVoice_message_struct::RHVoice_message_struct(const std::shared_ptr<engine>& engine_ptr,const RHVoice_callbacks& callbacks_,const ch* text,unsigned int length,RHVoice_message_type message_type,const RHVoice_synth_params* synth_params,void* user_data_):
   callbacks(callbacks_),
   user_data(user_data_)
 {

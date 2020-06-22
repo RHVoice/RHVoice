@@ -20,7 +20,7 @@
 #include <iterator>
 #include "exception.hpp"
 #include "item.hpp"
-#include "smart_ptr.hpp"
+
 
 namespace RHVoice
 {

@@ -79,10 +79,10 @@ namespace RHVoice
         switch(read_number(in))
           {
           case value_string:
-            tests.push_back(smart_ptr<condition>(new str_equal(read_string(in))));
+            tests.push_back(std::shared_ptr<condition>(new str_equal(read_string(in))));
             break;
           case value_number:
-            tests.push_back(smart_ptr<condition>(new num_equal(read_number(in))));
+            tests.push_back(std::shared_ptr<condition>(new num_equal(read_number(in))));
             break;
           default:
             throw file_format_error(err_msg);
@@ -92,7 +92,7 @@ namespace RHVoice
 
   bool dtree::in_list::test(const value& val) const
   {
-    for(std::vector<smart_ptr<condition> >::const_iterator it(tests.begin());it!=tests.end();++it)
+    for(std::vector<std::shared_ptr<condition> >::const_iterator it(tests.begin());it!=tests.end();++it)
       {
         if((*it)->test(val))
           return true;

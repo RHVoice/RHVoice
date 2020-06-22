@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "smart_ptr.hpp"
+
 #include "io.hpp"
 #include "value.hpp"
 #include "item.hpp"
@@ -93,7 +93,7 @@ namespace RHVoice
       }
 
       virtual ~node()
-      {      
+      {
       }
 
       virtual const node* get_next_node(const features& f) const
@@ -214,7 +214,7 @@ namespace RHVoice
       bool test(const value& val) const;
 
     private:
-      std::vector<smart_ptr<condition> > tests;
+      std::vector<std::shared_ptr<condition> > tests;
     };
 
     class internal_node: public node

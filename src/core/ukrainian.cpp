@@ -61,9 +61,9 @@ namespace RHVoice
     register_sign('\'');
   }
 
-  smart_ptr<language> ukrainian_info::create_instance() const
+  std::shared_ptr<language> ukrainian_info::create_instance() const
   {
-    return smart_ptr<language>(new ukrainian(*this));
+    return std::shared_ptr<language>(new ukrainian(*this));
   }
 
   ukrainian::ukrainian(const ukrainian_info& info_):

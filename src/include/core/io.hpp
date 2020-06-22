@@ -24,8 +24,9 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
+#include <memory>
+
 #include "exception.hpp"
-#include "smart_ptr.hpp"
 
 namespace RHVoice
 {
@@ -45,7 +46,7 @@ namespace RHVoice
       }
     };
 
-    typedef smart_ptr<FILE> file_handle;
+    typedef std::shared_ptr<FILE> file_handle;
 
     file_handle open_file(const std::string& path,const std::string& mode);
     void open_ifstream(std::ifstream& stream,const std::string& path,bool binary=false);

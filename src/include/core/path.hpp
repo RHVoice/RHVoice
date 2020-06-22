@@ -22,7 +22,7 @@
 #include <dirent.h>
 #endif
 #include <string>
-#include "smart_ptr.hpp"
+
 
 namespace RHVoice
 {

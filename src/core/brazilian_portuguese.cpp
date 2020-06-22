@@ -78,9 +78,9 @@ namespace RHVoice
     register_vowel_letter(252);
   }
 
-  smart_ptr<language> brazilian_portuguese_info::create_instance() const
+  std::shared_ptr<language> brazilian_portuguese_info::create_instance() const
   {
-    return smart_ptr<language>(new brazilian_portuguese(*this));
+    return std::shared_ptr<language>(new brazilian_portuguese(*this));
   }
 
   brazilian_portuguese::brazilian_portuguese(const brazilian_portuguese_info& info_):

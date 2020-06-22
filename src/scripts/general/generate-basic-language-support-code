@@ -45,7 +45,7 @@ namespace RHVoice
     #endif
 
   private:
-    smart_ptr<language> create_instance() const;
+    std::shared_ptr<language> create_instance() const;
   }};
 
   class {name}: public language
@@ -87,9 +87,9 @@ namespace RHVoice
 {vowel_registration}\
   }}
 
-  smart_ptr<language> {name}_info::create_instance() const
+  std::shared_ptr<language> {name}_info::create_instance() const
   {{
-    return smart_ptr<language>(new {name}(*this));
+    return std::shared_ptr<language>(new {name}(*this));
   }}
 
   {name}::{name}(const {name}_info& info_):
