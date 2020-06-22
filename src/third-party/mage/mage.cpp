@@ -655,7 +655,7 @@ void MAGE::Mage::addEngine( std::string EngineName )
 	{
 		this->defaultEngine = EngineName;
 		this->flagReady = true;
-		printf("default Engine is %s\n",this->defaultEngine.c_str());
+		// printf("default Engine is %s\n",this->defaultEngine.c_str());
 	}
 	else
 	{
