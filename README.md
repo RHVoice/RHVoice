@@ -6,7 +6,8 @@ RHVoice is a free and open source speech synthesizer.
 
 ### Speech synthesis method
 
-RHVoice uses statistical parametric synthesis. It relies on existing
+RHVoice uses [statistical parametric synthesis](https://en.wikipedia.org/wiki/Speech_synthesis#HMM-based_synthesis).
+It relies on existing
 open source speech technologies (mainly
 [HTS](http://hts.sp.nitech.ac.jp) and related software).
 
@@ -48,7 +49,7 @@ GNU/Linux and Android's text-to-speech APIs. It can also be used by
 the [NVDA screen reader](http://www.nvaccess.org) directly (the driver
 is provided by RHVoice itself).
 
-## license
+## License
 
 The main library is distributed under [LGPL v2.1](https://www.gnu.org/licenses/lgpl-2.1.html) or later.
 some components and voices use other licenses.for more information please read [license.md](license.md) file.
