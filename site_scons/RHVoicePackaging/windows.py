@@ -474,8 +474,18 @@ class nsis_bootstrapper_packager(windows_packager):
 		self.script.append('RequestExecutionLevel admin')
 		self.script.append("Page instfiles")
 
+	def set_ui_level(self):
+		self.script.extend([
+			'Var /GLOBAL UILevel',
+			'StrCpy $UILevel "f"',
+			'${If} ${Silent}',
+			'StrCpy $UILevel "n"',
+			'${EndIf}'
+		])
+
 	def add_files(self):
 		self.script.append("Section")
+		self.set_ui_level()
 		outpath=r"$INSTDIR\packages"
 		self.script.append('SetOutPath {}'.format(outpath))
 		for msi in self.msis:
@@ -495,7 +505,7 @@ class nsis_bootstrapper_packager(windows_packager):
 			self.script.append("Delete {}".format(log_path))
 			self.script.append(u"File {}".format(file.abspath))
 			self.script.append("ClearErrors")
-			self.script.append(r"""ExecWait 'msiexec /i "{}" /l*v "{}" /qf' $0""".format(file_path,log_path))
+			self.script.append(r"""ExecWait 'msiexec /i "{}" /l*v "{}" /q$UILevel' $0""".format(file_path,log_path))
 			self.script.append("${If} ${Errors}")
 			self.script.append(abort_command)
 			self.script.append("${ElseIf} $0 <> 0\n${AndIf} $0 <> 1638")
