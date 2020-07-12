@@ -33,6 +33,8 @@ try:
 except ImportError:
 	from StringIO import StringIO
 
+PY2 = sys.version_info[0] == 2
+
 import config
 import globalVars
 import nvwave
@@ -51,9 +53,12 @@ try:
 except ImportError:
 	pass
 
-try:
-	module_dir=os.path.dirname(__file__.decode("mbcs"))
-except AttributeError:
+if PY2:
+	# Convert path from binary data to Unicode. Otherwise Python 2
+	# treats the path as `ascii` and blanks out Russian chars
+	fs_encoding = sys.getfilesystemencoding()
+	module_dir=os.path.dirname(__file__.decode(fs_encoding))
+else:
 	module_dir=os.path.dirname(__file__)
 lib_path=os.path.join(module_dir,"RHVoice.dll")
 config_path=os.path.join(globalVars.appArgs.configPath,"RHVoice-config")
@@ -173,9 +178,12 @@ class RHVoice_synth_params(Structure):
 			  ("flags",c_int)]
 
 def load_tts_library():
-	try:
-		lib=ctypes.CDLL(lib_path.encode("mbcs"))
-	except TypeError:
+	if PY2:
+		# Convert path back from Unicode to filesystem encoding
+		# ('mbcs' on Windows)
+		fs_encoding = sys.getfilesystemencoding()
+		lib=ctypes.CDLL(lib_path.encode(fs_encoding))
+	else:
 		lib=ctypes.CDLL(lib_path)
 	lib.RHVoice_get_version.restype=c_char_p
 	lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
