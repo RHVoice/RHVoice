@@ -294,7 +294,9 @@ define OpenWord
 {liquefizesse} | 
 {multiprocesse} | 
 {satisfizesse} | 
-[{ador} UnstressedEnding] ; 
+[{ador} UnstressedEnding] | 
+{sete} | 
+{nova} ; 
 
 define CloseWordPattern 
 NotAccentedPrefix CloseWordEnding ; 
