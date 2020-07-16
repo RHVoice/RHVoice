@@ -54,8 +54,8 @@ except ImportError:
 	pass
 
 if PY2:
-	# Convert path from binary data to Unicode. Otherwise Python 2
-	# treats the path as `ascii` and blanks out Russian chars
+	# Convert __file__ to unicode to avoid problems on Windows
+	# https://stackoverflow.com/questions/35117936/save-file-with-russian-letters-in-the-file-name
 	fs_encoding = sys.getfilesystemencoding()
 	module_dir=os.path.dirname(__file__.decode(fs_encoding))
 else:
@@ -178,13 +178,7 @@ class RHVoice_synth_params(Structure):
 			  ("flags",c_int)]
 
 def load_tts_library():
-	if PY2:
-		# Convert path back from Unicode to filesystem encoding
-		# ('mbcs' on Windows)
-		fs_encoding = sys.getfilesystemencoding()
-		lib=ctypes.CDLL(lib_path.encode(fs_encoding))
-	else:
-		lib=ctypes.CDLL(lib_path)
+	lib=ctypes.CDLL(lib_path)
 	lib.RHVoice_get_version.restype=c_char_p
 	lib.RHVoice_new_tts_engine.argtypes=(POINTER(RHVoice_init_params),)
 	lib.RHVoice_new_tts_engine.restype=RHVoice_tts_engine
