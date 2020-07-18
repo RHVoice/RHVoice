@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -13,9 +13,15 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <iostream>
 #include <stdint.h>
 #include "core/io.hpp"
 #include "file_playback_stream_impl.hpp"
+
+namespace
+{
+  const std::size_t unspec_count=0x7ffff000;
+}
 
 namespace RHVoice
 {
@@ -23,6 +29,9 @@ namespace RHVoice
   {
     file_playback_stream_impl::file_playback_stream_impl(const playback_params& params):
       file_path(params.device),
+      piping(file_path=="-"),
+      stream(piping?std::cout:fstream),
+      header_written(false),
       num_samples(0)
   {
   }
@@ -37,9 +46,10 @@ namespace RHVoice
 
     void file_playback_stream_impl::open(int sample_rate)
     {
-      io::open_ofstream(stream,file_path,true);
+      if(!piping)
+        io::open_ofstream(fstream,file_path,true);
       stream.write("RIFF",4);
-      write_number<uint32_t>(36);
+      write_number<uint32_t>(unspec_count+36);
       stream.write("WAVE",4);
       stream.write("fmt ",4);
       write_number<uint32_t>(16);
@@ -50,18 +60,21 @@ namespace RHVoice
       write_number<uint16_t>(2);
       write_number<uint16_t>(16);
       stream.write("data",4);
-      write_number<uint32_t>(0);
+      write_number<uint32_t>(unspec_count);
       if(!stream)
         throw opening_error();
+      header_written=true;
     }
 
     bool file_playback_stream_impl::is_open() const
     {
-      return stream.is_open();
+      return header_written;
     }
 
     void file_playback_stream_impl::close()
     {
+      if(piping)
+        return;
       if(!is_open())
         return;
       stream.seekp(4);
@@ -70,7 +83,7 @@ namespace RHVoice
       stream.seekp(40);
       write_number<uint32_t>(count);
       num_samples=0;
-      stream.close();
+      fstream.close();
     }
   }
 }
