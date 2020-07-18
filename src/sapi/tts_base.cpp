@@ -53,7 +53,7 @@ namespace RHVoice
     std::shared_ptr<engine> tts_base::get_engine()
     {
       threading::lock l(engine_mutex);
-      if(!engine_ptr.empty())
+      if(engine_ptr)
         return engine_ptr;
       engine::init_params p;
       p.resource_paths=get_resource_paths();
