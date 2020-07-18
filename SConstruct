@@ -339,7 +339,7 @@ def build_for_windows(base_env,user_vars):
                variant_dir=os.path.join(BUILDDIR,"data"),
                exports={"env":base_env},
                duplicate=0)
-    docs=["README"]+[os.path.join("licenses",name) for name in os.listdir("licenses") if name!="voices"]
+    docs=["README.md"]+[os.path.join("licenses",name) for name in os.listdir("licenses") if name!="voices"]
     for f in docs:
         base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
     base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
