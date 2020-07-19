@@ -18,11 +18,11 @@
 
 #include <string>
 #include <map>
+#include <memory>
 #include <iterator>
 #include <functional>
 #include <stdexcept>
 #include "exception.hpp"
-#include "smart_ptr.hpp"
 #include "value.hpp"
 
 namespace RHVoice
@@ -71,7 +71,7 @@ namespace RHVoice
       self_ref_map self_refs;
     };
 
-    smart_ptr<shared_data> data;
+    std::shared_ptr<shared_data> data;
     relation* const relation_ptr;
     item *next_item,*prev_item;
     item* const parent_item;

@@ -24,7 +24,7 @@ namespace RHVoice
   namespace sapi
   {
     threading::mutex tts_base::engine_mutex;
-    smart_ptr<engine> tts_base::engine_ptr;
+    std::shared_ptr<engine> tts_base::engine_ptr;
 
     std::vector<std::string> tts_base::get_resource_paths(int id, std::string name) const
     {
@@ -50,7 +50,7 @@ namespace RHVoice
       return paths;
 }
 
-    smart_ptr<engine> tts_base::get_engine()
+    std::shared_ptr<engine> tts_base::get_engine()
     {
       threading::lock l(engine_mutex);
       if(!engine_ptr.empty())

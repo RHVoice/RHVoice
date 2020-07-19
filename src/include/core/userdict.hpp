@@ -22,7 +22,7 @@
 #include <iterator>
 #include <algorithm>
 #include <sstream>
-#include "smart_ptr.hpp"
+
 #include "str.hpp"
 #include "item.hpp"
 #include "relation.hpp"
@@ -308,7 +308,7 @@ namespace RHVoice
     class correction
     {
     public:
-      typedef smart_ptr<correction> pointer;
+      typedef std::shared_ptr<correction> pointer;
 
       virtual ~correction()
       {

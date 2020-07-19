@@ -58,9 +58,9 @@ namespace RHVoice
     register_vowel_letter(1257);
   }
 
-  smart_ptr<language> kyrgyz_info::create_instance() const
+  std::shared_ptr<language> kyrgyz_info::create_instance() const
   {
-    return smart_ptr<language>(new kyrgyz(*this));
+    return std::shared_ptr<language>(new kyrgyz(*this));
   }
 
   kyrgyz::kyrgyz(const kyrgyz_info& info_):

@@ -54,9 +54,9 @@ namespace RHVoice
   }
 
 
-  smart_ptr<language> russian_info::create_instance() const
+  std::shared_ptr<language> russian_info::create_instance() const
   {
-    return smart_ptr<language>(new russian(*this));
+    return std::shared_ptr<language>(new russian(*this));
   }
 
   russian::russian(const russian_info& info_):

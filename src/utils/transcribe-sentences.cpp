@@ -19,7 +19,6 @@
 #include <fstream>
 #include <iterator>
 #include "tclap/CmdLine.h"
-#include "core/smart_ptr.hpp"
 #include "core/engine.hpp"
 #include "core/document.hpp"
 
@@ -34,7 +33,7 @@ int main(int argc,const char* argv[])
       TCLAP::UnlabeledValueArg<std::string> outpath_arg("output","output file",true,"transcription.txt","outfile",cmd);
       TCLAP::ValueArg<std::string> boundary_arg("b","boundary","word boundary marker",false,"","string",cmd);
       cmd.parse(argc,argv);
-      smart_ptr<engine> eng(new engine);
+      std::shared_ptr<engine> eng(new engine);
       std::ifstream f_in(inpath_arg.getValue().c_str());
       if(!f_in.is_open())
         throw std::runtime_error("Cannot open the input file");

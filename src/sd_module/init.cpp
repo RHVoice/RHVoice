@@ -28,7 +28,7 @@ namespace RHVoice
     {
       bool init::is_valid() const
       {
-        return tts_engine.empty();
+        return tts_engine == nullptr;
       }
 
       action_t init::execute()

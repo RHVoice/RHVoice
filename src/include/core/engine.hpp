@@ -46,7 +46,7 @@ namespace RHVoice
       init_params();
       std::string data_path,config_path;
       std::vector<std::string> resource_paths;
-      smart_ptr<event_logger> logger;
+      std::shared_ptr<event_logger> logger;
 
       std::vector<std::string> get_language_paths() const
       {
@@ -104,14 +104,14 @@ namespace RHVoice
       return version;
     }
 
-    static smart_ptr<engine> create(const init_params& p=init_params())
+    static std::shared_ptr<engine> create(const init_params& p=init_params())
     {
-      return smart_ptr<engine>(new engine(p));
+      return std::shared_ptr<engine>(new engine(p));
     }
-      
+
     voice_profile create_voice_profile(const std::string& spec) const;
 
-    const smart_ptr<event_logger>& get_logger() const
+    const std::shared_ptr<event_logger>& get_logger() const
     {
       return logger;
     }
@@ -133,7 +133,7 @@ namespace RHVoice
     language_list languages;
     voice_list voices;
     std::set<voice_profile> voice_profiles;
-    smart_ptr<event_logger> logger;
+    std::shared_ptr<event_logger> logger;
     config cfg;
 
     void create_voice_profiles();

@@ -20,7 +20,7 @@
 #include <string>
 #include <iterator>
 #include <map>
-#include "smart_ptr.hpp"
+
 #include "threading.hpp"
 #include "str.hpp"
 #include "config.hpp"
@@ -76,10 +76,10 @@ namespace RHVoice
     resource_info(const resource_info&);
     resource_info& operator=(const resource_info&);
 
-    virtual smart_ptr<T> create_instance() const=0;
+    virtual std::shared_ptr<T> create_instance() const=0;
 
     std::string name,data_path;
-    mutable smart_ptr<T> instance;
+    mutable std::shared_ptr<T> instance;
     mutable threading::mutex instance_mutex;
   };
 
@@ -87,7 +87,7 @@ namespace RHVoice
   const T& resource_info<T>::get_instance() const
   {
     threading::lock instance_lock(instance_mutex);
-    if(instance.empty())
+    if(! instance)
       instance=create_instance();
     return *instance;
   }
@@ -99,14 +99,14 @@ namespace RHVoice
     typedef std::pair<unsigned int,unsigned int> version_info;
 
   private:
-    typedef std::map<std::string,smart_ptr<T>,str::less> container;
+    typedef std::map<std::string,std::shared_ptr<T>,str::less> container;
     typedef std::map<std::string,version_info> version_map;
 
     struct resource_enabled: public std::unary_function<const typename container::value_type&,bool>
     {
       bool operator()(const typename container::value_type& val) const
       {
-        smart_ptr<T> res=val.second;
+        std::shared_ptr<T> res=val.second;
         return res->is_enabled();
       }
     };
@@ -246,7 +246,7 @@ namespace RHVoice
       typename container::iterator pos=elements.find(name);
       if(pos!=elements.end())
         {
-          smart_ptr<T> r=pos->second;
+          std::shared_ptr<T> r=pos->second;
           if(!r->is_enabled())
             pos=elements.end();
         }
@@ -258,7 +258,7 @@ namespace RHVoice
       typename container::const_iterator pos=elements.find(name);
       if(pos!=elements.end())
         {
-          smart_ptr<T> r=pos->second;
+          std::shared_ptr<T> r=pos->second;
           if(!r->is_enabled())
             pos=elements.end();
         }
@@ -295,7 +295,7 @@ namespace RHVoice
       return (it->second<ver);
 }
 
-    void add(const smart_ptr<T>& obj,const version_info& ver)
+    void add(const std::shared_ptr<T>& obj,const version_info& ver)
     {
       if(!can_add(obj->get_name(),ver))
         return;

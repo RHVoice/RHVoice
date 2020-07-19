@@ -23,7 +23,7 @@
 #include <memory>
 #include "params.hpp"
 #include "exception.hpp"
-#include "smart_ptr.hpp"
+
 #include "path.hpp"
 #include "resource.hpp"
 #include "value.hpp"
@@ -155,7 +155,7 @@ namespace RHVoice
 
     const feature_function& get_feature_function(const std::string& name) const
     {
-      std::map<std::string,smart_ptr<feature_function> >::const_iterator it(feature_functions.find(name));
+      std::map<std::string,std::shared_ptr<feature_function> >::const_iterator it(feature_functions.find(name));
       if(it==feature_functions.end())
         throw feature_function_not_found();
       else
@@ -164,7 +164,7 @@ namespace RHVoice
 
     const feature_function* get_feature_function_ptr(const std::string& name) const
     {
-      std::map<std::string,smart_ptr<feature_function> >::const_iterator it(feature_functions.find(name));
+      std::map<std::string,std::shared_ptr<feature_function> >::const_iterator it(feature_functions.find(name));
       if(it==feature_functions.end())
         return 0;
       else
@@ -216,7 +216,7 @@ namespace RHVoice
   protected:
     explicit language(const language_info& info_);
 
-    void register_feature(const smart_ptr<feature_function>& f)
+    void register_feature(const std::shared_ptr<feature_function>& f)
     {
       feature_functions[f->get_name()]=f;
     }
@@ -269,7 +269,7 @@ namespace RHVoice
     void translate_emoji_sequence(item& token,const std::string& text) const;
 
 
-    std::map<std::string,smart_ptr<feature_function> > feature_functions;
+    std::map<std::string,std::shared_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
     hts_labeller labeller;
     const fst tok_fst;
@@ -467,7 +467,7 @@ std::unique_ptr<fst> qst_fst;
       {
       }
 
-      virtual smart_ptr<language_info> create(const std::string& data_path,const std::string& userdict_path) const=0;
+      virtual std::shared_ptr<language_info> create(const std::string& data_path,const std::string& userdict_path) const=0;
 
     private:
       creator(const creator&);
@@ -478,19 +478,19 @@ std::unique_ptr<fst> qst_fst;
     class concrete_creator: public creator
     {
     public:
-      smart_ptr<language_info> create(const std::string& data_path,const std::string& userdict_path) const
+      std::shared_ptr<language_info> create(const std::string& data_path,const std::string& userdict_path) const
       {
-        return smart_ptr<language_info>(new T(data_path,userdict_path));
+        return std::shared_ptr<language_info>(new T(data_path,userdict_path));
       }
     };
 
     typedef std::pair<std::string,unsigned int> language_id;
-    typedef std::map<language_id,smart_ptr<creator> > Creators;
+    typedef std::map<language_id,std::shared_ptr<creator> > Creators;
 
     template<class T>
     void register_language(const std::string& name,unsigned int format)
     {
-      creators[language_id(name,format)]=smart_ptr<creator>(new concrete_creator<T>);
+      creators[language_id(name,format)]=std::shared_ptr<creator>(new concrete_creator<T>);
     }
 
     Creators creators;

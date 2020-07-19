@@ -45,7 +45,7 @@ namespace RHVoice
     }
 
   private:
-    smart_ptr<language> create_instance() const;
+    std::shared_ptr<language> create_instance() const;
   };
 
   class kyrgyz: public language

@@ -22,7 +22,7 @@
 #include <stdexcept>
 #include <windows.h>
 #include <comdef.h>
-#include "core/smart_ptr.hpp"
+
 #include "registry.hpp"
 #include "utils.hpp"
 
@@ -195,7 +195,7 @@ namespace RHVoice
         if(FAILED(obj->QueryInterface(__uuidof(I),reinterpret_cast<void**>(&ptr))))
           throw std::invalid_argument("Unsupported interface");
       }
-      
+
       interface_ptr(const interface_ptr& other):
         ptr(other.ptr)
       {
@@ -312,7 +312,7 @@ namespace RHVoice
         virtual HRESULT create(REFIID riid,void** ppv) const=0;
       };
 
-      typedef smart_ptr<creator> creator_ptr;
+      typedef std::shared_ptr<creator> creator_ptr;
 
       template<class T>
       class concrete_creator: public creator
