@@ -20,7 +20,7 @@ namespace RHVoice
   namespace sd
   {
     tts_params base::tts_settings;
-    smart_ptr<engine> base::tts_engine;
+    std::shared_ptr<engine> base::tts_engine;
     voice_profile base::current_voice;
     audio_params base::audio_settings;
     audio::playback_stream base::playback_stream;

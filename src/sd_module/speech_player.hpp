@@ -17,7 +17,7 @@
 #define RHVOICE_SD_SPEECH_PLAYER_HPP
 
 #include <vector>
-#include "core/smart_ptr.hpp"
+
 #include "core/threading.hpp"
 #include "base.hpp"
 #include "state.hpp"
@@ -75,7 +75,7 @@ namespace RHVoice
       void report_event(const event& e);
     };
 
-    typedef smart_ptr<synth_result> synth_result_ptr;
+    typedef std::shared_ptr<synth_result> synth_result_ptr;
 
     class start_of_speech: public synth_result
     {
@@ -93,7 +93,7 @@ namespace RHVoice
       void clear_state();
 
     };
-    
+
     class speech_chunk: public synth_result
     {
     public:

@@ -20,7 +20,7 @@
 #include <vector>
 #include <memory>
 #include "core/exception.hpp"
-#include "core/smart_ptr.hpp"
+
 
 namespace RHVoice
 {
@@ -233,11 +233,11 @@ namespace RHVoice
       template<class LIB_TYPE,typename OUT_TYPE>
       static void init_library(OUT_TYPE o);
 
-      static std::vector<smart_ptr<library> > init_libraries();
+      static std::vector<std::shared_ptr<library> > init_libraries();
 
       playback_params params;
       std::unique_ptr<playback_stream_impl> impl;
-      static std::vector<smart_ptr<library> > libraries;
+      static std::vector<std::shared_ptr<library> > libraries;
     };
 
     template<class LIB_TYPE,typename OUT_TYPE>
@@ -245,7 +245,7 @@ namespace RHVoice
     {
       try
         {
-          *o=smart_ptr<library>(new LIB_TYPE);
+          *o=std::shared_ptr<library>(new LIB_TYPE);
           ++o;
         }
       catch(const error& e)

@@ -17,7 +17,7 @@
 #define RHVOICE_EVENTS_HPP
 
 #include <list>
-#include "smart_ptr.hpp"
+
 #include "client.hpp"
 #include "hts_label.hpp"
 #include "utterance.hpp"
@@ -29,7 +29,7 @@ namespace RHVoice
   class event
   {
   public:
-    typedef smart_ptr<event> pointer;
+    typedef std::shared_ptr<event> pointer;
     typedef label_sequence::const_iterator position;
 
     virtual ~event()

@@ -21,7 +21,7 @@ namespace RHVoice
 {
   relation& utterance::add_relation(const std::string& name)
   {
-    smart_ptr<relation> rel(new relation(name,*this));
+    std::shared_ptr<relation> rel(new relation(name,*this));
     std::pair<relation_map::iterator,bool> res=relations.insert(relation_map::value_type(name,rel));
     if(!res.second)
       throw relation_exists();

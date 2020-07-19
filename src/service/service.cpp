@@ -20,7 +20,7 @@
 #include <queue>
 #include <algorithm>
 #include <giomm.h>
-#include "core/smart_ptr.hpp"
+
 #include "core/engine.hpp"
 #include "core/document.hpp"
 #include "core/client.hpp"
@@ -30,10 +30,10 @@ namespace
 {
   typedef std::vector<gint16> speech_fragment;
   class session;
-  typedef RHVoice::smart_ptr<session> session_ptr;
+  typedef std::shared_ptr<session> session_ptr;
   typedef std::map<Glib::ustring,session_ptr> session_map;
   class task;
-  typedef RHVoice::smart_ptr<task> task_ptr;
+  typedef std::shared_ptr<task> task_ptr;
 
   void on_bus_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connection,const Glib::ustring& name);
   void on_name_acquired(const Glib::RefPtr<Gio::DBus::Connection>& connection,const Glib::ustring& name);
@@ -90,7 +90,7 @@ namespace
   Glib::RefPtr<Glib::MainLoop> main_loop;
   Glib::ThreadPool thread_pool;
   session_map sessions;
-  RHVoice::smart_ptr<RHVoice::engine> global_engine_ref;
+  std::shared_ptr<RHVoice::engine> global_engine_ref;
 
   struct quit_main_loop
   {
@@ -308,7 +308,7 @@ namespace
     task(session& parent_session,const Glib::ustring& text_);
 
     session& parent;
-    RHVoice::smart_ptr<RHVoice::engine> local_engine_ref;
+    std::shared_ptr<RHVoice::engine> local_engine_ref;
     RHVoice::voice_profile speakers;
     Glib::ustring text;
 

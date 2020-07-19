@@ -40,7 +40,7 @@ namespace RHVoice
     void do_register_settings(config& cfg,const std::string& prefix);
     bool_property present_as_english;
     #endif
-    smart_ptr<language> create_instance() const;
+    std::shared_ptr<language> create_instance() const;
   };
 
   class esperanto: public language

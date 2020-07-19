@@ -613,37 +613,37 @@ else
     const phoneme_feature_set& phfs=get_phoneme_set().get_feature_set();
     for(phoneme_feature_set::const_iterator it(phfs.begin());it!=phfs.end();++it)
       {
-        register_feature(smart_ptr<feature_function>(new phoneme_feature_function(*it)));
-        register_feature(smart_ptr<feature_function>(new syl_vowel_feature_function(*it)));
+        register_feature(std::shared_ptr<feature_function>(new phoneme_feature_function(*it)));
+        register_feature(std::shared_ptr<feature_function>(new syl_vowel_feature_function(*it)));
       }
-    register_feature(smart_ptr<feature_function>(new feat_pos_in_syl));
-    register_feature(smart_ptr<feature_function>(new feat_pos_in_syl_bw));
-    register_feature(smart_ptr<feature_function>(new feat_syl_numphones));
-    register_feature(smart_ptr<feature_function>(new feat_pos_in_word));
-    register_feature(smart_ptr<feature_function>(new feat_pos_in_word_bw));
-    register_feature(smart_ptr<feature_function>(new feat_seg_pos_in_word));
-    register_feature(smart_ptr<feature_function>(new feat_seg_pos_in_word_bw));
-    register_feature(smart_ptr<feature_function>(new feat_word_numsyls));
-    register_feature(smart_ptr<feature_function>(new feat_syl_in));
-    register_feature(smart_ptr<feature_function>(new feat_syl_out));
-    register_feature(smart_ptr<feature_function>(new feat_ssyl_in));
-    register_feature(smart_ptr<feature_function>(new feat_ssyl_out));
-    register_feature(smart_ptr<feature_function>(new feat_asyl_in));
-    register_feature(smart_ptr<feature_function>(new feat_asyl_out));
-    register_feature(smart_ptr<feature_function>(new feat_syl_vowel));
-    register_feature(smart_ptr<feature_function>(new feat_pos_in_phrase));
-    register_feature(smart_ptr<feature_function>(new feat_words_out));
-    register_feature(smart_ptr<feature_function>(new feat_content_words_in));
-    register_feature(smart_ptr<feature_function>(new feat_content_words_out));
-    register_feature(smart_ptr<feature_function>(new feat_phrase_numsyls));
-    register_feature(smart_ptr<feature_function>(new feat_phrase_numwords));
-    register_feature(smart_ptr<feature_function>(new feat_syl_break));
-    register_feature(smart_ptr<feature_function>(new feat_word_stress_pattern));
-    register_feature(smart_ptr<feature_function>(new feat_phrases_in));
-    register_feature(smart_ptr<feature_function>(new feat_phrases_out));
-    register_feature(smart_ptr<feature_function>(new feat_syl_coda_size));
-    register_feature(smart_ptr<feature_function>(new feat_syl_onset_size));
-    register_feature(smart_ptr<feature_function>(new feat_utt_type));
+    register_feature(std::shared_ptr<feature_function>(new feat_pos_in_syl));
+    register_feature(std::shared_ptr<feature_function>(new feat_pos_in_syl_bw));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_numphones));
+    register_feature(std::shared_ptr<feature_function>(new feat_pos_in_word));
+    register_feature(std::shared_ptr<feature_function>(new feat_pos_in_word_bw));
+    register_feature(std::shared_ptr<feature_function>(new feat_seg_pos_in_word));
+    register_feature(std::shared_ptr<feature_function>(new feat_seg_pos_in_word_bw));
+    register_feature(std::shared_ptr<feature_function>(new feat_word_numsyls));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_in));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_out));
+    register_feature(std::shared_ptr<feature_function>(new feat_ssyl_in));
+    register_feature(std::shared_ptr<feature_function>(new feat_ssyl_out));
+    register_feature(std::shared_ptr<feature_function>(new feat_asyl_in));
+    register_feature(std::shared_ptr<feature_function>(new feat_asyl_out));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_vowel));
+    register_feature(std::shared_ptr<feature_function>(new feat_pos_in_phrase));
+    register_feature(std::shared_ptr<feature_function>(new feat_words_out));
+    register_feature(std::shared_ptr<feature_function>(new feat_content_words_in));
+    register_feature(std::shared_ptr<feature_function>(new feat_content_words_out));
+    register_feature(std::shared_ptr<feature_function>(new feat_phrase_numsyls));
+    register_feature(std::shared_ptr<feature_function>(new feat_phrase_numwords));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_break));
+    register_feature(std::shared_ptr<feature_function>(new feat_word_stress_pattern));
+    register_feature(std::shared_ptr<feature_function>(new feat_phrases_in));
+    register_feature(std::shared_ptr<feature_function>(new feat_phrases_out));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_coda_size));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_onset_size));
+    register_feature(std::shared_ptr<feature_function>(new feat_utt_type));
   }
 
   item& language::append_token(utterance& u,const std::string& text) const
@@ -1455,7 +1455,7 @@ else
         version_info ver(desc.format,desc.revision);
         if(!can_add(desc.name,ver))
           continue;
-        smart_ptr<language_info> lang=(it2->second)->create(*it1,path::join(userdict_path,desc.name));
+        std::shared_ptr<language_info> lang=(it2->second)->create(*it1,path::join(userdict_path,desc.name));
         lang->all_languages=this;
         add(lang,ver);
       }

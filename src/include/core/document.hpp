@@ -21,7 +21,7 @@
 #include <functional>
 #include <iterator>
 #include <stdexcept>
-#include "smart_ptr.hpp"
+
 #include "engine.hpp"
 #include "voice_profile.hpp"
 #include "utterance.hpp"
@@ -90,7 +90,7 @@ namespace RHVoice
       }
     };
 
-    typedef smart_ptr<abstract_command> command_ptr;
+    typedef std::shared_ptr<abstract_command> command_ptr;
 
     template<command_type type>
     class command: public abstract_command
@@ -298,7 +298,7 @@ namespace RHVoice
     verbosity_params verbosity_settings;
     quality_setting quality;
 
-    explicit document(const smart_ptr<engine>& engine_ptr_,const voice_profile& profile_=voice_profile()):
+    explicit document(const std::shared_ptr<engine>& engine_ptr_,const voice_profile& profile_=voice_profile()):
       engine_ptr(engine_ptr_),
       owner(0),
       current_sentence(sentences.end()),
@@ -355,7 +355,7 @@ namespace RHVoice
 }
 
     template<typename some_iterator>
-    static std::unique_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const voice_profile& profile=voice_profile())
+    static std::unique_ptr<document> create_from_plain_text(const std::shared_ptr<engine>& engine_ptr,const some_iterator& text_start,const some_iterator& text_end,content_type say_as=content_text,const voice_profile& profile=voice_profile())
     {
       #ifdef _MSC_VER
       return create_from_plain_text(engine_ptr,text_start,text_end,say_as,profile,std::iterator_traits<some_iterator>::iterator_category());
@@ -365,7 +365,7 @@ namespace RHVoice
     }
 
     template<typename input_iterator>
-    static std::unique_ptr<document> create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile=voice_profile());
+    static std::unique_ptr<document> create_from_ssml(const std::shared_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile=voice_profile());
 
     typedef std::list<sentence>::iterator iterator;
     typedef std::list<sentence>::const_iterator const_iterator;
@@ -427,7 +427,7 @@ namespace RHVoice
     }
 
     template<typename input_iterator>
-    static std::unique_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,content_type say_as,const voice_profile& profile,std::input_iterator_tag)
+    static std::unique_ptr<document> create_from_plain_text(const std::shared_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,content_type say_as,const voice_profile& profile,std::input_iterator_tag)
     {
       #ifdef _MSC_VER
       typedef std::iterator_traits<input_iterator>::value_type char_type;
@@ -448,7 +448,7 @@ namespace RHVoice
     }
 
     template<typename forward_iterator>
-    static std::unique_ptr<document> create_from_plain_text(const smart_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const voice_profile& profile,std::forward_iterator_tag)
+    static std::unique_ptr<document> create_from_plain_text(const std::shared_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const voice_profile& profile,std::forward_iterator_tag)
     {
       std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
       typedef utf::text_iterator<forward_iterator> text_iterator;
@@ -458,7 +458,7 @@ namespace RHVoice
       return doc_ptr;
     }
 
-    smart_ptr<engine> engine_ptr;
+    std::shared_ptr<engine> engine_ptr;
     client* owner;
     std::list<sentence> sentences;
     std::list<sentence>::iterator current_sentence;
@@ -604,7 +604,7 @@ namespace RHVoice
   }
 
   template<typename input_iterator>
-  std::unique_ptr<document> document::create_from_ssml(const smart_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile)
+  std::unique_ptr<document> document::create_from_ssml(const std::shared_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile)
   {
     std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
     #ifdef _MSC_VER

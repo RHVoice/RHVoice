@@ -91,7 +91,7 @@ namespace RHVoice
         if(path::isdir(*it))
           {
             logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it));
-            smart_ptr<voice_info> v;
+            std::shared_ptr<voice_info> v;
             version_info ver;
             try
               {
@@ -107,7 +107,7 @@ namespace RHVoice
               {
                 logger.log(tag,RHVoice_log_level_error,"Voice info creation failed");
               }
-            if(!v.empty())
+            if(v)
               add(v,ver);
           }
       }

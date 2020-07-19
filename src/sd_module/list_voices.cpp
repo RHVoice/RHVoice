@@ -36,7 +36,7 @@ namespace RHVoice
     {
       bool list_voices::is_valid() const
       {
-        return !tts_engine.empty();
+        return !(tts_engine == nullptr);
       }
 
       action_t list_voices::execute()

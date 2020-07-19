@@ -34,7 +34,7 @@ namespace RHVoice
       {
       }
 
-      smart_ptr<engine> get_engine();
+      std::shared_ptr<engine> get_engine();
 
     private:
 
@@ -42,7 +42,7 @@ namespace RHVoice
       std::vector<std::string> get_resource_paths() const;
 
       static threading::mutex engine_mutex;
-      static smart_ptr<engine> engine_ptr;
+      static std::shared_ptr<engine> engine_ptr;
     };
   }
 }

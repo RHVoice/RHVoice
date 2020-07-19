@@ -33,12 +33,12 @@ namespace RHVoice
 {
   namespace audio
   {
-    std::vector<smart_ptr<library> > playback_stream::libraries(playback_stream::init_libraries());
+    std::vector<std::shared_ptr<library> > playback_stream::libraries(playback_stream::init_libraries());
 
-    std::vector<smart_ptr<library> > playback_stream::init_libraries()
+    std::vector<std::shared_ptr<library> > playback_stream::init_libraries()
     {
-      std::vector<smart_ptr<library> > result;
-      std::back_insert_iterator<std::vector<smart_ptr<library> > > out(result);
+      std::vector<std::shared_ptr<library> > result;
+      std::back_insert_iterator<std::vector<std::shared_ptr<library> > > out(result);
       #ifdef WITH_PULSE
       init_library<pulse_library>(out);
       #endif
@@ -85,7 +85,7 @@ namespace RHVoice
               impl.reset(new_impl.release());
               return;
             }
-          for(std::vector<smart_ptr<library> >::iterator it=libraries.begin();it!=libraries.end();++it)
+          for(std::vector<std::shared_ptr<library> >::iterator it=libraries.begin();it!=libraries.end();++it)
             {
               if(!(*it)->supports_backend(params.backend))
                 continue;
