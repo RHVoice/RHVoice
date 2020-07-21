@@ -52,4 +52,4 @@ is provided by RHVoice itself).
 ## License
 
 The main library is distributed under [LGPL v2.1](https://www.gnu.org/licenses/lgpl-2.1.html) or later.
-some components and voices use other licenses.for more information please read [license.md](license.md) file.
+some components and voices use other licenses.for more information please read [LICENSE.md](LICENSE.md) file.
