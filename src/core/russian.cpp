@@ -79,6 +79,13 @@ namespace RHVoice
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        stress_marks_fst.reset(new fst(path::join(info.get_data_path(),"stress_marks.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   bool russian::decode_as_russian_word(item& token,const std::string& token_name) const
@@ -194,9 +201,18 @@ namespace RHVoice
 
   bool russian::transcribe_word_with_stress_marks(const item& word,std::vector<std::string>& transcription) const
   {
+    const std::string& name=word.get("name").as<std::string>();
+    if(stress_marks_fst)
+      {
+        std::vector<std::string> stressed;
+        if(stress_marks_fst->translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
+          {
+            g2p_fst.translate(stressed.begin(),stressed.end(),std::back_inserter(transcription));
+            return true;
+          }
+      }
     if(word.eval("word_stress_pattern").as<stress_pattern>().get_state()==stress_pattern::undefined)
       return false;
-    const std::string& name=word.get("name").as<std::string>();
     g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
     return true;
   }

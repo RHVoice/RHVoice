@@ -110,7 +110,9 @@ define Particle
     [[т|Т] [а|А] [к|К] [и|И]] | 
     [[т|Т] [о|О]]];
 
-define Word Letter+ | UnseparableWord | Particle;
+source stress_in_text.foma
+
+define Word [Letter | WrittenStressedVowel]+ | UnseparableWord | Particle;
 
 define Stage1 
 Number @-> ... num || _ ,, 
