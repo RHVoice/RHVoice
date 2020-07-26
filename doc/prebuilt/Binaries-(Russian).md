@@ -46,7 +46,7 @@
 
 ### Татарский
 
-* [Talgat](https://drive.google.com/open?id=1pfCAMMa9K_OuPwczh-vDv__igRjRfnwO), версия 4.0.6
+* [Talgat](https://drive.google.com/open?id=1sgQMfjTywZudiLJeLS39Rl4GY3-eG6JM), версия 4.0.6
 
 ### Украинский
 
@@ -92,7 +92,7 @@
 
 ### Татарский
 
-* [Talgat](https://drive.google.com/open?id=1sgQMfjTywZudiLJeLS39Rl4GY3-eG6JM), версия 4.0.10
+* [Talgat](https://drive.google.com/open?id=1pfCAMMa9K_OuPwczh-vDv__igRjRfnwO), версия 4.0.10
 
 ### Украинский
 
