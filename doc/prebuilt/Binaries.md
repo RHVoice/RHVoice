@@ -46,7 +46,7 @@
 
 ### Tatar
 
-* [Talgat](https://www.dropbox.com/s/5exgypk3wrdocxv/RHVoice-voice-Tatar-Talgat-4.0.1.nvda-addon?dl=1), version 4.0.1
+* [Talgat](https://drive.google.com/open?id=1sgQMfjTywZudiLJeLS39Rl4GY3-eG6JM), version 4.0.6
 
 ### Ukrainian
 
@@ -92,7 +92,7 @@
 
 ### Tatar
 
-* [Talgat](https://www.dropbox.com/s/dwhzyzhv3eddax1/RHVoice-voice-Tatar-Talgat-v4.0.5-setup.exe?dl=1), version 4.0.5
+* [Talgat](https://drive.google.com/open?id=1pfCAMMa9K_OuPwczh-vDv__igRjRfnwO), version 4.0.10
 
 ### Ukrainian
 
