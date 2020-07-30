@@ -44,6 +44,8 @@ To use the Georgian voice for such purposes, organizations and manufacturers mus
 
 ## LetÃ­cia-F123
 
-The voice is distributed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+Copyright (C) 2018 - 2020  Olga Yakovleva, Fernando H. F. Botelho
+
+The voice is distributed under the [Creative Commons Attribution-ShareAlike 4.0 International Public License](https://creativecommons.org/licenses/by-sa/4.0/).
 
 See the documents in the licenses/voices subdirectory for more details.
