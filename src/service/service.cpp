@@ -508,7 +508,7 @@ namespace
   void on_name_vanished(const Glib::RefPtr<Gio::DBus::Connection>& connection,const Glib::ustring& name)
   {
     session_ptr session_to_close=get_session(connection,name);
-    if(!session_to_close.empty())
+    if(session_to_close)
       session_to_close->close();
   }
 

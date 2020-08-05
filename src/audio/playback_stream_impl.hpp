@@ -29,7 +29,7 @@ namespace RHVoice
       {
       }
 
-      virtual void open(int sample_rate) =0;
+      virtual void open(uint32_t sample_rate) =0;
       virtual bool is_open() const=0;
       virtual void close()=0;
 

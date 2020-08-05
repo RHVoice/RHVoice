@@ -379,10 +379,10 @@ namespace RHVoice
     relation& seg_rel=u.get_relation("Segment");
     for(relation::reverse_iterator seg_iter(seg_rel.rbegin());seg_iter!=seg_rel.rend();++seg_iter)
       {
-        if(seg_iter->in("Transcription")&&
-           seg_iter->as("Transcription").parent().has_feature("english"))
+        if((*seg_iter).in("Transcription")&&
+           (*seg_iter).as("Transcription").parent().has_feature("english"))
           continue;
-        std::string vpair=seg_iter->eval("ph_vpair").as<std::string>();
+        std::string vpair=(*seg_iter).eval("ph_vpair").as<std::string>();
         if(vpair!="0")
           {
             item& seg=*seg_iter;
