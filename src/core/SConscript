@@ -23,12 +23,41 @@ if env["enable_mage"]:
 local_env=env.Clone()
 local_env["libversion"]="3.0.1"
 local_env["liblevel"]=1
-config_dict={}
-config_dict["@DATA_PATH@"]='data' if local_env["PLATFORM"]=="win32" else (local_env.Dir("#data").abspath if local_env["dev"] else local_env.subst('$datadir/$package_name'))
-config_dict["@CONFIG_PATH@"]='config' if local_env["PLATFORM"]=="win32" else local_env.subst('$sysconfdir/$package_name')
-config_h=local_env.Substfile(Dir(".").srcnode().File("config.h"), "config.h.in", SUBST_DICT=config_dict)
-if local_env["enable_mage"]:
-	local_env.Append(CPPDEFINES=("ENABLE_MAGE","1"))
+
+coreConfig = {
+	"DATA_PATH": 'data' if local_env["PLATFORM"]=="win32" else (local_env.Dir("#data").abspath if local_env["dev"] else local_env.subst('$datadir/$package_name')),
+	"CONFIG_PATH": 'config' if local_env["PLATFORM"]=="win32" else local_env.subst('$sysconfdir/$package_name')
+}
+
+globalConfig = {
+	"VERSION": local_env["package_version"],
+	"ENABLE_MAGE": bool(local_env["enable_mage"])
+}
+
+def getVarTextRepr(v):
+	if isinstance(v, str):
+		return v
+	if isinstance(v, bool):
+		v = int(v)
+	if isinstance(v, int):
+		return str(v)
+
+def processConfig(env, inFName, outFName, configToGen):
+	print("Configuring ", inFName, "into", outFName, "...")
+	with open(inFName, "rt", encoding = "utf-8") as f:
+		cfgText = f.read()
+		for k, v in configToGen.items():
+			cfgText = cfgText.replace("@" + k + "@", getVarTextRepr(v))
+			cfgText = cfgText.replace("#cmakedefine01 " + k, "#define " + k +" " + str(int(bool(v))))
+			cfgText = cfgText.replace("#cmakedefine " + k,  "#define " if v else "#undef " + k)
+
+	env.Textfile(target=outFName, source=cfgText.splitlines())
+
+
+processConfig(local_env, Dir(".").srcnode().abspath + "/config.h.in", Dir(".").srcnode().File("config.h").abspath, coreConfig)
+processConfig(local_env, Dir(".").srcnode().abspath + "/../config.h.in", Dir(".").srcnode().File("../include/core/config.h").abspath, globalConfig)
+
+
 src=["unicode.cpp",
 	 "io.cpp",
 	 "path.cpp",
