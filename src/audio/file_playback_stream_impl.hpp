@@ -29,7 +29,7 @@ namespace RHVoice
     public:
       explicit file_playback_stream_impl(const playback_params& params);
       void write(const short* samples,std::size_t count);
-      void open(int sample_rate);
+      void open(uint32_t sample_rate);
       bool is_open() const;
       void close();
 
