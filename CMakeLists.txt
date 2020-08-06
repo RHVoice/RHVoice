@@ -17,12 +17,13 @@
 cmake_minimum_required(VERSION 3.5.1)
 project("RHVoice")
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/cmake/thirdparty/sanitizers/cmake")
 include(FindPkgConfig)
 include(GNUInstallDirs)
 include(CPackComponent)
 include(Hardening)
 include(VersionFromGit)
+find_package(Sanitizers)
 getVersionFromGit("RHVOICE" "1.2.2")
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.12") 
