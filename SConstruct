@@ -186,7 +186,6 @@ def create_base_env(user_vars):
         env["RPATH"]=env.Dir("$libdir").abspath
     env["package_version"]=get_version(env["release"])
     env.Append(CPPDEFINES=("PACKAGE",env.subst(r'\"$package_name\"')))
-    env.Append(CPPDEFINES=("VERSION",env.subst(r'\"$package_version\"')))
     if env["PLATFORM"]=="win32":
         env.Append(CPPDEFINES=("WIN32",1))
         env.Append(CPPDEFINES=("UNICODE",1))
