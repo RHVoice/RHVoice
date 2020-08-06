@@ -19,6 +19,10 @@ target_link_libraries("RHVoice-test" "RHVoice" "RHVoice_audio")
 target_include_directories("RHVoice-test" PRIVATE "${TCLAP_INCLUDE_DIR}" "${HTS_LABELS_KIT_INCLUDES}")
 harden("RHVoice-test")
 
+if(WITH_CLI11)
+	target_compile_definitions(RHVoice-test PRIVATE WITH_CLI11)
+endif(WITH_CLI11)
+
 install(TARGETS "RHVoice-test"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 	COMPONENT "test"

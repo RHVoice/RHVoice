@@ -25,6 +25,10 @@ target_include_directories("RHVoice-make-hts-labels" PRIVATE "${TCLAP_INCLUDE_DI
 target_link_libraries("RHVoice-make-hts-labels" "RHVoice_core" "libhts_engine")
 harden("RHVoice-make-hts-labels")
 
+if(WITH_CLI11)
+	target_compile_definitions(RHVoice-make-hts-labels PRIVATE WITH_CLI11)
+endif(WITH_CLI11)
+
 install(TARGETS "RHVoice-transcribe-sentences" "RHVoice-make-hts-labels"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 	COMPONENT "utils"

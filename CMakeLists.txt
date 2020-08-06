@@ -64,6 +64,7 @@ endif()
 
 
 set("dev" OFF CACHE BOOL "The build will only be used for development: no global installation, run from the source directory, compile helper utilities")
+set("WITH_CLI11" OFF CACHE BOOL "Use CLI11 instead of bundled tclap")
 set("ENABLE_MAGE" ON CACHE BOOL "Build with MAGE")
 set("WITH_DATA" ON CACHE BOOL "Build packages with data. Long to compress. When debugging RHVoice itself it makes sense to disable it.")
 #set("spd_version" validate_spd_version CACHE ??? "Speech dispatcher version")
