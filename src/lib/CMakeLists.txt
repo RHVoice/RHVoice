@@ -16,6 +16,7 @@
 add_library(RHVoice SHARED "${CMAKE_CURRENT_SOURCE_DIR}/lib.cpp")
 set_target_properties(RHVoice PROPERTIES VERSION "${RHVOICE_VERSION}" SOVERSION "${RHVOICE_VERSION_MAJOR}")
 harden("RHVoice")
+add_sanitizers("RHVoice")
 target_include_directories(RHVoice PRIVATE "${INCLUDE_DIR}" "${HTS_LABELS_KIT_INCLUDES}")
 target_link_libraries("RHVoice" "RHVoice_core")
 
