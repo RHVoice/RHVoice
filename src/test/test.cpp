@@ -19,7 +19,12 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
-#include "tclap/CmdLine.h"
+
+#ifdef WITH_CLI11
+	#include <CLI/CLI.hpp>
+#else
+	#include "tclap/CmdLine.h"
+#endif
 
 #include "core/engine.hpp"
 #include "core/document.hpp"
@@ -105,11 +110,41 @@ namespace
   }
 }
 
+#ifdef WITH_CLI11
+	typedef CLI::App AppT;
+	#define GET_CLI_PARAM_VALUE(NAME) (NAME ## Stor)
+#else
+	typedef TCLAP::CmdLine AppT;
+	#define GET_CLI_PARAM_VALUE(NAME) (NAME).getValue()
+#endif
+
+
+
+
 int main(int argc,const char* argv[])
 {
-  try
-    {
-      TCLAP::CmdLine cmd("Simple test of the synthesizer");
+  try{
+      AppT cmd("Simple test of the synthesizer");
+
+#ifdef WITH_CLI11
+      std::string inpath_argStor {"-"};
+      auto inpath_arg = cmd.add_option("-i,--input",inpath_argStor,"input file","path");
+      std::string outpath_argStor {""};
+      auto outpath_arg = cmd.add_option("-o,--output",outpath_argStor,"output file","path");
+      bool ssml_switchStor = false;
+      auto ssml_switch = cmd.add_option("-s,--ssml",ssml_switchStor,"Process as ssml");
+      std::string voice_argStor{""};
+      auto voice_arg = cmd.add_option("-p,--profile",voice_argStor,"voice profile","spec");
+      unsigned int rate_argStor = 100;
+      auto rate_arg = cmd.add_option("-r,--rate",rate_argStor,"speech rate","percent");
+      uint32_t sample_rateStor = 24000;
+      auto sample_rate = cmd.add_option("-R,--sample-rate",sample_rateStor,"sample rate","Hz");
+      unsigned int pitch_argStor = 100;
+      auto pitch_arg =  cmd.add_option("-t,--pitch",pitch_argStor,"speech pitch","percent");
+      unsigned int volume_argStor = 100;
+      auto volume_arg =  cmd.add_option("-v,--volume",volume_argStor,"speech volume","percent");
+      cmd.allow_windows_style_options();
+#else
       TCLAP::ValueArg<std::string> inpath_arg("i","input","input file",false,"-","path",cmd);
       TCLAP::ValueArg<std::string> outpath_arg("o","output","output file",false,"","path",cmd);
       TCLAP::SwitchArg ssml_switch("s","ssml","Process as ssml",cmd,false);
@@ -118,31 +153,42 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<uint32_t> sample_rate("R","sample-rate","sample rate",false, 24000,"Hz",cmd);
       TCLAP::ValueArg<unsigned int> pitch_arg("t","pitch","speech pitch",false,100,"percent",cmd);
       TCLAP::ValueArg<unsigned int> volume_arg("v","volume","speech volume",false,100,"percent",cmd);
+#endif
+
+#ifdef WITH_CLI11
+     try{
+#endif
       cmd.parse(argc,argv);
+#ifdef WITH_CLI11
+      }catch (const CLI::ParseError &e) {
+        return cmd.exit(e);
+      }
+#endif
+
       std::ifstream f_in;
-      if(inpath_arg.getValue()!="-")
+      if(GET_CLI_PARAM_VALUE(inpath_arg)!="-")
         {
-          f_in.open(inpath_arg.getValue().c_str());
+          f_in.open(GET_CLI_PARAM_VALUE(inpath_arg).c_str());
           if(!f_in.is_open())
             throw std::runtime_error("Cannot open the input file");
         }
-      audio_player player(outpath_arg.getValue());
-      player.set_sample_rate(sample_rate.getValue());
+      audio_player player(GET_CLI_PARAM_VALUE(outpath_arg));
+      player.set_sample_rate(GET_CLI_PARAM_VALUE(sample_rate));
       player.set_buffer_size(20);
       std::shared_ptr<engine> eng(new engine);
       voice_profile profile;
-      if(!voice_arg.getValue().empty())
-        profile=eng->create_voice_profile(voice_arg.getValue());
+      if(!GET_CLI_PARAM_VALUE(voice_arg).empty())
+        profile=eng->create_voice_profile(GET_CLI_PARAM_VALUE(voice_arg));
       std::istreambuf_iterator<char> text_start(f_in.is_open()?f_in:std::cin);
       std::istreambuf_iterator<char> text_end;
       std::unique_ptr<document> doc;
-      if(ssml_switch.getValue())
+      if(GET_CLI_PARAM_VALUE(ssml_switch))
         doc=document::create_from_ssml(eng,text_start,text_end,profile);
       else
         doc=document::create_from_plain_text(eng,text_start,text_end,content_text,profile);
-      doc->speech_settings.relative.rate=rate_arg.getValue()/100.0;
-      doc->speech_settings.relative.pitch=pitch_arg.getValue()/100.0;
-      doc->speech_settings.relative.volume=volume_arg.getValue()/100.0;
+      doc->speech_settings.relative.rate=GET_CLI_PARAM_VALUE(rate_arg)/100.0;
+      doc->speech_settings.relative.pitch=GET_CLI_PARAM_VALUE(pitch_arg)/100.0;
+      doc->speech_settings.relative.volume=GET_CLI_PARAM_VALUE(volume_arg)/100.0;
       doc->set_owner(player);
       doc->synthesize();
       player.finish();
