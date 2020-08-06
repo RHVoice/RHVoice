@@ -22,6 +22,7 @@ add_executable("RHVoice-service" "${CMAKE_CURRENT_SOURCE_DIR}/service.cpp" "${CM
 target_include_directories("RHVoice-service" PRIVATE "${LIBGIOMM_INCLUDE_DIRS}" "${HTS_LABELS_KIT_INCLUDES}")
 target_link_libraries("RHVoice-service" "RHVoice_core" "${LIBGIOMM_LIBRARIES}")
 harden("RHVoice-service")
+add_sanitizers("RHVoice-service")
 
 install(TARGETS "RHVoice-service"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

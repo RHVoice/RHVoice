@@ -38,6 +38,7 @@ endif()
 add_library(RHVoice_audio SHARED "${SOURCES}")
 set_target_properties(RHVoice_audio PROPERTIES VERSION "${RHVOICE_VERSION}" SOVERSION "${RHVOICE_VERSION_MAJOR}")
 harden("RHVoice_audio")
+add_sanitizers("RHVoice_audio")
 target_include_directories(RHVoice_audio PRIVATE "${INCLUDE_DIR}")
 
 if(WITH_LIBAO)

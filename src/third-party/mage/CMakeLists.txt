@@ -31,6 +31,7 @@ set(CPACK_COMPONENT_LIBMAGE_VERSION "${LIBMAGE_VERSION}" PARENT_SCOPE)
 target_include_directories(libmage PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(libmage "libhts_engine")
 harden(libmage)
+add_sanitizers(libmage)
 set_target_properties("libmage" PROPERTIES PREFIX "")
 target_compile_definitions(libmage PRIVATE RHVOICE)
 install(TARGETS "libmage"
