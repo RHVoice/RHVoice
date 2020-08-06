@@ -23,8 +23,10 @@ if env["enable_mage"]:
 local_env=env.Clone()
 local_env["libversion"]="3.0.1"
 local_env["liblevel"]=1
-local_env.Append(CPPDEFINES=("DATA_PATH",r'\"data\"' if local_env["PLATFORM"]=="win32" else ((r'\"'+local_env.Dir("#data").abspath+r'\"') if local_env["dev"] else local_env.subst(r'\"$datadir/$package_name\"'))))
-local_env.Append(CPPDEFINES=("CONFIG_PATH",r'\"config\"' if local_env["PLATFORM"]=="win32" else local_env.subst(r'\"$sysconfdir/$package_name\"')))
+config_dict={}
+config_dict["@DATA_PATH@"]='data' if local_env["PLATFORM"]=="win32" else (local_env.Dir("#data").abspath if local_env["dev"] else local_env.subst('$datadir/$package_name'))
+config_dict["@CONFIG_PATH@"]='config' if local_env["PLATFORM"]=="win32" else local_env.subst('$sysconfdir/$package_name')
+config_h=local_env.Substfile(Dir(".").srcnode().File("config.h"), "config.h.in", SUBST_DICT=config_dict)
 if local_env["enable_mage"]:
 	local_env.Append(CPPDEFINES=("ENABLE_MAGE","1"))
 src=["unicode.cpp",
