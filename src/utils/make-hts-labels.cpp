@@ -20,7 +20,12 @@
 #include <sstream>
 #include <list>
 #include <iterator>
-#include "tclap/CmdLine.h"
+
+#ifdef WITH_CLI11
+	#include <CLI/CLI.hpp>
+#else
+	#include "tclap/CmdLine.h"
+#endif
 #include "core/str.hpp"
 #include "core/path.hpp"
 #include "core/engine.hpp"
@@ -130,35 +135,70 @@ namespace
   }
 }
 
+#ifdef WITH_CLI11
+	typedef CLI::App AppT;
+	#define GET_CLI_PARAM_VALUE(NAME) (NAME ## Stor)
+	#define CHECK_CLI_PARAM_STR_VALUE_SET(NAME) (! (NAME ## Stor.empty()))
+#else
+	typedef TCLAP::CmdLine AppT;
+	#define GET_CLI_PARAM_VALUE(NAME) (NAME).getValue()
+	#define CHECK_CLI_PARAM_STR_VALUE_SET(NAME) (NAME).isSet()
+#endif
+
 int main(int argc,const char* argv[])
 {
   try
     {
-      TCLAP::CmdLine cmd("Write hts labels for a list of sentences from SSML document");
+      AppT cmd("Write hts labels for a list of sentences from SSML document");
+
+#ifdef WITH_CLI11
+      std::string inpath_argStor {"text.ssml"};
+      auto inpath_arg = cmd.add_option("input",inpath_argStor,"input file")->required();
+      std::string outpath_argStor {"lab"};
+      auto outpath_arg = cmd.add_option("output",outpath_argStor,"output directory")->required();
+
+      auto wtfGroup = cmd.add_option_group("WTF", "WTF");
+      std::string labpath_argStor;
+      auto labpath_arg = wtfGroup->add_option("-l,--lab",labpath_argStor,"the path to the mono labels")->required();
+      std::string prefix_argStor {"test"};
+      auto prefix_arg = wtfGroup->add_option("-p,--prefix",prefix_argStor,"output file names will start with this prefix")->excludes(labpath_arg);
+      wtfGroup->require_option(1);
+#else
       TCLAP::UnlabeledValueArg<std::string> inpath_arg("input","input file",true,"text.ssml","infile",cmd);
       TCLAP::UnlabeledValueArg<std::string> outpath_arg("output","output directory",true,"lab","outdir",cmd);
       TCLAP::ValueArg<std::string> labpath_arg("l","lab","the path to the mono labels",true,"lab","path");
       TCLAP::ValueArg<std::string> prefix_arg("p","prefix","output file names will start with this prefix",true,"test","string");
       cmd.xorAdd(labpath_arg,prefix_arg);
+#endif
+
+#ifdef WITH_CLI11
+     try{
+#endif
       cmd.parse(argc,argv);
+#ifdef WITH_CLI11
+      }catch (const CLI::ParseError &e) {
+        return cmd.exit(e);
+      }
+#endif
+
       std::shared_ptr<engine> eng(new engine);
-      std::ifstream f_in(inpath_arg.getValue().c_str());
+      std::ifstream f_in(GET_CLI_PARAM_VALUE(inpath_arg).c_str());
       if(!f_in.is_open())
         throw std::runtime_error("Cannot open the input file");
       std::istreambuf_iterator<char> text_start(f_in);
       std::istreambuf_iterator<char> text_end;
       std::unique_ptr<document> doc=document::create_from_ssml(eng,text_start,text_end);
       document::iterator sentence_iter=doc->begin();
-      if(labpath_arg.isSet())
+      if(CHECK_CLI_PARAM_STR_VALUE_SET(labpath_arg))
         {
-          std::list<std::string> fnames=list_lab_files(labpath_arg.getValue());
+          std::list<std::string> fnames=list_lab_files(GET_CLI_PARAM_VALUE(labpath_arg));
           for(std::list<std::string>::const_iterator it(fnames.begin());it!=fnames.end();++it)
             {
               if(sentence_iter==doc->end())
                 throw std::runtime_error("Sentence count mismatch");
               std::unique_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
-              load_mono_labels(*utt,path::join(labpath_arg.getValue(),*it));
-              output_labels(*utt,path::join(outpath_arg.getValue(),*it));
+              load_mono_labels(*utt,path::join(GET_CLI_PARAM_VALUE(labpath_arg),*it));
+              output_labels(*utt,path::join(GET_CLI_PARAM_VALUE(outpath_arg),*it));
               ++sentence_iter;
             }
         }
@@ -168,12 +208,12 @@ int main(int argc,const char* argv[])
           for(;sentence_iter!=doc->end();++sentence_iter)
             {
               std::ostringstream s;
-              s << prefix_arg.getValue();
+              s << GET_CLI_PARAM_VALUE(prefix_arg);
               s << "_";
               s << index;
               s << ".lab";
               std::unique_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
-              output_labels(*utt,path::join(outpath_arg.getValue(),s.str()));
+              output_labels(*utt,path::join(GET_CLI_PARAM_VALUE(outpath_arg),s.str()));
               ++index;
             }
         }
