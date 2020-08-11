@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 #include <new>
 #include <stdexcept>
 #include <windows.h>
