@@ -16,6 +16,7 @@
 
 import os
 import os.path
+import sys
 
 Import("env","libsonic","libhts_engine")
 if env["enable_mage"]:
@@ -53,10 +54,10 @@ def processConfig(env, inFName, outFName, configToGen):
 
 	env.Textfile(target=outFName, source=cfgText.splitlines())
 
-
-processConfig(local_env, Dir(".").srcnode().abspath + "/config.h.in", Dir(".").srcnode().File("config.h").abspath, coreConfig)
-processConfig(local_env, Dir(".").srcnode().abspath + "/../config.h.in", Dir(".").srcnode().File("../include/core/config.h").abspath, globalConfig)
-
+if sys.platform!="win32" or local_env["TARGET_ARCH"]!="x86_64":
+		processConfig(local_env, Dir(".").srcnode().File("config.h.in").abspath, Dir(".").srcnode().File("config.h").abspath, coreConfig)
+		includedir=Dir("#src").Dir("include").Dir("core").srcnode()
+		processConfig(local_env, includedir.File("config.h.in").abspath, includedir.File("config.h").abspath, globalConfig)
 
 src=["unicode.cpp",
 	 "io.cpp",
