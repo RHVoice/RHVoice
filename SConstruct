@@ -241,7 +241,7 @@ def configure(env):
         tests["CheckXPCompat"]=CheckXPCompat
     conf=env.Configure(conf_dir=os.path.join(env["BUILDDIR"],"configure_tests"),
                        log_file=os.path.join(env["BUILDDIR"],"configure.log"),
-                       config_h=os.path.join(env["BUILDDIR"],"include","config.h"),
+                       config_h=os.path.join(env["BUILDDIR"],"include","configure.h"),
                        custom_tests=tests)
     if env["PLATFORM"]=="win32":
         if not conf.CheckMSVC():
