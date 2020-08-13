@@ -35,7 +35,7 @@ namespace RHVoice
   {
   public:
     sample_rate_property():
-      enum_property<sample_rate_t>("sample_rate",sample_rate_48k)
+      enum_property<sample_rate_t>("sample_rate",sample_rate_24k)
     {
       define("16k",sample_rate_16k);
       define("22k",sample_rate_22k);
