@@ -1,5 +1,5 @@
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${INCLUDE_DIR}/core/config.h")
+configure_file("${INCLUDE_DIR}/core/config.h.in" "${INCLUDE_DIR}/core/config.h")
 
 add_subdirectory("third-party")
 set(HTS_LABELS_KIT_INCLUDES "${UTF8_INCLUDE_DIR}" "${RAPIDXML_INCLUDE_DIR}")
