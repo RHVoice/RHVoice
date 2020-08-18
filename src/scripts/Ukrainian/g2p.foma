@@ -101,7 +101,10 @@ J : j |
 apos : 0 | 
 sch : [sh tsh]] @-> ; 
 
+source stress_in_text.foma
+
 regex 
+[WrittenStressMark -> 0] .o. 
 Word .o. 
 InitialTranscription .o. 
 Palatalization ; 
