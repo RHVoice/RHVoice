@@ -36,6 +36,7 @@ set("VOICE_aleksandr_LANG" "ru")
 set("VOICE_anna_LANG" "ru")
 set("VOICE_elena_LANG" "ru")
 set("VOICE_irina_LANG" "ru")
+set("VOICE_artemiy_LANG" "ru")
 
 set("VOICE_alan_LANG" "en")
 set("VOICE_bdl_LANG" "en")
