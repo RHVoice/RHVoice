@@ -1,4 +1,4 @@
-/* Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2016, 2018, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -75,6 +75,13 @@ namespace RHVoice
     stress_fst(path::join(info_.get_data_path(),"stress.fst")),
     stress_rules(path::join(info_.get_data_path(),"stress.fsm"),io::integer_reader<uint8_t>())
   {
+    try
+      {
+        stress_marks_fst.reset(new fst(path::join(info.get_data_path(),"stress_marks.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   std::vector<std::string> ukrainian::get_word_transcription(const item& word) const
@@ -88,7 +95,7 @@ namespace RHVoice
         return transcription;
       }
     std::vector<std::string> stressed;
-    if(stress_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
+    if((stress_marks_fst && stress_marks_fst->translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed))) || stress_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(stressed)))
       {
         g2p_fst.translate(stressed.begin(),stressed.end(),std::back_inserter(transcription));
         return transcription;

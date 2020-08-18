@@ -120,7 +120,7 @@ TranscribeHardVowel @-> || _ ,,
 define ChangeItoYAfterHardConsonants 
 i0 -> y0 , i1 -> y1 || c | zh | sh _ ; 
 
-source stress_in_text.att
+source stress_in_text.foma
 
 regex 
 [[%- | WrittenStressMark] -> 0] .o. 

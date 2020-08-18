@@ -1,4 +1,4 @@
-/* Copyright (C) 2016, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2016, 2018, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -78,6 +78,7 @@ namespace RHVoice
     const fst lseq_fst;
     const fst stress_fst;
     const rules<uint8_t> stress_rules;
+    std::unique_ptr<fst> stress_marks_fst;
   };
 }
 #endif
