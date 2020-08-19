@@ -16,7 +16,9 @@
 #ifndef RHVOICE_CONFIG_HPP
 #define RHVOICE_CONFIG_HPP
 
+#ifndef ANDROID
 #include "config.h"
+#endif
 #include <string>
 #include <map>
 #include <memory>
