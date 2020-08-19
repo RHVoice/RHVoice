@@ -16,7 +16,9 @@
 #include "core/path.hpp"
 #include "core/config.hpp"
 #include "core/engine.hpp"
+#ifndef ANDROID
 #include "config.h"
+#endif
 
 namespace
 {

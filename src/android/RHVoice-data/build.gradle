@@ -3,8 +3,9 @@ apply plugin: 'com.android.application'
 ext.myDataDir=file("../../../data")
 ext.myLanguagesDir=new File(myDataDir,"languages")
 ext.myVoicesDir=new File(myDataDir,"voices")
-ext.myLanguageNames=myLanguagesDir.list()
-ext.myVoiceNames=myVoicesDir.list()
+ext.myExcludedNames=["CMakeLists.txt"]
+ext.myLanguageNames=myLanguagesDir.list() - myExcludedNames
+ext.myVoiceNames=myVoicesDir.list() - myExcludedNames
 
 def getDataItemSpec(type,baseDir,dirName) {
 def spec=["type":type,"dirName":dirName]
