@@ -74,11 +74,11 @@ proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.tx
 
 dependencies {
 implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.work:work-runtime:2.3.3'
-implementation 'com.takisoft.preferencex:preferencex:1.0.0'
-implementation 'org.conscrypt:conscrypt-android:2.2.1'
+    implementation 'androidx.work:work-runtime:2.3.4'
+implementation 'com.takisoft.preferencex:preferencex:1.1.0'
+implementation 'org.conscrypt:conscrypt-android:2.5.0'
 implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 }
 
