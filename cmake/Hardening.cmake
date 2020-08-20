@@ -8,6 +8,8 @@ include(CheckCXXCompilerFlag)
 
 option(HARDENING_SSE2 "Enable hardening flags requiring at least SSE2 support for target" OFF)
 
+set(CLANG_WORKAROUND_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/clangLinkerWorkaround.sh")
+
 function(determineSupportedHardeningFlags property)
 	set(FLAGS_HARDENING "")
 	foreach(flag ${ARGN})
@@ -22,17 +24,23 @@ function(determineSupportedHardeningFlags property)
 	endforeach(flag)
 	string(REPLACE ";" " " FLAGS_HARDENING "${FLAGS_HARDENING}")
 	#message(STATUS "FLAGS_HARDENING ${FLAGS_HARDENING}")
-	set(HARDENING_${property} "${FLAGS_HARDENING}" CACHE STRING "Hardening flags")
+	set(HARDENING_${property} "${FLAGS_HARDENING}" PARENT_SCOPE)
 endfunction(determineSupportedHardeningFlags)
 
-function(processFlagsList target property)
+function(processFlagsList target property cache)
 	get_target_property(FLAGS_UNHARDENED ${target} ${property})
 	if(FLAGS_UNHARDENED MATCHES "FLAGS_UNHARDENED-NOTFOUND")
 		set(FLAGS_UNHARDENED "")
 	endif()
 	#message(STATUS "processFlagsList ${target} ${property} ${FLAGS_UNHARDENED}")
 	#message(STATUS "HARDENING_${property} ${HARDENING_${property}}")
-	if(HARDENING_${property})
+	
+	if(cache)
+		if(HARDENING_${property})
+		else()
+			determineSupportedHardeningFlags(${property} ${ARGN})
+			set(HARDENING_${property} "${HARDENING_${property}}" CACHE STRING "Hardening flags")
+		endif()
 	else()
 		determineSupportedHardeningFlags(${property} ${ARGN})
 	endif()
@@ -45,28 +53,40 @@ function(processFlagsList target property)
 endfunction(processFlagsList)
 
 function(setupPIC target)
-	set_property(TARGET ${target} PROPERTY POSITION_INDEPENDENT_CODE ON) # FUCK, doesn't work
+	set_property(TARGET ${target} PROPERTY POSITION_INDEPENDENT_CODE ON) # bad, doesn't work
 	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 		get_target_property(type ${target} TYPE)
 		if(type STREQUAL "EXECUTABLE")
-			list(APPEND HARDENING_COMPILER_FLAGS
+			list(APPEND HARDENING_PIC_COMPILE_FLAGS
 				"-fPIE"
 			)
 		else()
-			list(APPEND HARDENING_COMPILER_FLAGS
+			list(APPEND HARDENING_PIC_COMPILE_FLAGS
 				"-fPIC"
 			)
 		endif()
-		list(APPEND HARDENING_LINKER_FLAGS
-			"-pie"
-		)
+		if(type STREQUAL "EXECUTABLE")
+			# https://mropert.github.io/2018/02/02/pic_pie_sanitizers/
+			list(APPEND HARDENING_PIC_LINKER_FLAGS
+				"-Wl,-pie"
+			)
+			if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+				message(STATUS "Working around Clang bug https://bugs.llvm.org/show_bug.cgi?id=44594 ...")
+				list(APPEND HARDENING_PIC_LINKER_FLAGS
+					"--ld-path=\"${CLANG_WORKAROUND_SCRIPT}\""
+				)
+				
+			endif()
+		endif()
 	elseif(MSVC)
-		list(APPEND HARDENING_COMPILER_FLAGS
+		list(APPEND HARDENING_PIC_COMPILE_FLAGS
 			"/dynamicbase" "/HIGHENTROPYVA"
 		)
 	else()
 		message(ERROR "The compiler is not supported")
 	endif()
+	processFlagsList(${target} COMPILE_FLAGS OFF ${HARDENING_PIC_COMPILE_FLAGS})
+	processFlagsList(${target} LINK_FLAGS OFF ${HARDENING_PIC_LINKER_FLAGS})
 endfunction(setupPIC)
 
 function(harden target)
@@ -183,6 +203,7 @@ function(harden target)
 				"-Wl,-z,ibtplt"
 				"-Wl,-z,ibt"
 				"-Wl,-z,shstk"
+				"-Wl,-z,notext"  # may be required for PIC
 			)
 		endif()
 		list(APPEND HARDENING_MACRODEFS
@@ -196,8 +217,8 @@ function(harden target)
 		message(ERROR "The compiler is not supported")
 	endif()
 
-	processFlagsList(${target} COMPILE_FLAGS ${HARDENING_COMPILER_FLAGS})
-	processFlagsList(${target} LINK_FLAGS ${HARDENING_LINKER_FLAGS})
+	processFlagsList(${target} COMPILE_FLAGS ON ${HARDENING_COMPILER_FLAGS})
+	processFlagsList(${target} LINK_FLAGS ON ${HARDENING_LINKER_FLAGS})
 	
 	#list(JOIN HARDENING_MACRODEFS " " HARDENING_MACRODEFS) # unneeded, list is needed, not string
 	set(HARDENING_MACRODEFS "${HARDENING_MACRODEFS}" CACHE STRING "Hardening flags CMake list (not string!)")
