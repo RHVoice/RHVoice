@@ -20,6 +20,8 @@
 #include "config.h"
 #endif
 
+#include <cstdlib>
+
 namespace
 {
   const std::string tag("engine");
@@ -32,6 +34,10 @@ namespace RHVoice
     config_path(CONFIG_PATH),
     logger(new event_logger)
   {
+    char* data_path_env = getenv("RHVOICE_DATA_PATH");
+    if (data_path_env) data_path = data_path_env;
+    char* config_path_env = getenv("RHVOICE_CONFIG_PATH");
+    if (config_path_env) config_path = config_path_env;
   }
 
   std::vector<std::string> engine::init_params::get_resource_paths(const std::string& type) const
