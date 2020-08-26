@@ -38,9 +38,9 @@ created.
 
 RHVoice supports following platforms:
 
-* Windows (prebuilt binaries is available [here](doc/prebuilt/Binaries.md))
-* GNU/Linux (building instructions can be found [here](doc/Compiling/Linux.md) You can also look at [packaging status](doc/prebuilt/Packaging-status.md).)
-* Android (can be installed thru [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android) or you can download an APK consult [this file](doc/prebuilt/Binaries.md##Android) ) )
+* Windows (prebuilt binaries is available [here](doc/en/Binaries.md))
+* GNU/Linux (building instructions can be found [here](doc/en/Compiling-on-Linux.md) You can also look at [packaging status](doc/en/Packaging-status.md).)
+* Android (can be installed thru [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android) or you can download an APK consult [this file](doc/en/Binaries.md##Android) ) )
 
 It is compatible with
 standard text-to-speech interfaces on these platforms: SAPI5 on
