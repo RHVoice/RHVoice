@@ -59,7 +59,18 @@ namespace RHVoice
       p.resource_paths=get_resource_paths();
       wchar_t appdata_path[MAX_PATH];
       if(SHGetFolderPath(0,CSIDL_APPDATA,0,SHGFP_TYPE_CURRENT,appdata_path)==S_OK)
-        p.config_path=path::join(utils::wstring_to_string(appdata_path),"RHVoice");
+        {
+          std::wstring config_path=std::wstring(appdata_path)+std::wstring(L"\\RHVoice");
+          p.config_path=utils::wstring_to_string(config_path);
+          wchar_t common_appdata_path[MAX_PATH];
+          if(SHGetFolderPath(0,CSIDL_COMMON_APPDATA,0,SHGFP_TYPE_CURRENT,common_appdata_path)==S_OK)
+            {
+              std::wstring in_file_path=std::wstring(common_appdata_path)+std::wstring(L"\\Olga Yakovleva\\RHVoice\\config\\RHVoice.ini");
+              CreateDirectory(config_path.c_str(), nullptr);
+              std::wstring out_file_path(config_path+L"\\RHVoice.ini");
+              CopyFile(in_file_path.c_str(), out_file_path.c_str(), true);
+            }
+        }
       engine_ptr=engine::create(p);
       return engine_ptr;
     }
