@@ -32,6 +32,8 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 		super(core_packager,self).__init__(upgrade_code,name,outdir,env,display_name,version,"RHVoice")
 		self.dll=Dir("..").Dir("x86_64" if x64_flag else "x86").Dir("sapi").File("RHVoiceSvr.dll")
 		env.Depends(self.outfile,self.dll)
+		self.ini=Dir("..").File("RHVoice.ini")
+		env.Depends(self.outfile,self.ini)
 		self.token_enum_key=r"Software\Microsoft\Speech\Voices\TokenEnums\RHVoice"
 		self.token_enum_clsid="{d7577808-7ade-4dea-a5b7-ee314d6ef3a1}"
 		self.engine_clsid="{9f215c97-3d3b-489d-8419-6b9abbf31ec2}"
@@ -88,6 +90,28 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 		lib_path=os.path.join(self.get_old_lib_dir_path(win64),"RHVoiceSvr.dll")
 		self.create_remove_file_component_element(lib_path)
 
+	def create_ini_component(self):
+		dir=self.SubElement(self.root_directory,"Directory")
+		dir.set("Id","CommonAppDataFolder")
+		dir=self.SubElement(dir,"Directory")
+		dir.set("Id","MyAppDataFolder")
+		dir.set("Name",self.product.get("Manufacturer"))
+		dir=self.SubElement(dir,"Directory")
+		dir.set("Id","RHVoiceDataFolder")
+		dir.set("Name","RHVoice")
+		dir=self.SubElement(dir,"Directory")
+		dir.set("Id","RHVoiceConfigFolder")
+		dir.set("Name","config")
+		cmp=self.SubElement(dir,"Component")
+		file=self.SubElement(cmp,"File",empty=True)
+		file.set("Id","RHVoiceIni")
+		cmp.set("Id","cmp_"+file.get("Id"))
+		cmp.set("Guid","*")
+		cmp.set("Feature","Main")
+		file.set("KeyPath","yes")
+		file.set("Name","RHVoice.ini")
+		file.set("Source",self.ini.abspath)
+
 	def do_package(self):
 		self.create_com_server_component_element()
 		self.create_token_enum_component_element()
@@ -97,6 +121,7 @@ class core_packager(RHVoicePackaging.windows.msi_packager):
 			self.create_remove_file_component_element(os.path.join("config-examples","RHVoice.ini"))
 			self.create_remove_nsis_uninstaller_component_element()
 		self.create_remove_folder_component_elements()
+		self.create_ini_component()
 
 msi32=core_packager("3794ffaa-7bc4-48cb-ae7d-67cb2560398a",False)
 msi32.package()
