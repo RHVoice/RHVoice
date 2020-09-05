@@ -92,8 +92,11 @@ def CheckSpdVersion(ctx):
     if ver is not None:
         ctx.Result(ver)
         return ver
-    src='#include <stdio.h>\n#include <speech-dispatcher/libspeechd_version.h>\nint main() {\nint major=LIBSPEECHD_MAJOR_VERSION;\nint minor=LIBSPEECHD_MINOR_VERSION;\nprintf("%d.%d",major,minor);\nreturn 0;}'
-    res,ver=ctx.TryRun(src,".c")
+    res, ver=ctx.TryAction("pkg-config --modversion speech-dispatcher > $TARGET")
+    ver=ver.strip()
+    if not res:
+        src='#include <stdio.h>\n#include <speech-dispatcher/libspeechd_version.h>\nint main() {\nint major=LIBSPEECHD_MAJOR_VERSION;\nint minor=LIBSPEECHD_MINOR_VERSION;\nprintf("%d.%d",major,minor);\nreturn 0;}'
+        res,ver=ctx.TryRun(src,".c")
     if not res:
         ctx.Result(res)
         return res
