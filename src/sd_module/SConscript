@@ -20,7 +20,7 @@ import re
 Import("env","libcore","libaudio")
 local_env=env.Clone()
 local_env.Prepend(LIBS=[local_env["libcore"],local_env["libaudio"]])
-ver=local_env.get("spd_version","0.8")
+ver=local_env.get("spd_version","0.9")
 m=re.match(r"^(\d+)\.(\d+)\D?",ver)
 major=m.group(1)
 minor=m.group(2)
