@@ -27,7 +27,7 @@ if sys.platform=="win32":
         import _winreg as winreg
 
 def get_version(is_release):
-    next_version="1.2.1"
+    next_version="1.2.2"
     return next_version
 
 def CheckPKGConfig(context):
