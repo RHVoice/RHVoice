@@ -17,6 +17,12 @@
 import os
 import os.path
 import sys
+import codecs
+
+try:
+	basestring
+except NameError:
+	basestring = str
 
 Import("env","libsonic","libhts_engine")
 if env["enable_mage"]:
@@ -36,7 +42,7 @@ globalConfig = {
 }
 
 def getVarTextRepr(v):
-	if isinstance(v, str):
+	if isinstance(v, basestring):
 		return v
 	if isinstance(v, bool):
 		v = int(v)
@@ -45,7 +51,7 @@ def getVarTextRepr(v):
 
 def processConfig(env, inFName, outFName, configToGen):
 	print("Configuring ", inFName, "into", outFName, "...")
-	with open(inFName, "rt", encoding = "utf-8") as f:
+	with codecs.open(inFName, "r", encoding = "utf-8") as f:
 		cfgText = f.read()
 		for k, v in configToGen.items():
 			cfgText = cfgText.replace("@" + k + "@", getVarTextRepr(v))
