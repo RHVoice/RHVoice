@@ -678,6 +678,7 @@ public final class RHVoiceService extends TextToSpeechService
                 params.setPitch(((double)pitch)/100.0);
                 final Player player=new Player(callback);
                 tts.engine.speak(request.getText(),params,player);
+                player.setSampleRate(24000);
                 callback.done();
             }
         catch(RHVoiceException e)
