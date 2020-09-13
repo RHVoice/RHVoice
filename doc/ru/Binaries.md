@@ -11,10 +11,10 @@
 
 ### Русский
 
-* [Aleksandr](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Aleksandr-4.2.5.nvda-addon), версия 4.2.5
-* [Anna](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Anna-4.1.5.nvda-addon), версия 4.1.5
-* [Elena](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Elena-4.2.5.nvda-addon), версия 4.2.5
-* [Irina](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Irina-4.1.5.nvda-addon), версия 4.1.5
+* [Aleksandr](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Aleksandr-4.2.6.nvda-addon), версия 4.2.6
+* [Anna](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Anna-4.1.6.nvda-addon), версия 4.1.6
+* [Elena](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Elena-4.2.6.nvda-addon), версия 4.2.6
+* [Irina](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Irina-4.1.6.nvda-addon), версия 4.1.6
 
 ### Английский
 
