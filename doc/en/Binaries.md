@@ -7,7 +7,7 @@
 
 ## NVDA
 
-[Main add-on](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-1.2.0.nvda-addon), version 1.2.0
+[Main add-on](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-1.2.3.nvda-addon), version 1.2.3
 
 ### Russian
 
@@ -29,7 +29,7 @@
 
 ### Brazilian Portuguese
 
-* [LetÃ­cia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-4.6.5.nvda-addon), version 4.6.5
+* [LetÃ­cia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-4.6.6.nvda-addon), version 4.6.6
 
 ### Esperanto
 
@@ -50,17 +50,17 @@
 
 ### Ukrainian
 
-* [Anatol](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Ukrainian-Anatol-4.1.6.nvda-addon), version 4.1.6
-* [Natalia](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Ukrainian-Natalia-4.0.6.nvda-addon), version 4.0.6
+* [Anatol](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Ukrainian-Anatol-4.1.7.nvda-addon), version 4.1.7
+* [Natalia](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Ukrainian-Natalia-4.0.7.nvda-addon), version 4.0.7
 
 ## SAPI 5
 
 ### Russian
 
-* [Aleksandr](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Aleksandr-v4.2.9-setup.exe), version 4.2.9
-* [Anna](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Anna-v4.1.9-setup.exe), version 4.1.9
-* [Elena](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Elena-v4.2.9-setup.exe), version 4.2.9
-* [Irina](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Irina-v4.1.9-setup.exe), version 4.1.9
+* [Aleksandr](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Aleksandr-v4.2.11-setup.exe), version 4.2.11
+* [Anna](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Anna-v4.1.11-setup.exe), version 4.1.11
+* [Elena](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Elena-v4.2.11-setup.exe), version 4.2.11
+* [Irina](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Irina-v4.1.11-setup.exe), version 4.1.11
 
 ### English
 
@@ -75,7 +75,7 @@
 
 ### Brazilian Portuguese
 
-* [LetÃ­cia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.9-setup.exe), version 4.6.9
+* [LetÃ­cia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.11-setup.exe), version 4.6.11
 
 ### Esperanto
 
@@ -96,19 +96,19 @@
 
 ### Ukrainian
 
-* [Anatol](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Ukrainian-Anatol-v4.1.10-setup.exe), version 4.1.10
-* [Natalia](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Ukrainian-Natalia-v4.0.10-setup.exe), version 4.0.10
+* [Anatol](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Ukrainian-Anatol-v4.1.11-setup.exe), version 4.1.11
+* [Natalia](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Ukrainian-Natalia-v4.0.11-setup.exe), version 4.0.11
 
 ## Android
 
 * [Android app on Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
-* [Direct link to the Android app](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-v1.2.1.apk), version 1.2.1
+* [Direct link to the Android app](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-v1.2.3.apk), version 1.2.3
 
 In most cases you should use the main app itself to install the voices. But if this is not an option for any reason, you may install the language and voice data using the following packages:
 
 ### Russian
 
-* [Language data package](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-language-Russian-v2.5.apk), version 2.5
+* [Language data package](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-language-Russian-v2.6.apk), version 2.6
 
 #### Voices
 
@@ -130,7 +130,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Brazilian Portuguese
 
-* [Language data package](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-F123-Brazilian-Portuguese-language-v1.14.apk), version 1.14
+* [Language data package](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-F123-Brazilian-Portuguese-language-v1.15.apk), version 1.15
 
 #### Voices
 
@@ -155,7 +155,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Ukrainian
 
-* [Language data package](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-language-Ukrainian-v1.8.apk), version 1.8
+* [Language data package](https://dl.bintray.com/olga-yakovleva/Android/RHVoice-language-Ukrainian-v1.9.apk), version 1.9
 
 #### Voices
 
