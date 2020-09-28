@@ -13,6 +13,7 @@
 
 * [Aleksandr](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Aleksandr-4.2.6.nvda-addon), версия 4.2.6
 * [Anna](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Anna-4.1.6.nvda-addon), версия 4.1.6
+* [Artemiy](https://rhvoice.tiflo.org/downloads/?voice=artemiy&type=nvda), версия 4.0.6
 * [Elena](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Elena-4.2.6.nvda-addon), версия 4.2.6
 * [Irina](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Irina-4.1.6.nvda-addon), версия 4.1.6
 
@@ -59,6 +60,7 @@
 
 * [Aleksandr](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Aleksandr-v4.2.11-setup.exe), версия 4.2.11
 * [Anna](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Anna-v4.1.11-setup.exe), версия 4.1.11
+* [Artemiy](https://rhvoice.tiflo.org/downloads/?voice=artemiy&type=sapi), версия 4.0.11
 * [Elena](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Elena-v4.2.11-setup.exe), версия 4.2.11
 * [Irina](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Irina-v4.1.11-setup.exe), версия 4.1.11
 
