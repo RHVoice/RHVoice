@@ -14,4 +14,4 @@ Speaker: Artemy Lebedev (designer, blogger and traveler)
 Contact us
 E-mail: rhvoice@tiflo.org
 Phone: +7 (952) 280-89-89
-Website: https://rhvoice.tiflo.org
+Website: https://rhvoice.su

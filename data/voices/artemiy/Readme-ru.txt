@@ -14,4 +14,4 @@
 Связь
 E-mail: rhvoice@tiflo.org
 Телефон: +7 (952) 280-89-89
-Сайт: https://rhvoice.tiflo.org
+Сайт: https://rhvoice.su
