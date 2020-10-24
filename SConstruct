@@ -121,7 +121,8 @@ def setup():
     SConsignFile(os.path.join(BUILDDIR,"scons"))
 
 def create_languages_user_var():
-    names=sorted(os.listdir(Dir("#data").Dir("languages").abspath))
+    langs_dir=Dir("#data").Dir("languages")
+    names=[name for name in sorted(os.listdir(langs_dir.path)) if os.path.isdir(langs_dir.Entry(name).path)]
     langs=[name.lower() for name in names]
     name_map=dict(zip(names,langs))
     def_langs=langs
