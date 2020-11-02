@@ -10,32 +10,54 @@ macro(voiceInDir voiceName voiceDir)
 		message(FATAL_ERROR "Please set ${lang_var_name} to the code of the lang of the voice ${voiceName} from https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes")
 	endif()
 
+	set(langNameVarName "ISO639_1_CODE2NAME_${langCode}")
+	set(langName "${${langNameVarName}}")
+
 	if(${lang_license_name})
 		set(license "${${lang_license_name}}")
 	else()
 		set(license "lgpl-2.1")
 	endif()
 
+	set(languagePackageName "RHVoice-language-${langCode}")
+	string(REPLACE "-" "_" languagePackageFilteredName "${languagePackageName}")
+
+	set(voicesGroupName "RHVoice-voices-${langCode}")
+	string(REPLACE "-" "_" voicesGroupFilteredName "${voicesGroupName}")
+	string(TOUPPER "${voicesGroupFilteredName}" voicesGroupFilteredNameUpper)
+	if(NOT DEFINED "CPACK_COMPONENT_${voicesGroupFilteredNameUpper}_GROUP")
+		cpack_add_component_group("${voicesGroupFilteredName}"
+			DISPLAY_NAME "${langName}"
+			DESCRIPTION "Voices for ${langName} (${langCode}) language for RHVoice"
+			PARENT_GROUP "voices"
+			EXPANDED
+		)
+	endif()
+
 	set(voicePackageName "RHVoice-voice-${langCode}-${voiceName}")
+	string(REPLACE "-" "_" voicePackageFilteredName "${voicePackageName}")
 	file(GLOB_RECURSE SRCFILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${voiceDir}/*")
 	add_custom_target(
-		"${voicePackageName}"
+		"${voicePackageFilteredName}"
 		SOURCES "${SRCFILES}"
 	)
 
-	string(TOUPPER "${voicePackageName}" voicePackageNameUpper)
-	cpack_add_component("${voicePackageName}" GROUP "voices" DISPLAY_NAME "${voiceName}"
-		DESCRIPTION "${voiceName} voice for ${langCode} language for RHVoice licensed under `${license}` license."
-	)
+	string(TOUPPER "${voicePackageFilteredName}" voicePackageFilteredNameUpper)
 
-	set("CPACK_DEBIAN_${voicePackageNameUpper}_PACKAGE_NAME" "${voicePackageName}")
-	set("CPACK_RPM_${voicePackageNameUpper}_PACKAGE_NAME" "${voicePackageName}")
-	set("CPACK_DEBIAN_${voicePackageNameUpper}_PACKAGE_DEPENDS" "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, RHVoice-language-${langCode}" PARENT_SCOPE)
+	cpack_add_component("${voicePackageName}" GROUP "${voicesGroupFilteredName}" DISPLAY_NAME "${voiceName}"
+		DESCRIPTION "${voiceName} voice for ${langName} (${langCode}) language for RHVoice licensed under `${license}` license."
+		DEPENDS "${languagePackageFilteredName}"
+	)
+	list(APPEND CPACK_COMPONENTS_ALL "${voicePackageName}")
+
+	set("CPACK_DEBIAN_${voicePackageFilteredNameUpper}_PACKAGE_NAME" "${voicePackageName}")
+	set("CPACK_RPM_${voicePackageFilteredNameUpper}_PACKAGE_NAME" "${voicePackageName}")
+	set("CPACK_DEBIAN_${voicePackageFilteredNameUpper}_PACKAGE_DEPENDS" "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, RHVoice-language-${langCode}" PARENT_SCOPE)
 	set("CPACK_DEBIAN_${languagePackageNameUpper}_PACKAGE_SECTION" "contrib" PARENT_SCOPE)
 	
 	install(DIRECTORY "${voiceDir}"
 		DESTINATION "${voices_dir}"
-		COMPONENT "${voicePackageName}"
+		COMPONENT "${voicePackageFilteredName}"
 		PATTERN "SConscript" EXCLUDE
 		PATTERN "CMakeLists.txt" EXCLUDE
 	)
@@ -44,7 +66,7 @@ macro(voiceInDir voiceName voiceDir)
 	if(EXISTS "${licenseFileCandidate}")
 		install(FILES "${licenseFileCandidate}"
 			DESTINATION "${common_doc_dir}/${voiceName}/"
-			COMPONENT "${voicePackageName}"
+			COMPONENT "${voicePackageFilteredName}"
 			RENAME "copyright"
 		)
 	else()
@@ -55,13 +77,13 @@ macro(voiceInDir voiceName voiceDir)
 			if(licenseFilesLen EQUAL "1")
 				install(FILES ${licenseFiles}
 					DESTINATION "${common_doc_dir}/${voiceName}/"
-					COMPONENT "${voicePackageName}"
+					COMPONENT "${voicePackageFilteredName}"
 					RENAME "copyright"
 				)
 			else()
 				install(FILES ${licenseFiles}
 					DESTINATION "${common_doc_dir}/${voiceName}/"
-					COMPONENT "${voicePackageName}"
+					COMPONENT "${voicePackageFilteredName}"
 				)
 			endif()
 		else()
