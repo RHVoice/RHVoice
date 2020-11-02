@@ -22,6 +22,8 @@ namespace RHVoice
 {
   namespace sapi
   {
+    GUID CLSID_ISpTTSEngineImpl{0x9f215c97, 0x3d3b, 0x489d, {0x84, 0x19, 0x6b, 0x9a, 0xbb, 0xf3, 0x1e, 0xc2}};
+
     STDMETHODIMP ISpTTSEngineImpl::SetObjectToken(ISpObjectToken *pToken)
     {
       if(pToken==0)
