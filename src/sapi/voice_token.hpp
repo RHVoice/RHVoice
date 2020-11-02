@@ -35,17 +35,7 @@ namespace RHVoice
       STDMETHOD(EnumKeys)(ULONG Index,LPWSTR *ppszSubKeyName);
 
     private:
-      bool str_equal(const std::wstring& s1,const std::wstring& s2) const
-      {
-        std::wstring::const_iterator pos1=s1.begin();
-        std::wstring::const_iterator pos2=s2.begin();
-        while((pos1!=s1.end())&&(pos2!=s2.end()))
-          {
-            if(str::tolower(utf::next(pos1,s1.end()))!=str::tolower(utf::next(pos2,s2.end())))
-              return false;
-          }
-        return ((pos1==s1.end())&&(pos2==s2.end()));
-      }
+      bool str_equal(const std::wstring& s1,const std::wstring& s2) const;
 
       typedef std::map<std::wstring,std::wstring,str_less> attribute_map;
       _COM_SMARTPTR_TYPEDEF(ISpObjectTokenInit,__uuidof(ISpObjectTokenInit));
