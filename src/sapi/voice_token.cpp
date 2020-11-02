@@ -35,7 +35,7 @@ namespace RHVoice
       attributes[L"Name"]=name;
     }
 
-    STDMETHODIMP voice_token::OpenKey(LPCWSTR pszSubKeyName,ISpDataKey **ppSubKey)
+    [[gnu::nothrow]] STDMETHODIMP voice_token::OpenKey(LPCWSTR pszSubKeyName,ISpDataKey **ppSubKey)
     {
       if(pszSubKeyName==0)
         return E_INVALIDARG;
@@ -65,7 +65,7 @@ namespace RHVoice
         }
     }
 
-    STDMETHODIMP voice_token::EnumKeys(ULONG Index,LPWSTR *ppszSubKeyName)
+    [[gnu::nothrow]] STDMETHODIMP voice_token::EnumKeys(ULONG Index,LPWSTR *ppszSubKeyName)
     {
       if(ppszSubKeyName==0)
         return E_POINTER;

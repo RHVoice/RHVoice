@@ -66,7 +66,7 @@ namespace RHVoice
         return E_UNEXPECTED;
     }
 
-    STDMETHODIMP ISpTTSEngineImpl::GetOutputFormat(const GUID *pTargetFmtId,const WAVEFORMATEX *pTargetWaveFormatEx,GUID *pOutputFormatId,WAVEFORMATEX **ppCoMemOutputWaveFormatEx)
+    STDMETHODIMP ISpTTSEngineImpl::GetOutputFormat([[maybe_unused]] const GUID *pTargetFmtId, [[maybe_unused]] const WAVEFORMATEX *pTargetWaveFormatEx,GUID *pOutputFormatId,WAVEFORMATEX **ppCoMemOutputWaveFormatEx)
     {
       if(pOutputFormatId==0)
         return E_POINTER;
@@ -88,7 +88,7 @@ namespace RHVoice
       return S_OK;
     }
 
-    STDMETHODIMP ISpTTSEngineImpl::Speak(DWORD dwSpeakFlags,REFGUID rguidFormatId,const WAVEFORMATEX *pWaveFormatEx,const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite)
+    STDMETHODIMP ISpTTSEngineImpl::Speak([[maybe_unused]] DWORD dwSpeakFlags, [[maybe_unused]] REFGUID rguidFormatId, [[maybe_unused]] const WAVEFORMATEX *pWaveFormatEx,const SPVTEXTFRAG *pTextFragList,ISpTTSEngineSite *pOutputSite)
     {
       if(pTextFragList==0)
         return E_INVALIDARG;
