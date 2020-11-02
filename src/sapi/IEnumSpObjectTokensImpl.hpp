@@ -19,8 +19,8 @@
 #include <vector>
 #include <windows.h>
 #include <sapi.h>
-#include <sapiddk.h>
-#include <sperror.h>
+#include "sapiddk.h"
+#include "sperror.h"
 #include <comdef.h>
 #include <comip.h>
 

@@ -13,7 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+if(WIN32)
+	set(renameTo, "RHVoice.ini")
+else()
+	set(renameTo, "RHVoice.conf")
+endif()
+
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/RHVoice.conf"
-	DESTINATION "${config_dir}"
+	DESTINATION "${CONFIG_PATH}"
 	COMPONENT "core"
 )
+pass_through_cpack_vars()

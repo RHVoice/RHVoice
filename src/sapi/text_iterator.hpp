@@ -17,8 +17,8 @@
 #define RHVOICE_SAPI_TEXT_ITERATOR_HPP
 
 #include <iterator>
-#include <sapi.h>
-#include <sapiddk.h>
+#include "sapiddk.h"
+#include "sapi.h"
 
 #include "core/utf.hpp"
 

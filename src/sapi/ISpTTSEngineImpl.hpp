@@ -17,8 +17,8 @@
 #define RHVOICE_SAPI_ISPTTSENGINEIMPL_HPP
 
 #include <windows.h>
-#include <sapi.h>
-#include <sapiddk.h>
+#include "sapi.h"
+#include "sapiddk.h"
 #include <comdef.h>
 #include <comip.h>
 #include <initguid.h>

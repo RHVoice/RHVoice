@@ -20,8 +20,8 @@
 #include <map>
 #include <functional>
 #include <windows.h>
-#include <sapi.h>
-#include <sapiddk.h>
+#include "sapi.h"
+#include "sapiddk.h"
 #include <sperror.h>
 
 #include "core/utf.hpp"

@@ -4,6 +4,15 @@
 [submodule "src/third-party/cldr"]
 	path = src/third-party/cldr
 	url = https://github.com/unicode-org/cldr.git
+
+[submodule "MinGWSAPI5SDK"]
+	path = cmake/thirdparty/MinGWSAPI5SDK
+	url = https://github.com/KOLANICH/MinGWSAPI5SDK.git
+ 
+[submodule "CPackRegistry"]
+	path = cmake/thirdparty/CPackRegistry
+	url = https://github.com/KOLANICH/CPackRegistry.git
+
 [submodule "data/voices/victoria"]
 	path = data/voices/victoria
 	url = https://github.com/rhvoice/victoria-ru
