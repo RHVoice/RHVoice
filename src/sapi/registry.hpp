@@ -18,6 +18,7 @@
 
 #include <windows.h>
 #include <string>
+
 #include "core/exception.hpp"
 
 namespace RHVoice

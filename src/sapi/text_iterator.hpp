@@ -19,6 +19,7 @@
 #include <iterator>
 #include <sapi.h>
 #include <sapiddk.h>
+
 #include "core/utf.hpp"
 
 namespace RHVoice

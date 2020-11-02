@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <sapi.h>
 #include <sapiddk.h>
+
 #include "core/client.hpp"
 #include "core/voice_profile.hpp"
 #include "core/document.hpp"

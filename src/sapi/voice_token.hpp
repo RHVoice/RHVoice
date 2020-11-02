@@ -18,6 +18,7 @@
 
 #include <comdef.h>
 #include <comip.h>
+
 #include "voice_attributes.hpp"
 #include "ISpDataKeyImpl.hpp"
 
