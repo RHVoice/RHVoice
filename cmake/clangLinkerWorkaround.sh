@@ -7,9 +7,10 @@
 #For more information, please refer to <https://unlicense.org/>
 
 echo "There is a long-ignored bug in CLang. https://bugs.llvm.org/show_bug.cgi?id=44594 . Have to work around."
+HardeningClangWorkaroundLinker_qDhJsKjQn=$(cat HardeningClangWorkaroundLinker_qDhJsKjQn.txt);
 
 $(
-	echo ld
+	echo $HardeningClangWorkaroundLinker_qDhJsKjQn
 	i=0
 	for el in $@; do
 		if [ -e "$el" ]; then
