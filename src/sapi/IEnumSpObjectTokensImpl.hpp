@@ -33,7 +33,9 @@ namespace RHVoice
 {
   namespace sapi
   {
-    class __declspec(uuid("d7577808-7ade-4dea-a5b7-ee314d6ef3a1")) IEnumSpObjectTokensImpl:
+    extern GUID CLSID_IEnumSpObjectTokensImpl;
+
+    class IEnumSpObjectTokensImpl:
       public IEnumSpObjectTokens, public tts_base
     {
     public:
@@ -53,8 +55,8 @@ namespace RHVoice
       }
 
     private:
-      _COM_SMARTPTR_TYPEDEF(ISpObjectToken,__uuidof(ISpObjectToken));
-      _COM_SMARTPTR_TYPEDEF(ISpObjectTokenInit,__uuidof(ISpObjectTokenInit));
+      typedef _com_ptr_t <_com_IIID<ISpObjectToken, &IID_ISpObjectToken>> ISpObjectTokenPtr;
+      typedef _com_ptr_t <_com_IIID<ISpObjectTokenInit, &IID_ISpObjectTokenInit>> ISpObjectTokenInitPtr;
 
       ISpObjectTokenPtr create_token(const voice_attributes& attr) const;
 

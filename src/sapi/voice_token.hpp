@@ -48,7 +48,8 @@ namespace RHVoice
       }
 
       typedef std::map<std::wstring,std::wstring,str_less> attribute_map;
-      _COM_SMARTPTR_TYPEDEF(ISpObjectTokenInit,__uuidof(ISpObjectTokenInit));
+      typedef _com_ptr_t <_com_IIID<ISpObjectTokenInit, &IID_ISpObjectTokenInit>> ISpObjectTokenInitPtr;
+
 
       attribute_map attributes;
     };

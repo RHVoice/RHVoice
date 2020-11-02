@@ -25,6 +25,7 @@ namespace RHVoice
 {
   namespace sapi
   {
+    GUID CLSID_IEnumSpObjectTokensImpl {0xd7577808, 0x7ade, 0x4dea, {0xa5, 0xb7, 0xee, 0x31, 0x4d, 0x6e, 0xf3, 0xa1}};
     IEnumSpObjectTokensImpl::IEnumSpObjectTokensImpl(bool initialize):
       id(SPCAT_VOICES),
       index(0)
