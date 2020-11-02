@@ -25,6 +25,7 @@ endif()
 
 add_library(libhts_engine SHARED "${SRCFILES1}" "${SRCFILES2}")
 target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE")
+target_link_libraries(libhts_engine PRIVATE RHVoice_question_match RHVoice_filter_manager)
 
 set(LIBHTS_VERSION_MAJOR 1)
 set(LIBHTS_VERSION_MINOR 06)
@@ -50,6 +51,7 @@ cpack_add_component(libhts_engine
 	DISPLAY_NAME "HTS engine"
 	DESCRIPTION "hts_engine is software to synthesize speech waveform from HMMs trained by the HMM-based speech synthesis system (HTS). This software is released under the Modified BSD license. This component contains a modified version of HTS engine, for the modifications see the RHVoice GitHub repo."
 	GROUP "third_party_libs"
+	DEPENDS "question_match"
 )
 list(APPEND CPACK_COMPONENTS_ALL "libhts_engine")
 

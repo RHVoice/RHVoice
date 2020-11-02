@@ -1,5 +1,5 @@
-# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4 -*-
+# Copyright (C) 2012, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,11 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Import("env", "libhts_engine", "libquestion_match")
+
+try:
+	basestring
+except NameError:
+	basestring = str
+
+Import("env")
 local_env=env.Clone()
+local_env["libversion"]="4.0.0"
 local_env["liblevel"]=1
-local_env["libversion"]="2.0.0"
-local_env.Prepend(LIBS=["libhts_engine", local_env["libquestion_match"]])
-libmage=local_env.BuildLibrary("mage",Glob("*.cpp"))
-local_env.Depends(libmage, [libhts_engine, libquestion_match])
-Export("libmage")
+
+libquestion_match=local_env.BuildLibrary(local_env["libquestion_match"],["question_matcher.cpp"])
+if env["PLATFORM"]!="win32":
+	local_env.InstallLibrary(libquestion_match)
+Export("libquestion_match")

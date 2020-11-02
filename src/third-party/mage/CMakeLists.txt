@@ -40,6 +40,7 @@ cpack_add_component(libmage
 	DISPLAY_NAME "libmage - Platform for Performative Speech Synthesis"
 	DESCRIPTION "libmage is a GNU GPL-licensed platform for performative HMM-based speech synthesis. Improves speech quality compared to just hts_engine This component may contain a modified version of libmage, for the modifications see the RHVoice GitHub repo. The original resides here: https://github.com/numediart/mage"
 	GROUP "third_party_libs"
+	DEPENDS "question_match"
 )
 list(APPEND CPACK_COMPONENTS_ALL "libmage")
 

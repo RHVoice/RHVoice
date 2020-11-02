@@ -21,6 +21,10 @@ cpack_add_component_group("binaries"
 	EXPANDED
 )
 
+add_subdirectory("io")
+add_subdirectory("filter_manager")
+add_subdirectory("question_match")
+
 add_subdirectory("third-party")
 set(HTS_LABELS_KIT_INCLUDES "${UTF8_INCLUDE_DIR}" "${RAPIDXML_INCLUDE_DIR}")
 

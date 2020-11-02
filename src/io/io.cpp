@@ -15,6 +15,9 @@
 
 #ifdef WIN32
 #include <wchar.h>
+#ifdef MINGW_WSTRING_PATH_WORKAROUND
+#include <Windows.h>
+#endif
 #endif
 #include "core/io.hpp"
 #include "utf8.h"
@@ -23,6 +26,45 @@ namespace RHVoice
 {
   namespace io
   {
+
+    #if !defined(WIN32)
+      std::string getWorkedAroundFileName(const std::string& path){
+        return path;
+      }
+    #else
+      std::wstring getWorkedAroundFileNameW(const std::string& path){
+        std::wstring wpath;
+        utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
+        return wpath;
+      }
+      #ifdef __MINGW32__
+          #ifdef MINGW_WSTRING_PATH_WORKAROUND
+            std::string getWorkedAroundFileName(const std::string& path){
+              std::wstring short_pathW;
+              std::string short_path;
+              std::wstring wpath = getWorkedAroundFileNameW(path);
+              auto neededSize = GetShortPathNameW(wpath.data(), NULL, 0) + 1;
+              short_pathW.reserve(neededSize);
+              short_pathW.resize(neededSize);
+              short_path.reserve(neededSize);
+              short_path.resize(neededSize);
+              GetShortPathNameW(wpath.data(), short_pathW.data(), neededSize); // doesn't work, always returns empty string
+              std::copy(begin(short_pathW), end(short_pathW), begin(short_path));
+              return short_path;
+            }
+          #else
+              std::string getWorkedAroundFileName(const std::string& path){
+                // We usually use relative paths in ASCII on Windows, for them should work fine as it is.
+                return path;
+              }
+          #endif
+      #else
+          std::wstring getWorkedAroundFileName(const std::string& path){
+            return getWorkedAroundFileNameW(path);
+          }
+      #endif
+    #endif
+
     file_handle open_file(const std::string& path,const std::string& mode)
     {
       #ifdef WIN32
@@ -38,18 +80,13 @@ namespace RHVoice
       return result;
     }
 
+    
     void open_ifstream(std::ifstream& stream,const std::string& path,bool binary)
     {
       std::ifstream::openmode mode=std::ifstream::in;
       if(binary)
         mode|=std::ifstream::binary;
-      #ifdef WIN32
-      std::wstring wpath;
-      utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
-      stream.open(wpath.c_str(),mode);
-      #else
-      stream.open(path.c_str(),mode);
-      #endif
+      stream.open(getWorkedAroundFileName(path).data(),mode);
       if(!stream.is_open())
         throw open_error(path);
     }
@@ -59,13 +96,7 @@ namespace RHVoice
       std::ofstream::openmode mode=std::ofstream::out;
       if(binary)
         mode|=std::ofstream::binary;
-      #ifdef WIN32
-      std::wstring wpath;
-      utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
-      stream.open(wpath.c_str(),mode);
-      #else
-      stream.open(path.c_str(),mode);
-      #endif
+      stream.open(getWorkedAroundFileName(path).data(),mode);
       if(!stream.is_open())
         throw open_error(path);
     }

@@ -16,6 +16,7 @@
 
 Import("env")
 local_env=env.Clone()
-local_env["liblevel"]=0
+local_env["liblevel"]=1
+local_env["libversion"]="0.1.17"
 libsonic=local_env.BuildLibrary("sonic","sonic.c")
 Export("libsonic")
