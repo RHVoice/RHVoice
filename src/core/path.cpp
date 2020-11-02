@@ -97,7 +97,7 @@ namespace RHVoice
           value.clear();
           #ifdef WIN32
           WIN32_FIND_DATAW d;
-          if(FindNextFile(dir_handle,&d))
+          if(FindNextFileW(dir_handle,&d))
             utf8::utf16to8(d.cFileName,d.cFileName+wcslen(d.cFileName),std::back_inserter(value));
           else
             release_dir_handle();
