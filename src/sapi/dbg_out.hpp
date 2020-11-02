@@ -17,6 +17,7 @@
 #define RHVOICE_SAPI_DBG_HPP
 
 #include <windows.h>
+
 #include "utils.hpp"
 
 namespace RHVoice

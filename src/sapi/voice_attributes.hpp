@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 #include <locale>
+
 #include "core/voice_profile.hpp"
 #include "utils.hpp"
 
