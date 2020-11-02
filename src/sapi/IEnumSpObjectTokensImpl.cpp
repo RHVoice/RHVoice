@@ -16,6 +16,7 @@
 #include <stdexcept>
 #include <new>
 #include <algorithm>
+
 #include "IEnumSpObjectTokensImpl.hpp"
 #include "core/voice.hpp"
 #include "core/language.hpp"

@@ -23,6 +23,7 @@
 #include <sapi.h>
 #include <sapiddk.h>
 #include <sperror.h>
+
 #include "core/utf.hpp"
 #include "core/str.hpp"
 #include "com.hpp"

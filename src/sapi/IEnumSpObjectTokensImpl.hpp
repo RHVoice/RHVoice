@@ -23,6 +23,7 @@
 #include <sperror.h>
 #include <comdef.h>
 #include <comip.h>
+
 #include "tts_base.hpp"
 #include "com.hpp"
 #include "voice_attributes.hpp"
