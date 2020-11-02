@@ -5,19 +5,45 @@
 #For more information, please refer to <https://unlicense.org/>
 
 include(CheckCXXCompilerFlag)
+include(CheckIPOSupported)
 
+set(HardeningClangWorkaroundLinkerPathFileName "HardeningClangWorkaroundLinker_qDhJsKjQn.txt")
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/${HardeningClangWorkaroundLinkerPathFileName}" "${CMAKE_LINKER}")
+endif()
+
+option(HARDENING_PIC "Enable position-independent code and ASLR." ON)
 option(HARDENING_SSE2 "Enable hardening flags requiring at least SSE2 support for target" OFF)
 
-set(CLANG_WORKAROUND_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/clangLinkerWorkaround.sh")
+check_ipo_supported(RESULT CMAKE_INTERPROCEDURAL_OPTIMIZATION)
+
+if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+	find_program(
+		POWERSHELL_PATH
+		"powershell"
+	)
+	if(NOT POWERSHELL_PATH STREQUAL "POWERSHELL_PATH-NOTFOUND")
+		set(CLANG_WORKAROUND_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/clangLinkerWorkaround.ps1")
+	else()
+		set(CLANG_WORKAROUND_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/clangLinkerWorkaround.js") # has issues with stdout and stderr, that can be worked around using third-party COM components. Kept here only for legacy systems.
+	endif()
+else()
+	set(CLANG_WORKAROUND_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/clangLinkerWorkaround.sh")
+endif()
 
 function(determineSupportedHardeningFlags property)
 	set(FLAGS_HARDENING "")
 	foreach(flag ${ARGN})
 		unset(var_name)
-		string(REPLACE "=" "_eq_" var_name ${flag})
-		string(REPLACE "," "_comma_" var_name ${var_name})
-		set(var_name "SUPPORTS_HARDENING_${property}_${var_name}")
-		check_cxx_compiler_flag(${flag} ${var_name})#since linker flags and other flags are in the form of compiler flags
+		string(REPLACE "\\" "_backslash_" var_name "${flag}")
+		string(REPLACE "/" "_slash_" var_name "${var_name}")
+		string(REPLACE "=" "_eq_" var_name "${var_name}")
+		string(REPLACE "," "_comma_" var_name "${var_name}")
+		string(REPLACE "\"" "_quot_" var_name "${var_name}")
+		set(var_name "SUPPORTS_HARDENING_${var_name}")
+		#message(STATUS "var_name ${var_name} flag ${flag}")
+		check_cxx_compiler_flag("${flag}" "${var_name}")#since linker flags and other flags are in the form of compiler flags
 		if(${${var_name}})
 			list(APPEND FLAGS_HARDENING "${flag}")
 		endif()
@@ -36,7 +62,8 @@ function(processFlagsList target property cache)
 	#message(STATUS "HARDENING_${property} ${HARDENING_${property}}")
 	
 	if(cache)
-		if(HARDENING_${property})
+		if(DEFINED CACHE{HARDENING_${property}})
+			#message(STATUS "Using cached HARDENING_${property} ${HARDENING_${property}}")
 		else()
 			determineSupportedHardeningFlags(${property} ${ARGN})
 			set(HARDENING_${property} "${HARDENING_${property}}" CACHE STRING "Hardening flags")
@@ -72,10 +99,23 @@ function(setupPIC target)
 			)
 			if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 				message(STATUS "Working around Clang bug https://bugs.llvm.org/show_bug.cgi?id=44594 ...")
+				if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 11)
+					list(APPEND HARDENING_PIC_LINKER_FLAGS
+						"--ld-path=\"${CLANG_WORKAROUND_SCRIPT}\""
+					)
+				else()
+					list(APPEND HARDENING_PIC_LINKER_FLAGS
+						"-fuse-ld=\"${CLANG_WORKAROUND_SCRIPT}\""
+					)
+				endif ()
+			endif()
+			if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 				list(APPEND HARDENING_PIC_LINKER_FLAGS
-					"--ld-path=\"${CLANG_WORKAROUND_SCRIPT}\""
+					"-Wl,--dynamicbase"
 				)
-				
+				if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+				#	list(APPEND HARDENING_LINKER_FLAGS "-Wl,--image-base,0x140000000") # doesn't work for this project
+				endif()
 			endif()
 		endif()
 	elseif(MSVC)
@@ -90,10 +130,12 @@ function(setupPIC target)
 endfunction(setupPIC)
 
 function(harden target)
-	setupPIC("${target}")
+	if(HARDENING_PIC)
+		setupPIC("${target}")
+	endif()
 	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 		list(APPEND HARDENING_COMPILER_FLAGS
-			"-Wall" "-Wextra" "-Wconversion" "-Wformat" "-Wformat-security" "-Werror=format-security"
+			"-Wall" "-Wextra" "-Wconversion" "-Wformat" "-Wformat-security" "-Werror=format-security" "-Wpointer-to-int-cast" "-Wuninitialized-const-reference"
 			"-fno-strict-aliasing" "-fno-common"
 			#"-fstack-check"
 			#"-fcf-protection=full" # conflicts to "-mindirect-branch"
@@ -112,10 +154,7 @@ function(harden target)
 			"-fsanitize=cfi-mfcall"
 			
 			# CLang-ish flags
-			"-mretpoline"
-			"-mspeculative-load-hardening"
-			"-lvi-load-hardening"
-			"-lvi-cfi"
+			"-ftrivial-auto-var-init=zero"
 			
 			#"-fsanitize=safe-stack;compiler-rt" # https://clang.llvm.org/docs/SafeStack.html
 			"-fsanitize=address" # https://clang.llvm.org/docs/AddressSanitizer.html
@@ -156,6 +195,20 @@ function(harden target)
 				"-ftrapv" # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=35412
 			)
 		endif()
+
+		# they are mutually exclusive, -mlvi-hardening is supported by CLang 11+, retpoline is supported by both
+		# Do -mlvi-hardening and -mlvi-cfi mitigate against Spectre too?
+		if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 11)
+			list(APPEND HARDENING_COMPILER_FLAGS
+				"-mlvi-cfi"
+				"-mlvi-hardening"
+			)
+		else()
+			list(APPEND HARDENING_COMPILER_FLAGS
+				"-mretpoline"
+				"-mspeculative-load-hardening" # https://llvm.org/docs/SpeculativeLoadHardening.html
+			)
+		endif()
 		
 		# GCC 9 has removed these flags
 		if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 9 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10))
@@ -179,23 +232,20 @@ function(harden target)
 			"-Wl,-O1"
 			"-Wl,--sort-common"
 			"-Wl,--as-needed"
-			"-Wl,-flto"
 		)
+		set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON PARENT_SCOPE)
 		if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 			list(APPEND HARDENING_LINKER_FLAGS
 				"-Wl,--export-all-symbols"
 				"-Wl,--nxcompat"
-				"-Wl,--dynamicbase"
 			)
-			if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			#	list(APPEND HARDENING_LINKER_FLAGS "-Wl,--image-base,0x140000000") # doesn't work for this project
-			endif()
 		elseif(CMAKE_SYSTEM_NAME MATCHES "Linux") # other using ELF too?
 			list(APPEND HARDENING_COMPILER_FLAGS
 				# on MinGW hello world works, but more complex things just exit without any output or crash in the middle of execution
 				"-fstack-protector"
 				"-fstack-protector-strong"
 			)
+			
 			list(APPEND HARDENING_LINKER_FLAGS
 				# not present in MinGW
 				"-Wl,-z,relro"
