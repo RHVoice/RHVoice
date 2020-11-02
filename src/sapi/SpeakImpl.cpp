@@ -169,5 +169,39 @@ namespace RHVoice
     {
       return (check_actions()&&queue_boundary_event(false,position,length));
     }
+
+    double SpeakImpl::convert_rate(long rate) const
+    {
+      return rate_table[10+std::max<long>(-10,std::min<long>(rate,10))];
+    }
+
+    double SpeakImpl::convert_pitch(long pitch) const
+    {
+      return pitch_table[24+std::max<long>(-24,std::min<long>(pitch,24))];
+    }
+
+    double SpeakImpl::convert_volume(unsigned long volume) const
+    {
+      return (std::min<unsigned long>(volume,100)/100.0);
+    }
+
+    double SpeakImpl::get_rate()
+    {
+      long rate;
+        if(SUCCEEDED(caller->GetRate(&rate)))
+          return convert_rate(rate);
+        else
+          return 1;
+    }
+
+    double SpeakImpl::get_volume()
+    {
+      unsigned short volume;
+      if(SUCCEEDED(caller->GetVolume(&volume)))
+        return convert_volume(volume);
+      else
+        return 1;
+    }
+
   }
 }

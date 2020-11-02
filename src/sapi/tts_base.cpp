@@ -24,6 +24,12 @@ namespace RHVoice
 {
   namespace sapi
   {
+
+    tts_base::tts_base(){}
+
+    tts_base::~tts_base(){}
+
+
     threading::mutex tts_base::engine_mutex;
     std::shared_ptr<engine> tts_base::engine_ptr;
 
