@@ -16,6 +16,8 @@
 #include <new>
 #include <cstring>
 #include <comdef.h>
+#include <initguid.h>
+
 #include "voice_token.hpp"
 #include "ISpTTSEngineImpl.hpp"
 
@@ -27,7 +29,7 @@ namespace RHVoice
     {
       std::wstring name(attr.get_name());
       set(name);
-      set(L"CLSID",com::clsid_as_string<ISpTTSEngineImpl>());
+      set(L"CLSID",com::clsid_as_string(CLSID_ISpTTSEngineImpl));
       attributes[L"Age"]=attr.get_age();
       attributes[L"Vendor"]=L"Olga Yakovleva";
       attributes[L"Language"]=attr.get_language();
@@ -51,7 +53,7 @@ namespace RHVoice
             {
               obj->set(it->first,it->second);
             }
-          com::interface_ptr<ISpDataKey> int_ptr(obj);
+          com::interface_ptr<ISpDataKey> int_ptr(obj, IID_ISpDataKey);
           *ppSubKey=int_ptr.get();
           return S_OK;
         }

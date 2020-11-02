@@ -34,7 +34,17 @@ namespace RHVoice
 
     volatile long object_counter::count=0;
 
-    HRESULT class_object_factory::create(REFCLSID rclsid,REFIID riid,void** ppv) const
+
+    proto_class_object_factory::proto_class_object_factory()
+    {
+    }
+    proto_class_object_factory::creator::~creator(){}
+    void proto_class_object_factory::register_class(creator *c)
+    {
+      creators.push_back(creator_ptr(c));
+    }
+
+    HRESULT proto_class_object_factory::create(REFCLSID rclsid,REFIID riid,void** ppv) const
     {
       if(ppv==0)
         return E_POINTER;
@@ -59,5 +69,57 @@ namespace RHVoice
     }
 
     const std::wstring class_registrar::clsid_key_path(L"Software\\Classes\\CLSID");
+
+    void class_registrar::register_class(std::wstring str_clsid)
+    {
+      registry::key clsid_key(HKEY_LOCAL_MACHINE,clsid_key_path,KEY_CREATE_SUB_KEY);
+      registry::key clsid_subkey(clsid_key,str_clsid,KEY_CREATE_SUB_KEY,true);
+      registry::key server_subkey(clsid_subkey,L"InProcServer32",KEY_SET_VALUE,true);
+      server_subkey.set(dll_path);
+      server_subkey.set(L"ThreadingModel",L"Both");
+    }
+
+    void class_registrar::unregister_class(std::wstring str_clsid)
+    {
+      registry::key clsid_key(HKEY_LOCAL_MACHINE,clsid_key_path);
+      registry::key clsid_subkey(clsid_key,str_clsid);
+      clsid_subkey.delete_subkey(L"InProcServer32");
+      clsid_key.delete_subkey(str_clsid);
+    }
+
+    void class_registrar::register_class(REFCLSID clsid)
+    {
+      register_class(clsid_as_string(clsid));
+    }
+
+    void class_registrar::unregister_class(REFCLSID clsid)
+    {
+      unregister_class(clsid_as_string(clsid));
+    }
+
+    void object_counter::increment()
+    {
+       InterlockedIncrement(&count);
+    }
+
+    void object_counter::decrement()
+    {
+        InterlockedDecrement(&count);
+    }
+
+    bool object_counter::is_zero()
+    {
+        return (InterlockedCompareExchange(&count,0,0)==0);
+    }
+
+
+    bool proto_class_object_factory::proto_concrete_creator::matches(REFCLSID rclsid) const
+    {
+      return IsEqualCLSID(rclsid,own);
+    }
+
+    proto_class_object_factory::proto_concrete_creator::proto_concrete_creator(REFCLSID rclsid){
+        own = rclsid;
+    };
   }
 }

@@ -22,6 +22,7 @@
 #include <new>
 #include <stdexcept>
 #include <windows.h>
+#include <initguid.h>
 #include <comdef.h>
 
 #include "registry.hpp"
@@ -33,15 +34,12 @@ namespace RHVoice
   {
     wchar_t* strdup(const std::wstring& s);
 
+    std::wstring clsid_as_string(REFCLSID clsid);
+
     template<class T>
     std::wstring clsid_as_string()
     {
-      utils::out_ptr<wchar_t> p(CoTaskMemFree);
-      HRESULT hr=StringFromCLSID(__uuidof(T),p.address());
-      if(FAILED(hr))
-        throw _com_error(hr);
-      std::wstring s(p.get());
-      return s;
+      return clsid_as_string(__uuidof(T));
     }
 
     class object_counter
@@ -66,21 +64,33 @@ namespace RHVoice
       static volatile long count;
     };
 
+    template<class I>
+    inline void* try_interface(void* ptr,REFIID riidI,REFIID riid)
+    {
+      return (IsEqualIID(riid,riidI)?static_cast<I*>(ptr):0);
+    }
+
     template<class I,class O>
     inline void* try_interface(O* ptr,REFIID riid)
     {
-      return (IsEqualIID(riid,__uuidof(I))?static_cast<I*>(ptr):0);
+      return try_interface<I>(ptr,__uuidof(I), riid);
+    }
+
+    template<class I>
+    inline void* try_primary_interface(void* ptr, REFIID riidI,REFIID riid)
+    {
+      if(IsEqualIID(riid,IID_IUnknown))
+        return static_cast<IUnknown*>(static_cast<I*>(ptr));
+      else if(IsEqualIID(riid,riidI))
+        return static_cast<I*>(ptr);
+      else
+        return 0;
     }
 
     template<class I,class O>
     inline void* try_primary_interface(O* ptr,REFIID riid)
     {
-      if(IsEqualIID(riid,__uuidof(IUnknown)))
-        return static_cast<IUnknown*>(static_cast<I*>(ptr));
-      else if(IsEqualIID(riid,__uuidof(I)))
-        return static_cast<I*>(ptr);
-      else
-        return 0;
+      return try_primary_interface<I>(ptr, __uuidof(I), riid);
     }
 
     template<class T>
@@ -191,9 +201,9 @@ namespace RHVoice
       }
 
       template<class T>
-      explicit interface_ptr(object<T>& obj)
+      explicit interface_ptr(object<T>& obj, REFIID riid)
       {
-        if(FAILED(obj->QueryInterface(__uuidof(I),reinterpret_cast<void**>(&ptr))))
+        if(FAILED(obj->QueryInterface(riid,reinterpret_cast<void**>(&ptr))))
           throw std::invalid_argument("Unsupported interface");
       }
 
@@ -243,7 +253,7 @@ namespace RHVoice
     protected:
       void* get_interface(REFIID riid)
       {
-        return try_primary_interface<IClassFactory>(this,riid);
+        return try_primary_interface<IClassFactory>(this, IID_IClassFactory, riid);
       }
 
     public:
@@ -284,53 +294,78 @@ namespace RHVoice
       return S_OK;
     }
 
-    class class_object_factory
+    class proto_class_object_factory
     {
+    protected:
+      class creator;
+      typedef std::shared_ptr<creator> creator_ptr;
     public:
-      class_object_factory()
-      {
-      }
-
-      template<class T> void register_class()
-      {
-        creators.push_back(creator_ptr(new concrete_creator<T>()));
-      }
+      proto_class_object_factory();
 
       HRESULT create(REFCLSID rclsid,REFIID riid,void** ppv) const;
 
-    private:
-      class_object_factory(const class_object_factory&);
-      class_object_factory& operator=(const class_object_factory&);
+      void register_class(creator *c);
 
       class creator
       {
       public:
-        virtual ~creator()
-        {
-        }
+        virtual ~creator();
 
         virtual bool matches(REFCLSID rclsid) const=0;
         virtual HRESULT create(REFIID riid,void** ppv) const=0;
       };
 
-      typedef std::shared_ptr<creator> creator_ptr;
-
-      template<class T>
-      class concrete_creator: public creator
+      class proto_concrete_creator: public creator
       {
       public:
-        bool matches(REFCLSID rclsid) const;
-        HRESULT create(REFIID riid,void** ppv) const;
+        proto_concrete_creator(REFIID rclsid);
+
+        virtual bool matches(REFCLSID rclsid) const;
+      private:
+        GUID own;
       };
+
+      proto_class_object_factory(const proto_class_object_factory&);
+      proto_class_object_factory& operator=(const proto_class_object_factory&);
 
       std::vector<creator_ptr> creators;
     };
 
-    template<class T>
-    bool class_object_factory::concrete_creator<T>::matches(REFCLSID rclsid) const
+    class class_object_factory: public proto_class_object_factory
     {
-      return IsEqualCLSID(rclsid,__uuidof(T));
-    }
+    public:
+      class_object_factory(): proto_class_object_factory()
+      {
+      }
+
+      template<class T> void register_class()
+      {
+        register_class(__uuidof(T));
+      }
+
+      template<class T> void register_class(REFIID uuid)
+      {
+        proto_class_object_factory::register_class(static_cast<creator*>(new concrete_creator<T>(uuid)));
+      }
+
+    private:
+      class_object_factory(const class_object_factory&) = default;
+      class_object_factory& operator=(const class_object_factory&) = default;
+
+      template<class T>
+      class concrete_creator: public proto_concrete_creator
+      {
+      public:
+        concrete_creator(REFIID uuid);
+        concrete_creator();
+        virtual HRESULT create(REFIID riid,void** ppv) const;
+      };
+    };
+
+    template<class T>
+    class_object_factory::concrete_creator<T>::concrete_creator(REFIID uuid): proto_concrete_creator(uuid){};
+    template<class T>
+    class_object_factory::concrete_creator<T>::concrete_creator(): concrete_creator(__uuidof(T)){};
 
     template<class T>
     HRESULT class_object_factory::concrete_creator<T>::create(REFIID riid,void** ppv) const
@@ -343,6 +378,10 @@ namespace RHVoice
     {
     public:
       explicit class_registrar(HINSTANCE dll_handle);
+      void register_class(std::wstring str_clsid);
+      void unregister_class(std::wstring str_clsid);
+      void register_class(REFIID str_clsid);
+      void unregister_class(REFIID str_clsid);
       template<class T> void register_class();
       template<class T> void unregister_class();
 
@@ -356,20 +395,12 @@ namespace RHVoice
 
     template<class T> void class_registrar::register_class()
     {
-      registry::key clsid_key(HKEY_LOCAL_MACHINE,clsid_key_path,KEY_CREATE_SUB_KEY);
-      registry::key clsid_subkey(clsid_key,clsid_as_string<T>(),KEY_CREATE_SUB_KEY,true);
-      registry::key server_subkey(clsid_subkey,L"InProcServer32",KEY_SET_VALUE,true);
-      server_subkey.set(dll_path);
-      server_subkey.set(L"ThreadingModel",L"Both");
+      register_class(__uuidof(T));
     }
 
     template<class T> void class_registrar::unregister_class()
     {
-      std::wstring str_clsid(clsid_as_string<T>());
-      registry::key clsid_key(HKEY_LOCAL_MACHINE,clsid_key_path);
-      registry::key clsid_subkey(clsid_key,str_clsid);
-      clsid_subkey.delete_subkey(L"InProcServer32");
-      clsid_key.delete_subkey(str_clsid);
+      unregister_class(__uuidof(T));
     }
   }
 }

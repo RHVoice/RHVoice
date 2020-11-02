@@ -14,6 +14,10 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <new>
+#include <shlwapi.h>
+#include <io.h>
+#include <fcntl.h>
+
 #include "com.hpp"
 #include "ISpTTSEngineImpl.hpp"
 #include "IEnumSpObjectTokensImpl.hpp"
@@ -31,8 +35,8 @@ BOOL APIENTRY DllMain(HINSTANCE hInstance,DWORD dwReason,LPVOID lpReserved)
       dll_handle=hInstance;
       try
         {
-          cls_obj_factory.register_class<RHVoice::sapi::IEnumSpObjectTokensImpl>();
-          cls_obj_factory.register_class<RHVoice::sapi::ISpTTSEngineImpl>();
+          cls_obj_factory.register_class<RHVoice::sapi::IEnumSpObjectTokensImpl>(RHVoice::sapi::CLSID_IEnumSpObjectTokensImpl);
+          cls_obj_factory.register_class<RHVoice::sapi::ISpTTSEngineImpl>(RHVoice::sapi::CLSID_ISpTTSEngineImpl);
         }
       catch(...)
         {
@@ -68,8 +72,8 @@ STDAPI DllRegisterServer()
   try
     {
       RHVoice::com::class_registrar r(dll_handle);
-      r.register_class<RHVoice::sapi::IEnumSpObjectTokensImpl>();
-      r.register_class<RHVoice::sapi::ISpTTSEngineImpl>();
+      r.register_class(RHVoice::sapi::CLSID_IEnumSpObjectTokensImpl);
+      r.register_class(RHVoice::sapi::CLSID_ISpTTSEngineImpl);
       return S_OK;
     }
   catch(const std::bad_alloc&)
@@ -87,8 +91,8 @@ STDAPI DllUnregisterServer()
   try
     {
       RHVoice::com::class_registrar r(dll_handle);
-      r.unregister_class<RHVoice::sapi::IEnumSpObjectTokensImpl>();
-      r.unregister_class<RHVoice::sapi::ISpTTSEngineImpl>();
+      r.unregister_class(RHVoice::sapi::CLSID_IEnumSpObjectTokensImpl);
+      r.unregister_class(RHVoice::sapi::CLSID_ISpTTSEngineImpl);
       return S_OK;
     }
   catch(const std::bad_alloc&)
