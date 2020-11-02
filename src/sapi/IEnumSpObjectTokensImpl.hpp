@@ -47,10 +47,7 @@ namespace RHVoice
       STDMETHOD(GetCount)(ULONG *pulCount);
 
     protected:
-      void* get_interface(REFIID riid)
-      {
-        return com::try_primary_interface<IEnumSpObjectTokens>(this,riid);
-      }
+      void* get_interface(REFIID riid);
 
     private:
       _COM_SMARTPTR_TYPEDEF(ISpObjectToken,__uuidof(ISpObjectToken));

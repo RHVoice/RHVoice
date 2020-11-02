@@ -39,11 +39,7 @@ namespace RHVoice
       STDMETHOD(GetObjectToken)(ISpObjectToken **ppToken);
 
     protected:
-      void* get_interface(REFIID riid)
-      {
-        void* ptr=com::try_primary_interface<ISpTTSEngine>(this,riid);
-        return (ptr?ptr:com::try_interface<ISpObjectWithToken>(this,riid));
-      }
+      void* get_interface(REFIID riid);
 
     private:
       _COM_SMARTPTR_TYPEDEF(ISpObjectToken,__uuidof(ISpObjectToken));

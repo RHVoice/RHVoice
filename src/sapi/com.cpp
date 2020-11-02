@@ -21,6 +21,17 @@ namespace RHVoice
 {
   namespace com
   {
+
+    std::wstring clsid_as_string(REFCLSID rclsid)
+    {
+      utils::out_ptr<wchar_t> p(CoTaskMemFree);
+      HRESULT hr=StringFromCLSID(rclsid,p.address());
+      if(FAILED(hr))
+        throw _com_error(hr);
+      std::wstring s(p.get());
+      return s;
+    }
+
     wchar_t* strdup(const std::wstring& s)
     {
       std::size_t size=s.size();
