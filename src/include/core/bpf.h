@@ -16,7 +16,14 @@
 #ifndef RHVOICE_BPF_H
 #define RHVOICE_BPF_H
 
+#include "api.hpp"
 #include "abstraction_layer.h"
+
+#ifdef RHVOICE_FILTER_MANAGER_EXPORTS
+#    define RHVOICE_FILTER_MANAGER_API RHVOICE_EXPORT_API
+#else
+#    define RHVOICE_FILTER_MANAGER_API RHVOICE_IMPORT_API
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,9 +36,9 @@ typedef struct
   double** coefs;
 } BPF;
 
-  void bpf_init(BPF* bpf);
-  void bpf_clear(BPF* bpf);
-  int bpf_load(BPF* bpf, const PathCharT * path);
+  RHVOICE_FILTER_MANAGER_API void bpf_init(BPF* bpf);
+  RHVOICE_FILTER_MANAGER_API void bpf_clear(BPF* bpf);
+  RHVOICE_FILTER_MANAGER_API int bpf_load(BPF* bpf, const PathCharT * path);
 #ifdef __cplusplus
 }
 #endif

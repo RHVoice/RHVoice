@@ -16,7 +16,7 @@
 
 import os
 
-Import("env","libcore")
+Import("env","libio")
 local_env=env.Clone()
 local_env["libversion"]="2.0.0"
 local_env["liblevel"]=1
@@ -33,9 +33,9 @@ if "portaudio" in local_env["audio_libs"]:
 	src.append("portaudio.cpp")
 	local_env.Append(CPPDEFINES=("WITH_PORTAUDIO","1"))
 	local_env.MergeFlags(["!pkg-config --cflags --libs portaudio-2.0"])
-local_env.Prepend(LIBS=local_env["libcore"])
+local_env.Prepend(LIBS=[local_env["libio"]])
 libaudio=local_env.BuildLibrary(local_env["libaudio"],src)
-local_env.Depends(libaudio,libcore)
+local_env.Depends(libaudio,libio)
 if local_env["PLATFORM"]!="win32":
 	local_env.InstallLibrary(libaudio)
 

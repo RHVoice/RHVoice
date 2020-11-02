@@ -24,16 +24,6 @@ namespace RHVoice
   namespace io
   {
 
-    std::string appendChildPathToErrorMessage(const char * msgC, const PathT& path){
-      std::string errorMsg {msgC};
-      #if defined(_WIN32)
-      errorMsg += wstring2string(path);
-      #else
-      errorMsg += path;
-      #endif
-      return errorMsg;
-    }
-
     file_handle open_file(const PathT& path,const std::string& mode)
     {
       #ifdef WIN32

@@ -17,6 +17,7 @@
 
 import os
 import os.path
+from glob import glob
 
 Import(["env"])
 
@@ -28,7 +29,22 @@ packager=addon_packager("RHVoice",Dir("..").Dir("packages").Dir("nvda"),env,"RHV
 packager.translate_string("description","ru",u"Синтезатор речи.")
 packager.add(curdir.File("installTasks.py"))
 packager.add(curdir.File("__init__.py"),synthDriver_dir)
-packager.add(os.path.join("..","x86","lib","RHVoice.dll"),synthDriver_dir)
+
+dllsBasePath = os.path.join("..","x86","lib")
+
+templates = ("RHVoice*", "sonic", "hts_engine", "mage")
+neededDlls = []
+for t in templates:
+    t = t + ".dll"
+    neededDlls += glob(os.path.join(dllsBasePath, t)) + glob(os.path.join(dllsBasePath, "lib" + t))
+neededDlls = sorted(neededDlls)
+
+for d in neededDlls:
+    packager.add(d, synthDriver_dir)
+
+packager.add(os.path.join(dllsBasePath,"RHVoice_filter_manager.dll"), synthDriver_dir)
+packager.add(os.path.join(dllsBasePath,"RHVoice_core.dll"), synthDriver_dir)
+packager.add(os.path.join(dllsBasePath,"RHVoice.dll"), synthDriver_dir)
 packager.add(os.path.join("..","licenses","gpl-3.0.txt"),synthDriver_dir)
 packager.add(os.path.join("..","RHVoice.ini"),os.path.join(synthDriver_dir,"config"))
 packager.package()

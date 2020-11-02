@@ -16,7 +16,13 @@
 #ifndef RHVOICE_QUESTION_MATCHER_H
 #define RHVOICE_QUESTION_MATCHER_H
 
-#include "api.h"
+#include "api.hpp"
+
+#ifdef RHVOICE_QUESTION_MATCH_EXPORTS
+#    define RHVOICE_QUESTION_MATCH_API RHVOICE_EXPORT_API
+#else
+#    define RHVOICE_QUESTION_MATCH_API RHVOICE_IMPORT_API
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,11 +38,11 @@ typedef struct
   short* links;
 } RHVoice_parsed_label_string;
 
-  int RHVoice_parse_label_string(const char* str,RHVoice_parsed_label_string* out);
-  void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l);
-  void RHVoice_parsed_label_string_clear(RHVoice_parsed_label_string* l);
-  int RHVoice_parsed_label_string_copy(const RHVoice_parsed_label_string* from,RHVoice_parsed_label_string* to);
-  int RHVoice_question_match(const RHVoice_parsed_label_string* l,const char* q);
+  RHVOICE_QUESTION_MATCH_API int RHVoice_parse_label_string(const char* str,RHVoice_parsed_label_string* out);
+  RHVOICE_QUESTION_MATCH_API void RHVoice_parsed_label_string_init(RHVoice_parsed_label_string* l);
+  RHVOICE_QUESTION_MATCH_API void RHVoice_parsed_label_string_clear(RHVoice_parsed_label_string* l);
+  RHVOICE_QUESTION_MATCH_API int RHVoice_parsed_label_string_copy(const RHVoice_parsed_label_string* from,RHVoice_parsed_label_string* to);
+  RHVOICE_QUESTION_MATCH_API int RHVoice_question_match(const RHVoice_parsed_label_string* l,const char* q);
 #ifdef __cplusplus
 }
 #endif
@@ -49,7 +55,7 @@ typedef struct
 
 namespace RHVoice
 {
-  struct parsed_label_string
+  struct RHVOICE_QUESTION_MATCH_API parsed_label_string
   {
     parsed_label_string()
     {

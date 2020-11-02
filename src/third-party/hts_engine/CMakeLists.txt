@@ -41,6 +41,7 @@ target_include_directories(libhts_engine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "$
 if(NOT MSVC)
 	target_link_libraries(libhts_engine PUBLIC m)
 endif()
+target_link_libraries(libhts_engine PUBLIC RHVoice_question_match RHVoice_filter_manager)
 harden(libhts_engine)
 add_sanitizers(libhts_engine)
 set_target_properties("libhts_engine" PROPERTIES PREFIX "")
@@ -50,6 +51,7 @@ cpack_add_component(libhts_engine
 	DISPLAY_NAME "HTS engine"
 	DESCRIPTION "hts_engine is software to synthesize speech waveform from HMMs trained by the HMM-based speech synthesis system (HTS). This software is released under the Modified BSD license. This component contains a modified version of HTS engine, for the modifications see the RHVoice GitHub repo."
 	GROUP "third_party_libs"
+	DEPENDS "question_match"
 )
 list(APPEND CPACK_COMPONENTS_ALL "libhts_engine")
 
