@@ -26,7 +26,14 @@
 #include <vector>
 #include <memory>
 
+#include "api.hpp"
 #include "exception.hpp"
+
+#ifdef RHVOICE_IO_EXPORTS
+  #define RHVOICE_IO_API RHVOICE_EXPORT_API
+#else
+  #define RHVOICE_IO_API RHVOICE_IMPORT_API
+#endif
 
 namespace RHVoice
 {
@@ -48,9 +55,9 @@ namespace RHVoice
 
     typedef std::shared_ptr<FILE> file_handle;
 
-    file_handle open_file(const std::string& path,const std::string& mode);
-    void open_ifstream(std::ifstream& stream,const std::string& path,bool binary=false);
-    void open_ofstream(std::ofstream& stream,const std::string& path,bool binary=false);
+    RHVOICE_IO_API file_handle open_file(const std::string& path,const std::string& mode);
+    RHVOICE_IO_API void open_ifstream(std::ifstream& stream,const std::string& path,bool binary=false);
+    RHVOICE_IO_API void open_ofstream(std::ofstream& stream,const std::string& path,bool binary=false);
 
     union host_endianness
     {
