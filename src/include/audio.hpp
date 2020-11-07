@@ -21,6 +21,7 @@
 #include <vector>
 #include <memory>
 #include "core/exception.hpp"
+#include "core/api.hpp"
 
 
 namespace RHVoice
@@ -29,82 +30,52 @@ namespace RHVoice
   {
     struct error: public exception
     {
-      explicit error(const std::string& msg):
-        exception(msg)
-      {
-      }
+      explicit error(const std::string& msg);
     };
 
     struct disallowed_sample_rate: public error
     {
-      disallowed_sample_rate():
-        error("This sample rate is unsupported")
-      {
-      }
+      disallowed_sample_rate();
     };
 
     struct initialization_error: public error
     {
-      initialization_error():
-        error("Audio library initialization failed")
-      {
-      }
+      initialization_error();
     };
 
     struct is_initialized_error: public error
     {
-      is_initialized_error():
-        error("The playback stream is already initialized")
-      {
-      }
+      is_initialized_error();
     };
 
     struct opening_error: public error
     {
-      opening_error():
-        error("Unable to open a playback stream")
-      {
-      }
+      opening_error();
     };
 
     struct is_open_error: public error
     {
-      is_open_error():
-        error("The playback stream is already open")
-      {
-      }
+      is_open_error();
     };
 
     struct is_not_open_error: public error
     {
-      is_not_open_error():
-        error("The playback stream is not open")
-      {
-      }
+      is_not_open_error();
     };
 
     struct playback_error: public error
     {
-      playback_error():
-        error("Unable to write to a playback stream")
-      {
-      }
+      playback_error();
     };
 
     struct backend_error: public error
     {
-      backend_error():
-        error("Unsupported audio backend")
-      {
-      }
+      backend_error();
     };
 
     struct library_error: public error
     {
-      library_error():
-        error("Unsupported audio library")
-      {
-      }
+      library_error();
     };
 
     enum lib_id
@@ -134,13 +105,7 @@ namespace RHVoice
       unsigned int sample_rate;
       unsigned int buffer_size; // in milliseconds
 
-      playback_params():
-        lib(lib_default),
-        backend(backend_default),
-        sample_rate(24000),
-        buffer_size(0)
-      {
-      }
+      playback_params();
     };
 
     class library;
@@ -153,82 +118,31 @@ namespace RHVoice
 
       ~playback_stream();
 
-      bool is_initialized() const
-      {
-        return (impl.get()!=0);
-      }
+      bool is_initialized() const;
 
       void open();
       bool is_open() const;
       void close();
 
-      void set_lib(lib_id lib)
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params.lib=lib;
-      }
+      void set_lib(lib_id lib);
 
-      void set_backend(backend_id backend)
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params.backend=backend;
-      }
+      void set_backend(backend_id backend);
 
-      void set_device(const std::string& device)
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params.device=device;
-      }
+      void set_device(const std::string& device);
 
-      void set_server(const std::string& server)
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params.server=server;
-      }
+      void set_server(const std::string& server);
 
-      void set_client_name(const std::string& client_name)
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params.client_name=client_name;
-      }
+      void set_client_name(const std::string& client_name);
 
-      unsigned int get_buffer_size() const
-      {
-        return params.buffer_size;
-      }
+      unsigned int get_buffer_size() const;
 
-      void set_buffer_size(unsigned int buffer_size)
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params.buffer_size=buffer_size;
-      }
+      void set_buffer_size(unsigned int buffer_size);
 
-      int get_sample_rate() const
-      {
-        return params.sample_rate;
-      }
+      int get_sample_rate() const;
 
       void set_sample_rate(int sample_rate);
 
-      void reset_params()
-      {
-        if(is_initialized())
-          throw is_initialized_error();
-        else
-          params=playback_params();
-      }
+      void reset_params();
 
       void write(const short* samples,std::size_t count);
       void drain();
