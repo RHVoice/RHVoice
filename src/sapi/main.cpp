@@ -24,7 +24,7 @@ namespace
   RHVoice::com::class_object_factory cls_obj_factory;
 }
 
-BOOL APIENTRY DllMain(HINSTANCE hInstance,DWORD dwReason,LPVOID lpReserved)
+BOOL APIENTRY DllMain(HINSTANCE hInstance,DWORD dwReason,  [[maybe_unused]] LPVOID lpReserved)
 {
   if(dwReason==DLL_PROCESS_ATTACH)
     {
