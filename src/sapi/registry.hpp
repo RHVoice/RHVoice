@@ -28,51 +28,27 @@ namespace RHVoice
     class error: public exception
     {
     public:
-      explicit error(const std::string& msg):
-        exception(msg)
-      {
-      }
+      explicit error(const std::string& msg);
     };
 
     class key
     {
     public:
-      key(HKEY parent,const std::wstring& name,REGSAM access_mask=KEY_READ,bool create=false)
-      {
-        LONG result=create?RegCreateKeyEx(parent,name.c_str(),0,0,0,access_mask,0,&handle,0):RegOpenKeyEx(parent,name.c_str(),0,access_mask,&handle);
-        if(result!=ERROR_SUCCESS)
-          throw error("Unable to open/create a registry key");
-      }
+      key(HKEY parent,const std::wstring& name,REGSAM access_mask=KEY_READ,bool create=false);
 
-      ~key()
-      {
-        RegCloseKey(handle);
-      }
+      ~key();
 
-      operator HKEY () const
-      {
-        return handle;
-      }
+      operator HKEY () const;
 
-      void delete_subkey(const std::wstring& name)
-      {
-        if(RegDeleteKey(handle,name.c_str())!=ERROR_SUCCESS)
-          throw error("Unable to delete a registry key");
-      }
+      void delete_subkey(const std::wstring& name);
 
       std::wstring get(const std::wstring& name) const;
 
-      std::wstring get() const
-      {
-        return get(L"");
-      }
+      std::wstring get() const;
 
       void set(const std::wstring& name,const std::wstring& value);
 
-      void set(const std::wstring& value)
-      {
-        set(L"",value);
-      }
+      void set(const std::wstring& value);
 
     private:
       key(const key&);
