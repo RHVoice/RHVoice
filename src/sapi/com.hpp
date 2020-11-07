@@ -47,20 +47,11 @@ namespace RHVoice
     class object_counter
     {
     public:
-      static void increment()
-      {
-        InterlockedIncrement(&count);
-      }
+      static void increment();
 
-      static void decrement()
-      {
-        InterlockedDecrement(&count);
-      }
+      static void decrement();
 
-      static bool is_zero()
-      {
-        return (InterlockedCompareExchange(&count,0,0)==0);
-      }
+      static bool is_zero();
 
     private:
       static volatile long count;
@@ -302,6 +293,7 @@ namespace RHVoice
       class_object_factory(const class_object_factory&);
       class_object_factory& operator=(const class_object_factory&);
 
+    protected:
       class creator
       {
       public:
