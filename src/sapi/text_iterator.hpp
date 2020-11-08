@@ -29,21 +29,65 @@ namespace RHVoice
     class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::uint32_t>
     {
     public:
-      text_iterator();
+      text_iterator():
+        text_frag(0),
+        range_end(0),
+        start(0),
+        end(0),
+        code_point('\0')
+      {
+      }
 
-      text_iterator(const SPVTEXTFRAG* frag,std::size_t pos);
+      text_iterator(const SPVTEXTFRAG* frag,std::size_t pos):
+        text_frag(frag),
+        range_end(frag->pTextStart+frag->ulTextLen),
+        start(frag->pTextStart+pos),
+        end(start),
+        code_point('\0')
+      {
+        ++(*this);
+      }
 
-      const utf8::uint32_t& operator*() const;
+      const utf8::uint32_t& operator*() const
+      {
+        return code_point;
+      }
 
-      bool operator==(const text_iterator& other) const;
+      bool operator==(const text_iterator& other) const
+      {
+        return ((text_frag==other.text_frag)&&(start==other.start));
+      }
 
-      bool operator!=(const text_iterator& other) const;
+      bool operator!=(const text_iterator& other) const
+      {
+        return !(*this==other);
+      }
 
-      text_iterator& operator++();
+      text_iterator& operator++()
+      {
+        if(end==range_end)
+          start=end;
+        else
+          {
+            const wchar_t* tmp=end;
+            code_point=utf::next(tmp,range_end);
+            start=end;
+            end=tmp;
+          }
+        return *this;
+      }
 
-      text_iterator operator++(int);
+      text_iterator operator++(int)
+      {
+        text_iterator tmp=*this;
+        ++(*this);
+        return tmp;
+      }
 
-      std::size_t offset() const;
+      std::size_t offset() const
+      {
+        return (text_frag->ulTextSrcOffset+(start-text_frag->pTextStart));
+      }
 
     private:
       const SPVTEXTFRAG* text_frag;

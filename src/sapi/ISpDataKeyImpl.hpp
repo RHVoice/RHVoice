@@ -51,7 +51,20 @@ namespace RHVoice
     protected:
       struct str_less: public std::binary_function<const std::wstring&,const std::wstring&,bool>
       {
-        bool operator()(const std::wstring& s1,const std::wstring& s2) const;
+        bool operator()(const std::wstring& s1,const std::wstring& s2) const
+        {
+          std::wstring::const_iterator pos1=s1.begin();
+          std::wstring::const_iterator pos2=s2.begin();
+          utf8::uint32_t cp1,cp2;
+          while((pos1!=s1.end())&&(pos2!=s2.end()))
+            {
+              cp1=str::tolower(utf::next(pos1,s1.end()));
+              cp2=str::tolower(utf::next(pos2,s2.end()));
+              if(cp1!=cp2)
+                return (cp1<cp2);
+            }
+          return ((pos1==s1.end())&&(pos2!=s2.end()));
+        }
       };
 
     private:
@@ -61,12 +74,21 @@ namespace RHVoice
       value_map values;
 
     public:
-      void set(const std::wstring& name,const std::wstring& value);
+      void set(const std::wstring& name,const std::wstring& value)
+      {
+        values[name]=value;
+      }
 
-      void set(const std::wstring& value);
+      void set(const std::wstring& value)
+      {
+        default_value=value;
+      }
 
     protected:
-      void* get_interface(REFIID riid);
+      void* get_interface(REFIID riid)
+      {
+        return com::try_primary_interface<ISpDataKey>(this,riid);
+      }
     };
   }
 }
