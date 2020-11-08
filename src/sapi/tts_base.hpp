@@ -26,9 +26,13 @@ namespace RHVoice
     class tts_base
     {
     protected:
-       tts_base();
+      tts_base()
+      {
+      }
 
-      ~tts_base();
+      ~tts_base()
+      {
+      }
 
       std::shared_ptr<engine> get_engine();
 

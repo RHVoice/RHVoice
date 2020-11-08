@@ -30,15 +30,33 @@ namespace RHVoice
     class voice_attributes
     {
     public:
-      explicit voice_attributes(const voice_profile& profile_=voice_profile());
+      explicit voice_attributes(const voice_profile& profile_=voice_profile()):
+        profile(profile_)
+      {
+      }
 
-      std::wstring get_name() const;
+      std::wstring get_name() const
+      {
+        return utils::string_to_wstring(profile.get_name());
+      }
 
-      std::wstring get_age() const;
+      std::wstring get_age() const
+      {
+        return L"Adult";
+      }
 
-      std::wstring get_gender() const;
+      std::wstring get_gender() const
+      {
+        return ((profile.primary()->get_gender()==RHVoice_voice_gender_female)?L"Female":L"Male");
+      }
 
-      std::wstring get_language() const;
+      std::wstring get_language() const
+      {
+        std::wostringstream s;
+        s.imbue(std::locale::classic());
+        s << std::hex << std::noshowbase << profile.primary()->get_language()->get_id();
+        return s.str();
+      }
 
     private:
       voice_profile profile;
