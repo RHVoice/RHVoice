@@ -219,7 +219,7 @@ def clone_base_env(base_env,user_vars,arch=None):
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++11"])
-        env.AppendUnique(CFLAGS=["-std=c99"])
+        env.AppendUnique(CFLAGS=["-std=c11"])
     if sys.platform=="win32":
         bits="64" if arch.endswith("64") else "32"
         env["BUILDDIR"]=os.path.join(BUILDDIR,arch)
