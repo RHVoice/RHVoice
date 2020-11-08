@@ -62,21 +62,17 @@ def CheckXPCompat(context):
 def CheckNSIS(context):
     result=0
     context.Message("Checking for NSIS")
-    key_name=r"SOFTWARE\NSIS"
-    try:
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,key_name,0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
-                context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
-                result=1
-    except WindowsError:
-         pass
+    if "NSISDIR" in os.environ:
+        context.env["makensis"]=File(os.path.join(os.environ["NSISDIR"],"makensis.exe"))
+        result=1
     context.Result(result)
     return result
 
 def CheckWiX(context):
     result=0
     context.Message("Checking for WiX toolset")
-    if "WIX" in os.environ:
-        context.env["WIX"]=os.environ["WIX"]
+    if "WIXTOOLPATH" in os.environ:
+        context.env["WIX"]=os.environ["WIXTOOLPATH"]
         result=1
     context.Result(result)
     return result
@@ -148,7 +144,7 @@ def create_user_vars():
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
-        vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",True))
+        vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",False))
         vars.Add(PathVariable("msi_repo","Where the msi packages are kept for reuse",None,PathVariable.PathIsDir))
     else:
         vars.Add("prefix","Installation prefix","/usr/local")
@@ -223,7 +219,7 @@ def clone_base_env(base_env,user_vars,arch=None):
     if "gcc" in env["TOOLS"]:
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++11"])
-        env.AppendUnique(CFLAGS=["-std=c99"])
+        env.AppendUnique(CFLAGS=["-std=c11"])
     if sys.platform=="win32":
         bits="64" if arch.endswith("64") else "32"
         env["BUILDDIR"]=os.path.join(BUILDDIR,arch)
