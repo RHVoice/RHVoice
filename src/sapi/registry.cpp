@@ -20,6 +20,41 @@ namespace RHVoice
 {
   namespace registry
   {
+    key::key(HKEY parent,const std::wstring& name,REGSAM access_mask,bool create)
+    {
+      LONG result=create?RegCreateKeyEx(parent,name.c_str(),0,nullptr,0,access_mask,0,&handle,0):RegCreateKeyEx(parent,name.c_str(),0,nullptr,0,access_mask,0,&handle,0);
+      if(result!=ERROR_SUCCESS)
+        throw error("Unable to open/create a registry key");
+    }
+
+    key::~key()
+    {
+      RegCloseKey(handle);
+    }
+
+    key::operator HKEY () const
+    {
+      return handle;
+    }
+
+    void key::delete_subkey(const std::wstring& name)
+    {
+      if(RegDeleteKey(handle,name.c_str())!=ERROR_SUCCESS)
+        throw error("Unable to delete a registry key");
+    }
+
+    std::wstring key::get() const
+    {
+      return get(L"");
+    }
+
+    void key::set(const std::wstring& value)
+    {
+      set(L"",value);
+    }
+
+    error::error(const std::string& msg): exception(msg){}
+
     std::wstring key::get(const std::wstring& name) const
     {
       DWORD type,size;

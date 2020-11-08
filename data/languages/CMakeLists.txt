@@ -10,25 +10,27 @@ macro(languageInDir languageName langDir)
 	endif()
 
 	set(languagePackageName "RHVoice-language-${langCode}")
+	string(REPLACE "-" "_" languagePackageFilteredName "${languagePackageName}")
 	file(GLOB_RECURSE SRCFILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${langDir}/*")
 	add_custom_target(
-		"${languagePackageName}"
+		"${languagePackageFilteredName}"
 		SOURCES "${SRCFILES}"
 	)
 
-	string(TOUPPER "${languagePackageName}" languagePackageNameUpper)
-	cpack_add_component("${languagePackageName}" GROUP "languages" DISPLAY_NAME "${languageName}"
+	string(TOUPPER "${languagePackageFilteredName}" languagePackageFilteredNameUpper)
+	cpack_add_component("${languagePackageFilteredName}" GROUP "languages" DISPLAY_NAME "${languageName}"
 		DESCRIPTION "${languageName} language (${langCode}) for RHVoice"
 	)
+	list(APPEND CPACK_COMPONENTS_ALL "${languagePackageFilteredName}")
 
-	set("CPACK_DEBIAN_${languagePackageNameUpper}_PACKAGE_NAME" "${languagePackageName}")
-	set("CPACK_RPM_${languagePackageNameUpper}_PACKAGE_NAME" "${languagePackageName}")
-	set("CPACK_DEBIAN_${languagePackageNameUpper}_PACKAGE_DEPENDS" "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, RHVoice-language-${langCode}" PARENT_SCOPE)
-	set("CPACK_DEBIAN_${languagePackageNameUpper}_PACKAGE_SECTION" "contrib" PARENT_SCOPE)
+	set("CPACK_DEBIAN_${languagePackageFilteredNameUpper}_PACKAGE_NAME" "${languagePackageName}")
+	set("CPACK_RPM_${languagePackageFilteredNameUpper}_PACKAGE_NAME" "${languagePackageName}")
+	set("CPACK_DEBIAN_${languagePackageFilteredNameUpper}_PACKAGE_DEPENDS" "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, RHVoice-language-${langCode}" PARENT_SCOPE)
+	set("CPACK_DEBIAN_${languagePackageFilteredNameUpper}_PACKAGE_SECTION" "contrib" PARENT_SCOPE)
 
 	install(DIRECTORY "${langDir}"
 		DESTINATION "${languages_dir}"
-		COMPONENT "${languagePackageName}"
+		COMPONENT "${languagePackageFilteredName}"
 		PATTERN "SConscript" EXCLUDE
 		PATTERN "CMakeLists.txt" EXCLUDE
 	)

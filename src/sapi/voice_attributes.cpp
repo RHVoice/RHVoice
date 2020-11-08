@@ -13,36 +13,39 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef RHVOICE_SAPI_VOICE_ATTRIBUTES_HPP
-#define RHVOICE_SAPI_VOICE_ATTRIBUTES_HPP
+#include "voice_attributes.hpp"
 
-#include <string>
-#include <sstream>
-#include <locale>
-
-#include "core/voice_profile.hpp"
-#include "utils.hpp"
 
 namespace RHVoice
 {
   namespace sapi
   {
-    class voice_attributes
-    {
-    public:
-      explicit voice_attributes(const voice_profile& profile_=voice_profile());
+      voice_attributes::voice_attributes(const voice_profile& profile_):
+        profile(profile_)
+      {
+      }
 
-      std::wstring get_name() const;
+      std::wstring voice_attributes::get_name() const
+      {
+        return utils::string_to_wstring(profile.get_name());
+      }
 
-      std::wstring get_age() const;
+      std::wstring voice_attributes::get_age() const
+      {
+        return L"Adult";
+      }
 
-      std::wstring get_gender() const;
+      std::wstring voice_attributes::get_gender() const
+      {
+        return ((profile.primary()->get_gender()==RHVoice_voice_gender_female)?L"Female":L"Male");
+      }
 
-      std::wstring get_language() const;
-
-    private:
-      voice_profile profile;
-    };
+      std::wstring voice_attributes::get_language() const
+      {
+        std::wostringstream s;
+        s.imbue(std::locale::classic());
+        s << std::hex << std::noshowbase << profile.primary()->get_language()->get_id();
+        return s.str();
+      }
   }
 }
-#endif

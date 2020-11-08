@@ -27,6 +27,15 @@ set("ISO639_1_NAME2CODE_Georgian" "ka")
 set("ISO639_1_NAME2CODE_Kyrgyz" "ky")
 set("ISO639_1_NAME2CODE_Tatar" "tt")
 
+function(createLangCodeToNameMapping)
+	get_cmake_property(varsHere VARIABLES)
+	foreach(varName ${varsHere})
+		if(varName MATCHES "^ISO639_1_NAME2CODE_(.+)$")
+			set("ISO639_1_CODE2NAME_${${varName}}" "${CMAKE_MATCH_1}" PARENT_SCOPE)
+		endif()
+	endforeach()
+endfunction()
+createLangCodeToNameMapping()
 
 set("VOICE_talgat_LICENSE" "Proprietary, non-commercial") # Tatar
 set("VOICE_natia_LICENSE" "Proprietary, personal use only") # Georgian
@@ -56,6 +65,12 @@ set("VOICE_azamat_LANG" "ky")
 set("VOICE_nazgul_LANG" "ky")
 
 set("VOICE_talgat_LANG" "tt")
+
+cpack_add_component_group("data"
+	DISPLAY_NAME "Data files"
+	DESCRIPTION "Various data required for synthesis"
+	EXPANDED
+)
 
 add_subdirectory("languages")
 add_subdirectory("voices")

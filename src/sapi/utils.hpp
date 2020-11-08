@@ -19,6 +19,7 @@
 #include <cstring>
 #include <iterator>
 #include <string>
+
 #include "utf8.h"
 
 namespace RHVoice
