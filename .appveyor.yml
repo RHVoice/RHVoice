@@ -2,7 +2,7 @@ version: "{build}"
 
 install:
   - python --version
-  - python -m pip install scons
+  - python -m pip install lxml
   
 build_script:
   - echo --- Build -------------------------------------------------
