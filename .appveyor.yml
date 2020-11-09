@@ -1,0 +1,9 @@
+version: "{build}"
+
+install:
+  - python --version
+  - python -m pip install scons
+  
+build_script:
+  - echo --- Build -------------------------------------------------
+  - scons
