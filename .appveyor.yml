@@ -1,5 +1,7 @@
 version: "{build}"
 
+clone_depth: 100
+
 install:
   - python --version
   - python -m pip install scons
