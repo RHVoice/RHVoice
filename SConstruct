@@ -65,14 +65,25 @@ def CheckNSIS(context):
     if "NSISDIR" in os.environ:
         context.env["makensis"]=File(os.path.join(os.environ["NSISDIR"],"makensis.exe"))
         result=1
+    else:
+        key_name=r"SOFTWARE\NSIS"
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,key_name,0,winreg.KEY_READ|winreg.KEY_WOW64_32KEY) as key:
+                context.env["makensis"]=File(os.path.join(winreg.QueryValueEx(key,None)[0],"makensis.exe"))
+                result=1
+        except WindowsError:
+            pass
     context.Result(result)
     return result
 
 def CheckWiX(context):
     result=0
     context.Message("Checking for WiX toolset")
-    if "WIXTOOLPATH" in os.environ:
-        context.env["WIX"]=os.environ["WIXTOOLPATH"]
+    if "WIXTOOLPATH" in os.environ or "WIX" in os.environ:
+        if "WIXTOOLPATH"in os.environ:
+            context.env["WIX"]=os.environ["WIXTOOLPATH"]
+        else:
+            context.env["WIX"]=os.path.join(os.environ["WIX"],"bin")
         result=1
     context.Result(result)
     return result
