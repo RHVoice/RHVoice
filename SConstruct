@@ -83,7 +83,7 @@ def CheckWiX(context):
         if "WIXTOOLPATH"in os.environ:
             context.env["WIX"]=os.environ["WIXTOOLPATH"]
         else:
-            context.env["WIX"]=os.environ["WIX"]
+            context.env["WIX"]=os.path.join(os.environ["WIX"],"bin")
         result=1
     context.Result(result)
     return result
