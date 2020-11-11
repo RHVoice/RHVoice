@@ -19,6 +19,7 @@ add_executable(sd_rhvoice "${SRCFILES}")
 target_include_directories(sd_rhvoice PRIVATE "${INCLUDE_DIR}" "${HTS_LABELS_KIT_INCLUDES}")
 target_link_libraries(sd_rhvoice "RHVoice_core" "RHVoice_audio" pthread)
 harden(sd_rhvoice)
+add_sanitizers(sd_rhvoice)
 
 set(SPEECH_DISPATCHER_MODULES_DIR "${CMAKE_INSTALL_PREFIX}/lib/speech-dispatcher-modules")
 

@@ -82,8 +82,8 @@ class wix_packager(windows_packager):
 		value=self.env.Value(text,text)
 		src=self.env.Command(self.src,value,self.make_src)
 		exts=" "+" ".join(["-ext "+ext for ext in self.get_exts()])+" "
-		obj=self.env.Command(self.obj,src,r'"${WIX}bin\candle.exe" -nologo -arch '+self.get_arch()+exts+' -out $TARGET $SOURCE')
-		self.env.Command(self.outfile,obj,r'"${WIX}bin\light.exe" -nologo -sacl -spdb'+exts+" -out $TARGET $SOURCE")
+		obj=self.env.Command(self.obj,src,r'"${WIX}\candle.exe" -nologo -arch '+self.get_arch()+exts+' -out $TARGET $SOURCE')
+		self.env.Command(self.outfile,obj,r'"${WIX}\light.exe" -nologo -sacl -spdb'+exts+" -out $TARGET $SOURCE")
 
 class msi_packager(wix_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version,nsis_name=None):

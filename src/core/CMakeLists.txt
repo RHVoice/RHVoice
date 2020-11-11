@@ -53,6 +53,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_SOURCE
 
 target_link_libraries(RHVoice_core "${libs2link}")
 harden("RHVoice_core")
+add_sanitizers("RHVoice_core")
 
 install(TARGETS "RHVoice_core"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"

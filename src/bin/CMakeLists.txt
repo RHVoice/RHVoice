@@ -17,12 +17,14 @@
 add_executable("RHVoice-client" "${CMAKE_CURRENT_SOURCE_DIR}/rhvoice-client.c")
 target_link_libraries("RHVoice-client" "RHVoice_core")
 harden("RHVoice-client")
+add_sanitizers("RHVoice-client")
 target_compile_definitions("RHVoice-client" PRIVATE "-DVERSION=\"${VERSION}\"")
 
 #add_executable("RHVoice" "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 #target_link_libraries("RHVoice" "RHVoice_core")
 #target_compile_definitions(RHVoice PRIVATE "-DPACKAGE=\"RHVoice\"")
 #harden("RHVoice")
+#add_sanitizers("RHVoice")
 
 install(TARGETS "RHVoice-client"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"

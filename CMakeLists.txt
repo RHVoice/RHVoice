@@ -17,12 +17,13 @@
 cmake_minimum_required(VERSION 3.5.1)
 project("RHVoice")
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/cmake/thirdparty/sanitizers/cmake")
 include(FindPkgConfig)
 include(GNUInstallDirs)
 include(CPackComponent)
 include(Hardening)
 include(VersionFromGit)
+find_package(Sanitizers)
 getVersionFromGit("RHVOICE" "1.2.2")
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.12") 
@@ -64,6 +65,7 @@ endif()
 
 
 set("dev" OFF CACHE BOOL "The build will only be used for development: no global installation, run from the source directory, compile helper utilities")
+set("WITH_CLI11" OFF CACHE BOOL "Use CLI11 instead of bundled tclap")
 set("ENABLE_MAGE" ON CACHE BOOL "Build with MAGE")
 set("WITH_DATA" ON CACHE BOOL "Build packages with data. Long to compress. When debugging RHVoice itself it makes sense to disable it.")
 #set("spd_version" validate_spd_version CACHE ??? "Speech dispatcher version")

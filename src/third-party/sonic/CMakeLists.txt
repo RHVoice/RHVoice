@@ -29,6 +29,7 @@ set(CPACK_COMPONENT_LIBSONIC_VERSION "${LIBSONIC_VERSION}" PARENT_SCOPE)
 
 target_include_directories(sonic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 harden(sonic)
+add_sanitizers(sonic)
 
 install(TARGETS "sonic"
 	COMPONENT "libsonic"
