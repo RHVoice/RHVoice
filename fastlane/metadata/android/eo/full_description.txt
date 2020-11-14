@@ -1,4 +1,4 @@
 <p>RHVoice estas senpage kaj malfermkoda parolsintezilo (teksto-al-parolo).</p>
 <p>Voĉoj estas bazitaj sur registraĵoj de homa voĉo. Voĉaj dosieroj estas malgrandaj, ĉar nur statistikaj modeloj estas konservataj en la komputiloj de uzantoj. Malgraŭ la fakto, ke natureco mankas al sinteziloj, kiuj generas voĉon per kunigi segmentojn de registraĵoj, ili plue estas tre kompreneblaj kaj imitas la parolantojn, kiuj registris la fontajn datumojn.</p>
 <p><br><b>Subtenataj lingvoj:</b><br>
-Komence la aplikaĵo RHVoice subtenis nur la rusan lingvon. Nun ĝi subtenas ankaŭ Esperanton, usonan anglan, brazilan portugalan, kartvelan, kirgizan kaj tataran. Teorie eblas aldoni subtenon por pliaj lingvoj, se ĉiuj necesas rimedoj estos trovitaj aŭ kreitaj</p>
+Komence la aplikaĵo RHVoice subtenis nur la rusan lingvon. Nun ĝi subtenas ankaŭ Esperanton, usonan anglan, brazilan portugalan, kartvelan, kirgizan kaj tataran. Teorie eblas aldoni subtenon por pliaj lingvoj, se ĉiuj necesaj rimedoj estos trovitaj aŭ kreitaj</p>
