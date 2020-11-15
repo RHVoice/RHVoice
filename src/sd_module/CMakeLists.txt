@@ -21,7 +21,8 @@ target_link_libraries(sd_rhvoice "RHVoice_core" "RHVoice_audio" pthread)
 harden(sd_rhvoice)
 add_sanitizers(sd_rhvoice)
 
-set(SPEECH_DISPATCHER_MODULES_DIR "${CMAKE_INSTALL_PREFIX}/lib/speech-dispatcher-modules")
+set(SPEECH_DISPATCHER_MODULES_DIR "${CMAKE_INSTALL_PREFIX}/lib/speech-dispatcher-modules" CACHE PATH "Speech Dispatcher's module directory path")
+
 
 install(TARGETS "sd_rhvoice"
 	RUNTIME DESTINATION "${SPEECH_DISPATCHER_MODULES_DIR}"
