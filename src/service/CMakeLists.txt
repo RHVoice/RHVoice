@@ -33,7 +33,7 @@ set(SERVICE_FILE_NAME "com.github.OlgaYakovleva.RHVoice.service")
 set(serviceInputFile "${CMAKE_CURRENT_SOURCE_DIR}/${SERVICE_FILE_NAME}.in")
 set(serviceOutputFile "${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE_NAME}")
 
-set(bindir "${BINDIR}")
+set(bindir "${CMAKE_INSTALL_FULL_BINDIR}")
 configure_file("${serviceInputFile}" "${serviceOutputFile}")
 install(FILES "${serviceOutputFile}"
 	DESTINATION "${servicedir}/systemd/system"
