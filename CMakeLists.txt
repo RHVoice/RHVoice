@@ -79,7 +79,7 @@ set("languages_dir" "${data_dir}/languages")
 set("voices_dir" "${data_dir}/voices")
 
 set("config_dir" "${CMAKE_INSTALL_FULL_SYSCONFDIR}/RHVoice")
-set("common_doc_dir" "${CMAKE_INSTALL_FULL_DATAROOTDIR}/doc")
+set("common_doc_dir" "${CMAKE_INSTALL_FULL_DATAROOTDIR}/doc" CACHE PATH "Documentation directory path")
 
 set(SubpackagesDir "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set("licenses_dir" "${CMAKE_CURRENT_SOURCE_DIR}/licenses")
