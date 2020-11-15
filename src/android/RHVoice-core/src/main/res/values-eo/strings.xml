@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Implicita voĉo</string>
+  <string name="default_voice_dialog_title">Elekti voĉon</string>
+  <string name="detect_language_title">Rekoni lingvon</string>
+  <string name="detect_language_desc">Aŭtomate ŝanĝi lingvon</string>
+  <string name="speech_volume">Sonforteco de voĉo</string>
+  <string name="speech_rate">Rapido de voĉo</string>
+  <string name="pseudo_english_title">Anglaj vortoj</string>
+  <string name="pseudo_english_desc">Provi ĝuste legi vortojn de la angla lingvo</string>
+  <string name="settings">Agordoj</string>
+  <string name="wifi_only_title">Nur vifio</string>
+  <string name="wifi_only_desc">Elŝuti voĉojn nur per sendrata reto</string>
+  <string name="speech_quality">Kvalito de elparolo</string>
+  <string-array name="quality_labels">
+    <item>Plej bona rendimento</item>
+    <item>Norma kvalito</item>
+    <item>Plej bona kvalito</item>
+  </string-array>
+  <string name="languages">Lingvoj</string>
+  <string name="voice_remove_question">Ĉu vi certe volas malinstali tiun ĉi voĉon?</string>
+  <string name="install">Instali</string>
+  <string name="uninstall">Malinstali</string>
+  <string name="play">Ludi</string>
+  <string name="stop">Ĉesi</string>
+  <string name="increase">Pliigi</string>
+  <string name="decrease">Malpliigi</string>
+  <string name="reset">Reagordi</string>
+</resources>
