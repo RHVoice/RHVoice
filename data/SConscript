@@ -54,7 +54,7 @@ for dir_name in ["languages","voices"]:
 		name_format_string="RHVoice-voice-{language}-{file_name}" if type=="voice" else "RHVoice-language-{language}"
 		name=name_format_string.format(**props)
 		package_name=props.get("package_name",name)
-		description_format_string=u"{name} - {display_language} voice for RHVoice" if type=="voice" else "{display_language} language pack for RHVoice"
+		description_format_string=u"RHVoice {name}, {display_language} voice" if type=="voice" else "RHVoice {display_language} language pack"
 		description=description_format_string.format(**props)
 		if sys.platform!="win32" and not local_env["dev"]:
 			for f in data_files:
