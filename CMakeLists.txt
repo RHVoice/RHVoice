@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.9)
 project("RHVoice")
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/cmake/thirdparty/sanitizers/cmake")
@@ -29,11 +29,7 @@ getVersionFromGit("RHVOICE" "1.2.2")
 if(${CMAKE_VERSION} VERSION_GREATER "3.12") 
 	set(CMAKE_CXX_STANDARD 20)
 else()
-	if(${CMAKE_VERSION} VERSION_GREATER "3.8") 
-		set(CMAKE_CXX_STANDARD 17)
-	else()
-		set(CMAKE_CXX_STANDARD 14)
-	endif()
+	set(CMAKE_CXX_STANDARD 17)
 endif()
 
 
@@ -79,7 +75,7 @@ set("languages_dir" "${data_dir}/languages")
 set("voices_dir" "${data_dir}/voices")
 
 set("config_dir" "${CMAKE_INSTALL_FULL_SYSCONFDIR}/RHVoice")
-set("common_doc_dir" "${CMAKE_INSTALL_FULL_DATAROOTDIR}/doc")
+set("common_doc_dir" "${CMAKE_INSTALL_FULL_DATAROOTDIR}/doc" CACHE PATH "Documentation directory path")
 
 set(SubpackagesDir "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set("licenses_dir" "${CMAKE_CURRENT_SOURCE_DIR}/licenses")
