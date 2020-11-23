@@ -62,6 +62,7 @@ public final class Data
         lang.addVoice(new VoicePack("Irina", lang, 4, 1, Checksums.VOICE_IRINA, null, null));
         lang.addVoice(new VoicePack("Artemiy", lang, 4, 0, Checksums.VOICE_ARTEMIY, "https://rhvoice.tiflo.org/downloads/RHVoice-voice-Russian-Artemiy-v4.0.zip", null));
         lang.addVoice(new VoicePack("Arina", lang, 4, 0, Checksums.VOICE_ARINA, "https://rhvoice.su/downloads/RHVoice-voice-Russian-Arina-v4.0.zip", null));
+        lang.addVoice(new VoicePack("Pavel", lang, 4, 0, Checksums.VOICE_PAVEL, "https://rhvoice.su/downloads/RHVoice-voice-Russian-Pavel-v4.0.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Tatar", "tat", "tt", "RUS", "RU", false, 1, 10, Checksums.LANGUAGE_TATAR, null, null);
         lang.addVoice(new VoicePack("Talgat", lang, 4, 0, Checksums.VOICE_TALGAT, "https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0.zip", null));
