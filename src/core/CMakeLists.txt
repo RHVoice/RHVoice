@@ -36,28 +36,37 @@ target_include_directories(RHVoice_core PUBLIC "${INCLUDE_DIR}" PRIVATE "${HTS_L
 
 set(package_name "RHVoice_core")
 
-if(WIN32)
-	set("DATA_PATH" "data")
-	set("CONFIG_PATH" "config")
-else()
-	set(DATA_PATH "${data_dir}")
-	set(CONFIG_PATH "${config_dir}")
-endif()
-
 set(VERSION "${RHVOICE_VERSION}")
 
 if(ENABLE_MAGE)
 	list(APPEND libs2link "libmage")
 endif()
+set(CONFIG_PATH "${config_dir}")
+set(DATA_PATH "${data_dir}")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 target_link_libraries(RHVoice_core "${libs2link}")
 harden("RHVoice_core")
 add_sanitizers("RHVoice_core")
 
+cpack_add_component(core
+	DISPLAY_NAME "Synthesis core"
+	DESCRIPTION "Provides a library that does speech synthesis"
+	REQUIRED
+	GROUP "libraries"
+	DEPENDS "libhts_engine" "libsonic"
+)
+list(APPEND CPACK_COMPONENTS_ALL "core")
+
 install(TARGETS "RHVoice_core"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	COMPONENT "core"
 )
 
-set("CPACK_DEBIAN_CORE_PACKAGE_NAME" "librhvoice-core" PARENT_SCOPE)
+if(ENABLE_MAGE)
+	list(APPEND CPACK_COMPONENT_CORE_DEPENDS "libmage")
+endif()
+
+set("CPACK_DEBIAN_CORE_PACKAGE_NAME" "librhvoice-core")
+
+pass_through_cpack_vars()

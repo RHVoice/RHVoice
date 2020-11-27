@@ -24,11 +24,20 @@ add_sanitizers(sd_rhvoice)
 set(SPEECH_DISPATCHER_MODULES_DIR "${CMAKE_INSTALL_PREFIX}/lib/speech-dispatcher-modules" CACHE PATH "Speech Dispatcher's module directory path")
 
 
+cpack_add_component(sd_module
+	DISPLAY_NAME "RHVoice speech-dispatcher middleware module"
+	DESCRIPTION "Provides a way to use RHVoice using speech-dispacher middleware. It is the recommended way to use RHVoice on *nix hosts."
+	GROUP "binaries"
+	DEPENDS "core" "audio"
+)
+list(APPEND CPACK_COMPONENTS_ALL "sd_module")
+
 install(TARGETS "sd_rhvoice"
 	RUNTIME DESTINATION "${SPEECH_DISPATCHER_MODULES_DIR}"
 	COMPONENT "sd_module"
 )
 
-set("CPACK_DEBIAN_SD_MODULE_PACKAGE_NAME" "speech-dispatcher-rhvoice" PARENT_SCOPE)
-set(CPACK_DEBIAN_SD_MODULE_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, speech-dispatcher" PARENT_SCOPE)
-set(CPACK_DEBIAN_SD_MODULE_PACKAGE_SUGGESTS "spd-say, python3-speechd" PARENT_SCOPE)
+set("CPACK_DEBIAN_SD_MODULE_PACKAGE_NAME" "speech-dispatcher-rhvoice")
+set(CPACK_DEBIAN_SD_MODULE_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, speech-dispatcher")
+set(CPACK_DEBIAN_SD_MODULE_PACKAGE_SUGGESTS "spd-say, python3-speechd")
+pass_through_cpack_vars()
