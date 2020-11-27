@@ -24,9 +24,20 @@ if(WITH_CLI11)
 	target_compile_definitions(RHVoice-test PRIVATE WITH_CLI11)
 endif(WITH_CLI11)
 
+cpack_add_component(test
+	DISPLAY_NAME "Standalone CLI application"
+	DESCRIPTION "Provides a CLI application that allows you to synthesize speech using RHVoice"
+	GROUP "binaries"
+	DEPENDS "audio"
+)
+list(APPEND CPACK_COMPONENTS_ALL "test")
+
 install(TARGETS "RHVoice-test"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 	COMPONENT "test"
 )
-set("CPACK_DEBIAN_TEST_PACKAGE_NAME" "rhvoice-test" PARENT_SCOPE)
-set(CPACK_DEBIAN_TEST_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}" PARENT_SCOPE)
+set("CPACK_DEBIAN_TEST_PACKAGE_NAME" "rhvoice-test")
+set(CPACK_DEBIAN_TEST_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}")
+
+
+pass_through_cpack_vars()

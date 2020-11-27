@@ -44,11 +44,11 @@ macro(voiceInDir voiceName voiceDir)
 
 	string(TOUPPER "${voicePackageFilteredName}" voicePackageFilteredNameUpper)
 
-	cpack_add_component("${voicePackageName}" GROUP "${voicesGroupFilteredName}" DISPLAY_NAME "${voiceName}"
+	cpack_add_component("${voicePackageFilteredName}" GROUP "${voicesGroupFilteredName}" DISPLAY_NAME "${voiceName}"
 		DESCRIPTION "${voiceName} voice for ${langName} (${langCode}) language for RHVoice licensed under `${license}` license."
 		DEPENDS "${languagePackageFilteredName}"
 	)
-	list(APPEND CPACK_COMPONENTS_ALL "${voicePackageName}")
+	list(APPEND CPACK_COMPONENTS_ALL "${voicePackageFilteredName}")
 
 	set("CPACK_DEBIAN_${voicePackageFilteredNameUpper}_PACKAGE_NAME" "${voicePackageName}")
 	set("CPACK_RPM_${voicePackageFilteredNameUpper}_PACKAGE_NAME" "${voicePackageName}")

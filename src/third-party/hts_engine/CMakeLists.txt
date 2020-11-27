@@ -18,12 +18,13 @@ file(GLOB_RECURSE SRCFILES1 "${CMAKE_CURRENT_SOURCE_DIR}/HTS_*.c")
 
 if(ENABLE_MAGE)
 	file(GLOB_RECURSE SRCFILES2 "${CMAKE_CURRENT_SOURCE_DIR}/HTS106_*.c")
-	set(CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME}" PARENT_SCOPE)
+	set(CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME}")
 else()
 	set(SRCFILES2 "")
 endif()
 
 add_library(libhts_engine SHARED "${SRCFILES1}" "${SRCFILES2}")
+target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE")
 
 set(LIBHTS_VERSION_MAJOR 1)
 set(LIBHTS_VERSION_MINOR 06)
@@ -31,10 +32,10 @@ set(LIBHTS_VERSION_PATCH 0)
 set(LIBHTS_VERSION "${LIBHTS_VERSION_MAJOR}.${LIBHTS_VERSION_MINOR}-RHVoice")
 set_target_properties(libhts_engine PROPERTIES VERSION "${LIBHTS_VERSION}" SOVERSION "${LIBHTS_VERSION_MAJOR}")
 
-set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_MAJOR "${LIBHTS_VERSION_MAJOR}" PARENT_SCOPE)
-set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_MINOR "${LIBHTS_VERSION_MINOR}" PARENT_SCOPE)
-set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_PATCH "${LIBHTS_VERSION_PATCH}" PARENT_SCOPE)
-set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION "${LIBHTS_VERSION}" PARENT_SCOPE)
+set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_MAJOR "${LIBHTS_VERSION_MAJOR}")
+set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_MINOR "${LIBHTS_VERSION_MINOR}")
+set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_PATCH "${LIBHTS_VERSION_PATCH}")
+set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION "${LIBHTS_VERSION}")
 
 target_include_directories(libhts_engine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${INCLUDE_DIR}")
 if(NOT MSVC)
@@ -44,8 +45,17 @@ harden(libhts_engine)
 add_sanitizers(libhts_engine)
 set_target_properties("libhts_engine" PROPERTIES PREFIX "")
 
+
+cpack_add_component(libhts_engine
+	DISPLAY_NAME "HTS engine"
+	DESCRIPTION "hts_engine is software to synthesize speech waveform from HMMs trained by the HMM-based speech synthesis system (HTS). This software is released under the Modified BSD license. This component contains a modified version of HTS engine, for the modifications see the RHVoice GitHub repo."
+	GROUP "third_party_libs"
+)
+list(APPEND CPACK_COMPONENTS_ALL "libhts_engine")
+
 install(TARGETS "libhts_engine"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	COMPONENT "libhts_engine"
 )
-set("CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME" "libhtsengine" PARENT_SCOPE)
+set("CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME" "libhtsengine")
+pass_through_cpack_vars()

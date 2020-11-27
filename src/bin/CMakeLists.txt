@@ -26,10 +26,20 @@ target_compile_definitions("RHVoice-client" PRIVATE "-DVERSION=\"${VERSION}\"")
 #harden("RHVoice")
 #add_sanitizers("RHVoice")
 
+cpack_add_component(client
+	DISPLAY_NAME "RHVoice D-Bus service client"
+	DESCRIPTION "Provides a client allowing to speak text using RHVoice DBus client. Deprecated. Use speech-dispatcher."
+	GROUP "binaries"
+	DEPENDS "core"
+)
+list(APPEND CPACK_COMPONENTS_ALL "client")
+
 install(TARGETS "RHVoice-client"
 	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 	COMPONENT "client"
 )
 
-set("CPACK_DEBIAN_CLIENT_PACKAGE_NAME" "rhvoice-client" PARENT_SCOPE)
-set(CPACK_DEBIAN_CLIENT_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}" PARENT_SCOPE)
+set("CPACK_DEBIAN_CLIENT_PACKAGE_NAME" "rhvoice-client")
+set(CPACK_DEBIAN_CLIENT_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}")
+
+pass_through_cpack_vars()
