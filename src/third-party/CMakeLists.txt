@@ -21,7 +21,6 @@ endif()
 add_subdirectory("sonic")
 add_subdirectory("hts_engine")
 
-set(UTF8_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/utf8" PARENT_SCOPE)
 set(RAPIDXML_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rapidxml" PARENT_SCOPE)
 set(TCLAP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tclap" PARENT_SCOPE)
 

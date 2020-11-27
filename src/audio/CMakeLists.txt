@@ -57,10 +57,19 @@ if(WITH_PORTAUDIO)
 	target_include_directories(RHVoice_audio PRIVATE "${LIBPORTAUDIO_INCLUDE_DIRS}")
 endif()
 
+cpack_add_component(audio
+	DISPLAY_NAME "Text-to-speech-sound library"
+	DESCRIPTION "Provides a library that abstracts the way speech is output. It is also provides a high-level facade for speech synthesis"
+	GROUP "libraries"
+	DEPENDS "libhts_engine" "libsonic"
+)
+list(APPEND CPACK_COMPONENTS_ALL "audio")
+
 install(TARGETS "RHVoice_audio"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	COMPONENT "audio"
 )
 
-set("CPACK_DEBIAN_AUDIO_PACKAGE_NAME" "librhvoice-audio" PARENT_SCOPE)
-set(CPACK_DEBIAN_AUDIO_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}" PARENT_SCOPE)
+set("CPACK_DEBIAN_AUDIO_PACKAGE_NAME" "librhvoice-audio")
+set(CPACK_DEBIAN_AUDIO_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}")
+pass_through_cpack_vars()

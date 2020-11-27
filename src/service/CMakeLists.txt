@@ -34,6 +34,8 @@ set(serviceInputFile "${CMAKE_CURRENT_SOURCE_DIR}/${SERVICE_FILE_NAME}.in")
 set(serviceOutputFile "${CMAKE_CURRENT_BINARY_DIR}/${SERVICE_FILE_NAME}")
 
 set(bindir "${CMAKE_INSTALL_FULL_BINDIR}")
+set("servicedir" "${CMAKE_INSTALL_DATADIR}/dbus-1/services" CACHE PATH ".service file installation directory")
+set("servicedir_full" "${CMAKE_INSTALL_PREFIX}/${servicedir}")
 configure_file("${serviceInputFile}" "${serviceOutputFile}")
 install(FILES "${serviceOutputFile}"
 	DESTINATION "${servicedir}/systemd/system"

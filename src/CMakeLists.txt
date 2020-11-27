@@ -7,6 +7,20 @@ set(BUILD_SPEECHDISPATCHER_MODULE ON CACHE BOOL "Build SpeechDispatcher module")
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 configure_file("${INCLUDE_DIR}/core/config.h.in" "${INCLUDE_DIR}/core/config.h")
 
+set(UTF8_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third-party/utf8")
+
+cpack_add_component_group("libraries"
+	DISPLAY_NAME "libraries"
+	DESCRIPTION "Libraries that implement the needed functionality"
+	EXPANDED
+)
+
+cpack_add_component_group("binaries"
+	DISPLAY_NAME "Programs"
+	DESCRIPTION "Programs to be called by users directly"
+	EXPANDED
+)
+
 add_subdirectory("third-party")
 set(HTS_LABELS_KIT_INCLUDES "${UTF8_INCLUDE_DIR}" "${RAPIDXML_INCLUDE_DIR}")
 

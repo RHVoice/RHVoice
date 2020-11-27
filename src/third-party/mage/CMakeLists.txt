@@ -23,20 +23,31 @@ set(LIBMAGE_VERSION_PATCH "0")
 set(LIBMAGE_VERSION "${LIBMAGE_VERSION_MAJOR}.${LIBMAGE_VERSION_MINOR}-RHVoice")
 set_target_properties(libmage PROPERTIES VERSION "${LIBMAGE_VERSION}" SOVERSION "${LIBMAGE_VERSION_MAJOR}")
 
-set(CPACK_COMPONENT_LIBMAGE_VERSION_MAJOR "${LIBMAGE_VERSION_MAJOR}" PARENT_SCOPE)
-set(CPACK_COMPONENT_LIBMAGE_VERSION_MINOR "${LIBMAGE_VERSION_MINOR}" PARENT_SCOPE)
-set(CPACK_COMPONENT_LIBMAGE_VERSION_PATCH "${LIBMAGE_VERSION_PATCH}" PARENT_SCOPE)
-set(CPACK_COMPONENT_LIBMAGE_VERSION "${LIBMAGE_VERSION}" PARENT_SCOPE)
+set(CPACK_COMPONENT_LIBMAGE_VERSION_MAJOR "${LIBMAGE_VERSION_MAJOR}")
+set(CPACK_COMPONENT_LIBMAGE_VERSION_MINOR "${LIBMAGE_VERSION_MINOR}")
+set(CPACK_COMPONENT_LIBMAGE_VERSION_PATCH "${LIBMAGE_VERSION_PATCH}")
+set(CPACK_COMPONENT_LIBMAGE_VERSION "${LIBMAGE_VERSION}")
 
 target_include_directories(libmage PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-target_link_libraries(libmage "libhts_engine")
+target_link_libraries(libmage "libhts_engine" "RHVoice_question_match")
 harden(libmage)
 add_sanitizers(libmage)
 set_target_properties("libmage" PROPERTIES PREFIX "")
 target_compile_definitions(libmage PRIVATE RHVOICE)
+
+
+cpack_add_component(libmage
+	DISPLAY_NAME "libmage - Platform for Performative Speech Synthesis"
+	DESCRIPTION "libmage is a GNU GPL-licensed platform for performative HMM-based speech synthesis. Improves speech quality compared to just hts_engine This component may contain a modified version of libmage, for the modifications see the RHVoice GitHub repo. The original resides here: https://github.com/numediart/mage"
+	GROUP "third_party_libs"
+)
+list(APPEND CPACK_COMPONENTS_ALL "libmage")
+
+
 install(TARGETS "libmage"
 	COMPONENT "libmage"
 	LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 )
-set("CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME" "libmage" PARENT_SCOPE)
-set(CPACK_DEBIAN_LIBMAGE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME}" PARENT_SCOPE)
+set("CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME" "libmage")
+set(CPACK_DEBIAN_LIBMAGE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_NAME}")
+pass_through_cpack_vars()
