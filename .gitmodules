@@ -1,3 +1,6 @@
 [submodule "cmake/thirdparty/sanitizers"]
 	path = cmake/thirdparty/sanitizers
 	url = https://github.com/arsenm/sanitizers-cmake.git
+[submodule "src/third-party/cldr"]
+	path = src/third-party/cldr
+	url = https://github.com/unicode-org/cldr.git
