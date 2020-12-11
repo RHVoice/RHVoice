@@ -59,7 +59,9 @@ languages={
 sets=defaultdict(set)
 annotations=None
 
+# https://unicode.org/Public/UCD/latest/ucd/emoji/emoji-data.txt
 emoji_data_path=sys.argv[1]
+# https://github.com/unicode-org/cldr
 cldr_path=sys.argv[2]
 
 def load_emoji_data_file(path):
