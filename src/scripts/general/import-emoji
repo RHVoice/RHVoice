@@ -22,6 +22,7 @@ import os.path
 from collections import OrderedDict, defaultdict
 import xml.etree.ElementTree as ET
 import subprocess
+import tempfile
 
 if __name__!="__main__":
 	sys.exit()
@@ -141,9 +142,11 @@ def write_script_source(path):
 				fp.write(" | \n")
 			fp.write("[ {} : {} ]".format(format_cp(cp),format_name(name)))
 		fp.write(" ; \n\n")
-		fp.write("regex Emoji;\nwrite att /tmp/emoji.att\n")
+		fp.write("regex Emoji;\nwrite att " + os.path.join(tempdir.name, "emoji.att") + "\n")
+
 
 for lang_name, lang_props in sorted(languages.items()):
+	tempdir = tempfile.TemporaryDirectory()
 	print("Processing {}".format(lang_name))
 	lang_ids=lang_props["ids"]
 	annotations=OrderedDict()
@@ -159,8 +162,8 @@ for lang_name, lang_props in sorted(languages.items()):
 	print("Executing the script")
 	subprocess.check_call(["foma","-q","-f",src_path])
 	att2bin=os.path.join(os.path.dirname(__file__),"att2bin")
-	inpath="/tmp/emoji.att"
+	inpath = os.path.join(tempdir.name, "emoji.att")
 	outpath=os.path.join("data","languages",lang_name,"emoji.fst")
 	print("Creating {}".format(outpath))
 	subprocess.check_call([att2bin,inpath,outpath])
-	os.remove(inpath)
+	tempdir.cleanup()
