@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
 # Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
@@ -57,17 +57,17 @@ class fst(object):
 	def get_state(self,id):
 		n=len(self.states)
 		if id>=n:
-			self.states.extend(state() for i in xrange(n,id+1))
+			self.states.extend(state() for i in range(n,id+1))
 		return self.states[id]
 
 	def get_sym_id(self,name):
 		if name not in self.symbols:
-			next_id=max(self.symbols.itervalues())+1
+			next_id=max(self.symbols.values())+1
 			self.symbols[name]=next_id
 		return self.symbols[name]
 
 	def save(self,file_path):
-		symbols=sorted((p for p in self.symbols.iteritems() if p[1]>1),key=lambda p: p[1])
+		symbols=sorted((p for p in self.symbols.items() if p[1]>1),key=lambda p: p[1])
 		with open(file_path,"wb") as f:
 			f.write(struct.pack(">H",len(symbols)))
 			for name,id in symbols:
