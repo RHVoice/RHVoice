@@ -27,7 +27,7 @@ class addon_packager(archiver):
 		self.set_string("summary",'"{}"'.format(summary))
 		self.set_string("description",'"""{}"""'.format(description))
 		self.set_string("author","Olga Yakovleva <yakovleva.o.v@gmail.com>")
-		self.set_string("url","http://github.com/Olga-Yakovleva/RHVoice")
+		self.set_string("url","https://github.com/RHVoice/RHVoice")
 		self.set_string("version",version)
 		self.set_string("minimumNVDAVersion", "2012.2.0")
 		if data_package:
