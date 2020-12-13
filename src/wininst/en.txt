@@ -1,5 +1,5 @@
-RHVoice is a Russian speech synthesizer.
+RHVoice is a free and open source speech synthesizer for Russian and other languages
 Author: Olga Yakovleva <yakovleva.o.v@gmail.com>
 License: GNU General Public License (version 3)
-Home page: http://github.com/Olga-Yakovleva/RHVoice
-Mailing list: http://tiflo.info/mailman/listinfo/rhvoice-users_tiflo.info
+Home page: https://github.com/RHVoice/RHVoice
+Mailing list: https://groups.io/g/RHVoice-rus

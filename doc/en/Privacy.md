@@ -1,6 +1,6 @@
 # Privacy Policy
 
-The following information applies to RHVoice, a speech synthesizer developed by Olga Yakovleva. It's source code is published at <https://github.com/Olga-Yakovleva/RHVoice>.
+The following information applies to RHVoice, a speech synthesizer developed by Olga Yakovleva. It's source code is published at <https://github.com/RHVoice/RHVoice>.
 
 RHVoice may use third-party services who collect personal information. This document will list such services and explain when they are used. If you use the corresponding functionality of RHVoice, you agree to the terms and conditions stated in the privacy policies of those services.
 
