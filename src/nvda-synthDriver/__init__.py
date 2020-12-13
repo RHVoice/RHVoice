@@ -400,7 +400,7 @@ class speak_text(object):
 	def __init__(self,lib,tts_engine,text,cancel_flag,player):
 		self.__lib=lib
 		self.__tts_engine=tts_engine
-		self.__text=text.encode("utf-8")
+		self.__text=text.encode("utf-8", errors="ignore")
 		self.__cancel_flag=cancel_flag
 		self.__player=player
 		self.__synth_params=RHVoice_synth_params(voice_profile=None,
