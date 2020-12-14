@@ -1,0 +1,38 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: [ master ]
+  schedule:
+    - cron: '31 11 * * 3'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        language: [ 'cpp', 'java', 'python' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+        # queries: ./path/to/local/query, your-org/your-repo/queries@main
+
+    - run: |
+       scons
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
