@@ -63,9 +63,8 @@ jobs:
 
     - if: ${{ matrix.language == 'java' }}
       name: Build Android project
-      uses: vgaidarji/android-github-actions-build@v1.0.1
-      with:
-        args: "./src/android/gradlew assembleDebug"
+      working-directory: ./src/android/
+      run: ./gradlew assembleDebug
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
