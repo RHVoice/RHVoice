@@ -53,9 +53,7 @@ jobs:
 
     - if: ${{ runner.os == 'Windows' }}
       name: Install windows build dependencies
-      run: |
-        choco install wixtoolset
-        python -m pip install lxml
+      run: python -m pip install lxml
 
     - if: ${{ matrix.language == 'cpp' }}
       name: build with scons
