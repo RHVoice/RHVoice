@@ -40,6 +40,13 @@ jobs:
       with:
         java-version: '8'
 
+    - name: Install scons
+      run: python -m pip install --upgrade pip setuptools wheel scons
+
+    - if: ${{ runner.os == 'Windows' }}
+      name: Install windows build dependencies
+      run: python -m pip install lxml
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v1
@@ -48,16 +55,9 @@ jobs:
         setup-python-dependencies: false
         # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
-    - name: Install scons
-      run: python -m pip install --upgrade pip setuptools wheel scons
-
-    - if: ${{ runner.os == 'Windows' }}
-      name: Install windows build dependencies
-      run: python -m pip install lxml
-
     - if: ${{ matrix.language == 'cpp' }}
       name: build with scons
-      run: scons
+      run: scons -j 2
 
     - if: ${{ matrix.language == 'java' }}
       name: Build Android project
