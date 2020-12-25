@@ -9,11 +9,6 @@ error::error(const std::string& msg):
 {
 }
 
-disallowed_sample_rate::disallowed_sample_rate():
-  error("This sample rate is unsupported")
-{
-}
-
 initialization_error::initialization_error():
   error("Audio library initialization failed")
 {
