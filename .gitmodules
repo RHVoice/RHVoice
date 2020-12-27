@@ -4,3 +4,6 @@
 [submodule "src/third-party/cldr"]
 	path = src/third-party/cldr
 	url = https://github.com/unicode-org/cldr.git
+[submodule "data/voices/victoria"]
+	path = data/voices/victoria
+	url = https://github.com/rhvoice/victoria-ru
