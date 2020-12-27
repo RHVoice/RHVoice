@@ -37,6 +37,7 @@ final class Checksums
     public static final byte[] VOICE_ARTEMIY={-27, -91, 121, -34, -64, 90, 31, -8, -60, 46, 125, -120, -5, 119, -122, -27};
     public static final byte[] VOICE_ARINA={-122, 124, 108, -90, 60, 104, -16, 58, 56, -45, -63, 113, -121, 119, -122, 48};
     public static final byte[] VOICE_PAVEL={-119, -116, -128, 114, 30, 4, -18, -33, -119, -46, 28, 26, 110, 45, -22, -49};
+    public static final byte[] VOICE_VICTORIA={34, 92, 94, -92, 24, 122, 50, 79, 125, -16, -56, 89, -122, 9, 77, 46};
     public static final byte[] LANGUAGE_TATAR={-72, -84, -112, 54, 105, 117, 59, -122, -46, 113, -121, -23, -73, -13, 51, 9};
     public static final byte[] VOICE_TALGAT={-2, -85, -97, 61, -71, 7, 22, -113, 12, 63, 123, 50, -101, -27, -116, -122};
     public static final byte[] LANGUAGE_UKRAINIAN={116, 53, -31, -87, 97, -6, 125, 82, 41, 90, -37, -98, 91, 127, -104, -92};
