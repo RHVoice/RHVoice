@@ -44,10 +44,11 @@ set("VOICE_Leticia-F123_LICENSE" "by-sa-4.0") # Brazilian Portuguese
 set("VOICE_aleksandr_LANG" "ru")
 set("VOICE_anna_LANG" "ru")
 set("VOICE_arina_LANG" "ru")
+set("VOICE_artemiy_LANG" "ru")
 set("VOICE_elena_LANG" "ru")
 set("VOICE_irina_LANG" "ru")
-set("VOICE_artemiy_LANG" "ru")
 set("VOICE_pavel_LANG" "ru")
+set("VOICE_victoria_LANG" "ru")
 
 set("VOICE_alan_LANG" "en")
 set("VOICE_bdl_LANG" "en")
