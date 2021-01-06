@@ -32,6 +32,7 @@ int main(int argc,const char* argv[])
       TCLAP::UnlabeledValueArg<std::string> inpath_arg("input","input file",true,"text.ssml","infile",cmd);
       TCLAP::UnlabeledValueArg<std::string> outpath_arg("output","output file",true,"transcription.txt","outfile",cmd);
       TCLAP::ValueArg<std::string> boundary_arg("b","boundary","word boundary marker",false,"","string",cmd);
+      TCLAP::SwitchArg verbose_switch("v","verbose","Output stress and syllable and word boundaries",cmd,false);
       cmd.parse(argc,argv);
       std::shared_ptr<engine> eng(new engine);
       std::ifstream f_in(inpath_arg.getValue().c_str());
@@ -49,12 +50,17 @@ int main(int argc,const char* argv[])
           const relation& seg_rel=utt->get_relation("Segment");
           for(relation::const_iterator seg_iter(seg_rel.begin());seg_iter!=seg_rel.end();++seg_iter)
             {
-              f_out << seg_iter->get("name") << " ";
-              if((!boundary_arg.getValue().empty())&&
+              f_out << seg_iter->get("name");
+              if(verbose_switch.getValue() && seg_iter->in("SylStructure") && seg_iter->eval("ph_vc").as<std::string>()=="+" && seg_iter->eval("R:SylStructure.parent.stress", std::string("0")).as<std::string>()=="1")
+                f_out << "1";
+              f_out << " ";
+              if(verbose_switch.getValue() && seg_iter->in("SylStructure") && !seg_iter->as("SylStructure").has_next() && seg_iter->as("SylStructure").parent().has_next())
+                f_out << ". ";
+              if((!boundary_arg.getValue().empty() || verbose_switch.getValue())&&
                  (seg_iter->in("Transcription"))&&
                  (!seg_iter->as("Transcription").has_next())&&
                  (seg_iter->eval("n.name").as<std::string>()!="pau"))
-                f_out << boundary_arg.getValue() << " ";
+                f_out << (boundary_arg.getValue().empty()?"#":boundary_arg.getValue()) << " ";
             }
           f_out << std::endl;
         }
