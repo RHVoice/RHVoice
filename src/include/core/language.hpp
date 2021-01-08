@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2014, 2018, 2019, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -21,6 +21,8 @@
 #include <map>
 #include <set>
 #include <memory>
+#include <algorithm>
+#include <sstream>
 #include "params.hpp"
 #include "exception.hpp"
 
@@ -106,6 +108,12 @@ namespace RHVoice
       exception(msg)
     {
     }
+
+  protected:
+    static const std::string& get_name(const item& i)
+    {
+      return i.get("name").as<std::string>();
+    }
   };
 
   class tokenization_error: public language_error
@@ -129,9 +137,17 @@ namespace RHVoice
     class syllabification_error: public language_error
     {
     public:
-      syllabification_error():
-        language_error("Syllabification failed")
+      syllabification_error(const item& w):
+        language_error("Syllabification failed: "+get_name(w)+" = "+in2str(w))
       {
+      }
+
+    private:
+      static std::string in2str(const item& w)
+      {
+        std::ostringstream s;
+        std::transform(w.begin(), w.end(), std::ostream_iterator<std::string>(s, " "), feature_getter<std::string>("name"));
+        return s.str();
       }
     };
 
