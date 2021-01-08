@@ -674,7 +674,7 @@ else
       }
     std::vector<std::string> tokens;
     if(!tok_fst.translate(chars.begin(),chars.end(),std::back_inserter(tokens)))
-      throw tokenization_error();
+      throw tokenization_error(text);
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     item& parent_token=tokstruct_rel.append(token_rel.append());
@@ -688,7 +688,7 @@ else
         if(utf8::distance(it->begin(),it->end())>1)
           {
             if(token_start==token_end)
-              throw tokenization_error();
+              throw tokenization_error(text);
             item& token=parent_token.append_child();
             token.set("name",name);
             pos=*it;
@@ -705,7 +705,7 @@ else
         else
           {
             if(token_end==chars.end())
-              throw tokenization_error();
+              throw tokenization_error(text);
             if(stress_mask[token_end-chars.begin()])
               stress.stress_syllable(1+std::count_if(token_start,token_end,is_vowel_letter(lang_info)));
             utf8::append(*token_end,std::back_inserter(name));
@@ -713,7 +713,7 @@ else
           }
       }
     if(!name.empty())
-      throw tokenization_error();
+      throw tokenization_error(text);
     return parent_token.as("Token");
   }
 
