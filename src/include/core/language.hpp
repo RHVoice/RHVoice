@@ -119,8 +119,8 @@ namespace RHVoice
   class tokenization_error: public language_error
   {
   public:
-    tokenization_error():
-      language_error("Tokenization failed")
+    tokenization_error(const std::string& text):
+      language_error("Tokenization failed: "+text)
     {
     }
   };
