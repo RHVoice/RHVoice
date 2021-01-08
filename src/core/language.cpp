@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2016, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2016, 2019, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -1306,13 +1306,13 @@ else
         seg_start=word_iter->begin();
         seg_end=word_iter->end();
         if(!syl_fst.translate(seg_start,seg_end,std::back_inserter(result)))
-          throw syllabification_error();
+          throw syllabification_error(*word_iter);
         word_with_syls.append_child().set<std::string>("stress","0");
         seg_iter=seg_start;
         for(std::vector<std::string>::const_iterator pos=result.begin();pos!=result.end();++pos)
           {
             if(seg_iter==seg_end)
-              throw syllabification_error();
+              throw syllabification_error(*word_iter);
             if(*pos==".")
               word_with_syls.append_child().set<std::string>("stress","0");
             else
