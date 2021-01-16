@@ -73,6 +73,7 @@ namespace RHVoice
       void signal_stop();
       void prepare();
       void run();
+      bool is_ssml(const tts_message& msg) const;
 
       status_t status;
       tts_message current_message;
