@@ -14,6 +14,7 @@
 /* along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <exception>
+#include <algorithm>
 #include "core/document.hpp"
 #include "io.hpp"
 #include "speech_synthesizer.hpp"
@@ -22,6 +23,17 @@ namespace RHVoice
 {
   namespace sd
   {
+    bool speech_synthesizer::is_ssml(const tts_message& msg) const
+    {
+      if(msg.type!=tts_message_text)
+        return false;
+      auto end=str::utf8_string_end(msg.content);
+      auto pos=std::find_if_not(str::utf8_string_begin(msg.content), end, &str::isspace);
+      if(pos==end)
+        return false;
+      return (*pos=='<');
+    }
+
     void speech_synthesizer::signal_stop()
     {
       threading::lock message_lock(message_mutex);
@@ -98,7 +110,7 @@ namespace RHVoice
           switch(msg.type)
             {
             case tts_message_text:
-              doc=document::create_from_ssml(tts_engine,msg.content.begin(),msg.content.end(),msg.profile);
+              doc=is_ssml(msg)?document::create_from_ssml(tts_engine,msg.content.begin(),msg.content.end(),msg.profile):document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_text,msg.profile);
               break;
             case tts_message_char:
               doc=document::create_from_plain_text(tts_engine,msg.content.begin(),msg.content.end(),content_char,msg.profile);
