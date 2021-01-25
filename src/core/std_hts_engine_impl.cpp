@@ -14,6 +14,8 @@
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
 #include <cmath>
+#include <cstdlib>
+#include "core/io.hpp"
 #include "core/std_hts_engine_impl.hpp"
 #include "core/voice.hpp"
 #include "core/pitch.hpp"
@@ -98,6 +100,7 @@ namespace RHVoice
     edit_pitch();
     if(!HTS_Engine_generate_sample_sequence(engine.get()))
       throw synthesis_error();
+    output_debug_info();
   }
 
   void std_hts_engine_impl::do_reset()
@@ -195,4 +198,18 @@ namespace RHVoice
           }
 }
 }
+
+  void std_hts_engine_impl::output_debug_info()
+  {
+    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_INFO_FILE"))
+      {
+        io::file_handle fh(io::open_file(var, "wt"));
+        HTS_Engine_save_information(engine.get(), fh.get());
+      }
+    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_INFO_FILE"))
+      {
+        io::file_handle fh(io::open_file(var, "wt"));
+        HTS_Engine_save_information(engine.get(), fh.get());
+      }
+  }
 }
