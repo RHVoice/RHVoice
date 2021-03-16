@@ -33,7 +33,7 @@ class addon_packager(archiver):
 		if data_package:
 			self.set_string("lastTestedNVDAVersion", "2099.4.0")
 		else:
-			self.set_string("lastTestedNVDAVersion", "2019.3.0")
+			self.set_string("lastTestedNVDAVersion", "2021.1.0")
 
 	def build_manifest(self,lang=None):
 		if lang:
