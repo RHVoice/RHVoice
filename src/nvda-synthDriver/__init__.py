@@ -40,7 +40,10 @@ import globalVars
 import nvwave
 from logHandler import log
 import synthDriverHandler
-import speech
+try:
+	from speech.commands import (IndexCommand, CharacterModeCommand, LangChangeCommand, PitchCommand, VolumeCommand, RateCommand)
+except ImportError:
+	from speech import (IndexCommand, CharacterModeCommand, LangChangeCommand, PitchCommand, VolumeCommand, RateCommand)
 import languageHandler
 import addonHandler
 
@@ -550,7 +553,7 @@ class nvda_text_item_converter(nvda_speech_item_converter):
 
 class nvda_index_command_converter(nvda_speech_command_converter):
 	def get_item_class(self):
-		return speech.IndexCommand
+		return IndexCommand
 
 	def get_ssml_tag_name(self):
 		return u"mark"
@@ -597,7 +600,7 @@ class nvda_speech_mode_command_converter(nvda_speech_command_converter):
 
 class nvda_char_mode_command_converter(nvda_speech_mode_command_converter):
 	def get_item_class(self):
-		return speech.CharacterModeCommand
+		return CharacterModeCommand
 
 	def is_default(self):
 		return not (self.item is not None and self.item.state)
@@ -610,7 +613,7 @@ class nvda_char_mode_command_converter(nvda_speech_mode_command_converter):
 
 class nvda_lang_change_command_converter(nvda_speech_mode_command_converter):
 	def get_item_class(self):
-		return speech.LangChangeCommand
+		return LangChangeCommand
 
 	def get_ssml_tag_name(self):
 		return u"voice"
@@ -653,21 +656,21 @@ class nvda_prosody_command_converter(nvda_speech_mode_command_converter):
 
 class nvda_pitch_command_converter(nvda_prosody_command_converter):
 	def get_item_class(self):
-		return speech.PitchCommand
+		return PitchCommand
 
 	def get_ssml_attribute_name(self):
 		return "pitch"
 
 class nvda_volume_command_converter(nvda_prosody_command_converter):
 	def get_item_class(self):
-		return speech.VolumeCommand
+		return VolumeCommand
 
 	def get_ssml_attribute_name(self):
 		return "volume"
 
 class nvda_rate_command_converter(nvda_prosody_command_converter):
 	def get_item_class(self):
-		return speech.RateCommand
+		return RateCommand
 
 	def get_ssml_attribute_name(self):
 		return "rate"
