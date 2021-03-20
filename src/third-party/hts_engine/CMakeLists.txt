@@ -37,6 +37,7 @@ set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION_PATCH "${LIBHTS_VERSION_PATCH}" PARENT
 set(CPACK_COMPONENT_LIBHTS_ENGINE_VERSION "${LIBHTS_VERSION}" PARENT_SCOPE)
 
 target_include_directories(libhts_engine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}" "${INCLUDE_DIR}")
+target_link_libraries(libhts_engine m)
 harden(libhts_engine)
 add_sanitizers(libhts_engine)
 set_target_properties("libhts_engine" PROPERTIES PREFIX "")
