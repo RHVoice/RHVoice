@@ -68,8 +68,8 @@ namespace RHVoice
   class feature_function_not_found: public lookup_error
   {
   public:
-    feature_function_not_found():
-      lookup_error("Feature function not found")
+    feature_function_not_found(const std::string& name):
+      lookup_error("Feature function not found: "+name)
     {
     }
   };
@@ -173,7 +173,7 @@ namespace RHVoice
     {
       std::map<std::string,std::shared_ptr<feature_function> >::const_iterator it(feature_functions.find(name));
       if(it==feature_functions.end())
-        throw feature_function_not_found();
+        throw feature_function_not_found(name);
       else
         return *(it->second);
     }
