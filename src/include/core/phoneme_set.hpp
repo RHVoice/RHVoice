@@ -68,7 +68,7 @@ namespace RHVoice
     {
       phoneme_map::const_iterator it=phonemes.find(name);
       if(it==phonemes.end())
-        throw std::invalid_argument("Unknown phoneme");
+        throw std::invalid_argument("Unknown phoneme: "+name);
       else
         return (it->second);
     }
