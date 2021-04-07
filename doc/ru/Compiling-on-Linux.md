@@ -7,7 +7,7 @@
 
 * [GCC](https://gcc.gnu.org)
 * [Pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
-* [SCons](http://www.scons.org)
+* [SCons](https://www.scons.org)
 
 ## Дополнительные зависимости
 

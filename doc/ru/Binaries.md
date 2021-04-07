@@ -360,8 +360,8 @@
 
 Версия пакета - 4.0.
 
-* [Дополнение для NVDA](http://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-4.0.nvda-addon)
-* [Версия, совместимая с SAPI5](http://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0-setup.exe)
+* [Дополнение для NVDA](https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-4.0.nvda-addon)
+* [Версия, совместимая с SAPI5](https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0-setup.exe)
 
 #### Украинский
 
