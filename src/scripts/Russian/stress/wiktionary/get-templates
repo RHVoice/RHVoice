@@ -35,7 +35,7 @@ if __name__=="__main__":
 		for i,template_name in enumerate(new_template_names):
 			if i>0:
 				time.sleep(10)
-			url="http://ru.wiktionary.org/wiki/{}?action=render".format(urllib.quote(u"шаблон:{}".format(template_name.replace(" ","_")).encode("utf-8")))
+			url="https://ru.wiktionary.org/wiki/{}?action=render".format(urllib.quote(u"шаблон:{}".format(template_name.replace(" ","_")).encode("utf-8")))
 			text=subprocess.check_output(["elinks","-dump","-dump-charset","UTF-8","-no-numbering","-no-references",url]).decode("utf-8")
 			words=set()
 			f_out.write(template_name)

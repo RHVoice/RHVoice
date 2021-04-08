@@ -6,7 +6,7 @@
 следующие программы:
 
 * [GCC](https://gcc.gnu.org)
-* [Pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
+* [Pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
 * [SCons](https://www.scons.org)
 
 ## Дополнительные зависимости
@@ -15,7 +15,7 @@
 установлен по крайней мере один из следующих компонентов,
 обеспечивающих вывод звука:
 
-* [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/)
+* [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/)
 * [Libao](https://www.xiph.org/ao/)
 * [PortAudio](http://www.portaudio.com) V19
 
