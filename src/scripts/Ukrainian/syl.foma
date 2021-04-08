@@ -11,7 +11,7 @@
 # GNU Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 define Vowel a0|a1|e0|e1|i0|i1|ii0|ii1|o0|o1|u0|u1;
 define VoicedObstruent b|bj|gh|ghj|g|gj|d|dj|dzh|dzhj|dz|dzj|zh|zhj|z|zj;

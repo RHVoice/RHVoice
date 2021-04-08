@@ -11,7 +11,7 @@
 # GNU Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 define UnstressVowel a1:a|an1:an|e1:e|ee1:ee|en1:en|i1:i|in1:in|o1:o|oo1:oo|on1:on|u1:u|un1:un ; 
 

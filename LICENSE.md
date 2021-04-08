@@ -2,8 +2,8 @@
 
 The main library is distributed under [LGPL v2.1](https://www.gnu.org/licenses/lgpl-2.1.html) or later. But it
 relies on [MAGE](https://github.com/numediart/mage) for better responsiveness. MAGE is distributed under
-[GPL v3](http://www.gnu.org/licenses/gpl-3.0.html) or later, so the combination is under GPL v3 or later. If you
-want to use the library in your program under [GPL v2](http://www.gnu.org/licenses/gpl-2.0.html) or LGPL, compile the
+[GPL v3](https://www.gnu.org/licenses/gpl-3.0.html) or later, so the combination is under GPL v3 or later. If you
+want to use the library in your program under [GPL v2](https://www.gnu.org/licenses/gpl-2.0.html) or LGPL, compile the
 library without MAGE.
 
 The following restrictions apply to some of the voices:
