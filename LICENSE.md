@@ -10,7 +10,7 @@ The following restrictions apply to some of the voices:
 
 ## RHVoice Lab's voices
 
-All our voices is distributed under the [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+All voices from [RHVoice Lab's site](https://rhvoice.su/voices/) are distributed under the [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International Public License](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
 You can send a request for integration of voice into any product to the laboratory's [e-mail address](mailto:rhvoice@tiflo.org). If the approval is given by the speaker and our team you will get the appropriate permission.
 
