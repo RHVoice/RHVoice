@@ -8,78 +8,78 @@ ext.myConfigFile=file("../../../config/RHVoice.conf")
 ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
 
 task addConfigFile(type: Copy) {
-from myConfigFile
-into myExtraCoreAssetsDir
+    from myConfigFile
+    into myExtraCoreAssetsDir
 }
 
 android {
-compileSdkVersion myCompileSdkVersion
+    compileSdkVersion myCompileSdkVersion
 
     defaultConfig {
-minSdkVersion myMinSdkVersion
+        minSdkVersion myMinSdkVersion
         targetSdkVersion myTargetSdkVersion
-applicationId "com.github.olga_yakovleva.rhvoice.android"
+        applicationId "com.github.olga_yakovleva.rhvoice.android"
         versionCode = 10000 * major_version + 100 * minor_version + revision_number
         versionName "${major_version}.${minor_version}.${revision_number}"
-ndk{
-abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
-}
-externalNativeBuild {
-ndkBuild {
-arguments 'V=1'
-}
-}
-}
+        ndk{
+            abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
+        }
+        externalNativeBuild {
+            ndkBuild {
+                arguments 'V=1'
+            }
+        }
+    }
 
-sourceSets.main {
-assets.srcDir myExtraCoreAssetsDir
+    sourceSets.main {
+    assets.srcDir myExtraCoreAssetsDir
 }
 
 if(rootProject.signRelease||rootProject.signDebug) {
-signingConfigs {
-release {
-storeFile file(rootProject.property("RHVoice.keyStore"))
-storePassword rootProject.property("RHVoice.keyStorePassword")
-keyAlias rootProject.property("RHVoice.keyAlias")
-keyPassword rootProject.property("RHVoice.keyPassword")
-}
-}
+    signingConfigs {
+        release {
+            storeFile file(rootProject.property("RHVoice.keyStore"))
+            storePassword rootProject.property("RHVoice.keyStorePassword")
+            keyAlias rootProject.property("RHVoice.keyAlias")
+            keyPassword rootProject.property("RHVoice.keyPassword")
+        }
+    }
 }
 
 externalNativeBuild {
-ndkBuild {
-path 'src/main/jni/Android.mk'
-}
+    ndkBuild {
+        path 'src/main/jni/Android.mk'
+    }
 }
 
 buildTypes {
-release {
-if(rootProject.signRelease) {
-signingConfig signingConfigs.release
-}
-minifyEnabled true
-shrinkResources true
-proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-}
-debug {
-if(rootProject.signDebug) {
-signingConfig signingConfigs.release
-}
-minifyEnabled true
-shrinkResources true
-proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-}
-}
+    release {
+        if(rootProject.signRelease) {
+            signingConfig signingConfigs.release
+        }
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    }
+    debug {
+        if(rootProject.signDebug) {
+            signingConfig signingConfigs.release
+        }
+        minifyEnabled true
+        shrinkResources true
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
 }
 
 dependencies {
-implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.work:work-runtime:2.3.4'
-implementation 'com.takisoft.preferencex:preferencex:1.1.0'
-implementation 'org.conscrypt:conscrypt-android:2.5.0'
-implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    implementation 'androidx.work:work-runtime:2.5.0'
+    implementation 'com.takisoft.preferencex:preferencex:1.1.0'
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 }
 
 preBuild.dependsOn addConfigFile

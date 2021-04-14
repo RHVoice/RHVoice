@@ -1,36 +1,39 @@
 buildscript {
-repositories {
-google()
-jcenter()
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
     }
-dependencies {
-classpath 'com.android.tools.build:gradle:3.5.3'
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.0'
     }
 }
 
 allprojects {
-repositories {
-google()
-jcenter()
+    repositories {
+        google()
+        mavenCentral()
+        jcenter()
     }
 
-ext.myMinSdkVersion=16
-ext.myCompileSdkVersion=29
-ext.myTargetSdkVersion=29
+    ext.myMinSdkVersion=16
+    ext.myCompileSdkVersion=29
+    ext.myTargetSdkVersion=29
 }
 
 if(hasProperty("RHVoice.signRelease")) {
-ext.signRelease=Boolean.parseBoolean(property("RHVoice.signRelease"))
+    ext.signRelease=Boolean.parseBoolean(property("RHVoice.signRelease"))
 }
 else {
-ext.signRelease=false
+    ext.signRelease=false
 }
 
 if(hasProperty("RHVoice.signDebug")) {
-ext.signDebug=Boolean.parseBoolean(property("RHVoice.signDebug"))
+    ext.signDebug=Boolean.parseBoolean(property("RHVoice.signDebug"))
 }
 else {
-ext.signDebug=false
+    ext.signDebug=false
 }
 
 task clean(type: Delete) {
