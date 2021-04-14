@@ -52,8 +52,8 @@ myVoiceNames.each {voiceName -> myData.add(getDataItemSpec("voice",myVoicesDir,v
 myData.each {spec ->
 task "${spec['task']}" (type: Zip) {
 description="Creates data archive"
-archiveName="data.zip"
-destinationDir=spec["rawDir"]
+archiveFileName="data.zip"
+destinationDirectory=spec["rawDir"]
 from spec["inDataDir"]
 }
 }
