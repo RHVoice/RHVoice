@@ -44,6 +44,7 @@ public final class Data
         lang.addVoice(new VoicePack("BDL", lang, 4, 1, Checksums.VOICE_BDL, null, null));
         lang.addVoice(new VoicePack("CLB", lang, 4, 0, Checksums.VOICE_CLB, null, null));
         lang.addDefaultVoice(new VoicePack("SLT", lang, 4, 0, Checksums.VOICE_SLT, null, null));
+        lang.addVoice(new VoicePack("Evgeniy-Eng", lang, 4, 0, Checksums.VOICE_EVGENIY_ENG, "https://github.com/RHVoice/evgeniy-eng/releases/download/4.0/data.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Esperanto", "epo", "eo", "", "", false, 1, 2, Checksums.LANGUAGE_ESPERANTO, null, null);
         lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, Checksums.VOICE_SPOMENKA, null, null));
@@ -64,6 +65,7 @@ public final class Data
         lang.addVoice(new VoicePack("Arina", lang, 4, 0, Checksums.VOICE_ARINA, "https://rhvoice.su/downloads/RHVoice-voice-Russian-Arina-v4.0.zip", null));
         lang.addVoice(new VoicePack("Pavel", lang, 4, 0, Checksums.VOICE_PAVEL, "https://rhvoice.su/downloads/RHVoice-voice-Russian-Pavel-v4.0.zip", null));
         lang.addVoice(new VoicePack("Victoria", lang, 4, 0, Checksums.VOICE_VICTORIA, "https://github.com/RHVoice/victoria-ru/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Evgeniy-Rus", lang, 4, 0, Checksums.VOICE_EVGENIY_RUS, "https://github.com/RHVoice/evgeniy-rus/releases/download/4.0/data.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Tatar", "tat", "tt", "RUS", "RU", false, 1, 10, Checksums.LANGUAGE_TATAR, null, null);
         lang.addVoice(new VoicePack("Talgat", lang, 4, 0, Checksums.VOICE_TALGAT, "https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0.zip", null));

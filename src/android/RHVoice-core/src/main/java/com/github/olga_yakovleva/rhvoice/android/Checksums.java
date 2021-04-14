@@ -22,6 +22,7 @@ final class Checksums
     public static final byte[] VOICE_BDL={19, 127, -23, 67, 33, 92, -21, -125, 4, 0, 23, 123, -35, -79, -27, 9};
     public static final byte[] VOICE_CLB={-79, -61, 4, 100, 104, -55, -5, 101, -2, -106, 0, -50, 61, 14, 115, 4};
     public static final byte[] VOICE_SLT={64, -87, -25, -52, 35, 111, -34, 3, 24, 48, 40, 29, -77, -120, 113, 109};
+    public static final byte[] VOICE_EVGENIY_ENG={-95, 16, 48, -14, -119, 46, 66, 88, 14, -119, -16, 100, -101, 80, -22, 29};
     public static final byte[] LANGUAGE_ESPERANTO={105, 98, 27, -24, 57, 87, 19, -14, 118, 34, 41, 126, 56, -34, 108, 117};
     public static final byte[] VOICE_SPOMENKA={-53, 69, 50, 3, 85, 56, 63, -80, -65, 106, -101, -111, -24, 49, 11, 94};
     public static final byte[] LANGUAGE_GEORGIAN={116, 103, -30, -56, -115, 67, -63, 103, 61, 31, 90, -101, -102, -14, 96, -15};
@@ -38,6 +39,7 @@ final class Checksums
     public static final byte[] VOICE_ARINA={-122, 124, 108, -90, 60, 104, -16, 58, 56, -45, -63, 113, -121, 119, -122, 48};
     public static final byte[] VOICE_PAVEL={-119, -116, -128, 114, 30, 4, -18, -33, -119, -46, 28, 26, 110, 45, -22, -49};
     public static final byte[] VOICE_VICTORIA={34, 92, 94, -92, 24, 122, 50, 79, 125, -16, -56, 89, -122, 9, 77, 46};
+    public static final byte[] VOICE_EVGENIY_RUS={92, -111, 28, -13, -53, -116, -23, -71, -127, -17, 14, -5, -6, 32, 54, -128};
     public static final byte[] LANGUAGE_TATAR={-72, -84, -112, 54, 105, 117, 59, -122, -46, 113, -121, -23, -73, -13, 51, 9};
     public static final byte[] VOICE_TALGAT={-2, -85, -97, 61, -71, 7, 22, -113, 12, 63, 123, 50, -101, -27, -116, -122};
     public static final byte[] LANGUAGE_UKRAINIAN={116, 53, -31, -87, 97, -6, 125, 82, 41, 90, -37, -98, 91, 127, -104, -92};
