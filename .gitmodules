@@ -7,3 +7,9 @@
 [submodule "data/voices/victoria"]
 	path = data/voices/victoria
 	url = https://github.com/rhvoice/victoria-ru
+[submodule "data/voices/evgeniy-rus"]
+	path = data/voices/evgeniy-rus
+	url = https://github.com/rhvoice/evgeniy-rus
+[submodule "data/voices/evgeniy-eng"]
+	path = data/voices/evgeniy-eng
+	url = https://github.com/rhvoice/evgeniy-eng
