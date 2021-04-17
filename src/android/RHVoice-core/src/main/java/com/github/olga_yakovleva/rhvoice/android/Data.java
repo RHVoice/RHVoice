@@ -30,6 +30,7 @@ import android.text.TextUtils;
 public final class Data
 {
     private static final String TAG="RHVoice.Data";
+    public static final String REPO_URL="https://rhvoice.eu-central-1.linodeobjects.com";
     private final static List<LanguagePack> languages=new ArrayList<LanguagePack>();
     private static final Map<String,LanguagePack> index=new HashMap<String,LanguagePack>();
     private static final Map<String,LanguagePack> idIndex=new HashMap<String,LanguagePack>();
@@ -74,7 +75,7 @@ public final class Data
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
         lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 15, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, "https://dl.bintray.com/olga-yakovleva/Data/RHVoice-F123-Brazilian-Portuguese-language-v1.15.zip", null);
+        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 15, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, REPO_URL+"/RHVoice-F123-Brazilian-Portuguese-language-v1.15.zip", null);
         lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 6, Checksums.VOICE_LETICIA, "https://f123.org/leticia/download/Android/data/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.zip", null));
         addLanguage(lang);
 }

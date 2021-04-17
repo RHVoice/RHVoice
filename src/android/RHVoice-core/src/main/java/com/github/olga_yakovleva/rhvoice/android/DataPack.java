@@ -197,7 +197,7 @@ public abstract class DataPack
             return tempLink;
         if(altLink!=null)
             return altLink;
-        return String.format("https://dl.bintray.com/olga-yakovleva/Data/%s-v%s.zip",getBaseFileName(),getVersionString());
+        return String.format("%s/%s-v%s.zip", Data.REPO_URL, getBaseFileName(),getVersionString());
 }
 
     private String getDownloadFileName()
