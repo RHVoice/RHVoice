@@ -135,6 +135,7 @@ def create_languages_user_var():
     def_langs=langs
     if sys.platform!="win32":
         def_langs=[lang for lang in langs if lang not in["georgian"]]
+        print("Georgian language is skipped because of non-free license")
     help="Which languages to install"
     return ListVariable("languages",help,def_langs,langs,name_map)
 
