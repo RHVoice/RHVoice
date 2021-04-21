@@ -13,6 +13,7 @@
 
 * [Aleksandr](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Aleksandr-4.2.6.nvda-addon), версия 4.2.6
 * [Anna](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-Russian-Anna-4.1.6.nvda-addon), версия 4.1.6
+* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), версия 4.0.7
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версия 4.0.6
 * [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda), версия 4.0.7
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda), версия 4.0.7
@@ -26,6 +27,7 @@
 
 #### Голоса
 
+* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda), версия 4.0.7
 * [Alan](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-English-Alan-4.0.1.nvda-addon), версия 4.0.1
 * [Bdl](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-English-Bdl-4.1.2.nvda-addon), версия 4.1.2
 * [Clb](https://dl.bintray.com/olga-yakovleva/NVDA/RHVoice-voice-English-Clb-4.0.1.nvda-addon), версия 4.0.1
@@ -63,6 +65,7 @@
 
 * [Aleksandr](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Aleksandr-v4.2.11-setup.exe), версия 4.2.11
 * [Anna](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-Russian-Anna-v4.1.11-setup.exe), версия 4.1.11
+* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версия 4.0.11
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.11
 * [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi), версия 4.0.11
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.11
@@ -76,6 +79,7 @@
 
 #### Голоса
 
+* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi), версия 4.0.11
 * [Alan](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-English-Alan-v4.0.9-setup.exe), версия 4.0.9
 * [Bdl](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-English-Bdl-v4.1.9-setup.exe), версия 4.1.9
 * [Clb](https://dl.bintray.com/olga-yakovleva/Exe/RHVoice-voice-English-Clb-v4.0.9-setup.exe), версия 4.0.9
