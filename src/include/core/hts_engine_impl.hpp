@@ -133,8 +133,8 @@ namespace RHVoice
     virtual sample_rate_t get_sample_rate_for_quality(quality_t q) const;
 
     const voice_info& info;
-    std::string data_path;
-    std::string model_path;
+    PathT data_path;
+    PathT model_path;
     sample_rate_property sample_rate;
     numeric_property<double> beta;
     numeric_property<double> gain;

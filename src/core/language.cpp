@@ -1521,7 +1521,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
 
 
 
-  language_info::language_info(const std::string& name,const std::string& data_path_,const std::string& userdict_path_):
+  language_info::language_info(const std::string& name, const PathT &data_path_, const PathT& userdict_path_):
     use_pseudo_english("use_pseudo_english",true),
     enabled("enabled",true),
     all_languages(0),
@@ -1548,16 +1548,16 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     text_settings.register_self(cfg,prefix);
   }
 
-  std::vector<std::string> language_info::get_userdict_paths() const
+  std::vector<PathT> language_info::get_userdict_paths() const
   {
-    std::string internal_root(path::join(get_data_path(),"userdict"));
-    std::vector<std::string> paths;
+    PathT internal_root(path::join(get_data_path(),"userdict"));
+    std::vector<PathT> paths;
     paths.push_back(path::join(internal_root,"src"));
     paths.push_back(userdict_path);
     return paths;
 }
 
-  language_list::language_list(const std::vector<std::string>& language_paths,const std::string& userdict_path,const event_logger& logger)
+  language_list::language_list(const std::vector<PathT> &language_paths, const PathT& userdict_path, const event_logger& logger)
   {
     const std::string tag="language_list";
     register_language<russian_info>("Russian",2);
@@ -1569,9 +1569,9 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     register_language<tatar_info>("Tatar",1);
     register_language<brazilian_portuguese_info>("Brazilian-Portuguese",1);
     register_language<macedonian_info>("Macedonian",1);
-    for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
+    for(std::vector<PathT>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
-        logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));
+        logger.log(tag,RHVoice_log_level_info,PathT(TEXT("Path: "))+(*it1));
         resource_description desc("language",*it1);
         logger.log(tag,RHVoice_log_level_info,std::string("Language resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
         if(desc.data_only && !desc.name.get().empty())

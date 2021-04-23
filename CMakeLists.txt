@@ -28,6 +28,14 @@ include(VersionFromGit)
 find_package(Sanitizers)
 getVersionFromGit("RHVOICE" "1.2.2")
 
+add_definitions("-DUNICODE" "-D_UNICODE")
+
+if(MINGW)
+	add_definitions("-D_GLIBCXX_USE_WCHAR_T")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -municode")
+endif()
+
+#set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 if(${CMAKE_VERSION} VERSION_GREATER "3.12")
 	set(CMAKE_CXX_STANDARD 20)
 else()

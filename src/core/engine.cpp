@@ -34,29 +34,31 @@ namespace RHVoice
     config_path(CONFIG_PATH),
     logger(new event_logger)
   {
-    char* data_path_env = getenv("RHVOICE_DATA_PATH");
+    PathCharT* data_path_env;
+    PathCharT* config_path_env;
+    data_path_env = ourPathGetenv("RHVOICE_DATA_PATH");
     if (data_path_env) data_path = data_path_env;
-    char* config_path_env = getenv("RHVOICE_CONFIG_PATH");
+    config_path_env = ourPathGetenv("RHVOICE_CONFIG_PATH");
     if (config_path_env) config_path = config_path_env;
   }
 
-  std::vector<std::string> engine::init_params::get_resource_paths(const std::string& type) const
+  std::vector<PathT> engine::init_params::get_resource_paths(const std::string& type) const
   {
-    std::vector<std::string> result;
+    std::vector<PathT> result;
     if(!data_path.empty()&&path::isdir(data_path))
       {
-        std::string parent_path(path::join(data_path,type+"s"));
+        PathT parent_path(path::join(data_path,type+"s"));
         if(path::isdir(parent_path))
           {
             for(path::directory dir(parent_path);!dir.done();dir.next())
               {
-                std::string resource_path(path::join(parent_path,dir.get()));
+                PathT resource_path(path::join(parent_path,dir.get()));
                 if(path::isdir(resource_path))
                   result.push_back(resource_path);
               }
           }
       }
-    for(std::vector<std::string>::const_iterator it=resource_paths.begin();it!=resource_paths.end();++it)
+    for(std::vector<PathT>::const_iterator it=resource_paths.begin();it!=resource_paths.end();++it)
       {
         if(path::isdir(*it)&&path::isfile(path::join(*it,type+".info")))
           result.push_back(*it);

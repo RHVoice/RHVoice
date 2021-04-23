@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "core/abstraction_layer.h"
 #include "exception.hpp"
 
 namespace RHVoice
@@ -38,7 +39,7 @@ namespace RHVoice
   class hts_labeller
   {
   public:
-    explicit hts_labeller(const std::string& file_path)
+    explicit hts_labeller(const PathT& file_path)
     {
       load_label_format_description(file_path);
       define_default_features();
@@ -50,7 +51,7 @@ namespace RHVoice
     std::string eval_segment_label(const item& seg) const;
 
   private:
-    void load_label_format_description(const std::string& file_path);
+    void load_label_format_description(const PathT &file_path);
     void define_default_features();
 
     struct hts_feature

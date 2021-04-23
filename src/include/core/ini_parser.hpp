@@ -20,12 +20,14 @@
 #include <fstream>
 #include <string>
 
+#include "abstraction_layer.h"
+
 namespace RHVoice
 {
   class ini_parser
   {
   public:
-    explicit ini_parser(const std::string& file_path,bool standard=true);
+    explicit ini_parser(const PathT& file_path,bool standard=true);
     void next();
 
     bool done() const
@@ -53,7 +55,7 @@ namespace RHVoice
     ini_parser& operator=(const ini_parser&);
     std::string unescape(const std::string& s) const;
 
-    std::unique_ptr<std::ifstream> instream;
+    std::unique_ptr<IStreamT> instream;
     bool standard_format;
     std::string section,key,value;
   };

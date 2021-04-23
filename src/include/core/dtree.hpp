@@ -119,7 +119,7 @@ namespace RHVoice
     class leaf_node: public node
     {
     public:
-      explicit leaf_node(std::istream& in);
+      explicit leaf_node(IStreamT &in);
 
       bool is_leaf() const
       {
@@ -210,7 +210,7 @@ namespace RHVoice
     class in_list: public condition
     {
     public:
-      explicit in_list(std::istream& in);
+      explicit in_list(IStreamT &in);
       bool test(const value& val) const;
 
     private:
@@ -220,7 +220,7 @@ namespace RHVoice
     class internal_node: public node
     {
     public:
-      internal_node(std::istream& in,unsigned int qtype);
+      internal_node(IStreamT &in, unsigned int qtype);
       const node* get_next_node(const features& f) const;
 
     private:
@@ -235,17 +235,17 @@ namespace RHVoice
     dtree& operator=(const dtree&);
 
     const value& predict(const features& f) const;
-    void load(std::istream& in);
+    void load(IStreamT &in);
 
   public:
-    explicit dtree(const std::string& file_path)
+    explicit dtree(const PathT& file_path)
     {
-      std::ifstream f;
+      IStreamT f;
       io::open_ifstream(f,file_path,true);
       load(f);
     }
 
-    explicit dtree(std::istream& in)
+    explicit dtree(IStreamT& in)
     {
       load(in);
     }

@@ -159,6 +159,13 @@ namespace RHVoice
       return (s1.size()<s2.size())?false:(s1.substr(s1.size()-s2.size(),s2.size())==s2);
     }
 
+#if defined(_WIN32) && defined(UNICODE) && UNICODE
+    inline bool endswith(const std::wstring& s1,const std::wstring& s2)
+    {
+      return (s1.size()<s2.size())?false:(s1.substr(s1.size()-s2.size(),s2.size())==s2);
+    }
+#endif
+
     inline bool isspace(utf8::uint32_t c)
     {
       return (unicode::properties(c)&unicode::property_white_space);

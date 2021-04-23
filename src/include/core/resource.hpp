@@ -34,7 +34,7 @@ namespace RHVoice
   public:
     virtual ~resource_info() = default;
 
-    const std::string& get_data_path() const
+    const PathT& get_data_path() const
     {
       return data_path;
     }
@@ -63,7 +63,7 @@ namespace RHVoice
       name=name_;
     }
 
-    void set_data_path(const std::string& data_path_)
+    void set_data_path(const PathT& data_path_)
     {
       data_path=data_path_;
     }
@@ -74,7 +74,8 @@ namespace RHVoice
 
     virtual std::shared_ptr<T> create_instance() const=0;
 
-    std::string name,data_path;
+    std::string name;
+    PathT data_path;
     mutable std::shared_ptr<T> instance;
     mutable threading::mutex instance_mutex;
   };
@@ -305,13 +306,13 @@ namespace RHVoice
   {
   public:
     std::string type;
-    std::string data_path;
+    PathT data_path;
     bool_property data_only{"data_only", false};
     string_property name;
     numeric_property<unsigned int> format;
     numeric_property<unsigned int> revision;
 
-    resource_description(const std::string& type_,const std::string& data_path_):
+    resource_description(const std::string& type_,const PathT& data_path_):
       type(type_),
       data_path(data_path_),
       name("name"),

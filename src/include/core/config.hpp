@@ -26,6 +26,7 @@
 #include "str.hpp"
 #include "property.hpp"
 #include "event_logger.hpp"
+#include "abstraction_layer.h"
 
 namespace RHVoice
 {
@@ -56,7 +57,7 @@ namespace RHVoice
 
     void reset();
 
-    void load(const std::string& file_path);
+    void load(const PathT &file_path);
 
     void set_logger(const std::shared_ptr<event_logger>& logger_)
     {

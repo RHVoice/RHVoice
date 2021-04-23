@@ -36,6 +36,12 @@ namespace RHVoice
     {
     }
 
+#ifdef _WIN32
+    virtual void log(const std::string& tag,RHVoice_log_level level,const std::wstring& message) const
+    {
+    }
+#endif
+
   private:
     event_logger(const event_logger&);
     event_logger& operator=(const event_logger&);

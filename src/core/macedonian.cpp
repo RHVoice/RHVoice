@@ -23,7 +23,7 @@
 
 namespace RHVoice
 {
-  macedonian_info::macedonian_info(const std::string& data_path,const std::string& userdict_path):
+  macedonian_info::macedonian_info(const PathT& data_path,const PathT& userdict_path):
     language_info("Macedonian",data_path,userdict_path)
   {
     set_alpha2_code("mk");

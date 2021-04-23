@@ -783,8 +783,8 @@ namespace RHVoice
     };
 
     void load_all();
-    void load_dir(const std::string& path);
-    void load_file(const std::string& file_path);
+    void load_dir(const PathT &path);
+    void load_file(const PathT &file_path);
     bool should_ignore_token(const position& pos) const;
 
     const language_info& lang;

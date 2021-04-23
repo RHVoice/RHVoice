@@ -21,7 +21,7 @@
 
 namespace RHVoice
 {
-  brazilian_portuguese_info::brazilian_portuguese_info(const std::string& data_path,const std::string& userdict_path):
+  brazilian_portuguese_info::brazilian_portuguese_info(const PathT& data_path, const PathT &userdict_path):
     language_info("Brazilian-Portuguese",data_path,userdict_path)
   {
     set_alpha2_code("pt");
@@ -86,12 +86,12 @@ namespace RHVoice
   brazilian_portuguese::brazilian_portuguese(const brazilian_portuguese_info& info_):
     language(info_),
     info(info_),
-    g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
-    lseq_fst(path::join(info_.get_data_path(),"lseq.fst"))
+    g2p_fst(path::join(info_.get_data_path(), TEXT("g2p.fst"))),
+    lseq_fst(path::join(info_.get_data_path(), TEXT("lseq.fst")))
   {
     try
       {
-        h_fst.reset(new fst(path::join(info.get_data_path(),"homographs.fst")));
+        h_fst.reset(new fst(path::join(info.get_data_path(), TEXT("homographs.fst"))));
       }
     catch(const io::open_error& e)
       {

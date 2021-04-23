@@ -40,7 +40,7 @@ namespace RHVoice
         stream.write(reinterpret_cast<char*>(&num),sizeof(num));
 }
 
-      const std::string file_path;
+      const PathT file_path;
       const bool piping;
       std::ofstream fstream;
       std::ostream& stream;

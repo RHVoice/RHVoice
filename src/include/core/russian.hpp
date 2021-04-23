@@ -27,7 +27,7 @@ namespace RHVoice
   class russian_info: public language_info
   {
   public:
-    russian_info(const std::string& data_path,const std::string& userdict_path);
+    russian_info(const PathT& data_path,const PathT& userdict_path);
 
     #ifdef WIN32
     unsigned short get_id() const

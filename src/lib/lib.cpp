@@ -163,10 +163,10 @@ RHVoice_tts_engine_struct::RHVoice_tts_engine_struct(const RHVoice_init_params* 
     engine_params.config_path.assign(init_params->config_path);
   if(init_params->resource_paths)
     {
-      const char** p=init_params->resource_paths;
+      PathCharT** p=init_params->resource_paths;
       while(*p)
         {
-          engine_params.resource_paths.emplace_back(*p);
+          engine_params.resource_paths.emplace_back(PathT(*p));
           ++p;
         }
     }

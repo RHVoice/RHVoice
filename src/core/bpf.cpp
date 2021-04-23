@@ -47,9 +47,9 @@ extern "C"
     bpf->length=0;
   }
 
-  int bpf_load(BPF* bpf,const char* path)
+  int bpf_load(BPF* bpf,const PathCharT* path)
   {
-    std::ifstream f;
+    IStreamT f;
 try
   {
     RHVoice::io::open_ifstream(f,path,false);

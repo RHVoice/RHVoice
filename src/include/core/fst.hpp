@@ -28,13 +28,14 @@
 #include "utf8.h"
 #include "exception.hpp"
 #include "item.hpp"
+#include "abstraction_layer.h"
 
 namespace RHVoice
 {
   class fst
   {
   public:
-    explicit fst(const std::string& path);
+    explicit fst(const PathT& path);
     
   private:
     typedef uint32_t state_id;
@@ -52,7 +53,7 @@ namespace RHVoice
     class alphabet
     {
     public:
-      void load(std::istream& in);
+      void load(IStreamT &in);
       std::string name(symbol_id id) const;
       std::string name(symbol_id id,const std::string& default_name) const;
       symbol_id id(const std::string& name) const;
@@ -81,7 +82,7 @@ namespace RHVoice
       {
       }
 
-      explicit arc(std::istream& in);
+      explicit arc(IStreamT &in);
     };
 
     class state
@@ -96,7 +97,7 @@ namespace RHVoice
       };
 
     public:
-      explicit state(std::istream& in);
+      explicit state(IStreamT &in);
 
       bool is_final() const
       {

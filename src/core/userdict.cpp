@@ -337,7 +337,7 @@ namespace RHVoice
       class compiler
       {
       public:
-        compiler(const language_info& lng,const std::string& file_path);
+        compiler(const language_info& lng, const PathT &file_path);
         ~compiler();
         std::unique_ptr<ruleset> compile();
 
@@ -345,7 +345,7 @@ namespace RHVoice
         compiler(const compiler&);
         compiler& operator=(const compiler&);
 
-        void read_source(const std::string& file_path);
+        void read_source(const PathT &file_path);
 
         const language_info& lang;
         chars32 source;
@@ -377,7 +377,7 @@ namespace RHVoice
       }
     }
 
-    compiler::compiler(const language_info& lng,const std::string& file_path):
+    compiler::compiler(const language_info& lng,const PathT& file_path):
       lang(lng),
       parser(0)
     {
@@ -414,7 +414,7 @@ namespace RHVoice
       return std::move(ps.result);
     }
 
-    void compiler::read_source(const std::string& file_path)
+    void compiler::read_source(const PathT& file_path)
     {
       std::ifstream strm;
       io::open_ifstream(strm,file_path);
@@ -434,32 +434,32 @@ namespace RHVoice
 
     void userdict::dict::load_all()
     {
-      std::vector<std::string> paths(lang.get_userdict_paths());
-      for(std::vector<std::string>::const_iterator it=paths.begin();it!=paths.end();++it)
+      std::vector<PathT> paths(lang.get_userdict_paths());
+      for(std::vector<PathT>::const_iterator it=paths.begin();it!=paths.end();++it)
         {
           load_dir(*it);
 }
 }
 
-    void userdict::dict::load_dir(const std::string& dir_path)
+    void userdict::dict::load_dir(const PathT& dir_path)
     {
       if(!path::isdir(dir_path))
         return;
-      std::vector<std::string> file_paths;
+      std::vector<PathT> file_paths;
       for(path::directory dir(dir_path);!dir.done();dir.next())
         {
-          std::string file_path=path::join(dir_path,dir.get());
+          PathT file_path=path::join(dir_path,dir.get());
           if(path::isfile(file_path))
             file_paths.push_back(file_path);
         }
       std::sort(file_paths.begin(),file_paths.end());
-      for(std::vector<std::string>::const_iterator it=file_paths.begin();it!=file_paths.end();++it)
+      for(std::vector<PathT>::const_iterator it=file_paths.begin();it!=file_paths.end();++it)
         {
           load_file(*it);
         }
     }
 
-    void dict::load_file(const std::string& file_path)
+    void dict::load_file(const PathT& file_path)
     {
       try
         {

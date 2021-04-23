@@ -26,7 +26,7 @@ namespace RHVoice
   class macedonian_info: public language_info
   {
   public:
-    macedonian_info(const std::string& data_path,const std::string& userdict_path);
+    macedonian_info(const PathT& data_path,const PathT& userdict_path);
 
     #ifdef WIN32
     unsigned short get_id() const

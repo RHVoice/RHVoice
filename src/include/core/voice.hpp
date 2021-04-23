@@ -59,7 +59,7 @@ private:
   class voice_info: public resource_info<voice>
   {
   public:
-    voice_info(unsigned int fmt,const std::string& data_path,language_list& languages);
+    voice_info(unsigned int fmt, const PathT &data_path, language_list& languages);
 
     language_list::const_iterator get_language() const
     {
@@ -140,7 +140,7 @@ private:
   class voice_list: public resource_list<voice_info>
   {
   public:
-    voice_list(const std::vector<std::string>& voice_paths,language_list& languages,const event_logger& logger);
+    voice_list(const std::vector<PathT>& voice_paths,language_list& languages,const event_logger& logger);
   };
 
   class voice_search_criteria: public std::unary_function<const voice_info&,bool>

@@ -15,6 +15,9 @@
 
 #ifndef RHVOICE_BPF_H
 #define RHVOICE_BPF_H
+
+#include "abstraction_layer.h"
+
 #ifdef __cplusplus
 extern "C" {
   #endif
@@ -28,7 +31,7 @@ typedef struct
 
   void bpf_init(BPF* bpf);
   void bpf_clear(BPF* bpf);
-  int bpf_load(BPF* bpf,const char* path);
+  int bpf_load(BPF* bpf, const PathCharT * path);
 #ifdef __cplusplus
 }
 #endif

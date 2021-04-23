@@ -38,7 +38,7 @@ namespace
   class audio_player: public client
   {
   public:
-    explicit audio_player(const std::string& path);
+    explicit audio_player(const PathT &path);
     bool play_speech(const short* samples,std::size_t count);
     void finish();
     bool set_sample_rate(int sample_rate);
@@ -48,7 +48,7 @@ namespace
     audio::playback_stream stream;
   };
 
-  audio_player::audio_player(const std::string& path)
+  audio_player::audio_player(const PathT& path)
   {
     if(!path.empty())
       {
@@ -118,8 +118,20 @@ namespace
 	#define GET_CLI_PARAM_VALUE(NAME) (NAME).getValue()
 #endif
 
+#ifdef _WIN32
+std::wstring string2wstring(char * str){
+    DWORD size = MultiByteToWideChar(CP_UTF8, 0, str, -1, 0, 0);
+    std::wstring res;
+    res.reserve(size);
+    res.resize(size);
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, res.data(), size);
+    return res;
+}
 
-
+std::wstring string2wstring(std::string &str){
+    return string2wstring(str.data());
+}
+#endif
 
 int main(int argc,const char* argv[])
 {
@@ -172,7 +184,14 @@ int main(int argc,const char* argv[])
           if(!f_in.is_open())
             throw std::runtime_error("Cannot open the input file");
         }
-      audio_player player(GET_CLI_PARAM_VALUE(outpath_arg));
+
+      std::string outpath_arg_narrow = GET_CLI_PARAM_VALUE(outpath_arg);
+      #ifdef _WIN32
+      PathT outpath_arg_wide = string2wstring(outpath_arg_narrow);
+      audio_player player(outpath_arg_wide);
+      #else
+      audio_player player(outpath_arg_narrow);
+      #endif
       player.set_sample_rate(GET_CLI_PARAM_VALUE(sample_rate));
       player.set_buffer_size(20);
       std::shared_ptr<engine> eng(new engine);

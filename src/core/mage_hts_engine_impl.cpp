@@ -22,9 +22,13 @@
 #include "HTS_hidden.h"
 #include "mage.h"
 
+#ifdef __WIN32
+#include <Windows.h>
+#endif
+
 namespace RHVoice
 {
-  mage_hts_engine_impl::model_file_list::model_file_list(const std::string& voice_path,const std::string& type,int num_windows_):
+  mage_hts_engine_impl::model_file_list::model_file_list(const PathT &voice_path, const std::string& type, int num_windows_):
     pdf(0),
     tree(0),
     num_windows(num_windows_)
@@ -35,11 +39,11 @@ namespace RHVoice
       {
         file_names.push_back(path::join(voice_path,type+".win"+str::to_string(i+1)));
       }
-    pdf=const_cast<char*>(file_names[0].c_str());
-    tree=const_cast<char*>(file_names[1].c_str());
+    pdf=const_cast<PathT::value_type*>(file_names[0].c_str());
+    tree=const_cast<PathT::value_type*>(file_names[1].c_str());
     for(int i=0;i<num_windows;++i)
       {
-        windows[i]=const_cast<char*>(file_names[i+2].c_str());
+        windows[i]=const_cast<PathT::value_type*>(file_names[i+2].c_str());
       }
   }
 
@@ -62,7 +66,7 @@ namespace RHVoice
   void mage_hts_engine_impl::do_initialize()
   {
     configure_for_sample_rate();
-    std::string bpf_path(path::join(model_path,"bpf.txt"));
+    PathT bpf_path(path::join(model_path,"bpf.txt"));
     if(!bpf_load(&bpf,bpf_path.c_str()))
       throw initialization_error();
     arg_list args;
@@ -133,10 +137,10 @@ namespace RHVoice
 
   void mage_hts_engine_impl::append_model_args(arg_list& args,const model_file_list& files,const std::string& tree_arg_name,const std::string& pdf_arg_name,const std::string& win_arg_name) const
   {
-    args.push_back(arg(tree_arg_name,files.tree));
-    args.push_back(arg(pdf_arg_name,files.pdf));
+    args.push_back(arg(tree_arg_name,getShortPathIfNeeded(files.tree)));
+    args.push_back(arg(pdf_arg_name,getShortPathIfNeeded(files.pdf)));
     for(int i=0;i<files.num_windows;++i)
-      args.push_back(arg(win_arg_name,files.windows[i]));
+      args.push_back(arg(win_arg_name,getShortPathIfNeeded(files.windows[i])));
   }
 
   void mage_hts_engine_impl::setup()

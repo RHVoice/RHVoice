@@ -16,33 +16,36 @@
 #ifndef RHVOICE_PATH_HPP
 #define RHVOICE_PATH_HPP
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <dirent.h>
 #endif
-#include <string>
+#include "abstraction_layer.h"
 
 
 namespace RHVoice
 {
   namespace path
   {
-    std::string join(const std::string& path1,const std::string& path2);
-    bool isdir(const std::string& path);
-    bool isfile(const std::string& path);
+    PathT join(const PathT& path1,const PathT& path2);
+    #ifdef _WIN32
+    PathT join(const PathT& path1,const std::string& path2);
+    #endif
+    bool isdir(const PathT& path);
+    bool isfile(const PathT& path);
 
     class directory
     {
     public:
-      explicit directory(const std::string& path);
+      explicit directory(const PathT& path);
 
       ~directory()
       {
         release_dir_handle();
       }
 
-      const std::string& get() const
+      const PathT& get() const
       {
         return value;
       }
@@ -76,7 +79,7 @@ namespace RHVoice
       #else
       DIR* dir_handle;
       #endif
-      std::string value;
+      PathT value;
     };
   }
 }

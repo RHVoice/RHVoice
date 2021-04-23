@@ -26,7 +26,7 @@ namespace RHVoice
   class esperanto_info: public language_info
   {
   public:
-    esperanto_info(const std::string& data_path,const std::string& userdict_path);
+    esperanto_info(const PathT& data_path,const PathT& userdict_path);
 
     #ifdef WIN32
     unsigned short get_id() const

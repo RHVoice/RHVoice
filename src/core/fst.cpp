@@ -25,7 +25,7 @@ namespace RHVoice
     const std::string err_msg("Incorrect format of the fst file");
   }
 
-  void fst::alphabet::load(std::istream& in)
+  void fst::alphabet::load(IStreamT& in)
   {
     fst::symbol_id num_symbols;
     if(!io::read_integer(in,num_symbols))
@@ -43,7 +43,7 @@ namespace RHVoice
       }
   }
 
-  fst::arc::arc(std::istream& in)
+  fst::arc::arc(IStreamT& in)
   {
     io::read_integer(in,target);
     io::read_integer(in,isymbol);
@@ -52,7 +52,7 @@ namespace RHVoice
       throw file_format_error(err_msg);
   }
 
-  fst::state::state(std::istream& in)
+  fst::state::state(IStreamT& in)
   {
     uint8_t final_flag;
     if(!io::read_integer(in,final_flag))
@@ -71,9 +71,9 @@ namespace RHVoice
       }
   }
 
-  fst::fst(const std::string& path)
+  fst::fst(const PathT &path)
   {
-    std::ifstream f;
+    IStreamT f;
     io::open_ifstream(f,path,true);
     symbols.load(f);
     state_id num_states;

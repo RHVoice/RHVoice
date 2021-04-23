@@ -48,18 +48,18 @@ namespace RHVoice
     class model_file_list
     {
     public:
-      model_file_list(const std::string& voice_path,const std::string& type,int num_windows_=0);
+      model_file_list(const PathT& voice_path,const std::string& type,int num_windows_=0);
 
-      char* pdf;
-      char* tree;
+      PathT::value_type* pdf;
+      PathT::value_type* tree;
       int num_windows;
-      char* windows[3];
+      PathT::value_type* windows[3];
 
     private:
       model_file_list(const model_file_list&);
       model_file_list& operator=(const model_file_list&);
 
-      std::vector<std::string> file_names;
+      std::vector<PathT> file_names;
     };
 
      typedef std::pair<std::string,std::string> arg;

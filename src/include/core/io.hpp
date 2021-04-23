@@ -35,10 +35,14 @@
   #define RHVOICE_IO_API RHVOICE_IMPORT_API
 #endif
 
+#include "abstraction_layer.h"
+
 namespace RHVoice
 {
   namespace io
   {
+    RHVOICE_IO_API std::string appendChildPathToErrorMessage(const char * msgC, const PathT& path);
+
     class open_error: public exception
     {
     public:
@@ -47,17 +51,17 @@ namespace RHVoice
       {
       }
 
-      open_error(const std::string& path):
-        exception(std::string("Unable to open ")+path)
+      open_error(const PathT& path): exception(appendChildPathToErrorMessage("Unable to open ", path))
       {
+
       }
     };
 
     typedef std::shared_ptr<FILE> file_handle;
 
-    RHVOICE_IO_API file_handle open_file(const std::string& path,const std::string& mode);
-    RHVOICE_IO_API void open_ifstream(std::ifstream& stream,const std::string& path,bool binary=false);
-    RHVOICE_IO_API void open_ofstream(std::ofstream& stream,const std::string& path,bool binary=false);
+    RHVOICE_IO_API file_handle open_file(const PathT &path, const std::string& mode);
+    RHVOICE_IO_API void open_ifstream(IStreamT& stream, const PathT &path, bool binary=false);
+    RHVOICE_IO_API void open_ofstream(OStreamT &stream, const PathT& path, bool binary=false);
 
     union host_endianness
     {
@@ -81,9 +85,9 @@ namespace RHVoice
     };
 
     template<typename T>
-    inline std::istream& read_integer(std::istream& in,T& out)
+    inline IStreamT& read_integer(IStreamT& in,T& out)
     {
-      char b[sizeof(T)];
+      IStreamT::char_type b[sizeof(T)];
       if(in.read(b,sizeof(T)))
         {
           if(host_endianness().is_little())
@@ -94,15 +98,15 @@ namespace RHVoice
     }
 
     template<typename T>
-    struct integer_reader: public std::binary_function<std::istream&,T&,std::istream&>
+    struct integer_reader: public std::binary_function<IStreamT&,T&,IStreamT&>
     {
-      std::istream& operator()(std::istream& in,T& out) const
+      IStreamT& operator()(IStreamT& in,T& out) const
       {
         return read_integer(in,out);
       }
     };
 
-    inline std::istream& read_string(std::istream& in,std::string& out)
+    inline IStreamT& read_string(IStreamT& in,std::string& out)
     {
       uint8_t len=0;
       if(read_integer(in,len))
@@ -111,7 +115,7 @@ namespace RHVoice
             out.clear();
           else
             {
-              std::vector<char> buf(len);
+              std::vector<IStreamT::char_type> buf(len);
               if(in.read(&buf[0],len))
                 out.assign(buf.begin(),buf.end());
             }

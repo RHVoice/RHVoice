@@ -17,6 +17,7 @@
 #define RHVOICE_H
 
 #include "RHVoice_common.h"
+#include "core/abstraction_layer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,11 +54,11 @@ typedef struct
   typedef struct
   {
     /* The paths should be encoded as utf-8 strings. */
-    const char *data_path,*config_path;
+    PathCharT *data_path,*config_path;
     /* A list of paths to language and voice data. */
     /* It should be used when it is not possible to collect all the data in one place. */
     /* The last item in the array should be NULL. */
-    const char** resource_paths;
+    PathCharT** resource_paths;
     RHVoice_callbacks callbacks;
     RHVoice_init_options options;
   } RHVoice_init_params;

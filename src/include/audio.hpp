@@ -22,6 +22,7 @@
 #include <memory>
 #include "core/exception.hpp"
 #include "core/api.h"
+#include "core/abstraction_layer.h"
 
 
 namespace RHVoice
@@ -99,7 +100,7 @@ namespace RHVoice
     {
       lib_id lib;
       backend_id backend;
-      std::string device;
+      PathT device;
       std::string server;
       std::string client_name;
       unsigned int sample_rate;
@@ -128,7 +129,7 @@ namespace RHVoice
 
       void set_backend(backend_id backend);
 
-      void set_device(const std::string& device);
+      void set_device(const PathT &device);
 
       void set_server(const std::string& server);
 

@@ -25,7 +25,7 @@ namespace RHVoice
   class georgian_info: public language_info
   {
   public:
-    georgian_info(const std::string& data_path,const std::string& userdict_path);
+    georgian_info(const PathT& data_path,const PathT& userdict_path);
 
     bool has_unicase_alphabet() const
     {

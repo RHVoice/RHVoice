@@ -23,7 +23,7 @@
 
 namespace RHVoice
 {
-  phoneme_set::phoneme_set(const std::string& file_path)
+  phoneme_set::phoneme_set(const PathT &file_path)
   {
     std::ifstream infile;
     io::open_ifstream(infile,file_path);

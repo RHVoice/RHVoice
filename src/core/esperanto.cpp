@@ -29,7 +29,7 @@ namespace RHVoice
     char esperanto_vowel_letters[10]={'a','A','e','E','i','I','o','O','u','U'};
   }
 
-  esperanto_info::esperanto_info(const std::string& data_path,const std::string& userdict_path):
+  esperanto_info::esperanto_info(const PathT& data_path,const PathT& userdict_path):
     #ifdef WIN32
     present_as_english("present_as_english",false),
     #endif

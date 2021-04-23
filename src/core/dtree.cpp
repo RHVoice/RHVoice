@@ -30,7 +30,7 @@ namespace RHVoice
     const unsigned int condition_in=4;
     const std::string err_msg("Incorrect format of the decision tree file");
 
-    inline unsigned int read_number(std::istream& in)
+    inline unsigned int read_number(IStreamT& in)
     {
       uint8_t n;
       if(!io::read_integer(in,n))
@@ -38,7 +38,7 @@ namespace RHVoice
       return n;
     }
 
-    inline std::string read_string(std::istream& in)
+    inline std::string read_string(IStreamT& in)
     {
       std::string s;
       if(!io::read_string(in,s))
@@ -68,7 +68,7 @@ namespace RHVoice
       }
   }
 
-  dtree::in_list::in_list(std::istream& in)
+  dtree::in_list::in_list(IStreamT& in)
   {
     unsigned int size=read_number(in);
     if(size==0)
@@ -100,7 +100,7 @@ namespace RHVoice
     return false;
   }
 
-  dtree::leaf_node::leaf_node(std::istream& in)
+  dtree::leaf_node::leaf_node(IStreamT& in)
   {
     unsigned int type=read_number(in);
     switch(type)
@@ -116,7 +116,7 @@ namespace RHVoice
       }
   }
 
-  dtree::internal_node::internal_node(std::istream& in,unsigned int qtype):
+  dtree::internal_node::internal_node(IStreamT& in,unsigned int qtype):
     feature_name(read_string(in))
   {
     unsigned int vtype=read_number(in);
@@ -170,7 +170,7 @@ namespace RHVoice
     return (((question->test(f.eval(feature_name)))?yes_node:no_node).get());
   }
 
-  void dtree::load(std::istream& in)
+  void dtree::load(IStreamT& in)
   {
     unsigned int type=read_number(in);
     if(type==0)

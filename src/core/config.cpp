@@ -18,6 +18,10 @@
 #include "core/io.hpp"
 #include "core/config.hpp"
 
+#ifdef __WIN32
+#include <windows.h>
+#endif
+
 namespace
 {
   const std::string tag("config");
@@ -54,11 +58,11 @@ namespace RHVoice
       }
   }
 
-  void config::load(const std::string& file_path)
+  void config::load(const PathT& file_path)
   {
     try
       {
-        logger->log(tag,RHVoice_log_level_info,"trying to load configuration file "+file_path);
+        logger->log(tag,RHVoice_log_level_info, TEXT("trying to load configuration file ") + file_path);
         for(ini_parser p(file_path);!p.done();p.next())
           {
             if(p.get_section().empty())

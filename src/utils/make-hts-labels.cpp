@@ -36,15 +36,15 @@ using namespace RHVoice;
 
 namespace
 {
-  std::list<std::string> list_lab_files(const std::string& p)
+  std::list<PathT> list_lab_files(const PathT& p)
   {
-    std::list<std::string> result;
+    std::list<PathT> result;
     for(path::directory dir(p);!dir.done();dir.next())
       {
-        std::string name(dir.get());
-        if(str::endswith(name,".lab"))
+        PathT name(dir.get());
+        if(str::endswith(name, TEXT(".lab")))
           {
-            std::string full_path(path::join(p,name));
+            PathT full_path(path::join(p,name));
             if(path::isfile(full_path))
               result.push_back(name);
           }
@@ -53,7 +53,7 @@ namespace
     return result;
   }
 
-  void output_labels(const utterance& utt,const std::string& file_path)
+  void output_labels(const utterance& utt,const PathT& file_path)
   {
     std::ofstream f(file_path.c_str());
     if(!f.is_open())
@@ -93,7 +93,7 @@ namespace
       }
   }
 
-  void load_mono_labels(utterance& utt,const std::string& file_path)
+  void load_mono_labels(utterance& utt,const PathT& file_path)
   {
     std::cout << file_path << std::endl;
     relation& seg_rel=utt.get_relation("Segment");
@@ -189,16 +189,32 @@ int main(int argc,const char* argv[])
       std::istreambuf_iterator<char> text_end;
       std::unique_ptr<document> doc=document::create_from_ssml(eng,text_start,text_end);
       document::iterator sentence_iter=doc->begin();
+      PathT labPath;
+      PathT outpath;
+      auto outPathMaybeNarrow = GET_CLI_PARAM_VALUE(outpath_arg);
+     if(CHECK_CLI_PARAM_STR_VALUE_SET(outpath_arg)){
+#if defined(_WIN32) && defined(UNICODE) && UNICODE
+          outpath = string2wstring(outPathMaybeNarrow);
+#else
+          outpath = outPathMaybeNarrow;
+#endif
+      }
       if(CHECK_CLI_PARAM_STR_VALUE_SET(labpath_arg))
         {
-          std::list<std::string> fnames=list_lab_files(GET_CLI_PARAM_VALUE(labpath_arg));
-          for(std::list<std::string>::const_iterator it(fnames.begin());it!=fnames.end();++it)
+          std::string labPathMaybeNarrow = GET_CLI_PARAM_VALUE(labpath_arg);
+#if defined(_WIN32) && defined(UNICODE) && UNICODE
+          labPath = string2wstring(labPathMaybeNarrow);
+#else
+          labPath = labPathMaybeNarrow;
+#endif
+          std::list<PathT> fnames=list_lab_files(labPath);
+          for(std::list<PathT>::const_iterator it(fnames.begin());it!=fnames.end();++it)
             {
               if(sentence_iter==doc->end())
                 throw std::runtime_error("Sentence count mismatch");
               std::unique_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
-              load_mono_labels(*utt,path::join(GET_CLI_PARAM_VALUE(labpath_arg),*it));
-              output_labels(*utt,path::join(GET_CLI_PARAM_VALUE(outpath_arg),*it));
+              load_mono_labels(*utt,path::join(labPath,*it));
+              output_labels(*utt,path::join(outpath,*it));
               ++sentence_iter;
             }
         }
@@ -213,7 +229,7 @@ int main(int argc,const char* argv[])
               s << index;
               s << ".lab";
               std::unique_ptr<utterance> utt=sentence_iter->create_utterance(sentence_position_single);
-              output_labels(*utt,path::join(GET_CLI_PARAM_VALUE(outpath_arg),s.str()));
+              output_labels(*utt,path::join(outpath,s.str()));
               ++index;
             }
         }

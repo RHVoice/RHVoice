@@ -21,8 +21,8 @@
 
 namespace RHVoice
 {
-  ini_parser::ini_parser(const std::string& file_path,bool standard):
-    instream(new std::ifstream),
+  ini_parser::ini_parser(const PathT& file_path,bool standard):
+    instream(new IStreamT),
     standard_format(standard)
   {
     io::open_ifstream(*instream,file_path);

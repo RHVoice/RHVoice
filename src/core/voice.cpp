@@ -33,7 +33,7 @@ namespace RHVoice
     return call.execute();
   }
 
-  voice_info::voice_info(unsigned int fmt,const std::string& data_path,language_list& languages):
+  voice_info::voice_info(unsigned int fmt,const PathT& data_path,language_list& languages):
     format(fmt),
     gender("gender",RHVoice_voice_gender_unknown),
     enabled("enabled",true),
@@ -83,14 +83,14 @@ namespace RHVoice
     cfg.register_setting(preferred,prefix);
   }
 
-  voice_list::voice_list(const std::vector<std::string>& voice_paths,language_list& languages,const event_logger& logger)
+  voice_list::voice_list(const std::vector<PathT> &voice_paths, language_list& languages, const event_logger& logger)
   {
     std::string tag("voice_list");
-    for(std::vector<std::string>::const_iterator it=voice_paths.begin();it!=voice_paths.end();++it)
+    for(std::vector<PathT>::const_iterator it=voice_paths.begin();it!=voice_paths.end();++it)
       {
         if(path::isdir(*it))
           {
-            logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it));
+            logger.log(tag,RHVoice_log_level_info,PathT(TEXT("Path: "))+(*it));
             std::shared_ptr<voice_info> v;
             version_info ver;
             try

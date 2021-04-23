@@ -45,11 +45,11 @@ namespace RHVoice
         letter='\0';
       }
 
-      explicit state(std::istream& in);
+      explicit state(IStreamT& in);
     };
 
   public:
-    explicit lts(const std::string& file_path);
+    explicit lts(const PathT& file_path);
     template<typename input_iterator,typename output_iterator>
     void apply(input_iterator start,input_iterator end,output_iterator output) const;
 

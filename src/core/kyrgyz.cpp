@@ -21,7 +21,7 @@
 
 namespace RHVoice
 {
-  kyrgyz_info::kyrgyz_info(const std::string& data_path,const std::string& userdict_path):
+  kyrgyz_info::kyrgyz_info(const PathT& data_path,const PathT& userdict_path):
     language_info("Kyrgyz",data_path,userdict_path)
   {
     set_alpha2_code("ky");

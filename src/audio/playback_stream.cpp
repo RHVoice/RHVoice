@@ -97,7 +97,7 @@ void playback_stream::set_backend(backend_id backend)
     params.backend=backend;
 }
 
-void playback_stream::set_device(const std::string& device)
+void playback_stream::set_device(const PathT& device)
 {
   if(is_initialized())
     throw is_initialized_error();

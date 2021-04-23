@@ -40,7 +40,7 @@ namespace RHVoice
     utf8::uint32_t russian_vowel_letters[20]={1025,1040,1045,1048,1054,1059,1067,1069,1070,1071,1072,1077,1080,1086,1091,1099,1101,1102,1103,1105};
   }
 
-  russian_info::russian_info(const std::string& data_path,const std::string& userdict_path):
+  russian_info::russian_info(const PathT& data_path,const PathT& userdict_path):
     language_info("Russian",data_path,userdict_path)
   {
     set_alpha2_code("ru");

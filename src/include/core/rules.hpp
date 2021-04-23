@@ -100,7 +100,7 @@ namespace RHVoice
       states.push_back(state());
     }
 
-    template<typename R> explicit rules(const std::string& file_path,R reader=R());
+    template<typename R> explicit rules(const PathT& file_path,R reader=R());
 
     ~rules()
     {
@@ -185,9 +185,9 @@ namespace RHVoice
   };
 
   template<typename T> template<typename R>
-  rules<T>::rules(const std::string& file_path,R reader)
+  rules<T>::rules(const PathT& file_path,R reader)
   {
-    std::ifstream f;
+    IStreamT f;
     io::open_ifstream(f,file_path,true);
     std::string err_msg("Error while loading an Aho-Corasick automaton from a file");
     uint32_t num_states=0;

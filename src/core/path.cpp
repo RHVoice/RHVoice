@@ -26,11 +26,11 @@ namespace RHVoice
 {
   namespace path
   {
-    std::string join(const std::string& path1,const std::string& path2)
+    PathT join(const PathT& path1,const PathT& path2)
     {
       if(path1.empty()||path2.empty())
         throw std::invalid_argument("Empty path component");
-      std::string result(path1);
+      PathT result(path1);
       #ifdef WIN32
       if(*result.rbegin()!='\\')
         result.push_back('\\');
@@ -42,7 +42,20 @@ namespace RHVoice
       return result;
     }
 
-    bool isfile(const std::string& path)
+#ifdef _WIN32
+    PathT join(const PathT& path1,const std::string& path2)
+    {
+      if(path1.empty()||path2.empty())
+        throw std::invalid_argument("Empty path component");
+      PathT result(path1);
+      if(*result.rbegin()!='\\')
+        result.push_back('\\');
+      result.append(begin(path2), end(path2));
+      return result;
+    }
+#endif
+
+    bool isfile(const PathT &path)
     {
 #ifdef WIN32
       struct _stat s;
@@ -56,7 +69,7 @@ namespace RHVoice
       return ((res==0)&&((s.st_mode&S_IFMT)==S_IFREG));
       }
 
-    bool isdir(const std::string& path)
+    bool isdir(const PathT& path)
     {
 #ifdef WIN32
       struct _stat s;
@@ -70,19 +83,17 @@ namespace RHVoice
       return ((res==0)&&((s.st_mode&S_IFMT)==S_IFDIR));
       }
 
-    directory::directory(const std::string& path):
+    directory::directory(const PathT &path):
       dir_handle(0)
     {
       #ifdef WIN32
-      std::string mask(join(path,"*"));
-      std::wstring wmask;
-      utf8::utf8to16(mask.begin(),mask.end(),std::back_inserter(wmask));
+      PathT mask(join(path,L"*"));
       WIN32_FIND_DATAW d;
-      HANDLE h=FindFirstFileW(wmask.c_str(),&d);
+      HANDLE h=FindFirstFileW(mask.c_str(),&d);
       if(h==INVALID_HANDLE_VALUE)
         return;
       dir_handle=h;
-      utf8::utf16to8(d.cFileName,d.cFileName+wcslen(d.cFileName),std::back_inserter(value));
+      value=d.cFileName;
       #else
       dir_handle=opendir(path.c_str());
       if(dir_handle)
@@ -98,7 +109,7 @@ namespace RHVoice
           #ifdef WIN32
           WIN32_FIND_DATAW d;
           if(FindNextFileW(dir_handle,&d))
-            utf8::utf16to8(d.cFileName,d.cFileName+wcslen(d.cFileName),std::back_inserter(value));
+            value=d.cFileName;
           else
             release_dir_handle();
           #else

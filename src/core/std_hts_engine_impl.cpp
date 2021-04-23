@@ -21,6 +21,10 @@
 #include "core/pitch.hpp"
 #include "HTS_engine.h"
 
+#ifdef __WIN32
+#include <windows.h>
+#endif
+
 extern "C"
 {
   void HTS_Audio_initialize(HTS_Audio * audio, int sampling_rate, int max_buff_size)
@@ -67,14 +71,18 @@ namespace RHVoice
     engine.reset(new HTS_Engine);
     HTS_Engine_initialize(engine.get());
     engine->audio.audio_interface=this;
-    std::string voice_path(path::join(model_path,"voice.data"));
+    std::string voice_path;
+    {
+        PathT long_voice_path(path::join(model_path,"voice.data"));
+        voice_path = getShortPathIfNeeded(long_voice_path.data());
+    }
     char* c_voice_path=const_cast<char*>(voice_path.c_str());
     if(!HTS_Engine_load(engine.get(),&c_voice_path,1))
       {
         HTS_Engine_clear(engine.get());
         throw initialization_error();
       }
-    std::string bpf_path(path::join(model_path,"bpf.txt"));
+    PathT bpf_path(path::join(model_path,"bpf.txt"));
     if(bpf_load(&engine->bpf,bpf_path.c_str())==0)
       {
         HTS_Engine_clear(engine.get());
@@ -204,7 +212,7 @@ namespace RHVoice
 
   void std_hts_engine_impl::output_debug_info()
   {
-    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_FILE"))
+    if(const PathT::value_type* var=ourPathGetenv("RHVOICE_DEBUG_HTS_FILE"))
       {
         io::file_handle ifh(io::open_file(var+std::string(".info"), "wt"));
         HTS_Engine_save_information(engine.get(), ifh.get());

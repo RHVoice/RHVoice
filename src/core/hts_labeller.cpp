@@ -1486,9 +1486,9 @@ namespace RHVoice
     };
   }
 
-  void hts_labeller::load_label_format_description(const std::string& file_path)
+  void hts_labeller::load_label_format_description(const PathT& file_path)
   {
-    std::ifstream infile;
+    IStreamT infile;
     io::open_ifstream(infile,file_path);
     std::vector<char> text;
     std::copy(std::istreambuf_iterator<char>(infile),std::istreambuf_iterator<char>(),std::back_inserter(text));

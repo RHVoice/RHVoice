@@ -18,6 +18,10 @@
 #include "core/io.hpp"
 #include "file_playback_stream_impl.hpp"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 namespace
 {
   const std::size_t unspec_count=0x7ffff000;
@@ -29,7 +33,7 @@ namespace RHVoice
   {
     file_playback_stream_impl::file_playback_stream_impl(const playback_params& params):
       file_path(params.device),
-      piping(file_path=="-"),
+      piping(file_path==TEXT("-")),
       stream(piping?std::cout:fstream),
       header_written(false),
       num_samples(0)

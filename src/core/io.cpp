@@ -23,13 +23,23 @@ namespace RHVoice
 {
   namespace io
   {
-    file_handle open_file(const std::string& path,const std::string& mode)
+
+    std::string appendChildPathToErrorMessage(const char * msgC, const PathT& path){
+      std::string errorMsg {msgC};
+      #if defined(_WIN32)
+      errorMsg += wstring2string(path);
+      #else
+      errorMsg += path;
+      #endif
+      return errorMsg;
+    }
+
+    file_handle open_file(const PathT& path,const std::string& mode)
     {
       #ifdef WIN32
-      std::wstring wpath,wmode;
-      utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
+      std::wstring wmode;
       utf8::utf8to16(mode.begin(),mode.end(),std::back_inserter(wmode));
-      file_handle result(_wfopen(wpath.c_str(),wmode.c_str()),std::fclose);
+      file_handle result(_wfopen(path.c_str(),wmode.c_str()),std::fclose);
       #else
       file_handle result(std::fopen(path.c_str(),mode.c_str()),std::fclose);
       #endif
@@ -38,34 +48,22 @@ namespace RHVoice
       return result;
     }
 
-    void open_ifstream(std::ifstream& stream,const std::string& path,bool binary)
+    void open_ifstream(IStreamT &stream, const PathT& path, bool binary)
     {
-      std::ifstream::openmode mode=std::ifstream::in;
+      IStreamT::openmode mode=IStreamT::in;
       if(binary)
-        mode|=std::ifstream::binary;
-      #ifdef WIN32
-      std::wstring wpath;
-      utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
-      stream.open(wpath.c_str(),mode);
-      #else
-      stream.open(path.c_str(),mode);
-      #endif
+        mode|=IStreamT::binary;
+      stream.open(path.data(),mode);
       if(!stream.is_open())
         throw open_error(path);
     }
 
-    void open_ofstream(std::ofstream& stream,const std::string& path,bool binary)
+    void open_ofstream(OStreamT& stream, const PathT &path, bool binary)
     {
-      std::ofstream::openmode mode=std::ofstream::out;
+      OStreamT::openmode mode=std::ofstream::out;
       if(binary)
-        mode|=std::ofstream::binary;
-      #ifdef WIN32
-      std::wstring wpath;
-      utf8::utf8to16(path.begin(),path.end(),std::back_inserter(wpath));
-      stream.open(wpath.c_str(),mode);
-      #else
-      stream.open(path.c_str(),mode);
-      #endif
+        mode|=OStreamT::binary;
+      stream.open(path.data(),mode);
       if(!stream.is_open())
         throw open_error(path);
     }

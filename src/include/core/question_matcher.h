@@ -16,6 +16,8 @@
 #ifndef RHVOICE_QUESTION_MATCHER_H
 #define RHVOICE_QUESTION_MATCHER_H
 
+#include "api.h"
+
 #ifdef __cplusplus
 extern "C" {
   #endif

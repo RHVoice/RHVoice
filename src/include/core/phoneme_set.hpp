@@ -62,7 +62,7 @@ namespace RHVoice
     phoneme_feature_set feature_set;
 
   public:
-    explicit phoneme_set(const std::string& file_path);
+    explicit phoneme_set(const PathT& file_path);
 
     const phoneme& get_phoneme(const std::string& name) const
     {

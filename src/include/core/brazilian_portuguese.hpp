@@ -26,7 +26,7 @@ namespace RHVoice
   class brazilian_portuguese_info: public language_info
   {
   public:
-    brazilian_portuguese_info(const std::string& data_path,const std::string& userdict_path);
+    brazilian_portuguese_info(const PathT &data_path, const PathT& userdict_path);
 
     #ifdef WIN32
     unsigned short get_id() const

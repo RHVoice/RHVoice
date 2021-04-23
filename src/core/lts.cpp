@@ -25,7 +25,7 @@ namespace RHVoice
     const std::string err_msg("Incorrect format of the lts file");
   }
 
-  lts::state::state(std::istream& in):
+  lts::state::state(IStreamT &in):
     letter_index(0),
     letter('\0'),
     yes_transition(0),
@@ -50,10 +50,10 @@ namespace RHVoice
       }
   }
 
-  lts::lts(const std::string& file_path):
+  lts::lts(const PathT &file_path):
     context_window_size(0)
   {
-    std::ifstream f_in;
+    IStreamT f_in;
     io::open_ifstream(f_in,file_path,true);
     if(!io::read_integer(f_in,context_window_size))
       throw file_format_error(err_msg);

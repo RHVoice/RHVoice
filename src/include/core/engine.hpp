@@ -27,6 +27,7 @@
 #include "voice_profile.hpp"
 #include "quality_setting.hpp"
 #include "event_logger.hpp"
+#include "abstraction_layer.h"
 
 namespace RHVoice
 {
@@ -45,32 +46,32 @@ namespace RHVoice
     struct RHVOICE_CORE_API init_params
     {
       init_params();
-      std::string data_path,config_path;
-      std::vector<std::string> resource_paths;
+      PathT data_path,config_path;
+      std::vector<PathT> resource_paths;
       std::shared_ptr<event_logger> logger;
 
-      std::vector<std::string> get_language_paths() const
+      std::vector<PathT> get_language_paths() const
       {
         return get_resource_paths("language");
       }
 
-      std::vector<std::string> get_voice_paths() const
+      std::vector<PathT> get_voice_paths() const
       {
         return get_resource_paths("voice");
       }
 
     private:
-      std::vector<std::string> get_resource_paths(const std::string& type) const;
+      std::vector<PathT> get_resource_paths(const std::string& type) const;
     };
 
     explicit engine(const init_params& p=init_params());
 
-    const std::string& get_data_path() const
+    const PathT& get_data_path() const
     {
       return data_path;
     }
 
-    const std::string& get_config_path() const
+    const PathT& get_config_path() const
     {
       return config_path;
     }
@@ -130,7 +131,8 @@ namespace RHVoice
     engine& operator=(const engine&);
 
     string_property voice_profiles_spec;
-    std::string data_path,config_path,version;
+    PathT data_path,config_path;
+    std::string version;
     language_list languages;
     voice_list voices;
     std::set<voice_profile> voice_profiles;
