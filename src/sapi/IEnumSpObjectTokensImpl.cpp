@@ -25,6 +25,7 @@ namespace RHVoice
 {
   namespace sapi
   {
+    GUID CLSID_IEnumSpObjectTokensImpl {0xd7577808, 0x7ade, 0x4dea, {0xa5, 0xb7, 0xee, 0x31, 0x4d, 0x6e, 0xf3, 0xa1}};
     IEnumSpObjectTokensImpl::IEnumSpObjectTokensImpl(bool initialize):
       id(SPCAT_VOICES),
       index(0)
@@ -39,11 +40,17 @@ namespace RHVoice
         }
     }
 
+    void* IEnumSpObjectTokensImpl::get_interface(REFIID riid)
+    {
+      return com::try_primary_interface<IEnumSpObjectTokens>(this,riid);
+    }
+
+
     IEnumSpObjectTokensImpl::ISpObjectTokenPtr IEnumSpObjectTokensImpl::create_token(const voice_attributes& attr) const
     {
       std::wstring token_id=id+std::wstring(L"\\")+attr.get_name();
       com::object<voice_token> obj_data_key(attr);
-      com::interface_ptr<ISpDataKey> int_data_key(obj_data_key);
+      com::interface_ptr<ISpDataKey> int_data_key(obj_data_key, IID_ISpDataKey);
       ISpObjectTokenInitPtr int_token_init(CLSID_SpObjectToken);
       if(!int_token_init)
         throw std::runtime_error("Unable to create an object token");
@@ -146,7 +153,7 @@ namespace RHVoice
           com::object<IEnumSpObjectTokensImpl> obj(false);
           obj->sapi_voices=sapi_voices;
           obj->index=index;
-          com::interface_ptr<IEnumSpObjectTokens> int_ptr(obj);
+          com::interface_ptr<IEnumSpObjectTokens> int_ptr(obj, IID_IEnumSpObjectTokens);
           *ppEnum=int_ptr.get();
           return S_OK;
         }

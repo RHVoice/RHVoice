@@ -21,6 +21,8 @@
 #include <sapiddk.h>
 #include <comdef.h>
 #include <comip.h>
+#include <initguid.h>
+
 #include "core/voice_profile.hpp"
 #include "com.hpp"
 #include "tts_base.hpp"
@@ -29,7 +31,8 @@ namespace RHVoice
 {
   namespace sapi
   {
-    class __declspec(uuid("{9f215c97-3d3b-489d-8419-6b9abbf31ec2}")) ISpTTSEngineImpl:
+    extern GUID CLSID_ISpTTSEngineImpl;
+    class ISpTTSEngineImpl:
       public ISpTTSEngine, public ISpObjectWithToken, public tts_base
     {
     public:
@@ -39,15 +42,13 @@ namespace RHVoice
       STDMETHOD(GetObjectToken)(ISpObjectToken **ppToken);
 
     protected:
-      void* get_interface(REFIID riid)
-      {
-        void* ptr=com::try_primary_interface<ISpTTSEngine>(this,riid);
-        return (ptr?ptr:com::try_interface<ISpObjectWithToken>(this,riid));
-      }
+      void* get_interface(REFIID riid);
 
     private:
-      _COM_SMARTPTR_TYPEDEF(ISpObjectToken,__uuidof(ISpObjectToken));
-      _COM_SMARTPTR_TYPEDEF(ISpDataKey,__uuidof(ISpDataKey));
+      typedef _com_ptr_t <_com_IIID<ISpObjectToken, &IID_ISpObjectToken>> ISpObjectTokenPtr;
+      typedef _com_ptr_t <_com_IIID<ISpDataKey, &IID_ISpDataKey>> ISpDataKeyPtr;
+
+
       ISpObjectTokenPtr token;
       voice_profile profile;
     };
