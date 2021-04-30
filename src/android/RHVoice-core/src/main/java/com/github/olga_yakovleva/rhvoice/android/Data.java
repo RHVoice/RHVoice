@@ -61,10 +61,10 @@ public final class Data
         lang.addDefaultVoice(new VoicePack("Anna", lang, 4, 1, Checksums.VOICE_ANNA, null, null));
         lang.addVoice(new VoicePack("Elena", lang, 4, 2, Checksums.VOICE_ELENA, null, null));
         lang.addVoice(new VoicePack("Irina", lang, 4, 1, Checksums.VOICE_IRINA, null, null));
-        lang.addVoice(new VoicePack("Artemiy", lang, 4, 0, Checksums.VOICE_ARTEMIY, "https://rhvoice.tiflo.org/downloads/RHVoice-voice-Russian-Artemiy-v4.0.zip", null));
-        lang.addVoice(new VoicePack("Arina", lang, 4, 0, Checksums.VOICE_ARINA, "https://rhvoice.su/downloads/RHVoice-voice-Russian-Arina-v4.0.zip", null));
-        lang.addVoice(new VoicePack("Pavel", lang, 4, 0, Checksums.VOICE_PAVEL, "https://rhvoice.su/downloads/RHVoice-voice-Russian-Pavel-v4.0.zip", null));
-        lang.addVoice(new VoicePack("Victoria", lang, 4, 0, Checksums.VOICE_VICTORIA, "https://github.com/RHVoice/victoria-ru/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Artemiy", lang, 4, 0, Checksums.VOICE_ARTEMIY, "https://github.com/RHVoice/artemiy-rus/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Arina", lang, 4, 0, Checksums.VOICE_ARINA, "https://github.com/RHVoice/arina-rus/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Pavel", lang, 4, 0, Checksums.VOICE_PAVEL, "https://github.com/RHVoice/pavel-rus/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Victoria", lang, 4, 0, Checksums.VOICE_VICTORIA, "https://github.com/RHVoice/victoria-rus/releases/download/4.0/data.zip", null));
         lang.addVoice(new VoicePack("Evgeniy-Rus", lang, 4, 0, Checksums.VOICE_EVGENIY_RUS, "https://github.com/RHVoice/evgeniy-rus/releases/download/4.0/data.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Tatar", "tat", "tt", "RUS", "RU", false, 1, 10, Checksums.LANGUAGE_TATAR, null, null);
