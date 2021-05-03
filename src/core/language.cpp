@@ -1287,6 +1287,10 @@ else
         assign_pronunciation(word);
         if(!word.has_children())
           throw g2p_error(word);
+      }
+    for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
+      {
+        item& word=*word_iter;
         std::copy(word.begin(),word.end(),seg_rel.back_inserter());
       }
   }
