@@ -267,12 +267,17 @@ else
       }
   }
 
-  void item::remove()
+  void item::clear()
   {
     while(has_children())
       {
         first_child_item->remove();
       }
+  }
+
+  void item::remove()
+  {
+    clear();
     data->self_refs.erase(relation_ptr->get_name());
     if(prev_item)
       prev_item->next_item=next_item;

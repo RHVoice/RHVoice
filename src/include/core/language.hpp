@@ -134,6 +134,21 @@ namespace RHVoice
     }
   };
 
+  class post_g2p_error: public language_error
+  {
+  public:
+
+    post_g2p_error():
+      language_error("Post-g2p failed")
+    {
+    }
+
+    post_g2p_error(const item& word):
+      language_error("Post-g2p error: no mapping for "+word.get("name").as<std::string>())
+    {
+    }
+  };
+
     class syllabification_error: public language_error
     {
     public:
@@ -277,6 +292,9 @@ namespace RHVoice
     virtual void before_g2p(item& word) const
 {
 }
+
+    virtual void post_g2p(utterance& u) const;
+
     bool check_for_f123(const item& tok,const std::string& name) const;
 
     bool translate_emoji(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
@@ -307,6 +325,7 @@ std::unique_ptr<fst> qst_fst;
   protected:
     const fst spell_fst;
     const fst downcase_fst;
+    std::unique_ptr<fst> pg2p_fst;
   };
 
   class language_info: public resource_info<language>
