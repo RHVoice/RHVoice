@@ -340,6 +340,7 @@ namespace RHVoice
     item& prepend_child();
     item& prepend_child(item& other);
     void remove();
+    void clear();
 
     template<typename T>
     void set(const std::string& name,const T& val)
@@ -360,6 +361,11 @@ namespace RHVoice
       else
         return it->second;
     }
+
+    const std::string& get_name() const
+    {
+      return get("name").as<std::string>();
+}
 
     bool has_feature(const std::string& name) const
     {

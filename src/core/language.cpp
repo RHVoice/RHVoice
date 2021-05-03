@@ -579,6 +579,13 @@ else
       }
     try
       {
+        pg2p_fst.reset(new fst(path::join(info_.get_data_path(),"pg2p.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
         pitch_mod_dtree.reset(new dtree(path::join(info_.get_data_path(),"pitch-mod.dt")));
       }
     catch(const io::open_error& e)
@@ -1275,6 +1282,42 @@ else
 }
   }
 
+void language::post_g2p(utterance& u) const
+{
+  if(pg2p_fst.get()==0)
+    return;
+  relation& trans_rel=u.get_relation("Transcription");
+  if(trans_rel.empty())
+    return;
+  std::vector<std::string> in_syms;
+    for(relation::const_iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
+      {
+        const item& word=*word_iter;
+        if(word.has_prev())
+          in_syms.push_back(word.as("Phrase").has_prev()?"#":"-");
+        std::transform(word.begin(),word.end(),std::back_inserter(in_syms), [](const item& i) {return i.get_name();});
+      }
+    std::vector<std::string> out_syms;
+if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_syms)))
+  throw post_g2p_error();
+ auto out_iter=out_syms.begin();
+ for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
+      {
+        item& word=*word_iter;
+        if(word.has_prev())
+          {
+            if(out_iter==out_syms.end())
+              throw post_g2p_error(word);
+            ++out_iter;
+          }
+        word.clear();
+        for(;out_iter!=out_syms.end() && *out_iter!="#" && *out_iter!="-"; ++out_iter)
+          {
+            word.append_child().set("name", *out_iter);
+          }
+      }
+}
+
   void language::do_g2p(utterance& u) const
   {
     relation& word_rel=u.get_relation("Word");
@@ -1288,6 +1331,7 @@ else
         if(!word.has_children())
           throw g2p_error(word);
       }
+    post_g2p(u);
     for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
       {
         item& word=*word_iter;
