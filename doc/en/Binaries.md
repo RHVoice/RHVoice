@@ -360,12 +360,12 @@ The package version is 1.10.
 
 The package version is 4.0.
 
-* [NVDA addon](http://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-4.0.nvda-addon)
-* [SAPI5 compatible version](http://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0-setup.exe)
+* [NVDA addon](https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-4.0.nvda-addon)
+* [SAPI5 compatible version](https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0-setup.exe)
 
 #### Ukrainian
 
-##### Language pack
+##### Language packages
 
 The package version is 1.3.
 

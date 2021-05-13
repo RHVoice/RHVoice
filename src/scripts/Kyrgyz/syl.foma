@@ -11,7 +11,7 @@
 # GNU Lesser General Public License for more details.
 
 # You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 define Vowel a|a0|a1|aa|aa0|aa1|e|e0|e1|ee|ee0|ee1|i|i0|i1|y|y0|y1|o|o0|o1|oo|oo0|oo1|of|of0|of1|oof|oof0|oof1|u|u0|u1|uu|uu0|uu1|uf|uf0|uf1|uuf|uuf0|uuf1 ; 
 

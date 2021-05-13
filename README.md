@@ -44,9 +44,9 @@ RHVoice supports following platforms:
 
 It is compatible with
 standard text-to-speech interfaces on these platforms: SAPI5 on
-Windows, [Speech Dispatcher](http://devel.freebsoft.org/speechd) on
+Windows, [Speech Dispatcher](https://devel.freebsoft.org/speechd) on
 GNU/Linux and Android's text-to-speech APIs. It can also be used by
-the [NVDA screen reader](http://www.nvaccess.org) directly (the driver
+the [NVDA screen reader](https://www.nvaccess.org) directly (the driver
 is provided by RHVoice itself).
 
 ## License
