@@ -5,15 +5,15 @@
 To compile RHVoice the following programs must be installed on your system:
 
 * [GCC](https://gcc.gnu.org)
-* [Pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
-* [SCons](http://www.scons.org)
+* [Pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
+* [SCons](https://www.scons.org)
 
 ## Additional dependencies
 
 Before compiling RHVoice make sure that at least one of the following
 audio libraries is installed on your machine:
 
-* [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/)
+* [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/)
 * [Libao](https://www.xiph.org/ao/)
 * [PortAudio](http://www.portaudio.com) V19
 
