@@ -122,9 +122,11 @@ namespace RHVoice
             else
               {
                 std::vector<utf8::uint32_t>::const_iterator last_char_pos=final_punctuation_start-1;
-                if(str::isalpha(*last_char_pos))
+                bool is_alpha=str::isalpha(*last_char_pos);
+                bool is_digit=str::isdigit(*last_char_pos);
+                if(is_alpha || is_digit)
                   {
-                    if(last_char_pos==prev_token.text.begin())
+                    if(is_alpha && last_char_pos==prev_token.text.begin())
                       return false;
                     else
                       {
