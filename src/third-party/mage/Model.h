@@ -149,6 +149,7 @@ namespace MAGE
 			 *	@return A Model State given an index.
 			 */
 			const State& getState( int index ) const;
+          State& getState( int index );
 		
 			/**
 			 *	This function gets the total duration of the Model.
