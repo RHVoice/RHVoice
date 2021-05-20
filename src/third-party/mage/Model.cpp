@@ -85,6 +85,12 @@ const MAGE::State& MAGE::Model::getState( int index ) const
 	return( this->state[index] );
 }
 
+MAGE::State& MAGE::Model::getState( int index )
+{
+	return( this->state[index] );
+}
+
+
 int MAGE::Model::getDuration( void )
 { 
 	return( this->duration );

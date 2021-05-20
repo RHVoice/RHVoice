@@ -159,14 +159,25 @@ namespace RHVoice
       dur_mod/=lab.get_segment().get("dur_mod").as<double>();
     if(dur_mod!=1)
       mlab.setSpeed(dur_mod);
-    if(lab.get_time()==0)
-      {
-        mlab.setEnd(250000);
-        mlab.setDurationForced(true);
-}
+//     if(lab.get_time()==0)
+//       {
+//         mlab.setEnd(250000);
+//         mlab.setDurationForced(true);
+// }
     mage->setLabel(mlab);
     mage->prepareModel();
     mage->computeDuration();
+    if(lab.get_time()==0)
+      {
+        auto& model=*(mage->getModel());
+        constexpr auto last_state_index=MAGE::nOfStates-1;
+        for (auto i=0; i<last_state_index; ++i)
+          {
+            auto& state=model.getState(i);
+            state.duration=1;
+          }
+        model.setDuration(last_state_index+model.getState(last_state_index).duration);
+      }
     mage->computeParameters();
     mage->optimizeParameters();
   }
