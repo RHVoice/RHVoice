@@ -88,6 +88,8 @@ namespace RHVoice
       {
         return true;
       }
+
+      virtual void set_eos() {}
     };
 
     typedef std::shared_ptr<abstract_command> command_ptr;
@@ -114,11 +116,14 @@ namespace RHVoice
         std::copy(prev_token.whitespace.begin(),prev_token.whitespace.end(),str::utf8_inserter(std::back_inserter(whitespace)));
     }
 
+      void set_eos() {eos=true;}
+
       void execute(utterance& u) const;
 
     protected:
       std::string name,whitespace;
       std::size_t position,length;
+      bool eos;
     };
 
     class append_chars: public append_token
