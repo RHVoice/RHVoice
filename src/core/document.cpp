@@ -20,7 +20,7 @@ namespace RHVoice
 {
   void sentence::append_token::execute(utterance& u) const
   {
-    item& token=u.get_language().append_token(u,name);
+    item& token=u.get_language().append_token(u,name, eos);
     token.set("whitespace",whitespace);
     token.set("position",position);
     token.set("length",length);
@@ -53,7 +53,7 @@ namespace RHVoice
 
   void sentence::append_emoji::execute(utterance& u) const
   {
-    item& token=u.get_language().supports_emoji()?u.get_language().append_emoji(u,name):u.get_language().append_token(u,name);
+    item& token=u.get_language().supports_emoji()?u.get_language().append_emoji(u,name):u.get_language().append_token(u,name, eos);
     token.set("whitespace",whitespace);
     token.set("position",position);
     token.set("length",length);
@@ -263,6 +263,14 @@ namespace RHVoice
 
   void sentence::execute_commands(utterance& u) const
   {
+    for(auto it=commands.rbegin(); it!=commands.rend(); ++it)
+      {
+        if((*it)->has_text())
+          {
+            (*it)->set_eos();
+            break;
+          }
+      }
     for(std::list<command_ptr>::const_iterator it(commands.begin());it!=commands.end();++it)
       {
         (*it)->execute(u);

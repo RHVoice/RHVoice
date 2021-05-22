@@ -556,6 +556,9 @@ else
     spell_fst(path::join(info_.get_data_path(),"spell.fst")),
     downcase_fst(path::join(info_.get_data_path(),"downcase.fst"))
   {
+    config cfg;
+    cfg.register_setting(lcfg.tok_eos);
+    cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
         english_phone_mapping_fst.reset(new fst(path::join(info_.get_data_path(),"english_phone_mapping.fst")));
@@ -653,15 +656,17 @@ else
     register_feature(std::shared_ptr<feature_function>(new feat_utt_type));
   }
 
-  item& language::append_token(utterance& u,const std::string& text) const
+  item& language::append_token(utterance& u,const std::string& text, bool eos) const
   {
     const language_info& lang_info=get_info();
     utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
     bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
     std::vector<utf8::uint32_t> chars;
+    std::vector<std::string> syms;
     std::vector<bool> stress_mask;
     utf8::uint32_t cp;
     std::string::const_iterator it(text.begin());
+    auto pit=it;
     while(it!=text.end())
       {
         cp=utf8::next(it,text.end());
@@ -671,17 +676,28 @@ else
            (lang_info.is_vowel_letter(cp)))
           {
             chars.back()=cp;
+            syms.back()=std::string(pit, it);
             stress_mask.back()=true;
           }
         else
           {
             chars.push_back(cp);
+            syms.push_back(std::string(pit, it));
             stress_mask.push_back(false);
           }
+        pit=it;
+      }
+    if(eos && lcfg.tok_eos)
+      {
+        syms.push_back("eos");
       }
     std::vector<std::string> tokens;
-    if(!tok_fst.translate(chars.begin(),chars.end(),std::back_inserter(tokens)))
+    if(!tok_fst.translate(syms.begin(),syms.end(),std::back_inserter(tokens)))
       throw tokenization_error(text);
+    if(eos && lcfg.tok_eos && !tokens.empty() && tokens.back()=="eos")
+      {
+        tokens.pop_back();
+      }
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     item& parent_token=tokstruct_rel.append(token_rel.append());

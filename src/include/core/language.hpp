@@ -212,7 +212,7 @@ namespace RHVoice
       return phonemes;
     }
 
-    item& append_token(utterance& u,const std::string& text) const;
+    item& append_token(utterance& u,const std::string& text, bool eos) const;
 
     bool supports_emoji() const
     {
@@ -302,7 +302,6 @@ namespace RHVoice
     void translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
     void translate_emoji_sequence(item& token,const std::string& text) const;
 
-
     std::map<std::string,std::shared_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
     hts_labeller labeller;
@@ -323,9 +322,15 @@ std::unique_ptr<fst> qst_fst;
     userdict::dict udict;
 
   protected:
+    struct lang_config
+    {
+      bool_property tok_eos{"tok.eos", false};
+    };
+
     const fst spell_fst;
     const fst downcase_fst;
     std::unique_ptr<fst> pg2p_fst;
+    lang_config lcfg;
   };
 
   class language_info: public resource_info<language>
