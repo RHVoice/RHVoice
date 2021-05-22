@@ -82,6 +82,7 @@ namespace RHVoice
       }
     HTS_Engine_set_beta(engine.get(),beta);
     HTS_Engine_set_audio_buff_size(engine.get(),HTS_Engine_get_fperiod(engine.get()));
+    base_frame_shift=HTS_Engine_get_fperiod(engine.get());
   }
 
   std_hts_engine_impl::~std_hts_engine_impl()
@@ -106,6 +107,7 @@ namespace RHVoice
   void std_hts_engine_impl::do_reset()
   {
     HTS_Engine_set_stop_flag(engine.get(),false);
+    HTS_Engine_set_fperiod(engine.get(), base_frame_shift);
     HTS_Engine_refresh(engine.get());
     HTS_Engine_add_half_tone(engine.get(),0);
   }
@@ -151,7 +153,8 @@ namespace RHVoice
   {
     if(rate==1)
       return;
-    HTS_Engine_set_speed(engine.get(),rate);
+    const std::size_t frame_shift=static_cast<std::size_t>(std::round(base_frame_shift/rate));
+    HTS_Engine_set_fperiod(engine.get(),frame_shift);
   }
 
   void std_hts_engine_impl::do_stop()

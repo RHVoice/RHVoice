@@ -47,6 +47,7 @@ namespace RHVoice
     void output_debug_info();
 
     std::unique_ptr<_HTS_Engine> engine;
+    std::size_t base_frame_shift;
   };
 }
 #endif
