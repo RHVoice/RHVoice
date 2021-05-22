@@ -90,6 +90,7 @@ namespace RHVoice
 
     std::unique_ptr<MAGE::Mage> mage;
     std::unique_ptr<_HTS_Vocoder> vocoder;
+    int base_frame_shift;
     int frame_shift;
     double alpha;
     int mgc_order;

@@ -75,7 +75,7 @@ namespace RHVoice
     model_file_list ap_files(model_path,"bap",3);
     append_model_args(args,ap_files,"-tl","-ml","-dl");
     args.push_back(arg("-s",str::to_string(sample_rate.get())));
-    args.push_back(arg("-p",str::to_string(frame_shift)));
+    args.push_back(arg("-p",str::to_string(base_frame_shift)));
     args.push_back(arg("-a",str::to_string(alpha)));
     args.push_back(arg("-b",str::to_string(beta.get())));
     args.push_back(arg("-u","0.5"));
@@ -100,11 +100,11 @@ namespace RHVoice
     for(label_sequence::iterator label_iter=input->lbegin();label_iter!=input->lend();++label_iter)
       {
         label_iter->set_position(pos);
-        label_iter->set_time(pos*MAGE::defaultFrameRate);
+        label_iter->set_time(pos*frame_shift);
         generate_parameters(*label_iter);
         len=mage->getDuration();
         label_iter->set_length(len);
-        label_iter->set_duration(len*MAGE::defaultFrameRate);
+        label_iter->set_duration(len*frame_shift);
         pos+=len;
         generate_samples(*label_iter);
         if(output->is_stopped())
@@ -148,36 +148,38 @@ namespace RHVoice
         MAGE::FrameQueue* fq=new MAGE::FrameQueue(MAGE::maxFrameQueueLen);
         mage->setFrameQueue(fq);
       }
+    frame_shift=static_cast<int>(std::round(base_frame_shift/rate));
+    speech.resize(frame_shift,0);
     HTS_Vocoder_initialize(vocoder.get(),mgc_order,0,1,sample_rate.get(),frame_shift);
   }
 
   void mage_hts_engine_impl::generate_parameters(hts_label& lab)
   {
     MAGE::Label mlab(lab.get_name());
-    double dur_mod=rate;
+    double dur_mod=1;
     if(lab.get_segment().has_feature("dur_mod"))
       dur_mod/=lab.get_segment().get("dur_mod").as<double>();
     if(dur_mod!=1)
       mlab.setSpeed(dur_mod);
-//     if(lab.get_time()==0)
-//       {
-//         mlab.setEnd(250000);
-//         mlab.setDurationForced(true);
-// }
+    if(lab.get_time()==0)
+      {
+        mlab.setEnd(250000);
+        mlab.setDurationForced(true);
+}
     mage->setLabel(mlab);
     mage->prepareModel();
     mage->computeDuration();
-    if(lab.get_time()==0)
-      {
-        auto& model=*(mage->getModel());
-        constexpr auto last_state_index=MAGE::nOfStates-1;
-        for (auto i=0; i<last_state_index; ++i)
-          {
-            auto& state=model.getState(i);
-            state.duration=1;
-          }
-        model.setDuration(last_state_index+model.getState(last_state_index).duration);
-      }
+    // if(lab.get_time()==0)
+    //   {
+    //     auto& model=*(mage->getModel());
+    //     constexpr auto last_state_index=MAGE::nOfStates-1;
+    //     for (auto i=0; i<last_state_index; ++i)
+    //       {
+    //         auto& state=model.getState(i);
+    //         state.duration=1;
+    //       }
+    //     model.setDuration(last_state_index+model.getState(last_state_index).duration);
+    //   }
     mage->computeParameters();
     mage->optimizeParameters();
   }
@@ -236,19 +238,18 @@ namespace RHVoice
     switch(sample_rate.get())
       {
       case sample_rate_16k:
-        frame_shift=80;
+        base_frame_shift=80;
         alpha=0.42;
         mgc_order=24;
         bap_order=4;
         break;
       default:
-        frame_shift=120;
+        base_frame_shift=120;
         alpha=0.466;
         mgc_order=30;
         bap_order=(info.get_format()==3)?11:6;
         break;
 }
-    speech.resize(frame_shift,0);
 }
 
   void mage_hts_engine_impl::do_generate_samples(frame_t& f)
