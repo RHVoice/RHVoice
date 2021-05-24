@@ -6,7 +6,8 @@ android:key="root">
         android:title="@string/wifi_only_title"
         android:summary="@string/wifi_only_desc"
         android:key="wifi_only"
-        android:defaultValue="false"/>
+        android:defaultValue="false"
+        android:order="10"/>
     <ListPreference
         android:key="quality"
         android:entries="@array/quality_labels"
@@ -14,5 +15,11 @@ android:key="root">
         android:defaultValue="std"
         android:title="@string/speech_quality"
         android:dialogTitle="@string/speech_quality"
-        android:summary="%s"/>
+        android:summary="%s"
+        android:order="20"/>
+    <Preference
+        android:key="version"
+        android:persistent="false"
+        android:title="@string/version"
+        android:order="200"/>
 </PreferenceScreen>

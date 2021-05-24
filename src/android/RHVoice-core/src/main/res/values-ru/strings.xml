@@ -27,4 +27,5 @@
     <string name="increase">Увеличить</string>
     <string name="decrease">Уменьшить</string>
     <string name="reset">Сброс</string>
+    <string name="version">Версия</string>
 </resources>
