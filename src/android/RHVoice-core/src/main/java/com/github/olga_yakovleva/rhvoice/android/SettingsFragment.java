@@ -120,7 +120,9 @@ import java.util.TreeMap;
             if(voices.isEmpty())
                 return;
             Map<String,List<VoiceInfo>> voiceGroups=groupVoicesByLanguage(voices);
+            findPreference("version").setSummary(BuildConfig.VERSION_NAME);
             PreferenceCategory cat=new PreferenceCategory(getPreferenceManager().getContext());
+            cat.setOrder(100);
             cat.setKey("languages");
             cat.setTitle(R.string.languages);
             getPreferenceScreen().addPreference(cat);
