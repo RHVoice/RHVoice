@@ -26,4 +26,5 @@
   <string name="increase">Increase</string>
   <string name="decrease">Decrease</string>
   <string name="reset">Reset</string>
+  <string name="version">Version</string>
 </resources>
