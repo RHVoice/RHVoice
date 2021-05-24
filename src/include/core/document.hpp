@@ -123,7 +123,7 @@ namespace RHVoice
     protected:
       std::string name,whitespace;
       std::size_t position,length;
-      bool eos;
+      bool eos{false};
     };
 
     class append_chars: public append_token
