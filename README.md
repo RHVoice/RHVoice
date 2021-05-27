@@ -34,6 +34,10 @@ In theory, it is possible to implement support for
 other languages, if all the necessary resources can be found or
 created.
 
+### Synthesis example
+
+If you want to listen to an example of speech synthesis, You can use TTS service on [this page.](https://data2data.ru/tts/)
+
 ### Supported platforms
 
 RHVoice supports following platforms:
