@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2014, 2018, 2019, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -117,7 +117,7 @@ class msi_packager(wix_packager):
 		self.product.set("Id",self.product_code)
 		self.product.set("Codepage","1252")
 		self.product.set("Language","0")
-		self.product.set("Manufacturer","Olga Yakovleva")
+		self.product.set("Manufacturer", names.dev)
 		self.product.set("Name",self.display_name)
 		self.product.set("UpgradeCode",self.upgrade_code)
 		self.product.set("Version",self.version)
@@ -273,7 +273,7 @@ class msi_packager(wix_packager):
 		dir.set("Id","TempFolder")
 		dir=self.SubElement(dir,"Directory")
 		dir.set("Id","MyTempFolder")
-		dir.set("Name",self.product.get("Manufacturer"))
+		dir.set("Name",names.dev_dir_name)
 		dir=self.SubElement(dir,"Directory")
 		dir.set("Id","RHVoiceTempFolder")
 		dir.set("Name","RHVoice")
@@ -288,7 +288,7 @@ class msi_packager(wix_packager):
 		dir.set("Id",self.get_parent_directory_id())
 		dir=self.SubElement(dir,"Directory")
 		dir.set("Id","MyFolder")
-		dir.set("Name",self.product.get("Manufacturer"))
+		dir.set("Name", names.dev_dir_name)
 		self.directory=self.SubElement(dir,"Directory")
 		self.directory.set("Id","RHV")
 		self.directory.set("Name","RHVoice")
@@ -410,7 +410,7 @@ class bundle_packager(wix_packager):
 
 	def create_bundle_element(self):
 		self.bundle=self.SubElement(self.root,"Bundle")
-		self.bundle.set("Manufacturer","Olga Yakovleva")
+		self.bundle.set("Manufacturer", names.dev)
 		self.bundle.set("Name",self.display_name)
 		self.bundle.set("UpgradeCode",self.upgrade_code)
 		self.bundle.set("Version",self.version)
@@ -468,7 +468,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		self.script.append("AllowSkipFiles off")
 		self.script.append("CRCCheck on")
 		self.script.append("ShowInstDetails show")
-		self.script.append(r'InstallDir "$TEMP\Olga Yakovleva\RHVoice"')
+		self.script.append(r'InstallDir "$TEMP\{}\RHVoice"'.format(names.dev_dir_name))
 		self.script.append(u'Name "{} V{}"'.format(self.display_name,self.version))
 		self.script.append(u'OutFile "{}"'.format(self.outfile.abspath))
 		self.script.append('RequestExecutionLevel admin')

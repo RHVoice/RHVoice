@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2018, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com>
 # Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 
 import os.path
 from .archiving import archiver
+from .common import names
 
 class addon_packager(archiver):
 	def __init__(self,name,outdir,env,display_name,summary,description,version,data_package=False):
@@ -26,8 +27,8 @@ class addon_packager(archiver):
 		self.set_string("name",display_name)
 		self.set_string("summary",'"{}"'.format(summary))
 		self.set_string("description",'"""{}"""'.format(description))
-		self.set_string("author","Olga Yakovleva <yakovleva.o.v@gmail.com>")
-		self.set_string("url","https://github.com/RHVoice/RHVoice")
+		self.set_string("author", names.def_with_email)
+		self.set_string("url", names.url)
 		self.set_string("version",version)
 		self.set_string("minimumNVDAVersion", "2012.2.0")
 		if data_package:
