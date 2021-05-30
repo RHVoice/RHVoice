@@ -48,6 +48,8 @@ namespace RHVoice
       std::vector<std::string> paths(get_resource_paths(CSIDL_PROGRAM_FILESX86,"RHVoice"));
       std::vector<std::string> new_paths(get_resource_paths(CSIDL_COMMON_APPDATA,"Olga Yakovleva\\RHVoice"));
       paths.insert(paths.end(),new_paths.begin(),new_paths.end());
+      new_paths=get_resource_paths(CSIDL_COMMON_APPDATA,"rhvoice.org\\RHVoice");
+      paths.insert(paths.end(),new_paths.begin(),new_paths.end());
       return paths;
 }
 
@@ -66,7 +68,7 @@ namespace RHVoice
           wchar_t common_appdata_path[MAX_PATH];
           if(SHGetFolderPath(0,CSIDL_COMMON_APPDATA,0,SHGFP_TYPE_CURRENT,common_appdata_path)==S_OK)
             {
-              std::wstring in_file_path=std::wstring(common_appdata_path)+std::wstring(L"\\Olga Yakovleva\\RHVoice\\config\\RHVoice.ini");
+              std::wstring in_file_path=std::wstring(common_appdata_path)+std::wstring(L"\\rhvoice.org\\RHVoice\\config\\RHVoice.ini");
               CreateDirectory(config_path.c_str(), nullptr);
               std::wstring out_file_path(config_path+L"\\RHVoice.ini");
               CopyFile(in_file_path.c_str(), out_file_path.c_str(), true);
