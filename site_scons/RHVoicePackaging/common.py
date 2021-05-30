@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2013, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2018, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -80,3 +80,11 @@ class packager(object):
 
 	def package(self):
 		raise NotImplementedError
+
+class names:
+	dev="Contributors to the RHVoice project"
+	dev_dir_name="rhvoice.org"
+	email="rhvoice@rhvoice.org"
+	def_with_email="{} <{}>".format(dev, email)
+	src_url="https://github.com/RHVoice/RHVoice"
+	url=src_url
