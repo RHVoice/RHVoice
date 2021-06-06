@@ -35,7 +35,7 @@
 
 ### Brazilian Portuguese
 
-* [LetÃ­cia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-4.6.6.nvda-addon), version 4.6.6
+* [Letícia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-4.6.6.nvda-addon), version 4.6.6
 
 ### Esperanto
 
@@ -87,7 +87,7 @@
 
 ### Brazilian Portuguese
 
-* [LetÃ­cia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.11-setup.exe), version 4.6.11
+* [Letícia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.11-setup.exe), version 4.6.11
 
 ### Esperanto
 
@@ -146,7 +146,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 #### Voices
 
-* [LetÃ­cia-F123](https://f123.org/leticia/download/Android/apk/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.apk), version 4.6
+* [Letícia-F123](https://f123.org/leticia/download/Android/apk/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.apk), version 4.6
 
 ### Esperanto
 
