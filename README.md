@@ -102,7 +102,7 @@ To use the Georgian voice for such purposes, organizations and manufacturers mus
 * Beqa Gozalishvili <beqaprogger@gmail.com>
 * Vladimer Urdulashvili <vladimerurdulashvili@gmail.com>
 
-### LetÃ­cia-F123
+### Letícia-F123
 
 Copyright (C) 2018 - 2020  Olga Yakovleva, Fernando H. F. Botelho
 
