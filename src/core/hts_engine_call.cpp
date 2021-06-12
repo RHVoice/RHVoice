@@ -18,7 +18,9 @@
 #include <algorithm>
 #include <queue>
 #include <cmath>
+#ifndef ENABLE_SONIC
 #include "core/config.h"
+#endif
 #if ENABLE_SONIC
 #include "sonic.h"
 #endif

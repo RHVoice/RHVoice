@@ -17,6 +17,9 @@
 #define RHVOICE_QUALITY_SETTING_HPP
 
 #include "property.hpp"
+#ifndef ENABLE_MAGE
+#include "config.h"
+#endif
 
 namespace RHVoice
 {
@@ -32,6 +35,7 @@ namespace RHVoice
   {
   public:
     quality_setting():
+#if ENABLE_MAGE
       enum_property<quality_t>("quality",quality_std)
     {
       define("min",quality_min);
@@ -45,6 +49,9 @@ namespace RHVoice
       define("maximum",quality_max);
       define("100",quality_max);
     }
+#else
+    enum_property<quality_t>("quality",quality_max) {}
+    #endif
   };
 }
 #endif
