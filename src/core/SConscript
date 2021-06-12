@@ -24,12 +24,15 @@ try:
 except NameError:
 	basestring = str
 
-Import("env","libsonic","libhts_engine")
+Import("env", "libhts_engine")
+if env["enable_sonic"]:
+	Import("libsonic")
 if env["enable_mage"]:
 	Import("libmage")
 extern_libs_dir=Dir("#external").Dir("libs")
 local_env=env.Clone()
-local_env.Append(CPPPATH=[extern_libs_dir.Dir("sonic")])
+if env["enable_sonic"]:
+		local_env.Append(CPPPATH=[extern_libs_dir.Dir("sonic")])
 local_env["libversion"]="4.0.0"
 local_env["liblevel"]=1
 
@@ -40,7 +43,8 @@ coreConfig = {
 
 globalConfig = {
 	"VERSION": local_env["package_version"],
-	"ENABLE_MAGE": bool(local_env["enable_mage"])
+	"ENABLE_MAGE": bool(local_env["enable_mage"]),
+	"ENABLE_SONIC": bool(local_env["enable_sonic"])
 }
 
 def getVarTextRepr(v):
@@ -60,7 +64,7 @@ def processConfig(env, inFName, outFName, configToGen):
 			cfgText = cfgText.replace("#cmakedefine01 " + k, "#define " + k +" " + str(int(bool(v))))
 			cfgText = cfgText.replace("#cmakedefine " + k,  "#define " if v else "#undef " + k)
 
-	env.Textfile(target=outFName, source=cfgText.splitlines())
+	env.Textfile(target=outFName, source=["#pragma once"]+cfgText.splitlines())
 
 if sys.platform!="win32" or local_env["TARGET_ARCH"]!="x86_64":
 		processConfig(local_env, Dir(".").srcnode().File("config.h.in").abspath, Dir(".").srcnode().File("config.h").abspath, coreConfig)
@@ -106,8 +110,10 @@ src=["unicode.cpp",
 		 "pitch.cpp"]
 if local_env["enable_mage"]:
 	src.append("mage_hts_engine_impl.cpp")
-for lib in [libhts_engine,libsonic]:
+for lib in [libhts_engine]:
 	src.extend(lib)
+if local_env["enable_sonic"]:
+	src.extend(libsonic)
 if local_env["enable_mage"]:
 	src.extend(libmage)
 libcore=local_env.BuildLibrary(local_env["libcore"],src)

@@ -151,6 +151,7 @@ def create_user_vars():
     vars.Add(BoolVariable("dev","The build will only be used for development: no global installation, run from the source directory, compile helper utilities",False))
     vars.Add(create_languages_user_var())
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
+    vars.Add(BoolVariable("enable_sonic","Build with Sonic",False))
     vars.Add(create_audio_libs_user_var())
     vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
     vars.Add(BoolVariable("release","Whether we are building a release",True))

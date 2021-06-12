@@ -1,3 +1,4 @@
 #cmakedefine01 ENABLE_MAGE
+#cmakedefine01 ENABLE_SONIC
 
 const char VERSION[] = "@VERSION@";

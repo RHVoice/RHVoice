@@ -18,7 +18,9 @@ import os.path
 
 Import("env")
 
-subdirs=["sonic","hts_engine"]
+subdirs=["hts_engine"]
+if env["enable_sonic"]:
+	subdirs.append("sonic")
 if env["enable_mage"]:
 	subdirs.append("mage")
 for subdir in subdirs:
