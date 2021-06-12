@@ -1,5 +1,5 @@
 # -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
-# Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013 - 2021  Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 Import("env")
 local_env=env.Clone()
 local_env["liblevel"]=0
-libsonic=local_env.BuildLibrary("sonic","sonic.c")
+local_env.VariantDir(".", "#external/libs/sonic", duplicate=0)
+libsonic=local_env.BuildLibrary("sonic", "sonic.c")
 Export("libsonic")
