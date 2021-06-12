@@ -18,7 +18,10 @@
 #include <algorithm>
 #include <queue>
 #include <cmath>
+#include "core/config.h"
+#if ENABLE_SONIC
 #include "sonic.h"
+#endif
 #include "core/language.hpp"
 #include "core/voice.hpp"
 #include "core/tone.hpp"
@@ -162,6 +165,7 @@ namespace RHVoice
       output.push_back(input[i]*volume);
   }
 
+#if ENABLE_SONIC
   class rate_controller: public speech_processor
   {
   public:
@@ -219,6 +223,7 @@ namespace RHVoice
         output.assign(samples.begin(),samples.begin()+n);
       }
   }
+#endif
 
   class sound_icon_inserter: public speech_processor
   {
@@ -384,6 +389,7 @@ namespace RHVoice
         double rate=input.lbegin()->get_rate();
         if(rate!=1)
           {
+            #if ENABLE_SONIC
             if(rate<utt.get_voice().get_info().settings.min_sonic_rate)
               engine_impl->set_rate(rate);
             else
@@ -391,6 +397,9 @@ namespace RHVoice
                 rate_controller* rc=new rate_controller(rate);
                 output.append(rc);
               }
+            #else
+            engine_impl->set_rate(rate);
+            #endif
           }
         double volume=input.lbegin()->get_volume()*engine_impl->get_gain();
         if(volume!=1)
