@@ -17,6 +17,10 @@
 #define RHVOICE_HTS_ENGINE_SETTING_HPP
 
 #include "property.hpp"
+#ifndef ENABLE_MAGE
+#include "config.h"
+#endif
+
 
 namespace RHVoice
 {
@@ -27,7 +31,7 @@ namespace RHVoice
       enum_string_property("hts_engine")
     {
       define("standard");
-#ifdef ENABLE_MAGE
+#if ENABLE_MAGE
       define("mage");
       set_default_value("mage");
 #else

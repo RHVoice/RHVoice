@@ -20,11 +20,13 @@
 #include <list>
 #include "threading.hpp"
 #include "std_hts_engine_impl.hpp"
-#ifdef ENABLE_MAGE
+#ifndef ENABLE_MAGE
+#include "config.h"
+#endif
+#if ENABLE_MAGE
 #include "mage_hts_engine_impl.hpp"
 #endif
 #include "quality_setting.hpp"
-
 
 namespace RHVoice
 {
@@ -37,7 +39,7 @@ namespace RHVoice
       info(info_)
     {
       prototypes.push_back(hts_engine_impl::pointer(new std_hts_engine_impl(info_)));
-#ifdef ENABLE_MAGE
+#if ENABLE_MAGE
       prototypes.push_back(hts_engine_impl::pointer(new mage_hts_engine_impl(info_)));
 #endif
     }
