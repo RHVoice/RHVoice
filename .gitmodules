@@ -13,3 +13,6 @@
 [submodule "data/voices/evgeniy-eng"]
 	path = data/voices/evgeniy-eng
 	url = https://github.com/rhvoice/evgeniy-eng
+[submodule "external/libs/sonic"]
+	path = external/libs/sonic
+	url = https://github.com/waywardgeek/sonic.git
