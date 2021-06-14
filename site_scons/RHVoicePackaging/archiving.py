@@ -22,12 +22,14 @@ from .common import *
 
 def archive(target,source,env):
 	with zipfile.ZipFile(str(target[0]),"w",zipfile.ZIP_DEFLATED) as f:
-		for src in source:
-			infile,outfile,on_disk=src.read()
+		for i in range(0, len(source), 3):
+			infile=source[i]
+			outpath=source[i+1].read()
+			on_disk=source[i+2].read()
 			if on_disk:
-				f.write(infile,outfile)
+				f.write(str(infile), outpath)
 			else:
-				f.writestr(outfile,infile)
+				f.writestr(outpath, infile.read())
 
 class archiver(packager):
 	def __init__(self,name,outdir,env,ext="zip"):
@@ -36,9 +38,7 @@ class archiver(packager):
 	def package(self):
 		sources=list()
 		for f in self.files:
-			if f.on_disk:
-				src=(f.infile.path,f.outpath,True)
-			else:
-				src=(f.infile.read(),f.outpath,False)
-			sources.append(Value(src,src))
+			sources.append(f.infile)
+			sources.append(Value(f.outpath))
+			sources.append(Value(f.on_disk))
 		return self.env.Command(self.outfile,sources,archive)[0]
