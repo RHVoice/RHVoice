@@ -3,6 +3,7 @@
 import sys
 import os
 import os.path
+from RHVoicePackaging.archiving import archiver
 if sys.platform=="win32":
 	import RHVoicePackaging.nvda
 	import RHVoicePackaging.windows
@@ -60,8 +61,12 @@ for dir_name in ["languages","voices"]:
 			for f in data_files:
 				local_env.InstallData(f,os.path.relpath(f.Dir(".").abspath,root_dir.abspath))
 		packagers=dict()
+		pkgdir=Dir("..").Dir("packages")
+		packagers["zip"]=archiver(package_name+"-v"+version,pkgdir.Dir("zip"), local_env)
+		for f in data_files:
+			outdir=os.path.normpath(os.path.relpath(f.Dir(".").abspath,subdir.abspath))
+			packagers["zip"].add(f, outdir)
 		if sys.platform=="win32":
-			pkgdir=Dir("..").Dir("packages")
 			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,version+nvda_addon_build_number,True)
 			packagers["msi"]=RHVoicePackaging.windows.data_packager(props["msi_upgrade_code"],package_name,pkgdir.Dir("sapi"),local_env,description,version+msi_build_number)
 			for f in data_files:
