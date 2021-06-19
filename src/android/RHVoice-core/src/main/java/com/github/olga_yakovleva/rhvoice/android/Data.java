@@ -59,6 +59,7 @@ public final class Data
         addLanguage(lang);
         lang=new LanguagePack("Russian", "rus", "ru", "RUS", "RU", false, 2, 6, Checksums.LANGUAGE_RUSSIAN, null, null);
         lang.addVoice(new VoicePack("Aleksandr", lang, 4, 2, Checksums.VOICE_ALEKSANDR, null, null));
+        lang.addVoice(new VoicePack("Aleksandr-hq", lang, 4, 0, Checksums.VOICE_ALEKSANDR_HQ, "https://github.com/RHVoice/aleksandr-hq-rus/releases/download/4.0/data.zip", null));
         lang.addDefaultVoice(new VoicePack("Anna", lang, 4, 1, Checksums.VOICE_ANNA, null, null));
         lang.addVoice(new VoicePack("Elena", lang, 4, 2, Checksums.VOICE_ELENA, null, null));
         lang.addVoice(new VoicePack("Irina", lang, 4, 1, Checksums.VOICE_IRINA, null, null));
