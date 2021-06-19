@@ -1421,7 +1421,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     std::vector<std::string> result;
     item::iterator seg_start,seg_end,seg_iter;
     std::string seg_name;
-    std::size_t n;
+    std::size_t i, n;
     for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
       {
         item& word_with_syls=sylstruct_rel.append(*word_iter);
@@ -1440,13 +1440,18 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
             else
               {
                 seg_name=seg_iter->get("name").as<std::string>();
+                i=0;
+                if(seg_name[i]=='/')
+                  ++i;
                 n=seg_name.size()-1;
                 if((seg_name[n]=='0')||(seg_name[n]=='1'))
                   {
                     if(seg_name[n]=='1')
                       word_with_syls.last_child().set<std::string>("stress","1");
-                    seg_iter->set("name",seg_name.substr(0,n));
+                    seg_iter->set("name",seg_name.substr(i,n-i));
                   }
+                else if(i>0)
+                  seg_iter->set("name",seg_name.substr(i));
                 word_with_syls.last_child().append_child(*seg_iter);
                 ++seg_iter;
               }
