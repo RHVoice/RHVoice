@@ -16,6 +16,6 @@
 [submodule "external/libs/sonic"]
 	path = external/libs/sonic
 	url = https://github.com/waywardgeek/sonic.git
-[submodule "data/voices/aleksandr-hq-rus"]
+[submodule "data/voices/aleksandr-hq"]
 	path = data/voices/aleksandr-hq
 	url = https://github.com/rhvoice/aleksandr-hq-rus
