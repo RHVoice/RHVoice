@@ -1,0 +1,144 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+# CyrAlphabet defines all letters including apostrophe for schwa and vocalic R
+# CyrA also defines a stress mark for forcing  stress
+source CyrAlphabet.foma 
+define Word [CLetter|StressMark]+ ; 
+
+define InitialLetterMapping 
+î : i0 |  # debug schwa !
+а : a0 | 
+[е|è|ѐ] : e0 | # accent is only for disambiguation. Could be removed when capitalized
+[и|ѝ|ì] : ii0 | # accent is only for disambiguation. Could be removed when capitalized
+о : o0 | 
+у : u0 | 
+ј  :  j |
+б : b | 
+ѓ : gj | 
+г: g | 
+д : d | 
+#џ : [d zh] | 
+џ : dzh | 
+ѕ : dz | 
+ж : zh | 
+з : z | 
+к : k | 
+л : l | 
+м : m | 
+н : n | 
+њ : nj |
+п : p | 
+р : r | 
+с : s | 
+т : t | 
+ф : f | 
+х : h | 
+ц : ts | 
+ч : tsh | 
+ш : sh | 
+в : v |
+љ : lj |
+ќ : kj |
+[%' | ’ ] : ax0 ; 
+
+define InitialTranscription InitialLetterMapping @-> ; 
+
+
+ source stress_in_text.foma
+
+
+# we define how to mark an unstressed vowel as stressed. 
+# Note that an 'r' phoneme between two consonants can be treated as a semi-vowel to
+# form a syllable. e.g  / ts r k v a /   
+# when moving to Macednian phonemes, let's try for a semi-vowel, "ry"
+
+define tgStress a0:a1|e0:e1|ii0:ii1|i0:i1|o0:o1|u0:u1|ry0:ry1|ax0:ax1;
+#define tgStress a0:a1|e0:e0|ii0:ii1|i0:i1|o0:o1|u0:u1|ry0:ry1|ax0:ax1;
+define noStressV  a0 | e0 | ii0 | o0 | u0 | i0 | ry0 | ax0 ;
+define stressV  a1 | e1 | ii1 | o1 | u1 | i1 | ax1 ;
+define vowel  noStressV  | stressV;
+define pc   \vowel;
+define noStress noStressV | pc | StressMark;
+
+define vowelizeR  r -> [i0 r]  || pc _ pc ,,
+ax0 -> i0 || _ r ; 
+
+# Two passes at adding stress.
+# If there is no stress AND there are three or more syllables, put the stress on the third from last syllable
+# If there is still no stress, then put the stress on the first front syllable.
+# TBW:  Special -ki ending to a word moves stress to second last syllable
+# Note, double vowels exist, we treat them HERE as long vowels, not two.
+
+
+define markedStressRule StressMark tgStress -> ||   _ ;  #  convert any unstresssed vowel preceded by a stress mark
+define adverbkiStressRule tgStress -> ||  .#. noStress* _ j kj ii0 .#.;
+define stressedSuffixes # these should really go into stress dictionary 
+ [ii0 r a0 m] : [ii1 r a0 m ] |  # ирам
+ [ii0 r a0 sh] : [ii1 r a0 sh] |  # ираш
+ [ii0 r a0] : [ii1 r a0] |  # ира
+ [ii0 r a0 v] : [ii1 r a0 v] |  # ирав
+ [ii0 r a0 l] : [ii1 r a0 l] |   # ирал 
+ [ii0 r a0 j] : [ii1 r a0 j] |   # ирај 
+ [u0 r a0] : [u1 r a0  ] |    # ура
+ [l o0 g] : [l o1 g ] |  # лог
+ [ii0 s t] : [ii1 s t ] |  # ист
+ [t e0 t] : [t e1 t ]  |  # тет  
+ [f o0 n] : [f o1 n] |  # фон
+ [f o0 n o t] : [f o1 n o t] | # фонот
+ [f o0 n o v] : [f o1 n o v] | # фонов
+ [f o0 n o n] : [f o1 n o n] | #  фонон
+ [f o0 n i0] : [f o1 n i0] ; # фони
+define stressSuffixRule  stressedSuffixes -> || .#. noStress* _ .#.;
+define antePenultStressRule tgStress -> ||  .#. noStress* _ pc* noStressV pc* noStressV pc* .#.;
+define frontStressRule tgStress -> ||  .#. pc* _ noStress* .#.;
+
+define StressRules 
+markedStressRule
+.o.  [StressMark -> 0] 
+.o. adverbkiStressRule 
+.o. stressSuffixRule 
+.o. antePenultStressRule 
+.o. frontStressRule 
+; 
+
+define SoftenLRule l -> lj || _ ii0 | e0 | j ; 
+source latin_convert.foma
+source unstressed_words.foma
+source downcase.foma
+source  stress_dictionary.foma
+
+define TranscriptionRules  
+Word .o. 
+InitialTranscription
+.o. SoftenLRule 
+.o. vowelizeR ; 
+
+
+
+# To be written
+# In order to handle words which are in the stress dictionary which might be in uppercase and/or latin
+# we need to take the Downcase .o. LatinConvert out of TranscriptionRules
+# and run them before the .P. below.
+source abbrevs.foma 
+define Rules  
+[AbbrevTranslation] .P.
+[Downcase .o.  LatinConvert] .o. 
+ [[UnstressedWords .o. TranscriptionRules] .P. 
+  [ApplyStressDictionary .o. TranscriptionRules .o. StressRules]] ;
+
+
+regex Rules ; 

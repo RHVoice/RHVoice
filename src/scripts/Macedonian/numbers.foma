@@ -1,0 +1,494 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+define nogenderUnit 
+%0: нула |
+3:три | 
+4:четири | 
+5:пет | 
+6:шест | 
+7:седум | 
+8:осум | 
+9:девет ; 
+
+define MascUnit 
+1:еден | #, една,едно
+2:два  | #, две, две
+nogenderUnit;
+
+define FemUnit 
+1:една |
+2:две | 
+nogenderUnit;
+
+define MaleOrdUnit 
+1:први | 
+2:втори | 
+3:трети | 
+4:четврти | 
+5:петти  | 
+6:шести  | 
+7:седми  | 
+8:осми  | 
+9:деветти ; 
+
+define MaleDefOrdUnit 
+1:првиот | 
+2:вториот | 
+3:третиот | 
+4:четвртиот | 
+5:петтиот  | 
+6:шестиот  | 
+7:седмиот  | 
+8:осмиот  | 
+9:деветтиот ; 
+
+define FemaleOrdUnit 
+1:прва | 
+2:втора | 
+3:трета | 
+4:четврта | 
+5:петта  | 
+6:шеста | 
+7:седма | 
+8:осма  | 
+9:деветта ; 
+
+define FemaleDefOrdUnit 
+1:првата | 
+2:втората | 
+3:третата | 
+4:четвртата | 
+5:петтата  | 
+6:шестата | 
+7:седмата | 
+8:осмата  | 
+9:деветтата ; 
+
+define NeuterOrdUnit 
+1:прво | 
+2:второ | 
+3:трето | 
+4:четврто | 
+5:петто | 
+6:шесто  | 
+7:седмо  | 
+8:осмо | 
+9:деветто ; 
+
+define NeuterDefOrdUnit 
+1:првото | 
+2:второто | 
+3:третото | 
+4:четвртото | 
+5:петтото | 
+6:шестото  | 
+7:седмото  | 
+8:осмото | 
+9:деветтото ; 
+
+
+define Teen 
+1:единаесет| #, една,едно
+2:дванаесет | #, две, две
+3:тринаесет| 
+4:четиринаесет| 
+5:петнаесет| 
+6:шеснаесет| 
+7:седумнаесет| 
+8:осумнаесет| 
+9:деветнаесет; 
+
+define MaleOrdTeen 
+1:единаесетти |  
+2:дванаесетти | 
+3:тринаесетти |  
+4:четиринаесетти |  
+5:петнаесетти |  
+6:шеснаесетти |  
+7:седумнаесетти |  
+8:осумнаесетти |  
+9:деветнаесетти ; 
+
+define MaleDefOrdTeen 
+1:единаесеттиот |  
+2:дванаесеттиот | 
+3:тринаесеттиот |  
+4:четиринаесеттиот |  
+5:петнаесеттиот |  
+6:шеснаесеттиот |  
+7:седумнаесеттиот |  
+8:осумнаесеттиот |  
+9:деветнаесеттиот ; 
+
+define FemaleOrdTeen 
+1:единаесетта |  
+2:дванаесетта | 
+3:тринаесетта |  
+4:четиринаесетта |  
+5:петнаесетта |  
+6:шеснаесетта |  
+7:седумнаесетта |  
+8:осумнаесетта |  
+9:деветнаесетта ; 
+
+define FemaleDefrdTeen 
+1:единаесеттата |  
+2:дванаесеттата | 
+3:тринаесеттата |  
+4:четиринаесеттата |  
+5:петнаесеттата |  
+6:шеснаесеттата |  
+7:седумнаесеттата |  
+8:осумнаесеттата |  
+9:деветнаесеттата ; 
+
+define NeuterOrdTeen 
+1:единаесетто |  
+2:дванаесетто | 
+3:тринаесетто |  
+4:четиринаесетто |  
+5:петнаесетто |  
+6:шеснаесетто |  
+7:седумнаесетто |  
+8:осумнаесетто |  
+9:деветнаесетто ; 
+
+define NeuterOrdTeen 
+1:единаесеттото |  
+2:дванаесеттото | 
+3:тринаесеттото |  
+4:четиринаесеттото |  
+5:петнаесеттото |  
+6:шеснаесеттото |  
+7:седумнаесеттото |  
+8:осумнаесеттото |  
+9:деветнаесеттото ; 
+
+define Ten 
+1:десет |
+2:дваесет | 
+3:триесет | 
+4:четириесет | 
+5:педесет | 
+6:шеесет | 
+7:седумдесет | 
+8:осумдесет | 
+9:деведесет;
+
+define MaleOrdTen 
+1:десетти |
+2:дваесетти | 
+3:триесетти | 
+4:четириесетти | 
+5:педесетти | 
+6:шеесетти | 
+7:седумдесетти | 
+8:осумдесетти | 
+9:деведесетти ;
+
+define MaleDefOrdTen 
+1:десеттиот |
+2:дваесеттиот | 
+3:триесеттиот | 
+4:четириесеттиот | 
+5:педесеттиот | 
+6:шеесеттиот | 
+7:седумдесеттиот | 
+8:осумдесеттиот | 
+9:деведесеттиот ;
+
+define FemaleOrdTen 
+1:десетта |
+2:дваесетта | 
+3:триесетта | 
+4:четириесетта | 
+5:педесетта | 
+6:шеесетта | 
+7:седумдесетта | 
+8:осумдесетта | 
+9:деведесетта ;
+
+define FemaleDefOrdTen 
+1:десеттата |
+2:дваесеттата | 
+3:триесеттата | 
+4:четириесеттата | 
+5:педесеттата | 
+6:шеесеттата | 
+7:седумдесеттата | 
+8:осумдесеттата | 
+9:деведесеттата ;
+
+define NeuterOrdTen 
+1:десетто |
+2:дваесетто | 
+3:триесетто | 
+4:четириесетто | 
+5:педесетто | 
+6:шеесетто | 
+7:седумдесетто | 
+8:осумдесетто | 
+9:деведесетто ;
+
+define NeuterDefOrdTen 
+1:десеттото |
+2:дваесеттото | 
+3:триесеттото | 
+4:четириесеттото | 
+5:педесеттото | 
+6:шеесеттото | 
+7:седумдесеттото | 
+8:осумдесеттото | 
+9:деведесеттото ;
+
+
+define Hundred 
+1:сто | 
+2:двесте | 
+3:триста | 
+4:четиристотини | 
+5:петстотини | 
+6:шестотини | 
+7:седумстотини | 
+8:осумстотини | 
+9:деветстотими ; 
+
+define MaleOrdHundred 
+1:стоти | 
+2:двестети | 
+3:тристати | 
+4:четиристоти | 
+5:петстоти | 
+6:шестоти | 
+7:седумстоти | 
+8:осумстоти | 
+9:деветстоти ; 
+
+define MaleDefOrdHundred 
+1:стотиот | 
+2:двестетиот | 
+3:тристатиот | 
+4:четиристотиот | 
+5:петстотиот | 
+6:шестотиот | 
+7:седумстотиот | 
+8:осумстотиот | 
+9:деветстотиот ; 
+
+define FemaleOrdHundred 
+1:стота | 
+2:двестета | 
+3:тристата | 
+4:четиристота | 
+5:петстота | 
+6:шестота | 
+7:седумстота | 
+8:осумстота | 
+9:деветстота ; 
+
+define FemaleDefOrdHundred 
+1:стотата | 
+2:двестетата | 
+3:тристатата | 
+4:четиристотата | 
+5:петстотата | 
+6:шестотата | 
+7:седумстотата | 
+8:осумстотата | 
+9:деветстотата ; 
+
+define NeuterOrdHundred 
+1:стото | 
+2:двестето | 
+3:тристато | 
+4:четиристото | 
+5:петстото | 
+6:шестото | 
+7:седумстото | 
+8:осумстото | 
+9:деветстото ; 
+
+define NeuterDefOrdHundred 
+1:стотото | 
+2:двестетото | 
+3:тристатото | 
+4:четиристотото | 
+5:петстотото | 
+6:шестотото | 
+7:седумстотото | 
+8:осумстотото | 
+9:деветстотото ; 
+
+define TenOrHundredSymbol ten|hnd ; 
+
+
+# ----------------------------
+define NZDigit 1|2|3|4|5|6|7|8|9 ; 
+define Digit %0|NZDigit ; 
+
+
+source OrdinalSuffixes.foma
+
+define UnformattedNumber %0 | [NZDigit Digit^<15] ; 
+define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
+define RegularDecimal [FormattedNumber|UnformattedNumber] %, Digit+;   #  3.000.320(,022)
+define ForeignDecimal UnformattedNumber %. [Digit^<3 | Digit^>3];   # foreign DP 1.02
+define Ordinal	[FormattedNumber|UnformattedNumber]  OrdSuffix ;   #  number (has to be without commas) followed by ordinal marker
+define ArabicNumber UnformattedNumber | FormattedNumber | RegularDecimal | ForeignDecimal | Ordinal;
+
+# tag valid numbers
+define tagNumberTypes 
+  [FormattedNumber|UnformattedNumber] @-> ... wnum || .#. _ (%, Digit+)  .#. ,,  #  3.000.320(,022)
+	UnformattedNumber @-> ... wnum || .#. _ (%. Digit+)  .#.  ,,   # foreign DP 1.02
+	# UnformattedNumber @-> ... wnum || .#. _ (%. [Digit^{1,2} | Digit^>3])  .#.  ,,   # foreign DP 1.02
+	[FormattedNumber|UnformattedNumber] @-> ... wnum ord || .#. _ [%. | OrdSuffix] .#. ;   #  number (has to be without commas) followed by ordinal marker
+
+
+# We expect this code to be protected from strings contain other than digits, commas and periods.
+# We will, however, catch non-numbers which has slipped through, like  20.0.1  or 20,11,111
+define tagCascade 
+   [  [%,|%.] -> ... dp || wnum  _ Digit+ .#. ]    # place decimal point after whole numbers
+  .o. [ [%.]:0  -> || _ ?* wnum ]  #  get rid of the thousands dividers
+	.o. [ Digit -> ... dec  || dp Digit* _ .#. ]  # mark decimal
+	.o. [ dec -> wnum || dp NZDigit Digit^<3 _ .#. ]  # See (1) below, "Un-Decimalize"  
+ 	.o. [ Digit-> ... wnum || [.#. | \Digit] Digit* _ [ .#. | %. | %, ]];    #  not a whole number, or decimal
+
+# (1) Un-Decimalize For decimal parts, we want any sequence without a leading zero, up to three places, to be read as a whole
+# number rather than a list of digits
+
+# by now we have wnum tags for numbers which should be read as whole numbers, dec for those which should be treated differently,# ord tag after wnum, and periods and commas dotted about. 
+
+define tagRules  tagNumberTypes .o. tagCascade; 
+
+# For whole numbers change the markers for singles
+define preTranslate [1 thns] -> [1 thn] || _ ,,
+  [1 mlns] -> [1 mln] || _ ,,
+  [1 blns] -> [1 bln] || _ ,,
+  [1 tlns] -> [1 tln] || _ ;
+#----------------------------
+
+define PowerOfThousandSymbol thns|mlns|blns|tlns|thn|mln|bln|tln ; 
+define PowerOfTenSymbol TenOrHundredSymbol|PowerOfThousandSymbol ; 
+
+# define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 wnum  ; 
+ define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 [\dec & \Digit]  ; 
+
+define PowerOfThousandSymbolsToSingular 
+[mlns:mln|blns:bln|tlns:tln] -> || [[PowerOfThousandSymbol (and)]|wnum] 1 _ ; 
+
+define RemoveSilentGroups 
+%0^3 (PowerOfThousandSymbol) @-> 0 || _ ?* wnum ; 
+
+define SeparateHundreds 
+[..] -> hnd ||  Digit _ Digit^2 ?* wnum; 
+
+define Mark100s 
+hnd -> hnd0 || 1 _ {00} ; 
+
+define SeparateTens 
+[..] -> ten ||  Digit _ Digit ?* wnum; 
+
+
+define RemoveZeros 
+%0  (TenOrHundredSymbol) @-> 0 || _ ?* wnum; 
+
+define MarkTeens 
+[[1 ten]:0] NZDigit [0:[teen %0]] -> ; 
+
+define InsertAnds [..] -> and || 
+ [.#.|dp] \dp+ _ NZDigit [ [PowerOfThosandSymbol|hnd|teen|ten] %0]* [PowerOfThousandSymbol|wnum]  ; # puts a single 'and', before the last non-zero element
+
+define RemoveOnes 
+1 -> 0 || .#. _ thn ; 
+
+define  processOrdinals 
+# first the indefs, then the defs. Because we need to output whole words as symbols, we cannot build up these forms using syntactical rules. Ironic.
+ MaleOrdUnit ->  ||  _ wnum ord MaleOrdSuffix .#. ,, 
+ FemaleOrdUnit ->  ||  _ wnum ord FemaleOrdSuffix .#. ,, 
+ NeuterOrdUnit ->  ||  _ wnum ord NeuterOrdSuffix .#. ,, 
+ [MaleOrdTeen teen:0]->  ||  _ wnum ord MaleOrdSuffix .#. ,, 
+ [FemaleOrdTeen teen:0] ->  ||  _ wnum ord FemaleOrdSuffix .#. ,, 
+ [NeuterOrdTeen teen:0] ->  ||  _ wnum ord NeuterOrdSuffix .#. ,, 
+ [MaleOrdTen ten:0] ->  ||  _ wnum ord MaleOrdSuffix .#. ,, 
+ [FemaleOrdTen ten:0] ->  ||  _ wnum ord FemaleOrdSuffix .#. ,, 
+ [NeuterOrdTen ten:0] ->  ||  _ wnum ord NeuterOrdSuffix .#. ,,
+ [MaleOrdHundred [hnd|hnds]:0] ->  ||  _  wnum ord MaleOrdSuffix .#. ,, 
+ [FemaleOrdHundred [hnd|hnds]:0] ->  ||  _  wnum ord FemaleOrdSuffix .#. ,, 
+ [NeuterOrdHundred [hnd|hnds]:0] ->  ||  _  wnum ord NeuterOrdSuffix .#. ,,
+
+ MaleDefOrdUnit ->  ||  _ wnum ord MaleDefOrdSuffix .#. ,, 
+ FemaleDefOrdUnit ->  ||  _ wnum ord FemaleDefOrdSuffix .#. ,, 
+ NeuterDefOrdUnit ->  ||  _ wnum ord NeuterDefOrdSuffix .#. ,, 
+ [MaleDefOrdTeen teen:0]->  ||  _ wnum ord MaleDefOrdSuffix .#. ,, 
+ [FemaleDefOrdTeen teen:0] ->  ||  _ wnum ord FemaleDefOrdSuffix .#. ,, 
+ [NeuterDefOrdTeen teen:0] ->  ||  _ wnum ord NeuterDefOrdSuffix .#. ,, 
+ [MaleDefOrdTen ten:0] ->  ||  _ wnum ord MaleDefOrdSuffix .#. ,, 
+ [FemaleDefOrdTen ten:0] ->  ||  _ wnum ord FemaleDefOrdSuffix .#. ,, 
+ [NeuterDefOrdTen ten:0] ->  ||  _ wnum ord NeuterDefOrdSuffix .#. ,,
+ [MaleDefOrdHundred [hnd|hnds]:0] ->  ||  _  wnum ord MaleDefOrdSuffix .#. ,, 
+ [FemaleDefOrdHundred [hnd|hnds]:0] ->  ||  _  wnum ord FemaleDefOrdSuffix .#. ,, 
+ [NeuterDefOrdHundred [hnd|hnds]:0] ->  ||  _  wnum ord NeuterDefOrdSuffix  .#.;
+
+define Translate 
+ [
+ MascUnit -> || _ wnum | dec | [PowerOfThousandSymbol  - thn - thns - bln - blns]  ,, 
+ FemUnit -> || _  [thn | thns | bln | blns] ,, 
+ MascUnit -> || dp Digit* _ Digit* dec ,,   # right of decimal point
+ Teen [teen:0] -> || _ ,, 
+ Ten [ten:0] -> || _ ,, 
+	Hundred [hnd:0] -> || _ ,, 
+	and ->  и || _ ,, 
+	%, ->  запирка || _ ?+ .#. ,, 
+	%. ->  точка || _ ?+ .#. ,, 
+ [[thns|thn]:илјадити|[mlns|mln]:милјонити|[blns|bln]:милијардити|[tlns|tln]:трилионити] @->  ||  _  wnum ord MaleOrdSuffix ,, 
+ [[thns|thn]:илјадита|[mlns|mln]:милјонита|[blns|bln]:милијардита|[tlns|tln]:трилионити] @->  ||  _  wnum ord FemaleOrdSuffix ,, 
+ [[thns|thn]:илјадито|[mlns|mln]:милјонито|[blns|bln]:милијардито|[tlns|tln]:трилионити] @->  ||  _  wnum ord NeuterOrdSuffix  ,,
+ [[thns|thn]:илјадитиот|[mlns|mln]:милјонитиот|[blns|bln]:милијардитиот|[tlns|tln]:трилионитиот] @->  ||  _  wnum ord MaleDefOrdSuffix ,, 
+ [[thns|thn]:илјадитата|[mlns|mln]:милјонитата|[blns|bln]:милијардитата|[tlns|tln]:трилионити] @->  ||  _  wnum ord FemaleDefOrdSuffix ,, 
+ [[thns|thn]:илјадитото|[mlns|mln]:милјонитото|[blns|bln]:милијардитото|[tlns|tln]:трилионити] @->  ||  _  wnum ord NeuterDefOrdSuffix 
+ ]
+ .o. [ 
+	[thn:илјада | mln:милион | bln:милијарда | tln:трилион] -> || _    ,, 
+	[thns:илјади | mlns:милјони | blns:милијарди | tlns:трилиони] ->  || _  
+	]; 
+
+define NumberRules 
+SeparatePowerOfThousand(thns)  .o. 
+ SeparatePowerOfThousand(mlns) .o. 
+SeparatePowerOfThousand(blns) .o. 
+SeparatePowerOfThousand(tlns)  .o. 
+RemoveSilentGroups .o. 
+SeparateHundreds  .o. 
+SeparateTens  .o. 
+    #MarkOrdPowerOfThousand .o.
+ MarkTeens  
+ .o. InsertAnds  .o. 
+ RemoveZeros  .o. 
+ PowerOfThousandSymbolsToSingular .o. 
+ preTranslate .o.  
+  RemoveOnes   .o.
+  processOrdinals 
+	
+	.o. [%.|%,|wnum] -> нула ... || .#. _   # hack to replace lost zero in front of dec. point
+   .o. Translate   .o. [ [ord OrdSuffix]:0 -> || wnum _ .#. ]
+	
+   .o. 	[dp:0|dec:0|wnum:0] -> || _;
+
+
+source romans.foma
+regex ConvertRomanToDecimal .o. ArabicNumber .o. tagRules .o. NumberRules ; 
+

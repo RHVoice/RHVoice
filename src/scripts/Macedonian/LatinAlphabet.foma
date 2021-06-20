@@ -1,0 +1,29 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+define lcLVowelLetter a | e | è | i | ì | o | u | y ;  
+define ucLVowelLetter A | E | È | I | Ì | O | U | Y ;  
+define lcLConsonantLetter  b | v | g | d |  z |  k | l | m | n |  p | r | s | t | f | c | h | j | x | w | q | ǵ | đ | ḱ  | ć  | ẑ  | ž | ń |  n̂ |  š | č | ĺ |  l̂ ;  
+#| {dzh} | {gj} | {kj} | {dj} | {ts} | {dž} | {dz} | {zh} | {nj} | {sh} | {ch} | {lj} | | 
+define ucLConsonantLetter  B | V | G | D |  Z |  K | L | M | N |  P | R | S | T | F | C | H | J | X | W | Q | Ǵ | Đ | Ḱ  | Ć  | Ẑ  | Ž | Ń | N̂ | Š | Č | Ĺ | L̂ ;  
+#| {DZH} | {GJ} | {KJ} | {DJ} | {TS} | {DŽ} | {DZ} | {ZH} | {NJ} | {SH} | {CH} | {LJ} | | 
+
+define LVowelLetter lcLVowelLetter | ucLVowelLetter ; 
+define LConsonantLetter lcLConsonantLetter | ucLConsonantLetter ; 
+
+define lcLLetter  lcLVowelLetter | lcLConsonantLetter ; 
+define ucLLetter  ucLConsonantLetter | ucLConsonantLetter ; 
+
+define LLetter LVowelLetter | LConsonantLetter ; 
