@@ -41,8 +41,8 @@ namespace RHVoice
   class relation_not_found: public lookup_error
   {
   public:
-    explicit relation_not_found():
-      lookup_error("Relation not found")
+    explicit relation_not_found(const std::string& name):
+      lookup_error("Relation not found: "+name)
     {
     }
   };
@@ -179,7 +179,7 @@ namespace RHVoice
     {
       relation_map::const_iterator it(relations.find(name));
       if(it==relations.end())
-        throw relation_not_found();
+        throw relation_not_found(name);
       return *(it->second);
     }
 
@@ -191,7 +191,7 @@ namespace RHVoice
           if(create)
             return add_relation(name);
           else
-            throw relation_not_found();
+            throw relation_not_found(name);
         }
       else
         return *(it->second);

@@ -32,7 +32,7 @@ namespace RHVoice
   {
     relation_map::iterator it(relations.find(name));
     if(it==relations.end())
-      throw relation_not_found();
+      throw relation_not_found(name);
     relations.erase(it);
   }
 }
