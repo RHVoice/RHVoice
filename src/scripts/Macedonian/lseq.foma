@@ -1,0 +1,118 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Letter  # Latin letters on left of |
+î : i1 |  # debug schwa !
+[a|а] : a1 |
+[e|е] : e1 | 
+[è|ѐ ] : [e1 s o0 n a1 d r e0 d e0 n z n a1 k] | # accent is only for disambiguation. Could be removed when capitalized
+[i|и] : ii1 | 
+[ѝ|ì] : [ii1 s o0 n a1 d r e0 d e0 n z n a1 k] | 
+[o|о] : o1 | 
+[u|у] : u1 | 
+[j|ј]  :  [j ax0] |
+[b|б] : [b ax0] | 
+[ǵ|đ|ѓ] : [gj ax0] | 
+[g|г]: [g ax0] | 
+[d|д] : [d ax0] | 
+[dzh|џ] : [dzh ax0] | 
+[dz|ẑ|ѕ] : [dz ax0] | 
+[zh|ž|ж] : [zh ax0] | 
+[z|з] : [z ax0] | 
+[k|к] : [k ax0] | 
+[l|л] : [l ax0] | 
+[m|м] : [m ax0] | 
+[n|н] : [n ax0] | 
+[nj|ń|n̂|њ] : [nj ax0] |
+[p|п] : [p ax0] | 
+[р|r] : [r ax0] | 
+[s|с] : [s ax0] | 
+[t|т] : [t ax0] | 
+[f|ф] : [f ax0] | 
+[h|х] : [h ax0] | 
+[c|ц] : [ts ax0] | 
+[ch|č|ч] : [tsh ax0] | 
+[sh|š|ш] : [sh ax0] | 
+[v|в] : [v ax0] |
+[lj|l̂|ĺ|љ] : [lj ax0] |
+[ky|ḱ|ć|ќ] : [kj ax0] |
+q : [k u1] |
+w : [d a1 b l j u1] |
+x : [ii1 k s] |
+y : [ii1 p s i0 l o0 n];
+
+define SpecialSingles 
+
+# latin for when Android is spelling letter by letter.
+ѐ : [ e1 s o0 n a1 d r e0 d e0 n z n a1 k]  | #  spell out the leter name
+ѝ : [ ii1 s o0 n a1 d r e0 d e0 n z n a1 k]  | 
+a : [e1 j] |
+b : [b ii1] | 
+c : [s ii1] |
+d : [d ii1] |
+e : [ii1] |
+è : [l a1 t ii1 n ii0 tsh n o0 e1 s o0 n a1 d r e0 d e0 n z n a1 k]  | 
+f : [e1 f ] |
+g : [dzh ii1] |
+h : [e1 j tsh] |
+i : [a1 j] |
+ì : [l a1 t ii1 n ii0 tsh n o0 ii1 s o0 n a1 d r e0 d e0 n z n a1 k]  | 
+j : [dzh  e1 j] |
+k : [k e1 j] |
+l : [e1 l] |
+m : [e1 m] |
+n : [e1 n] |
+o : [o1 u0]  |
+p : [p ii1] |
+q : [k j u1] |
+r : [a1 r] |
+s : [e1 s] |
+t : [t ii1] |
+u : [j u1] |
+v : [v ii1] |
+w : [d a1 b l j u1] |
+x : [ii1 k s] |
+y : [ii1 p s i0 l o0 n] |
+z : [z e1 d] |
+# old style (and Serbian) accented latin.  
+ǵ : [gj o1] | 
+đ : [gj  o1] | 
+[ḱ|ć] : [kj o1] |
+ẑ : [dz o1] | 
+ž : [zh o1] |
+[ń|n̂] : [nj o1] |
+[l̂|ĺ] : [lj o1] |
+š: [sh o1] |
+č: [tsh o1]
+;
+
+
+
+defin LetterSequence Letter+ ; 
+
+# not all vowels used, but map them all anyway
+define stress 
+ [a0:a1 | ax0:ax1 | e0:e1 | i0:i1 | ii0:ii1 | o0:o1 | u0:u1] -> ||  _  .#. ;
+
+  
+
+#source latin_convert.foma
+source downcase.foma
+
+define Rules  
+ 	Downcase .o. # LatinConvertLSeq .o. 
+#	LatinSingle .P.
+ [[LetterSequence @-> || _]   .o. [ stress]] ; 
+
+regex Rules ; 

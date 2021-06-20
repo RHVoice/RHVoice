@@ -54,6 +54,10 @@ languages={
 	"Ukrainian":
 	{
 		"ids":["uk"]
+	 },
+	"Macedonian":
+	{
+		"ids":["mk"]
 	 }
 	   }
 

@@ -1,0 +1,30 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# These will be pronounced as letter sequences. 
+define Acronym {АВМУ} | {AVMU} |  #  Агенција за аудио и аудиовизуелни медиумски услуги
+{АМС} | {AMS} |  # Агенција за млади и спорт
+{ВМРО} | {VMRO} | 
+{БРО} | {BRO} |  # Биро за развој на образование
+{СЗО} | {SZO} |  # Светска здравствена организација
+{ДПМНЕ} | {DPMNE} | 
+{МРТ} | {MRT} |  # Македонска Радио Телевизија
+{МТВ} | {MTV} |  # Македонска телевизија
+{МТСП} | {ITSP} |  # Министерство за труд и социјална политика
+{НБА} | {NBA} |   
+{НССРСМ} | {NSSRSM} | # Национален Сојуз на слепи на Република Северна Македонија
+{УГД} | {UGD} ; 
+
+# MON  pronounced as a word often, but leave as Lseq for now
+#{МОН} | {MON} |   # Министерство за образование и наука

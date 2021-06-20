@@ -1,0 +1,75 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define LatinDowncase 
+A:a | 
+B:b | 
+V:v | 
+G:g | 
+D:d | 
+E:e | 
+È:è |
+Z:z | 
+I:i |
+Ì:ì | 
+K:k | 
+L:l | 
+M:m | 
+N:n | 
+O:o | 
+P:p | 
+R:r | 
+S:s | 
+T:t | 
+U:u | 
+F:f | 
+C:c | 
+H:h | 
+J:j | 
+CH:ch|
+SH:sh|
+DZ:dz|
+LJ:lj|
+NJ:nj|
+GJ:gj|
+KJ:kj|
+DZH:dzh|
+ZH:zh|
+Ǵ:ǵ | 
+Đ:đ | 
+Ḱ:ḱ | 
+Ć:ć | 
+Ẑ:ẑ | 
+Ž:ž | 
+Ń:ń | 
+N̂:n̂ |
+L̂:l̂ |
+Š:š | 
+Č:č | 
+Ĺ:ĺ | 
+X:x |
+Y:y | 
+Q:q | 
+W:w ; 
+
+
+define CyrDowncase 
+А:а|Б:б|В:в|Г:г|Д:д|Ѓ:ѓ|Е:е|È:è|Ѐ:ѐ|Ж:ж|З:з|Ѕ:ѕ|И:и|Ѝ:ѝ|Ј:ј|К:к|Л:л|Љ:љ|М:м|Н:н|Њ:њ|О:о|П:п|Р:р|С:с|Т:т|Ќ:ќ|У:у|Ф:ф|Х:х|Ц:ц|Ч:ч|Џ:џ|Ш:ш|
+Ǵ:ǵ|Đ:đ|Ḱ:ḱ|Ć:ć|Ẑ:ẑ|Ž:ž|Ń:ń|Š:š|Č:č|Ĺ:ĺ;
+
+# Note that digraphs are capitalized as "Nj" etc and so moving to lower case does not lose information on distinguishing a digraph from two single letters.
+
+define Downcase 
+ [CyrDowncase | LatinDowncase] @-> || _; 
+

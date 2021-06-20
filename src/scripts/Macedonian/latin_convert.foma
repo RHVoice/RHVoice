@@ -1,0 +1,91 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define SimpleLatinMak 
+a : а | 
+b : б | 
+v : в |
+g : г | 
+d : д | 
+e : е | 
+è : ѐ | 
+z : з | 
+i : и |
+ì : ѝ |
+k : к | 
+l : л | 
+m : м | 
+n : н | 
+o : о | 
+p : п | 
+r : р | 
+s : с | 
+t : т | 
+u : у | 
+f : ф | 
+c : ц | 
+h : х | 
+j : ј -> || _;
+
+# sole trigraph system
+define TrigraphLatinMak 
+{dzh} : џ @-> ||_; 
+# digraph system
+define DigraphLatinMak 
+{gj} : ѓ |
+{kj} : ќ |
+{dj} : џ | 
+{ts} : ц  |
+{dž} : џ | 
+{dz} : ѕ | 
+{zh} : ж | 
+{nj} : њ |
+{sh} : ш | 
+{ch} : ч | 
+{lj} : љ @-> || _;
+
+# diacritics system
+define DiacriticsLatinMac 
+ǵ : ѓ |
+đ : ѓ |
+ḱ  : ќ |
+ć  : ќ |
+ẑ  : ѕ | 
+ž : ж | 
+[ń|n̂] : њ |
+š : ш | 
+č : ч | 
+[ĺ|l̂] : љ  -> || _;
+
+
+define OtherEnglishLatinMak 
+q : к | 
+x : {кс} |
+y : ј |
+w : в -> || _; 
+
+#  LatinConvertLSeq  omits specially named English latin letters.
+# THis will be usd in Letter sequence. Other latin letters will be given cyrillic names
+define LatinConvertLSeq  
+ TrigraphLatinMak 
+ .o. DigraphLatinMak 
+ .o. DiacriticsLatinMac 
+ .o. SimpleLatinMak 
+; 
+# This rule adds in phonetic transcription for word speech
+define LatinConvert  
+  LatinConvertLSeq
+ .o.  OtherEnglishLatinMak
+; 
+
