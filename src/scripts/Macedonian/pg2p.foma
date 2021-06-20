@@ -1,0 +1,125 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# This will be applied on the whole sequence of phonemes right after
+# the g2p has run on each of the words. So the vowels here will be
+# just as they come out of the g2p, and the stress can be changed here
+# before the syllabification code uses the stress marks to assign the
+# stress to the syllable.
+
+# - will separate the phrases, and the .#. is the usual boundary mark
+# - in Foma, which in this case will mean the start and end of the
+# - utterance.
+define PB %- | .#. ; 
+
+# # will separate the words in the same phrase.
+define WB %# | PB ; 
+
+define SpecialWord 
+[r a1 b] | # раб 
+[a1 d] | # ад
+[g a1 z] | #газ 
+[l a1 e0 zh] | #лаеж 
+[a1 p e0 zh] | #апеж 
+[j a1 d e0 zh] | #јадеж 
+[k r a1 d e0 zh] | #крадеж 
+[b o1 d e0 zh] | #бодеж 
+[v ii1 e0 zh] | #виеж 
+[v r ii1 e0 zh] | #вриеж 
+[k o1 lj e0 zh] | #колеж 
+[b a1 k n e0 zh] | #бакнеж 
+[r a1 s t e0 zh] | #растеж 
+[b e1 g] | #бег 
+[b o1 g] | #бог 
+[b l o1 g] | #блог 
+[s m o1 g] | #смог 
+[r o1 g] | #рог 
+[b e1 z] | #без 
+[f o1 n d] | #фонд 
+[k u1 b] | #куб 
+[sh e1 v] | #шев 
+[k o1 zh u0 v] | #кожув 
+[s t r u1 g] | #струг 
+[p o0 d] | #под 
+[p o1 d] | #под 
+[u1 p a0 d] | #упад 
+[l u1 d] | #луд 
+[j a1 z] | #јаз 
+[t e1 g] | #тег 
+[s l a1 b] | #слаб 
+[k o1 b] | #коб 
+[s n o1 b] | #сноб 
+[r a1 s p a0 d] | #распад 
+[p l o1 d] | #плод 
+[l a1 v] | #лав 
+[g r a1 v] ; #грав 
+
+define StressVowel 
+a0 : a1 | e0 : e1 | ii0 : ii1 | o0 : o1 | u0 : u1 | i0 : i1 | ax0 : ax1 ; 
+
+define Vowel StressVowel.u | StressVowel.l ; 
+
+define fixVowelLetters 
+StressVowel -> || PB _ PB ; 
+
+define FixV 
+v -> ... ax1 || PB _ PB ; 
+
+define StressSingleMonosyllabicWord 
+s e0 @-> ... || PB _ PB ,, 
+StressVowel @-> || PB [\[Vowel | %#]]* _ [\[Vowel | %#]]* PB ; 
+
+# Voiced/unvoiced pairs
+define VUPair 
+b:p|g:k|gj:kj|d:t|dzh:tsh|dz:ts|zh:sh|z:s|v:f;
+
+#Voiced obstruents, extracting the domain of the pair fst.
+define VObs VUPair.u;
+
+#Voiceless obstruents, extracting the range of the pair fst.
+define UObs VUPair.l | h;
+
+define Obs VObs | UObs ; 
+
+# Unvoiced become voiced before these.
+define VContext VObs - v ; 
+
+# Parallel rules with first longest match.
+# Special wordds aren't devoiced at all.
+#Voice assimilation will take care of their devoicing before a voiceless obstruent.
+
+define FinalDevoicing 
+#SpecialWord @-> || .#. _ .#. ,, 
+SpecialWord @-> || WB _ WB ,, 
+VUPair @-> || ?+ _ WB ; 
+
+
+define ObsSeq Obs [[%#]* Obs]* ; 
+
+define Voicing ObsSeq .o. [VUPair.i ->] ; 
+define Devoicing ObsSeq .o. [VUPair ->] ; 
+
+define Assimilation 
+Voicing [%#]* VContext @-> || _  ,, 
+Devoicing [%#]* UObs @-> || _  ; 
+
+define Rules 
+fixVowelLetters 
+.o. FixV 
+.o.  StressSingleMonosyllabicWord 
+.o. FinalDevoicing 
+.o. Assimilation 
+ ; 
+
+regex Rules ; 

@@ -1,0 +1,23 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Vowel a0|a1|e0|e1|ii0|ii1|o0|o1|u0|u1|i0|i1|ax0|ax1;
+define VoicedObstruent b|g|gj|d|dzh|dz|zh|z;
+define VoicelessObstruent k|kj|p|s|t|f|h|ts|sh|tsh;
+define Glide j|v;
+define Liquid l|lj|r;
+define Nasal m|n|nj;
+define Consonant Glide|Liquid|Nasal|VoicedObstruent|VoicelessObstruent;
+define Onset VoicelessObstruent* VoicedObstruent* (Nasal) (Liquid) (Glide);
+regex [Vowel Consonant*] @> ... "." || _ [Onset Vowel];
