@@ -61,7 +61,7 @@ cpack_add_component(audio
 	DISPLAY_NAME "Text-to-speech-sound library"
 	DESCRIPTION "Provides a library that abstracts the way speech is output. It is also provides a high-level facade for speech synthesis"
 	GROUP "libraries"
-	DEPENDS "libhts_engine" "libsonic"
+	DEPENDS "libhts_engine"
 )
 list(APPEND CPACK_COMPONENTS_ALL "audio")
 

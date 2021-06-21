@@ -18,7 +18,9 @@ if(ENABLE_MAGE)
 	add_subdirectory("mage")
 endif()
 
-add_subdirectory("sonic")
+if(ENABLE_SONIC)
+	add_subdirectory("sonic")
+endif()
 add_subdirectory("hts_engine")
 
 set(RAPIDXML_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rapidxml" PARENT_SCOPE)
