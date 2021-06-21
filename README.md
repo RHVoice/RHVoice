@@ -43,8 +43,8 @@ If you want to listen to an example of speech synthesis, You can use TTS service
 RHVoice supports following platforms:
 
 * Windows (prebuilt binaries is available [here](doc/en/Binaries.md))
-* GNU/Linux (building instructions can be found [here](doc/en/Compiling-on-Linux.md) You can also look at [packaging status](doc/en/Packaging-status.md).)
-* Android (can be installed thru [F-Droid](https://f-droid.org/packages/com.github.olga_yakovleva.rhvoice.android/) or [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android) or you can download an APK consult [this file](doc/en/Binaries.md##Android) ) )
+* GNU/Linux (building instructions can be found [here](doc/en/Compiling-on-Linux.md). You can also look at [packaging status](doc/en/Packaging-status.md).)
+* Android (can be installed thru [F-Droid](https://f-droid.org/packages/com.github.olga_yakovleva.rhvoice.android/) or [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android) or you can download an APK consult [this file](doc/en/Binaries.md#user-content-android))
 
 It is compatible with
 standard text-to-speech interfaces on these platforms: SAPI5 on
