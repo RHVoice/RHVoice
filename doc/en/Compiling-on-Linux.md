@@ -1,4 +1,4 @@
-# Compiling on linux
+# Compiling on Linux
 
 ## Required tools
 
@@ -10,26 +10,26 @@ To compile RHVoice the following programs must be installed on your system:
 
 ## Additional dependencies
 
-Before compiling RHVoice make sure that at least one of the following
+Before compiling RHVoice, make sure that at least one of the following
 audio libraries is installed on your machine:
 
 * [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/)
 * [Libao](https://www.xiph.org/ao/)
 * [PortAudio](http://www.portaudio.com) V19
 
-Please note that many distributions provide a separate development package
-for a library, which is necessary to compile the programs using the
-library. You need to install both runtime and development packages.
+Please note that many distributions provide a separate development package for
+a library, which is necessary to compile the programs using the library.
+You need to install both runtime and development packages.
 
 ## Compilation
 
-To start compilation execute the command:
+To start compilation, execute the command:
 
 ```bash
 scons
 ```
 
-You can change some compilation options. For more information run the command:
+You can change some compilation options. For more information, run the command:
 
 ```bash
 scons -h
@@ -51,7 +51,7 @@ echo test|RHVoice-test
 
 ## Using RHVoice with Speech Dispatcher
 
-To enable Speech Dispatcher to find the output module which allows it to
+To enable Speech Dispatcher to find the output module, which allows it to
 communicate with RHVoice, create a symlink
 to the module in the directory where Speech Dispatcher has installed its
 built-in output modules.

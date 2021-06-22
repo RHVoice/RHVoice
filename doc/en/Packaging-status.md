@@ -11,11 +11,12 @@ Can be installed from [AUR](https://aur.archlinux.org/):
 
 ## Slint
 
-RHVoice is installed in Slint distribution out of the box.
+RHVoice installed in Slint distribution out of the box.
 
 ## Ubuntu
 
-Can be found in [linvinus/rhvoice](https://launchpad.net/~linvinus/+archive/ubuntu/rhvoice/) ppa
+Can be found in [linvinus/rhvoice](https://launchpad.net/~linvinus/+archive/ubuntu/rhvoice/)
+PPA
 
 ```bash
 sudo add-apt-repository ppa:linvinus/rhvoice
