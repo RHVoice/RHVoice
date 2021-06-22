@@ -55,7 +55,8 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          sudo apt -q -y install libpulse-dev libao-dev portaudio19-dev libspeechd-dev
+          sudo apt-get -q -y update
+          sudo apt-get -q -y install libpulse-dev libao-dev portaudio19-dev libspeechd-dev
           python -m pip install --upgrade pip scons
 
       - name: build
