@@ -24,7 +24,7 @@
 
 ### English
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-2.5.1.nvda-addon), version 2.5.1 (you only need to install this if you use the so-called pseudo-English mode with other languages and don't install any of the English voices)
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-2.5.1.nvda-addon), version 2.5.1 (you only need to install this if you use the so-called pseudo-English mode with other languages and don't install any of the English voices)
 
 #### Voices
 
@@ -77,7 +77,7 @@
 
 ### English
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.2-setup.msi), version 2.5.2 (you only need to install this if you use the so-called pseudo-English mode with other languages and don't install any of the English voices)
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.2-setup.msi), version 2.5.2 (you only need to install this if you use the so-called pseudo-English mode with other languages and don't install any of the English voices)
 
 #### Voices
 
@@ -122,7 +122,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Russian
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Russian-v2.6.apk), version 2.6
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Russian-v2.6.apk), version 2.6
 
 #### Voices
 
@@ -144,7 +144,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Brazilian Portuguese
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-F123-Brazilian-Portuguese-language-v1.15.apk), version 1.15
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-F123-Brazilian-Portuguese-language-v1.15.apk), version 1.15
 
 #### Voices
 
@@ -152,7 +152,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Esperanto
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Esperanto-v1.2.apk), version 1.2
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Esperanto-v1.2.apk), version 1.2
 
 #### Voices
 
@@ -160,7 +160,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Kyrgyz
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Kyrgyz-v1.16.apk), version 1.16
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Kyrgyz-v1.16.apk), version 1.16
 
 #### Voices
 
@@ -169,7 +169,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### Ukrainian
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Ukrainian-v1.9.apk), version 1.9
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Ukrainian-v1.9.apk), version 1.9
 
 #### Voices
 
