@@ -4,18 +4,18 @@ RHVoice is available in the following Linux distributions:
 
 ## ArchLinux
 
-can be instaled from [AUR](https://aur.archlinux.org/)
+Can be installed from [AUR](https://aur.archlinux.org/):
 
-* [latest version](https://aur.archlinux.org/packages/rhvoice/)
-* [git(development) version](https://aur.archlinux.org/packages/rhvoice-git/)
+* [Latest version](https://aur.archlinux.org/packages/rhvoice/)
+* [Development version](https://aur.archlinux.org/packages/rhvoice-git/)
 
 ## Slint
 
-RHVoice is instaled in Slint distribution out of the box.
+RHVoice is installed in Slint distribution out of the box.
 
 ## Ubuntu
 
-can be found in [linvinus/rhvoice](https://launchpad.net/~linvinus/+archive/ubuntu/rhvoice/) ppa
+Can be found in [linvinus/rhvoice](https://launchpad.net/~linvinus/+archive/ubuntu/rhvoice/) ppa
 
 ```bash
 sudo add-apt-repository ppa:linvinus/rhvoice

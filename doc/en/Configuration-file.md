@@ -1,4 +1,4 @@
-# configuration file
+# Configuration file
 
 This file allows the user to customize the behaviour of RHVoice. It is read only once at startup. So your changes will take effect only after you restart the application which is using RHVoice.
 

@@ -10,4 +10,4 @@ After RHVoice converts a piece of text into speech, it forgets about this text: 
 
 Speech synthesis is performed locally, on the user's device, without transferring any part of the text or the generated speech to a remote server.
 
-The RHVoice app for Android uses [Bintray](https://bintray.com), a third-party hosting service, to host its language and voice data files. When you choose to install a voice and RHVoice downloads the necessary files from Bintray, Bintray may collect your metadata, such as your IP address. Please see the Bintray's [Privacy Policy](https://bintray.com/docs/privacy_policy.html) for more details.
+The RHVoice app for Android uses [Linode Object Storage](https://www.linode.com/products/object-storage/), a third-party hosting service, to host its language and voice data files. When you choose to install a voice and RHVoice downloads the necessary files from Object Storage, Linode may collect your metadata, such as your IP address. Please see the Linode's [Privacy Policy](https://www.linode.com/legal-privacy/) for more details.
