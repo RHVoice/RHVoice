@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD013 -->
 # Prebuilt binaries
 
 ## System requirements
@@ -118,7 +119,7 @@
 * [Android app on Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
 * [Direct link to the Android app](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.2.3.apk), version 1.2.3
 
-In most cases you should use the main app itself to install the voices. But if this is not an option for any reason, you may install the language and voice data using the following packages:
+In most cases, you should use the main app itself to install the voices. But if this is not an option for any reason, you may install the language and voice data using the following packages:
 
 ### Russian
 
@@ -133,7 +134,7 @@ In most cases you should use the main app itself to install the voices. But if t
 
 ### English
 
-* [Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.apk), version 2.5
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.apk), version 2.5
 
 #### Voices
 
