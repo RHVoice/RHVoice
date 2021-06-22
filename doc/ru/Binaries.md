@@ -1,4 +1,4 @@
-# готовые сборки
+# Готовые сборки
 
 ## Системные требования
 
@@ -7,7 +7,7 @@
 
 ## NVDA
 
-* [Основное дополнение](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.2.4.nvda-addon), версия 1.2.4
+[Основное дополнение](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.2.4.nvda-addon), версия 1.2.4
 
 ### Русский
 
@@ -24,7 +24,7 @@
 
 ### Английский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-2.5.1.nvda-addon), версия 2.5.1 (Нужно устанавливать только если вы используете так называемый псевдо-английский режим с другими языками и не устанавливаете ни одного из английских голосов)
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-2.5.1.nvda-addon), версия 2.5.1 (Нужно устанавливать только если вы используете так называемый псевдо-английский режим с другими языками и не устанавливаете ни одного из английских голосов)
 
 #### Голоса
 
@@ -77,7 +77,7 @@
 
 ### Английский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.2-setup.msi), версия 2.5.2 (Нужно устанавливать только если вы используете так называемый псевдо-английский режим с другими языками и не устанавливаете ни одного из английских голосов)
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.2-setup.msi), версия 2.5.2 (Нужно устанавливать только если вы используете так называемый псевдо-английский режим с другими языками и не устанавливаете ни одного из английских голосов)
 
 #### Голоса
 
@@ -122,7 +122,7 @@
 
 ### Русский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Russian-v2.6.apk), версия 2.6
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Russian-v2.6.apk), версия 2.6
 
 #### Голоса
 
@@ -133,7 +133,7 @@
 
 ### Английский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.apk), версия 2.5
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.apk), версия 2.5
 
 #### Голоса
 
@@ -144,7 +144,7 @@
 
 ### Бразильский португальский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-F123-Brazilian-Portuguese-language-v1.15.apk), версия 1.15
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-F123-Brazilian-Portuguese-language-v1.15.apk), версия 1.15
 
 #### Голоса
 
@@ -152,7 +152,7 @@
 
 ### Эсперанто
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Esperanto-v1.2.apk), версия 1.2
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Esperanto-v1.2.apk), версия 1.2
 
 #### Голоса
 
@@ -160,7 +160,7 @@
 
 ### Киргизский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Kyrgyz-v1.16.apk), версия 1.16
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Kyrgyz-v1.16.apk), версия 1.16
 
 #### Голоса
 
@@ -169,7 +169,7 @@
 
 ### Украинский
 
-* [Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Ukrainian-v1.9.apk), версия 1.9
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Ukrainian-v1.9.apk), версия 1.9
 
 #### Голоса
 

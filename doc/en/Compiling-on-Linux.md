@@ -1,4 +1,4 @@
-# compiling on linux
+# Compiling on linux
 
 ## Required tools
 
