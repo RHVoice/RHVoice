@@ -17,6 +17,8 @@ nvda_addon_build_number=".7"
 def list_files(dir):
 	files=[]
 	for name in sorted(os.listdir(dir.abspath)):
+		if name[0]==".":
+			continue
 		node_path=os.path.join(dir.abspath,name)
 		if os.path.isfile(node_path):
 			files.append(dir.File(name))
