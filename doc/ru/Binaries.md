@@ -14,6 +14,7 @@
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-4.2.6.nvda-addon), версия 4.2.6
 * [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda), версия 4.0.7
+* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda), версия 4.0.7
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-4.1.6.nvda-addon), версия 4.1.6
 * [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), версия 4.0.7
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версия 4.0.6
@@ -67,6 +68,7 @@
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.11-setup.exe), версия 4.2.11
 * [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi), версия 4.0.11
+* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi), версия 4.0.11
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.11-setup.exe), версия 4.1.11
 * [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версия 4.0.11
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.11
