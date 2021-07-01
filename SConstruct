@@ -30,6 +30,9 @@ def get_version(is_release):
     next_version="1.3.18"
     return next_version
 
+def passthru(env, cmd, unique=False):
+    return cmd.rstrip()
+
 def CheckPKGConfig(context):
     context.Message("Checking for pkg-config... ")
     result=context.TryAction("pkg-config --version")[0]
@@ -87,6 +90,10 @@ def CheckWiX(context):
         result=1
     context.Result(result)
     return result
+
+def get_spd_module_dir():
+    env = Environment()
+    return env.ParseConfig("pkg-config speech-dispatcher --variable=modulebindir", passthru)
 
 def validate_spd_version(key,val,env):
     m=re.match(r"^\d+\.\d+",val)
@@ -153,13 +160,14 @@ def create_user_vars():
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
     vars.Add(BoolVariable("enable_sonic","Build with Sonic",False))
     vars.Add(create_audio_libs_user_var())
-    vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
         vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",False))
         vars.Add(PathVariable("msi_repo","Where the msi packages are kept for reuse",None,PathVariable.PathIsDir))
     else:
+        vars.Add(PathVariable("spd_module_dir", "Speech dispatcher module directory", get_spd_module_dir(),  PathVariable.PathAccept))
+        vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
         vars.Add("prefix","Installation prefix","/usr/local")
         vars.Add("bindir","Program installation directory","$prefix/bin")
         vars.Add("libdir","Library installation directory","$prefix/lib")

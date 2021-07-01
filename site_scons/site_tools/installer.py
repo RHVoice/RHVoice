@@ -40,6 +40,9 @@ def Install(env,src,instpath,instname=None,sysdir=True,mode=0o644,shlib=False):
 def InstallProgram(env,src):
     return Install(env,src,"$bindir",mode=0o755)
 
+def InstallSpdModule(env,src):
+    return Install(env,src,"$spd_module_dir",mode=0o755)
+
 def InstallData(env,src,dest=None):
     if dest:
         inst=Install(env,src,os.path.join("$datadir","$package_name",dest))
@@ -82,3 +85,4 @@ def generate(env):
     env.AddMethod(InstallLibrary)
     env.AddMethod(InstallHeader)
     env.AddMethod(InstallServiceFile)
+    env.AddMethod(InstallSpdModule)
