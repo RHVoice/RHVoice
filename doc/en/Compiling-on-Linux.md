@@ -48,15 +48,3 @@ Now you can check if the synthesizer is working:
 ```bash
 echo test|RHVoice-test
 ```
-
-## Using RHVoice with Speech Dispatcher
-
-To enable Speech Dispatcher to find the output module, which allows it to
-communicate with RHVoice, create a symlink
-to the module in the directory where Speech Dispatcher has installed its
-built-in output modules.
-For example:
-
-```bash
-# ln -s /usr/local/bin/sd_rhvoice /usr/lib/speech-dispatcher-modules
-```
