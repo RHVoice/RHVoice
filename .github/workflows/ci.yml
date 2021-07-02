@@ -48,16 +48,10 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-
       - name: Install build dependencies
         run: |
           sudo apt-get -q -y update
-          sudo apt-get -q -y install libpulse-dev libao-dev portaudio19-dev libspeechd-dev
-          python -m pip install --upgrade pip scons
+          sudo apt-get -q -y install scons libpulse-dev libao-dev portaudio19-dev libspeechd-dev
 
       - name: build
         run: scons -j2
