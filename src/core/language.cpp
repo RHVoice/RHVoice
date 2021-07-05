@@ -29,6 +29,7 @@
 #include "core/kyrgyz.hpp"
 #include "core/tatar.hpp"
 #include "core/brazilian_portuguese.hpp"
+#include "core/macedonian.hpp"
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 #include "core/emoji.hpp"
@@ -1505,6 +1506,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     register_language<kyrgyz_info>("Kyrgyz",1);
     register_language<tatar_info>("Tatar",1);
     register_language<brazilian_portuguese_info>("Brazilian-Portuguese",1);
+    register_language<macedonian_info>("Macedonian",1);
     for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));
