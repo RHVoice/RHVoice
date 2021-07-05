@@ -12,7 +12,7 @@ import RHVoiceInfoParser
 Import("env")
 local_env=env.Clone()
 
-nvda_addon_build_number=".7"
+nvda_addon_build_number=".8"
 
 def list_files(dir):
 	files=[]
@@ -30,9 +30,10 @@ root_dir=Dir(".").srcnode()
 
 lang_msis=dict()
 lang_files=dict()
+lang_ver_ids=dict()
 
 msi_build_number=".2"
-exe_build_number=".11"
+exe_build_number=".12"
 
 for dir_name in ["languages","voices"]:
 	type=dir_name[:-1]
@@ -48,12 +49,16 @@ for dir_name in ["languages","voices"]:
 		if props["language"].lower() not in local_env["languages"]:
 			continue
 		if type=="language":
+			lang_ver_ids[props["name"]]=str(1000*int(props["format"])+int(props["revision"]))
 			lang_files[props["name"]]=data_files
 		props["display_language"]=props["language"].replace("-"," ")
 		props["type"]=type
 		if "file_name" not in props:
 			props["file_name"]=props["name"]
 		version="{format}.{revision}".format(**props)
+		full_version=version
+		if type=="voice":
+			full_version=version+"."+lang_ver_ids[props["language"]]
 		name_format_string="RHVoice-voice-{language}-{file_name}" if type=="voice" else "RHVoice-language-{language}"
 		name=name_format_string.format(**props)
 		package_name=props.get("package_name",name)
@@ -69,7 +74,7 @@ for dir_name in ["languages","voices"]:
 			outdir=os.path.normpath(os.path.relpath(f.Dir(".").abspath,subdir.abspath))
 			packagers["zip"].add(f, outdir)
 		if sys.platform=="win32":
-			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,version+nvda_addon_build_number,True)
+			packagers["nvda"]=RHVoicePackaging.nvda.addon_packager(package_name,pkgdir.Dir("nvda"),local_env,package_name,description,description,full_version+nvda_addon_build_number,True)
 			packagers["msi"]=RHVoicePackaging.windows.data_packager(props["msi_upgrade_code"],package_name,pkgdir.Dir("sapi"),local_env,description,version+msi_build_number)
 			for f in data_files:
 				packagers["nvda"].add(f,os.path.normpath(os.path.join("data",os.path.relpath(f.Dir(".").abspath,subdir.abspath))))
@@ -81,7 +86,7 @@ for dir_name in ["languages","voices"]:
 				packagers["msi"].visible="no"
 				for f in lang_files[props["language"]]:
 					packagers["nvda"].add(f,os.path.normpath(os.path.join("langdata",os.path.relpath(f.Dir(".").abspath,root_dir.Dir("languages").Dir(props["language"]).abspath))))
-				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,version+exe_build_number)
+				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,full_version+exe_build_number)
 				if env["enable_x64"]:
 					packagers["exe"].msis.append(local_env["WindowsInstallers_core_64"])
 				packagers["exe"].msis.append(local_env["WindowsInstallers_core_32"])
