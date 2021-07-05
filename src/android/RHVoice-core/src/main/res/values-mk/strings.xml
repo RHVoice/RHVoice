@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Претпочитан глас</string>
+  <string name="default_voice_dialog_title">Изберете глас</string>
+  <string name="detect_language_title">Препознавање на јазикот</string>
+  <string name="detect_language_desc">Автоматско менување на јазикот</string>
+  <string name="speech_volume">Гласност на говорењето</string>
+  <string name="speech_rate">Брзина на говорењето</string>
+  <string name="pseudo_english_title">Англиски зборови</string>
+  <string name="pseudo_english_desc">Обиди се правилно да ги читаш англиските зборови</string>
+  <string name="settings">Поставки</string>
+  <string name="wifi_only_title">Само преку Wi-Fi</string>
+  <string name="wifi_only_desc">Преземајте гласови само преку Wi-Fi</string>
+  <string name="speech_quality">Квалитет на говорењето</string>
+  <string-array name="quality_labels">
+    <item>Најдобро можно работење</item>
+    <item>Standard quality</item>
+    <item>Best possible quality</item>
+  </string-array>
+  <string name="languages">Јазици</string>
+  <string name="voice_remove_question">Дали сте сигурни дека сакате да го избришете овој глас??</string>
+  <string name="install">Инсталирај</string>
+  <string name="uninstall">Деинсталирај</string>
+  <string name="play">Слушни</string>
+  <string name="stop">Запри</string>
+  <string name="increase">Зголеми</string>
+  <string name="decrease">Намали</string>
+  <string name="reset">Ресетирај</string>
+  <string name="version">Верзија</string>
+</resources>
