@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,7 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import androidx.fragment.app.FragmentActivity;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +23,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import androidx.recyclerview.widget.RecyclerView;
 
 public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder>
 {
@@ -126,6 +127,11 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
             vh.nameView.setText(voice.getName());
         if((flags&VoiceViewChange.INSTALLED)!=0)
             {
+                Spanned attrib=voice.getAttribution(activity);
+                vh.attribView.setVisibility(attrib==null?View.GONE:View.VISIBLE);
+                if (attrib!=null) {
+                    vh.attribView.setText(attrib);
+                }
                 boolean enabled=voice.getEnabled(activity);
                 boolean installed=voice.isInstalled(activity);
                 boolean upToDate=voice.isUpToDate(activity);
