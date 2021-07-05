@@ -40,7 +40,7 @@ public final class Data
     static
     {
         LanguagePack lang=null;
-        lang=new LanguagePack("English", "eng", "en", "USA", "US", true, 2, 5, Checksums.LANGUAGE_ENGLISH, null, null);
+        lang=new LanguagePack("English", "eng", "en", "USA", "US", true, 2, 7, Checksums.LANGUAGE_ENGLISH, null, null);
         lang.addVoice(new VoicePack("Alan", lang, 4, 0, Checksums.VOICE_ALAN, null, null));
         lang.addVoice(new VoicePack("BDL", lang, 4, 1, Checksums.VOICE_BDL, null, null));
         lang.addVoice(new VoicePack("CLB", lang, 4, 0, Checksums.VOICE_CLB, null, null));
@@ -50,14 +50,14 @@ public final class Data
         lang=new LanguagePack("Esperanto", "epo", "eo", "", "", false, 1, 2, Checksums.LANGUAGE_ESPERANTO, null, null);
         lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, Checksums.VOICE_SPOMENKA, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Georgian", "kat", "ka", "GEO", "GE", false, 1, 9, Checksums.LANGUAGE_GEORGIAN, null, null);
+        lang=new LanguagePack("Georgian", "kat", "ka", "GEO", "GE", false, 1, 11, Checksums.LANGUAGE_GEORGIAN, null, null);
         lang.addVoice(new VoicePack("Natia", lang, 4, 0, Checksums.VOICE_NATIA, "http://blindaid.ge/files/RHVoice-voice-Georgian-Natia-v4.0.zip", null));
         addLanguage(lang);
-        lang=new LanguagePack("Kyrgyz", "kir", "ky", "KGZ", "KG", false, 1, 16, Checksums.LANGUAGE_KYRGYZ, null, null);
+        lang=new LanguagePack("Kyrgyz", "kir", "ky", "KGZ", "KG", false, 1, 18, Checksums.LANGUAGE_KYRGYZ, null, null);
         lang.addVoice(new VoicePack("Azamat", lang, 4, 0, Checksums.VOICE_AZAMAT, null, null));
         lang.addVoice(new VoicePack("Nazgul", lang, 4, 0, Checksums.VOICE_NAZGUL, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Russian", "rus", "ru", "RUS", "RU", false, 2, 6, Checksums.LANGUAGE_RUSSIAN, null, null);
+        lang=new LanguagePack("Russian", "rus", "ru", "RUS", "RU", false, 2, 9, Checksums.LANGUAGE_RUSSIAN, null, null);
         lang.addVoice(new VoicePack("Aleksandr", lang, 4, 2, Checksums.VOICE_ALEKSANDR, null, null));
         lang.addVoice(new VoicePack("Aleksandr-hq", lang, 4, 0, Checksums.VOICE_ALEKSANDR_HQ, "https://github.com/RHVoice/aleksandr-hq-rus/releases/download/4.0/data.zip", null));
         lang.addDefaultVoice(new VoicePack("Anna", lang, 4, 1, Checksums.VOICE_ANNA, null, null));
@@ -73,11 +73,11 @@ public final class Data
         lang=new LanguagePack("Tatar", "tat", "tt", "RUS", "RU", false, 1, 10, Checksums.LANGUAGE_TATAR, null, null);
         lang.addVoice(new VoicePack("Talgat", lang, 4, 0, Checksums.VOICE_TALGAT, "https://rsbsrt.ru/Talgat/RHVoice-voice-Tatar-Talgat-v4.0.zip", null));
         addLanguage(lang);
-        lang=new LanguagePack("Ukrainian", "ukr", "uk", "UKR", "UA", false, 1, 10, Checksums.LANGUAGE_UKRAINIAN, null, null);
+        lang=new LanguagePack("Ukrainian", "ukr", "uk", "UKR", "UA", false, 1, 11, Checksums.LANGUAGE_UKRAINIAN, null, null);
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
         lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 15, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, REPO_URL+"/RHVoice-F123-Brazilian-Portuguese-language-v1.15.zip", null);
+        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 17, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, REPO_URL+"/RHVoice-F123-Brazilian-Portuguese-language-v1.17.zip", null);
         lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 6, Checksums.VOICE_LETICIA, "https://f123.org/leticia/download/Android/data/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.zip", null));
         addLanguage(lang);
 }
