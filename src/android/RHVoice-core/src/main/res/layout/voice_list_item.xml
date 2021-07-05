@@ -7,24 +7,36 @@
     android:padding="8dp">
   <LinearLayout
       android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:orientation="horizontal"
-    android:focusable="true">
-    <TextView
-        android:id="@+id/voice"
+      android:layout_height="wrap_content"
+      android:layout_weight="1"
+      android:orientation="horizontal"
+      android:focusable="true">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+      <TextView
+          android:id="@+id/voice"
+          android:focusable="false"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:textAppearance="?attr/android:textAppearanceListItem"/>
+      <TextView
+          android:id="@+id/attrib"
+          android:focusable="false"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:visibility="gone"/>
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress"
         android:focusable="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/android:textAppearanceListItem"/>
-    <ProgressBar
-      android:id="@+id/progress"
-      android:focusable="false"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="8dp"
-      android:indeterminate="true"
-      style="@android:style/Widget.ProgressBar.Small"/>
+        android:layout_marginStart="8dp"
+        android:indeterminate="true"
+        style="@android:style/Widget.ProgressBar.Small"/>
   </LinearLayout>
   <ImageButton
       android:id="@+id/play"

@@ -1,4 +1,4 @@
-/* Copyright (C) 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2018, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,15 +15,17 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import androidx.recyclerview.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.recyclerview.widget.RecyclerView;
 
 public final class VoiceViewHolder extends RecyclerView.ViewHolder
 {
     public final TextView nameView;
+    public final TextView attribView;
     public final ProgressBar progressBar;
     public final ImageButton actionButton;
     public final ImageButton playButton;
@@ -32,6 +34,8 @@ public final class VoiceViewHolder extends RecyclerView.ViewHolder
     {
         super(v);
         nameView=v.findViewById(R.id.voice);
+        attribView=v.findViewById(R.id.attrib);
+        attribView.setMovementMethod(LinkMovementMethod.getInstance());
         progressBar=v.findViewById(R.id.progress);
         actionButton=v.findViewById(R.id.action);
         playButton=v.findViewById(R.id.play);

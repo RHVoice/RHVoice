@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -25,7 +25,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.text.Spanned;
 import android.util.Log;
+import androidx.core.text.HtmlCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
@@ -34,10 +36,12 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -842,4 +846,36 @@ finally
 }
         cont.enqueue();
 }
+
+    protected String readTextFile(Context context, String fileName) {
+        String dirPath=getPath(context);
+        if (dirPath==null) {
+            return null;
+        }
+        File file=new File(new File(dirPath), fileName);
+        BufferedReader reader=null;
+        try {
+            {
+                reader=new BufferedReader(new FileReader(file));
+                StringBuilder builder=new StringBuilder();
+                String line=null;
+                while ((line=reader.readLine())!=null) {
+                    builder.append(line).append('\n');
+                }
+                return builder.toString();
+            }
+        } catch (IOException e) {
+            return null;
+        } finally {
+            close(reader);
+        }
+    }
+
+    public Spanned getAttribution(Context context) {
+        String html=readTextFile(context, "attrib.html");
+        if (html==null) {
+            return null;
+        }
+        return HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_COMPACT);
+    }
 }
