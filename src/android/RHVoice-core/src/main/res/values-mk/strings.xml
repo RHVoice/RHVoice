@@ -13,9 +13,9 @@
   <string name="wifi_only_desc">Преземајте гласови само преку Wi-Fi</string>
   <string name="speech_quality">Квалитет на говорењето</string>
   <string-array name="quality_labels">
-    <item>Најдобро можно работење</item>
-    <item>Standard quality</item>
-    <item>Best possible quality</item>
+    <item>Највисоката можна респонзивност</item>
+    <item>Стандарден квалитет</item>
+    <item>Највисоката можна природност</item>
   </string-array>
   <string name="languages">Јазици</string>
   <string name="voice_remove_question">Дали сте сигурни дека сакате да го избришете овој глас??</string>
