@@ -26,4 +26,5 @@
   <string name="increase">Pliigi</string>
   <string name="decrease">Malpliigi</string>
   <string name="reset">Reagordi</string>
+  <string name="version">Versio</string>
 </resources>
