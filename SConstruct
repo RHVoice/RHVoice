@@ -27,7 +27,7 @@ if sys.platform=="win32":
         import _winreg as winreg
 
 def get_version(is_release):
-    next_version="1.4.0"
+    next_version="1.4.1"
     return next_version
 
 def passthru(env, cmd, unique=False):

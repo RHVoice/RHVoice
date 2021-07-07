@@ -31,7 +31,7 @@ namespace RHVoice
     #ifdef WIN32
     unsigned short get_id() const
     {
-      return 1058;
+      return 1071;
     }
     #endif
 
