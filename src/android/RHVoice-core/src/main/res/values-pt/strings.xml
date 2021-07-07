@@ -27,4 +27,5 @@
   <string name="increase">Aumentar</string>
   <string name="decrease">Diminuir</string>
   <string name="reset">Restaurar</string>
+  <string name="version">Versão</string>
 </resources>
