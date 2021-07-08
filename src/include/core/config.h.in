@@ -1,4 +1,9 @@
+#pragma once
+
+#ifndef RHVOICE_GLOBAL_CONFIG_INCLUDED
+#define RHVOICE_GLOBAL_CONFIG_INCLUDED
 #cmakedefine01 ENABLE_MAGE
 #cmakedefine01 ENABLE_SONIC
 
 const char VERSION[] = "@VERSION@";
+#endif

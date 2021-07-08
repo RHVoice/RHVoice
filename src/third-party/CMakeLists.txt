@@ -18,10 +18,18 @@ if(ENABLE_MAGE)
 	add_subdirectory("mage")
 endif()
 
-add_subdirectory("sonic")
+if(ENABLE_SONIC)
+	add_subdirectory("sonic")
+endif()
 add_subdirectory("hts_engine")
 
 set(RAPIDXML_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/rapidxml" PARENT_SCOPE)
-set(TCLAP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tclap" PARENT_SCOPE)
+
+pkg_check_modules(TCLAP tclap)
+if("${TCLAP_FOUND}" AND NOT "${TCLAP_FORCE_COMPILATION}")
+	set(TCLAP_INCLUDE_DIR "${TCLAP_INCLUDEDIR}" PARENT_SCOPE)
+else()
+	set(TCLAP_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tclap" PARENT_SCOPE)
+endif()
 
 pass_through_cpack_vars()
