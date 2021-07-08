@@ -14,8 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Import("env")
+Import("env", "libhts_engine", "libquestion_match")
 local_env=env.Clone()
-local_env["liblevel"]=0
+local_env["liblevel"]=1
+local_env["libversion"]="2.0.0"
+local_env.Prepend(LIBS=["libhts_engine", local_env["libquestion_match"]])
 libmage=local_env.BuildLibrary("mage",Glob("*.cpp"))
+local_env.Depends(libmage, [libhts_engine, libquestion_match])
+
+if env["PLATFORM"]!="win32":
+    local_env.InstallLibrary(libmage)
+
 Export("libmage")

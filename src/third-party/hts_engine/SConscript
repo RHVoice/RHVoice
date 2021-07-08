@@ -14,11 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Import("env")
+Import("env", "libquestion_match", "libfilter_manager")
 local_env=env.Clone()
-local_env["liblevel"]=0
+local_env["liblevel"]=1
+local_env["libversion"]="1.06.0"
 src=Glob("HTS_*.c")
 if local_env["enable_mage"]:
-	src.extend(Glob("HTS106_*.c"))
+    src.extend(Glob("HTS106_*.c"))
+
+if "gcc" in env["TOOLS"] or "clang" in env["TOOLS"]:
+    local_env.Prepend(LIBS=["m"])
+
+local_env.Prepend(LIBS=[local_env["libquestion_match"],local_env["libfilter_manager"]])
+local_env.Append(CPPDEFINES=['AUDIO_PLAY_NONE=1'])
 libhts_engine=local_env.BuildLibrary("hts_engine",src)
+local_env.Depends(libhts_engine,[libquestion_match,libfilter_manager])
+
+if env["PLATFORM"]!="win32":
+    local_env.InstallLibrary(libhts_engine)
+
 Export("libhts_engine")

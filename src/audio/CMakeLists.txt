@@ -40,6 +40,7 @@ set_target_properties(RHVoice_audio PROPERTIES VERSION "${RHVOICE_VERSION}" SOVE
 harden("RHVoice_audio")
 add_sanitizers("RHVoice_audio")
 target_include_directories(RHVoice_audio PRIVATE "${INCLUDE_DIR}")
+target_link_libraries(RHVoice_audio "RHVoice_io")
 
 if(WITH_LIBAO)
 	target_link_libraries(RHVoice_audio "${LIBAO_LIBRARIES}")
@@ -61,7 +62,7 @@ cpack_add_component(audio
 	DISPLAY_NAME "Text-to-speech-sound library"
 	DESCRIPTION "Provides a library that abstracts the way speech is output. It is also provides a high-level facade for speech synthesis"
 	GROUP "libraries"
-	DEPENDS "libhts_engine"
+	DEPENDS "io" "filter_manager" "libhts_engine"
 )
 list(APPEND CPACK_COMPONENTS_ALL "audio")
 
@@ -72,4 +73,5 @@ install(TARGETS "RHVoice_audio"
 
 set("CPACK_DEBIAN_AUDIO_PACKAGE_NAME" "librhvoice-audio")
 set(CPACK_DEBIAN_AUDIO_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}")
+set(CPACK_COMPONENT_AUDIO_MANAGER_DEPENDS "io")
 pass_through_cpack_vars()

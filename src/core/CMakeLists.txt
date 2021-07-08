@@ -34,7 +34,7 @@ endif()
 
 add_library(RHVoice_core SHARED "${SRCFILES}")
 set_target_properties(RHVoice_core PROPERTIES VERSION "${RHVOICE_VERSION}" SOVERSION "${RHVOICE_VERSION_MAJOR}")
-set(libs2link "libhts_engine")
+set(libs2link "libhts_engine" "RHVoice_question_match" "RHVoice_io" "RHVoice_filter_manager")
 target_include_directories(RHVoice_core PUBLIC "${INCLUDE_DIR}" PRIVATE "${HTS_LABELS_KIT_INCLUDES}")
 
 set(package_name "RHVoice_core")
@@ -60,7 +60,7 @@ cpack_add_component(core
 	DESCRIPTION "Provides a library that does speech synthesis"
 	REQUIRED
 	GROUP "libraries"
-	DEPENDS "libhts_engine"
+	DEPENDS "io" "filter_manager" "libhts_engine"
 )
 list(APPEND CPACK_COMPONENTS_ALL "core")
 

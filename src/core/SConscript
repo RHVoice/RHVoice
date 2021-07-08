@@ -24,7 +24,7 @@ try:
 except NameError:
 	basestring = str
 
-Import("env", "libhts_engine")
+Import("env", "libhts_engine","libio","libfilter_manager", "libquestion_match")
 if env["enable_sonic"]:
 	Import("libsonic")
 if env["enable_mage"]:
@@ -72,7 +72,6 @@ if sys.platform!="win32" or local_env["TARGET_ARCH"]!="x86_64":
 		processConfig(local_env, includedir.File("config.h.in").abspath, includedir.File("config.h").abspath, globalConfig)
 
 src=["unicode.cpp",
-	 "io.cpp",
 	 "path.cpp",
 	 "fst.cpp",
 	 "dtree.cpp",
@@ -105,19 +104,22 @@ src=["unicode.cpp",
 	 "hts_labeller.cpp",
 	 "speech_processor.cpp",
 	 "limiter.cpp",
-		 "bpf.cpp",
-		 "question_matcher.cpp",
 		 "emoji.cpp",
 		 "pitch.cpp"]
 if local_env["enable_mage"]:
 	src.append("mage_hts_engine_impl.cpp")
-for lib in [libhts_engine]:
-	src.extend(lib)
+
+deps = [libio,libfilter_manager, libquestion_match, libhts_engine]
 if local_env["enable_sonic"]:
-	src.extend(libsonic)
+	deps.extend(libsonic)
 if local_env["enable_mage"]:
-	src.extend(libmage)
+	deps.extend(libmage)
+	local_env.Prepend(LIBS=["libmage"])
+
+local_env.Prepend(LIBS=[local_env["libio"],local_env["libfilter_manager"], local_env["libquestion_match"], "libhts_engine","libsonic"])
 libcore=local_env.BuildLibrary(local_env["libcore"],src)
+local_env.Depends(libcore, deps)
+
 if env["PLATFORM"]!="win32":
 	local_env.InstallLibrary(libcore)
 Export("libcore")

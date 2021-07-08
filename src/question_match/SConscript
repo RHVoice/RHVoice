@@ -1,5 +1,5 @@
-# -*- mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
-# Copyright (C) 2013 - 2021  Olga Yakovleva <olga@rhvoice.org>
+# -*- mode: Python; indent-tabs-mode: t; tab-width: 4 -*-
+# Copyright (C) 2012, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,17 +12,20 @@
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+try:
+	basestring
+except NameError:
+	basestring = str
 
 Import("env")
 local_env=env.Clone()
-local_env["liblevel"]=0
-local_env["libversion"]="0.1.17"
-local_env.VariantDir(".", "#external/libs/sonic", duplicate=0)
-libsonic=local_env.BuildLibrary("sonic", "sonic.c")
+local_env["libversion"]="4.0.0"
+local_env["liblevel"]=1
 
+libquestion_match=local_env.BuildLibrary(local_env["libquestion_match"],["question_matcher.cpp"])
 if env["PLATFORM"]!="win32":
-    local_env.InstallLibrary(libsonic)
-
-Export("libsonic")
+	local_env.InstallLibrary(libquestion_match)
+Export("libquestion_match")
