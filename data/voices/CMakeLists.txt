@@ -2,7 +2,7 @@ set("CPACK_DEBIAN_VOICES_PACKAGE_NAME" "rhvoice-voices" PARENT_SCOPE)
 
 macro(voiceInDir voiceName voiceDir)
 	set(lang_var_name "VOICE_${voiceName}_LANG")
-	set(lang_license_name "VOICE_${voiceName}_LICENSE")
+	set(voice_license_name "VOICE_${voiceName}_LICENSE")
 
 	if(${lang_var_name})
 		set(langCode "${${lang_var_name}}")
@@ -13,10 +13,12 @@ macro(voiceInDir voiceName voiceDir)
 	set(langNameVarName "ISO639_1_CODE2NAME_${langCode}")
 	set(langName "${${langNameVarName}}")
 
-	if(${lang_license_name})
-		set(license "${${lang_license_name}}")
+	if(${voice_license_name})
+		set(license "${${voice_license_name}}")
+		set(licenseFileCandidate "${licenses_dir}/${license}.txt")
 	else()
 		set(license "lgpl-2.1")
+		set(licenseFileCandidate "${CMAKE_SOURCE_DIR}/LICENSE.md")
 	endif()
 
 	set(languagePackageName "RHVoice-language-${langCode}")
@@ -62,7 +64,6 @@ macro(voiceInDir voiceName voiceDir)
 		PATTERN "CMakeLists.txt" EXCLUDE
 	)
 
-	set(licenseFileCandidate "${licenses_dir}/${license}.txt")
 	if(EXISTS "${licenseFileCandidate}")
 		install(FILES "${licenseFileCandidate}"
 			DESTINATION "${common_doc_dir}/${voiceName}/"

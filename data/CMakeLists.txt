@@ -59,6 +59,7 @@ set("VOICE_bdl_LANG" "en")
 set("VOICE_clb_LANG" "en")
 set("VOICE_slt_LANG" "en")
 
+set("VOICE_volodymyr_LANG" "uk")
 set("VOICE_anatol_LANG" "uk")
 set("VOICE_natalia_LANG" "uk")
 

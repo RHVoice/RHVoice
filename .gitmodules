@@ -22,3 +22,6 @@
 [submodule "data/voices/yuriy"]
 	path = data/voices/yuriy
 	url = https://github.com/rhvoice/yuriy-rus
+[submodule "data/voices/volodymyr"]
+	path = data/voices/volodymyr
+	url = https://github.com/rhvoice/volodymyr-ukr
