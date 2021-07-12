@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 ext.major_version=1
 ext.minor_version=4
-ext.revision_number=1
+ext.revision_number=2
 
 ext.myConfigFile=file("../../../config/RHVoice.conf")
 ext.myExtraCoreAssetsDir=new File(new File(new File(buildDir,"data"),"core"),"assets")
