@@ -119,7 +119,7 @@
 ## Android
 
 * [Android app on Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
-* [Direct link to the Android app](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.2.3.apk), version 1.2.3
+* [Direct link to the Android app](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.4.2.apk), version 1.4.2
 
 In most cases, you should use the main app itself to install the voices. But if this is not an option for any reason, you may install the language and voice data using the following packages:
 
