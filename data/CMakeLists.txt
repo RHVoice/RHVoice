@@ -26,6 +26,7 @@ set("ISO639_1_NAME2CODE_Esperanto" "eo")
 set("ISO639_1_NAME2CODE_Georgian" "ka")
 set("ISO639_1_NAME2CODE_Kyrgyz" "ky")
 set("ISO639_1_NAME2CODE_Tatar" "tt")
+set("ISO639_1_NAME2CODE_Macedonian" "mk")
 
 function(createLangCodeToNameMapping)
 	get_cmake_property(varsHere VARIABLES)
@@ -73,6 +74,8 @@ set("VOICE_azamat_LANG" "ky")
 set("VOICE_nazgul_LANG" "ky")
 
 set("VOICE_talgat_LANG" "tt")
+
+set("VOICE_kiko_LANG" "mk")
 
 cpack_add_component_group("data"
 	DISPLAY_NAME "Data files"
