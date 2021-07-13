@@ -33,8 +33,7 @@ target_link_libraries(libmage "libhts_engine" "RHVoice_question_match")
 harden(libmage)
 add_sanitizers(libmage)
 set_target_properties("libmage" PROPERTIES PREFIX "")
-target_compile_definitions(libmage PRIVATE RHVOICE)
-
+target_compile_definitions(libmage PRIVATE RHVOICE "-DMAGE_EXPORTS")
 
 cpack_add_component(libmage
 	DISPLAY_NAME "libmage - Platform for Performative Speech Synthesis"
