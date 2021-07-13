@@ -8,37 +8,37 @@
 
 ## NVDA
 
-[Main add-on](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.2.4.nvda-addon), version 1.2.4
+[Main add-on](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.0.nvda-addon), version 1.4.0
 
 ### Russian
 
-* [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-4.2.6.nvda-addon), version 4.2.6
+* [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-4.2.2009.9.nvda-addon), version 4.2.2009.9
 * [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda), version 4.0.7
 * [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda), version 4.0.7
-* [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-4.1.6.nvda-addon), version 4.1.6
+* [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-4.1.2009.9.nvda-addon), version 4.1.2009.9
 * [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), version 4.0.7
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), version 4.0.6
 * [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda), version 4.0.7
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda), version 4.0.7
 * [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda), version 4.0.7
-* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-4.2.6.nvda-addon), version 4.2.6
-* [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-4.1.6.nvda-addon), version 4.1.6
+* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-4.2.2009.9.nvda-addon), version 4.2.2009.9
+* [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-4.1.2009.9.nvda-addon), version 4.1.2009.9
 
 ### English
 
-[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-2.5.1.nvda-addon), version 2.5.1 (you only need to install this if you use the so-called pseudo-English mode with other languages and don't install any of the English voices)
+[Language data package](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-2.7.9.nvda-addon), version 2.7.9 (you only need to install this if you use the so-called pseudo-English mode with other languages and don't install any of the English voices)
 
 #### Voices
 
 * [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda), version 4.0.7
-* [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-4.0.1.nvda-addon), version 4.0.1
-* [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-4.1.2.nvda-addon), version 4.1.2
-* [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-4.0.1.nvda-addon), version 4.0.1
-* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-4.0.1.nvda-addon), version 4.0.1
+* [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-4.0.2007.9.nvda-addon), version 4.0.2007.9
+* [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-4.1.2007.9.nvda-addon), version 4.1.2007.9
+* [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-4.0.2007.9.nvda-addon), version 4.0.2007.9
+* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-4.0.2007.9.nvda-addon), version 4.0.2007.9
 
 ### Brazilian Portuguese
 
-* [Letícia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-4.6.6.nvda-addon), version 4.6.6
+* [Letícia-F123](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-4.6.1017.9.nvda-addon), version 4.6.1017.9
 
 ### Esperanto
 
@@ -46,21 +46,21 @@
 
 ### Georgian
 
-* [Natia](http://blindaid.ge/files/nvda/RHVoice-voice-Georgian-Natia-4.0.1.nvda-addon), version 4.0.1
+* [Natia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Georgian-Natia-4.0.1011.9.nvda-addon), version 4.0.1011.9
 
 ### Kyrgyz
 
-* [Azamat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Azamat-4.0.1.nvda-addon), version 4.0.1
-* [Nazgul](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Nazgul-4.0.1.nvda-addon), version 4.0.1
+* [Azamat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Azamat-4.0.1018.9.nvda-addon), version 4.0.1018.9
+* [Nazgul](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Nazgul-4.0.1018.9.nvda-addon), version 4.0.1018.9
 
 ### Tatar
 
-* [Talgat](https://drive.google.com/open?id=1sgQMfjTywZudiLJeLS39Rl4GY3-eG6JM), version 4.0.6
+* [Talgat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Tatar-Talgat-4.0.1010.9.nvda-addon), version 4.0.1010.9
 
 ### Ukrainian
 
-* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.7.nvda-addon), version 4.1.7
-* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.7.nvda-addon), version 4.0.7
+* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.1011.9.nvda-addon), version 4.1.1011.9
+* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.1011.9.nvda-addon), version 4.0.1011.9
 
 ## SAPI 5
 
