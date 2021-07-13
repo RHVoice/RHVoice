@@ -25,6 +25,7 @@ set("ISO639_1_NAME2CODE_Brazilian-Portuguese" "${ISO639_1_NAME2CODE_Portuguese}-
 set("ISO639_1_NAME2CODE_Esperanto" "eo")
 set("ISO639_1_NAME2CODE_Georgian" "ka")
 set("ISO639_1_NAME2CODE_Kyrgyz" "ky")
+set("ISO639_1_NAME2CODE_Macedonian" "mk")
 set("ISO639_1_NAME2CODE_Tatar" "tt")
 
 function(createLangCodeToNameMapping)
@@ -71,6 +72,7 @@ set("VOICE_natia_LANG" "ka")
 
 set("VOICE_azamat_LANG" "ky")
 set("VOICE_nazgul_LANG" "ky")
+set("VOICE_kiko_LANG" "mk")
 
 set("VOICE_talgat_LANG" "tt")
 
