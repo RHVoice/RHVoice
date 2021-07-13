@@ -17,7 +17,9 @@
 cmake_minimum_required(VERSION 3.9)
 project("RHVoice")
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/cmake/thirdparty/sanitizers/cmake")
+set(customCMakeModulesDir "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${customCMakeModulesDir}/thirdparty/sanitizers/cmake")
+
 include(FindPkgConfig)
 include(GNUInstallDirs)
 include(CPackComponent)
@@ -44,16 +46,6 @@ macro(pass_through_cpack_vars)
 		endif()
 	endforeach()
 endmacro()
-
-#def create_languages_user_var():
-#    names=sorted(os.listdir(Dir("#data").Dir("languages").abspath))
-#    langs=[name.lower() for name in names]
-#    name_map=dict(zip(names,langs))
-#    def_langs=langs
-#    if sys.platform!="win32":
-#        def_langs=[lang for lang in langs if lang not in["georgian"]]
-#    help="Which languages to install"
-#    return ListVariable("languages",help,def_langs,langs,name_map)
 
 if(CMAKE_INSTALL_PREFIX EQUAL "/usr")
 	set(CMAKE_INSTALL_SYSCONFDIR "/etc")
@@ -82,6 +74,9 @@ set(SubpackagesDir "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set("licenses_dir" "${CMAKE_CURRENT_SOURCE_DIR}/licenses")
 set("voice_licenses_dir" "${licenses_dir}/voices")
 
+# Working around a bug with CPACK_COMPONENTS_ALL not being properly populated by populating manually
+set(CPACK_COMPONENTS_ALL "")
+
 add_subdirectory("${SubpackagesDir}")
 add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/config")
 if(WITH_DATA)
@@ -89,13 +84,22 @@ if(WITH_DATA)
 endif()
 
 set(CPACK_PACKAGE_CHECKSUM "SHA512")
-set(CPACK_GENERATOR "DEB")
+set(CPACK_GENERATOR "" CACHE STRING "Set generator for CPack")
+set_property(CACHE CPACK_GENERATOR PROPERTY STRINGS "IFW;NSIS;NSIS64;NuGet;WIX;STGZ;7Z;TBZ2;TGZ;TXZ;TZ;TZST;ZIP;DEB;RPM;PackageMaker;CygwinBinary;DEB;DragNDrop;External;OSXX11;Bundle")
 set(CPACK_DEBIAN_COMPRESSION_TYPE "xz")
+set(CPACK_NSIS_COMPRESSOR "lzma")
+
+option(CPACK_NSIS_COMPONENT_INSTALL "Split into multiple rpm packages" ON)
 option(CPACK_RPM_COMPONENT_INSTALL "Split into multiple rpm packages" ON)
 option(CPACK_DEB_COMPONENT_INSTALL "Split into multiple deb packages" ON)
+set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+
+
 set(CPACK_PACKAGE_VENDOR "Olga Yakovleva")
 set(CPACK_PACKAGE_CONTACT "https://github.com/RHVoice/RHVoice")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/RHVoice/RHVoice")
+set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_PACKAGE_HOMEPAGE_URL}")
+#set(CPACK_NSIS_MUI_FINISHPAGE_RUN "echo \'Проверка связи!\" | RHVoice-test > %CSIDL_DEFAULT_DESKTOP%/RHVoice_test.wav")
 
 if(ENABLE_MAGE)
 	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/licenses/gpl-3.0.txt")
@@ -105,6 +109,7 @@ endif()
 
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
+set(CPACK_NSIS_DISPLAY_NAME "RHVoice")
 set(CPACK_DEBIAN_PACKAGE_NAME "RHVoice")
 set(CPACK_PACKAGE_VERSION_MAJOR "${RHVOICE_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${RHVOICE_VERSION_MINOR}")
