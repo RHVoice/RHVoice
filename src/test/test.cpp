@@ -128,21 +128,21 @@ int main(int argc,const char* argv[])
 
 #ifdef WITH_CLI11
       std::string inpath_argStor {"-"};
-      auto inpath_arg = cmd.add_option("-i,--input",inpath_argStor,"input file","path");
+      auto inpath_arg = cmd.add_option("-i,--input",inpath_argStor,"input file");  // path
       std::string outpath_argStor {""};
-      auto outpath_arg = cmd.add_option("-o,--output",outpath_argStor,"output file","path");
+      auto outpath_arg = cmd.add_option("-o,--output",outpath_argStor,"output file");  // path
       bool ssml_switchStor = false;
       auto ssml_switch = cmd.add_option("-s,--ssml",ssml_switchStor,"Process as ssml");
       std::string voice_argStor{""};
-      auto voice_arg = cmd.add_option("-p,--profile",voice_argStor,"voice profile","spec");
+      auto voice_arg = cmd.add_option("-p,--profile",voice_argStor,"voice profile");  // spec
       unsigned int rate_argStor = 100;
-      auto rate_arg = cmd.add_option("-r,--rate",rate_argStor,"speech rate","percent");
+      auto rate_arg = cmd.add_option("-r,--rate",rate_argStor,"speech rate");  // percent
       uint32_t sample_rateStor = 24000;
-      auto sample_rate = cmd.add_option("-R,--sample-rate",sample_rateStor,"sample rate","Hz");
+      auto sample_rate = cmd.add_option("-R,--sample-rate",sample_rateStor,"sample rate");  // Hz
       unsigned int pitch_argStor = 100;
-      auto pitch_arg =  cmd.add_option("-t,--pitch",pitch_argStor,"speech pitch","percent");
+      auto pitch_arg =  cmd.add_option("-t,--pitch",pitch_argStor,"speech pitch");  //percent
       unsigned int volume_argStor = 100;
-      auto volume_arg =  cmd.add_option("-v,--volume",volume_argStor,"speech volume","percent");
+      auto volume_arg =  cmd.add_option("-v,--volume",volume_argStor,"speech volume");  // percent
       cmd.allow_windows_style_options();
 #else
       TCLAP::ValueArg<std::string> inpath_arg("i","input","input file",false,"-","path",cmd);
