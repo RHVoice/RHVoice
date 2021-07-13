@@ -152,10 +152,10 @@ void HTS_error(int error, const char *message, ...);
 /* audio ----------------------------------------------------------- */
 
 /* HTS_Audio_initialize: initialize audio */
-void HTS_Audio_initialize(HTS_Audio * audio);
+HTS_API void HTS_Audio_initialize(HTS_Audio * audio);
 
 /* HTS_Audio_set_parameter: set parameters for audio */
-void HTS_Audio_set_parameter(HTS_Audio * audio, size_t sampling_frequency, size_t max_buff_size);
+HTS_API void HTS_Audio_set_parameter(HTS_Audio * audio, size_t sampling_frequency, size_t max_buff_size);
 
 /* HTS_Audio_write: send data to audio */
 void HTS_Audio_write(HTS_Audio * audio, short data);
@@ -378,16 +378,16 @@ size_t HTS_PStreamSet_get_nstream(HTS_PStreamSet * pss);
 size_t HTS_PStreamSet_get_vector_length(HTS_PStreamSet * pss, size_t stream_index);
 
 /* HTS_PStreamSet_get_total_frame: get total number of frame */
-size_t HTS_PStreamSet_get_total_frame(HTS_PStreamSet * pss);
+HTS_API size_t HTS_PStreamSet_get_total_frame(HTS_PStreamSet * pss);
 
 /* HTS_PStreamSet_get_parameter: get parameter */
-double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index, size_t vector_index);
+HTS_API double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index, size_t vector_index);
 
 /* HTS_PStreamSet_get_parameter_vector: get parameter vector */
-double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
+HTS_API double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
 
 /* HTS_PStreamSet_get_msd_flag: get generated MSD flag per frame */
-HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
+HTS_API HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
 
 /* HTS_PStreamSet_is_msd: get MSD flag */
 HTS_Boolean HTS_PStreamSet_is_msd(HTS_PStreamSet * pss, size_t stream_index);
