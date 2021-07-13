@@ -24,7 +24,7 @@ else()
 endif()
 
 add_library(libhts_engine SHARED "${SRCFILES1}" "${SRCFILES2}")
-target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE")
+target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE" "-DHTS_EXPORTS")
 
 set(LIBHTS_VERSION_MAJOR 1)
 set(LIBHTS_VERSION_MINOR 06)
