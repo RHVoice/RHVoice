@@ -1,8 +1,12 @@
-set(BUILD_CLIENT ON CACHE BOOL "Build standalone RHVoice-client application")
+pkg_check_modules(DBUS dbus)
+pkg_check_modules(LIBGIOMM giomm-2.4)
+pkg_check_modules(SPEECHD speech-dispatcher)
+
+set(BUILD_CLIENT "${DBUS_FOUND}" CACHE BOOL "Build standalone RHVoice-client application")
 set(BUILD_UTILS ON CACHE BOOL "Build some useful utils")
 set(BUILD_TESTS ON CACHE BOOL "Build test applications")
-set(BUILD_SERVICE ON CACHE BOOL "Build RHVoice server application")
-set(BUILD_SPEECHDISPATCHER_MODULE ON CACHE BOOL "Build SpeechDispatcher module")
+set(BUILD_SERVICE "${LIBGIOMM_FOUND}" CACHE BOOL "Build RHVoice server application")
+set(BUILD_SPEECHDISPATCHER_MODULE "${SPEECHD_FOUND}" CACHE BOOL "Build SpeechDispatcher module")
 
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 configure_file("${INCLUDE_DIR}/core/config.h.in" "${INCLUDE_DIR}/core/config.h")
@@ -44,14 +48,14 @@ IF (WIN32)
 	#add_subdirectory("sapi")
 	#add_subdirectory("nvda-synthDriver")
 	#add_subdirectory("wininst")
-else()
-	if(BUILD_SERVICE)
-		add_subdirectory("service")
-	endif(BUILD_SERVICE)
-
-	if(BUILD_SPEECHDISPATCHER_MODULE)
-		add_subdirectory("sd_module")
-	endif(BUILD_SPEECHDISPATCHER_MODULE)
 endif()
+
+if(BUILD_SERVICE)
+	add_subdirectory("service")
+endif(BUILD_SERVICE)
+
+if(BUILD_SPEECHDISPATCHER_MODULE)
+	add_subdirectory("sd_module")
+endif(BUILD_SPEECHDISPATCHER_MODULE)
 
 pass_through_cpack_vars()
