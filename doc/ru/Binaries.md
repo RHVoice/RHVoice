@@ -66,55 +66,55 @@
 
 ### Русский
 
-* [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.11-setup.exe), версия 4.2.11
+* [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.2009.13-setup.exe), версия 4.2.2009.13
 * [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi), версия 4.0.11
 * [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi), версия 4.0.11
-* [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.11-setup.exe), версия 4.1.11
+* [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.2009.13-setup.exe), версия 4.1.2009.13
 * [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версия 4.0.11
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.11
 * [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi), версия 4.0.11
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.11
 * [Pavel](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.11
-* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.11-setup.exe), версия 4.2.11
-* [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.11-setup.exe), версия 4.1.11
+* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.2009.13-setup.exe), версия 4.2.2009.13
+* [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.2009.13-setup.exe), версия 4.1.2009.13
 
 ### Английский
 
-[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.2-setup.msi), версия 2.5.2 (Нужно устанавливать только если вы используете так называемый псевдо-английский режим с другими языками и не устанавливаете ни одного из английских голосов)
+[Языковой пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.7.2-setup.msi), версия 2.7.2 (Нужно устанавливать только если вы используете так называемый псевдо-английский режим с другими языками и не устанавливаете ни одного из английских голосов)
 
 #### Голоса
 
 * [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi), версия 4.0.11
-* [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.9-setup.exe), версия 4.0.9
-* [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.9-setup.exe), версия 4.1.9
-* [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.9-setup.exe), версия 4.0.9
-* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-v4.0.9-setup.exe), версия 4.0.9
+* [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.2007.13-setup.exe), версия 4.0.2007.13
+* [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.2007.13-setup.exe), версия 4.1.2007.13
+* [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.2007.13-setup.exe), версия 4.0.2007.13
+* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-v4.0.2007.13-setup.exe), версия 4.0.2007.13
 
 ### Бразильский португальский
 
-* [Letícia-F123](https://f123.org/leticia/download/Windows/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.11-setup.exe), версия 4.6.11
+* [Letícia-F123](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.1017.13-setup.exe), версия 4.6.1017.13
 
 ### Эсперанто
 
-* [Spomenka](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Esperanto-Spomenka-v4.0.9-setup.exe), версия 4.0.9
+* [Spomenka](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Esperanto-Spomenka-v4.0.1002.13-setup.exe), версия 4.0.1002.13
 
 ### Грузинский
 
-* [Natia](http://blindaid.ge/files/sapi/RHVoice-voice-Georgian-Natia-v4.0.5-setup.exe), версия 4.0.5
+* [Natia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Georgian-Natia-v4.0.1011.13-setup.exe), версия 4.0.1011.13
 
 ### Киргизский
 
-* [Azamat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Azamat-v4.0.9-setup.exe), версия 4.0.9
-* [Nazgul](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Nazgul-v4.0.9-setup.exe), версия 4.0.9
+* [Azamat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Azamat-v4.0.1018.13-setup.exe), версия 4.0.1018.13
+* [Nazgul](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Nazgul-v4.0.1018.13-setup.exe), версия 4.0.1018.13
 
 ### Татарский
 
-* [Talgat](https://drive.google.com/open?id=1pfCAMMa9K_OuPwczh-vDv__igRjRfnwO), версия 4.0.10
+* [Talgat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Tatar-Talgat-v4.0.1010.13-setup.exe), версия 4.0.1010.13
 
 ### Украинский
 
-* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.11-setup.exe), версия 4.1.11
-* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.11-setup.exe), версия 4.0.11
+* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.1011.13-setup.exe), версия 4.1.1011.13
+* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.1011.13-setup.exe), версия 4.0.1011.13
 
 ## Android
 
