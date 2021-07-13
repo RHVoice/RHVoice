@@ -134,7 +134,12 @@ voices.alan.default_pitch=0.9
 #### Using the Sonic library
 
 RHVoice can use [the Sonic library](https://github.com/waywardgeek/sonic) for
-changing speech rate. The `min_sonic_rate` setting specifies the minimum rate
+changing speech rate. The native algorithm of speech rate modification in
+RHVoice was improved in version 1.4.0, and this library is not included in the
+builds provided by the RHVoice project. So the following setting is only
+supported in custom builds with Sonic enabled.
+
+The `min_sonic_rate` setting specifies the minimum rate
 value starting from which Sonic will be used instead of the built-in algorithm.
 By default the built-in algorithm is always used on Android, and on other
 platforms Sonic is used to speed up speech, that is the synthesizer behaves as
