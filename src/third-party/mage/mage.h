@@ -31,6 +31,8 @@
 #include <fstream>
 #include <map>
 
+#include "mage_api.h"
+
 #include "Constants.h"
 #include "MathFunctions.h"
 
@@ -62,7 +64,7 @@ namespace MAGE
 	 *				Acapela Group ( www.acapela-group.com )						\n
 	 *				GNU Public License (see the licence in the file).
 	 */	
-	class Mage 
+	class MAGE_API Mage
 	{
 		public:
 		

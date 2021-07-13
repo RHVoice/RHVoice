@@ -28,6 +28,8 @@
 
 #pragma once
 
+
+#include "mage_api.h"
 #include "Constants.h"
 #include "State.h"
 #include "Label.h"
@@ -126,7 +128,7 @@ namespace MAGE
 	 *				Acapela Group ( www.acapela-group.com )						\n
 	 *				GNU Public License (see the licence in the file).
 	 */	
-	class Model 
+	class MAGE_API Model
 	{	
 		public :
 		
