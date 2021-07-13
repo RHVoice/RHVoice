@@ -13,13 +13,14 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-find_package(Sonic REQUIRED)
+find_package(Sonic)
 set(SONIC_DIR "${CMAKE_SOURCE_DIR}/external/libs/sonic")
 
 if(SONIC_FOUND)
 	message(STATUS "Sonic found, using from the distribution packages. Set Sonic_FORCE_COMPILATION if you want to use it from a submodule.")
 	set(Sonic_FORCE_COMPILATION OFF)
 else()
+	message(STATUS "Sonic NOT found, building an own one.")
 	set(Sonic_FORCE_COMPILATION ON)
 endif()
 
