@@ -14,10 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+pkg_check_modules(SPEECHD REQUIRED speech-dispatcher)
+
 file(GLOB_RECURSE SRCFILES "${CMAKE_CURRENT_SOURCE_DIR}/*.c" "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 add_executable(sd_rhvoice "${SRCFILES}")
-target_include_directories(sd_rhvoice PRIVATE "${INCLUDE_DIR}" "${HTS_LABELS_KIT_INCLUDES}")
-target_link_libraries(sd_rhvoice "RHVoice_core" "RHVoice_audio" pthread)
+target_include_directories(sd_rhvoice PRIVATE "${INCLUDE_DIR}" "${HTS_LABELS_KIT_INCLUDES}" "${SPEECHD_INCLUDE_DIRS}")
+target_link_libraries(sd_rhvoice "RHVoice_core" "RHVoice_audio" "${SPEECHD_LIBRARIES}" pthread)
 harden(sd_rhvoice)
 add_sanitizers(sd_rhvoice)
 

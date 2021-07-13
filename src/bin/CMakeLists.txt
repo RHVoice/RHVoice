@@ -14,8 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+pkg_check_modules(DBUS REQUIRED dbus)
+
 add_executable("RHVoice-client" "${CMAKE_CURRENT_SOURCE_DIR}/rhvoice-client.c")
-target_link_libraries("RHVoice-client" "RHVoice_core")
+target_include_directories("RHVoice-client" PRIVATE "${DBUS_INCLUDE_DIRS}")
+target_link_libraries("RHVoice-client" PRIVATE "RHVoice_core" "${DBUS_LIBRARIES}")
 harden("RHVoice-client")
 add_sanitizers("RHVoice-client")
 target_compile_definitions("RHVoice-client" PRIVATE "-DVERSION=\"${VERSION}\"")
