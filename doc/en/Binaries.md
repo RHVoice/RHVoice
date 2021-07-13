@@ -59,6 +59,7 @@
 
 ### Ukrainian
 
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda), version 4.0.7
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.1011.9.nvda-addon), version 4.1.1011.9
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.1011.9.nvda-addon), version 4.0.1011.9
 
@@ -117,6 +118,7 @@
 
 ### Ukrainian
 
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi), version 4.0.11
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.1011.13-setup.exe), version 4.1.1011.13
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.1011.13-setup.exe), version 4.0.1011.13
 
