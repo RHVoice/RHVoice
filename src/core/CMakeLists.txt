@@ -41,7 +41,7 @@ set(package_name "RHVoice_core")
 
 set(VERSION "${RHVOICE_VERSION}")
 
-if(ENABLE_MAGE)
+if(ENABLE_SONIC)
 	list(APPEND libs2link "sonic")
 endif()
 if(ENABLE_MAGE)
