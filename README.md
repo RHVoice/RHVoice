@@ -27,6 +27,7 @@ Initially, RHVoice could speak only Russian. Now it also supports:
 * Ukrainian
 * Kyrgyz
 * Tatar
+* Macedonian
 
 In theory, it is possible to implement support for
 other languages, if all the necessary resources can be found or
