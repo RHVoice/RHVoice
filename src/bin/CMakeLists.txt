@@ -14,35 +14,59 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pkg_check_modules(DBUS REQUIRED dbus)
+set("CPACK_DEBIAN_SERVER_PACKAGE_NAME" "rhvoice-socket-server")
+set("CPACK_DEBIAN_CLIENT_PACKAGE_NAME" "rhvoice-socket-client")
 
-add_executable("RHVoice-client" "${CMAKE_CURRENT_SOURCE_DIR}/rhvoice-client.c")
-target_include_directories("RHVoice-client" PRIVATE "${DBUS_INCLUDE_DIRS}")
-target_link_libraries("RHVoice-client" PRIVATE "RHVoice_core" "${DBUS_LIBRARIES}")
-harden("RHVoice-client")
-add_sanitizers("RHVoice-client")
-target_compile_definitions("RHVoice-client" PRIVATE "-DVERSION=\"${VERSION}\"")
+if(BUILD_SOCKET_SERVER)
+	add_executable("RHVoice-socket-client" "${CMAKE_CURRENT_SOURCE_DIR}/rhvoice-client.c")
+	target_include_directories("RHVoice-socket-client" PRIVATE "${DBUS_INCLUDE_DIRS}")
+	target_link_libraries("RHVoice-socket-client" PRIVATE "RHVoice_core" "${DBUS_LIBRARIES}")
+	harden("RHVoice-socket-client")
+	add_sanitizers("RHVoice-socket-client")
+	target_compile_definitions("RHVoice-socket-client" PRIVATE "-DVERSION=\"${VERSION}\"")
 
-#add_executable("RHVoice" "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
-#target_link_libraries("RHVoice" "RHVoice_core")
-#target_compile_definitions(RHVoice PRIVATE "-DPACKAGE=\"RHVoice\"")
-#harden("RHVoice")
-#add_sanitizers("RHVoice")
+	cpack_add_component(socket-client
+		DISPLAY_NAME "RHVoice socket client"
+		DESCRIPTION "Provides a client allowing to speak text using RHVoice socket server. Deprecated. Use speech-dispatcher."
+		DISABLED
+		GROUP "binaries"
+		DEPENDS "core"
+	)
+	list(APPEND CPACK_COMPONENTS_ALL "socket-client")
 
-cpack_add_component(client
-	DISPLAY_NAME "RHVoice D-Bus service client"
-	DESCRIPTION "Provides a client allowing to speak text using RHVoice DBus client. Deprecated. Use speech-dispatcher."
-	GROUP "binaries"
-	DEPENDS "core"
-)
-list(APPEND CPACK_COMPONENTS_ALL "client")
+	install(TARGETS "RHVoice-socket-client"
+		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+		COMPONENT "socket-client"
+	)
 
-install(TARGETS "RHVoice-client"
-	RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-	COMPONENT "client"
-)
+	set(CPACK_DEBIAN_CLIENT_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}")
+	set(CPACK_DEBIAN_CLIENT_PACKAGE_SUGGESTS "${CPACK_DEBIAN_SERVER_PACKAGE_NAME}")
+endif()
 
-set("CPACK_DEBIAN_CLIENT_PACKAGE_NAME" "rhvoice-client")
-set(CPACK_DEBIAN_CLIENT_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}")
+
+if(FALSE AND BUILD_SOCKET_SERVER)
+	add_executable("RHVoice-socket-server" "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+	target_link_libraries("RHVoice-socket-server" "RHVoice_core")
+	target_compile_definitions(RHVoice-socket-server PRIVATE "-DPACKAGE=\"RHVoice\"")
+	harden("RHVoice-socket-server")
+	add_sanitizers("RHVoice-socket-server")
+
+	cpack_add_component(socket-server
+		DISPLAY_NAME "RHVoice socket server"
+		DESCRIPTION "Provides a socket server allowing other processes to speak text via IPC. Deprecated. Use speech-dispatcher."
+		DISABLED
+		GROUP "binaries"
+		DEPENDS "core"
+	)
+	list(APPEND CPACK_COMPONENTS_ALL "socket-server")
+
+	install(TARGETS "RHVoice-socket-server"
+		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+		COMPONENT "socket-server"
+	)
+
+	set(CPACK_DEBIAN_SERVER_PACKAGE_DEPENDS "${CPACK_DEBIAN_CORE_PACKAGE_NAME}, ${CPACK_DEBIAN_AUDIO_PACKAGE_NAME}")
+	set(CPACK_DEBIAN_SERVER_PACKAGE_SUGGESTS "${CPACK_DEBIAN_CLIENT_PACKAGE_NAME}")
+endif()
 
 pass_through_cpack_vars()

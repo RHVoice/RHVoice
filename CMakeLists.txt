@@ -20,6 +20,7 @@ project("RHVoice")
 set(customCMakeModulesDir "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${customCMakeModulesDir}/thirdparty/sanitizers/cmake")
 
+include(CheckIncludeFile)
 include(FindPkgConfig)
 include(GNUInstallDirs)
 include(CPackComponent)
