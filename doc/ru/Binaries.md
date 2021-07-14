@@ -8,7 +8,7 @@
 
 ## NVDA
 
-[Основное дополнение](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.0.nvda-addon), версия 1.4.0
+[Основное дополнение](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.2.nvda-addon), версия 1.4.2
 
 ### Русский
 
