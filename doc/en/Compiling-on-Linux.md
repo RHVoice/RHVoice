@@ -37,7 +37,7 @@ scons -h
 
 ## Installation
 
-To install RHVoice execute the following commands:
+To install RHVoice execute the following command:
 
 ```bash
 # scons install
