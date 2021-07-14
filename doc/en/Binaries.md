@@ -8,7 +8,7 @@
 
 ## NVDA
 
-[Main add-on](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.0.nvda-addon), version 1.4.0
+[Main add-on](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.2.nvda-addon), version 1.4.2
 
 ### Russian
 
