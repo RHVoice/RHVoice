@@ -26,6 +26,7 @@
 #include "params.hpp"
 #include "exception.hpp"
 
+#include "api.h"
 #include "path.hpp"
 #include "resource.hpp"
 #include "value.hpp"
@@ -542,7 +543,7 @@ std::unique_ptr<fst> qst_fst;
     Creators creators;
   };
 
-  class language_search_criteria: public std::unary_function<const language_info&,bool>
+  class RHVOICE_CORE_API language_search_criteria: public std::unary_function<const language_info&,bool>
   {
   public:
     void set_name(const std::string& name_)

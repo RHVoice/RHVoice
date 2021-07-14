@@ -16,6 +16,7 @@
 #ifndef RHVOICE_PARAMS_HPP
 #define RHVOICE_PARAMS_HPP
 
+#include "api.h"
 #include "config.hpp"
 #include "property.hpp"
 #include "RHVoice_common.h"
@@ -54,7 +55,7 @@ namespace RHVoice
     text_params& operator=(const text_params&);
   };
 
-  class absolute_speech_params
+  class RHVOICE_CORE_API absolute_speech_params
   {
   public:
     numeric_property<double> rate,pitch,volume;
@@ -66,7 +67,7 @@ namespace RHVoice
     absolute_speech_params& operator=(const absolute_speech_params& other);
   };
 
-  class relative_speech_params
+  class RHVOICE_CORE_API relative_speech_params
   {
   public:
     numeric_property<double> rate,pitch,volume;
@@ -84,7 +85,7 @@ namespace RHVoice
     relative_speech_params relative;
   };
 
-  class verbosity_params
+  class RHVOICE_CORE_API verbosity_params
   {
   public:
     c_enum_property<RHVoice_punctuation_mode> punctuation_mode;

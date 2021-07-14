@@ -19,6 +19,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include "api.h"
 #include "exception.hpp"
 #include "params.hpp"
 #include "language.hpp"
@@ -38,10 +39,10 @@ namespace RHVoice
     }
   };
 
-  class engine
+  class RHVOICE_CORE_API engine
   {
   public:
-    struct init_params
+    struct RHVOICE_CORE_API init_params
     {
       init_params();
       std::string data_path,config_path;

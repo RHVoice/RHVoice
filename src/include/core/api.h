@@ -11,3 +11,9 @@
     #define RHVOICE_IMPORT_API
   #endif
 #endif
+
+#ifdef RHVOICE_CORE_EXPORTS
+  #define RHVOICE_CORE_API RHVOICE_EXPORT_API
+#else
+  #define RHVOICE_CORE_API RHVOICE_IMPORT_API
+#endif

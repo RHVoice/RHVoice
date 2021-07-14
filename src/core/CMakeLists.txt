@@ -52,6 +52,7 @@ set(DATA_PATH "${data_dir}")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 target_link_libraries(RHVoice_core "${libs2link}")
+target_compile_definitions(RHVoice_core PRIVATE "-DRHVOICE_CORE_EXPORTS")
 harden("RHVoice_core")
 add_sanitizers("RHVoice_core")
 

@@ -19,6 +19,8 @@
 #include <memory>
 #include "utf8.h"
 
+#include "api.h"
+
 namespace RHVoice
 {
 enum emoji_property_t
@@ -78,7 +80,7 @@ emoji_property_extended_pictographic=32
     emoji_scanner_state& operator=(const emoji_scanner_state&);
   };
 
-  class emoji_scanner
+  class RHVOICE_CORE_API emoji_scanner
   {
   public:
     emoji_scanner();
