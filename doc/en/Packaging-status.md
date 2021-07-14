@@ -1,6 +1,6 @@
 # Packaging status
 
-you can view Repology [project page](https://repology.org/project/rhvoice/versions)
+You can view Repology [project page](https://repology.org/project/rhvoice/versions)
 
 RHVoice is available in the following Linux distributions:
 
