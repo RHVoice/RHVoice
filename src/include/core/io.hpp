@@ -26,7 +26,7 @@
 #include <vector>
 #include <memory>
 
-#include "api.hpp"
+#include "api.h"
 #include "exception.hpp"
 
 #ifdef RHVOICE_IO_EXPORTS

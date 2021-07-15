@@ -21,7 +21,7 @@
 #include <vector>
 #include <memory>
 #include "core/exception.hpp"
-#include "core/api.hpp"
+#include "core/api.h"
 
 
 namespace RHVoice
