@@ -13,14 +13,14 @@
 ### Русский
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-4.2.2009.9.nvda-addon), версия 4.2.2009.9
-* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda), версия 4.0.7
-* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda), версия 4.0.7
+* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda), версия 4.0.2009.9
+* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda), версия 4.0.2009.9
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-4.1.2009.9.nvda-addon), версия 4.1.2009.9
-* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), версия 4.0.7
-* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версия 4.0.6
-* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda), версия 4.0.7
-* [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda), версия 4.0.7
-* [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda), версия 4.0.7
+* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), версия 4.0.2009.9
+* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версия 4.0.2009.9
+* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda), версия 4.0.2009.9
+* [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda), версия 4.0.2009.9
+* [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda), версия 4.0.2009.9
 * [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-4.2.2009.9.nvda-addon), версия 4.2.2009.9
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-4.1.2009.9.nvda-addon), версия 4.1.2009.9
 
@@ -30,7 +30,7 @@
 
 #### Голоса
 
-* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda), версия 4.0.7
+* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda), версия 4.0.2007.9
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-4.0.2007.9.nvda-addon), версия 4.0.2007.9
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-4.1.2007.9.nvda-addon), версия 4.1.2007.9
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-4.0.2007.9.nvda-addon), версия 4.0.2007.9
@@ -59,7 +59,7 @@
 
 ### Украинский
 
-* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda), версия 4.0.7
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda), версия 4.0.1011.9
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.1011.9.nvda-addon), версия 4.1.1011.9
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.1011.9.nvda-addon), версия 4.0.1011.9
 
@@ -72,14 +72,14 @@
 ### Русский
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.2009.13-setup.exe), версия 4.2.2009.13
-* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi), версия 4.0.11
-* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi), версия 4.0.11
+* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi), версия 4.0.2009.14
+* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi), версия 4.0.2009.14
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.2009.13-setup.exe), версия 4.1.2009.13
-* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версия 4.0.11
-* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.11
-* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi), версия 4.0.11
-* [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.11
-* [Pavel](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.11
+* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версия 4.0.2009.14
+* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.2009.14
+* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi), версия 4.0.2009.14
+* [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.2009.14
+* [Pavel](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.2009.14
 * [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.2009.13-setup.exe), версия 4.2.2009.13
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.2009.13-setup.exe), версия 4.1.2009.13
 
@@ -89,7 +89,7 @@
 
 #### Голоса
 
-* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi), версия 4.0.11
+* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi), версия 4.0.2007.14
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.2007.13-setup.exe), версия 4.0.2007.13
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.2007.13-setup.exe), версия 4.1.2007.13
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.2007.13-setup.exe), версия 4.0.2007.13
@@ -118,7 +118,7 @@
 
 ### Украинский
 
-* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi), версия 4.0.11
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi), версия 4.0.1011.14
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.1011.13-setup.exe), версия 4.1.1011.13
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.1011.13-setup.exe), версия 4.0.1011.13
 
