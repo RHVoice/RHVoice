@@ -72,6 +72,14 @@ int main(int argc,const char* argv[])
               f_out << " ";
               if(verbose_switch.getValue() && seg_iter->in("SylStructure") && !seg_iter->as("SylStructure").has_next() && seg_iter->as("SylStructure").parent().has_next())
                 f_out << ". ";
+              if(verbose_switch.getValue()&&
+                 (seg_iter->in("Transcription"))&&
+                 (!seg_iter->as("Transcription").has_next()))
+                {
+                  auto pos=seg_iter->as("Transcription").parent().eval("gpos").as<std::string>();
+                  if(pos!="content")
+                    f_out << "(" << pos << ") ";
+                }
               if((!boundary_arg.getValue().empty() || verbose_switch.getValue())&&
                  (seg_iter->in("Transcription"))&&
                  (!seg_iter->as("Transcription").has_next())&&
