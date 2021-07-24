@@ -209,10 +209,12 @@ namespace RHVoice
         io::file_handle fh(io::open_file(var, "wt"));
         HTS_Engine_save_information(engine.get(), fh.get());
       }
-    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_INFO_FILE"))
+    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_PARAM_FILE"))
       {
-        io::file_handle fh(io::open_file(var, "wt"));
-        HTS_Engine_save_information(engine.get(), fh.get());
+        io::file_handle mfh(io::open_file(var+std::string(".mgc"), "wt"));
+        HTS_Engine_save_generated_parameter(engine.get(), 0, mfh.get());
+        io::file_handle lfh(io::open_file(var+std::string(".lf0"), "wt"));
+        HTS_Engine_save_generated_parameter(engine.get(), 1, lfh.get());
       }
   }
 }
