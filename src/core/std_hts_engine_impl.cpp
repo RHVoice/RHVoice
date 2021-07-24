@@ -204,17 +204,16 @@ namespace RHVoice
 
   void std_hts_engine_impl::output_debug_info()
   {
-    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_INFO_FILE"))
+    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_FILE"))
       {
-        io::file_handle fh(io::open_file(var, "wt"));
-        HTS_Engine_save_information(engine.get(), fh.get());
-      }
-    if(const char* var=std::getenv("RHVOICE_DEBUG_HTS_PARAM_FILE"))
-      {
+        io::file_handle ifh(io::open_file(var+std::string(".info"), "wt"));
+        HTS_Engine_save_information(engine.get(), ifh.get());
         io::file_handle mfh(io::open_file(var+std::string(".mgc"), "wt"));
         HTS_Engine_save_generated_parameter(engine.get(), 0, mfh.get());
-        io::file_handle lfh(io::open_file(var+std::string(".lf0"), "wt"));
-        HTS_Engine_save_generated_parameter(engine.get(), 1, lfh.get());
+        io::file_handle ffh(io::open_file(var+std::string(".lf0"), "wt"));
+        HTS_Engine_save_generated_parameter(engine.get(), 1, ffh.get());
+                                                          io::file_handle lfh(io::open_file(var+std::string(".lab"), "wt"));
+                                                                              HTS_Engine_save_label(engine.get(), lfh.get());
       }
   }
 }
