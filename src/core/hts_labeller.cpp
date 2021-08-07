@@ -1414,6 +1414,24 @@ namespace RHVoice
         return is_silence(seg)?x:seg.eval(full_name,zero);
       }
     };
+
+    struct hts_ph_flag_feat: public feature_function
+    {
+    private:
+      const std::string full_name;
+
+    public:
+      hts_ph_flag_feat(const std::string& hts_prefix,const std::string& path,const std::string& short_name):
+        feature_function(hts_prefix+"ph_flag_"+short_name),
+        full_name(path+"ph_flag_"+short_name)
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval(full_name,zero);
+      }
+    };
   }
 
   void hts_labeller::load_label_format_description(const std::string& file_path)
@@ -1581,5 +1599,14 @@ define_feature(std::shared_ptr<feature_function>(new hts_next_syl_coda_length));
     define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("prev_","p.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("next_next_","n.n.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("prev_prev_","p.p.",name)));
+}
+
+  void hts_labeller::define_ph_flag_feature(const std::string& name)
+  {
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("","",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("next_","n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_","p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("next_next_","n.n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_prev_","p.p.",name)));
 }
 }
