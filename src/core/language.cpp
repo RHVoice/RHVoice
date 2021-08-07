@@ -559,6 +559,7 @@ else
   {
     config cfg;
     cfg.register_setting(lcfg.tok_eos);
+    cfg.register_setting(lcfg.ph_flags);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -617,6 +618,9 @@ else
     whitespace_symbols[32]="sp";
     whitespace_symbols[160]="nbsp";
     register_default_features();
+    auto& labeller=get_hts_labeller();
+    for(const auto& flag: lcfg.ph_flags.get())
+      labeller.define_ph_flag_feature(flag);
   }
 
   void language::register_default_features()
@@ -1330,6 +1334,14 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         word.clear();
         for(;out_iter!=out_syms.end() && *out_iter!="#" && *out_iter!="-"; ++out_iter)
           {
+            if(str::startswith(*out_iter, "_"))
+              {
+                const auto flag=out_iter->substr(1);
+                if(!lcfg.ph_flags.includes(flag) || !word.has_children())
+                  throw post_g2p_error(word);
+                word.last_child().set("ph_flag_"+flag, std::string("1"));
+                continue;
+              }
             word.append_child().set("name", *out_iter);
           }
       }
