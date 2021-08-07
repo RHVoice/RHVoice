@@ -46,6 +46,7 @@ namespace RHVoice
 
     void define_feature(const std::shared_ptr<feature_function>& f);
     void define_extra_phonetic_feature(const std::string& name);
+    void define_ph_flag_feature(const std::string& name);
     std::string eval_segment_label(const item& seg) const;
 
   private:

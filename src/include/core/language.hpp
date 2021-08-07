@@ -212,6 +212,8 @@ namespace RHVoice
       return phonemes;
     }
 
+    const std::set<std::string> get_ph_flags() const {return lcfg.ph_flags.get();}
+
     item& append_token(utterance& u,const std::string& text, bool eos) const;
 
     bool supports_emoji() const
@@ -325,6 +327,7 @@ std::unique_ptr<fst> qst_fst;
     struct lang_config
     {
       bool_property tok_eos{"tok.eos", false};
+      stringset_property ph_flags{"ph.flags"};
     };
 
     const fst spell_fst;
