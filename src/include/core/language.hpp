@@ -328,6 +328,7 @@ std::unique_ptr<fst> qst_fst;
     {
       bool_property tok_eos{"tok.eos", false};
       stringset_property ph_flags{"ph.flags"};
+      bool_property g2p_case{"g2p.case", false};
     };
 
     const fst spell_fst;

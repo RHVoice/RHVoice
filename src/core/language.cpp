@@ -560,6 +560,7 @@ else
     config cfg;
     cfg.register_setting(lcfg.tok_eos);
     cfg.register_setting(lcfg.ph_flags);
+    cfg.register_setting(lcfg.g2p_case);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -956,6 +957,7 @@ else
     downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(word_name));
     item& word=token.append_child();
     word.set("name",word_name);
+    word.set("cname", token_name);
   }
 
   void language::decode_as_word(item& token,const std::string& token_name) const
