@@ -33,6 +33,7 @@
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 #include "core/emoji.hpp"
+#include "core/data_only_language.hpp"
 #include <iostream>
 
 namespace RHVoice
@@ -1547,6 +1548,8 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));
         resource_description desc("language",*it1);
         logger.log(tag,RHVoice_log_level_info,std::string("Language resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
+        if(desc.data_only && !desc.name.get().empty())
+          register_language<data_only_language_info>(desc.name,1);
         Creators::const_iterator it2=creators.find(language_id(desc.name,desc.format));
         if(it2==creators.end())
           {
