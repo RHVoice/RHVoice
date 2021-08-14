@@ -16,10 +16,12 @@
 #include <list>
 #include <algorithm>
 #include <iterator>
+#include "utf8.h"
 #include "core/path.hpp"
 #include "core/utterance.hpp"
 #include "core/relation.hpp"
 #include "core/item.hpp"
+#include "core/io.hpp"
 #include "core/data_only_language.hpp"
 
 namespace RHVoice
@@ -36,6 +38,21 @@ namespace RHVoice
     cfg.load(path::join(data_path, "locale.info"));
     set_alpha2_code(loc.language2);
     set_alpha3_code(loc.language3);
+    std::ifstream gf;
+    io::open_ifstream(gf, path::join(data_path, "graph.txt"));
+    std::string gs;
+    char t;
+    utf8::uint32_t gc;
+    while(gf >> gs)
+      {
+        auto it=gs.cbegin();
+        gc=utf8::next(it, gs.cend());
+        if(!(gf >> t))
+          break;
+        register_letter(gc);
+        if(t=='v')
+          register_vowel_letter(gc);
+      }
   }
 
   std::string data_only_language_info::get_country() const
