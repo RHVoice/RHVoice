@@ -391,6 +391,26 @@ namespace RHVoice
       }
     };
 
+    struct feat_word_break: public feature_function
+    {
+      feat_word_break():
+        feature_function("word_break")
+      {
+      }
+
+      value eval(const item& word) const
+      {
+        unsigned int result=4;
+        const item& word_in_utt=word.as("Word");
+        if(word_in_utt.has_next())
+          {
+            const item& word_in_phrase=word.as("Phrase");
+            result=word_in_phrase.has_next()?1:3;
+              }
+        return result;
+      }
+    };
+
     struct feat_phrases_in: public feature_function
     {
       feat_phrases_in():
@@ -654,6 +674,7 @@ else
     register_feature(std::shared_ptr<feature_function>(new feat_phrase_numsyls));
     register_feature(std::shared_ptr<feature_function>(new feat_phrase_numwords));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_break));
+    register_feature(std::shared_ptr<feature_function>(new feat_word_break));
     register_feature(std::shared_ptr<feature_function>(new feat_word_stress_pattern));
     register_feature(std::shared_ptr<feature_function>(new feat_phrases_in));
     register_feature(std::shared_ptr<feature_function>(new feat_phrases_out));
