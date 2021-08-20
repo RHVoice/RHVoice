@@ -26,6 +26,7 @@
 #include "speech_processing_chain.hpp"
 #include "quality_setting.hpp"
 #include "pitch.hpp"
+#include "equalizer.hpp"
 #ifndef ENABLE_MAGE
 #include "config.h"
 #endif
@@ -125,6 +126,8 @@ namespace RHVoice
 
     virtual bool supports_quality(quality_t q) const=0;
 
+    bool uses_eq() const {return (eq!=nullptr);}
+
   protected:
     explicit hts_engine_impl(const std::string& name,const voice_info& info_);
     virtual sample_rate_t get_sample_rate_for_quality(quality_t q) const;
@@ -138,6 +141,7 @@ namespace RHVoice
     quality_t quality;
     numeric_property<unsigned int> int_key;
     numeric_property<double> emph_shift;
+    std::unique_ptr<equalizer> eq;
 
     double get_emph_shift() const
     {
