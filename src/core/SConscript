@@ -107,6 +107,7 @@ src=["unicode.cpp",
 	 "speech_processor.cpp",
 	 "limiter.cpp",
 		 "bpf.cpp",
+	 "equalizer.cpp",
 		 "question_matcher.cpp",
 		 "emoji.cpp",
 		 "pitch.cpp"]

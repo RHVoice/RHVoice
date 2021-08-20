@@ -258,6 +258,8 @@ namespace RHVoice
         for(int i=0;i<frame_shift;++i)
           {
             speech[i]/=32768.0;
+            if(eq)
+              speech[i]=eq->apply(speech[i]);
           }
         output->process(&(speech[0]),frame_shift);
 }
