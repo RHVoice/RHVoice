@@ -404,13 +404,13 @@ namespace RHVoice
             #endif
           }
         double volume=input.lbegin()->get_volume()*engine_impl->get_gain();
+        if(volume>1 || engine_impl->uses_eq())
+          {
+            limiter* lm=new limiter(std::max(volume, 1.0));
+            output.append(lm);
+          }
         if(volume!=1)
           {
-            if(volume>1)
-              {
-                limiter* lm=new limiter(volume);
-                output.append(lm);
-              }
             volume_controller* vc=new volume_controller(volume);
             output.append(vc);
           }
