@@ -625,6 +625,13 @@ else
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        accented_dtree.reset(new dtree(path::join(info_.get_data_path(),"accented.dt")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -1294,6 +1301,20 @@ else
         it->set("dur_mod",d);
 }
 }
+
+  void language::do_syl_accents(utterance& u) const
+  {
+    if(accented_dtree==nullptr)
+      return;
+    relation& syl_rel=u.get_relation("Syllable");
+    for(relation::iterator syl_iter(syl_rel.begin());syl_iter!=syl_rel.end();++syl_iter)
+      {
+        if(accented_dtree->predict(*syl_iter).as<unsigned int>()!=0)
+          syl_iter->set<std::string>("accented","1");
+        else
+          syl_iter->set<std::string>("accented","0");
+      }
+  }
 
   std::vector<std::string> language::get_english_word_transcription(const item& word) const
   {
