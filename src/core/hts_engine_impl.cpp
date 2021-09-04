@@ -80,8 +80,11 @@ namespace RHVoice
     if(p->quality>=quality_std)
       {
         std::string eq_path(path::join(p->model_path, "eq.txt"));
-        if(path::isfile(eq_path))
-          p->eq.reset(new equalizer(eq_path));
+        try
+          {
+            p->eq.reset(new equalizer(eq_path));
+          }
+        catch(...) {}
       }
     return p;
   }
