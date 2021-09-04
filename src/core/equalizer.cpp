@@ -14,16 +14,28 @@
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
 #include <cmath>
+#include <limits>
 #include "core/equalizer.hpp"
 #include "core/io.hpp"
 #include "core/exception.hpp"
 
 namespace RHVoice
 {
+  void equalizer::skip_comments(std::istream& s)
+  {
+    s >> std::ws;
+    while(s.peek()=='#')
+      {
+        s.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        s >> std::ws;
+      }
+  }
+
   bool equalizer::read_coefs(coefs_t& cs, std::istream& s)
   {
     for(auto& c: cs)
       {
+        skip_comments(s);
         if(!(s >> c))
           return false;
       }
@@ -40,7 +52,7 @@ namespace RHVoice
     char h;
     if(!(f >> h >> version) || h!='v')
       throw file_format_error("Error reading eq header");
-    if(version!=1)
+    if(!(version>=1 && version<=1))
       throw file_format_error("Unsupported eq version");
     coefs_t cs;
     while(read_coefs(cs, f))

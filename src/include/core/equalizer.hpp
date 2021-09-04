@@ -37,6 +37,7 @@ private:
   using coefs_t=std::array<double, 6>;
 
   bool read_coefs(coefs_t& cs, std::istream& s);
+  void skip_comments(std::istream& s);
 
   struct section_t
   {
