@@ -9,7 +9,7 @@ RHVoice доступен в следующих дистрибутивах Linux:
 Можно установить из [AUR](https://aur.archlinux.org/)
 
 * [Последняя версия](https://aur.archlinux.org/packages/rhvoice/)
-* [разрабатываемая версия](https://aur.archlinux.org/packages/rhvoice-git/)
+* [Разрабатываемая версия](https://aur.archlinux.org/packages/rhvoice-git/)
 
 
 ## Slint
