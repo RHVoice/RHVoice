@@ -4,7 +4,8 @@
 [LGPL v2.1](https://www.gnu.org/licenses/lgpl-2.1.html) или новее,
 но она полагается на [Mage](https://github.com/numediart/mage) для лучшего
 быстродействия. Mage распространяется под
-[GPL v3](https://www.gnu.org/licenses/gpl-3.0.html) или более поздней версией,
+[GPL v3](https://www.gnu.org/licenses/gpl-3.0.html) или более поздней версии,
+
 поэтому эта комбинация распространяется под GPL v3 или новее.
 Если вы хотите использовать библиотеку в вашем программном обеспечении под
 [GPL v2](https://www.gnu.org/licenses/gpl-2.0.html) или под LGPL,
