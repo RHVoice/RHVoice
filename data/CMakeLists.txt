@@ -54,6 +54,7 @@ set("VOICE_irina_LANG" "ru")
 set("VOICE_pavel_LANG" "ru")
 set("VOICE_victoria_LANG" "ru")
 set("VOICE_tatiana_LANG" "ru")
+set("VOICE_mikhail_LANG" "ru")
 
 set("VOICE_evgeniy-eng_LANG" "en")
 set("VOICE_alan_LANG" "en")
