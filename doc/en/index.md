@@ -45,16 +45,16 @@ by RHVoice itself).
 
 ## Main information
 
-* [Prebuilt binaries](doc/en/Binaries.md)
-* [Configuration file](doc/en/Configuration-file.md)
+* [Prebuilt binaries](Binaries.md)
+* [Configuration file](Configuration-file.md)
 
 ## Compiling instructions
 
-* [Compiling on linux](doc/en/Compiling-on-Linux.md)
-* [Packaging status](doc/en/Packaging-status.md)
+* [Compiling on linux](Compiling-on-Linux.md)
+* [Packaging status](Packaging-status.md)
 
 ## Legal information
 
-* [License](doc/en/License.md)
-* [Privacy Policy](doc/en/Privacy.md)
+* [License](License.md)
+* [Privacy Policy](Privacy.md)
 
