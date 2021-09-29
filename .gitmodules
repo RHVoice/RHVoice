@@ -31,3 +31,6 @@
 [submodule "data/voices/mikhail"]
 	path = data/voices/mikhail
 	url = https://github.com/rhvoice/mikhail-rus
+[submodule "data/voices/marianna"]
+	path = data/voices/marianna
+	url = https://github.com/rhvoice/marianna-ukr
