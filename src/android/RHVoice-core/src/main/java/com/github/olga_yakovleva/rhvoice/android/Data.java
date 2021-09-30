@@ -77,6 +77,7 @@ public final class Data
         addLanguage(lang);
         lang=new LanguagePack("Ukrainian", "ukr", "uk", "UKR", "UA", false, 1, 11, Checksums.LANGUAGE_UKRAINIAN, null, null);
         lang.addVoice(new VoicePack("Volodymyr", lang, 4, 0, Checksums.VOICE_VOLODYMYR, "https://github.com/RHVoice/volodymyr-ukr/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Marianna", lang, 4, 0, Checksums.VOICE_MARIANNA, "https://github.com/RHVoice/marianna-ukr/releases/download/4.0/data.zip", null));
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
         lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
