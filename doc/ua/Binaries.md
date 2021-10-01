@@ -62,6 +62,7 @@
 ### Українська
 
 * [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda), версія 4.0.1011.9
+* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=nvda), версія 4.0.1011.9
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.7.nvda-addon), версія 4.1.7
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.7.nvda-addon), версія 4.0.7
 
@@ -119,6 +120,7 @@
 ### Українська
 
 * [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi), версія 4.0.1011.14
+* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=sapi), версія 4.0.1011.14
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.11-setup.exe), версія 4.1.11
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.11-setup.exe), версія 4.0.11
 
