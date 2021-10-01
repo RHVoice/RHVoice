@@ -1,4 +1,4 @@
-English / [Russian](doc/ru/index.md)
+English / [Russian](/doc/ru/index.md) / [Українська](/doc/ua/index.md)
 
 # RHVoice documentation
 
