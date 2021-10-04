@@ -127,7 +127,7 @@
 ## Android
 
 * [Додаток для Android у Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
-* [Пряме посилання на додаток для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.2.3.apk), версія 1.2.3
+* [Пряме посилання на додаток для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.4.2.apk), версія 1.4.2
 
 Здебільшого краще встановлювати голоси безпосередньо з основного додатка. Однак, якщо це з якихось причин неможливо, ви можете встановити мовні й голосові дані з таких пакетів:
 
