@@ -40,11 +40,11 @@ jobs:
         python-version: '3.7'
 
     - if: ${{ matrix.language == 'java' }}
-      - name: Set up JDK 1.11
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '11'
+      name: Set up JDK 1.11
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'zulu'
+        java-version: '11'
 
     - if: ${{ runner.os == 'Windows' }}
       name: Install scons

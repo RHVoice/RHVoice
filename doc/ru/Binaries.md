@@ -20,6 +20,7 @@
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версия 4.0.2009.9
 * [Tatiana](https://rhvoice.su/downloads/?voice=tatiana&type=nvda), версия 4.0.2009.9
 * [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda), версия 4.0.2009.9
+* [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=nvda), версия 4.0.2009.9
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda), версия 4.0.2009.9
 * [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda), версия 4.0.2009.9
 * [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-4.2.2009.9.nvda-addon), версия 4.2.2009.9
@@ -61,6 +62,7 @@
 ### Украинский
 
 * [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda), версия 4.0.1011.9
+* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=nvda), версия 4.0.1011.9
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.1011.9.nvda-addon), версия 4.1.1011.9
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.1011.9.nvda-addon), версия 4.0.1011.9
 
@@ -80,6 +82,7 @@
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.2009.14
 * [Tatiana](https://rhvoice.su/downloads/?voice=tatiana&type=sapi), версия 4.0.2009.14
 * [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi), версия 4.0.2009.14
+* [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=sapi), версия 4.0.2009.14
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.2009.14
 * [Pavel](https://rhvoice.su/downloads/?voice=arina&type=sapi), версия 4.0.2009.14
 * [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.2009.13-setup.exe), версия 4.2.2009.13
@@ -121,6 +124,7 @@
 ### Украинский
 
 * [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi), версия 4.0.1011.14
+* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=sapi), версия 4.0.1011.14
 * [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.1011.13-setup.exe), версия 4.1.1011.13
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.1011.13-setup.exe), версия 4.0.1011.13
 
