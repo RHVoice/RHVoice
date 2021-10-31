@@ -46,6 +46,7 @@ public final class Data
         lang.addVoice(new VoicePack("CLB", lang, 4, 0, Checksums.VOICE_CLB, null, null));
         lang.addDefaultVoice(new VoicePack("SLT", lang, 4, 0, Checksums.VOICE_SLT, null, null));
         lang.addVoice(new VoicePack("Evgeniy-Eng", lang, 4, 0, Checksums.VOICE_EVGENIY_ENG, "https://github.com/RHVoice/evgeniy-eng/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Lyubov", lang, 4, 0, Checksums.VOICE_LYUBOV, "https://github.com/RHVoice/lyubov-eng/releases/download/4.0/data.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Esperanto", "epo", "eo", "", "", false, 1, 2, Checksums.LANGUAGE_ESPERANTO, null, null);
         lang.addVoice(new VoicePack("Spomenka", lang, 4, 0, Checksums.VOICE_SPOMENKA, null, null));
