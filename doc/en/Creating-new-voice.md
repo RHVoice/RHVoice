@@ -1,7 +1,7 @@
 # Creating a new voice for RHVoice.
 
 # Introduction
-Below tutorial is a detailed guide of creating new voice for RHVoice synthesizer.
+This tutorial is a detailed guide of creating new voice for RHVoice synthesizer.
 It assumes that user has some practical skills regarding command-line environments, copying and editing files, and so on.
 Also the access to some Linux system is needed, with sudo privileges for installing packages.
 Windows WSL2 is enough.
@@ -654,6 +654,7 @@ Saved in training.cfg: 109 - 273 HZ.
 
 ### Extracting LF0 {#f0-extract}
 This step is one of steps replacing the original features target in data Makefile we discussed in HTS-demo in part 2.
+
 ```
 ../RHVoice/src/scripts/general/voice-building-utils extract-f0
 ```
