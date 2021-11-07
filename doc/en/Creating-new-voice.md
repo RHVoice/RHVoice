@@ -92,7 +92,7 @@ cd ..
 ```
 
 ## Speech Signal Processing Toolkit (SPTK)
-> [Speech Signal Processing Toolkit (SPTK)][http://sp-tk.sourceforge.net/] is a suite of speech signal processing tools for UNIX environments, e.g., LPC analysis, PARCOR analysis, LSP analysis, PARCOR synthesis filter, LSP synthesis filter, vector quantization techniques, and other extended versions of them.
+> [Speech Signal Processing Toolkit (SPTK)](http://sp-tk.sourceforge.net/) is a suite of speech signal processing tools for UNIX environments, e.g., LPC analysis, PARCOR analysis, LSP analysis, PARCOR synthesis filter, LSP synthesis filter, vector quantization techniques, and other extended versions of them.
 
 CSH package is required by SPTK 3.11, so we'll install it:
 
