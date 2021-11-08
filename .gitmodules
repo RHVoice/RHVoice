@@ -1,3 +1,7 @@
+[submodule "cmake/thirdParty/Hardening"]
+	path = cmake/thirdParty/Hardening
+	url = https://github.com/KOLANICH-libs/Hardening.cmake.git
+	branch = master
 [submodule "cmake/thirdParty/sanitizers"]
 	path = cmake/thirdParty/sanitizers
 	url = https://github.com/arsenm/sanitizers-cmake.git

@@ -19,7 +19,7 @@ project("RHVoice")
 
 set(customCMakeModulesDir "${CMAKE_SOURCE_DIR}/cmake")
 set(thirdPartyCMakeModulesDir "${customCMakeModulesDir}/thirdParty")
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${thirdPartyCMakeModulesDir}/sanitizers/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${thirdPartyCMakeModulesDir}/Hardening" "${thirdPartyCMakeModulesDir}/sanitizers/cmake")
 add_subdirectory("${thirdPartyCMakeModulesDir}/CCache")
 
 include(FindPkgConfig)
