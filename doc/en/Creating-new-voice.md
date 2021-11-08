@@ -15,10 +15,9 @@ This tutorial  is divided into 3 parts:
 - Part 3. Generating the voice for RHVoice.
 
 ## Warning: work in progress
-This text is a work in progress, version 0.01.
+This text is a work in progress, version 0.2.
 Part 1 and 2 are complete, but some important questions related to RHVoice, are still open.
 
-- What did I wrong? After voice-building-utils export-voice and calling RHVoice-test -p Myvoice I get Error: HTS106_Model_load_pdf: Failed to load header of pdfs.
 - Is 16000 voice variant needed if we have 24000, and how to generate it without repeating audio importing and training?
 - What is purpose of realign step in voice-building-utils?
 - How to solve the [Assertion error during F0 extraction](#assertion_error) and is proposed workaround correct?
@@ -176,15 +175,6 @@ To make things even more interesting, getting the HTK and HD Code components, re
 
 Seems a bit complicated, so let's go step by step.
 
-### Getting the HTS
-```
-curl -O http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
-mkdir HTS-2.3_for_HTK-3.4.1
-tar -xvf HTS-2.3_for_HTK-3.4.1.tar.bz2 -C HTS-2.3_for_HTK-3.4.1
-```
-
-To have HTS uncompressed to separate folder, we had to create one; previously, each package was placed in separate folder in archive, so we could safely uncompress it in current directory.
-
 ### HTK registration
 - First, go to [HTK registration page](https://htk.eng.cam.ac.uk/register.shtml).
 - Fill in the registration form.
@@ -198,28 +188,104 @@ curl -O https://userid:password@htk.eng.cam.ac.uk/ftp/software/HTK-3.4.1.tar.gz
 curl -O https://userid:password@htk.eng.cam.ac.uk/ftp/software/hdecode/HDecode-3.4.1.tar.gz
 ```
 
-### Uncompressing
-Here things get simple:
+### Compiling HTK
+We want to compile HTK itself, and install it to some folder inside our tts working directory.
+So the steps will be: tar, configure with prefix, make, make install:
+
+```
+tar -xvf HTK-3.4.1.tar.gz
+cd htk
+```
+
+Before configuring, we must patch the configure removing `-m32` from CFLAGS parameter in line 5507, so:
+```
+nano +5507 configure
+```
+
+And line after modification:
+
+```
+				CFLAGS="-ansi -D_SVID_SOURCE -DOSS_AUDIO -D'ARCH=\"$host_cpu\"' $CFLAGS"
+```
+
+We disabled 32-bit compilation, which by default would not be possible, due to lack of 32-bit c header files on 64-bit systems.
+
+```
+./configure --prefix=$(echo ~)/tts/htk341
+mkdir $(echo ~)/tts/htk341
+```
+
+The `$(echo ~)/tts/htk341` seems a bit strange, but we used earlier similar `$(pwd)` construction.
+Basically, dollar and parentheses means for Bash (commands interpreter): run command in parentheses and place result inside the command line.
+If instead `$(echo ~)` we would use `~` character only, the configure script will  answer, that prefix must be an absolute path.
+
+Before running make, we must automatically replace spaces to tab characters at the beginning of `HLMTools/Makefile`. Spaces was good in MakeFile years ago, but not now.
+
+```
+sed -i '77s/        /\t/' HLMTools/Makefile
+make
+make install
+```
+
+Finally we'll remove the htk sources directory, to generate its' clean copy from archive for applying HTS patch.
+
+```
+cd ..
+rm -r htk
+```
+
+We can check, that HTK 3.4.1 binaries are placed in `~/tts/htk341/bin` folder.
+
+### Downloading HTS
+For RHVoice-related tasks we'll need HTS 2.3 and older 2.2.
+
+```
+curl -O http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
+tar -xvf HTS-2.3_for_HTK-3.4.1.tar.bz2
+```
+
+All files were uncompressed to current folder, not to separate one, as previously.
+
+We'll repeat the steps for HTS 2.2:
+
+```
+curl -O http://hts.sp.nitech.ac.jp/archives/2.2/HTS-2.2_for_HTK-3.4.1.tar.bz2
+tar -xvf HTS-2.2_for_HTK-3.4.1.tar.bz2
+```
+
+### Compiling HTS 2.3
+We'll uncompress clean copy of htk, apply HTS 2.3 patch on it, then configure, make, and make install.
+Fortunately, no configure or MakeFile corrections will be needed now, but along with htk, we must uncompress HDecode too.
+
 ```
 tar -xvf HTK-3.4.1.tar.gz
 tar -xvf HDecode-3.4.1.tar.gz
-```
-
-### applying hts patch
-Seems difficult, but it's a matter of few simple commands:
-
-```
 cd htk
-patch -p1 -d . < ../HTS-2.3_for_HTK-3.4.1/HTS-2.3_for_HTK-3.4.1.patch
-```
-
-
-### Compiling HTS and HD Code
-```
-./configure
-make all
-make hdecode
+patch -p1 -d . < ../HTS-2.3_for_HTK-3.4.1.patch
+./configure --prefix=$(echo ~)/tts/hts23
+mkdir $(echo ~)/tts/hts23
+make
+make install
 cd ..
+rm -r htk
+```
+
+We can check, that `~/tts/hts23/bin` contains newly installed binaries.
+
+### Compiling HTS 2.2
+Basically, we must repeat the same steps for HTK 2.2.
+
+```
+tar -xvf HTK-3.4.1.tar.gz
+tar -xvf HDecode-3.4.1.tar.gz
+cd htk
+patch -p1 -d . < ../HTS-2.2_for_HTK-3.4.1.patch
+./configure --prefix=$(echo ~)/tts/hts22
+mkdir $(echo ~)/tts/hts22
+make
+make install
+cd ..
+rm -r htk
 ```
 
 ## Downloading and compiling HTS engine
@@ -229,11 +295,15 @@ cd ..
 curl -O https://kumisystems.dl.sourceforge.net/project/hts-engine/hts_engine%20API/hts_engine_API-1.10/hts_engine_API-1.10.tar.gz
 tar -xvf hts_engine_API-1.10.tar.gz
 cd hts_engine_API-1.10
-./configure
+./configure --prefix=$(echo ~)/tts/hts_engine_api110
+mkdir $(echo ~)/tts/hts_engine_api110
 make
+make install
 cd ..
+rm -r hts_engine_API-1.10
 ```
-After succesful compilation, we're ready to go to part 2 of this tutorial.
+
+New package is installed in `~/tts/hts_engine_api110` and we're ready to go to part 2 of this tutorial.
 
 # Part 2. Running original HTS demo CMU ARCTIC SLT.
 The goal of this part is to ensure, that all downloaded components work correctly, so we'll be able to start in RHVoice way in next part.
@@ -275,15 +345,13 @@ and the line after modifications should look like below:
 
 After saving the modified file, we can run configuration script, giving as parameters paths to all needed tools.
 
-Probably the tilde character used in this command-line could be problematic, so we'll write full paths:
-
 Remember to preserve backslashes at the end of lines, they're instructing shell, that started command will be continued in next line.
 
 ```
-./configure --with-fest-search-path=/home/user/tts/festival/examples \
-  --with-sptk-search-path=/home/user/tts/SPTK-3.11/build/bin \
-  --with-hts-engine-search-path=/home/user/tts/hts_engine_API-1.10/bin \
-  --with-hts-search-path=/home/user/tts/htk/HTKTools
+./configure --with-fest-search-path=$(echo ~)/tts/festival/examples \
+  --with-sptk-search-path=$(echo ~)/tts/SPTK-3.11/build/bin \
+  --with-hts-engine-search-path=$(echo ~)/tts/hts_engine_api110/bin \
+  --with-hts-search-path=$(echo ~)/tts/hts23/bin
 ```
 
 If everything went well, and configure found all needed tools, the Makefile was generated.
@@ -302,7 +370,6 @@ Now, having pretty much time, we can try to understand a bit what is already goi
 ## Waiting and understanding
 `make` command processes the Makefile and runs so-called targets, described there.
 We can think about targets as named procedures. For source code compilation, for which make is often used, targets are also a single or multiple source or object files.
-
 
 The configure command is a Bash script (analogous to batch scripts in Windows).
 One of processes there is to take `Makefile.in` as a template, and generate real Makefile with given parameters.
@@ -411,7 +478,7 @@ Generated by configure command from Config.in template file.
 - Generates voice in HTS format.
 - Generates sample synthesis based on  data/scp/gen.scp files list.
 
-All files are stored in somefolder/q001/ver1/, where somefolder are:
+All files are stored in somefolder/q001/ver1/, where somefolder is:
 
 - gen: generated samples. `gen/qst001/ver1/hts_engine` folder will contain alice01 to alice40 in few formats, final audio in .raw and .wav. Listening to it, we can say, that it sounds very similar to SLT voice from RHVoice, which is rather expected observation.
 - voices: final voices. `voices/qst001/ver1` contains `cmu_us_arctic_slt.htsvoice`, and many other files.
@@ -451,7 +518,7 @@ git clone --recurse https://github.com/RHVoice/RHVoice.git
 ```
 
 ### Building RHVoice
-To compile everything, RHVoice uses scons, we installed before. The scons tool has similar purpose that make, but is a few decades newer, and based on Python language.
+To compile everything, RHVoice uses scons, which we installed before. The scons tool has similar purpose that make, but is a few decades newer, and based on Python language.
 
 ```
 cd RHVoice
@@ -523,7 +590,7 @@ Here we have also training.cfg file, used by the voice-building-utils, and scrip
 As we know from part 2, the next step would be to call the configure script, giving various paths as parameters.
 
 in RHVoice this step is defined in the `configure` command of voice-building-utils.
-This command expects the parameter `"bindir"` to contain path to common directory with binaries from various programs we have currently under separate folders.
+This command expects the parameter `"bindir"` of training.cfg to contain path to common directory with binaries of hts23, HTS engine and SPTK which we have currently under separate folders.
 
 This "bindir" is set as value of multiple parameters of configure script:
 
@@ -537,12 +604,13 @@ The same "bindir" is used in other steps of the script, so instead patching the 
 To do it, we'll create a directory, and then copy as symbolic links needed files from separate folders.
 
 ```
+cd ~/tts
 mkdir bin
 cd bin
-cp --symbolic-link ../../SPTK-3.11/build/bin/* ./
-cp --symbolic-link ../../hts_engine_API-1.10/bin/* ./
-cp --symbolic-link --no-clobber ../../htk/HTKTools/* ./
-cd ..
+cp --symbolic-link ../SPTK-3.11/build/bin/* ./
+cp --symbolic-link ../hts_engine_api110/bin/* ./
+cp --symbolic-link ../hts23/bin/* ./
+cd ../rhwork
 ```
 
 ### Editing the training.cfg
@@ -554,15 +622,13 @@ We'll return to setting some parameters in this file few times in further readin
 
 At the moment, we'll set the festdir, bindir, htk_bindir and hts22_bindir.
 
-Festdir, a path to Festival is separate path, the rest in fact can be set to our common bin directory for simplicity.
-
 Make sure, that after pasting new key: value, you delete old key: null from the file.
 
 ```
 "festdir": "/home/user/tts/festival/",
-"bindir": "/home/user/tts/rhwork/bin",
-"htk_bindir": "/home/user/tts/rhwork/bin",
-"hts22_bindir": "/home/user/tts/rhwork/bin",
+"bindir": "/home/user/tts/bin", 
+"htk_bindir": "/home/user/tts/htk341/bin", 
+"hts22_bindir": "/home/user/tts/hts22/bin", 
 ```
 
 ### Patching Makefile.in
@@ -788,11 +854,22 @@ printf "</speak>\n" >>prompts.ssml
 
 We have now prompts.ssml in our current directory.
 
-### Text in training.cfg
-Now in training.cfg we must put path to our prompts file:
+### Preparing test.ssml
+One more thing is to manually prepare test.ssml file.
+It will be used to generate labels/gen, which will not be synthesized, but for probably historical reasons, the file is required.
+
+```
+echo '<speak xml:lang="en">
+<s> This is just a test. </s>
+</speak>' >test.ssml
+```
+
+### Text and test in training.cfg
+Now in training.cfg we must put paths to our prompts and test file:
 
 ```
 "text": "/home/user/tts/rhwork/prompts.ssml",
+"test": "/home/user/tts/rhwork/test.ssml",
 ```
 
 ### Segmenting
@@ -842,14 +919,11 @@ We run training process by executing:
 make voice
 ```
 
-After some hours, models, trees and other training-related folders will be created.
+After some time, possibly few hours, models, trees and other training-related folders will be created.
 
 Look into the huge log file, to inspect are there some errors in the process.
 
 One of typical could be information about too small count of observations, meaning, that our audio dataset not contains enough audio to build statistical model.
-
-The `gen` folder is empty, no generated waves.
-It's not due to some error, but the fact, that many tasks are commented out in file scripts/Config.pm in RHVoice version.
 
 ### Exporting voice
 ```
@@ -865,9 +939,3 @@ echo "This is just a simple test of this speech synthesis." |
 ../RHVoice/local/bin/RHVoice-test -p Myvoice -o ./test.wav
 ```
 
-Unfortunately, at the moment we get:
-Error: HTS106_Model_load_pdf: Failed to load header of pdfs.
-
-When we call the rhvoice-test with Slt profile (`-p Slt`) everything works well and output is created.
-
-To be continued.
