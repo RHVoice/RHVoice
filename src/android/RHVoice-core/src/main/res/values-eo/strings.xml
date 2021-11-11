@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="default_voice_title">Implicita voĉo</string>
   <string name="default_voice_dialog_title">Elekti voĉon</string>
@@ -27,4 +27,7 @@
   <string name="decrease">Malpliigi</string>
   <string name="reset">Reagordi</string>
   <string name="version">Versio</string>
+  <string name="user_dicts">Uzantvortaroj</string>
+  <string name="add">Aldoni</string>
+  <string name="remove">Forigi</string>
 </resources>
