@@ -15,13 +15,12 @@ This tutorial  is divided into 3 parts:
 - Part 3. Generating the voice for RHVoice.
 
 ## Warning: work in progress
-This text is a work in progress, version 0.2.
-Part 1 and 2 are complete, but some important questions related to RHVoice, are still open.
+This text is a work in progress, version 0.3.
+Part 1 and 2 are complete, but some questions related to RHVoice, are still open.
 
-- Is 16000 voice variant needed if we have 24000, and how to generate it without repeating audio importing and training?
+- How to generate 16 KHz voice variant without repeating audio importing and training?
 - What is purpose of realign step in voice-building-utils?
 - How to solve the [Assertion error during F0 extraction](#assertion_error) and is proposed workaround correct?
-- Strange artifacts (clicks and very short beeps)  in data/synth [after resynthetizing](#synth): does it mean, that f0 range must be changed, or is it only the weakness of resynthetizing process itself, or maybe the result of low sample rate of CMU audio?
 - x2x : warning: input data is over the range of type 'short'! Should this warning be ignored, or means that something went wrong?
 - Is Python2 still needed for RHVoice tools, or will Python3 work ([issue 187](https://github.com/RHVoice/RHVoice/issues/187) is still open)?
 - What is `"test"` key in training.cfg for, when the `$engin=1` step is commented out in Config.pm?
@@ -622,14 +621,21 @@ We'll return to setting some parameters in this file few times in further readin
 
 At the moment, we'll set the festdir, bindir, htk_bindir and hts22_bindir.
 
-Make sure, that after pasting new key: value, you delete old key: null from the file.
+We can edit the file manually using nano, or automatically using the `jq` linux tool, used to query and modify files in JSON format.
+
+Editing manually, make sure, that after pasting new key: value, you delete old key: null from the file.
 
 ```
-"festdir": "/home/user/tts/festival/",
-"bindir": "/home/user/tts/bin", 
-"htk_bindir": "/home/user/tts/htk341/bin", 
-"hts22_bindir": "/home/user/tts/hts22/bin", 
+jq --arg pwd "$(pwd)" --arg tts "$(echo ~)/tts" \
+'.festdir=$tts+"/festival/"|
+.bindir=$tts+"/bin"|
+.htk_bindir=$tts+"/htk341/bin"|
+.hts22_bindir=$tts+"/hts22/bin"' \
+training.cfg >training2.cfg &&
+mv training2.cfg training.cfg
 ```
+
+We're creating an updated training.cfg in training2.cfg file, and then replacing original by updated version.
 
 ### Patching Makefile.in
 It's the same step, we know from part 2, when we patched the Makefile.in of "HTS-demo_CMU-ARCTIC-SLT" before running configure:
@@ -670,10 +676,13 @@ Next step is to convert our wave files to raw format, used by HTS training proce
 Before doing it, we must edit our training.cfg and set:
 
 ```
-"wavedir": "/home/user/tts/rhwork/wav",
-"speaker": "myvoice", 
-"language": "English", 
-"gender": "female", 
+jq --arg pwd "$(pwd)" \
+'.wavedir=$pwd+"/wav"|
+.speaker="myvoice"|
+.language="English"|
+.gender="female"' \
+training.cfg >training2.cfg &&
+mv training2.cfg training.cfg
 ```
 
 "myvoice" is the test name, in real scenario we would set an other.
@@ -743,8 +752,10 @@ AssertionError
 It seems, that only solution is to change a bit earlier calculated F0 range, so edit the train.cfg and round to nearest tenth:
 
 ```
-"lower_f0": 110, 
-"upper_f0": 280, 
+jq '.lower_f0=110|
+.upper_f0=280' \
+training.cfg >training2.cfg &&
+mv training2.cfg training.cfg
 ```
 
 Then we'll repeat the last voice-building-utils step.
@@ -756,8 +767,10 @@ Bad news is, that assertion error persists.
 Finally the process continues after setting:
 
 ```
-"lower_f0": 100, 
-"upper_f0": 280, 
+jq '.lower_f0=100|
+.upper_f0=280' \
+training.cfg >training2.cfg &&
+mv training2.cfg training.cfg
 ```
 
 Process finishes without error, and we have data/lf0 folder created.
@@ -868,8 +881,11 @@ echo '<speak xml:lang="en">
 Now in training.cfg we must put paths to our prompts and test file:
 
 ```
-"text": "/home/user/tts/rhwork/prompts.ssml",
-"test": "/home/user/tts/rhwork/test.ssml",
+jq --arg pwd "$(pwd)" \
+'.text=$pwd+"/prompts.ssml"|
+.test=$pwd+"/test.ssml"' \
+training.cfg >training2.cfg &&
+mv training2.cfg training.cfg
 ```
 
 ### Segmenting
@@ -888,7 +904,9 @@ Also the htk folder with many files was created in our rhwork working directory.
 ../RHVoice/src/scripts/general/voice-building-utils label
 ```
 
-`data/labels/gen` and `data/labels/full` were created. 
+Uses `RHVoice/local/bin/RHVoice-make-hts-labels`.
+Creates `data/labels/gen` from file in `test` key of training.cfg.
+Creates `data/labels/full`  from file in `text` key of training.cfg. 
 
 Also in data folder make was called with following targets:
 
@@ -904,17 +922,22 @@ Because we finished previously the Makefile analysis step, we're done with Makef
 ../RHVoice/src/scripts/general/voice-building-utils make-questions
 ```
 
-data/questions will be created.
+Creates data/questions.
 
 ###  Creating LPF
 ```
 ../RHVoice/src/scripts/general/voice-building-utils make-lpf
 ```
 
-voices/qst001/ver1/lpf.pdf and others were created.
+Creates files in `voices/qst001/ver1`:
+
+- lpf.pdf contains values calculated from `sample_rate` key in training.cfg.
+- tree-lpf.inf: contains values based on sibilants defined in language phoneset (phonemes.xml in RHVoice/data/languages/lang).
+- lpf.win1: constant numerical values.
 
 ### Training
 We run training process by executing:
+
 ```
 make voice
 ```
@@ -926,6 +949,7 @@ Look into the huge log file, to inspect are there some errors in the process.
 One of typical could be information about too small count of observations, meaning, that our audio dataset not contains enough audio to build statistical model.
 
 ### Exporting voice
+
 ```
 ../RHVoice/src/scripts/general/voice-building-utils export-voice
 ```
@@ -938,4 +962,21 @@ To test the voice, we'll use RHVoice-test program, saving output in wav file:
 echo "This is just a simple test of this speech synthesis." |
 ../RHVoice/local/bin/RHVoice-test -p Myvoice -o ./test.wav
 ```
+
+## Realigning
+This step is optional.
+
+```
+../RHVoice/src/scripts/general/voice-building-utils realign
+```
+`realigned/$ver` folder is created, data/labels/full.mlf and data/labels/mono.mlf are updated to point to realigned label files.
+
+`$ver` in scripts/Config.pm is increased, so results of next training will be placed in 'voices/qst001/ver2` folder.
+
+After realign, make lpf, training and voice exporting of new version must be repeated.
+
+### 16 KHz version
+The 16 KHz version of voice must be provided, and is used in minimal quality RHVoice synthesizer mode.
+
+It can be generated by setting sample_rate to 16000 in training.cfg, and then repeating process starting from voice import step.
 
