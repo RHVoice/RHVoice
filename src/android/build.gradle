@@ -2,7 +2,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     dependencies {
@@ -14,11 +13,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
     }
 
     ext.myMinSdkVersion=16
-    ext.myCompileSdkVersion=29
+    ext.myCompileSdkVersion=31
     ext.myTargetSdkVersion=29
 }
 

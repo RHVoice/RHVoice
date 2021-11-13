@@ -30,9 +30,8 @@ import android.text.InputFilter;
 import android.text.InputType;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
-import com.takisoft.preferencex.AutoSummaryEditTextPreference;
-import com.takisoft.preferencex.PreferenceCategory;
-import com.takisoft.preferencex.PreferenceFragmentCompat;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -113,7 +112,7 @@ import java.util.TreeMap;
         }
 
         @Override
-        public void onCreatePreferencesFix(Bundle state,String rootKey)
+        public void onCreatePreferences(Bundle state,String rootKey)
         {
             setPreferencesFromResource(R.xml.settings,null);
             List<VoiceInfo> voices=Data.getVoices(getActivity());
