@@ -115,11 +115,11 @@ import java.util.TreeMap;
         public void onCreatePreferences(Bundle state,String rootKey)
         {
             setPreferencesFromResource(R.xml.settings,null);
+            findPreference("version").setSummary(BuildConfig.VERSION_NAME);
             List<VoiceInfo> voices=Data.getVoices(getActivity());
             if(voices.isEmpty())
                 return;
             Map<String,List<VoiceInfo>> voiceGroups=groupVoicesByLanguage(voices);
-            findPreference("version").setSummary(BuildConfig.VERSION_NAME);
             PreferenceCategory cat=new PreferenceCategory(getPreferenceManager().getContext());
             cat.setOrder(100);
             cat.setKey("languages");
