@@ -55,4 +55,9 @@ public final class Config
     {
         return new File(getDictsRootDir(ctx), langName);
     }
+
+    public static File getConfigFile(Context ctx)
+    {
+        return new File(getDir(ctx), CONFIG_FILE_NAME);
+    }
 }
