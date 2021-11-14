@@ -31,4 +31,5 @@
   <string name="user_dicts">Словники користувача</string>
   <string name="add">Додати</string>
   <string name="remove">Видалити</string>
+  <string name="config_file">Конфігураційний файл</string>
 </resources>

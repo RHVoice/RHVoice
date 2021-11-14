@@ -28,6 +28,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 public final class ImportConfigService extends IntentService
 {
     public static final String ACTION_IMPORT_USER_DICT="org.rhvoice.action.IMPORT_USER_DICT";
+    public static final String ACTION_IMPORT_CONFIG_FILE="org.rhvoice.action.IMPORT_CONFIG_FILE";
     public static final String EXTRA_LANGUAGE="language";
 
     public ImportConfigService()
@@ -52,12 +53,30 @@ public final class ImportConfigService extends IntentService
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
     }
 
+    private void importConfigFile(Intent intent)
+    {
+        final DocumentFile inFile=DocumentFile.fromSingleUri(this, intent.getData());
+        final File outFile=Config.getConfigFile(this);
+        outFile.getParentFile().mkdirs();
+        try(InputStream in=getContentResolver().openInputStream(intent.getData());
+            FileOutputStream out=new FileOutputStream(outFile)) {
+            DataPack.copyBytes(in, out, null);
+        } catch (IOException e) {
+            outFile.delete();
+            return;
+        }
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
+    }
+
     @Override
     protected void onHandleIntent(Intent intent)
     {
         switch (intent.getAction()) {
         case ACTION_IMPORT_USER_DICT:
             importUserDict(intent);
+            break;
+        case ACTION_IMPORT_CONFIG_FILE:
+            importConfigFile(intent);
             break;
         default:
             break;

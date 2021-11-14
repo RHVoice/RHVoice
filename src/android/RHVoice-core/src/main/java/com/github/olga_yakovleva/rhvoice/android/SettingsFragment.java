@@ -27,6 +27,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -34,6 +35,7 @@ import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
+import androidx.preference.TwoStatePreference;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.github.olga_yakovleva.rhvoice.VoiceInfo;
 import com.google.common.collect.FluentIterable;
@@ -52,6 +54,7 @@ import java.util.regex.Pattern;
         public static final String ARG_LANGUAGE_KEY="language_key";
         private static final Pattern RE_LANG_KEY=Pattern.compile("^language\\.([a-z]{3})$");
         private final ActivityResultLauncher<String[]> openUserDict=Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT?registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onUserDictSelected):null;
+        private final ActivityResultLauncher<String[]> openConfigFile=Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT?registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onConfigFileSelected):null;
 
         private Map<String,List<VoiceInfo>> groupVoicesByLanguage(List<VoiceInfo> voices)
         {
@@ -141,6 +144,13 @@ import java.util.regex.Pattern;
         {
             setPreferencesFromResource(R.xml.settings,null);
             findPreference("version").setSummary(BuildConfig.VERSION_NAME);
+            if(openConfigFile!=null)
+                {
+                    final TwoStatePreference configFilePref=findPreference("config_file");
+                    configFilePref.setOnPreferenceChangeListener(this::onConfigFilePrefChange);
+                    configFilePref.setChecked(Config.getConfigFile(requireActivity()).exists());
+                    configFilePref.setVisible(true);
+                }
             List<VoiceInfo> voices=Data.getVoices(getActivity());
             if(voices.isEmpty())
                 return;
@@ -189,14 +199,30 @@ import java.util.regex.Pattern;
 
         private void onUserDictSelected(Uri uri)
         {
+            if(uri==null)
+                return;
             final String lang=getLanguageName();
             if(lang==null)
                 return;
             final Intent intent=new Intent(requireActivity(), ImportConfigService.class);
             intent.setAction(ImportConfigService.ACTION_IMPORT_USER_DICT);
             intent.setData(uri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.putExtra(ImportConfigService.EXTRA_LANGUAGE, lang);
             requireActivity().startService(intent);
+        }
+
+        private void onConfigFileSelected(Uri uri)
+        {
+            if(uri==null)
+                return;
+            final Intent intent=new Intent(requireActivity(), ImportConfigService.class);
+            intent.setAction(ImportConfigService.ACTION_IMPORT_CONFIG_FILE);
+            intent.setData(uri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            requireActivity().startService(intent);
+            final TwoStatePreference configFilePref=findPreference("config_file");
+            configFilePref.setChecked(true);
         }
 
         private String getLanguageCode()
@@ -219,5 +245,17 @@ import java.util.regex.Pattern;
             if(code==null)
                 return null;
             return FluentIterable.from(Data.getLanguages()).firstMatch(l-> l.getCode().equals(code)).transform(l-> l.getName()).orNull();
+        }
+
+        private boolean onConfigFilePrefChange(Preference pref, Object val)
+        {
+            if ((Boolean)val) {
+                openConfigFile.launch(new String[]{"*/*"});
+                return false;
+            } else {
+                Config.getConfigFile(requireActivity()).delete();
+                LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
+                return true;
+            }
         }
     }
