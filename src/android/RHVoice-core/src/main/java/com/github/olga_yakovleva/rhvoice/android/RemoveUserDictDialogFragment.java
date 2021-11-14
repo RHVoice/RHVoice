@@ -39,7 +39,11 @@ public final class RemoveUserDictDialogFragment extends AppCompatDialogFragment
         super.onCreate(state);
         Bundle args=getArguments();
         languageName=args.getString(ARG_LANGUAGE);
-        userDicts=FluentIterable.from(Config.getLangDictsDir(requireActivity(), languageName).listFiles()).filter(f-> f.isFile()).transform(f-> f.getName()).toArray(String.class);
+        final File[] dictFiles=Config.getLangDictsDir(requireActivity(), languageName).listFiles();
+        if(dictFiles==null)
+            userDicts=new String[]{};
+        else
+            userDicts=FluentIterable.from(dictFiles).filter(f-> f.isFile()).transform(f-> f.getName()).toArray(String.class);
         Arrays.sort(userDicts);
 }
 
