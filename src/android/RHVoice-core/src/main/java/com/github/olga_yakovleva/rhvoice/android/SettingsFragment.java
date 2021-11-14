@@ -20,29 +20,38 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceManager;
-import androidx.preference.PreferenceScreen;
-import android.text.InputFilter;
-import android.text.InputType;
-import com.github.olga_yakovleva.rhvoice.LanguageInfo;
-import com.github.olga_yakovleva.rhvoice.VoiceInfo;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceScreen;
+import com.github.olga_yakovleva.rhvoice.LanguageInfo;
+import com.github.olga_yakovleva.rhvoice.VoiceInfo;
+import com.google.common.collect.FluentIterable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
     public final class SettingsFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener
     {
         private static final String TAG="RHVoiceSettingsActivity";
         public static final String NAME="settings";
         public static final String ARG_LANGUAGE_KEY="language_key";
+        private static final Pattern RE_LANG_KEY=Pattern.compile("^language\\.([a-z]{3})$");
+        private final ActivityResultLauncher<String[]> openUserDict=Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT?registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onUserDictSelected):null;
 
         private Map<String,List<VoiceInfo>> groupVoicesByLanguage(List<VoiceInfo> voices)
         {
@@ -109,6 +118,22 @@ import java.util.TreeMap;
             RatePreference ratePref=new RatePreference(ctx);
             ratePref.setKey("language."+code3+".rate");
             cat.addPreference(ratePref);
+            if(openUserDict==null)
+                return;
+            PreferenceCategory dCat=new PreferenceCategory(ctx);
+            dCat.setKey("language."+code3+".user_dicts");
+            dCat.setTitle(R.string.user_dicts);
+            cat.addPreference(dCat);
+            Preference addDictPref=new Preference(ctx);
+            addDictPref.setKey("language."+code3+".add_user_dict");
+            addDictPref.setTitle(R.string.add);
+            addDictPref.setOnPreferenceClickListener(p-> {openUserDict.launch(new String[]{"text/plain"}); return true;});
+            dCat.addPreference(addDictPref);
+            Preference rmDictPref=new Preference(ctx);
+            rmDictPref.setKey("language."+code3+".rm_user_dict");
+            rmDictPref.setTitle(R.string.remove);
+            rmDictPref.setOnPreferenceClickListener(p-> {RemoveUserDictDialogFragment.show(getActivity(), getLanguageName()); return true;});
+            dCat.addPreference(rmDictPref);
         }
 
         @Override
@@ -160,5 +185,39 @@ import java.util.TreeMap;
         {
             super.onPause();
             PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+        }
+
+        private void onUserDictSelected(Uri uri)
+        {
+            final String lang=getLanguageName();
+            if(lang==null)
+                return;
+            final Intent intent=new Intent(requireActivity(), ImportConfigService.class);
+            intent.setAction(ImportConfigService.ACTION_IMPORT_USER_DICT);
+            intent.setData(uri);
+            intent.putExtra(ImportConfigService.EXTRA_LANGUAGE, lang);
+            requireActivity().startService(intent);
+        }
+
+        private String getLanguageCode()
+        {
+            final Bundle args=getArguments();
+            if(args==null)
+                return null;
+            final String key=args.getString(ARG_LANGUAGE_KEY);
+            if(key==null)
+                return null;
+            final Matcher m=RE_LANG_KEY.matcher(key);
+            if(!m.find())
+                return null;
+            return m.group(1);
+        }
+
+        private String getLanguageName()
+        {
+            final String code=getLanguageCode();
+            if(code==null)
+                return null;
+            return FluentIterable.from(Data.getLanguages()).firstMatch(l-> l.getCode().equals(code)).transform(l-> l.getName()).orNull();
         }
     }

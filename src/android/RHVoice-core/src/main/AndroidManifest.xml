@@ -62,5 +62,7 @@ android:networkSecurityConfig="@xml/netsec">
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>
     </activity>
+    <service android:name=".ImportConfigService"
+             android:exported="false"/>
   </application>
 </manifest>

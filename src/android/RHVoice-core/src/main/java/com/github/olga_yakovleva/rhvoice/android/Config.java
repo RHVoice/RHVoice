@@ -82,4 +82,14 @@ public final class Config
             }
         return dir;
     }
+
+    public static File getDictsRootDir(Context ctx)
+    {
+        return new File(getDir(ctx), "dicts");
+    }
+
+    public static File getLangDictsDir(Context ctx, String langName)
+    {
+        return new File(getDictsRootDir(ctx), langName);
+    }
 }

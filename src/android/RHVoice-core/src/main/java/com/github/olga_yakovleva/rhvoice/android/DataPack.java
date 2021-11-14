@@ -325,7 +325,7 @@ public abstract class DataPack
         return getInstallationDir(context,getVersionCode()).exists();
 }
 
-    protected final void copyBytes(InputStream in,OutputStream out,IDataSyncCallback callback) throws IOException
+    protected static final void copyBytes(InputStream in,OutputStream out,IDataSyncCallback callback) throws IOException
     {
         byte[] buf=new byte[8092];
         int numBytes;
