@@ -1,0 +1,87 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+source alphabet.foma
+
+# REGULAR VERB ENDINGS
+
+# Endings which we will assume are verb endings with non-standard sterss.  
+# Hack.  For ease of writing we ASSUME that StressMark (defined in alphabet.foma) is %`
+define notU [gV|gC] - u;
+define notY [gV|gC] - y;
+define gVV  gV | {ye} | {ue} - ë;
+define verbEndings   
+   {`uaj} | {`yej} | {`uan} | {`yen}  
+ | [ [ {`i} | {`o} | {`u} | {`y} | {`ë} | {`ua} | {`ye} | [notU {`a}] | [notY {`e}] ] [{jmë}|{jnë}] ]  
+ |  {`uani} | {`yeni} | [%` gV [{tim}|{sim}|{tin}|{sin}]]  
+# pres subj.
+ | {`uash} | {`yesh} | {`uajë} | {`yejë} # | [%` gV gC+ {esh}] too broad
+# imperfect
+ | {`uaja} | {`uaje} | {`uante} | {`yeja} | {`yeje} | {`yente} 
+ | [ [ {`i} | {`o} | {`u} | {`y} | {`ë} | {`ua} | {`ye} | [notU {`a}] | [notY {`e}] ] {nim} ]  
+ #| [%` gV gC* [{nim}|{nit}|{nin}]]  
+ | [%` gVV gC* [{it} | {in}]]   
+ | [%` {im}]   
+# past perfect
+ | {`uam} | {`uat} | {`uan} | {`yem} | {`yet} | {`yen} | [%` gV gC+ [{ët}|{ën}|{ëm}] ] 
+# Optative
+ | [%` gVV gC+ [{shim}|{shit}|{eshin}]] 
+# imperative {`uaj} | {`yej} # already in sing res       # {`o}, the sing. imper. for o stem, needs dictionary of all such stems
+# PASSIVE
+ | [%` gVV gC+ [{emi}|{eni}|{esa}|{ese}|{esim}|{esit}|{eshin}|{uni}] ] 
+# to general  | [%` gV gc+ [{em}|{es}|{et}|{en}|{ej}|{u}|{uni}] ] ;
+ | [%` gVV gC* {en}]
+# particples. 
+ | {`uar} | {`yer}
+ | {`ohej}
+ | [%` gVV [{hem}|{het}|{hen}|{hin}|{him}|{hesh}|{hesha}]] ;
+
+define regDict [verbEndings  .o. [%` -> 0]].i ; 
+define ApplyRegStress  regDict @-> || .#. Letter* _ .#. ;  # Letter, not including any other stressmarks 
+
+# IRREGULAR verbs. We include only those with a non-penultimate stress, or with a non-final stress on a final consonant
+# or which are taken care of by regular endings above
+# AND we add non-verbs
+define irreg 
+ {d`i} 
+ | {b`iesh} 
+ | {d`uhet} | {d`uhej} 
+ | {b`ëri} | {b`ëhen}  | {b`ëhej}
+ | {d`açim} | {d`açin} 
+ | {d`ukej} 
+ | {f`utesh} | {f`utesha}
+ | {flasësh} 
+ | [ {ngr`ëu} | [{sha} | {sh} | {shim} | {shin}  ] ] 
+ | {j`apësh} 
+ | {k`uptoj}
+ | {mbl`idhen} 
+ | {përb`ën} | {përb`ëre} | {përbëhet} #  needs improvement
+ | {pl`aken}
+ | [[{dh}|{th}|{z}] | {`ënç} | [{im}|{it}|{in}] ] # needs improvement
+ | {shp`iesh}
+ | {sht`iesh} 
+ | {vet`es}
+# non-verbs
+ | {asht`u} | {kësht`u}
+ | {a`i} | {aj`o} | {at`a} | {at`o} | {kët`ë} | {kët`a} | {kët`o} 
+ | {c`ilët} | {c`ilat} | {c`ilës} | {c`ilit} | {c`ilëve} | {c`ilave}
+ | {p`afund} | {mëdh`a} | {l`agëta} ;
+ 
+define irregDict [irreg  .o. [%` -> 0]].i ; 
+define ApplyIrregStress  irregDict -> || .#.  _ .#. ; 
+
+ define verbStress ApplyRegStress .o. ApplyIrregStress ; 
+
+  
+

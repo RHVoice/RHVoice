@@ -1,0 +1,48 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+source alphabet.foma 
+# internal silentSchwa IS ø
+
+
+define ggV gV - ø - ë;
+define postSchwa [ gC+ ggV+]  - {ve} ;
+define silentSchwaExceptions 
+ [{dall} |  {damb} | {kat} | {nes} | {njer} | {pat} ] ø postSchwa;
+
+define silentSchwaMorpheme sow  [  
+ [ gC* ggV gC+ ø postSchwa]  |    
+ [ gC* ggV gC+ a q ø ] |
+ [{angør} | {angërd}] | 
+ {deratø} | {deriatø}  
+ - silentSchwaExceptions 
+ ]; 
+
+define silentSchwaAffix 
+    {øsi} | {øs`i} ;
+
+define Morpheme [ silentSchwaMorpheme .o. [ø -> ë]].i;
+define Affix [silentSchwaAffix  .o.  [ø -> ë]].i;
+
+define quasiLiquid  r | rr | l | ll | j;
+define internalSchwaRule 
+  [0:sow Letter -> || .#. _ ] .o.
+  [Morpheme / StressMark @-> || .#.  _  ]
+	.o. [sow:0 -> || _ ]
+	.o. [ø:ë -> || gC _ quasiLiquid gC ,,
+	     ø:ë -> || gC quasiLiquid _ gC ]
+	.o.  [Affix  @-> || gC _ .#.]
+ ; 
+

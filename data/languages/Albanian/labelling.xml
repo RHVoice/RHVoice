@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<labelling>
+<format>
+<feature name="prev_prev_name"/>
+^
+<feature name="prev_name"/>
+-
+<feature name="name"/>
++
+<feature name="next_name"/>
+=
+<feature name="next_next_name"/>
+@
+<feature name="pos_in_syl_fw"/>
+_
+<feature name="pos_in_syl_bw"/>
+/A:
+<feature name="prev_syl_stress"/>
+_
+<feature name="prev_ph_flag_l"/>
+_
+<feature name="prev_syl_length"/>
+/B:
+<feature name="syl_stress"/>
+-
+<feature name="ph_flag_l"/>
+-
+<feature name="syl_length"/>
+@
+<feature name="syl_pos_in_word_fw"/>
+-
+<feature name="syl_pos_in_word_bw"/>
+&amp;
+<feature name="syl_pos_in_phrase_fw"/>
+-
+<feature name="syl_pos_in_phrase_bw"/>
+#
+<feature name="num_stressed_syls_in_phrase_before_this_syl"/>
+-
+<feature name="num_stressed_syls_in_phrase_after_this_syl"/>
+$
+<feature name="none"/>
+-
+<feature name="dist_to_prev_stressed_syl_in_word"/>
+!
+<feature name="dist_to_prev_stressed_syl_in_phrase"/>
+-
+<feature name="dist_to_next_stressed_syl_in_phrase"/>
+;
+<feature name="dist_to_next_stressed_syl_in_word"/>
+-
+<feature name="none"/>
+|
+<feature name="syl_vowel"/>
+/C:
+<feature name="next_syl_stress"/>
++
+<feature name="next_ph_flag_l"/>
++
+<feature name="next_syl_length"/>
+/D:
+<feature name="prev_word_gpos"/>
+_
+<feature name="num_syls_in_prev_word"/>
+/E:
+<feature name="word_gpos"/>
++
+<feature name="num_syls_in_word"/>
+@
+<feature name="word_pos_in_phrase_fw"/>
++
+<feature name="word_pos_in_phrase_bw"/>
+&amp;
+<feature name="num_content_words_in_phrase_before_this_word"/>
++
+<feature name="num_content_words_in_phrase_after_this_word"/>
+#
+<feature name="dist_to_prev_content_word_in_phrase"/>
++
+<feature name="dist_to_next_content_word_in_phrase"/>
+/F:
+<feature name="next_word_gpos"/>
+_
+<feature name="num_syls_in_next_word"/>
+/G:
+<feature name="num_syls_in_prev_phrase"/>
+_
+<feature name="num_words_in_prev_phrase"/>
+/H:
+<feature name="num_syls_in_phrase"/>
+=
+<feature name="num_words_in_phrase"/>
+^
+<feature name="phrase_pos_in_utt_fw"/>
+=
+<feature name="phrase_pos_in_utt_bw"/>
+|
+<feature name="none"/>
+/I:
+<feature name="num_syls_in_next_phrase"/>
+=
+<feature name="num_words_in_next_phrase"/>
+/J:
+<feature name="num_syls_in_utt"/>
++
+<feature name="num_words_in_utt"/>
+-
+<feature name="num_phrases_in_utt"/>
+/K:
+<feature name="pos_in_word_fw"/>
+_
+<feature name="pos_in_word_bw"/>
+</format>
+</labelling>

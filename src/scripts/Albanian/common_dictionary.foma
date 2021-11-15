@@ -1,0 +1,52 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+source alphabet.foma
+
+define irregStressWords 
+  {asgj`ë} |
+  {asnj`ë} |
+	{at`ë} | {at`y} |
+	{am`an} |
+	{b`ukura} |
+	{diçk`a} |
+	{b`efas} |
+	{f`alas} |
+	{falemend`erit} |
+	{gjithçk`a} |
+	{gjithasht`u} |
+	{gjiths`ej} |
+	{hiçgj`ë} |
+	{kurrgj`ë} |
+	{hiçasgj`ë} |
+	{lëmsh`i} |
+	{l`utem} |
+	{megjithat`ë} |
+	{nd`odhi} |
+	{ndonj`ë} | 
+	{seksu`al} |
+	{tan`i} |
+	{t`ënde} |
+	{veçs`e} |
+  {v`ëri} | 
+	{v`etes} |
+	{xhel`oz} ;
+
+
+define irregDict [irregStressWords  .o.  [%` -> 0]].i;
+
+define commonWordsRule 
+  irregDict -> || .#. _ .#. 
+ ; 
+

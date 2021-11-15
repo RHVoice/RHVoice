@@ -1,0 +1,85 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Have to explicitly do the downcase mapping of every (single) letter. Digraphs will be split and downcased separately
+# Give the uppercase digraphs so tok can use for letter sequencing
+
+define Apos %'|%’ ; 
+
+define internalSilentSchwa   ø ;  # used to change an 'ë' to a silent schwa inside a dictionary word
+define DowncaseVowels 
+A:a | E:e | I:i | O:o | U:u | Y:y | Ë:ë ;
+
+define DowncaseAccentedVowels 
+ Á:á | Â:â | À:à |
+ É:é | Ê:ê | È:è |
+ Í:í | Î:î | Ì:ì |
+ Ó:ó | Ô:ô | Ò:ò |
+ Ú:ú | Û:û | Ù:ù ;
+
+define DowncaseConsonants 
+B:b | C:c | Ç:ç | D:d | F:f | G:g | H:h | J:j | K:k | L:l | M:m | N:n | P:p | Q:q | R:r | S:s | T:t | V:v | X:x | Z:z 
+| {Dh}:{dh} | {Nj}:{nj} | {Gj}:{gj} | {Rr}:{rr} | {Ll}:{ll} | {Sh}:{sh} | {Th}:{th} | {Xh}:{xh} | {Zh}:{zh}
+ | W:w 
+ | Rw:{rw};
+
+define DowncaseRule 
+  DowncaseVowels | DowncaseAccentedVowels | DowncaseConsonants @-> || _ ;
+
+
+# Now, define upper and lowe-case vowels and consonants for use by tokenizer for words and letter sequences
+
+define lcVowelLetter  DowncaseVowels.l | DowncaseAccentedVowels.l | internalSilentSchwa ;
+define lcConsonantLetter  DowncaseConsonants.l ;
+define ucVowelLetter  DowncaseVowels.u | DowncaseAccentedVowels.u ;
+define ucConsonantLetter  DowncaseConsonants.u ;
+
+define VowelLetter lcVowelLetter | ucVowelLetter;
+define ConsonantLetter lcConsonantLetter | ucConsonantLetter ;
+define Letter VowelLetter | ConsonantLetter ;
+define ucLetter ucConsonantLetter | ucVowelLetter;
+define lcLetter lcConsonantLetter | lcVowelLetter;
+
+# now, for g2p purposes ..
+define StressMark %` ;
+define grapheme ucVowelLetter | ucConsonantLetter  | lcVowelLetter | lcConsonantLetter  | StressMark ;
+
+define gVstressedA á | â | à; 
+define gVstressedE é | ê | è; 
+define gVstressedI í | î | ì; 
+define gVstressedO ó | ô | ò; 
+define gVstressedU ú | û | ù; 
+define accentedVowelMap  [gVstressedA]:a | [gVstressedE]:e | [gVstressedI]:i | [gVstressedO]:o | [gVstressedU]:u ;
+
+define gV  lcVowelLetter;
+define gC  lcConsonantLetter;
+
+# lastly, defined the phonemes here, and the  g2p mappings
+define g2pVowels 
+  a:"/a0" | e:"/e0" | o:"/o0" | i:"/i0" | u:"/u0" | ë:"/ih0" | y:"/y0" | internalSilentSchwa:"/ihs0"; 
+
+define g2pConsonants 
+  b:"/b" | ç:"/ch" | d:"/d" | f:"/f" | g:"/g" | h:"/h" | j:"/j" | k:"/k" | l:"/l" | m:"/m" | n:"/n" |  p:"/p" | r:"/r" | s:"/s" | t:"/t" | v:"/v" | z:"/z" |
+  c:"/ts" | q:"/tch" |  x:"/dz" |  
+#	{xh}:"/dzh" |  {dh}:"/dh" |  {th}:"/th" |  {rr}:"/rr" |  {gj}:"/gj" |  {ll}:"/ll" |  {nj}:"/nj" |  {sh}:"/sh" |  {zh}:"/zh"
+	{xh}:"/dzh" |  {dh}:"/dh" |  {th}:"/th" |  {rr}:["/rx" "/rx"] |  {gj}:"/gj" |  {ll}:"/ll" |  {nj}:"/nj" |  {sh}:"/sh" |  {zh}:"/zh"
+ | {w}:"/v"
+# | {rw}: ["/rx" "/rx"];
+ | {rw}: ["/rx" "/rx" "/rx"];
+
+define pVowelStressMap "/a0":"/a1" | "/e0":"/e1" | "/i0":"/i1" | "/o0":"/o1" | "/u0":"/u1" | "/ih0":"/ih1" | "/y0":"/y1" ;
+
+define pVowel pVowelStressMap.u | pVowelStressMap.l | "/ihs0"; 
+
+define pConsonant g2pConsonants.l | "/rx" - ["/rx" "/rx"] - ["/rx" "/rx" "/rx"];
