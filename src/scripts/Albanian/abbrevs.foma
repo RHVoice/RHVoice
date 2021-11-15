@@ -1,0 +1,39 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define AbbrevTranslation   [{chrome}|{Chrome}] : {krom} |  # "Chrome". Not an abbreviation, but this pronunciation wanted 
+  [{bbc}|{BBC}]: {bibis`i} |  # British pronunciation
+  [{UNDP}|{undp}] : {j`u`end`ip`i} |  # English pronunciation, 
+  [{RHVoice}|{rhvoice}|{RHVOICE}] : {`ar`eiçv`ois} |
+	[{Google}|{GOOGLE}|{google}] : {g`ugëll} |
+	{Play} : {pll`ej} |
+	{Store} : {st`or} |
+	[{OK}|{ok}] : {ok`ej} |
+	[{QR}|{qr}] : {kj`u`ar}  |
+	[{FaceBook} | {Facebook} | {facebook}] : {f`ejsbuk} |
+	{Face}:{f`ejs} | {Book} : {b`uk} |
+	{FIFA} : {f`ifa} |
+	{UEFA} : {j`uefa} |
+	{Joe} : {xh`o}  | {Biden} : {b`ajden} |
+
+# proper ones
+ [{Pst}|{pst}] : {pëst} |
+ [{Covid}|{COVID}|{covid}] : {k`ovëd}  |	
+ [{cov}|{Cov}|{CoV}|{COV}] : {k`ov} |
+ [{Coronavirus}|{coronoavirus}] : {koranavir`us}  |	
+  {Z.} : {z`oti} | 
+  {Zr.} : {z`otëri} 
+	;
+
+define Abbreviation AbbrevTranslation.u ;   

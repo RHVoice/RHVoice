@@ -1,0 +1,40 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#define Conj  dhe | e | në | që | nuk;
+define Aux  do ;
+define Prep me | nën | për | nga | pa | kjo | pas;
+# removed  më
+#define Pp  unë | ti | ne |  të | ai | qe;
+#define Clitic i | e | iu | më | na | ta | ui | u;
+define Det  një | çdo | kjo | këto  | se | ato | aq | ai | ajo | atë;
+define Qw  pse | si | kush | kujt | kur | çfare | ku;
+define Aw  jo | po ;
+define Aux ka | kam | ke | zë;
+
+
+define FunctionWord Conj | Aux | Prep | Pp | Clitic | Det | Qw | Aw | Aux ;
+
+regex 
+Conj -> conj || _ ,, 
+Aux -> aux || _ ,, 
+Prep -> prep || _ ,, 
+Pp -> pp || _ ,, 
+Det -> det || _ ,, 
+Clitic -> clit || _ ,, 
+Wp -> wp || _ ,, 
+Det -> det || _ ,, 
+Qw -> qw || _ ,,
+Aw -> aw || _ ,,
+\FunctionWord -> content || _ ;

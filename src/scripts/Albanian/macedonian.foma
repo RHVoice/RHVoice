@@ -1,0 +1,75 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+define g2gMacedonian  [А|а]:a | [Е|È|Ѐ|е|è|ѐ]:e | [И|Ѝ|и|ѝ]:i | [О|о]:o |  [У|у]:u |
+[Б|б]:b | [В|в]:v | [Г|г]:g | [Д|д]:d | [Ѓ|ѓ]:{gj} | [Ж|ж]:{zh} | [З|з]:z | [Ѕ|ѕ]:{dz} | [Ј|ј]:j | [К|к]:k | [Л|л]:{ll} | [Љ|љ]:{l} | [М|м]:m  | [Н|н]:n | [Њ|њ]:{nj} | [П|п]:p | [Р|р]:r | [С|с]:s | [Т|т]:t | [Ќ|ќ]:q | [Ф|ф]:f | [Х|х]:h | [Ц|ц]:c | [Ч|ч]:ç | [Џ|џ]:{xh} | [Ш|ш]:{sh} |  [CH|ch]:ç | [KJ|kj]:q | [DZ|dz]:x | [DZH|dzh]:{xh} | [Ǵ|ǵ]:{gj}| [Đ|đ]:{gj}| [Ḱ|ḱ]:q | [Ć|ć]:ç | [Ẑ|ẑ]:x | [Ž|ž]: {zh}| [Ń|ń]:{nj} | [N̂|n̂]:{nj} | [L̂|l̂]:{lj} | [Š|š]:{sh} | [Č|č]:ç | [Ĺ|ĺ]:{lj};
+
+define MacVowel А|а|Е|È|Ѐ|е|è|ѐ|И|Ѝ|и|ѝ|О|о|У|у; 
+
+define StressMark %`;
+define g2gMacStress 
+  [MacVowel -> StressMark ... || _ [\MacVowel]* MacVowel [\MacVowel]* MacVowel [\MacVowel]* .#.  ] .o. 
+  [MacVowel -> StressMark ... || .#. [\StressMark]* _ [\StressMark]* MacVowel [\StressMark]* .#.  ] .o.
+	[g2gMacedonian -> || _ ];
+	  
+define MacUCConsonant  Б|В|Г|Д|Ѓ|Ж|З|Ѕ|Ј|К|Л|Љ|М|Н|Њ|П|Р|С|Т|Ќ|Ф|Х|Ц|Ч|Џ|Ш ; 
+define MacGrapheme g2gMacedonian.u; 
+
+
+define MacSpell [А|а]:[cirilike a] | 
+[Б|б]:[cirilike bë] | 
+[В|в]:[cirilike vë] | 
+[Г|г]:[cirilike gë] | 
+[Д|д]:[cirilike dë] | 
+[Ѓ|ѓ]:[cirilike gjë] | 
+[Е|е]:[cirilike e] | 
+[ѐ|Ѐ]:[cirilike e co nadreden znak] | 
+[Ж|ж]:[cirilike zhë] | 
+[З|з]:[cirilike zë] | 
+[Ѕ|ѕ]:[cirilike xë] | 
+[И|и]:[cirilike i ] | 
+[Ѝ|ѝ]:[cirilike i co nadreden znak] | 
+[Ј|ј]:[cirilike jë] | 
+[К|к]:[cirilike kë] | 
+[Л|л]:[cirilike lë] | 
+[Љ|љ]:[cirilike ljë] | 
+[М|м]:[cirilike më] | 
+[Н|н]:[cirilike në] | 
+[Њ|њ]:[cirilike një] | 
+[О|о]:[cirilike o] | 
+[П|п]:[cirilike pë] | 
+[Р|р]:[cirilike rë] | 
+[С|с]:[cirilike së] | 
+[Т|т]:[cirilike të] | 
+[Ќ|ќ]:[cirilike kjë] | 
+[У|у]:[cirilike u] | 
+[Ф|ф]:[cirilike fë] | 
+[Х|х]:[cirilike hë] | 
+[Ц|ц]:[cirilike cë] | 
+[Ч|ч]:[cirilike çë] | 
+[Џ|џ]:[cirilike xhë] | 
+[Ш|ш]:[cirilike shë] | 
+[È|è] : [%`e so nadreden znak] | 
+[Ì|ì] : [%`i so nadreden znak] | 
+[Ǵ|ǵ]: [shkronja maqedonase gjë] |
+[Đ|đ]: [shkronja maqedonase gjë] |
+[Ḱ|ḱ] : [shkronja maqedonase kjë] |
+[Ć|ć] : [shkronja maqedonase kjë] |
+[Ẑ|ẑ] : [shkronja maqedonase xë] | 
+[Ž|ž]: [shkronja maqedonase zhë] | 
+[Ń|ń|N̂|n̂]: [shkronja maqedonase një] |
+[Š|š]: [shkronja maqedonase shë] | 
+[Č|č]: [shkronja maqedonase çë] | 
+[Ĺ|ĺ|L̂|l̂]: [shkronja maqedonase ljë] ;

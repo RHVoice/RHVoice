@@ -1,0 +1,37 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define names 
+{H`ana} | # as opposed to han`a
+{Deti`ona} |
+{Suz`ana} |
+{Fj`olla} |
+{Bler`ina} |
+{Z`ana} |
+{H`oxha} |
+{Xh`ulia} |
+{Lulj`eta} | 
+{J`agoda} |
+{Sh`ahpanska} |
+{Z`oran} |
+{Z`aev}  |
+# countries
+{Gjerman`i} | {Ital`i} | {Greq`i} | {Maqedon`i} | {Serb`i} | {Hungar`i} | {Austr`i} | {Austrohungar`i} | {Slloven`i} | {Sllovak`i} | {Çek`i} | {Çekosllovak`i} | {Polon`i} | {Eston`i} | {Leton`i} | {Lituan`i} | {Sued`i} | {Norvegj`i} | {Indonez`i} | {Angl`i} | {Skoc`i} | {Kanada, Niger`i} | {Algjer`i} | {Malaiz`i} | {Mongol`i} | {Lib`i} | {Liber`i} ;
+
+define nameStress [names  .o.  [%` -> 0]].i;
+define namesRule 
+   nameStress -> || .#. _ .#. ; 
+
+  
+

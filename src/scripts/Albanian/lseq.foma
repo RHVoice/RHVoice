@@ -1,0 +1,48 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+source alphabet.foma
+define accented ["/th" "/e0" "/k" "/s" "/u1" "/a0" "/r"] ;
+define spokenLetter 
+a:"/a1" | 
+[á|â|à]:["/a1" accented] | 
+e:"/e1" |
+[é|ê|è]:["/e1" accented] |
+i:"/i1" |
+[í|î|ì]:["/i1" accented] |
+o:"/o1" |
+[ó|ô|ò]:["/i1" accented] |
+u:"/u1" |
+[ú|û|ù]:["/u1" accented] | 
+y:"/y1" |
+ë:"/ih0" | 
+b:["/b" "/ih0"] | ç:["/ch" "/ih0"] | d:["/d" "/ih0"] | f:["/f" "/ih0"] |  g:["/g" "/ih0"] | h:["/h" "/ih0"] | j:["/j" "/ih0"] | k:["/k" "/ih0"] | l:["/l" "/ih0"] | m:["/m" "/ih0"] | n:["/n" "/ih0"] |  p:["/p" "/ih0"] | r:["/r" "/ih0"] | s:["/s" "/ih0"] | t:["/t" "/ih0"] | v:["/v" "/ih0"] | z:["/z" "/ih0"] | c:["/ts" "/ih0"] | q:["/tch" "/ih0"] |  x:["/dz" "/ih0"] |  {xh}:["/dzh" "/ih0"] |  {dh}:["/dh" "/ih0"] | {th}:["/th" "/ih0"] | {rr}:["/rx" "/rx" "/ih0"] | {gj}:["/gj" "/ih0"] | {ll}:["/ll" "/ih0"] |  {nj}:["/nj" "/ih0"] |  {sh}:["/sh" "/ih0"] |  {zh}:["/zh" "/ih0"] |
+%':["/a0" "/p" "/o0" "/s" "/t" "/r" "/o1" "/f" "/i0"] 
+| {w}:["/u0" "/e1"];
+
+
+# not all vowels used, but map them all anyway
+define stressFinalConsVowel 
+ ["/ih0":"/ih1"] -> ||  _  .#. ;
+
+
+source macedonian.foma
+
+define Rules 
+  [g2gMacedonian -> || _ ] .o. DowncaseRule  .o. spokenLetter @-> || _ .o.  stressFinalConsVowel;
+
+regex Rules ;
+  
+
+
