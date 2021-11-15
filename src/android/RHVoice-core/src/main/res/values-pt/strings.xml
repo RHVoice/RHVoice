@@ -30,6 +30,6 @@
   <string name="version">Versão</string>
   <string name="user_dicts">Dicionários do usuário</string>
   <string name="add">Adicionar</string>
-  <string name="remove">Retirar</string>
+  <string name="remove">Remover</string>
   <string name="config_file">Arquivo de configuração</string>
 </resources>

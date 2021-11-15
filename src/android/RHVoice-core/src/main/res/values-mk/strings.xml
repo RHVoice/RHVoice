@@ -28,7 +28,7 @@
   <string name="reset">Ресетирај</string>
   <string name="version">Верзија</string>
   <string name="user_dicts">Кориснички речници</string>
-  <string name="add">Додадете</string>
+  <string name="add">Додади</string>
   <string name="remove">Отстрани</string>
   <string name="config_file">Конфигурациска датотека</string>
 </resources>
