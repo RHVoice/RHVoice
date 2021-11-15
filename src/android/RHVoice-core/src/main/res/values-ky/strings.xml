@@ -31,5 +31,5 @@
   <string name="user_dicts">Колдонуучу сөздүктөр</string>
   <string name="add">кошуу</string>
   <string name="remove">Алып салуу</string>
-  <string name="config_file">Тарам билэ</string>
+  <string name="config_file">Конфигурациялык файл</string>
 </resources>
