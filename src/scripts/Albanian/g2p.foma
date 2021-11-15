@@ -1,0 +1,85 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# change w in foreign words - treat it as a 'u' in wht follows
+#define rSepW  w -> u  || _ ;
+
+# We will use a stress mark throughout the process until we use it to transform vowels
+# to their stressed versions
+
+source alphabet.foma
+ 
+define Word [grapheme|Apos]+ ;
+
+# Step One.  Convert an accented vowels to stress-marks
+# gVStressed* are defined in alphabet.foma
+
+define g2pStressVowels  
+ # take out stress mark first
+ 0:StressMark accentedVowelMap -> || _ ;
+
+# Now the g2p. First a rule for  the letters to phonemes
+define g2pTranscribe 
+	g2pVowels | g2pConsonants
+		@-> || _ ;
+
+# Now convert stress marks into stress vowel phonemes.
+# We expect every stress mark to come immediately before a vowel
+define pStressing 
+ StressMark:0  pVowelStressMap -> || _ ;
+
+# Get rid of any extraneous stressmarks
+define clearStress StressMark:0 -> || _ ;
+
+# define all stress rules to insert stress marks 
+ source stress.foma
+
+
+# remove unstressed ë at end of polysyllabic words
+# We just look for a stress vowel before the last one as sign of polys
+# Rather than remove, we will replace with a special, silent vowel, /ihs
+# this for two reasons: 1) HTS might be able to pick-up effect of the silent e on prior syllables
+# (2) it makes it easier for us to reverse parse phoneme transcriptions.
+
+# this one adds to end of words
+define silentEh ["/ih0":nonsilent -> || ["/s"|"/sh"|"/th"|"/ch"|"/tch"|"/p"|"/f"] ["/m"|"/n"] _ .#.]
+ .o. ["/ih0":"/ihs0" -> ||.#. ?* pVowelStressMap.l ?* _ .#.]
+ .o. nonsilent:"/ih0" -> || _; 
+
+# this one deletes all ihs, including internal ones
+define removeInternalSilentSchwa "/ihs0":0 -> || _ ;
+
+define removeApos  
+  Apos:0 -> || _ ;
+
+ source name_dictionary.foma
+ source common_dictionary.foma
+ source abbrevs.foma
+ source macedonian.foma
+ source Schwa.foma
+# The regex
+define g2pRules  g2gMacStress .o. 
+  AbbrevTranslation .P. Word .o. namesRule .o. DowncaseRule .o. commonWordsRule .o. removeApos  # Protect from any apos reaching here. SUPPOSITION = Vowel elided.
+ .o. g2pStressVowels  # replace any accented vowels with stress marked ordinary gV 
+ .o.  markStress 
+ .o. internalSchwaRule
+ .o. g2pTranscribe  # try for a known noun inflection or apply heuristics
+ .o. pStressing # replace stress marked phoneme vowels with stressed phonemes
+ .o. silentEh
+# .o.  removeInternalSilentSchwa 
+ .o. clearStress # clear up any unprocesses stress marks
+ ;
+	
+regex g2pRules;

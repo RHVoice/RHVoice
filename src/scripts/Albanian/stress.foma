@@ -1,0 +1,82 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# The rules here assume they are given a grapheme word as input.
+
+# check for nouns, and mark stress as per rules if not stressed.
+#source Nouns;
+
+# check for verb-endings which are not penult stressed
+
+# if no stress marks go for 
+source alphabet.foma 
+
+#on final vowel if it is not a schwa
+
+define fullV  gV - ë;
+define endsU  {ull} | {ullt} | {ulla} | {ur}  | {ura} | {urit} | {et} | {ëve};
+define noStress [grapheme - StressMark]+;
+define stressMarkFullVowel [0:StressMark] [fullV|{ue}|{ye}|{ua}];
+define stressMarkVowel [0:StressMark] [gV|{ue}|{ye}|{ua}];
+
+define finalVowelStressRule  
+ stressMarkFullVowel @-> ||  .#. [noStress]* _  [gC]+ gV .#. ; # penult if open vowel ending
+
+define specialEndingStressRule 
+ stressMarkFullVowel @-> ||  .#. [noStress]* _  [gC]+ endsU .#. ,,  # penult if ending -ur-ull -ura(fem adj??)
+ i:[StressMark i] -> ||  .#. [noGStress]* _  n .#. ;
+
+
+define adjectivalStressRule 
+ [u ->  [StressMark u] || .#. [noStress]* _ e s .#. ] .o.
+ [ [0:StressMark] i ->  || .#. [noStress]* e s _ .#. ] .o.   #  es`i
+ [stressMarkFullVowel @-> || .#. [noStress]* _ [gC]+ [{ëse}|{ësit}] .#. ] ;
+ 
+
+define finalConsonantStressRule 
+ stressMarkFullVowel @-> ||  .#. [noStress]* _  [gC]+ .#. ;  # final if consonant endig
+
+define endingVowelStressRule  
+ stressMarkFullVowel @-> ||  .#. [noStress]* ë [gC]+ _ .#. ;  
+define penultimateStress 
+  stressMarkVowel @-> || .#. [noStress]* _ [gC]* gV [gC]*  .#. ;  # penultimate
+
+define anyStress 
+  stressMarkVowel @-> || .#. [noStress]* _ [gC]*  .#. ;  # first one from the end
+
+# heuristics
+define nounHeuristics 
+ [ i -> {`i} || .#. [noStress]* [ç|{xh}]  _ [u|{un}|{ut}] .#. ] .o.   # -ç`i often the sing indef of a male professional of some kind 
+ [ i -> {`i} || .#. [noStress]* [{ës}|{gj}|{krac}|{ark}|{shtr}{stri}] _ .#. ] .o.   #  ësi, gji, arki kraci shtri endings
+ [ stressMarkFullVowel @-> || .#.  [noStress]* _ [gC]+ [{ave}|{eve}|{ash}|{eje}|{at}] .#. ] ; # noun inflections
+
+define regularStressRules 
+ nounHeuristics 
+ .o. specialEndingStressRule 
+ .o. adjectivalStressRule 
+ .o. finalVowelStressRule
+ .o. finalConsonantStressRule
+ .o. endingVowelStressRule
+ .o. penultimateStress 
+ .o. anyStress
+;
+
+source verbs.foma
+source nouns.foma
+source unstressed_words.foma
+
+define markStress 
+  nonStress 
+	.o. nounStress 
+	.o. verbStress .o. regularStressRules;

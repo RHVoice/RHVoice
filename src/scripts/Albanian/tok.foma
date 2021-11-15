@@ -1,0 +1,121 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General PublicLicense for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# need to run with both latin and Cyrillic:
+
+define TokenTypeTag num|dig|sym|word|lseq ; 
+define SpecialSymbol TokenTypeTag | eos ; 
+
+source alphabet.foma
+source macedonian.foma
+
+# ' is a vowel define Word [Letter+ [Apos Letter+]*] | ExceptionalWord ; 
+#define Word [grapheme+] ; 
+define Word [grapheme|MacGrapheme]+ ; 
+
+define LetterSequence [ConsonantLetter|MacUCConsonant]+ - {Pst} - {pst}; 
+#  The word B must not be named as a letter. However, its Latin equivalent, follwoed by a dot, is an abbev. ...
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
+define Decimal  FormattedNumber %, Digit+;  # 0.1 2.0000
+# foreign decimal of form 0.12, 0.1234 ...  but NOT 01.23
+define ForeignDecimal  [[NZDigit Digit*] | %0] %. [Digit^{1,2} | Digit^>3];  # 0.1 2.0000
+
+source romans.foma
+source OrdinalSuffixes.foma
+source abbrevs.foma 
+
+source compound-words.foma
+define BasicTokenizer  
+Abbreviation @-> ... word || _   \[Letter|MacGrapheme|num|%.] | [ %. [\num|.#.]] | .#. ,,  
+[Word (Apos)] @-> ... word || _   \[Letter|MacGrapheme|num|word|%.] | [ %. [\num|.#.]] | .#. ,,  # Roman Number might have been here first, so do not mess with labelled Num
+[FormattedNumber (OrdSuffix)] @-> ... num || _ [.#. | \[Digit|Letter]]   ,, 
+Decimal  @-> ... num || _ .#. | \Digit ,, 
+ForeignDecimal  @-> ... num || _ .#. | \Digit ,, 
+NZDigit Digit* OrdSuffix @-> ... num || _ [.#. | \[Digit|Letter|MacGrapheme]]   ,, 
+NZDigit Digit* @-> ... num  ,, 
+%0 Digit+ @-> ... dig ,, 
+%0 @-> ... num ,, 
+\[Letter | MacGrapheme | Digit | num | word] @-> ... sym  || _ [\num | .#.]   # again, protect Roman Numerals like V. with a dot 
+; 
+
+
+define UntagLargeNumbers 
+num -> dig || Digit^16 _ ; 
+
+define CamelCase 
+ucLetter lcLetter* @-> ... word || [.#.|word|num|dig|sym] _ ucLetter lcLetter ; 
+
+source acronyms.foma
+
+define TagLetterSequences 
+word -> lseq || [.#.|word|num|dig|sym] [Acronym | LetterSequence] _ [\Apos|.#.]; 
+
+define TagLetterSequenceAbbreviations 
+lseq -> word || [.#.|word|lseq|num|dig|sym] Abbreviation _ ; 
+
+# retrieve decimals
+define DecimalNumbers  
+[num %, sym] -> %,  || .#. Digit+  _ Digit+ num .#. ;  # pass 12,34 as a number
+
+
+
+define GeneralTokenizerIgnoringEoS 
+# This will apply to the input separated from an optional eos symbol.
+# We are letting Foma know that our special tags will never be in the input.
+# This should make debugging non-functionality easier.
+[[\SpecialSymbol]+] .o. 
+[ RomanNumeral @-> ... num || .#. _ .#.  .o.  splitCompounds .o. BasicTokenizer ] 
+ .o. 
+DecimalNumbers  .o.
+CamelCase .o.
+TagLetterSequences .o. 
+TagLetterSequenceAbbreviations .o. 
+UntagLargeNumbers 
+; 
+
+# It's simpler to fix these afterwards, because otherwise it could be
+#   very easy to break some existing code. Though it does unfortunately
+#   mean writing an individual rule for each such exception and orring
+#    them. Just one rule right now.
+define NotBeforeEoSAbbreviation 
+[[Z 0:lseq %. 0:sym]] 
+ word:0 ; 
+
+define FixIfEoS 
+NotBeforeEoSAbbreviation -> || _ eos ; 
+
+define GeneralTokenizer 
+[GeneralTokenizerIgnoringEoS (eos)] 
+.o. FixIfEoS 
+.o. [eos -> 0] ; 
+
+define SingleLetterException Letter [eos : lseq] ; 
+define Exception SingleLetterException ; 
+
+source Times.foma 
+define retrieveHoursMinutes 
+   Hours [[num|dig]:0] %: [sym:0] Minutes [[dig|num]:num] ->  || .#. _  .#. ;
+
+define Tokenizer Exception .P. GeneralTokenizer .o. retrieveHoursMinutes; 
+
+define TokenOfType(tag) [[[\[eos | TokenTypeTag]]+ (eos)] .o. Tokenizer .o. [[\TokenTypeTag]+ [tag:0]]].l ;
+define NumberToken TokenOfType(num);
+define WordToken TokenOfType(word);
+define LSeqToken TokenOfType(lseq);
+
+regex Tokenizer ; 

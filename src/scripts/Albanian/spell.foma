@@ -1,0 +1,419 @@
+# Copyright (C) 2021  Non-Routine LLC (inq@louderpages.org)
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Digit 
+%0:zero | 
+1:një | 
+2:dy | 
+3:tre | 
+4:katër | 
+5:pesë | 
+6:gjashtë	 | 
+7:shtatë | 
+8:tetë | 
+9:nëntë;
+
+source macedonian.foma 
+
+define Letter MacSpell | 
+[A|a]: [a] |
+[E|e]: [e] |
+[I|i]: [i] |
+[O|o]: [o] |
+[U|u]: [u] |
+[Y|y]: [y] | 
+[Ë|ë]: [ë] | 
+[B|b]: [bë] | 
+[C|c]: [cë] | 
+[Ç|ç]: [çë] | 
+[D|d]: [dë] | 
+[Dh|dh]: [dhë] | 
+[F|f]: [fë] | 
+[G|g]: [gë] | 
+[Gj|gj]: [gjë] | 
+[H|h]: [hë] | 
+[J|j]: [jë] | 
+[K|k]: [kë] | 
+[L|l]: [lë] | 
+[Ll|ll]: [llë] | 
+[M|m]: [më] | 
+[N|n]: [në] | 
+[nj|nj]: [një] | 
+[P|p]: [pë] | 
+[Q|q]: [që] | 
+[R|r]: [rë] | 
+[Rr|rr]: [rrë] | 
+[Rw|rw]: [rrë] | 
+[S|s]: [së] | 
+[Sh|sh]: [shë] | 
+[T|t]: [të] | 
+[Th|th]: [thë] | 
+[V|v]: [vë] | 
+[X|x]: [xë] | 
+[Xh|xh]: [xhë] | 
+[Z|z]: [zë] | 
+[Zh|zh]: [zhë] | 
+[W|w] : [u%`e] ;
+
+define Whitespace tab:[tab] | 
+nl:[niu llain] | 				# xxx
+cr:[kerixh ritarn] |   # xxx
+sp:[speis] |  # XXX 
+nbsp:[non breiking ujt sperjis] ;  # xxxx
+
+define Symbol 
+# punctuation/symbols copyright cldr.unicode.org
+
+ %{ : [kllapë hapëse gjarpërushe] | 
+ %‾ : [vizë lart] | 
+ %_ : [vijë e ulët] | 
+ %- : [ndarje minus] | 
+ %‐ : [ndarje] | 
+ %– : [vizë e mesme] | 
+ %— : [vizë e gjatë] | 
+ %― : [shirit horizontal] | 
+ %・: [pikë mesi katakana] | 
+ %, : [presje] | 
+ %، : [presje arabe] | 
+ %、: [presje ideografike] | 
+ %; : [pikëpresje] | 
+ %: : [dy pika] | 
+ %! : [pikëçuditje] | 
+ %¡ : [pikëçuditëse përmbys] | 
+ %? : [shenja e pikëpyetjes] | 
+ %¿ : [pikëpyetje përmbys] | 
+ %‽ : [pikëpyetje me pikëçuditje] | 
+ %. : [pikë fundore] | 
+ %… : [tre pika] | 
+ %。: [pikë ideografike] | 
+ %· : [pikë mesi] | 
+ %' : [apostrof makine shkrimi] | 
+ %‘ : [apostrof i majtë] | 
+ %’ : [apostrof i djathtë] | 
+ %‚ : [apostrof i djathtë i ulët] | 
+ %“ : [thonjëz e majtë] | 
+ %” : [thonjëz e djathtë] | 
+ %„ : [thonjëz e djathtë e ulët] | 
+ %« : [thonjëza të majta] | 
+ %» : [thonjëza të djathta] | 
+ %( : [kllapë hapëse] | 
+ %) : [kllapë mbyllëse] | 
+ %[ : [kllapë hapëse e madhe] | 
+ %] : [kllapë mbyllëse e madhe] | 
+ %} : [kllapë mbyllëse gjarpërushe] | 
+ %〈: [kllapë hapëse këndore] | 
+ %〉: [kllapë mbyllëse këndore] | 
+ %《: [kllapë hapëse këndore dyshe] | 
+ %》: [kllapë mbyllëse këndore dyshe] | 
+ %「: [kllapë hapëse këndi] | 
+ %」: [kllapë mbyllëse këndi] | 
+ %『: [kllapë hapëse këndi e zgavërt] | 
+ %』: [kllapë mbyllëse këndi e zgavërt] | 
+ %【: [kllapë hapëse thjerrë e zezë] | 
+ %】 : [kllapë mbyllëse thjerrë e zezë] | 
+ %〔 : [kllapë hapëse lakore] | 
+ %〕 : [kllapë mbyllëse lakore] | 
+ %〖 : [kllapë hapëse thjerrë e zgavërt] | 
+ %〗 : [kllapë mbyllëse thjerrë e zgavërt] | 
+ %§ : [seksion] | 
+ %¶ : [paragraf] | 
+ %@ : [shenja at] | 
+ %* : [yll] | 
+ %/ : [fraksion] | 
+ %\ : [fraksion mbrapsht] | 
+ %# : [thurje] | 
+ %% : [përqind] | 
+ %‰ : [për mijë] | 
+ %† : [shenja e kamës] | 
+ %‡ : [shenja e kamës dyshe] | 
+ %• : [pikë liste] | 
+ %‧ : [pikë ndarëse] | 
+ %′ : [prim] | 
+ %″ : [dy prim] | 
+ %‴ : [prim i trefishtë] | 
+ %‸ : [shenja e shkrimit] | 
+ %※ : [shenjë reference] | 
+ %⁂ : [yjësi] | 
+ %` : [apostrof mbrapsht] | 
+ %´ : [theks i fortë] | 
+ %^ : [theks hundor] | 
+ %¨ : [dierezë] | 
+ %° : [gradë] | 
+ %℗ : [e drejta e autorit për regjistrim zanor] | 
+ %← : [shigjetë me drejtim majtas] | 
+ %↚ : [shigjetë majtas fraksion] | 
+ %→ : [shigjetë me drejtim djathtas] | 
+ %↛ : [shigjetë djtathtas fraksion] | 
+ %↑ : [shigjetë me drejtim lart] | 
+ %↓ : [shigjetë me drejtim poshtë] | 
+ %↜ : [shigjetë majtas e valëzuar] | 
+ %↝ : [shigjetë djathtas e valëzuar] | 
+ %↞ : [shigjetë dymajëshe majtas] | 
+ %↟ : [shigjetë dymajëshe lart] | 
+ %↠ : [shigjetë dymajëshe djathtas] | 
+ %↡ : [shigjetë dymajëshe poshtë] | 
+ %↢ : [shigjetë majtas me bisht] | 
+ %↣ : [shigjetë djathtas me bisht] | 
+ %↤ : [shigjetë majtas me shufër] | 
+ %↥ : [shigjetë lart me shufër] | 
+ %↦ : [shigjetë djathtas me shufër] | 
+ %↧ : [shigjetë poshtë me shufër] | 
+ %↨ : [shigjetë lart-poshtë me bazament] | 
+ %↫ : [shigjetë majtas me lak] | 
+ %↬ : [shigjetë djathtas me lak] | 
+ %↭ : [shigjetë e valëzuar majtas-djathtas] | 
+ %↯ : [shigjetë zigzage poshtë] | 
+ %↰ : [shigjetë lart me majë majtas] | 
+ %↱ : [shigjetë lart me majë djathtas] | 
+ %↲ : [shigjetë poshtë me majë majtas] | 
+ %↳ : [shigjetë poshtë me majë djathtas] | 
+ %↴ : [shigjetë djathtas me kënd poshtë] | 
+ %↵ : [shigjetë poshtë me kënd majtas] | 
+ %↶ : [shigjetë gjysmëhark lart me drejtim kundërorar] | 
+ %↷ : [shigjetë gjysmëhark lart me drejtim orar] | 
+ %↸ : [shigjetë veriperëndim me tra të gjatë] | 
+ %↹ : [shigjetë majtas me shufër mbi shigjetë djathtas me shufër] | 
+ %↺ : [shigjetë rrethhapur me drejtim kundërorar] | 
+ %↻ : [shigjetë rrethhapur me drejtim orar] | 
+ %↼ : [fuzhnjë majtas me grep lart] | 
+ %↽ : [fuzhnjë majtas me grep poshtë] | 
+ %↾ : [fuzhnjë lart me grep djathtas] | 
+ %↿ : [fuzhnjë lart me grep majtas] | 
+ %⇀ : [fuzhnjë djathtas me grep lart] | 
+ %⇁ : [fuzhnjë djathtas me grep poshtë] | 
+ %⇂ : [fuzhnjë poshtë me grep djathtas] | 
+ %⇃ : [fuzhnjë poshtë me grep majtas] | 
+ %⇄ : [shigjetë djathtas mbi shigjetë majtas] | 
+ %⇅ : [shigjeta me drejtim lart dhe me drejtim poshtë] | 
+ %⇆ : [shigjeta me drejtim majtas mbi me drejtim djathtas] | 
+ %⇇ : [shigjeta dyshe majtas] | 
+ %⇈ : [shigjeta dyshe lart] | 
+ %⇉ : [shigjeta dyshe djathtas] | 
+ %⇊ : [shigjeta dyshe poshtë] | 
+ %⇋ : [fuzhnjë majtas mbi fuzhnjë djathtas] | 
+ %⇌ : [fuzhnjë djathtas mbi fuzhnjë majtas] | 
+ %⇐ : [shigjetë dyshe majtas] | 
+ %⇍ : [shigjetë dyshe majtas me fraksion] | 
+ %⇑ : [shigjetë dyshe lart] | 
+ %⇒ : [shigjetë dyshe djathtas] | 
+ %⇏ : [shigjetë dyshe djathtas me fraksion] | 
+ %⇓ : [shigjetë dyshe poshtë] | 
+ %⇔ : [shigjetë dyshe majtas-djathtas] | 
+ %⇎ : [shigjetë dyshe majtas-djathtas me fraksion] | 
+ %⇖ : [shigjetë dyshe veriperëndim] | 
+ %⇗ : [shigjetë dyshe verilindje] | 
+ %⇘ : [shigjetë dyshe juglindje] | 
+ %⇙ : [shigjetë dyshe jugperëndim] | 
+ %⇚ : [shigjetë treshe majtas] | 
+ %⇛ : [shigjetë treshe djathtas] | 
+ %⇜ : [shigjetë e përdredhur majtas] | 
+ %⇝ : [shigjetë e përdredhur djathtas] | 
+ %⇞ : [shigjetë lart me dy viza] | 
+ %⇟ : [shigjetë poshtë me dy viza] | 
+ %⇠ : [shigjetë majtas me ndërprerje] | 
+ %⇡ : [shigjetë lart me ndërprerje] | 
+ %⇢ : [shigjetë djathtas me ndërprerje] | 
+ %⇣ : [shigjetë poshtë me ndërprerje] | 
+ %⇤ : [shigjetë me shufër majtas] | 
+ %⇥ : [shigjetë me shufër djathtas] | 
+ %⇦ : [shigjetë bosh majtas] | 
+ %⇧ : [shigjetë bosh lart] | 
+ %⇨ : [shigjetë bosh djathtas] | 
+ %⇩ : [shigjetë bosh poshtë] | 
+ %⇪ : [shigjetë bosh lart nga shufër] | 
+ %⇵ : [shigjetë poshtë majtas shigjetë lart] | 
+ %∀ : [për të gjitha] | 
+ %∂ : [diferencial i pjesshëm] | 
+ %∃ : [ka] | 
+ %∅ : [bashkësi bosh] | 
+ %∆ : [rritje] | 
+ %∇ : [nabla] | 
+ %∈ : [element i] | 
+ %∉ : [jo element] | 
+ %∋ : [përmban si pjesëtar] | 
+ %∎ : [fundi i vërtetimit] | 
+ %∏ : [prodhim n] | 
+ %∑ : [shumë n] | 
+ %+ : [shenja e plusit] | 
+ %± : [plus-minus] | 
+ %÷ : [shenja e pjesëtimit] | 
+ %× : [shenja e shumëzimit] | 
+ %≮ : [jo më pak se] | 
+ %= : [baras] | 
+ %≠ : [jo baras] | 
+ %≯ : [jo më shumë se] | 
+ %¬ : [mohim] | 
+ %| : [vijë vertikale] | 
+ %~ : [tilde] | 
+ %− : [shenja e minusit] | 
+ %⁻ : [minus me superskript] | 
+ %∓ : [minus ose plus] | 
+ %∕ : [thyesë pjesëtimi] | 
+ %⁄ : [thyesë] | 
+ %∗ : [operator yllth] | 
+ %∘ : [operator rreth] | 
+ %∙ : [operator pikësim] | 
+ %√ : [rrënja katrore] | 
+ %∝ : [përpjesëtimor] | 
+ %∞ : [shenja e infinitit] | 
+ %∟ : [kënd i djathtë] | 
+ %∠ : [kënd] | 
+ %∣ : [ndarëse] | 
+ %∥ : [paralele] | 
+ %∧ : [dhe logjike] | 
+ %∩ : [ndërprerje] | 
+ %∪ : [bashkim] | 
+ %∫ : [integrale] | 
+ %∬ : [integrale dyshe] | 
+ %∮ : [integrale me kontur] | 
+ %∴ : [prandaj] | 
+ %∵ : [sepse] | 
+ %∶ : [raport] | 
+ %∷ : [përpjesëtim] | 
+ %∼ : [operator dredhëz] | 
+ %∽ : [dredhëz përmbys] | 
+ %∾ : [infinit] | 
+ %≃ : [barazim asimptotik] | 
+ %≅ : [afërsisht baraz] | 
+ %≈ : [thuajse baras] | 
+ %≌ : [të gjitha baras] | 
+ %≒ : [afërsisht baras me imazhin] | 
+ %≖ : [unazë barazimi] | 
+ %≡ : [njëlloj me] | 
+ %≣ : [barasvlerë strikte] | 
+ %≤ : [më e vogël ose baras] | 
+ %≥ : [më e madhe ose baras] | 
+ %≦ : [më pak ose baras] | 
+ %≧ : [më shumë ose baras] | 
+ %≪ : [shumë më pak] | 
+ %≫ : [shumë më shumë] | 
+ %≬ : [ndërmjet] | 
+ %≳ : [më shumë ose afërsisht] | 
+ %≺ : [pararend] | 
+ %≻ : [tejkalon] | 
+ %⊁ : [nuk tejkalon] | 
+ %⊂ : [nënbashkësi e] | 
+ %⊃ : [mbibashkësi] | 
+ %⊆ : [nënbashkësia baras] | 
+ %⊇ : [mbibashkësia baras] | 
+ %⊕ : [rreth me plus] | 
+ %⊖ : [rreth me minus] | 
+ %⊗ : [rreth me kryq] | 
+ %⊘ : [rreth me thyesë] | 
+ %⊙ : [operator rrethi me pikë] | 
+ %⊚ : [operator rrethi me rreth] | 
+ %⊛ : [operator rrethi me yll] | 
+ %⊞ : [katror me plus] | 
+ %⊟ : [katror me minus] | 
+ %⊥ : [thumb lart] | 
+ %⊮ : [nuk detyron] | 
+ %⊰ : [pararend në raport] | 
+ %⊱ : [tejkalon në raport] | 
+ %⋭ : [nuk përmban si të barabartë nëngrupi normal] | 
+ %⊶ : [origjinal] | 
+ %⊹ : [matricë lidhjeje hermitiane] | 
+ %⊿ : [trekëndësh kënddrejtë] | 
+ %⋁ : [n-ar logjik ose] | 
+ %⋂ : [ndërprerje n-are] | 
+ %⋃ : [bashkim n-ar] | 
+ %⋅ : [operator pikë] | 
+ %⋆ : [operator yll] | 
+ %⋈ : [bashkim natyral] | 
+ %⋒ : [ndërprerje dyshe] | 
+ %⋘ : [shumë më pak se] | 
+ %⋙ : [shumë më shumë se] | 
+ %⋮ : [trepikësh vertikal] | 
+ %⋯ : [trepikësh horizontal mesi] | 
+ %⋰ : [trepikësh diagonal djathtas lart] | 
+ %⋱ : [trepikësh diagonal djathtas poshtë] | 
+ %■ : [katror i mbushur] | 
+ %□ : [katror i zbrazët] | 
+ %▢ : [katror i zbrazët me kënde të harkuara] | 
+ %▣ : [katror i zbrazët me katror të mbushur] | 
+ %▤ : [katror me mbushje horizontale] | 
+ %▥ : [katror me mbushje vertikale] | 
+ %▦ : [katror me mbushje rrjete drejtkëndore] | 
+ %▧ : [katror me mbushje majtas lart djathtas poshtë] | 
+ %▨ : [katror me mbushje djathtas lart majtas poshtë] | 
+ %▩ : [katror me mbushje rrjete diagonale] | 
+ %▬ : [drejtkëndësh i mbushur] | 
+ %▭ : [drejtkëndësh i zbrazët] | 
+ %▮ : [drejtkëndësh i mbushur vertikal] | 
+ %▰ : [paralelogram i mbushur] | 
+ %▲ : [trekëndësh i mbushur me drejtim lart] | 
+ %△ : [trekëndësh i zbrazët me drejtim lart] | 
+ %▴ : [trekëndësh i mbushur i vogël me drejtim lart] | 
+ %▵ : [trekëndësh i zbrazët i vogël me drejtim lart] | 
+ %▷ : [trekëndësh i zbrazët i me drejtim djathtas] | 
+ %▸ : [trekëndësh i mbushur i vogël me drejtim djathtas] | 
+ %▹ : [trekëndësh i mbushur i zbrazët me drejtim djathtas] | 
+ %► : [tregues i mbushur me drejtim djathtas] | 
+ %▻ : [tregues i zbrazët me drejtim djathtas] | 
+ %▼ : [trekëndësh i mbushur me drejtim poshtë] | 
+ %▽ : [tregues i mbushur me drejtim poshtë] | 
+ %▾ : [trekëndësh i mbushur i vogël me drejtim poshtë] | 
+ %▿ : [trekëndësh i zbrazët i vogël me drejtim poshtë] | 
+ %◁ : [trekëndësh i zbrazët me drejtim majtas] | 
+ %◂ : [trekëndësh i mbushur i vogël me drejtim majtas] | 
+ %◃ : [trekëndësh i zbrazët i vogël me drejtim majtas] | 
+ %◄ : [tregues i mbushur me drejtim majtas] | 
+ %◅ : [tregues i zbrazët me drejtim majtas] | 
+ %◆ : [romb i mbushur] | 
+ %◇ : [romb i zbrazët] | 
+ %◈ : [romb i zbrazët me romb të mbushur] | 
+ %◉ : [rreth i zbrazët me rreth të mbushur] | 
+ %◊ : [romb] | 
+ %○ : [rreth bosh] | 
+ %◌ : [rreth i pikëzuar] | 
+ %◍ : [rreth me mbushje vertikale] | 
+ %◎ : [rrathë bashkëqendrorë] | 
+ %● : [rreth i mbushur] | 
+ %◐ : [rreth gjysmë i mbushur majtas] | 
+ %◑ : [rreth gjysmë i mbushur djathtas] | 
+ %◒ : [rreth gjysmë i mbushur poshtë] | 
+ %◓ : [rreth gjysmë i mbushur lart] | 
+ %◔ : [rreth me sektor të mbushur djathtas lart] | 
+ %◕ : [rreth i mbushur përveç sektorit majtas lart] | 
+ %◖ : [gjysmërreth i mbushur i majtë] | 
+ %◗ : [gjysmërreth i mbushur i djathtë] | 
+ %◘ : [pikë e anasjellë] | 
+ %◙ : [katror i mbushur me rreth të zbrazët] | 
+ %◜ : [hark sektori majtas lart] | 
+ %◝ : [hark sektori djathtas lart] | 
+ %◞ : [hark sektori djathtas poshtë] | 
+ %◟ : [hark sektori majtas poshtë] | 
+ %◠ : [gjysmëhark lart] | 
+ %◡ : [gjysmëhark poshtë] | 
+ %◢ : [trekëndësh i mbushur djathtas poshtë] | 
+ %◣ : [trekëndësh i mbushur majtas poshtë] | 
+ %◤ : [trekëndësh i mbushur majtas lart] | 
+ %◥ : [trekëndësh i mbushur djathtas lart] | 
+ %◦ : [pikë e zbrazët] | 
+ %◯ : [rreth i madh bosh] | 
+ %◳ : [katror i zbrazët me sektor djathtas lart] | 
+ %◷ : [rreth i zbrazët me sektor djathtas lart] | 
+ %◿ : [trekëndësh djathtas poshtë] | 
+ %♪ : [nota e tetë] | 
+ %⨧ : [plus dy subskript] | 
+ %⨯ : [kryq vektorial produkti] | 
+ %⨼ : [produkt i brendshëm] | 
+ %⩣ : [nënviza logjike ose dyshe] | 
+ %⩽ : [më pak ose baras i pjerrët] | 
+ %⪍ : [më pak ose përafërsisht] | 
+ %⪚ : [më shumë ose baras me dy rreshta] | 
+ %⪺ : [tejkalon ose përafërsisht] | 
+ %♭ : [bemol] | 
+ %♯ : [diez] ; 
+
+regex Letter|Digit | Whitespace | Symbol ; 
