@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="default_voice_title">Zëri i parazgjedhur</string>
+  <string name="default_voice_dialog_title">Zgjidhni një zë</string>
+  <string name="detect_language_title">Zbulimi i gjuhës</string>
+  <string name="detect_language_desc">Ndërrimi automatik i gjuhës</string>
+  <string name="speech_volume">Volumi i të folurit</string>
+  <string name="speech_rate">Shkalla e të folurit</string>
+  <string name="pseudo_english_title">Fjalët angleze</string>
+  <string name="pseudo_english_desc">Mundohuni të lexoni saktë fjalët angleze</string>
+  <string name="settings">Përcaktimet</string>
+  <string name="wifi_only_title">Vetëm Wi-Fi</string>
+  <string name="wifi_only_desc">Shkarkoni zëra vetëm në Wi-Fi</string>
+  <string name="speech_quality">Cilësia e të folurit</string>
+  <string-array name="quality_labels">
+    <item>Performanca më e mirë e mundshme</item>
+    <item>Cilësi standarte</item>
+    <item>Cilësia më e mirë e mundshme</item>
+  </string-array>
+  <string name="languages">Gjuhët</string>
+  <string name="voice_remove_question">Je i sigurt që dëshiron ta çinstalosh këtë zë?</string>
+  <string name="install">Instalo</string>
+  <string name="uninstall">Ç’instalo</string>
+  <string name="play">Luaj</string>
+  <string name="stop">Ndalo</string>
+  <string name="increase">Rrit volumin</string>
+  <string name="decrease">Ul volumin</string>
+  <string name="reset">Ripërcakto</string>
+  <string name="version">Version</string>
+  <string name="user_dicts">Fjalorët e përdoruesve</string>
+  <string name="add">Shtoni</string>
+  <string name="remove">Hiqni</string>
+  <string name="config_file">Skedari i konfigurimit</string>
+</resources>
