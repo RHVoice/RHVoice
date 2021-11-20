@@ -1,0 +1,289 @@
+# Copyright (C) 2021  Zvonimir stanecic <zvonimirek222@yandex.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define Conjunction 
+a | 
+inaczej | 
+jakoby | 
+niby | 
+jakby | 
+aby | 
+jeśli | 
+jeżeli | 
+natomiast | 
+i | 
+oraz | 
+lub | 
+albo | 
+czy | 
+bądź | 
+lecz | 
+jednak | 
+jednakże | 
+póki | 
+dopóki | 
+póty | 
+dopóty | 
+ponieważ | 
+ponadto | 
+oprócz | 
+także | 
+też | 
+to | 
+choć | 
+chociaż | 
+chociażby | 
+toteż | 
+więc | 
+choćby | 
+żeby;
+
+define Preposition 
+bez | 
+blizko | 
+w | 
+zamiast | 
+we | 
+obok | 
+przy | 
+koło | 
+dookoła | 
+w rodzaju | 
+dla | 
+do | 
+Za | 
+z | 
+spod | 
+oprócz | 
+między | 
+pomiędzy | 
+mimo | 
+pomimo | 
+na | 
+nad | 
+naprzeciw | 
+odnośnie | 
+o | 
+około | 
+od | 
+oto | 
+przed | 
+przede | 
+po | 
+pod | 
+przy | 
+przeciw | 
+przeciwko | 
+prócz | 
+przez | 
+później | 
+spośród | 
+w | 
+przez;
+
+define Particle 
+kolwiek | 
+bądź | 
+niebądź | 
+aż | 
+by | 
+przecież | 
+oto | 
+otóż | 
+właśnie | 
+tak | 
+nawet | 
+niby | 
+że | 
+mianowicie | 
+czy | 
+dopiero | 
+tylko | 
+ledwie | 
+Nie | 
+ani | 
+niech | 
+niechaj | 
+niechajże | 
+chyba | 
+naprawdę | 
+może | 
+już | 
+aczkolwiek | 
+to | 
+jakoby;
+
+define Relative 
+gdzie | 
+dlaczego | 
+jak | 
+jaka | 
+jakie | 
+jakim | 
+jakich | 
+jaki | 
+jaka | 
+jakie | 
+jakiego | 
+jakiej | 
+jakiemu | 
+jaką | 
+jacy | 
+jakim | 
+jakimi | 
+jakiego | 
+jakie | 
+jaki | 
+jakiemu | 
+jaka | 
+kim | 
+kiedy | 
+kogo | 
+komu | 
+która | 
+którego | 
+które | 
+której | 
+którym | 
+któremu | 
+którą | 
+które | 
+który | 
+którym | 
+którymi | 
+których | 
+kto | 
+dokąd | 
+skąd | 
+dlaczego | 
+ile | 
+czego | 
+czyj | 
+czym | 
+czemu | 
+co | 
+czyjego | 
+czyjej | 
+czyjemu | 
+czyj | 
+czyjim | 
+czyjimi | 
+czyjih | 
+czyją | 
+czyja | 
+czyje | 
+czym;
+
+define Personal 
+wam | 
+wami | 
+was | 
+wy | 
+jego | 
+jej | 
+jemu | 
+niej | 
+im | 
+nimi | 
+ich | 
+mnie | 
+mną | 
+mi | 
+nam | 
+nami | 
+nas | 
+niego | 
+niej | 
+niemu | 
+nim | 
+nimi | 
+nich | 
+nią | 
+on | 
+ona | 
+oni | 
+ono | 
+one | 
+ciebie | 
+cię | 
+tobą | 
+ci | 
+ty | 
+ja;
+
+define Possessive 
+Wasz | 
+wasza | 
+wasze  |  
+waszego | 
+waszej | 
+waszemu | 
+waszych | 
+waszym | 
+waszymi | 
+waszą | 
+mojego | 
+mojemu | 
+mojej | 
+moi | 
+moim | 
+moimi | 
+moich | 
+mój | 
+moja | 
+moje | 
+nasz | 
+nasza | 
+nasze  |  
+naszego | 
+naszej | 
+naszemu | 
+nasi | 
+naszym | 
+naszymi | 
+naszych | 
+naszą | 
+swojego | 
+swojemu | 
+swojej | 
+swoi | 
+swoimi | 
+swoich | 
+swój | 
+swoja | 
+swoje | 
+swoją | 
+swoich | 
+twojego | 
+twojej | 
+twojemu | 
+twoi | 
+twoim | 
+twoimi | 
+twoich | 
+twój | 
+twoją | 
+twoja;
+
+define FunctionWord Conjunction | Preposition | Particle | Relative | Personal | Possessive;
+
+regex 
+Conjunction -> conj || _ ,, 
+Preposition -> prep || _ ,, 
+Particle -> part || _ ,, 
+Relative -> rel || _ ,, 
+Personal -> pers || _ ,, 
+Possessive -> pos || _ ,, 
+\FunctionWord -> content || _ ; 
