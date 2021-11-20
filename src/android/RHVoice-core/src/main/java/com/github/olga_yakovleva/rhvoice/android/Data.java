@@ -83,7 +83,7 @@ public final class Data
         lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
         lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 17, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, REPO_URL+"/RHVoice-F123-Brazilian-Portuguese-language-v1.17.zip", null);
-        lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 6, Checksums.VOICE_LETICIA, "https://f123.org/leticia/download/Android/data/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.zip", null));
+        lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 6, Checksums.VOICE_LETICIA, REPO_URL+"/Leticia-F123-v4.6.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Macedonian", "mkd", "mk", "MKD", "MK", false, 1, 20, Checksums.LANGUAGE_MACEDONIAN,REPO_URL+"/RHVoice-language-Macedonian-v1.20.zip" , null);
         lang.addVoice(new VoicePack("mac_m1", "Kiko", lang, 4, 7, Checksums.VOICE_MAC_MALE1, REPO_URL+"/RHVoice-voice-Macedonian-Kiko-v4.7.zip", null));
