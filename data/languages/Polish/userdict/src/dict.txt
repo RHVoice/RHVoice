@@ -1,0 +1,6 @@
+; The file must be in UTF-8.
+; The = sign is used, but there must be no spaces between the word and its pronunciation: spaces separate individual words in collocation entries
+axm=aiksem
+nba=enbea
+nvda=enfałdea
+usb=uesbe

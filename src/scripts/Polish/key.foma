@@ -1,0 +1,96 @@
+# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define NZDigit 
+1:jeden | 
+2:dwa | 
+3:trzy | 
+4:cztery | 
+5:pięć | 
+6:sześć | 
+7:siedem | 
+8:osiem | 
+9:dziewięć ; 
+
+define Digit [%0 : zero] | NZDigit;
+
+define Number 
+NZDigit | 
+[[1:0] [
+%0:dziesięć | 
+1:jedenaście | 
+2:dwanaście | 
+3:trzynaście | 
+4:czternaście | 
+5:piętnaście | 
+6:szesnaście | 
+7:siedemnaście | 
+8:osiemnaście | 
+9:dziewiętnaście]] | 
+[[2:dwadzieścia] [%0:0 | NZDigit]] ;
+
+define Plus %+ : plus;
+define Minus %- : minus;
+define Slash %/ : slesz;
+define BackSlash %\ : bak slasz;
+define Star %* : gwiazdka;
+define Dot %. : kropka;
+define SpecialChar Plus | Minus | Slash | BackSlash | Star | Dot;
+
+define Enter {enter} : enter;
+
+define OtherKey 
+{underscore} : podkreślenie | 
+{double-quote} : cudzysłów | 
+{alt} : alt | 
+{control} : kontrol | 
+{hyper} : hyper | 
+{meta} : meta | 
+{shift} : szift | 
+{super} : super | 
+{backspace} : [bek spejs] | 
+{break} : break | 
+{delete} : delete | 
+{down} : dół | 
+{end} : end | 
+Enter | 
+{escape} : escape | 
+{home} : home | 
+{insert} : insert | 
+{left} : lewo | 
+{menu} : menu | 
+{next} : dalej | 
+{num-lock} : [num lock] | 
+{pause} : pause | 
+{print} : drukuj | 
+{prior} : poprzedni | 
+{return} : return | 
+{right} : prawo | 
+{scroll-lock} : [scroll lock] | 
+{space} : spacja | 
+{tab} : tab | 
+{up} : góra | 
+{window} : windows ; 
+
+define KPKey 
+[{kp-} : 0] [Digit | Plus | Minus | Star | Slash | Dot | Enter];
+
+define FKey 
+f:ef Number ;
+
+define Key 
+KPKey | FKey | SpecialChar | OtherKey;
+
+regex Key;
