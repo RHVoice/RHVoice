@@ -1,0 +1,80 @@
+# Copyright (C) 2021 Grzegorz Zlotowicz  <grzezlo@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define CaseVariants 
+a -> a|A , 
+ą -> ą|Ą , 
+b -> b|B , 
+c -> c|C , 
+ć -> ć|Ć , 
+d -> d|D , 
+e -> e|E , 
+ę -> ę|Ę , 
+f -> f|F , 
+g -> g|G , 
+h -> h|H , 
+i -> i|I , 
+j -> j|J , 
+k -> k|K , 
+l -> l|L , 
+ł -> ł|Ł , 
+m -> m|M , 
+n -> n|N , 
+ń -> ń|Ń , 
+o -> o|O , 
+ó -> ó|Ó , 
+p -> p|P , 
+q -> q|Q , 
+r -> r|R , 
+s -> s|S , 
+ś -> ś|Ś , 
+t -> t|T , 
+u -> u|U , 
+v -> v|V , 
+w -> w|W , 
+x -> x|X , 
+y -> y|Y , 
+z -> z|Z , 
+ź -> ź|Ź , 
+ż -> ż|Ż ; 
+
+define ConsonantLetterSequence 
+[b|c|ć|d|f|g|h|j|k|l|ł|m|n|ń|q|p|r|s|ś|t|v|w|x|z|ź|ż]+ ; 
+
+define LetterSequence 
+[ConsonantLetterSequence .o. CaseVariants].l ; 
+
+define Letter a|A|ą|Ą|b|B|c|C|ć|Ć|d|D|e|E|ę|Ę|f|F|g|G|h|H|i|I|j|J|k|K|l|L|ł|Ł|m|M|n|N|ń|Ń|o|O|ó|Ó|p|P|q|Q|r|R|s|S|ś|Ś|t|T|u|U|v|V|w|W|x|X|y|Y|z|Z|ź|Ź|ż|Ż;
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define Number %0 | [NZDigit Digit*];
+
+define Word Letter+ ;
+
+define Stage1 
+Number @-> ... num || _ ,, 
+Word @-> ... word || _ .#. | \Letter ,, 
+\[Letter | Digit] @-> ... sym || _ ; 
+
+define Stage2 
+word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
+num -> dig || Digit^15 _ ;
+
+define Stage3 
+lseq -> word ||.#.  [w|z|W|Z] _ ;
+
+regex Stage1 .o. Stage2 .o. Stage3;

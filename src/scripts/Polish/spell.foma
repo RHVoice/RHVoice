@@ -1,0 +1,100 @@
+# Copyright (C) 2021 Grzegorz Zlotowicz  <grzezlo@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define Letter 
+[[a|A]:a] | 
+[[ą|Ą]:ą] | 
+[[b|B]:be] | 
+[[c|C]:ce] | 
+[[ć|Ć]:cie] | 
+[[d|D]:de] | 
+[[e|E]:e] | 
+[[ę|Ę]:ę] | 
+[[f|F]:ef] | 
+[[g|G]:gie] | 
+[[h|H]:ha] | 
+[[i|I]:i] | 
+[[j|J]:jot] | 
+[[k|K]:ka] | 
+[[l|L]:el] | 
+[[ł|Ł]:eł] | 
+[[m|M]:em] | 
+[[n|N]:en] | 
+[[ń|Ń]:eń] | 
+[[o|O]:o] | 
+[[ó|Ó]:[u kreska]] | 
+[[p|P]:pe] | 
+[[q|Q]:ku] | 
+[[r|R]:er] | 
+[[s|S]:es] | 
+[[ś|Ś]:eś] | 
+[[t|T]:te] | 
+[[u|U]:u] | 
+[[v|V]:fał] | 
+[[w|W]:wu] | 
+[[x|X]:iks] | 
+[[y|Y]:igrek] | 
+[[z|Z]:zet] |
+[[ź|Ź]:ziet] |
+[[ż|Ż]:żet] ; 
+
+define Digit %0:zero|1:jeden|2:dwa|3:trzy|4:cztery|5:pięć|6:sześć|7:siedem|8:osiem|9:dziewięć;
+
+define Whitespace 
+tab:tab | 
+nl:[Nowy wiersz] | 
+cr:[Koniec linii] | 
+sp:spacja | 
+nbsp:[niełamliwa spacja] ; 
+
+define Punctuation 
+%,:przecinek | 
+%.:kropka | 
+%?:pytajnik | 
+%!:wykrzyknik | 
+%::dwukropek | 
+%;:średnik | 
+%":cudzysłów | 
+%':apostrof | 
+%(:[lewy nawias] | 
+%):[prawy nawias] | 
+%-:minus | 
+%[:[lewy kwadratowy] | 
+%]:[prawy kwadratowy] | 
+%{:[lewy klamrowy] | 
+%}:[prawy klamrowy] ; 
+
+define Symbol 
+%$:dolar | 
+%%:procent | 
+%° : stopień | 
+%#:hasz | 
+%&:ampersand | 
+%*:gwiazdka | 
+%+:plus | 
+%/:slesz | 
+%<:mniejsze | 
+%=:równe | 
+%>:większe | 
+%@:małpa | 
+%\:bekslesz | 
+%^:daszek | 
+%_:podkreślacz | 
+%`:akcent | 
+%|:[kreska pionowa] | 
+%~:tylda ; 
+
+regex 
+Letter | Digit | Whitespace | Punctuation | Symbol ; 
