@@ -112,7 +112,9 @@ define Symbol
 %{ : [abre chave] | 
 %} : [fecha chave] | 
 %| : [barra vertical] | 
-%~ : til ; 
+%~ : til | 
+%ª : [ordinal feminino] | 
+%º : [ordinal masculino] ; 
 
 regex 
 Letter|Digit | Whitespace | Symbol ; 
