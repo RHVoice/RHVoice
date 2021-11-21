@@ -82,7 +82,7 @@ public final class Data
         lang.addVoice(new VoicePack("Anatol", lang, 4, 1, Checksums.VOICE_ANATOL, null, null));
         lang.addDefaultVoice(new VoicePack("Natalia", lang, 4, 0, Checksums.VOICE_NATALIA, null, null));
         addLanguage(lang);
-        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 17, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, REPO_URL+"/RHVoice-F123-Brazilian-Portuguese-language-v1.17.zip", null);
+        lang=new LanguagePack("Brazilian-Portuguese", "por", "pt", "BRA", "BR", true, 1, 19, Checksums.LANGUAGE_BRAZILIAN_PORTUGUESE, REPO_URL+"/RHVoice-F123-Brazilian-Portuguese-language-v1.19.zip", null);
         lang.addVoice(new VoicePack("leticia_f123", "Let\u00Edcia-F123", lang, 4, 6, Checksums.VOICE_LETICIA, REPO_URL+"/Leticia-F123-v4.6.zip", null));
         addLanguage(lang);
         lang=new LanguagePack("Macedonian", "mkd", "mk", "MKD", "MK", false, 1, 20, Checksums.LANGUAGE_MACEDONIAN,REPO_URL+"/RHVoice-language-Macedonian-v1.20.zip" , null);

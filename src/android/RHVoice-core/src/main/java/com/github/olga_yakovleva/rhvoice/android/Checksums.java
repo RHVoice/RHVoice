@@ -52,7 +52,7 @@ final class Checksums
     public static final byte[] VOICE_MARIANNA={-110, 43, 54, -18, -48, -126, 117, -42, 33, -4, -102, -69, -104, 74, 72, -11};
     public static final byte[] VOICE_ANATOL={62, -55, -8, -28, 29, 115, 55, -85, -60, 52, 126, -11, -103, -16, -72, 13};
     public static final byte[] VOICE_NATALIA={-20, -13, 29, -69, -124, -59, 104, 44, 86, -28, 13, -89, 38, 83, 34, -86};
-    public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={-94, 29, 68, -74, -92, 110, -100, -28, -65, 74, 90, -64, -20, 32, -52, -20};
+    public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={43, -20, -9, 89, 81, -71, -18, -112, -94, -115, -55, 103, 74, 0, -12, -119};
     public static final byte[] VOICE_LETICIA={73, 46, -107, 59, -104, 94, 58, -36, -68, 30, -43, 4, 120, 51, -34, 7};
     public static final byte[] LANGUAGE_MACEDONIAN={6, 79, 60, 95, -104, 99, -123, -105, 92, -107, -6, -34, 102, 57, -93, 45};
     public static final byte[] VOICE_MAC_MALE1={72, 81, 62, -69, -76, 120, -91, 103, -87, 28, -14, -92, 83, -27, 28, -80};
