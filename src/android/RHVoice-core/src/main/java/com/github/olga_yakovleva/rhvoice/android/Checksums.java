@@ -17,20 +17,21 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 final class Checksums
 {
-    public static final byte[] LANGUAGE_ENGLISH={53, -27, 98, -84, -27, 13, -118, -10, -45, 46, 62, -95, -25, 31, 104, 12};
+    public static final byte[] LANGUAGE_ENGLISH={120, 90, 109, 56, 84, 85, 57, 92, 97, 62, -100, -53, -70, -120, -10, 57};
     public static final byte[] VOICE_ALAN={42, -33, 42, 127, -59, -121, -70, 111, -118, 113, -73, -83, -89, -127, -19, 101};
     public static final byte[] VOICE_BDL={19, 127, -23, 67, 33, 92, -21, -125, 4, 0, 23, 123, -35, -79, -27, 9};
     public static final byte[] VOICE_CLB={-79, -61, 4, 100, 104, -55, -5, 101, -2, -106, 0, -50, 61, 14, 115, 4};
     public static final byte[] VOICE_SLT={64, -87, -25, -52, 35, 111, -34, 3, 24, 48, 40, 29, -77, -120, 113, 109};
     public static final byte[] VOICE_EVGENIY_ENG={-95, 16, 48, -14, -119, 46, 66, 88, 14, -119, -16, 100, -101, 80, -22, 29};
+    public static final byte[] VOICE_LYUBOV={-98, -72, 5, 120, 18, -73, -122, -21, 80, -109, -76, 62, 82, 90, -109, 74};
     public static final byte[] LANGUAGE_ESPERANTO={105, 98, 27, -24, 57, 87, 19, -14, 118, 34, 41, 126, 56, -34, 108, 117};
     public static final byte[] VOICE_SPOMENKA={-53, 69, 50, 3, 85, 56, 63, -80, -65, 106, -101, -111, -24, 49, 11, 94};
-    public static final byte[] LANGUAGE_GEORGIAN={23, -43, -12, -24, -1, -85, 82, 98, 28, 66, 22, -48, -119, -80, 69, -5};
+    public static final byte[] LANGUAGE_GEORGIAN={1, -101, 0, -39, -24, -92, 98, 69, 125, 34, 71, 100, 6, 15, 111, 91};
     public static final byte[] VOICE_NATIA={-105, -39, 70, -9, 41, 97, 111, 58, 99, 15, -88, -20, 22, 82, -92, 63};;
-    public static final byte[] LANGUAGE_KYRGYZ={10, -41, 76, 53, -41, -93, -19, 125, 35, -112, 86, -45, 49, -3, 73, 93};
+    public static final byte[] LANGUAGE_KYRGYZ={45, -62, 124, -64, -4, -96, -5, -6, -119, 61, -55, -109, 87, 54, -99, -26};
     public static final byte[] VOICE_AZAMAT={-78, 113, 65, -47, 113, -38, 116, -78, 108, -99, -57, 41, -100, 42, 40, 11};
     public static final byte[] VOICE_NAZGUL={-80, 20, 58, 56, 5, 86, -18, -72, 29, 88, -59, -101, -21, -69, 51, -50};
-    public static final byte[] LANGUAGE_RUSSIAN={64, 127, -33, 13, -44, 82, -127, -103, -72, -73, -79, 83, -58, 74, 51, -94};
+    public static final byte[] LANGUAGE_RUSSIAN={-44, -120, 52, -104, -16, -90, 97, 103, 74, -33, -16, 9, -120, 16, -103, 115};
     public static final byte[] VOICE_ALEKSANDR={93, 122, 13, -35, -102, -6, 67, -53, 26, -62, -45, 104, 26, -7, -20, 31};
     public static final byte[] VOICE_ALEKSANDR_HQ={-18, 66, -87, 91, 81, 56, -12, -26, -125, 66, 76, -37, -7, 83, -6, -97};
     public static final byte[] VOICE_ANNA={-61, -57, 25, 112, -50, -53, -98, 95, -101, -15, 118, 51, 55, 78, -100, -65};
@@ -51,8 +52,8 @@ final class Checksums
     public static final byte[] VOICE_MARIANNA={-110, 43, 54, -18, -48, -126, 117, -42, 33, -4, -102, -69, -104, 74, 72, -11};
     public static final byte[] VOICE_ANATOL={62, -55, -8, -28, 29, 115, 55, -85, -60, 52, 126, -11, -103, -16, -72, 13};
     public static final byte[] VOICE_NATALIA={-20, -13, 29, -69, -124, -59, 104, 44, 86, -28, 13, -89, 38, 83, 34, -86};
-    public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={-94, 29, 68, -74, -92, 110, -100, -28, -65, 74, 90, -64, -20, 32, -52, -20};
+    public static final byte[] LANGUAGE_BRAZILIAN_PORTUGUESE={43, -20, -9, 89, 81, -71, -18, -112, -94, -115, -55, 103, 74, 0, -12, -119};
     public static final byte[] VOICE_LETICIA={73, 46, -107, 59, -104, 94, 58, -36, -68, 30, -43, 4, 120, 51, -34, 7};
-    public static final byte[] LANGUAGE_MACEDONIAN={6, 79, 60, 95, -104, 99, -123, -105, 92, -107, -6, -34, 102, 57, -93, 45};
+    public static final byte[] LANGUAGE_MACEDONIAN={99, 8, -33, 82, -100, 22, 44, -106, 60, 1, 119, 63, 70, -58, -1, -45};
     public static final byte[] VOICE_MAC_MALE1={72, 81, 62, -69, -76, 120, -91, 103, -87, 28, -14, -92, 83, -27, 28, -80};
 }

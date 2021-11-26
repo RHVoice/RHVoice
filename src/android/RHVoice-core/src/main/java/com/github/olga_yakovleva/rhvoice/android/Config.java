@@ -30,36 +30,6 @@ public final class Config
     private static final String TAG="RHVoiceConfig";
     private static final String CONFIG_FILE_NAME="RHVoice.conf";
 
-    private static void unpackFile(Context context,String inPath,File outFile) throws IOException
-    {
-        InputStream inStream=null;
-        OutputStream outStream=null;
-        try
-            {
-                inStream=context.getAssets().open(inPath);
-                outStream=new FileOutputStream(outFile);
-                byte[] buf=new byte[8092];
-                int count=0;
-                while((count=inStream.read(buf))>0)
-                    outStream.write(buf,0,count);
-            }
-        finally
-            {
-                if(outStream!=null)
-                    outStream.close();
-                if(inStream!=null)
-                    inStream.close();
-            }
-    }
-
-    private static void unpackConfigFile(Context context,File configDir) throws IOException
-    {
-        File configFile=new File(configDir,CONFIG_FILE_NAME);
-        if(configFile.exists())
-            return;
-        unpackFile(context,CONFIG_FILE_NAME,configFile);
-    }
-
     public static File getDir(Context context)
     {
         if(BuildConfig.DEBUG)
@@ -73,13 +43,21 @@ public final class Config
             }
         if(BuildConfig.DEBUG)
             Log.d(TAG,"The path to the private external storage directory is "+dir.getAbsolutePath());
-        try
-            {
-                unpackConfigFile(context,dir);
-            }
-        catch(IOException e)
-            {
-            }
         return dir;
+    }
+
+    public static File getDictsRootDir(Context ctx)
+    {
+        return new File(getDir(ctx), "dicts");
+    }
+
+    public static File getLangDictsDir(Context ctx, String langName)
+    {
+        return new File(getDictsRootDir(ctx), langName);
+    }
+
+    public static File getConfigFile(Context ctx)
+    {
+        return new File(getDir(ctx), CONFIG_FILE_NAME);
     }
 }

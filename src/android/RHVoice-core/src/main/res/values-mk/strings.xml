@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="default_voice_title">Претпочитан глас</string>
   <string name="default_voice_dialog_title">Изберете глас</string>
@@ -27,4 +27,8 @@
   <string name="decrease">Намали</string>
   <string name="reset">Ресетирај</string>
   <string name="version">Верзија</string>
+  <string name="user_dicts">Кориснички речници</string>
+  <string name="add">Додади</string>
+  <string name="remove">Отстрани</string>
+  <string name="config_file">Конфигурациска датотека</string>
 </resources>

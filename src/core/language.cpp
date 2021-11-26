@@ -33,6 +33,7 @@
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 #include "core/emoji.hpp"
+#include "core/data_only_language.hpp"
 #include <iostream>
 
 namespace RHVoice
@@ -391,6 +392,26 @@ namespace RHVoice
       }
     };
 
+    struct feat_word_break: public feature_function
+    {
+      feat_word_break():
+        feature_function("word_break")
+      {
+      }
+
+      value eval(const item& word) const
+      {
+        unsigned int result=4;
+        const item& word_in_utt=word.as("Word");
+        if(word_in_utt.has_next())
+          {
+            const item& word_in_phrase=word.as("Phrase");
+            result=word_in_phrase.has_next()?1:3;
+              }
+        return result;
+      }
+    };
+
     struct feat_phrases_in: public feature_function
     {
       feat_phrases_in():
@@ -559,6 +580,8 @@ else
   {
     config cfg;
     cfg.register_setting(lcfg.tok_eos);
+    cfg.register_setting(lcfg.ph_flags);
+    cfg.register_setting(lcfg.g2p_case);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -602,6 +625,13 @@ else
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        accented_dtree.reset(new dtree(path::join(info_.get_data_path(),"accented.dt")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -617,6 +647,9 @@ else
     whitespace_symbols[32]="sp";
     whitespace_symbols[160]="nbsp";
     register_default_features();
+    auto& labeller=get_hts_labeller();
+    for(const auto& flag: lcfg.ph_flags.get())
+      labeller.define_ph_flag_feature(flag);
   }
 
   void language::register_default_features()
@@ -649,6 +682,7 @@ else
     register_feature(std::shared_ptr<feature_function>(new feat_phrase_numsyls));
     register_feature(std::shared_ptr<feature_function>(new feat_phrase_numwords));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_break));
+    register_feature(std::shared_ptr<feature_function>(new feat_word_break));
     register_feature(std::shared_ptr<feature_function>(new feat_word_stress_pattern));
     register_feature(std::shared_ptr<feature_function>(new feat_phrases_in));
     register_feature(std::shared_ptr<feature_function>(new feat_phrases_out));
@@ -952,6 +986,7 @@ else
     downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(word_name));
     item& word=token.append_child();
     word.set("name",word_name);
+    word.set("cname", token_name);
   }
 
   void language::decode_as_word(item& token,const std::string& token_name) const
@@ -1267,6 +1302,20 @@ else
 }
 }
 
+  void language::do_syl_accents(utterance& u) const
+  {
+    if(accented_dtree==nullptr)
+      return;
+    relation& syl_rel=u.get_relation("Syllable");
+    for(relation::iterator syl_iter(syl_rel.begin());syl_iter!=syl_rel.end();++syl_iter)
+      {
+        if(accented_dtree->predict(*syl_iter).as<unsigned int>()!=0)
+          syl_iter->set<std::string>("accented","1");
+        else
+          syl_iter->set<std::string>("accented","0");
+      }
+  }
+
   std::vector<std::string> language::get_english_word_transcription(const item& word) const
   {
     const language_list& languages=get_info().get_all_languages();
@@ -1330,6 +1379,14 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         word.clear();
         for(;out_iter!=out_syms.end() && *out_iter!="#" && *out_iter!="-"; ++out_iter)
           {
+            if(str::startswith(*out_iter, "_"))
+              {
+                const auto flag=out_iter->substr(1);
+                if(!lcfg.ph_flags.includes(flag) || !word.has_children())
+                  throw post_g2p_error(word);
+                word.last_child().set("ph_flag_"+flag, std::string("1"));
+                continue;
+              }
             word.append_child().set("name", *out_iter);
           }
       }
@@ -1364,7 +1421,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     std::vector<std::string> result;
     item::iterator seg_start,seg_end,seg_iter;
     std::string seg_name;
-    std::size_t n;
+    std::size_t i, n;
     for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
       {
         item& word_with_syls=sylstruct_rel.append(*word_iter);
@@ -1383,13 +1440,18 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
             else
               {
                 seg_name=seg_iter->get("name").as<std::string>();
+                i=0;
+                if(seg_name[i]=='/')
+                  ++i;
                 n=seg_name.size()-1;
                 if((seg_name[n]=='0')||(seg_name[n]=='1'))
                   {
                     if(seg_name[n]=='1')
                       word_with_syls.last_child().set<std::string>("stress","1");
-                    seg_iter->set("name",seg_name.substr(0,n));
+                    seg_iter->set("name",seg_name.substr(i,n-i));
                   }
+                else if(i>0)
+                  seg_iter->set("name",seg_name.substr(i));
                 word_with_syls.last_child().append_child(*seg_iter);
                 ++seg_iter;
               }
@@ -1512,6 +1574,8 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));
         resource_description desc("language",*it1);
         logger.log(tag,RHVoice_log_level_info,std::string("Language resource: ")+desc.name.get()+std::string(", format: ")+str::to_string(desc.format.get())+std::string(", revision: ")+str::to_string(desc.revision.get()));
+        if(desc.data_only && !desc.name.get().empty())
+          register_language<data_only_language_info>(desc.name,1);
         Creators::const_iterator it2=creators.find(language_id(desc.name,desc.format));
         if(it2==creators.end())
           {

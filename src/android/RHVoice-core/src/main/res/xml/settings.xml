@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 android:key="root">
     <CheckBoxPreference
         android:title="@string/wifi_only_title"
@@ -17,6 +18,13 @@ android:key="root">
         android:dialogTitle="@string/speech_quality"
         android:summary="%s"
         android:order="20"/>
+    <SwitchPreferenceCompat
+        android:title="@string/config_file"
+        android:key="config_file"
+        android:persistent="false"
+        android:defaultValue="false"
+        android:order="199"
+        app:isPreferenceVisible="false"/>
     <Preference
         android:key="version"
         android:persistent="false"

@@ -55,6 +55,8 @@ namespace RHVoice
     rate=1.0;
     pitch_shift=0;
     pitch_editor.reset();
+    if(eq)
+      eq->reset();
   }
 
   void hts_engine_impl::load_configs()
@@ -75,6 +77,15 @@ namespace RHVoice
     p->set_quality(q);
     p->load_configs();
     p->do_initialize();
+    if(p->quality>=quality_std)
+      {
+        std::string eq_path(path::join(p->model_path, "eq.txt"));
+        try
+          {
+            p->eq.reset(new equalizer(eq_path));
+          }
+        catch(...) {}
+      }
     return p;
   }
 
@@ -86,6 +97,8 @@ namespace RHVoice
         return;
       }
     double s=(sample/32768.0);
+    if(eq)
+      s=eq->apply(s);
     try
       {
         output->process(&s,1);

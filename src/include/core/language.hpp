@@ -212,6 +212,8 @@ namespace RHVoice
       return phonemes;
     }
 
+    const std::set<std::string> get_ph_flags() const {return lcfg.ph_flags.get();}
+
     item& append_token(utterance& u,const std::string& text, bool eos) const;
 
     bool supports_emoji() const
@@ -230,6 +232,7 @@ namespace RHVoice
     void do_post_lexical_processing(utterance& u) const;
     void set_pitch_modifications(utterance& u) const;
     void set_duration_modifications(utterance& u) const;
+    void do_syl_accents(utterance& u) const;
     void stress_monosyllabic_words(utterance& u) const;
     void rename_palatalized_consonants(utterance& u) const;
 
@@ -316,6 +319,7 @@ namespace RHVoice
     std::unique_ptr<fst> english_phone_mapping_fst;
     std::unique_ptr<fst> emoji_fst;
 std::unique_ptr<fst> qst_fst;
+    std::unique_ptr<dtree> accented_dtree;
     std::unique_ptr<dtree> pitch_mod_dtree;
     std::unique_ptr<dtree> dur_mod_dtree;
     pitch::targets_spec_parser pts_parser;
@@ -325,6 +329,8 @@ std::unique_ptr<fst> qst_fst;
     struct lang_config
     {
       bool_property tok_eos{"tok.eos", false};
+      stringset_property ph_flags{"ph.flags"};
+      bool_property g2p_case{"g2p.case", false};
     };
 
     const fst spell_fst;

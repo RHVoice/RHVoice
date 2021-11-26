@@ -58,6 +58,7 @@ public final class RHVoiceService extends TextToSpeechService
     private static final Pattern DEFAULT_VOICE_NAME_PATTERN=Pattern.compile("^([a-z]{3})-default$");
 
     public static final String ACTION_CHECK_DATA="com.github.olga_yakovleva.rhvoice.android.action.service_check_data";
+    public static final String ACTION_CONFIG_CHANGE="org.rhvoice.action.CONFIG_CHANGE";
     private final BroadcastReceiver dataStateReceiver=new BroadcastReceiver()
         {
             @Override
@@ -70,7 +71,7 @@ public final class RHVoiceService extends TextToSpeechService
                 boolean changed=!paths.equals(oldPaths);
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Paths changed: "+changed);
-                if(changed)
+                if(changed || ACTION_CONFIG_CHANGE.equals(intent.getAction()))
                     initialize();
 }
         };
@@ -490,7 +491,9 @@ public final class RHVoiceService extends TextToSpeechService
         handler=new Handler();
         paths=Data.getPaths(this);
         Data.scheduleSync(this,false);
-        LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,new IntentFilter(ACTION_CHECK_DATA));
+        IntentFilter filter=new IntentFilter(ACTION_CHECK_DATA);
+        filter.addAction(ACTION_CONFIG_CHANGE);
+        LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver,filter);
         registerPackageReceiver();
         initialize();
         super.onCreate();

@@ -306,6 +306,7 @@ namespace RHVoice
   public:
     std::string type;
     std::string data_path;
+    bool_property data_only{"data_only", false};
     string_property name;
     numeric_property<unsigned int> format;
     numeric_property<unsigned int> revision;
@@ -318,6 +319,8 @@ namespace RHVoice
       revision("revision",0,0,100)
     {
       config conf;
+      if(type=="language")
+        conf.register_setting(data_only);
       conf.register_setting(name);
       conf.register_setting(format);
       conf.register_setting(revision);

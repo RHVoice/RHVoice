@@ -24,6 +24,18 @@
 
 using namespace RHVoice;
 
+namespace
+{
+  void output_flags(const item& seg, std::ostream& out)
+  {
+    for(const auto& flag: seg.get_relation().get_utterance().get_language().get_ph_flags())
+      {
+        if(seg.eval("ph_flag_"+flag, std::string("0")).as<std::string>()=="1")
+          out << "_" << flag;
+      }
+  }
+}
+
 int main(int argc,const char* argv[])
 {
   try
@@ -34,6 +46,7 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<std::string> boundary_arg("b","boundary","word boundary marker",false,"","string",cmd);
       TCLAP::SwitchArg verbose_switch("v","verbose","Output stress and syllable and word boundaries",cmd,false);
       TCLAP::SwitchArg stress_switch("s","stress","Output stress",cmd,false);
+      TCLAP::SwitchArg flags_switch("f","flags","Output flags",cmd,false);
       cmd.parse(argc,argv);
       std::shared_ptr<engine> eng(new engine);
       std::ifstream f_in(inpath_arg.getValue().c_str());
@@ -54,9 +67,19 @@ int main(int argc,const char* argv[])
               f_out << seg_iter->get("name");
           if((verbose_switch.getValue() || stress_switch.getValue()) && seg_iter->in("SylStructure") && seg_iter->eval("ph_vc").as<std::string>()=="+" && seg_iter->eval("R:SylStructure.parent.stress", std::string("0")).as<std::string>()=="1")
                 f_out << "1";
+          if(verbose_switch.getValue() || flags_switch.getValue())
+            output_flags(*seg_iter, f_out);
               f_out << " ";
               if(verbose_switch.getValue() && seg_iter->in("SylStructure") && !seg_iter->as("SylStructure").has_next() && seg_iter->as("SylStructure").parent().has_next())
                 f_out << ". ";
+              if(verbose_switch.getValue()&&
+                 (seg_iter->in("Transcription"))&&
+                 (!seg_iter->as("Transcription").has_next()))
+                {
+                  auto pos=seg_iter->as("Transcription").parent().eval("gpos").as<std::string>();
+                  if(pos!="content")
+                    f_out << "(" << pos << ") ";
+                }
               if((!boundary_arg.getValue().empty() || verbose_switch.getValue())&&
                  (seg_iter->in("Transcription"))&&
                  (!seg_iter->as("Transcription").has_next())&&

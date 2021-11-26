@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!-- Translated by Cleverson Casarin Uliana -->
   <string name="default_voice_title">Voz padrão</string>
@@ -28,4 +28,8 @@
   <string name="decrease">Diminuir</string>
   <string name="reset">Restaurar</string>
   <string name="version">Versão</string>
+  <string name="user_dicts">Dicionários do usuário</string>
+  <string name="add">Adicionar</string>
+  <string name="remove">Remover</string>
+  <string name="config_file">Arquivo de configuração</string>
 </resources>

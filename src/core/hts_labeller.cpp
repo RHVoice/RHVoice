@@ -299,6 +299,19 @@ namespace RHVoice
       }
     };
 
+    struct hts_syl_break: public feature_function
+    {
+      hts_syl_break():
+        feature_function("syl_break")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval("R:SylStructure.parent.syl_break");
+      }
+    };
+
     struct hts_num_stressed_syls_in_phrase_before_this_syl: public feature_function
     {
       hts_num_stressed_syls_in_phrase_before_this_syl():
@@ -622,6 +635,19 @@ namespace RHVoice
       }
     };
 
+    struct hts_next_syl_break: public feature_function
+    {
+      hts_next_syl_break():
+        feature_function("next_syl_break")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.syl_break":"R:SylStructure.parent.R:Syllable.n.syl_break",zero);
+      }
+    };
+
     struct hts_prev_word_gpos: public feature_function
     {
       hts_prev_word_gpos():
@@ -684,6 +710,19 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return (is_silence(seg)?x:seg.eval("R:SylStructure.parent.parent.clitic"));
+      }
+    };
+
+    struct hts_word_break: public feature_function
+    {
+      hts_word_break():
+        feature_function("word_break")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return (is_silence(seg)?x:seg.eval("R:SylStructure.parent.parent.word_break"));
       }
     };
 
@@ -813,6 +852,19 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.parent.clitic":"R:SylStructure.parent.parent.R:Word.n.clitic",zero);
+      }
+    };
+
+    struct hts_next_word_break: public feature_function
+    {
+      hts_next_word_break():
+        feature_function("next_word_break")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.parent.word_break":"R:SylStructure.parent.parent.R:Word.n.word_break",zero);
       }
     };
 
@@ -1414,6 +1466,24 @@ namespace RHVoice
         return is_silence(seg)?x:seg.eval(full_name,zero);
       }
     };
+
+    struct hts_ph_flag_feat: public feature_function
+    {
+    private:
+      const std::string full_name;
+
+    public:
+      hts_ph_flag_feat(const std::string& hts_prefix,const std::string& path,const std::string& short_name):
+        feature_function(hts_prefix+"ph_flag_"+short_name),
+        full_name(path+"ph_flag_"+short_name)
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval(full_name,zero);
+      }
+    };
   }
 
   void hts_labeller::load_label_format_description(const std::string& file_path)
@@ -1497,6 +1567,7 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_accented));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_length));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_break));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_fw));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_bw));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_fw));
@@ -1523,11 +1594,13 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_accented));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_length));
+        define_feature(std::shared_ptr<feature_function>(new hts_next_syl_break));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_word_gpos));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_word_clitic));
     define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_prev_word));
     define_feature(std::shared_ptr<feature_function>(new hts_word_gpos));
     define_feature(std::shared_ptr<feature_function>(new hts_word_clitic));
+    define_feature(std::shared_ptr<feature_function>(new hts_word_break));
     define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_word));
     define_feature(std::shared_ptr<feature_function>(new hts_word_pos_in_phrase_fw));
     define_feature(std::shared_ptr<feature_function>(new hts_word_pos_in_phrase_bw));
@@ -1537,6 +1610,7 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_dist_to_next_content_word_in_phrase));
     define_feature(std::shared_ptr<feature_function>(new hts_next_word_gpos));
     define_feature(std::shared_ptr<feature_function>(new hts_next_word_clitic));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_word_break));
     define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_next_word));
     define_feature(std::shared_ptr<feature_function>(new hts_num_syls_in_prev_phrase));
     define_feature(std::shared_ptr<feature_function>(new hts_num_words_in_prev_phrase));
@@ -1581,5 +1655,14 @@ define_feature(std::shared_ptr<feature_function>(new hts_next_syl_coda_length));
     define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("prev_","p.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("next_next_","n.n.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_ext_phon_feat("prev_prev_","p.p.",name)));
+}
+
+  void hts_labeller::define_ph_flag_feature(const std::string& name)
+  {
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("","",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("next_","n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_","p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("next_next_","n.n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_prev_","p.p.",name)));
 }
 }

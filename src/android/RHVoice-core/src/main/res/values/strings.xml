@@ -27,4 +27,8 @@
   <string name="decrease">Decrease</string>
   <string name="reset">Reset</string>
   <string name="version">Version</string>
+  <string name="user_dicts">User dictionaries</string>
+  <string name="add">Add</string>
+  <string name="remove">Remove</string>
+  <string name="config_file">Configuration file</string>
 </resources>

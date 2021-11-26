@@ -1,31 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!-- Translated by Olga Yakovleva <yakovleva.o.v@gmail.com> -->
-    <string name="default_voice_title">Голос по умолчанию</string>
-    <string name="default_voice_dialog_title">Выберите голос</string>
-    <string name="detect_language_title">Определение языка</string>
-    <string name="detect_language_desc">Автоматическое переключение языка</string>
-    <string name="speech_volume">Громкость речи</string>
-    <string name="speech_rate">Скорость речи</string>
-    <string name="pseudo_english_title">Английские слова</string>
-    <string name="pseudo_english_desc">Стараться правильно читать английские слова</string>
-    <string name="settings">Настройки</string>
-    <string name="wifi_only_title">Только Wi-Fi</string>
-    <string name="wifi_only_desc">Загружать голоса только по Wi-Fi</string>
-    <string name="speech_quality">Качество речи</string>
-    <string-array name="quality_labels">
-      <item>Наилучшее возможное быстродействие</item>
-      <item>Стандартное качество</item>
-      <item>Наилучшее возможное качество</item>
-    </string-array>
-    <string name="languages">Языки</string>
-    <string name="voice_remove_question">Удалить этот голос?</string>
-    <string name="install">Установить</string>
-    <string name="uninstall">Удалить</string>
-    <string name="play">Воспроизвести</string>
-    <string name="stop">Остановить</string>
-    <string name="increase">Увеличить</string>
-    <string name="decrease">Уменьшить</string>
-    <string name="reset">Сброс</string>
-    <string name="version">Версия</string>
+  <string name="default_voice_title">Голос по умолчанию</string>
+  <string name="default_voice_dialog_title">Выберите голос</string>
+  <string name="detect_language_title">Определение языка</string>
+  <string name="detect_language_desc">Автоматическое переключение языка</string>
+  <string name="speech_volume">Громкость речи</string>
+  <string name="speech_rate">Скорость речи</string>
+  <string name="pseudo_english_title">Английские слова</string>
+  <string name="pseudo_english_desc">Стараться правильно читать английские слова</string>
+  <string name="settings">Настройки</string>
+  <string name="wifi_only_title">Только Wi-Fi</string>
+  <string name="wifi_only_desc">Загружать голоса только по Wi-Fi</string>
+  <string name="speech_quality">Качество речи</string>
+  <string-array name="quality_labels">
+    <item>Наилучшее возможное быстродействие</item>
+    <item>Стандартное качество</item>
+    <item>Наилучшее возможное качество</item>
+  </string-array>
+  <string name="languages">Языки</string>
+  <string name="voice_remove_question">Удалить этот голос?</string>
+  <string name="install">Установить</string>
+  <string name="uninstall">Удалить</string>
+  <string name="play">Воспроизвести</string>
+  <string name="stop">Остановить</string>
+  <string name="increase">Увеличить</string>
+  <string name="decrease">Уменьшить</string>
+  <string name="reset">Сброс</string>
+  <string name="version">Версия</string>
+  <string name="user_dicts">Пользовательские словари</string>
+  <string name="add">Добавить</string>
+  <string name="remove">Удалить</string>
+  <string name="config_file">Конфигурационный файл</string>
 </resources>
