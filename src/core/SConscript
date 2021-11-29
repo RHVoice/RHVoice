@@ -33,7 +33,7 @@ extern_libs_dir=Dir("#external").Dir("libs")
 local_env=env.Clone()
 if env["enable_sonic"]:
 		local_env.Append(CPPPATH=[extern_libs_dir.Dir("sonic")])
-local_env["libversion"]="5.0.0"
+local_env["libversion"]="6.0.0"
 local_env["liblevel"]=1
 
 coreConfig = {
