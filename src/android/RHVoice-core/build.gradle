@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 ext.major_version=1
-ext.minor_version=5
-ext.revision_number=12
+ext.minor_version=6
+ext.revision_number=0
 
 android {
     compileSdkVersion myCompileSdkVersion
