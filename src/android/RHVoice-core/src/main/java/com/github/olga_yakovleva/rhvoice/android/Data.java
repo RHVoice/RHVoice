@@ -88,6 +88,9 @@ public final class Data
         lang=new LanguagePack("Macedonian", "mkd", "mk", "MKD", "MK", false, 1, 21, Checksums.LANGUAGE_MACEDONIAN,REPO_URL+"/RHVoice-language-Macedonian-v1.21.zip" , null);
         lang.addVoice(new VoicePack("mac_m1", "Kiko", lang, 4, 7, Checksums.VOICE_MAC_MALE1, REPO_URL+"/RHVoice-voice-Macedonian-Kiko-v4.7.zip", null));
         addLanguage(lang);
+        lang=new LanguagePack("Albanian", "sqi", "sq", "ALB", "AL", false, 1, 19, Checksums.LANGUAGE_ALBANIAN, "https://rhvoice.org/download/RHVoice-LP-language-Albanian-v1.19.zip", null);
+        lang.addVoice(new VoicePack("Hana", lang, 4, 4, Checksums.VOICE_HANA, "https://rhvoice.org/download/RHVoice-LP-voice-Hana-v4.4.zip", null));
+        addLanguage(lang);
 }
 
     public static LanguagePack getLanguage(String name)
