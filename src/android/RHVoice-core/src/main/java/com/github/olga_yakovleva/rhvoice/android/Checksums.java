@@ -56,4 +56,6 @@ final class Checksums
     public static final byte[] VOICE_LETICIA={73, 46, -107, 59, -104, 94, 58, -36, -68, 30, -43, 4, 120, 51, -34, 7};
     public static final byte[] LANGUAGE_MACEDONIAN={99, 8, -33, 82, -100, 22, 44, -106, 60, 1, 119, 63, 70, -58, -1, -45};
     public static final byte[] VOICE_MAC_MALE1={72, 81, 62, -69, -76, 120, -91, 103, -87, 28, -14, -92, 83, -27, 28, -80};
+    public static final byte[] LANGUAGE_ALBANIAN={-33, -101, -29, -91, -100, -53, 20, -19, -36, 25, 106, 76, 117, -86, 44, -77};
+    public static final byte[] VOICE_HANA={-58, -98, 13, -89, -117, -92, -84, 112, 94, 90, -41, 59, 5, 124, -50, -46};
 }
