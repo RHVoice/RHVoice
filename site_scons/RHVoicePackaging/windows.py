@@ -441,7 +441,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		super(nsis_bootstrapper_packager,self).__init__(name,outdir,env,display_name,version)
 		self.msis=[]
 		self.script=["Unicode true"]
-		self.languages=["English","Russian","Portuguese","Esperanto","Georgian","Tatar","Ukrainian","Macedonian"]
+		self.languages=["English","Russian","Portuguese","Esperanto","Georgian","Tatar","Ukrainian","Macedonian", "Albanian"]
 		self.add_includes()
 		self.add_settings()
 
