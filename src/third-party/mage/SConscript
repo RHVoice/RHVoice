@@ -17,5 +17,6 @@
 Import("env")
 local_env=env.Clone()
 local_env["liblevel"]=0
+local_env.Append(CPPDEFINES=["MAGE_EXPORTS=1"])
 libmage=local_env.BuildLibrary("mage",Glob("*.cpp"))
 Export("libmage")

@@ -44,6 +44,7 @@ if(Sonic_FORCE_COMPILATION)
 	set(CPACK_COMPONENT_LIBSONIC_VERSION "${LIBSONIC_VERSION}")
 
 	target_include_directories(sonic PUBLIC "${SONIC_DIR}")
+	target_compile_definitions(sonic PRIVATE "-DSONIC_EXPORTS")
 	harden(sonic)
 	add_sanitizers(sonic)
 	set(CPACK_DEBIAN_LIBSONIC_PACKAGE_NAME "RHVoice-libsonic")

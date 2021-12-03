@@ -21,4 +21,5 @@ src=Glob("HTS_*.c")
 if local_env["enable_mage"]:
 	src.extend(Glob("HTS106_*.c"))
 libhts_engine=local_env.BuildLibrary("hts_engine",src)
+local_env.Append(CPPDEFINES=["HTS_EXPORTS=1"])
 Export("libhts_engine")

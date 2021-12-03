@@ -32,6 +32,7 @@
 #include <cstring>
 #include <sstream>
 
+#include "mage_api.h"
 #include "hts.h"
 #include "Constants.h"
 
@@ -101,7 +102,7 @@ namespace MAGE
 	 *				Acapela Group ( www.acapela-group.com )						\n
 	 *				GNU Public License (see the licence in the file).
 	 */	
-	class Label 
+	class MAGE_API Label 
 	{
 		public:
 	

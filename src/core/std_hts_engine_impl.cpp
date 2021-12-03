@@ -20,6 +20,7 @@
 #include "core/voice.hpp"
 #include "core/pitch.hpp"
 #include "HTS_engine.h"
+#include "HTS_hidden.h"
 
 #ifdef __WIN32
 #include <windows.h>
@@ -27,13 +28,6 @@
 
 extern "C"
 {
-  void HTS_Audio_initialize(HTS_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
-
-  void HTS_Audio_set_parameter(HTS_Audio * audio, int sampling_rate, int max_buff_size)
-  {
-  }
 
   void HTS_Audio_write(HTS_Audio * audio, short sample)
   {
@@ -47,11 +41,6 @@ extern "C"
   void HTS_Audio_clear(HTS_Audio * audio)
   {
   }
-
-  size_t HTS_PStreamSet_get_total_frame(HTS_PStreamSet * pss);
-double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index, size_t vector_index);
-double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
-HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
 }
 
 namespace RHVoice
