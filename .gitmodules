@@ -37,3 +37,6 @@
 [submodule "data/voices/lyubov"]
 	path = data/voices/lyubov
 	url = https://github.com/rhvoice/lyubov-eng
+[submodule "data/voices/vitaliy"]
+	path = data/voices/vitaliy
+	url = https://github.com/rhvoice/vitaliy-rus
