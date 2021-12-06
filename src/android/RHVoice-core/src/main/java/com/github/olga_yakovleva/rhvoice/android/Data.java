@@ -65,6 +65,7 @@ public final class Data
         lang.addVoice(new VoicePack("Elena", lang, 4, 2, Checksums.VOICE_ELENA, null, null));
         lang.addVoice(new VoicePack("Irina", lang, 4, 1, Checksums.VOICE_IRINA, null, null));
         lang.addVoice(new VoicePack("Yuriy", lang, 4, 0, Checksums.VOICE_YURIY, "https://github.com/RHVoice/yuriy-rus/releases/download/4.0/data.zip", null));
+        lang.addVoice(new VoicePack("Vitaliy", lang, 4, 0, Checksums.VOICE_VITALIY, "https://github.com/RHVoice/vitaliy-rus/releases/download/4.0/data.zip", null));
         lang.addVoice(new VoicePack("Artemiy", lang, 4, 0, Checksums.VOICE_ARTEMIY, "https://github.com/RHVoice/artemiy-rus/releases/download/4.0/data.zip", null));
         lang.addVoice(new VoicePack("Arina", lang, 4, 0, Checksums.VOICE_ARINA, "https://github.com/RHVoice/arina-rus/releases/download/4.0/data.zip", null));
         lang.addVoice(new VoicePack("Pavel", lang, 4, 0, Checksums.VOICE_PAVEL, "https://github.com/RHVoice/pavel-rus/releases/download/4.0/data.zip", null));
