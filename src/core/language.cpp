@@ -1422,6 +1422,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     item::iterator seg_start,seg_end,seg_iter;
     std::string seg_name;
     std::size_t i, n;
+    std::string feat_name;
     for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
       {
         item& word_with_syls=sylstruct_rel.append(*word_iter);
@@ -1430,13 +1431,25 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         if(!syl_fst.translate(seg_start,seg_end,std::back_inserter(result)))
           throw syllabification_error(*word_iter);
         word_with_syls.append_child().set<std::string>("stress","0");
+        word_with_syls.last_child().set<std::string>("accented","0");
         seg_iter=seg_start;
         for(std::vector<std::string>::const_iterator pos=result.begin();pos!=result.end();++pos)
           {
+            if((*pos)[0]=='_')
+              {
+                feat_name=pos->substr(1);
+                word_with_syls.last_child().set<std::string>(feat_name, "1");
+                if(feat_name=="accented")
+                  word_with_syls.last_child().set<std::string>("stress","1");
+                continue;
+              }
             if(seg_iter==seg_end)
               throw syllabification_error(*word_iter);
             if(*pos==".")
-              word_with_syls.append_child().set<std::string>("stress","0");
+              {
+                word_with_syls.append_child().set<std::string>("stress","0");
+                word_with_syls.last_child().set<std::string>("accented","0");
+              }
             else
               {
                 seg_name=seg_iter->get("name").as<std::string>();
