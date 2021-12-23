@@ -1,0 +1,40 @@
+# Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#define thns {M}:1|{MM}:2|{MMM}:3|0:%0 ;
+
+# Going to reduce the range to numbers under forty
+#define thns {M}:1|{MM}:2|{MMM}:3|0:%0 ;
+#define hnds {C}:1|{CC}:2|{CCC}:3|{CD}:4|{D}:5|{DC}:6|{DCC}:7|{DCCC}:8|{CM}:9|0:%0 ;
+define tens {X}:1|{XX}:2|{XXX}:3;  # |{XL}:4|{L}:5|{LX}:6|{LXX}:7|{LXXX}:8|{XC}:9|0:%0 ;
+define units {I}:1|{II}:2|{III}:3|{IV}:4|{V}:5|{VI}:6|{VII}:7|{VIII}:8|{IX}:9|0:%0 ;
+
+# we omit the single character numbers, except for V X and I if they are followed by a period.
+#define RomanNumeral [thns.u hnds.u tens.u units.u] | [V %.]|[X %.]|[I %.] - [M|D|C|L|X|V|I] ;
+# we will insist on a period after it.
+define RomanNumeral [tens.u units.u] - [X|V|I] ;
+
+
+define DD 1|2|3|4|5|6|7|8|9|%0;
+
+# If this is given a Roman numeral, tag it, and remove any ending period
+define ConvertRomanToDecimal tens units 0:RomanN -> || .#. _ .#.  
+			.o.
+			  %0+ @-> 0 || .#. _ [[\%0 ?*] | \%0] RomanN .#.    # strip off leading zeros, but leave one zero
+			 # the RN  was added to tag the input as a real Roman number. If the number is less than 100, tag it as ordinal
+			 # Use -ti as the ordinal suffix
+# No, just make it a cardinal		 	.o. RomanN:[%- t i] -> || .#. DD^{1,2} _ .#.  
+		 	.o. RomanN:0 -> ||  _   
+			;
+

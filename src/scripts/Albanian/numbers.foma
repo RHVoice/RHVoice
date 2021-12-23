@@ -1,0 +1,444 @@
+# Copyright (C) 2021  Non-Routine LLC (inq@louderpages.org)
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3.0 of the License.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+define Unit  %0:zero |
+1:një	 |
+2:dy |
+3:tre	 |
+4:katër	 |
+5:pesë |
+6:gjashtë |
+7:shtatë |
+8:tetë |
+9:nëntë;
+
+define Teen 1:njëmbëdhjetë |
+2:dymbëdhjetë |
+3:trembëdhjetë |
+4:katërmbëdhjetë |
+5:pesëmbëdhjetë |
+6:gjashtëmbëdhjetë |
+7:shtatëmbëdhjetë |
+8:tetëmbëdhjetë |
+9:nëntëmbëdhjetë;
+
+define Ten 
+1:dhjetë |
+2:njëzet | 
+3:tridhjetë | 
+#4:katërdhjetë | 
+4:dyzet | 
+5:pesëdhjetë | 
+6:gjashtëdhjëtë | 
+7:shtatëdhjetë | 
+8:tetëdhjetë | 
+9:nëntëdhjetë;
+
+define Hundred 1:njëqind |
+2:dyqind |
+3:treqind |
+4:katërqind |
+5:pesëqind |
+6:gjashtëqind |
+7:shtatëqind |
+8:tetëqind |
+9:nëntëqind;
+
+
+define TenOrHundredSymbol ten|hnd ; 
+
+# all the permutations of ordinals, because we must have atomic names
+# because cases like sing.fem.def and pl.fem.indef are the same (-ta) we will define  by suffix words, not case 
+
+define teOrdUnit   
+2:dytë |
+3:tretë	 |
+4:katërt |
+5:pestë |
+6:gjashtë |
+7:shtatë |
+8:tetë |
+9:nëntë;
+
+define teOrdTeen Teen ;  # same 
+
+define teOrdTen 
+1:dhjetë |
+2:njëzetë | 
+3:tridhjetë | 
+#4:katërdhjetë | 
+4:dyzetë | 
+5:pesëdhjetë | 
+6:gjashtëdhjëtë | 
+7:shtatëdhjetë | 
+8:tetëdhjetë | 
+9:nëntëdhjetë;
+
+define teOrdHundred 
+1:njëqindtë |
+2:dyqindtë |
+3:treqindtë |
+4:katërqindtë |
+5:pesëqindtë |
+6:gjashtëqindtë |
+7:shtatëqindtë |
+8:tetëqindtë |
+9:nëntëqindtë;
+
+# -ta 
+
+define taOrdUnit   
+2:dyta |
+3:treta	 |
+4:katërta	 |
+5:pesta |
+6:gjashta |
+7:shtata |
+8:teta |
+9:nënta;
+
+define taOrdTeen 
+1:njëmbëdhjeta |
+2:dymbëdhjeta |
+3:trembëdhjeta |
+4:katërmbëdhjeta |
+5:pesëmbëdhjeta |
+6:gjashtëmbëdhjeta |
+7:shtatëmbëdhjeta |
+8:tetëmbëdhjeta |
+9:nëntëmbëdhjeta;
+
+define taOrdTen 
+1:dhjeta |
+2:njëzeta | 
+3:tridhjeta | 
+#4:katërdhjeta | 
+4:dyzeta | 
+5:pesëdhjeta | 
+6:gjashtëdhjëta | 
+7:shtatëdhjeta | 
+8:tetëdhjeta | 
+9:nëntëdhjeta;
+
+define taOrdHundred 
+1:njëqindta |
+2:dyqindta |
+3:treqindta |
+4:katërqindta |
+5:pesëqindta |
+6:gjashtëqindta |
+7:shtatëqindta |
+8:tetëqindta |
+9:nëntëqindta;
+
+# -tat
+
+define tatOrdUnit   
+2:dytat |
+3:tretat	 |
+4:katërtat	 |
+5:pestat |
+6:gjashtat |
+7:shtatat |
+8:tetat |
+9:nëntat;
+
+define tatOrdTeen 
+1:njëmbëdhjetat |
+2:dymbëdhjetat |
+3:trembëdhjetat |
+4:katërmbëdhjetat |
+5:pesëmbëdhjetat |
+6:gjashtëmbëdhjetat |
+7:shtatëmbëdhjetat |
+8:tetëmbëdhjetat |
+9:nëntëmbëdhjetat;
+
+define tatOrdTen 
+1:dhjetat |
+2:njëzetat | 
+3:tridhjetat | 
+#4:katërdhjetat | 
+4:dyzetat |
+5:pesëdhjetat | 
+6:gjashtëdhjëtat | 
+7:shtatëdhjetat | 
+8:tetëdhjetat | 
+9:nëntëdhjetat;
+
+define tatOrdHundred 
+1:njëqindtat |
+2:dyqindtat |
+3:treqindtat |
+4:katërqindtat |
+5:pesëqindtat |
+6:gjashtëqindtat |
+7:shtatëqindtat |
+8:tetëqindtat |
+9:nëntëqindtat;
+
+# -tët
+
+define tetOrdUnit   
+2:dytët |
+3:tretët	 |
+4:katërtët	 |
+5:pestët |
+6:gjashtët |
+7:shtatët |
+8:tetët |
+9:nëntët;
+
+define tetOrdTeen 
+1:njëmbëdhjetët |
+2:dymbëdhjetët |
+3:trembëdhjetët |
+4:katërmbëdhjetët |
+5:pesëmbëdhjetët |
+6:gjashtëmbëdhjetët |
+7:shtatëmbëdhjetët |
+8:tetëmbëdhjetët |
+9:nëntëmbëdhjetët;
+
+define tetOrdTen 
+1:dhjetët |
+2:njëzetët | 
+3:tridhjetët | 
+# 4:katërdhjetët | 
+4:dyzetët |
+5:pesëdhjetët | 
+6:gjashtëdhjëtët | 
+7:shtatëdhjetët | 
+8:tetëdhjetët | 
+9:nëntëdhjetët;
+
+define tetOrdHundred 
+1:njëqindtët |
+2:dyqindtët |
+3:treqindtët |
+4:katërqindtët |
+5:pesëqindtët |
+6:gjashtëqindtët |
+7:shtatëqindtët |
+8:tetëqindtët |
+9:nëntëqindtrët;
+
+# - ti 
+
+define tiOrdUnit   
+2:dyti |
+3:treti	 |
+4:katërti	 |
+5:pesëti |
+6:gjashëti |
+7:shtatëti |
+8:tetëti |
+9:nëntëti;
+
+define tiOrdTeen 
+1:njëmbëdhjeti |
+2:dymbëdhjeti |
+3:trembëdhjeti |
+4:katërmbëdhjeti |
+5:pesëmbëdhjeti |
+6:gjashtëmbëdhjeti |
+7:shtatëmbëdhjeti |
+8:tetëmbëdhjeti |
+9:nëntëmbëdhjeti;
+
+define tiOrdTen 
+1:dhjeti |
+2:njëzeti | 
+3:tridhjeti | 
+#4:katërdhjeti | 
+4:dyzeti |
+5:pesëdhjeti | 
+6:gjashtëdhjëti | 
+7:shtatëdhjeti | 
+8:tetëdhjeti | 
+9:nëntëdhjeti;
+
+define tiOrdHundred 
+1:njëqindti |
+2:dyqindti |
+3:treqindti |
+4:katërqindti |
+5:pesëqindti |
+6:gjashtëqindti |
+7:shtatëqindti |
+8:tetëqindti |
+9:nëntëqindti;
+
+
+
+# ----------------------------
+define NZDigit 1|2|3|4|5|6|7|8|9 ; 
+define Digit %0|NZDigit ; 
+
+
+source OrdinalSuffixes.foma
+
+define UnformattedNumber %0 | [NZDigit Digit^<15] ; 
+define FormattedNumber NZDigit Digit^<3 [%. Digit^3]^{1,4} ; 
+define RegularDecimal [FormattedNumber|UnformattedNumber] %, Digit+;   #  3.000.320(,022)
+define ForeignDecimal UnformattedNumber %. [Digit^<3 | Digit^>3];   # foreign DP 1.02
+define Ordinal	[FormattedNumber|UnformattedNumber]  OrdSuffix ;   #  number (has to be without commas) followed by ordinal marker
+define ArabicNumber UnformattedNumber | FormattedNumber | RegularDecimal | ForeignDecimal | Ordinal;
+
+# tag valid numbers
+define tagNumberTypes 
+ 
+  [FormattedNumber|UnformattedNumber] @-> ... wnum || .#. _ (%, Digit+)  .#. ,,  #  3.000.320(,022)
+  # UnformattedNumber @-> ... wnum || .#. _ (%. Digit+)  .#.  ,,   # foreign DP 1.02
+  UnformattedNumber @-> ... wnum || .#. _ (%. [Digit^{1,2} | Digit^>3])  .#.  ,,   # foreign DP 1.02
+  [FormattedNumber|UnformattedNumber] @-> ... wnum ord || .#. _ [%. | OrdSuffix] .#. ;   #  number (has to be without commas) followed by ordinal marker
+
+source Times.foma 
+# We expect this code to be protected from strings contain other than digits, commas and periods.
+# We will, however, catch non-numbers which has slipped through, like  20.0.1  or 20,11,111
+define tagCascade [  [%,|%.] -> ... dp || wnum  _ Digit+ .#. ]    # place decimal point after whole numbers
+   .o.  [ %: -> wnum Hm dp || .#.  Hours _ Minutes .#.]
+   .o. [ [%.]:0  -> || _ ?* wnum ]  #  get rid of the thousands dividers
+	.o. [ Digit -> ... dec  || dp Digit* _ .#. ]  # mark decimal
+	.o. [ dec -> wnum || dp NZDigit Digit^<3 _ .#. ]  # See (1) below, "Un-Decimalize"  
+ 	.o. [ Digit -> ... wnum || [.#. | \Digit] Digit* _ [ .#. | %. | %, ]];    #  not a whole number, or decimal
+
+# (1) Un-Decimalize For decimal parts, we want any sequence without a leading zero, up to three places, to be read as a whole
+# number rather than a list of digits
+
+# by now we have wnum tags for numbers which should be read as whole numbers, dec for those which should be treated differently,# ord tag after wnum, and periods and commas dotted about. 
+
+define tagRules  tagNumberTypes .o. tagCascade; 
+
+# For whole numbers change the markers for singles
+define preTranslate [1 thns] -> [1 thn] || _ ,,
+  [1 mlns] -> [1 mln] || _ ,,
+  [1 blns] -> [1 bln] || _ ,,
+  [1 tlns] -> [1 tln] || _ ;
+#----------------------------
+
+define PowerOfThousandSymbol thns|mlns|blns|tlns|thn|mln|bln|tln ; 
+define PowerOfTenSymbol TenOrHundredSymbol|PowerOfThousandSymbol ; 
+
+# define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 wnum  ; 
+ define SeparatePowerOfThousand(s) [..] -> s || Digit _ Digit^3 [\dec & \Digit]  ; 
+
+define PowerOfThousandSymbolsToSingular [mlns:mln|blns:bln|tlns:tln] -> || [[PowerOfThousandSymbol (and)]|wnum] 1 _ ; 
+
+define RemoveSilentGroups %0^3 (PowerOfThousandSymbol) @-> 0 || _ ?* wnum ; 
+
+define SeparateHundreds [..] -> hnd ||  Digit _ Digit^2 ?* wnum; 
+
+define Mark100s hnd -> hnd0 || 1 _ {00} ; 
+
+define SeparateTens [..] -> ten ||  Digit _ Digit ?* wnum; 
+
+
+define RemoveZeros %0  (TenOrHundredSymbol) @-> 0 || _ ?* wnum |.#.; 
+
+define MarkTeens [[1 ten]:0] NZDigit [0:[teen %0]] -> ; 
+
+define InsertAnds [..] -> and || 
+ [.#.|dp] \dp+ _ NZDigit [ [PowerOfThousandSymbol|hnd|teen|ten] %0]* [PowerOfThousandSymbol|hnd|teen|ten|wnum]  ; # puts a single 'and', before the last non-zero element
+
+define RemoveOnes 1 -> 0 || .#. _ thn ; 
+
+# This is poor, should give the different suffixes name, and no reproduce their value here AND in OrdinalSuffixes. But, life is too short.
+define  processOrdinals 
+ teOrdUnit  @->  ||  _  wnum ord [{-të}|{-t}]  .#. ,,
+ taOrdUnit  @->  ||  _  wnum ord {-ta}  .#. ,,
+ tiOrdUnit  @->  ||  _  wnum ord {-ti}  .#. ,,
+ tetOrdUnit  @-> ||  _  wnum ord {-tët}  .#. ,,
+ tatOrdUnit  @-> ||  _  wnum ord {-tat}  .#. ,,
+ [teOrdTeen  teen:0]  @->  ||  _  wnum ord {-të}  .#. ,,
+ [taOrdTeen  teen:0]  @->  ||  _  wnum ord {-ta}  .#. ,,
+ [tiOrdTeen teen:0]  @->  ||  _  wnum ord {-ti}  .#. ,,
+ [tetOrdTeen teen:0]  @-> ||  _  wnum ord {-tët}  .#. ,,
+ [tatOrdTeen teen:0]  @-> ||  _  wnum ord {-tat}  .#. ,,
+ [teOrdTen ten:0]  @->  ||  _  wnum ord {-të}  .#. ,,
+ [taOrdTen ten:0]  @->  ||  _  wnum ord {-ta}  .#. ,,
+ [tiOrdTen ten:0]  @->  ||  _  wnum ord {-ti}  .#. ,,
+ [tetOrdTen ten:0]  @-> ||  _  wnum ord {-tët}  .#. ,,
+ [tatOrdTen ten:0]  @-> ||  _  wnum ord {-tat}  .#. ,,
+ [teOrdHundred hnd:0]  @->  ||  _  wnum ord {-të}  .#. ,,
+ [taOrdHundred hnd:0]  @->  ||  _  wnum ord {-ta}  .#. ,,
+ [tiOrdHundred hnd:0]  @->  ||  _  wnum ord {-ti}  .#. ,,
+ [tetOrdHundred hnd:0]  @-> ||  _  wnum ord {-tët}  .#. ,,
+ [tatOrdHundred hnd:0]  @-> ||  _  wnum ord {-tat}  .#. ;
+
+define Translate [ Unit -> || _ wnum | dec | PowerOfThousandSymbol  ,, 
+ Unit -> || dp Digit* _ Digit* dec ,,   # right of decimal point
+ Teen [teen:0] -> || _ ,, 
+ Ten [ten:0] -> || _ ,, 
+	Hundred [hnd:0] -> || _ ,, 
+	and ->  e || _ ,, 
+	%, ->  presje  || _ ?+ .#. ,, 
+	%. ->  pikë || _ ?+ .#.  
+ ]
+ .o. [
+# ordinals for mils, blns, trls
+ [[thn|thns]:mijtë]  -> ||  _  wnum ord {-të}  .#. ,,
+ [[thn|thns]:mijta]  -> ||  _  wnum ord {-ta}  .#. ,,
+ [[thn|thns]:mijti]  -> ||  _  wnum ord {-ti}  .#. ,,
+ [[thn|thns]:mijtët]  -> ||  _  wnum ord {-tët}  .#. ,,
+ [[thn|thns]:mijtat]  -> ||  _  wnum ord {-tat}  .#. ,,
+ [[mln|mlns]:miliontë]  -> ||  _  wnum ord {-të}  .#. ,,
+ [[mln|mlns]:milionta]  -> ||  _  wnum ord {-ta}  .#. ,,
+ [[mln|mlns]:milionti]  -> ||  _  wnum ord {-ti}  .#. ,,
+ [[mln|mlns]:miliontët]  -> ||  _  wnum ord {-tët}  .#. ,,
+ [[mln|mlns]:miliontat]  -> ||  _  wnum ord {-tat}  .#. ,,
+ [[bln|blns]:miliardtë]  -> ||  _  wnum ord {-të}  .#. ,,
+ [[bln|blns]:miliardta]  -> ||  _  wnum ord {-ta}  .#. ,,
+ [[bln|blns]:miliardti]  -> ||  _  wnum ord {-ti}  .#. ,,
+ [[bln|blns]:miliardtët]  -> ||  _  wnum ord {-tët}  .#. ,,
+ [[bln|blns]:miliardtat]  -> ||  _  wnum ord {-tat}  .#. ,,
+ [[tln|tlns]:triliontë]  -> ||  _  wnum ord {-të}  .#. ,,
+ [[tln|tlns]:trilionta]  -> ||  _  wnum ord {-ta}  .#. ,,
+ [[tln|tlns]:trilionti]  -> ||  _  wnum ord {-ti}  .#. ,,
+ [[tln|tlns]:triliontët]  -> ||  _  wnum ord {-tët}  .#. ,,
+ [[tln|tlns]:triliontat]  -> ||  _  wnum ord {-tat}  .#. 
+ ]
+ .o. [ 
+	[thn:mijë | mln:milion | bln:miliard | tln:trilion] -> || _    ,, 
+	[thns:mijë | mlns:milion | blns:miliard | tlns:trilion] ->  || _  
+	]; 
+
+define NumberRules SeparatePowerOfThousand(thns)  .o. 
+ SeparatePowerOfThousand(mlns) .o. 
+SeparatePowerOfThousand(blns) .o. 
+SeparatePowerOfThousand(tlns)  .o. 
+RemoveSilentGroups .o. 
+SeparateHundreds  .o. 
+SeparateTens  .o. 
+    #MarkOrdPowerOfThousand .o.
+ MarkTeens  
+ .o. InsertAnds 
+   .o.  RemoveZeros  .o. 
+ PowerOfThousandSymbolsToSingular .o. 
+ preTranslate
+#.o. RemoveOnes  .o. 
+ .o. processOrdinals
+ .o.  [%.|%,|wnum] -> zero ... || .#. _   # hack to replace lost zero in front of dec. point
+ .o. Translate   .o. [ [ord OrdSuffix]:0 -> || wnum _ .#. ]
+ .o. [ Hm:e -> || _ ]
+ .o. 	[dp:0|dec:0|wnum:0] -> || _ 
+ ;
+	
+
+
+source romans.foma
+regex ConvertRomanToDecimal .o. [ArabicNumber | Time] .o. tagRules
+  .o. NumberRules 
+ ; 
+

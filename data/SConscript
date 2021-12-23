@@ -33,7 +33,7 @@ lang_files=dict()
 lang_ver_ids=dict()
 
 msi_build_number=".2"
-exe_build_number=".14"
+exe_build_number=".15"
 
 for dir_name in ["languages","voices"]:
 	type=dir_name[:-1]

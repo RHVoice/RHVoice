@@ -27,7 +27,7 @@ if sys.platform=="win32":
         import _winreg as winreg
 
 def get_version(is_release):
-    next_version="1.4.2"
+    next_version="1.6.0"
     return next_version
 
 def passthru(env, cmd, unique=False):
@@ -241,6 +241,8 @@ def clone_base_env(base_env,user_vars,arch=None):
         env.MergeFlags("-pthread")
         env.AppendUnique(CXXFLAGS=["-std=c++11"])
         env.AppendUnique(CFLAGS=["-std=c11"])
+        if 'SOURCE_DATE_EPOCH' in os.environ:
+            env['ENV']['SOURCE_DATE_EPOCH'] = os.environ['SOURCE_DATE_EPOCH']
     if sys.platform=="win32":
         bits="64" if arch.endswith("64") else "32"
         env["BUILDDIR"]=os.path.join(BUILDDIR,arch)

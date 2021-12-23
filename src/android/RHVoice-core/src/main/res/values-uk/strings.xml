@@ -28,7 +28,7 @@
   <string name="decrease">Зменшити</string>
   <string name="reset">Скинути</string>
   <string name="version">Версія</string>
-  <string name="user_dicts">Словники користувача</string>
+  <string name="user_dicts">Користувацькі словники</string>
   <string name="add">Додати</string>
   <string name="remove">Видалити</string>
   <string name="config_file">Конфігураційний файл</string>
