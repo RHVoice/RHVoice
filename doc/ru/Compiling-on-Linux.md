@@ -24,6 +24,19 @@
 выполнении, программ, использующих ту или иную библиотеку. В вашей
 системе должны быть установлены пакеты обоих типов.
 
+## Получение исходников
+
+1. Одной строкой
+    ```bash
+    git clone --recursive https://github.com/RHVoice/RHVoice.git
+    ```
+2. По шагам
+    ```bash
+    git clone https://github.com/RHVoice/RHVoice.git
+    cd RHVoice
+    git submodule update --init
+    ```
+
 ## Компиляция
 
 Для запуска компиляции выполните команду:
