@@ -16,6 +16,7 @@ audio libraries is installed on your machine:
 * [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/)
 * [Libao](https://www.xiph.org/ao/)
 * [PortAudio](http://www.portaudio.com) V19
+* [Speech Dispatcher](https://freebsoft.org/speechd)
 
 Please note that many distributions provide a separate development package for
 a library, which is necessary to compile the programs using the library.
