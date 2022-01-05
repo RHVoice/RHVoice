@@ -18,6 +18,7 @@
 * [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/)
 * [Libao](https://www.xiph.org/ao/)
 * [PortAudio](http://www.portaudio.com) V19
+* [Speech Dispatcher](https://freebsoft.org/speechd)
 
 Обратите внимание, что многие дистрибутивы выделяют в отдельные пакеты
 те файлы, которые необходимы только при компиляции, а не при
