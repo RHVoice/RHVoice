@@ -37,14 +37,12 @@ l:l |
 ł:w | 
 m:m | 
 n:n | 
-{ni}: ni |
 ń:ni | 
 o:o | 
 ó:u | 
 p:p | 
 q:{ku} | 
 r:r | 
-{rz}: zh |
 s:s | 
 {sz}:sh | 
 ś:si | 
@@ -55,11 +53,20 @@ v:v |
 x:{ks} | 
 y:ih | 
 z:z | 
-zi:zi | 
 ź:zi |
 ż: zh ;
 
 define Stage1 InitialTranscribe @-> ;
+
+define processRz1 {rz} @-> rz || {ma} _ a|l|w|n|ni ,,
+{rz} @-> rz || {supe}| {hipe} _ ;
+define processRz2 {rz} @-> zh ||  _ ,,
+#umarza, umarzalność...
+rz @-> zh || {uma} _ a ,,
+#marzanna:
+rz @-> zh || {ma} _ {ann} ;
+
+define processRz3 rz @-> r z || _ ;
 
 define VowelPhonem [a | on | e | en | i | o | u | ih ] ;
 define ConsonantPhonem [b|c|ch|ci|d|dz|dzi|j|f|g|h|y|k|l|w|m|n|ni|p|r|s|sh|si|t|v|z|zi|zh] ;
@@ -70,15 +77,27 @@ define Stage2
 zh @-> sh || [h|k|p|t] _ ,, 
 SofteningWZ @-> || SofteningConsonantPhonem _ ,,
 SofteningWZ @-> || _ SofteningConsonantPhonem ,,
-i @-> 0 || n _ VowelPhonem ,,
 [{ci}: ci | 
+{ni}: ni | 
+{si}: si | 
+{zi}: zi | 
 [dz i]: dzi ] @->  || _ VowelPhonem ,,
 [{ci}: [ci i] | 
-[dz i]: [dzi i] ] @-> || _ ConsonantPhonem ,,
+{ni}: [ni i] | 
+{si}: [si i] | 
+[dz i]: [dzi i] ] @-> || _ [\VowelPhonem | .#. ],,
+{zi} @-> [zi i] || \.#. _ \VowelPhonem|.#. ,
+#zim, zima, zimo, zimu, zimy:
+.#. _ m [.#.|a|on|en|n|o|u|ih],
+#zip*
+.#. _ p,,
 i @-> y || _ VowelPhonem ,,
 [on : o |
 en: e] @-> || _ w ;
 
 
 regex Stage1 .o.
+processRz1 .o.
+processRz2 .o.
+processRz3 .o.
 Stage2 ;

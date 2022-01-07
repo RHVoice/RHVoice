@@ -50,6 +50,16 @@ define FixCase
 tysięcy:tysiąc|milionów:milion|miliardów:miliard|bilionów:bilion -> || jeden _ ,, 
 tysięcy:tysiące|milionów:miliony|miliardów:miliardy|bilionów:biliony -> || dwa|trzy|cztery _ ; 
 
+define Fix31Tys 
+tysiąc:tysięcy|
+milion:milionów|
+miliard:miliardów|
+bilion:bilionów -> || 
+[dwadzieścia|trzydzieści|czterdzieści|pięćdziesiąt|
+sześćdziesiąt|siedemdziesiąt|osiemdziesiąt|dziewięćdziesiąt|
+sto|dwieście|trzysta|czterysta|pięćset|sześćset|
+siedemset|osiemset|dziewięćset] jeden _ ;
+
 define RemoveOne 
 jeden -> 0 || .#.|GroupName _ tysiąc,, 
 jeden -> 0 || .#.|GroupName _ milion,, 
@@ -65,4 +75,5 @@ InsertTrillions .o.
 RemoveSkippedParts .o. 
 DigitsToWords .o. 
 FixCase .o. 
-RemoveOne ;
+RemoveOne .o.
+Fix31Tys ;

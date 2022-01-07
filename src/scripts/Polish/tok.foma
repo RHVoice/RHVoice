@@ -75,6 +75,6 @@ word -> lseq || [.#.|word|num|sym] LetterSequence _ ,,
 num -> dig || Digit^15 _ ;
 
 define Stage3 
-lseq -> word ||.#.  [w|z] _ ;
+lseq -> word ||.#.  [w|z|W|Z] _ ;
 
 regex Stage1 .o. Stage2 .o. Stage3;

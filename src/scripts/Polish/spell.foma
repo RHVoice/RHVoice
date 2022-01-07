@@ -54,19 +54,47 @@ define Digit %0:zero|1:jeden|2:dwa|3:trzy|4:cztery|5:pięć|6:sześć|7:siedem|8
 
 define Whitespace 
 tab:tab | 
-sp:spacja ; 
+nl:[Nowy wiersz] | 
+cr:[Koniec linii] | 
+sp:spacja | 
+nbsp:[niełamliwa spacja] ; 
 
 define Punctuation 
 %,:przecinek | 
 %.:kropka | 
 %?:pytajnik | 
-%::dwukropek | 
 %!:wykrzyknik | 
-%;:średnik ; 
+%::dwukropek | 
+%;:średnik | 
+%":cudzysłów | 
+%':apostrof | 
+%(:[lewy nawias] | 
+%):[prawy nawias] | 
+%-:minus | 
+%[:[lewy kwadratowy] | 
+%]:[prawy kwadratowy] | 
+%{:[lewy klamrowy] | 
+%}:[prawy klamrowy] ; 
 
 define Symbol 
 %$:dolar | 
-%%:procent ; 
+%%:procent | 
+%° : stopień | 
+%#:hasz | 
+%&:ampersand | 
+%*:gwiazdka | 
+%+:plus | 
+%/:slesz | 
+%<:mniejsze | 
+%=:równe | 
+%>:większe | 
+%@:małpa | 
+%\:bekslesz | 
+%^:daszek | 
+%_:podkreślacz | 
+%`:akcent | 
+%|:[kreska pionowa] | 
+%~:tylda ; 
 
 regex 
 Letter | Digit | Whitespace | Punctuation | Symbol ; 
