@@ -58,3 +58,12 @@ GNU/Linux and Android's text-to-speech APIs. It can also be used by the
 [NVDA screen reader](https://www.nvaccess.org) directly (the driver is provided
 by RHVoice itself).
 
+## Documentation
+
+All prebuild binaries packages, main
+and legal information and more
+are available for three languages:
+
+* [English](doc/en/index.md)
+* [Русский](doc/ru/index.md)
+* [Українська](doc/ua/index.md)
