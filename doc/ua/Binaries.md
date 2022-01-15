@@ -8,7 +8,7 @@
 
 ## NVDA
 
-[Основний додаток](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.2.nvda-addon), версія 1.4.2
+[Основний додаток](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.6.0.nvda-addon), версія 1.6.0
 
 ### Російська
 
@@ -127,7 +127,7 @@
 ## Android
 
 * [Додаток для Android у Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
-* [Пряме посилання на додаток для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.4.2.apk), версія 1.4.2
+* [Пряме посилання на додаток для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.6.1.apk), версія 1.6.1
 
 Здебільшого краще встановлювати голоси безпосередньо з основного додатка. Однак, якщо це з якихось причин неможливо, ви можете встановити мовні й голосові дані з таких пакетів:
 
