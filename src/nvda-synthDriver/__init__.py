@@ -1,6 +1,7 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 # Copyright (C) 2010, 2011, 2012, 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 # Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
+# Copyright (C) 2022 Alexander Linkov <kvark128@yandex.ru>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -735,7 +736,10 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 
 	@classmethod
 	def check(cls):
-		return os.path.isfile(lib_path)
+		for addon in addonHandler.getRunningAddons():
+			if addon.name.startswith("RHVoice-voice"):
+				return True
+		return False
 
 	def __languages_match(self,code1,code2,full=True):
 		lang1=code1.split("_")
