@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Domyślny głos</string>
+  <string name="default_voice_dialog_title">Wybierz głos</string>
+  <string name="detect_language_title">Wykrywanie języka</string>
+  <string name="detect_language_desc">Automatyczne wykrywanie języka na podstawie znaków Unicode</string>
+  <string name="speech_volume">Głośność</string>
+  <string name="speech_rate">Prędkość</string>
+  <string name="pseudo_english_title">Angielskie słowa</string>
+  <string name="pseudo_english_desc">Tryb czytania angielskich słów według zbliżonej poprawnej wymowy, tylko dla niektórych języków</string>
+  <string name="settings">Ustawienia</string>
+  <string name="wifi_only_title">Tylko Wi-Fi</string>
+  <string name="wifi_only_desc">Pobieraj głosy używając tylko Wi-fi</string>
+  <string name="speech_quality">Tryb Jakości mowy</string>
+  <string-array name="quality_labels">
+    <item>Najwyższa wydajność</item>
+    <item>Standardowa jakość</item>
+    <item>Najwyższa jakość</item>
+  </string-array>
+  <string name="languages">Języki</string>
+  <string name="voice_remove_question">Czy jesteś pewien, że chcesz usunąć ten głos?</string>
+  <string name="install">Zainstaluj</string>
+  <string name="uninstall">Odinstaluj</string>
+  <string name="play">Odtwórz</string>
+  <string name="stop">Zatrzymaj</string>
+  <string name="increase">Zwiększ</string>
+  <string name="decrease">Zmniejsz</string>
+  <string name="reset">Zresetuj</string>
+  <string name="version">Wersja</string>
+  <string name="user_dicts">Słowniki użytkownika</string>
+  <string name="add">Dodaj</string>
+  <string name="remove">Usuń</string>
+  <string name="config_file">Plik konfiguracyjny</string>
+</resources>
