@@ -43,3 +43,6 @@
 [submodule "data/languages/Polish"]
 	path = data/languages/Polish
 	url = https://github.com/RHVoice/Polish.git
+[submodule "data/voices/magda"]
+	path = data/voices/magda
+	url = https://github.com/RHVoice/magda-pol.git
