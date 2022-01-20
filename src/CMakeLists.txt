@@ -46,7 +46,7 @@ endif(BUILD_TESTS)
 
 IF (WIN32)
 	#add_subdirectory("sapi")
-	#add_subdirectory("nvda-synthDriver")
+	#add_subdirectory("nvda-addon")
 	#add_subdirectory("wininst")
 endif()
 

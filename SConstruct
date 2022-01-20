@@ -194,7 +194,7 @@ def create_user_vars():
 def create_base_env(user_vars):
     env_args={"variables":user_vars}
     if sys.platform=="win32":
-        env_args["tools"]=["newlines"]
+        env_args["tools"]=["newlines", "msgfmt"]
     else:
         env_args["tools"]=["default","installer"]
     env_args["tools"].extend(["textfile","library"])
@@ -366,8 +366,8 @@ def build_for_windows(base_env,user_vars):
         base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
     base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
     # env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
-    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
-               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
+    SConscript(os.path.join("src","nvda-addon","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"nvda-addon"),
                exports={"env":base_env},
                duplicate=0)
 
