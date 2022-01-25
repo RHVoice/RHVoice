@@ -25,6 +25,8 @@ public class DataSyncWorker extends DataWorker implements IDataSyncCallback
     public static final String ACTION_VOICE_DOWNLOADED="com.github.olga_yakovleva.rhvoice.android.action.voice_downloaded";
     public static final String ACTION_VOICE_INSTALLED="com.github.olga_yakovleva.rhvoice.android.action.voice_installed";
     public static final String ACTION_VOICE_REMOVED="com.github.olga_yakovleva.rhvoice.android.action.voice_removed";
+    public static final String ACTION_LANGUAGE_INSTALLED="org.rhvoice.action.voice_installed";
+    public static final String ACTION_LANGUAGE_REMOVED="org.rhvoice.action.voice_removed";
 
     public boolean isConnected()
     {
@@ -43,12 +45,16 @@ public class DataSyncWorker extends DataWorker implements IDataSyncCallback
 
     public void onLanguageInstallation(LanguagePack language)
     {
-
+        Intent event=new Intent(ACTION_LANGUAGE_INSTALLED);
+        event.putExtra("name",language.getName());
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
 }
 
     public void onLanguageRemoval(LanguagePack language)
     {
-
+        Intent event=new Intent(ACTION_LANGUAGE_REMOVED);
+        event.putExtra("name",language.getName());
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
 }
 
     public void onVoiceDownloadStart(VoicePack voice)

@@ -29,6 +29,8 @@ if env["enable_sonic"]:
 	Import("libsonic")
 if env["enable_mage"]:
 	Import("libmage")
+if env["enable_pkg"]:
+	Import("libpkg")
 extern_libs_dir=Dir("#external").Dir("libs")
 local_env=env.Clone()
 if env["enable_sonic"]:
@@ -43,6 +45,7 @@ coreConfig = {
 
 globalConfig = {
 	"VERSION": local_env["package_version"],
+	"ENABLE_PKG": bool(local_env["enable_pkg"]),
 	"ENABLE_MAGE": bool(local_env["enable_mage"]),
 	"ENABLE_SONIC": bool(local_env["enable_sonic"])
 }
@@ -119,6 +122,14 @@ if local_env["enable_sonic"]:
 	src.extend(libsonic)
 if local_env["enable_mage"]:
 	src.extend(libmage)
+
+if local_env["enable_pkg"]:
+	src.extend(libpkg)
+	local_env.Append(LIBS=["curl"])
+
+if sys.platform.startswith("linux"):
+    local_env.Append(LIBS=["rt"])
+
 libcore=local_env.BuildLibrary(local_env["libcore"],src)
 if env["PLATFORM"]!="win32":
 	local_env.InstallLibrary(libcore)

@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2016, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2016, 2017, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -24,11 +24,13 @@ public final class TTSEngine
     private long data;
 
     private static native void onClassInit();
-    private native void onInit(String data_path,String config_path,String[] resource_paths,Logger logger) throws RHVoiceException;
+    private native void onInit(String data_path,String config_path,String[] resource_paths,String pkgPath,Logger logger) throws RHVoiceException;
     private native void onShutdown();
     private native VoiceInfo[] doGetVoices();
     private native void doSpeak(String text,SynthesisParameters params,TTSClient client) throws RHVoiceException;
     private native boolean doConfigure(String key,String value);
+    private native String doGetCachedPackageDir();
+    private native String doGetPackageDirFromServer();
 
     static
     {
@@ -36,19 +38,19 @@ public final class TTSEngine
         onClassInit();
     }
 
-    public TTSEngine(String data_path,String config_path,String[] resource_paths,Logger logger) throws RHVoiceException
+    public TTSEngine(String data_path,String config_path,String[] resource_paths,String pkgPath,Logger logger) throws RHVoiceException
     {
-        onInit(data_path,config_path,resource_paths,logger);
+        onInit(data_path,config_path,resource_paths,pkgPath,logger);
     }
 
-    public TTSEngine(String data_path,String config_path,List<String> resource_paths,Logger logger) throws RHVoiceException
+    public TTSEngine(String data_path,String config_path,List<String> resource_paths,String pkgPath,Logger logger) throws RHVoiceException
     {
-        this(data_path,config_path,resource_paths.toArray(new String[resource_paths.size()]),logger);
+        this(data_path,config_path,resource_paths.toArray(new String[resource_paths.size()]),pkgPath,logger);
 }
 
     public TTSEngine() throws RHVoiceException
     {
-        this("","",new String[0],null);
+        this("","",new String[0],"",null);
     }
 
     public void shutdown()
@@ -76,4 +78,12 @@ public final class TTSEngine
             return false;
         return doConfigure(key,value);
 }
+
+    public String getCachedPackageDir() {
+        return doGetCachedPackageDir();
+    }
+
+    public String getPackageDirFromServer() {
+        return doGetPackageDirFromServer();
+    }
 }
