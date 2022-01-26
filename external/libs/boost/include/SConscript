@@ -16,14 +16,18 @@
 from os import path, listdir
 
 incdir=Dir("boost")
+boost_headers=[]
 
 def copy_files(indir, outdir):
     for name in listdir(str(indir)):
         if path.isdir(str(indir.Entry(name))):
             copy_files(indir.Dir(name), outdir.Dir(name))
         else:
-            Command(outdir.File(name), indir.File(name), Copy("$TARGET", "$SOURCE"))
+            res=Command(outdir.File(name), indir.File(name), Copy("$TARGET", "$SOURCE"))
+            boost_headers.extend(res)
 
 for libdir in Glob("../libs/*"):
     libincdir=libdir.Dir("include").Dir("boost")
     copy_files(libincdir, incdir)
+
+Export("boost_headers")

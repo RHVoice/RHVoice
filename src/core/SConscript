@@ -24,7 +24,7 @@ try:
 except NameError:
 	basestring = str
 
-Import("env", "libhts_engine")
+Import("env", "libhts_engine", "boost_headers")
 if env["enable_sonic"]:
 	Import("libsonic")
 if env["enable_mage"]:
@@ -131,6 +131,7 @@ if sys.platform.startswith("linux"):
     local_env.Append(LIBS=["rt"])
 
 libcore=local_env.BuildLibrary(local_env["libcore"],src)
+local_env.Depends(src, boost_headers)
 if env["PLATFORM"]!="win32":
 	local_env.InstallLibrary(libcore)
 Export("libcore")
