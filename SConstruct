@@ -93,7 +93,10 @@ def CheckWiX(context):
 
 def get_spd_module_dir():
     env = Environment()
-    return env.ParseConfig("pkg-config speech-dispatcher --variable=modulebindir", passthru)
+    try:
+        return env.ParseConfig("pkg-config speech-dispatcher --variable=modulebindir", passthru)
+    except:
+        return False
 
 def validate_spd_version(key,val,env):
     m=re.match(r"^\d+\.\d+",val)
