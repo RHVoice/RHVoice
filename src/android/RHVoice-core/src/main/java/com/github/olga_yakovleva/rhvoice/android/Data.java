@@ -92,8 +92,8 @@ public final class Data
         lang=new LanguagePack("Albanian", "sqi", "sq", "ALB", "AL", false, 1, 19, Checksums.LANGUAGE_ALBANIAN, "https://rhvoice.org/download/RHVoice-LP-language-Albanian-v1.19.zip", null);
         lang.addVoice(new VoicePack("Hana", lang, 4, 4, Checksums.VOICE_HANA, "https://rhvoice.org/download/RHVoice-LP-voice-Hana-v4.4.zip", null));
         addLanguage(lang);
-        lang=new LanguagePack("Polish", "pol", "pl", "POL", "PL", false, 1, 5, Checksums.LANGUAGE_POLISH, "https://zlotowicz.pl/files/RHVoice-language-Polish-v1.5.zip", null);
-        lang.addVoice(new VoicePack("Magda", lang, 4, 8, Checksums.VOICE_MAGDA, "https://zlotowicz.pl/files/RHVoice-voice-Polish-Magda-v4.8.zip", null));
+        lang=new LanguagePack("Polish", "pol", "pl", "POL", "PL", false, 1, 6, Checksums.LANGUAGE_POLISH, "https://zlotowicz.pl/files/RHVoice-language-Polish-v1.6.zip", null);
+        lang.addVoice(new VoicePack("Magda", lang, 4, 10, Checksums.VOICE_MAGDA, "https://zlotowicz.pl/files/RHVoice-voice-Polish-Magda-v4.10.zip", null));
         addLanguage(lang);
 }
 

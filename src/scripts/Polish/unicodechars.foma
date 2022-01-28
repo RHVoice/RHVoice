@@ -1,0 +1,115 @@
+#Do not edit, file automatically generated.
+#
+#For g2p:
+define UnicodeToNativeTranslit 
+[%ß|%ẞ] -> {s} || _ ,,
+[%ņ|%Ņ] -> {ń} || _ ,,
+[%ç|%Ç] -> {s} || _ ,,
+[%ḉ|%Ḉ] -> {c} || _ ,,
+[%á|%Á] -> {a} || _ ,,
+[%é|%É] -> {e} || _ ,,
+[%í|%Í] -> {i} || _ ,,
+[%ú|%Ú] -> {u} || _ ,,
+[%ä|%Ä] -> {e} || _ ,,
+[%ü|%Ü] -> {i} || _ ,,
+[%ö|%Ö] -> {e} || _ ,,
+[%č|%Č] -> {cz} || _ ,,
+[%ž|%Ž] -> {ż} || _ ,,
+[%š|%Š] -> {sz} || _ ,,
+[%đ|%Đ] -> {dź} || _ ,,
+[%ř|%Ř] -> {rz} || _ ,,
+[%ň|%Ň] -> {ń} || _ ,,
+[%ě|%Ě] -> {e} || _ ,,
+[%ľ|%Ľ] -> {l} || _ ;
+
+
+#For tok:
+define UnicodeToNativeTranslitTok 
+[%ß|%ẞ] -> s || _ ,,
+[%ņ|%Ņ] -> ń || _ ,,
+[%ç|%Ç] -> s || _ ,,
+[%ḉ|%Ḉ] -> c || _ ,,
+[%á|%Á] -> a || _ ,,
+[%é|%É] -> e || _ ,,
+[%í|%Í] -> i || _ ,,
+[%ú|%Ú] -> u || _ ,,
+[%ä|%Ä] -> e || _ ,,
+[%ü|%Ü] -> i || _ ,,
+[%ö|%Ö] -> e || _ ,,
+[%č|%Č] -> c || _ ,,
+[%ž|%Ž] -> ż || _ ,,
+[%š|%Š] -> s || _ ,,
+[%đ|%Đ] -> d || _ ,,
+[%ř|%Ř] -> r || _ ,,
+[%ň|%Ň] -> ń || _ ,,
+[%ě|%Ě] -> e || _ ,,
+[%ľ|%Ľ] -> l || _ ;
+
+
+#For spelling:
+define UnicodeSpell 
+[[%ß|%ẞ]:[szarfes es]]|
+[[%ņ|%Ņ]:[en z cedyllą]]|
+[[%ç|%Ç]:[ce z cedyllą]]|
+[[%ḉ|%Ḉ]:[ce ostre z cedyllą]]|
+[[%á|%Á]:[a ostre]]|
+[[%é|%É]:[e ostre]]|
+[[%í|%Í]:[i ostre]]|
+[[%ú|%Ú]:[u ostre]]|
+[[%ä|%Ä]:[a umlaut]]|
+[[%ü|%Ü]:[u umlaut]]|
+[[%ö|%Ö]:[o umlaut]]|
+[[%č|%Č]:[ce z haczkiem]]|
+[[%ž|%Ž]:[zet z haczkiem]]|
+[[%š|%Š]:[es z haczkiem]]|
+[[%đ|%Đ]:[de skreślone]]|
+[[%ř|%Ř]:[er z haczkiem]]|
+[[%ň|%Ň]:[en z haczkiem]]|
+[[%ě|%Ě]:[e z haczkiem]]|
+[[%ľ|%Ľ]:[el z haczkiem]];
+
+
+#For lseq:
+define UnicodeLseq 
+%ß:[sh a r f e s e s]|
+%ņ:[e n z c e d ih l l on]|
+%ç:[c e z c e d ih l l on]|
+%ḉ:[c e o s t r e z c e d ih l l on]|
+%á:[a o s t r e]|
+%é:[e o s t r e]|
+%í:[i o s t r e]|
+%ú:[u o s t r e]|
+%ä:[a u m l a u t]|
+%ü:[u u m l a u t]|
+%ö:[o u m l a u t]|
+%č:[c e z h a ch k y e m]|
+%ž:[z e t z h a ch k y e m]|
+%š:[e s z h a ch k y e m]|
+%đ:[d e s k r e si l o n e]|
+%ř:[e r z h a ch k y e m]|
+%ň:[e n z h a ch k y e m]|
+%ě:[e z h a ch k y e m]|
+%ľ:[e l z h a ch k y e m];
+
+
+#For downcase:
+define UnicodeDowncase 
+%ẞ -> %ß || _ ,,
+%Ņ -> %ņ || _ ,,
+%Ç -> %ç || _ ,,
+%Ḉ -> %ḉ || _ ,,
+%Á -> %á || _ ,,
+%É -> %é || _ ,,
+%Í -> %í || _ ,,
+%Ú -> %ú || _ ,,
+%Ä -> %ä || _ ,,
+%Ü -> %ü || _ ,,
+%Ö -> %ö || _ ,,
+%Č -> %č || _ ,,
+%Ž -> %ž || _ ,,
+%Š -> %š || _ ,,
+%Đ -> %đ || _ ,,
+%Ř -> %ř || _ ,,
+%Ň -> %ň || _ ,,
+%Ě -> %ě || _ ,,
+%Ľ -> %ľ || _ ;

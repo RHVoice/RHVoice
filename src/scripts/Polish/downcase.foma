@@ -50,5 +50,7 @@ Z -> z || _  ,,
 Ź -> ź || _ ,, 
 Ż -> ż || _ ;
 
-regex 
+source unicodechars.foma
+
+regex UnicodeDowncase .o.
 Downcase ; 
