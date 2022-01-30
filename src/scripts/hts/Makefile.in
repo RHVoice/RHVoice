@@ -48,8 +48,8 @@ data:
 	@ (cd data ; $(MAKE) all)
 
 voice:
-	echo "Running a training/synthesis perl script (Training.pl) in background...."
-	@PERL@ scripts/Training.pl scripts/Config.pm >> log 2>&1 
+	echo "Running a training/synthesis perl script (Training.pl)...."
+	@PERL@ ./scripts/Training.pl ./scripts/Config.pm >> log 2>&1 
 
 clean: clean-data clean-voice
 
