@@ -1543,8 +1543,46 @@ class bap_extractor(task):
 			base,ext=os.path.splitext(name)
 			self.process(base)
 
+class mgc_extractor(task):
+	def register(self):
+		subparser=subparsers.add_parser("extract-mgc")
+		subparser.set_defaults(func=self)
+
+	def process(self,name):
+		import pyworld
+		print("Processing {}".format(name))
+		sample_rate=self.settings["sample_rate"]
+		speech=self.load_speech(name)
+		target_db=self.settings.get("volume",-20)
+		target=10.0**(target_db/20.0)
+		rms=numpy.sqrt(numpy.mean((speech*speech)))
+		nf=target/rms
+		speech*=nf
+		f0s=self.load_f0(name)
+		mf0=numpy.median(f0s[f0s!=0])
+		f0s[f0s==0]=mf0
+		times=numpy.arange(len(f0s))*0.005
+		sp=pyworld.cheaptrick(speech, f0s, times, sample_rate)
+		fft_len=(sp.shape[1]-1)*2
+		sp=numpy.sqrt(sp)*32768.0
+		sp.astype(numpy.float32).tofile("tmp.sp")
+		mcep_cmd="{mcep} -a {a} -m {m} -l {l} -e 1.0E-08 -q 3 tmp.sp > {mgc}".format(mcep=os.path.join(self.settings["bindir"],"mcep"),a=self.aparams["FREQWARP"],m=self.aparams["MGCORDER"],l=fft_len,mgc=os.path.join(self.mgc_dir,name+".mgc"))
+		subprocess.check_call(mcep_cmd,shell=True)
+		os.remove("tmp.sp")
+
+	def __call__(self,args):
+		self.aparams=self.get_analysis_params()
+		self.mgc_dir=os.path.join("data","mgc")
+		self.raw_dir=os.path.join("data", "raw")
+		if not os.path.isdir(self.mgc_dir):
+			os.mkdir(self.mgc_dir)
+		print("Extracting MGC")
+		for name in sorted(os.listdir(self.raw_dir)):
+			base,ext=os.path.splitext(name)
+			self.process(base)
+
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor, mgc_extractor]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
