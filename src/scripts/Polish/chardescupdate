@@ -1,0 +1,7 @@
+#!/bin/bash
+./genunicode.py &&
+./foma2fst lseq &&
+./foma2fst tok &&
+./foma2fst downcase &&
+./foma2fst spell &&
+./foma2fst g2p
