@@ -651,7 +651,6 @@ class f0_extracter(task):
 		assert(method in methods.keys())
 		voicing_threshold=self.settings.get(method+"_voicing_threshold",None)
 		audio=((numpy.fromfile(filepath,numpy.int32).astype(float))/(2**16)).astype(numpy.float32)
-		data=struct.pack("={}f".format(audio.size),*audio)
 		command=[os.path.join(self.settings["bindir"],"pitch")]
 		command.extend(["-a",methods[method]])
 		command.extend(["-s",str(float(self.settings["sample_rate"])/1000.0)])
@@ -662,9 +661,8 @@ class f0_extracter(task):
 		if voicing_threshold is not None:
 			command.extend(["-t"+methods[method],str(voicing_threshold)])
 		process=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-		output=process.communicate(data)[0]
-		count=len(output)/4
-		return list(struct.unpack("={}f".format(count),output))
+		output=process.communicate(audio.tobytes())[0]
+		return list(numpy.frombuffer(output, dtype=numpy.float32))
 
 	def extract_with_reaper(self,raw_path,min_f0,max_f0):
 		f0_path="utt.f0"
