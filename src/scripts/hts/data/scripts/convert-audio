@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
 import sys
@@ -15,9 +15,9 @@ with open(os.path.join("..","training.cfg"),"r") as f:
 target_db=settings.get("volume",-20)
 target=10.0**(target_db/20.0)
 
-audio=numpy.fromfile(sys.argv[1],numpy.int32).astype(numpy.float)/(2**31)
+audio=numpy.fromfile(sys.argv[1],numpy.int32).astype(float)/(2**31)
 rms=numpy.sqrt(numpy.mean(audio*audio))
 ratio=target/rms
 audio*=ratio
 audio*=(2**15)
-audio.astype(numpy.float32).tofile(sys.stdout)
+sys.stdout.buffer.write(audio.astype(numpy.float32).tobytes())
