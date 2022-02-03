@@ -692,8 +692,20 @@ class f0_extracter(task):
 		os.remove(f0_path)
 		return f0s
 
+	def or_values(self, values):
+		r=values[0]
+		for v in values[1:]:
+			r=r or v
+		return r
+
+	def extract_and_or(self, file_path, methods, min_f0, max_f0):
+		values=[self.extract_with(file_path, method, min_f0, max_f0) for method in methods.split("|")]
+		return [self.or_values(x) for x in zip(*values)]
+
 	def extract_with(self,raw_path,method,min_f0,max_f0):
-		if method.startswith("praat_"):
+		if "|" in method:
+			return self.extract_and_or(raw_path, method, min_f0, max_f0)
+		elif method.startswith("praat_"):
 			return self.extract_with_praat(raw_path,method,min_f0,max_f0)
 		elif method=="reaper":
 			return self.extract_with_reaper(raw_path,min_f0,max_f0)
