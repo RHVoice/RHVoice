@@ -767,7 +767,10 @@ class f0_range_computer(f0_extracter):
 	def __call__(self,args):
 		raw_dir=os.path.join("data","raw")
 		data=list()
-		method=self.settings["guess_f0_method"]
+		if "guess_f0_method" in self.settings:
+			method=self.settings["guess_f0_method"]
+		else:
+			method=None
 		if (not isinstance(method,str)) or len(method)==0:
 			method="sptk_rapt"
 		for name in sorted(os.listdir(raw_dir)):
