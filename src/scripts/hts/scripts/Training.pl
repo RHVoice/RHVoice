@@ -160,6 +160,17 @@ foreach $set (@SET) {
    }
 }
 
+# Reference trees
+foreach $set (@SET) {
+   foreach $type ( @{ $ref{$set} } ) {
+       $reftree{$type} = "$datdir/reftrees/${type}.inf";
+       $reftreeflag{$type} = -f $reftree{$type} ;
+      $refLT{$type} = $reftreeflag{$type} ? "LT \"$reftree{$type}\"\n" : "";
+      $HHEdq{$type} = $reftreeflag{$type} ? "-q 1" : "";
+   }
+}
+
+
 # converted model & tree files for hts_engine
 $voice = "$prjdir/voices/qst${qnum}/ver${ver}";
 foreach $set (@SET) {
@@ -490,7 +501,7 @@ if ($CXCL1) {
       foreach $type ( @{ $ref{$set} } ) {
          if ( $strw{$type} > 0.0 ) {
             make_edfile_state($type);
-            shell("$HHEd{'trn'} -C $cfg{$type} -H $clusmmf{$set} $mdl{$type} -w $clusmmf{$set} $cxc{$type} $lst{'ful'}");
+            shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $clusmmf{$set} $mdl{$type} -w $clusmmf{$set} $cxc{$type} $lst{'ful'}");
             $footer .= "_$type";
             shell("gzip -c $clusmmf{$set} > $clusmmf{$set}$footer.gz");
          }
@@ -556,7 +567,7 @@ if ($CXCL2) {
       $footer = "";
       foreach $type ( @{ $ref{$set} } ) {
          make_edfile_state($type);
-         shell("$HHEd{'trn'} -C $cfg{$type} -H $reclmmf{$set} $mdl{$type} -w $reclmmf{$set} $cxc{$type} $lst{'ful'}");
+         shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $reclmmf{$set} $mdl{$type} -w $reclmmf{$set} $cxc{$type} $lst{'ful'}");
 
          $footer .= "_$type";
          shell("gzip -c $reclmmf{$set} > $reclmmf{$set}$footer.gz");
@@ -1585,6 +1596,8 @@ sub make_edfile_state($) {
    print EDFILE "// questions for decision tree-based context clustering\n";
    print EDFILE @lines;
    print EDFILE "TR 3\n\n";
+   print EDFILE "// load reference trees\n";
+   print EDFILE "$refLT{$type}\n";
    print EDFILE "// construct decision trees\n";
 
    for ( $i = 2 ; $i <= $nstate{ $t2s{$type} } + 1 ; $i++ ) {
