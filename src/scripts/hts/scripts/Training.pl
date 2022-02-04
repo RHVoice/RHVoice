@@ -53,6 +53,11 @@ if ( @ARGV < 1 ) {
 # load configuration variables
 require( $ARGV[0] );
 
+use Parallel::ForkManager;
+$pfm = Parallel::ForkManager->new($NUMPROC);
+$pfm->set_waitpid_blocking_sleep(0);  # true blocking calls enabled
+$pfm->run_on_finish(\&merge_clustered_model);
+
 # model structure
 foreach $set (@SET) {
    $vSize{$set}{'total'}   = 0;
@@ -115,6 +120,7 @@ foreach $set (@SET) {
    $monommf{$set} = "$model{$set}/monophone.mmf";
    $fullmmf{$set} = "$model{$set}/fullcontext.mmf";
    $clusmmf{$set} = "$model{$set}/clustered.mmf";
+   $jmmf{$set} = $clusmmf{$set};
    $untymmf{$set} = "$model{$set}/untied.mmf";
    $reclmmf{$set} = "$model{$set}/re_clustered.mmf";
    $rclammf{$set} = "$model{$set}/re_clustered_all.mmf";
@@ -140,6 +146,7 @@ foreach $set (@SET) {
    foreach $type ( @{ $ref{$set} } ) {
       $cnv{$type} = "$hed{$set}/cnv_$type.hed";
       $cxc{$type} = "$hed{$set}/cxc_$type.hed";
+      $jm{$type} = "$hed{$set}/jm_$type.hed";
    }
 }
 
@@ -497,16 +504,16 @@ if ($CXCL1) {
    foreach $set (@SET) {
       shell("cp $fullmmf{$set} $clusmmf{$set}");
 
-      $footer = "";
       foreach $type ( @{ $ref{$set} } ) {
          if ( $strw{$type} > 0.0 ) {
-            make_edfile_state($type);
-            shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $clusmmf{$set} $mdl{$type} -w $clusmmf{$set} $cxc{$type} $lst{'ful'}");
-            $footer .= "_$type";
-            shell("gzip -c $clusmmf{$set} > $clusmmf{$set}$footer.gz");
+             make_edfile_state($type);
+             $pfm->start($type) and next;
+             shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $clusmmf{$set} $mdl{$type} -w $clusmmf{$set}_$type $cxc{$type} $lst{'ful'}");
+             $pfm->finish;
          }
       }
    }
+   $pfm->wait_all_children;
 }
 
 # HERest (embedded reestimation (clustered))
@@ -536,7 +543,8 @@ if ($UNTIE) {
 
 # fix variables
 foreach $set (@SET) {
-   $stats{$set} .= ".untied";
+    $stats{$set} .= ".untied";
+        $jmmf{$set} = $reclmmf{$set};
    foreach $type ( @{ $ref{$set} } ) {
       $tre{$type} .= ".untied";
       $cxc{$type} .= ".untied";
@@ -563,17 +571,14 @@ if ($CXCL2) {
    # tree-based clustering
    foreach $set (@SET) {
       shell("cp $untymmf{$set} $reclmmf{$set}");
-
-      $footer = "";
       foreach $type ( @{ $ref{$set} } ) {
-         make_edfile_state($type);
-         shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $reclmmf{$set} $mdl{$type} -w $reclmmf{$set} $cxc{$type} $lst{'ful'}");
-
-         $footer .= "_$type";
-         shell("gzip -c $reclmmf{$set} > $reclmmf{$set}$footer.gz");
+          make_edfile_state($type);
+          $pfm->start($type) and next;
+          shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $reclmmf{$set} $mdl{$type} -w $reclmmf{$set}_$type $cxc{$type} $lst{'ful'}");
+          $pfm->finish;
       }
-      shell("gzip -c $reclmmf{$set} > $reclmmf{$set}.nonembedded.gz");
    }
+   $pfm->wait_all_children;
 }
 
 # HERest (embedded reestimation (re-clustered))
@@ -2572,6 +2577,26 @@ sub make_mspf($) {
          }
       }
    }
+}
+
+sub merge_clustered_model {
+    my ($pid, $exit, $type) = @_;
+    my ($set) = $t2s{$type};
+   if ( $exit / 256 != 0 ) {
+      die "Error while clustering $type\n";
+   }
+    if ($type eq "dur") {
+        print "Copying clustered duration model\n";
+        shell("cp $jmmf{$set}_${type} $jmmf{$set}");
+        return;
+   }
+    print "Merging clustered $type\n";
+    open( EDFILE, ">$jm{$type}" ) || die "Cannot open $!";
+    for ( $i = 2 ; $i <= $nState + 1 ; $i++ ) {
+        print EDFILE "JM $jmmf{$set}_${type} {*.state[${i}].stream[$strb{$type}-$stre{$type}]}\n";
+    }
+    close(EDFILE);
+    shell("$HHEd{'trn'} -H $jmmf{$set} -w $jmmf{$set} $jm{$type} $lst{'ful'}");
 }
 
 ##################################################################################################
