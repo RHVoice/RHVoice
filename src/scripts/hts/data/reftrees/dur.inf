@@ -1,0 +1,6 @@
+QS name==pau { "*-pau+*" }
+
+{*}[2]
+{
+    0 name==pau "dur_s2_2" "dur_s2_1" 
+}
