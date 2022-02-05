@@ -1,16 +1,23 @@
 apply plugin: 'com.android.application'
 
+ext.lifecycle_version = "2.3.1"
+
 ext.major_version=1
-ext.minor_version=6
-ext.revision_number=0
+ext.minor_version=7
+ext.revision_number=9
+
+task BoostIncludes(type: Exec) {
+     workingDir '../../..'
+     commandLine 'scons', 'external/libs/boost/include/boost'
+}
 
 android {
-    compileSdkVersion myCompileSdkVersion
-
 compileOptions {
+coreLibraryDesugaringEnabled true
 sourceCompatibility JavaVersion.VERSION_1_8
-  targetCompatibility JavaVersion.VERSION_1_8
+targetCompatibility JavaVersion.VERSION_1_8
 }
+
 
     defaultConfig {
         minSdkVersion myMinSdkVersion
@@ -28,41 +35,64 @@ sourceCompatibility JavaVersion.VERSION_1_8
         }
     }
 
+compileSdkVersion myCompileSdkVersion
+
+buildFeatures {
+prefab true
+}
+
+defaultConfig {
+multiDexEnabled true
+minSdkVersion myMinSdkVersion
+targetSdkVersion myTargetSdkVersion
+applicationId "com.github.olga_yakovleva.rhvoice.android"
+versionCode = 10000 * major_version + 100 * minor_version + revision_number
+versionName "${major_version}.${minor_version}.${revision_number}"
+ndk{
+abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
+}
+externalNativeBuild {
+ndkBuild {
+arguments 'V=1'
+}
+}
+}
+
 if(rootProject.signRelease||rootProject.signDebug) {
-    signingConfigs {
-        release {
-            storeFile file(rootProject.property("RHVoice.keyStore"))
-            storePassword rootProject.property("RHVoice.keyStorePassword")
-            keyAlias rootProject.property("RHVoice.keyAlias")
-            keyPassword rootProject.property("RHVoice.keyPassword")
-        }
-    }
+signingConfigs {
+release {
+storeFile file(rootProject.property("RHVoice.keyStore"))
+storePassword rootProject.property("RHVoice.keyStorePassword")
+keyAlias rootProject.property("RHVoice.keyAlias")
+keyPassword rootProject.property("RHVoice.keyPassword")
+}
+}
 }
 
 externalNativeBuild {
-    ndkBuild {
-        path 'src/main/jni/Android.mk'
-    }
+ndkBuild {
+path 'src/main/jni/Android.mk'
+}
 }
 
 buildTypes {
-    release {
-        if(rootProject.signRelease) {
-            signingConfig signingConfigs.release
-        }
-        minifyEnabled true
-        shrinkResources true
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-    }
-    debug {
-        if(rootProject.signDebug) {
-            signingConfig signingConfigs.release
-        }
-        minifyEnabled true
-        shrinkResources true
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-    }
+release {
+if(rootProject.signRelease) {
+signingConfig signingConfigs.release
+}
+minifyEnabled true
+shrinkResources true
+proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+}
+debug {
+if(rootProject.signDebug) {
+signingConfig signingConfigs.release
+}
+minifyEnabled true
+shrinkResources true
+proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+}
+}
 }
 
 dependencies {
@@ -75,4 +105,13 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
     implementation "androidx.documentfile:documentfile:1.0.1"
     implementation 'com.google.guava:guava:30.1.1-android'
+implementation("com.squareup.moshi:moshi:1.12.0")
+implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
+implementation 'com.android.ndk.thirdparty:curl:7.69.1-alpha-1'
+implementation 'com.android.ndk.thirdparty:openssl:1.1.1g-alpha-1'
+implementation 'com.google.android.exoplayer:exoplayer-core:2.15.1'
+coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
+
+preBuild.dependsOn BoostIncludes

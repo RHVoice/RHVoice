@@ -16,10 +16,24 @@ audio libraries is installed on your machine:
 * [PulseAudio](https://www.freedesktop.org/wiki/Software/PulseAudio/)
 * [Libao](https://www.xiph.org/ao/)
 * [PortAudio](http://www.portaudio.com) V19
+* [Speech Dispatcher](https://freebsoft.org/speechd)
 
 Please note that many distributions provide a separate development package for
 a library, which is necessary to compile the programs using the library.
 You need to install both runtime and development packages.
+
+## Get sources
+
+1. One line
+    ```bash
+    git clone --recursive https://github.com/RHVoice/RHVoice.git
+    ```
+2. Step by step
+    ```bash
+    git clone https://github.com/RHVoice/RHVoice.git
+    cd RHVoice
+    git submodule update --init
+    ```
 
 ## Compilation
 

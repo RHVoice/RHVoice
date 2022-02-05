@@ -33,6 +33,6 @@ public final class OnPackageReceiver extends BroadcastReceiver
         String packageName=intent.getData().getSchemeSpecificPart();
         if(BuildConfig.DEBUG)
             Log.i(TAG,"Package "+packageName+" has been installed/updated/removed");
-        Data.scheduleSync(context,true);
+        Repository.get().createDataManager().scheduleSync(context,true);
     }
 }

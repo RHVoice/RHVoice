@@ -1,0 +1,79 @@
+# Copyright (C) 2021  Zvonimir Stanecic <zvonimirek222@yandex.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# thanks to Beqa Gozalishwili for the processing of 1000, 1000000, 1000000000 and such digits
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define Number %0|[NZDigit Digit^<15];
+
+define InsertThousands 
+[..] -> tysięcy || Digit _ Digit^3 .#.;
+
+define InsertMillions 
+[..] -> milionów || Digit _ Digit^3 tysięcy;
+
+define InsertBillions 
+[..] -> miliardów || Digit _ Digit^3 milionów;
+
+define InsertTrillions 
+[..] -> bilionów || Digit _ Digit^3 miliardów;
+
+define RemoveSkippedParts 
+%0 %0 %0 [tysięcy|milionów|miliardów|bilionów] -> 0 ;
+
+define Units %0:0|1:jeden|2:dwa|3:trzy|4:cztery|5:pięć|6:sześć|7:siedem|8:osiem|9:dziewięć;
+
+define Teens 1:0 [%0:dziesięć|1:jedenaście|2:dwanaście|3:trzynaście|4:czternaście|5:piętnaście|6:szesnaście|7:siedemnaście|8:osiemnaście|9:dziewiętnaście];
+
+define Tens %0:0|2:dwadzieścia|3:trzydzieści|4:czterdzieści|5:pięćdziesiąt|6:sześćdziesiąt|7:siedemdziesiąt|8:osiemdziesiąt|9:dziewięćdziesiąt;
+
+define Hundreds %0:0|1:sto|2:dwieście|3:trzysta|4:czterysta|5:pięćset|6:sześćset|7:siedemset|8:osiemset|9:dziewięćset;
+
+define UpToThousand %0:zero .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
+
+define DigitsToWords 
+UpToThousand @->;
+
+define FixCase 
+tysięcy:tysiąc|milionów:milion|miliardów:miliard|bilionów:bilion -> || jeden _ ,, 
+tysięcy:tysiące|milionów:miliony|miliardów:miliardy|bilionów:biliony -> || dwa|trzy|cztery _ ; 
+
+define Fix31Tys 
+tysiąc:tysięcy|
+milion:milionów|
+miliard:miliardów|
+bilion:bilionów -> || 
+[dwadzieścia|trzydzieści|czterdzieści|pięćdziesiąt|
+sześćdziesiąt|siedemdziesiąt|osiemdziesiąt|dziewięćdziesiąt|
+sto|dwieście|trzysta|czterysta|pięćset|sześćset|
+siedemset|osiemset|dziewięćset] jeden _ ;
+
+define RemoveOne 
+jeden -> 0 || .#.|GroupName _ tysiąc,, 
+jeden -> 0 || .#.|GroupName _ milion,, 
+jeden -> 0 || .#.|GroupName _ miliard,, 
+jeden -> 0 || .#.|GroupName _ bilion ; 
+
+regex 
+Number .o. 
+InsertThousands .o. 
+InsertMillions .o. 
+InsertBillions .o. 
+InsertTrillions .o. 
+RemoveSkippedParts .o. 
+DigitsToWords .o. 
+FixCase .o. 
+RemoveOne .o.
+Fix31Tys ;

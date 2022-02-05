@@ -1,4 +1,4 @@
-/* Copyright (C) 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2018, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,7 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.app.Application;
+import androidx.multidex.MultiDexApplication;
 import android.util.Log;
 import java.security.Provider;
 import java.security.Security;
@@ -23,7 +23,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import org.conscrypt.Conscrypt;
 
-public final class MyApplication extends Application
+public final class MyApplication extends MultiDexApplication
 {
     private static final String TAG="RHVoice.MyApplication";
 
@@ -46,5 +46,6 @@ public final class MyApplication extends Application
                 if(BuildConfig.DEBUG)
                     Log.e(TAG,"Error",e);
 }
+        Repository.initialize(this);
 }
 }

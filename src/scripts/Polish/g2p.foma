@@ -1,0 +1,199 @@
+# Copyright (C) 2021 Grzegorz Zlotowicz  <grzezlo@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define InitialTranscribe 
+a:a | 
+ą:on | 
+b:b | 
+c:c | 
+{ch}:h | 
+{cz}:ch |
+ć:ci | 
+d:d | 
+{dz}:dz |
+{dź}:dzi |
+{dż}: dzh |
+e:e | 
+ę:en | 
+f:f | 
+g:g | 
+h:h | 
+i:i | 
+j:y | 
+k:k | 
+l:l | 
+ł:w | 
+m:m | 
+n:n | 
+ń:ni | 
+o:o | 
+ó:u | 
+p:p | 
+q:{ku} | 
+r:r | 
+s:s | 
+{sz}:sh | 
+ś:si | 
+t:t | 
+u:u | 
+w:v | 
+v:v | 
+x:{ks} |
+y:ih | 
+z:z | 
+ź:zi |
+ż: zh ;
+
+define Stage1 InitialTranscribe @-> ;
+
+define processMultigraphs1 
+#Convert rz to virtual "rz" phonem, later backconverted to r and z.
+{rz} @-> rz ||
+#zamarza, marzli, marzł, marznie...
+{ma} _ a|l|w|n|ni ,
+#mierzi, obmierzł, zmierzły, not mierzy, mierz...
+m i e _ i|w,
+#superzdrowy, hiperzręczny, cyberzagrożenia:
+{supe}| {hipe} | [c  ih b e] _ ;
+
+
+define processMultigraphs2 
+#Convert rest of "rz" to zh phonem:
+{rz} @-> zh ||  _ ,,
+#convert to zh also exceptions from virtual rz
+#umarza, umarzalność...
+rz @-> zh || {uma} _ a ,
+#marzanna:
+{ma} _ {ann} ;
+
+define processMultigraphs3 
+#Convert virtual rz from multigraphs1 to r z phonemes:
+rz @-> r z || _ ;
+
+define VowelPhonem [a | on | e | en | i | o | u | ih ] ;
+define ConsonantPhonem [b|c|ch|ci|d|dz|dzi|dzh|f|g|h|y|k|l|w|m|n|ni|p|r|s|sh|si|t|v|z|zi|zh] ;
+define SofteningConsonantPhonem [c|ch|f|h|k|p|s|sh|si|t] ;
+define Softening [
+v:f|
+z: s|
+zh:sh] ;
+
+define FlagExceptions 
+#antyatom, antyenergetyczny, antyimport, antyoksydant, antyustrojowy:
+ih @-> ih2 || {ant} _ VowelPhonem,,
+#d zi, not dzi:
+[dz i] @-> dzi2 ||
+#podziemię, niepodziemny:
+.#. (n i e) p o _ e m,
+#podzięb:
+.#. (n i e) p o _ en b ,,
+#d ż, nie dż:
+[dzh] @-> dzh2 ||
+#budże*
+{bu} _ e,
+#nadżarcie, nadżerka, podżartować:
+{na}|{po} _ [a|e] r,
+#podżarcie, podżółkły, podżuchwowa, podżyrować:
+{po} _ [a|e|u|ih],,
+#si not converted to "si":
+{si} @-> si2 ||
+#sigm, sign, siglum, pleksiglas:
+_ g [l|m|n],
+#sinus, singiel, single, not sina, sinego...:
+_ n [ g | u ],,
+#"z i", not convert to zi:
+{zi} @-> zi2 ||
+#*bezi (not bezik*)
+.#. [u | n i e | 0] b e _ \k,
+#rozigrane, nieroziskrzone, 
+.#. (n i e) r o _ ,,
+#Not soften zh:
+zh @-> zh2 ||
+#także wszakże jakże:
+{ak} _ e .#. ;
+
+define UnflagExceptions [
+dzi2:[d zi] |
+dzh2:[d zh] |
+si2: [s i] |
+ih2: ih |
+zi2:[z i] |
+zh2:zh ] @-> || _ ;
+
+define Stage2 
+Softening @-> || SofteningConsonantPhonem _ ,
+ _ SofteningConsonantPhonem,
+ \.#. _ .#. ,,
+ #Before vowel:
+[{ci}: ci | 
+{ni}: ni | 
+{si}: si | 
+{zi}: zi | 
+[dz i]: dzi ] @->  || _ VowelPhonem ,,
+#Before consonant or word boundary:
+[{ci}: [ci i] | 
+{ni}: [ni i] | 
+{si}: [si i] | 
+[dz i]: [dzi i] ] @-> || _ [\VowelPhonem | .#. ],,
+#"zi" to z i or "zi i":
+#in the middle of word
+{zi} @-> [zi i] || \.#. _ \VowelPhonem|.#. ,
+#zim, zima, zimie, zimo, zimu, zimy:
+.#. _ m [.#.|a|on|en|i|n|o|u|ih],
+#zip*
+.#. _ p,,
+#e.g. historia to historja:
+i @-> y || _ VowelPhonem ,,
+#boya, yeti, boye, bayerowski, boyizm
+ih @-> y ||
+.#. | VowelPhonem _ VowelPhonem,
+#boys, boysband,
+b o _ s ,,
+#e.g.: zaczął=zaczoł, zaczęła=zaczeła:
+[on : o |
+en: e] @-> || _ w ;
+
+define procStress1 [a:a1|
+on:on1|
+e:e1|
+en:en1|
+i:i1|
+o:o1|
+u:u1|
+ih:ih1
+] @-> ||
+_ \VowelPhonem+ VowelPhonem+ .#.,
+_ \VowelPhonem+ VowelPhonem+ \VowelPhonem+ .#.,
+.#. \VowelPhonem+ _ \VowelPhonem+ .#.;
+
+define procStress2 [a:a0|
+on:on0|
+e:e0|
+en:en0|
+i:i0|
+o:o0|
+u:u0|
+ih:ih0
+] @-> || _ ;
+
+regex Stage1 .o.
+processMultigraphs1 .o.
+processMultigraphs2 .o.
+processMultigraphs3 .o.
+FlagExceptions .o.
+Stage2 .o.
+UnflagExceptions .o.
+procStress1 .o.
+procStress2;

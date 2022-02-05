@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019, 2020, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -22,33 +22,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 import android.text.TextUtils;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import java.util.Set;
 
 public final class LanguagePack extends DataPack
 {
-    private final String code;
-    private final String oldCode;
-    private final String countryCode;
-    private final String oldCountryCode;
-    private final boolean showCountry;
-    private final List<VoicePack> voices=new ArrayList<VoicePack>();
-    private final Map<String,VoicePack> index=new HashMap<String,VoicePack>();
-    private final Map<String,VoicePack> idIndex=new HashMap<String,VoicePack>();
-    private VoicePack defaultVoice;
+    private final LanguageResource res;
 
-    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,byte[] checksum)
+    public LanguagePack(LanguageResource res)
     {
-        this(name,code,oldCode,countryCode,oldCountryCode,showCountry,format,revision,checksum,null,null);
+        this.res=res;
 }
 
-    public LanguagePack(String name,String code,String oldCode,String countryCode,String oldCountryCode,boolean showCountry,int format,int revision,byte[] checksum,String altLink,String tempLink)
-    {
-        super(name,format,revision,checksum,altLink,tempLink);
-        this.code=code;
-        this.oldCode=oldCode;
-        this.countryCode=countryCode;
-        this.oldCountryCode=oldCountryCode;
-        this.showCountry=showCountry;
-}
+    public LanguageResource getRes() {
+        return res;
+    }
 
     public String getType()
     {
@@ -57,7 +46,7 @@ public final class LanguagePack extends DataPack
 
     public String getDisplayName()
     {
-        Locale loc=showCountry?new Locale(oldCode,oldCountryCode):new Locale(oldCode);
+        Locale loc=new Locale(res.lang2code);
         return loc.getDisplayName();
 }
 
@@ -66,39 +55,22 @@ public final class LanguagePack extends DataPack
         return String.format("RHVoice-language-%s",getName());
 }
 
+    FluentIterable<VoicePack> iterVoices()
+    {
+        return FluentIterable.from(res.voices).transform(res-> new VoicePack(this, res));
+    }
+
     public List<VoicePack> getVoices()
     {
-        return voices;
-}
-
-    public VoicePack getDefaultVoice()
-    {
-        return defaultVoice;
-}
-
-    public LanguagePack addVoice(VoicePack voice)
-    {
-        voices.add(voice);
-        index.put(voice.getName(),voice);
-        idIndex.put(voice.getId(),voice);
-        if(defaultVoice==null)
-            defaultVoice=voice;
-        return this;
-}
-
-    public LanguagePack addDefaultVoice(VoicePack voice)
-    {
-        addVoice(voice);
-        defaultVoice=voice;
-        return this;
+        return iterVoices().toList();
 }
 
     @Override
     public boolean getEnabled(Context context)
     {
-        if(code.equals("eng"))
+        if(res.lang2code.equals("eng"))
             return true;
-        for(VoicePack voice: voices)
+        for(VoicePack voice: getVoices())
             {
                 if(voice.getEnabled(context))
                     return true;
@@ -112,7 +84,7 @@ public final class LanguagePack extends DataPack
         String languagePath=getPath(context);
         if(languagePath==null)
             return paths;
-        for(VoicePack voice: voices)
+        for(VoicePack voice: getVoices())
             {
                 if(!voice.getEnabled(context))
                     continue;
@@ -120,7 +92,7 @@ public final class LanguagePack extends DataPack
                 if(voicePath!=null)
                     paths.add(voicePath);
 }
-        if(paths.isEmpty()&&code!="eng")
+        if(paths.isEmpty()&&res.lang2code!="eng")
             return paths;
         paths.add(languagePath);
         return paths;
@@ -128,20 +100,7 @@ public final class LanguagePack extends DataPack
 
     public String getCode()
     {
-        return code;
-}
-
-    public String getCountryCode()
-    {
-        return countryCode;
-}
-
-    public String getTag()
-    {
-        if(TextUtils.isEmpty(countryCode))
-            return code;
-        else
-            return (code+"-"+countryCode);
+        return res.lang3code;
 }
 
     @Override
@@ -170,11 +129,61 @@ public final class LanguagePack extends DataPack
 
     public VoicePack findVoice(String name)
     {
-        return index.get(name);
+        VoiceResource vr=res.voiceIndexByName.get(name);
+        return vr==null?null:new VoicePack(this, vr);
 }
 
     public VoicePack findVoiceById(String id)
     {
-        return idIndex.get(id);
+        VoiceResource vr=res.voiceIndexById.get(id);
+        return vr==null?null:new VoicePack(this, vr);
 }
+
+    public String getTestMessage() {
+        return res.testMessage;
+    }
+
+    public String getOldCode()
+    {
+        return res.lang2code;
+    }
+
+    public Set<AccentTag> getAccentTags()
+    {
+        return iterVoices().transform(v-> v.getAccentTag()).toSet();
+    }
+
+    public List<VoiceAccent> getAccents()
+    {
+        return FluentIterable.from(getAccentTags()).transform(t-> new VoiceAccent(this, t)).toList();
+    }
+
+    public VoiceAccent getAccent(String country, String variant)
+    {
+        return FluentIterable.from(getAccentTags()).firstMatch(t-> t.country3.equals(country) && t.variant.equals(variant)).transform(t-> new VoiceAccent(this, t)).orNull();
+    }
+
+    public boolean hasEnabledVoice(Context context)
+    {
+        for (VoicePack voice: iterVoices()) {
+            if (voice.getEnabled(context))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasVoiceWithId(String id)
+    {
+        return res.voiceIndexById.containsKey(id);
+    }
+
+    public boolean hasVoiceWithName(String name)
+    {
+        return res.voiceIndexByName.containsKey(name);
+    }
+
+    public boolean hasVoices()
+    {
+        return !res.voices.isEmpty();
+    }
 }

@@ -13,6 +13,9 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+
+#include <locale>
+#include "boost/algorithm/string.hpp"
 #include "core/path.hpp"
 #include "core/exception.hpp"
 #include "core/config.hpp"
@@ -45,6 +48,9 @@ namespace RHVoice
     gender.define("female",RHVoice_voice_gender_female);
     set_data_path(data_path);
     string_property name("name");
+    string_property android_id("android_id");
+    string_property voice_id("id");
+    voice_id.default_to(android_id);
     enum_string_property language_name("language");
     for(language_list::const_iterator it(languages.begin());it!=languages.end();++it)
       {
@@ -52,6 +58,8 @@ namespace RHVoice
       }
     config cfg;
     cfg.register_setting(name);
+    cfg.register_setting(android_id);
+    cfg.register_setting(voice_id);
     cfg.register_setting(language_name);
     cfg.register_setting(country);
     cfg.register_setting(sample_rate);
@@ -61,6 +69,11 @@ namespace RHVoice
     if(!name.is_set())
       throw file_format_error("Voice name is not set");
     set_name(name);
+    if(voice_id.is_set(true))
+      id=voice_id;
+    else {
+      id=boost::replace_all_copy(boost::to_lower_copy(name.get(), std::locale::classic()), "-", "_");
+    }
     if(!language_name.is_set())
       throw file_format_error("Voice language is not set");
     language_list::iterator lang=languages.find(language_name);

@@ -1,0 +1,80 @@
+# Copyright (C) 2021  Zvonimir Stanecic <zvonimirek222@yandex.com>, grzegorz Zlotowicz, <grzezlo@wp.pl>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define TranscribeLetterSequence 
+a -> a || _ ,, 
+ą -> on || _ ,, 
+b -> b e || _ ,, 
+c -> c e || _ ,, 
+ć -> ci e || _ ,, 
+d -> d e || _ ,, 
+e -> e || _ ,, 
+ę -> en  || _ ,, 
+f -> e f || _ ,, 
+g -> g y e || _ ,, 
+h -> h a || _ ,, 
+i -> i || _ ,, 
+j -> y o t || _ ,, 
+k -> k a || _ ,, 
+l -> e l || _ ,, 
+ł -> e w || _ ,, 
+m -> e m || _ ,, 
+n -> e n || _ ,, 
+ń -> e ni || _ ,, 
+o -> o || _ ,, 
+ó -> u || _ ,, 
+p -> p e || _ ,, 
+q -> k u || _ ,, 
+r -> e r || _ ,, 
+s -> e s || _ ,, 
+ś -> e si || _ ,, 
+t -> t e || _ ,, 
+u -> u || _ ,, 
+v -> f a w || _ ,, 
+w -> v u || _ ,, 
+x -> i k s || _ ,, 
+y -> i g r e k || _ ,,
+z -> z e t || _ ,,
+ź -> zi e t || _ ,, 
+ż -> zh e t || _ ;
+
+define VowelPhonem [a | on | e | en | i | o | u | ih ] ;
+
+define procStress1 [a:a1|
+on:on1|
+e:e1|
+en:en1|
+i:i1|
+o:o1|
+u:u1|
+ih:ih1
+] @-> ||
+_ \VowelPhonem+ VowelPhonem+ .#.,
+_ \VowelPhonem+ VowelPhonem+ \VowelPhonem+ .#.,
+.#. \VowelPhonem+ _ \VowelPhonem+ .#.;
+
+define procStress2 [a:a0|
+on:on0|
+e:e0|
+en:en0|
+i:i0|
+o:o0|
+u:u0|
+ih:ih0
+] @-> || _ ;
+
+regex 
+TranscribeLetterSequence .o.
+procStress1 .o. procStress2; 

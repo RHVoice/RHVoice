@@ -1,0 +1,41 @@
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import os
+import os.path
+
+Import(["env"])
+
+from RHVoicePackaging.nvda import addon_packager
+
+synthDriver_dir=os.path.join("synthDrivers","RHVoice")
+curdir=Dir(".").srcnode()
+packager=addon_packager("RHVoice",Dir("..").Dir("packages").Dir("nvda"),env,"RHVoice","RHVoice","A speech synthesizer.",env["package_version"])
+packager.translate_string("description","ru",u"Синтезатор речи.")
+packager.add(curdir.File("installTasks.py"))
+packager.add(curdir.Dir("synthDriver").File("__init__.py"),synthDriver_dir)
+packager.add(os.path.join("..","x86","lib","RHVoice.dll"),synthDriver_dir)
+packager.add(os.path.join("..","licenses","gpl-3.0.txt"),synthDriver_dir)
+packager.add(os.path.join("..","RHVoice.ini"),os.path.join(synthDriver_dir,"config"))
+packager.add(curdir.Dir("globalPlugin").File("RHVoice_globalPlugin.py"), "globalPlugins")
+
+moFiles=env.MOFiles(env.Glob("locale/*/LC_MESSAGES/nvda.po"))
+for mo in moFiles:
+	outdir=os.path.dirname(mo.rstr())
+	packager.add(mo,outdir)
+
+packager.package()

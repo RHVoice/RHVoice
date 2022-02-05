@@ -40,3 +40,135 @@
 [submodule "data/voices/vitaliy"]
 	path = data/voices/vitaliy
 	url = https://github.com/rhvoice/vitaliy-rus
+[submodule "data/languages/Polish"]
+	path = data/languages/Polish
+	url = https://github.com/RHVoice/Polish.git
+[submodule "data/voices/magda"]
+	path = data/voices/magda
+	url = https://github.com/RHVoice/magda-pol.git
+[submodule "external/libs/boost/libs/align"]
+	path = external/libs/boost/libs/align
+	url = https://github.com/boostorg/align.git
+[submodule "external/libs/boost/libs/assert"]
+	path = external/libs/boost/libs/assert
+	url = https://github.com/boostorg/assert.git
+[submodule "external/libs/boost/libs/config"]
+	path = external/libs/boost/libs/config
+	url = https://github.com/boostorg/config.git
+[submodule "external/libs/boost/libs/container"]
+	path = external/libs/boost/libs/container
+	url = https://github.com/boostorg/container.git
+[submodule "external/libs/boost/libs/container_hash"]
+	path = external/libs/boost/libs/container_hash
+	url = https://github.com/boostorg/container_hash.git
+[submodule "external/libs/boost/libs/core"]
+	path = external/libs/boost/libs/core
+	url = https://github.com/boostorg/core.git
+[submodule "external/libs/boost/libs/detail"]
+	path = external/libs/boost/libs/detail
+	url = https://github.com/boostorg/detail.git
+[submodule "external/libs/boost/libs/exception"]
+	path = external/libs/boost/libs/exception
+	url = https://github.com/boostorg/exception.git
+[submodule "external/libs/boost/libs/integer"]
+	path = external/libs/boost/libs/integer
+	url = https://github.com/boostorg/integer.git
+[submodule "external/libs/boost/libs/interprocess"]
+	path = external/libs/boost/libs/interprocess
+	url = https://github.com/boostorg/interprocess.git
+[submodule "external/libs/boost/libs/intrusive"]
+	path = external/libs/boost/libs/intrusive
+	url = https://github.com/boostorg/intrusive.git
+[submodule "external/libs/boost/libs/io"]
+	path = external/libs/boost/libs/io
+	url = https://github.com/boostorg/io.git
+[submodule "external/libs/boost/libs/json"]
+	path = external/libs/boost/libs/json
+	url = https://github.com/boostorg/json.git
+[submodule "external/libs/boost/libs/move"]
+	path = external/libs/boost/libs/move
+	url = https://github.com/boostorg/move.git
+[submodule "external/libs/boost/libs/mp11"]
+	path = external/libs/boost/libs/mp11
+	url = https://github.com/boostorg/mp11.git
+[submodule "external/libs/boost/libs/predef"]
+	path = external/libs/boost/libs/predef
+	url = https://github.com/boostorg/predef.git
+[submodule "external/libs/boost/libs/preprocessor"]
+	path = external/libs/boost/libs/preprocessor
+	url = https://github.com/boostorg/preprocessor.git
+[submodule "external/libs/boost/libs/smart_ptr"]
+	path = external/libs/boost/libs/smart_ptr
+	url = https://github.com/boostorg/smart_ptr.git
+[submodule "external/libs/boost/libs/static_assert"]
+	path = external/libs/boost/libs/static_assert
+	url = https://github.com/boostorg/static_assert.git
+[submodule "external/libs/boost/libs/system"]
+	path = external/libs/boost/libs/system
+	url = https://github.com/boostorg/system.git
+[submodule "external/libs/boost/libs/throw_exception"]
+	path = external/libs/boost/libs/throw_exception
+	url = https://github.com/boostorg/throw_exception.git
+[submodule "external/libs/boost/libs/tuple"]
+	path = external/libs/boost/libs/tuple
+	url = https://github.com/boostorg/tuple.git
+[submodule "external/libs/boost/libs/type_traits"]
+	path = external/libs/boost/libs/type_traits
+	url = https://github.com/boostorg/type_traits.git
+[submodule "external/libs/boost/libs/unordered"]
+	path = external/libs/boost/libs/unordered
+	url = https://github.com/boostorg/unordered.git
+[submodule "external/libs/boost/libs/utility"]
+	path = external/libs/boost/libs/utility
+	url = https://github.com/boostorg/utility.git
+[submodule "external/libs/boost/libs/variant2"]
+	path = external/libs/boost/libs/variant2
+	url = https://github.com/boostorg/variant2.git
+[submodule "external/libs/boost/libs/winapi"]
+	path = external/libs/boost/libs/winapi
+	url = https://github.com/boostorg/winapi.git
+[submodule "external/libs/boost/libs/tokenizer"]
+	path = external/libs/boost/libs/tokenizer
+	url = https://github.com/boostorg/tokenizer.git
+[submodule "external/libs/boost/libs/lexical_cast"]
+	path = external/libs/boost/libs/lexical_cast
+	url = https://github.com/boostorg/lexical_cast.git
+[submodule "external/libs/boost/libs/algorithm"]
+	path = external/libs/boost/libs/algorithm
+	url = https://github.com/boostorg/algorithm.git
+[submodule "external/libs/boost/libs/nowide"]
+	path = external/libs/boost/libs/nowide
+	url = https://github.com/boostorg/nowide.git
+[submodule "external/libs/boost/libs/optional"]
+	path = external/libs/boost/libs/optional
+	url = https://github.com/boostorg/optional.git
+[submodule "external/libs/boost/libs/date_time"]
+	path = external/libs/boost/libs/date_time
+	url = https://github.com/boostorg/date_time.git
+[submodule "external/libs/boost/libs/range"]
+	path = external/libs/boost/libs/range
+	url = http://github.com/boostorg/range.git
+[submodule "external/libs/boost/libs/iterator"]
+	path = external/libs/boost/libs/iterator
+	url = http://github.com/boostorg/iterator.git
+[submodule "external/libs/boost/libs/mpl"]
+	path = external/libs/boost/libs/mpl
+	url = http://github.com/boostorg/mpl.git
+[submodule "external/libs/boost/libs/concept_check"]
+	path = external/libs/boost/libs/concept_check
+	url = http://github.com/boostorg/concept_check.git
+[submodule "external/libs/boost/libs/numeric_conversion"]
+	path = external/libs/boost/libs/numeric_conversion
+	url = http://github.com/boostorg/numeric_conversion.git
+[submodule "external/libs/boost/libs/array"]
+	path = external/libs/boost/libs/array
+	url = http://github.com/boostorg/array.git
+[submodule "external/libs/boost/libs/bind"]
+	path = external/libs/boost/libs/bind
+	url = https://github.com/boostorg/bind
+[submodule "external/libs/boost/libs/function"]
+	path = external/libs/boost/libs/function
+	url = https://github.com/boostorg/function
+[submodule "external/libs/boost/libs/type_index"]
+	path = external/libs/boost/libs/type_index
+	url = https://github.com/boostorg/type_index

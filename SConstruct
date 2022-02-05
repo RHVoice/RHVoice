@@ -26,8 +26,10 @@ if sys.platform=="win32":
     else:
         import _winreg as winreg
 
+boost_includedir=Dir("#external").Dir("libs").Dir("boost").Dir("include")
+
 def get_version(is_release):
-    next_version="1.6.0"
+    next_version="1.7.0"
     return next_version
 
 def passthru(env, cmd, unique=False):
@@ -159,6 +161,7 @@ def create_user_vars():
     vars.Add(create_languages_user_var())
     vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
     vars.Add(BoolVariable("enable_sonic","Build with Sonic",False))
+    vars.Add(BoolVariable("enable_pkg","Enable package directory code",False))
     vars.Add(create_audio_libs_user_var())
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
@@ -194,7 +197,7 @@ def create_user_vars():
 def create_base_env(user_vars):
     env_args={"variables":user_vars}
     if sys.platform=="win32":
-        env_args["tools"]=["newlines"]
+        env_args["tools"]=["newlines", "msgfmt"]
     else:
         env_args["tools"]=["default","installer"]
     env_args["tools"].extend(["textfile","library"])
@@ -254,6 +257,7 @@ def clone_base_env(base_env,user_vars,arch=None):
     for path in Glob(os.path.join(third_party_dir,"*"),strings=True):
         if os.path.isdir(path):
             env.Prepend(CPPPATH=("#"+path))
+    env.Prepend(CPPPATH=boost_includedir)
     env.Prepend(CPPPATH=(os.path.join("#"+env["BUILDDIR"],"include"),".",os.path.join("#src","include")))
     return env
 
@@ -303,7 +307,7 @@ def configure(env):
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
     env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"core"))
-    src_subdirs=["third-party","core","lib"]
+    src_subdirs=["third-party", "pkg", "core", "lib"]
     if env["dev"]:
         src_subdirs.append("utils")
     src_subdirs.append("audio")
@@ -366,8 +370,8 @@ def build_for_windows(base_env,user_vars):
         base_env.ConvertNewlines(os.path.join(BUILDDIR,f),f)
     base_env.ConvertNewlinesB(os.path.join(BUILDDIR,"RHVoice.ini"),os.path.join("config","RHVoice.conf"))
     # env.ConvertNewlinesB(os.path.join(BUILDDIR,"dict.txt"),os.path.join("config","dicts","example.txt"))
-    SConscript(os.path.join("src","nvda-synthDriver","SConscript"),
-               variant_dir=os.path.join(BUILDDIR,"nvda-synthDriver"),
+    SConscript(os.path.join("src","nvda-addon","SConscript"),
+               variant_dir=os.path.join(BUILDDIR,"nvda-addon"),
                exports={"env":base_env},
                duplicate=0)
 
@@ -376,6 +380,7 @@ vars=create_user_vars()
 base_env=create_base_env(vars)
 display_help(base_env,vars)
 vars.Save(var_cache,base_env)
+SConscript(dirs=boost_includedir)
 if sys.platform=="win32":
     build_for_windows(base_env,vars)
 else:

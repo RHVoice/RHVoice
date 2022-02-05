@@ -8,13 +8,14 @@
 
 ## NVDA
 
-[Основное дополнение](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.4.2.nvda-addon), версия 1.4.2
+[Основное дополнение](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-1.6.0.nvda-addon), версия 1.6.0
 
 ### Русский
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-4.2.2009.9.nvda-addon), версия 4.2.2009.9
 * [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda), версия 4.0.2009.9
 * [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda), версия 4.0.2009.9
+* [Vitaliy](https://rhvoice.su/downloads/?voice=vitaliy&type=nvda), версия 4.0.2009.9
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-4.1.2009.9.nvda-addon), версия 4.1.2009.9
 * [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), версия 4.0.2009.9
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версия 4.0.2009.9
@@ -34,6 +35,7 @@
 
 * [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda), версия 4.0.2007.9
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-4.0.2007.9.nvda-addon), версия 4.0.2007.9
+* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=nvda), версия 4.0.2007.9
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-4.1.2007.9.nvda-addon), версия 4.1.2007.9
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-4.0.2007.9.nvda-addon), версия 4.0.2007.9
 * [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-4.0.2007.9.nvda-addon), версия 4.0.2007.9
@@ -77,6 +79,7 @@
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.2009.13-setup.exe), версия 4.2.2009.13
 * [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi), версия 4.0.2009.14
 * [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi), версия 4.0.2009.14
+* [Vitaliy](https://rhvoice.su/downloads/?voice=vitaliy&type=sapi), версия 4.0.2009.14
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.2009.13-setup.exe), версия 4.1.2009.13
 * [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версия 4.0.2009.14
 * [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версия 4.0.2009.14
@@ -96,6 +99,7 @@
 
 * [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi), версия 4.0.2007.14
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.2007.13-setup.exe), версия 4.0.2007.13
+* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=sapi), версия 4.0.2007.14
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.2007.13-setup.exe), версия 4.1.2007.13
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.2007.13-setup.exe), версия 4.0.2007.13
 * [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-v4.0.2007.13-setup.exe), версия 4.0.2007.13
@@ -135,7 +139,7 @@
 ## Android
 
 * [Приложение для Android на Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
-* [Прямая ссылка на приложение для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.4.2.apk), версия 1.4.2
+* [Прямая ссылка на приложение для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.6.1.apk), версия 1.6.1
 
 В большинстве случаев лучше устанавливать голоса непосредственно из основного приложения. Но если это по какой-то причине невозможно, вы можете установить языковые и голосовые данные, используя следующие пакеты:
 
