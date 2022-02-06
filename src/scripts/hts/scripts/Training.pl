@@ -493,7 +493,9 @@ if ($ERST1) {
    }
 }
 
-# HHEd (tree-based context clustering)
+for($cli=1 ; $cli < $NUMCL ; $cli++) {
+    # HHEd (tree-based context clustering)
+    print("\n\nIteration $cli of tree-based context clustering\n");
 if ($CXCL1) {
    print_time("tree-based context clustering");
 
@@ -502,13 +504,17 @@ if ($CXCL1) {
 
    # tree-based clustering
    foreach $set (@SET) {
-      shell("cp $fullmmf{$set} $clusmmf{$set}");
+       if($cli == 1) {
+           shell("cp $fullmmf{$set} $clusmmf{$set}");
+       } else {
+           shell("cp $untymmf{$set} $clusmmf{$set}");
+       }
 
       foreach $type ( @{ $ref{$set} } ) {
          if ( $strw{$type} > 0.0 ) {
              make_edfile_state($type);
              $pfm->start($type) and next;
-             shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $clusmmf{$set} $mdl{$type} -w $clusmmf{$set}_$type $cxc{$type} $lst{'ful'}");
+            shell("$HHEd{'trn'} $HHEdq{$type} -C $cfg{$type} -H $clusmmf{$set} $mdl{$type} -w $clusmmf{$set}_$type $cxc{$type} $lst{'ful'}");
              $pfm->finish;
          }
       }
@@ -542,13 +548,18 @@ if ($UNTIE) {
 }
 
 # fix variables
-foreach $set (@SET) {
-    $stats{$set} .= ".untied";
-        $jmmf{$set} = $reclmmf{$set};
+    foreach $set (@SET) {
+        if($cli == 1) {
+            $stats{$set} .= ".untied";
    foreach $type ( @{ $ref{$set} } ) {
       $tre{$type} .= ".untied";
       $cxc{$type} .= ".untied";
    }
+        }
+
+    if($cli == ($NUMCL - 1)) {
+        $jmmf{$set} = $reclmmf{$set};
+    }
 }
 
 # HERest (embedded reestimation (untied))
@@ -559,6 +570,7 @@ if ($ERST3) {
 
    print("\n\nEmbedded Re-estimation for untied mmfs\n");
    shell("$HERest{'ful'} -H $untymmf{'cmp'} -N $untymmf{'dur'} -M $model{'cmp'} -R $model{'dur'} $opt $lst{'ful'} $lst{'ful'}");
+}
 }
 
 # HHEd (tree-based context clustering)
