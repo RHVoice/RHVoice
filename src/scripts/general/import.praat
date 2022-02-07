@@ -1,4 +1,4 @@
-# Copyright (C) 2015, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2015, 2017, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ min_sil_dur=0.2
 Read from file... 'input_file$'
 snd=Extract one channel... 1
 src_sample_rate=Get sampling frequency
+start_time=0
 num_samples=Get number of samples
 first_sample=1
 i=1
@@ -48,6 +49,7 @@ i-=1
 until i<1
 if first_sample!=1 or last_sample!=num_samples
 start_of_sound=Get time from sample number... first_sample
+start_time=start_of_sound
 end_of_sound=Get time from sample number... last_sample
 snd=Extract part... start_of_sound end_of_sound rectangular 1 no
 endif
@@ -65,6 +67,8 @@ if label$=="silent"
 end_of_speech=Get start point... 1 num_intervals
 end=end_of_speech+min_sil_dur
 endif
+end_time=start_time+end
+start_time=start_time+start
 select snd
 speech=Extract part... start end rectangular 1 no
 if invert!=0
@@ -89,3 +93,6 @@ if peak>0.99
 Scale peak... 0.99
 endif
 Save as WAV file... 'wav_output_file$'
+printline 'start_time'
+printline 'end_time'
+
