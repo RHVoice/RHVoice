@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2018, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -29,7 +29,8 @@ namespace RHVoice
       content_chars,
       content_glyphs,
       content_key,
-content_emoji
+      content_emoji,
+      content_phones
     };
 
   struct prosodic_attributes

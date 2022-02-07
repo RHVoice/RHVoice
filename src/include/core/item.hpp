@@ -50,8 +50,8 @@ namespace RHVoice
   class feature_not_found: public lookup_error
   {
   public:
-    explicit feature_not_found():
-      lookup_error("Feature not found")
+    explicit feature_not_found(const std::string name):
+      lookup_error("Feature not found: "+name)
     {
     }
   };
@@ -356,7 +356,7 @@ namespace RHVoice
           if(return_empty)
             return empty_value;
           else
-            throw feature_not_found();
+            throw feature_not_found(name);
         }
       else
         return it->second;
