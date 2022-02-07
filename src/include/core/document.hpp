@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2019, 2020, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -71,7 +71,8 @@ namespace RHVoice
         command_token,
         command_mark,
         command_audio,
-        command_break
+        command_break,
+        command_phones
       };
 
     class abstract_command: public utterance_function
@@ -236,6 +237,18 @@ namespace RHVoice
 
     private:
       break_strength strength;
+    };
+
+    class append_phones: public append_token
+    {
+    public:
+      explicit append_phones(const text_token& prev_token,const text_token& token):
+        append_token(prev_token,token)
+
+    {
+    }
+
+      void execute(utterance& u) const;
     };
 
     std::list<command_ptr> commands;
@@ -493,7 +506,7 @@ namespace RHVoice
     if(text_start==text_end)
       return text_start;
     text_iterator token_end=text_start;
-    if(markup_info.say_as==content_key)
+    if(markup_info.say_as==content_key || markup_info.say_as==content_phones)
       token_end=text_end;
     else if((markup_info.say_as!=content_text)&&str::isspace(*text_start))
       ++token_end;
@@ -586,6 +599,8 @@ namespace RHVoice
           commands.push_back(command_ptr(new append_token(prev_token,next_token)));
         else if(next_token.type==content_emoji)
           commands.push_back(command_ptr(new append_emoji(prev_token,next_token)));
+        else if(next_token.type==content_phones)
+          commands.push_back(command_ptr(new append_phones(prev_token,next_token)));
         else if(next_token.type==content_key)
           commands.push_back(command_ptr(new append_key(prev_token,next_token)));
         else
@@ -638,6 +653,8 @@ namespace RHVoice
     parser.add_element_handler(audio_handler);
     ssml::break_handler<char_type> break_handler;
     parser.add_element_handler(break_handler);
+    ssml::phoneme_handler<char_type> phoneme_handler;
+    parser.add_element_handler(phoneme_handler);
     parser.parse(text_start,text_end,*doc_ptr);
     return doc_ptr;
   }

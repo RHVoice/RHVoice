@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -360,6 +360,33 @@ namespace RHVoice
               strength=break_sentence;
           }
           args.target_document.add_break(strength);
+        return false;
+      }
+    };
+
+    template<typename ch>
+    class phoneme_handler: public xml::element_handler<ch>
+    {
+    public:
+      phoneme_handler():
+        xml::element_handler<ch>("phoneme")
+      {
+      }
+
+      bool enter(xml::handler_args<ch>& args)
+      {
+        const std::string a=xml::get_attribute_value(args.node,"alphabet");
+        if(a.empty() || a=="x-RHVoice")
+          {
+            xml::text_iterator<const ch*> start, end;
+            auto r=xml::get_attribute_value_range(args.node,"ph", start, end);
+            if(r)
+              {
+                auto m=args.tts_markup_info;
+                m.say_as=content_phones;
+                args.target_document.add_text(start, end, m);
+              }
+          }
         return false;
       }
     };
