@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2012, 2013, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2013, 2017, 2021  Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -202,8 +202,9 @@ class recordings_importer(task):
 			 os.path.join(workdir,"data","raw",outname+".raw"),
 			 str(self.settings["sample_rate"]),
 			 "1" if self.settings.get("invert",False) else "0",
-				 str(self.settings.get("silence_threshold",-40))]
-		subprocess.check_call(cmd)
+		str(self.settings.get("silence_threshold",-40))]
+		out=subprocess.check_output(cmd)
+		return tuple(map(float, out.strip().split()))
 
 	def __call__(self,args):
 		subdirs=["raw","wav"]
@@ -213,11 +214,16 @@ class recordings_importer(task):
 				os.mkdir(dir)
 		files=self.get_file_list()
 		mapping=collections.OrderedDict()
+		times=collections.OrderedDict()
 		for inpath,inname,outname in files:
-			self.process(inpath,inname,outname)
-			mapping[outname]=os.path.splitext(inname)[0]
+			inbase=os.path.splitext(inname)[0]
+			t1,t2=self.process(inpath,inname,outname)
+			mapping[outname]=inbase
+			times[inbase]=[t1,t2]
 		with open("file_name_mapping.json","w") as f:
 			json.dump(mapping,f,indent=0)
+		with open("trim.json","w") as f:
+			json.dump(times,f,indent=0)
 
 class htk_segmenter(task):
 	def register(self):
