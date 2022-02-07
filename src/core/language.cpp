@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2016, 2019, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2016, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -955,9 +955,14 @@ item& language::append_emoji(utterance& u,const std::string& text) const
   {
     if(token.has_children())
       return;
+    const std::string& token_pos=token.get("pos").as<std::string>();
+    if(token_pos=="ph")
+      {
+        token.append_child().set<std::string>("name", "_");
+        return;
+      }
     if(decode_as_english(token))
       return;
-    const std::string& token_pos=token.get("pos").as<std::string>();
     const std::string& token_name=token.get("name").as<std::string>();
     if(token_pos=="word")
       decode_as_word(token,token_name);
@@ -1392,6 +1397,13 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
       }
 }
 
+  void language::set_user_phones(item& word) const
+  {
+    const std::string s=word.as("TokStructure").parent().get("name").as<std::string>();
+    str::tokenizer<str::is_space> t(s);
+    std::copy(t.begin(), t.end(), word.back_inserter());
+  }
+
   void language::do_g2p(utterance& u) const
   {
     relation& word_rel=u.get_relation("Word");
@@ -1399,9 +1411,14 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     relation& trans_rel=u.add_relation("Transcription");
     for(relation::iterator word_iter=word_rel.begin();word_iter!=word_rel.end();++word_iter)
       {
-        before_g2p(*word_iter);
+        const bool ph=(word_iter->as("TokStructure").parent().get("pos").as<std::string>()=="ph");
+        if(!ph)
+          before_g2p(*word_iter);
         item& word=trans_rel.append(*word_iter);
-        assign_pronunciation(word);
+        if(ph)
+          set_user_phones(word);
+        else
+          assign_pronunciation(word);
         if(!word.has_children())
           throw g2p_error(word);
       }
