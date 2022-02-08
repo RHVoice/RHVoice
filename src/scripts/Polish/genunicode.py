@@ -86,19 +86,37 @@ def getTranscription(str):
 		res=res[:-4]
 	return res
 
+def errExit(msg):
+	print("Error: "+msg)
+	exit(1)
+
 fi=open("chardesc.tsv")
 charsList=csv.reader(fi, delimiter="\t")
 next(charsList) #Skip header row.
+lineNum=1
 translitParts=[]
 translitTokParts=[]
 downcaseParts=[]
 lseqParts=[]
 spellParts=[]
 for ch in charsList:
+	lineNum=lineNum+1
 	lowcaseChar, upcaseChar, nativeStr, descStr, *_=ch
-	nativeStr=nativeStr.lower()
-	descStr=descStr.lower()
+	lowcaseChar=lowcaseChar.strip()
+	if not len(lowcaseChar):
+		errExit("No lowcase char in line %d" %(lineNum))
+	upcaseChar=upcaseChar.strip()
+	if not len(upcaseChar):
+		errExit("No upcase char in line %d" %(lineNum))
+	nativeStr=nativeStr.lower().strip()
+	if not len(nativeStr):
+		errExit("No translit in line %d" %(lineNum))
+	descStr=descStr.lower().strip()
+	if not len(descStr):
+		errExit("No description in line %d" %(lineNum))
 	lseqStr=getTranscription(descStr)
+	if not len(lseqStr):
+		errExit("Can not generate transcription for description  in line %d" %(lineNum))
 	translitParts.append("[%"+lowcaseChar+"|%"+upcaseChar+"] -> {"+nativeStr+"} || _ ")
 	translitTokParts.append("[%"+lowcaseChar+"|%"+upcaseChar+"] -> "+nativeStr[:1]+" || _ ")
 	downcaseParts.append("%"+upcaseChar+" -> %"+lowcaseChar+" || _ ")
@@ -119,7 +137,7 @@ define UnicodeToNativeTranslit \n"""\
 +",,\n".join(translitParts)+";\n"\
 +"""
 
-#For tok:
+#For tok (single char to single letter):
 define UnicodeToNativeTranslitTok \n"""\
 +",,\n".join(translitTokParts)+";\n"\
 +"""
