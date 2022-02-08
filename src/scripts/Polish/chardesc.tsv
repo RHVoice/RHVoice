@@ -1,12 +1,13 @@
 Lower case	Upper case	Translit	spell	Notes
 ß	ẞ	s	szarfes es	
-ņ	Ņ	ń	en z cedyllą	
+ñ	Ñ	ń	en z tyldą	
 ç	Ç	s	ce z cedyllą	
 ḉ	Ḉ	c	ce ostre z cedyllą	
 á	Á	a	a ostre	
 é	É	e	e ostre	
 í	Í	i	i ostre	
 ú	Ú	u	u ostre	
+ý	Ý	y	igrek ostre	
 ä	Ä	e	a umlaut	jäger
 ü	Ü	i	u umlaut	glück
 ö	Ö	e	o umlaut	wörterbuch
@@ -16,5 +17,58 @@ Lower case	Upper case	Translit	spell	Notes
 đ	Đ	dź	de skreślone	
 ř	Ř	rz	er z haczkiem	
 ň	Ň	ń	en z haczkiem	
-ě	Ě	e	e z haczkiem	
+ě	Ě	ie	e z haczkiem	
 ľ	Ľ	l	el z haczkiem	
+ô	Ô	o	o z daszkiem	
+ĺ	Ĺ	l	el ostre	
+ŕ	Ŕ	r	er ostre	
+ů	Ů	u	u z kółkiem	
+ď	Ď	d	de z haczkiem	
+ť	Ť	t	te z haczkiem	
+à	À	a	a ciężkie	
+è	È	e	e ciężkie	
+ì	ì	i	i ciężkie	
+ò	Ò	o	o ciężkie	
+ù	Ù	u	u ciężkie	
+ã	Ã	a	a z tyldą	
+ë	Ë	e	e umlaut	
+ō	Ō	ó	o z makronem	
+ŏ	Ŏ	o	o z łuczkiem	
+õ	Õ	o	o z tyldą	
+ŭ	Ŭ	ł	u z łuczkiem	
+α	Α	a	alfa	
+ά	Ά	a	alfa tonos	
+β	Β	b	beta	
+γ	Γ	g	gamma	
+δ	Δ	d	delta	
+ε	Ε	e	epsylon	
+έ	Έ	e	epsylon tonos	
+ζ	Ζ	z	zeta	
+η	Η	e	eta	
+ή	Ή	e	eta tonos	
+θ	Θ	th	theta	
+ι	Ι	i	jota	
+ί	Ί	i	jota tonos	
+ϊ	Ϊ	i	jota dialitika	
+ΐ	ΐ	i	jota tonos dialitika	
+κ	Κ	k	kappa	
+λ	Λ	l	lambda	
+μ	Μ	m	my	
+ν	Ν	n	ny	
+ξ	Ξ	x	ksi	
+ο	Ο	o	omikron	
+ό	Ό	o	omikron tonos	
+π	Π	p	pi	
+ρ	Ρ	r	ro	
+σ	Σ	s	sigma	
+ς	ς	s	sigma teliko	
+τ	Τ	t	tau	
+υ	Υ	y	ipsylon	
+ύ	Ύ	y	ipsylon tonos	
+ϋ	Ϋ	y	ipsylon dialitika	
+ΰ	ΰ	y	ipsylon tonos dialitika	
+φ	Φ	f	fi	
+χ	Χ	ch	chi	
+ψ	Ψ	ps	psi	
+ω	Ω	o	omega	
+ώ	Ώ	o	omega tonos	
