@@ -84,10 +84,25 @@ define processMultigraphs2
 #Convert rest of "rz" to zh phonem:
 {rz} -> zh ||  _ ,,
 #convert to zh also exceptions from virtual rz
+rz -> zh ||
 #umarza, umarzalność...
-rz -> zh || {uma} _ a ,
+{uma} _ a ,
 #marzanna:
-{ma} _ {ann} ,,
+{ma} _ {ann} ,
+#dymarza
+d ih m a _ a ,
+#kałamarza:
+k a w a m a _ a,
+#karczmarza:
+k a r ch m a _ a,
+#kramarza:
+k r a m a _ a,
+#marzanowata:
+m a _ a n o ,
+#komarza, przekomarzać nieprzekomarzać:
+k o m a _ a,
+#rymarza:
+r ih m a _ a,,
 #dż to dzh:
 [d zh] -> dzh || _ ,,
 #exceptions from dzh2:
