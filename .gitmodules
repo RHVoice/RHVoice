@@ -46,3 +46,6 @@
 [submodule "data/voices/magda"]
 	path = data/voices/magda
 	url = https://github.com/RHVoice/magda-pol.git
+[submodule "data/voices/natan"]
+	path = data/voices/natan
+	url = https://github.com/RHVoice/natan-pol.git
