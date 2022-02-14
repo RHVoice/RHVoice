@@ -4,7 +4,7 @@ ext.lifecycle_version = "2.3.1"
 
 ext.major_version=1
 ext.minor_version=7
-ext.revision_number=9
+ext.revision_number=10
 
 task BoostIncludes(type: Exec) {
      workingDir '../../..'
