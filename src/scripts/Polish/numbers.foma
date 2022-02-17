@@ -41,7 +41,7 @@ define Teens 1:0 [%0:dziesięć|1:jedenaście|2:dwanaście|3:trzynaście|4:czter
 
 define Tens %0:0|2:dwadzieścia|3:trzydzieści|4:czterdzieści|5:piędziesiąt|6:sześdziesiąt|7:siedemdziesiąt|8:osiemdziesiąt|9:dziewiędziesiąt;
 
-define Hundreds %0:0|1:sto|2:dwieście|3:trzysta|4:czterysta|5:pięćset|6:sześćset|7:siedemset|8:osiemset|9:dziewięćset;
+define Hundreds %0:0|1:sto|2:dwieście|3:trzysta|4:czterysta|5:pięćset|6:sześset|7:siedemset|8:osiemset|9:dziewięćset;
 
 define UpToThousand %0:zero .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
 
@@ -57,9 +57,9 @@ tysiąc:tysięcy|
 milion:milionów|
 miliard:miliardów|
 bilion:bilionów -> || 
-[dwadzieścia|trzydzieści|czterdzieści|pięćdziesiąt|
-sześćdziesiąt|siedemdziesiąt|osiemdziesiąt|dziewięćdziesiąt|
-sto|dwieście|trzysta|czterysta|pięćset|sześćset|
+[dwadzieścia|trzydzieści|czterdzieści|piędziesiąt|
+sześdziesiąt|siedemdziesiąt|osiemdziesiąt|dziewiędziesiąt|
+sto|dwieście|trzysta|czterysta|pięćset|sześset|
 siedemset|osiemset|dziewięćset] jeden _ ;
 
 define RemoveOne 

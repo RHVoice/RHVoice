@@ -66,6 +66,10 @@ define processMultigraphs1
 {ma} _ a|l|w|n|ni ,
 #mierzi, obmierzł, zmierzły, not mierzy, mierz...
 m i e _ i|w,
+#erzac, nie rycerzach, nie domierzacie:
+e _ a c[ \i|.#.],
+#erzatz:
+e _ a t z ,
 #superzdrowy, hiperzręczny, cyberzagrożenia:
 {supe}| {hipe} | [c  ih b e] _ ,,
 #d ż, nie dż:
@@ -151,14 +155,20 @@ _ g [l|m|n],
 _ n [ g | u ],
 #aksis aksisie not basista
  _ s [.#.|\t],
+ #eliksir
+ k _ r,
 #epsilon, ypsilon
 p _ l ,
+#impossible, not aeropressie
+s _ \e,
 #sizal, sizalami, not bruksizm, marksizować, psiząb...
 _ z [\on&\m&\o],,
 #"z i", not convert to zi:
 {zi} @-> zi2 ||
 #*bezi (not bezik*)
 .#. [u | n i e | 0] b e _ \k,
+#muezin, muezzin:
+m u e (z) _ n,
 #rozigrane, nieroziskrzone, 
 .#. (n i e) r o _ ,,
 #Not soften zh:
@@ -208,16 +218,20 @@ ih @-> y ||
 #y vowel yaht, yeti, 
 .#. _ VowelPhonem&\ih,
 #boy, boya, boye, bayerowski, boyizm
-VowelPhonem&\ih _ [VowelPhonem&\ih]|.#.,
+VowelPhonem&\ih&\u _ [VowelPhonem&\ih]|.#.,
 #boys, boysband, disneyland,
 VowelPhonem _ \VowelPhonem ,,
 #e.g.: zaczął=zaczoł, zaczęła=zaczeła:
 [on : o |
 en: e] @-> || _ w ,,
+#klient:
 k l i e @-> k l i y e || _ ,,
+#statua:
+u a @-> u w a || _ .#. ,,
+#statuy:
+u ih @-> u w ih || _ .#. ,,
 #x na ks:
 x @-> k s || _ ;
-
 
 source stress.foma
 source unicodechars.foma
@@ -230,5 +244,5 @@ processMultigraphs3 .o.
 FlagExceptions .o.
 Stage2 .o.
 UnflagExceptions .o.
-procStress1 .o.
+procStressG2p .o.
 procStress2;
