@@ -1,4 +1,10 @@
 <speak xml:lang="pl">
+<s>1000</s>
+<s>31000</s>
+<s>50</s>
+<s>51000</s>
+<s>53001</s>
+<s>600</s>
 <s>aksis</s>
 <s>aksisie</s>
 <s>anastasisie</s>
@@ -8,6 +14,7 @@
 <s>antyoksydant</s>
 <s>antysystem</s>
 <s>antyustrojowy</s>
+<s>aeropressie</s>
 <s>bayerowski</s>
 <s>basista</s>
 <s>bentley</s>
@@ -34,15 +41,23 @@
 <s>cyberzagrożenia</s>
 <s>disneyland</s>
 <s>disneylandach</s>
+<s>domierzacie</s>
 <s>drożdże</s>
 <s>drzewo</s>
 <s>dymarza</s>
 <s>działo</s>
 <s>dzień</s>
 <s>dzisiaj</s>
+<s>eliksir</s>
+<s>eliksirach</s>
 <s>epsilon</s>
+<s>erzac</s>
+<s>erzacem</s>
+<s>erzatz</s>
+<s>erzatzem</s>
 <s>fixie</s>
 <s>fixing</s>
+<s>fortissimo</s>
 <s>gipsiarnia</s>
 <s>grypsik</s>
 <s>hiperzręczny</s>
@@ -66,6 +81,8 @@
 <s>menadżerowaniem</s>
 <s>mierzi</s>
 <s>mierzy</s>
+<s>muezin</s>
+<s>muezzin</s>
 <s>nadzieja</s>
 <s>nadzorca</s>
 <s>nadzwyczajny</s>
@@ -120,6 +137,7 @@
 <s>rozfalowania</s>
 <s>roziskrzone </s>
 <s>rozmarza</s>
+<s>rycerzach</s>
 <s>rymarza</s>
 <s>siara</s>
 <s>siglum</s>
@@ -136,6 +154,8 @@
 <s>siny</s>
 <s>sizal</s>
 <s>sizalami</s>
+<s>statua</s>
+<s>statuy</s>
 <s>stolarz</s>
 <s>superzdrowy</s>
 <s>także</s>

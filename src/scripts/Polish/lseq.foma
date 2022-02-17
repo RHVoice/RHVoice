@@ -56,4 +56,4 @@ source unicodechars.foma
 define TranscribeLetterSequence LetterLseq|UnicodeLseq -> || _ ;
 
 regex TranscribeLetterSequence .o.
-procStress1 .o. procStress2; 
+procStressLseq .o. procStress2; 

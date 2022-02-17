@@ -1,5 +1,6 @@
 define UnstressedVowelPhonem [a | on | e | en | i | o | u | ih ] ;
-define procStress1 [a:a1|
+
+define setStress [a:a1|
 on:on1|
 e:e1|
 en:en1|
@@ -7,10 +8,17 @@ i:i1|
 o:o1|
 u:u1|
 ih:ih1
-] @-> ||
+];
+
+define procStressG2p setStress @-> ||
 _ \UnstressedVowelPhonem+ UnstressedVowelPhonem+ .#.,
 _ \UnstressedVowelPhonem+ UnstressedVowelPhonem+ \UnstressedVowelPhonem+ .#.,
 .#. \UnstressedVowelPhonem+ _ \UnstressedVowelPhonem+ .#.;
+
+define procStressLseq setStress @-> ||
+_ \UnstressedVowelPhonem+ .#.,
+_  .#.;
+
 
 define procStress2 [a:a0|
 on:on0|
