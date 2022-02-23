@@ -724,11 +724,10 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 	description="RHVoice"
 
 	supportedSettings=[synthDriverHandler.SynthDriver.VoiceSetting(),
-					   synthDriverHandler.SynthDriver.RateSetting(),
-					   synthDriverHandler.SynthDriver.PitchSetting(),
+					   synthDriverHandler.SynthDriver.RateSetting()] + \
+					   ([synthDriverHandler.SynthDriver.RateBoostSetting()] if hasattr(synthDriverHandler.SynthDriver,"RateBoostSetting") else []) + \
+					   [synthDriverHandler.SynthDriver.PitchSetting(),
 					   synthDriverHandler.SynthDriver.VolumeSetting()]
-	if hasattr(synthDriverHandler.SynthDriver,"RateBoostSetting"):
-		supportedSettings.append(synthDriverHandler.SynthDriver.RateBoostSetting())
 
 	if api_version>=api_version_2019_3:
 		supportedCommands=frozenset([cnv.get_item_class() for cnv in speech_command_converters])
