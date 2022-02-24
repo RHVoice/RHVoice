@@ -270,8 +270,20 @@ class htk_segmenter(task):
 		self.param_conf_path=os.path.join(self.workdir,"param.conf")
 		self.hmmdir=os.path.join(self.workdir,"hmm")
 		self.proto_path=os.path.join(self.workdir,"proto")
+		self.proto1_path=os.path.join(self.workdir,"proto1")
+		self.sil_mmf_path=os.path.join(self.workdir, "sil.mmf")
 		with open("file_name_mapping.json") as f:
 			self.file_name_mapping=json.load(f)
+		self.init_sil_flag=self.settings.get("seg_init_sil", False)
+		if self.init_sil_flag:
+			from webrtcvad import Vad
+			self.vad_frame_size=self.settings.get("seg_vad_frame_size", 30)
+			assert(self.vad_frame_size in [10, 20, 30])
+			self.vad_frame_size*=16
+			mode=self.settings.get("seg_vad_mode", 0)
+			assert(mode in [0, 1, 2, 3])
+			self.vad=Vad(mode)
+			self.vad_mlf_path=os.path.join(self.workdir, "vad.mlf")
 
 	def transcribe(self):
 		self.transcriptions=[]
@@ -335,7 +347,7 @@ class htk_segmenter(task):
 		cmd=[os.path.join(self.settings["htk_bindir"],tool)]
 		cmd.append("-D")
 		cmd.append("-A")
-		cmd.extend(["-T","1"])
+		cmd.extend(["-T","3"])
 		cmd.extend(args)
 		if "tag" in kw:
 			fname=tool+"_"+kw["tag"]
@@ -428,12 +440,26 @@ class htk_segmenter(task):
 		proto.append("<EndHMM>")
 		return proto
 
+	def patch_initial_hmm(self, hmm, name):
+		if name!="pau":
+			return hmm
+		if not self.init_sil_flag:
+			return hmm
+		sil=self.read_lines(self.sil_mmf_path)
+		pau=list(hmm)
+		for t in ["<MEAN>", "<VARIANCE>"]:
+			v=[sil[i+1] for i in range(len(sil)) if sil[i].startswith(t)][0]
+			for i, line in enumerate(hmm):
+				if hmm[i].startswith(t):
+					pau[i+1]=v
+		return pau
+
 	def output_hmmdefs(self):
 		proto=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto"))
 		lines=[]
 		for p in self.phonelist:
 			lines.append('~h "{}"'.format(p))
-			lines.extend(proto[4:])
+			lines.extend(self.patch_initial_hmm(proto, p)[4:])
 		self.output_lines(lines,os.path.join(self.get_hmm_dir(0),"hmmdefs"))
 
 	def output_macros(self):
@@ -586,14 +612,65 @@ class htk_segmenter(task):
 				for start,end,phone in labs:
 					f.write("{} {} {}\n".format(start,end,phone))
 
+	def generate_vad_data_frames(self, samples):
+		shift=80
+		win_size=self.vad_frame_size
+		half_win_size=win_size//2
+		self.vad_time_factor=10000000
+		padded_samples=numpy.pad(samples, (half_win_size, 0))
+		for i in range(0, padded_samples.size-win_size+1, shift):
+			data=padded_samples[i:i+win_size].tobytes()
+			time=int(i*self.vad_time_factor/16000)
+			yield (data, time)
+
+	def generate_vad_frames(self, samples):
+		for data, time in self.generate_vad_data_frames(samples):
+			is_speech=self.vad.is_speech(data, 16000)
+			yield (is_speech, time)
+
+	def get_vad_start_frames(self, samples):
+		pvf=(None, 0)
+		for vf in self.generate_vad_frames(samples):
+			if vf[0]!=pvf[0]:
+				yield vf
+			pvf=vf
+
+	def vad_file(self, name):
+		print("Vad for", name)
+		sr, samples=wavfile.read(os.path.join(self.wavdir, name+".wav"))
+		assert(sr==16000)
+		assert(samples.dtype==numpy.int16)
+		frames=list(self.get_vad_start_frames(samples))
+		names=["speech" if f[0] else "sil" for f in frames]
+		starts=[f[1] for f in frames]
+		ends=[f[1] for f in frames[1:]]+[int(samples.size*self.vad_time_factor/sr)]
+		return zip(names, starts, ends)
+
+	def do_vad(self):
+		if not self.init_sil_flag:
+			return
+		with open(self.vad_mlf_path, "wt") as f:
+			f.write("#!MLF!#\n")
+			for file_name in self.recordings:
+				f.write('"*/{}.lab"\n'.format(file_name))
+				for name, start, end in self.vad_file(file_name):
+					f.write("{} {} {}\n".format(start, end, name))
+				f.write(".\n")
+
 	def __call__(self,args):
 		self.setup()
+		self.do_vad()
 		self.transcribe()
 		self.output_dict()
 		self.output_words_mlf()
 		self.expand_words_mlf()
 		self.output_phonelist()
 		self.code()
+		if self.init_sil_flag:
+			self.output_lines(self.build_proto(39,1), self.proto1_path)
+			shutil.copy(self.proto1_path, self.sil_mmf_path)
+			self.hrun("HInit", "-C", self.param_conf_path, "-S", self.mfcc_scp_path, "-l", "sil", "-I", self.vad_mlf_path, "-H", self.sil_mmf_path, "-o", "sil", "-M", self.workdir, "proto", tag="sil")
+			self.hrun("HRest", "-C", self.param_conf_path, "-S", self.mfcc_scp_path, "-l", "sil", "-I", self.vad_mlf_path, "-H", self.sil_mmf_path, "-M", self.workdir, "sil", tag="sil")
 		self.output_lines(self.build_proto(39,self.num_states),self.proto_path)
 		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
 		self.output_hmmdefs()
