@@ -18,23 +18,6 @@ sourceCompatibility JavaVersion.VERSION_1_8
 targetCompatibility JavaVersion.VERSION_1_8
 }
 
-
-    defaultConfig {
-        minSdkVersion myMinSdkVersion
-        targetSdkVersion myTargetSdkVersion
-        applicationId "com.github.olga_yakovleva.rhvoice.android"
-        versionCode = 10000 * major_version + 100 * minor_version + revision_number
-        versionName "${major_version}.${minor_version}.${revision_number}"
-        ndk{
-            abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
-        }
-        externalNativeBuild {
-            ndkBuild {
-                arguments 'V=1'
-            }
-        }
-    }
-
 compileSdkVersion myCompileSdkVersion
 
 buildFeatures {
