@@ -4,7 +4,11 @@ ext.lifecycle_version = "2.3.1"
 
 ext.major_version=1
 ext.minor_version=7
-ext.revision_number=10
+ext.revision_number=11
+ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
+
+ext.base_pkg_dir_url='https://rhvoice.org/download/packages-%s.json'
+ext.pkg_dir_url_def_fmt=/-DPKG_DIR_URL='"%s"'/
 
 task BoostIncludes(type: Exec) {
      workingDir '../../..'
@@ -29,7 +33,6 @@ multiDexEnabled true
 minSdkVersion myMinSdkVersion
 targetSdkVersion myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionCode = 10000 * major_version + 100 * minor_version + revision_number
 versionName "${major_version}.${minor_version}.${revision_number}"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
@@ -37,6 +40,7 @@ abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
 externalNativeBuild {
 ndkBuild {
 arguments 'V=1'
+          cppFlags = ['-fexceptions', '-frtti', '-std=c++11']
 }
 }
 }
@@ -75,6 +79,37 @@ minifyEnabled true
 shrinkResources true
 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 }
+}
+
+flavorDimensions 'dir'
+
+                 productFlavors {
+                 stable {
+                 dimension 'dir'
+                 versionCode = baseVersionCode
+}
+
+        alpha {
+        dimension 'dir'
+        versionCode = baseVersionCode + 5
+        versionNameSuffix '-alpha'
+        externalNativeBuild {
+        ndkBuild {
+        cppFlags+=[sprintf(pkg_dir_url_def_fmt, sprintf(base_pkg_dir_url, "latest"))]
+        }
+        }
+                }
+
+        dev {
+        dimension 'dir'
+        versionCode = baseVersionCode + 9
+        versionNameSuffix '-dev'
+        externalNativeBuild {
+        ndkBuild {
+        cppFlags+=[sprintf(pkg_dir_url_def_fmt, findProperty('RHVoice.devPkgDirUrl')?:sprintf(base_pkg_dir_url, "dev"))]
+        }
+        }
+                }
 }
 }
 

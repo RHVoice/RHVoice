@@ -26,8 +26,8 @@
 #include "curl.hpp"
 #include "url_builder.hpp"
 
-#ifndef PKG_LATEST
-#define PKG_LATEST 0
+#ifndef PKG_DIR_URL
+#define PKG_DIR_URL "https://rhvoice.org/download/packages-1.8.json"
 #endif
 
 namespace RHVoice
@@ -39,12 +39,6 @@ namespace RHVoice
 
 namespace
 {
-  #if PKG_LATEST
-    const std::string pkg_dir_url("https://rhvoice.org/download/packages-latest.json");
-  #else
-    const std::string pkg_dir_url("https://rhvoice.org/download/packages-1.8.json");
-  #endif
-
   const std::string k_last_check_time("localLastCheckTime");
   const std::string k_ttl("ttl");
   const std::string k_l_ttl("localTtl");
@@ -127,7 +121,7 @@ namespace
       auto t=ptime::second_clock::universal_time();
       cu.do_http_get(
                      h,
-                     pkg_dir_url,
+                     PKG_DIR_URL,
                      [&parser, &ec] (const char* data, std::size_t size) {
                        parser.write(data, size, ec);
                        return !ec;});
