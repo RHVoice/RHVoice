@@ -34,6 +34,7 @@ from scipy import stats
 import numpy
 from scipy.signal import firwin,lfilter,kaiserord
 from scipy.io import wavfile
+import pathlib
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
@@ -1371,11 +1372,23 @@ class voice_exporter(task):
 		info["revision"]="0"
 		self.save_config(info,path)
 
+	def get_key(self):
+		print("Calculating the speaker's median f0")
+		f0s=[]
+		for f in pathlib.Path("data/lf0").iterdir():
+			utt_lf0s=numpy.fromfile(f, dtype=numpy.float32)
+			utt_f0s=numpy.exp([v for v in utt_lf0s if v>0])
+			f0s.extend(utt_f0s)
+		key=int(numpy.round(numpy.median(f0s)))
+		print("Median f0 = ", key)
+		return key
+
 	def save_params(self):
 		path=os.path.join(self.outdir,"voice.params")
 		if os.path.isfile(path):
 			return
 		params=collections.OrderedDict([("beta","0.4"),("gain","1.0")])
+		params["key"]=str(self.get_key())
 		self.save_config(params,path)
 
 	def copy_voice(self):
