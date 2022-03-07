@@ -1,4 +1,5 @@
 /* Copyright (C) 2012, 2014, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -518,6 +519,19 @@ namespace RHVoice
       utf8_string_iterator it=utf8_string_begin(s);
       ++it;
       return (it==utf8_string_end(s));
+    }
+
+    inline std::string cp2str(utf8::uint32_t cp)
+    {
+      std::string s;
+      utf8::append(cp, std::back_inserter(s));
+      return s;
+    }
+
+    template<typename oit>
+    oit utf8explode(const std::string& s, oit out)
+    {
+      return std::transform(utf8_string_begin(s), utf8_string_end(s), out, [] (utf8::uint32_t cp)-> std::string {return cp2str(cp);});
     }
   }
 }
