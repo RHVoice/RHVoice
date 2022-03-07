@@ -1,4 +1,5 @@
 /* Copyright (C) 2012, 2014, 2016, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -580,6 +581,7 @@ else
   {
     config cfg;
     cfg.register_setting(lcfg.tok_eos);
+cfg.register_setting(lcfg.tok_sent);
     cfg.register_setting(lcfg.ph_flags);
     cfg.register_setting(lcfg.g2p_case);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
@@ -691,8 +693,28 @@ else
     register_feature(std::shared_ptr<feature_function>(new feat_utt_type));
   }
 
+  item& language::append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const
+  {
+    item& token=parent_token.as("TokStructure").append_child();
+    token.set("name",name);
+            token.set("pos",pos);
+            if(((++str::utf8_string_begin(name))==str::utf8_string_end(name))&&(pos=="word"||pos=="lseq"))
+              token.set("one-letter",true);
+            token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
+            return token;
+  }
+
   item& language::append_token(utterance& u,const std::string& text, bool eos) const
   {
+    relation& token_rel=u.get_relation("Token",true);
+    relation& tokstruct_rel=u.get_relation("TokStructure",true);
+    item& parent_token=tokstruct_rel.append(token_rel.append());
+    parent_token.set("name",text);
+    if(lcfg.tok_sent)
+      {
+        u.get_relation("TokIn", true).append(parent_token);
+        return parent_token.as("Token");
+      }
     const language_info& lang_info=get_info();
     utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
     bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
@@ -733,10 +755,6 @@ else
       {
         tokens.pop_back();
       }
-    relation& token_rel=u.get_relation("Token",true);
-    relation& tokstruct_rel=u.get_relation("TokStructure",true);
-    item& parent_token=tokstruct_rel.append(token_rel.append());
-    parent_token.set("name",text);
     std::string name,pos;
     std::vector<utf8::uint32_t>::const_iterator token_start=chars.begin();
     std::vector<utf8::uint32_t>::const_iterator token_end=token_start;
@@ -747,13 +765,8 @@ else
           {
             if(token_start==token_end)
               throw tokenization_error(text);
-            item& token=parent_token.append_child();
-            token.set("name",name);
             pos=*it;
-            token.set("pos",pos);
-            if(((token_start+1)==token_end)&&(pos=="word"||pos=="lseq"))
-              token.set("one-letter",true);
-            token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
+            item& token=append_subtoken(parent_token, name, pos);
             if((pos=="word")&&(stress.get_state()!=stress_pattern::undefined))
               token.set("stress_pattern",stress);
             stress.reset();
@@ -883,6 +896,7 @@ item& language::append_emoji(utterance& u,const std::string& text) const
 {
   if(!supports_emoji())
     throw language_error("This language doesn't support emoji");
+  on_token_break(u);
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     item& token=tokstruct_rel.append(token_rel.append());
@@ -1088,6 +1102,84 @@ else
         decode_as_character(token,token_name);
   }
 
+  void language::tokenize(utterance& u) const
+  {
+    if(!lcfg.tok_sent)
+      return;
+    if(!u.has_relation("TokIn"))
+      return;
+    relation& in_rel=u.get_relation("TokIn");
+    const std::string sb{"sb"};
+    const std::string eb{"eb"};
+    const std::string br{"br"};
+    std::vector<std::string> input;
+    for(auto it=in_rel.begin(); it!=in_rel.end(); ++it)
+      {
+        input.push_back(sb);
+        const std::string& name=it->get("name").as<std::string>();
+        str::utf8explode(name, std::back_inserter(input));
+        input.push_back(eb);
+        if(!it->has_next())
+          break;
+        if(it->has_feature("break"))
+          {
+            input.push_back(br);
+            continue;
+          }
+        const std::string& whitespace=it->next().get("whitespace").as<std::string>();
+        str::utf8explode(whitespace, std::back_inserter(input));
+      }
+    std::vector<std::string> output;
+    if(!tok_fst.translate(input.begin(), input.end(), std::back_inserter(output)))
+      throw tokenization_error("");
+    auto in_it=input.cbegin();
+    auto in_tok_it=in_rel.begin();
+    auto out_tok_it=in_tok_it;
+    std::string name;
+    bool in_whitespace=false;
+    bool first_sb=true;
+    for(const auto& out_sym: output)
+      {
+        if(in_it==input.end() || out_sym!=*in_it)
+          {
+            if(name.empty())
+              throw tokenization_error("");
+            if(out_tok_it==in_rel.end())
+              throw tokenization_error(name);
+            append_subtoken(*out_tok_it, name, out_sym);
+            name.clear();
+            out_tok_it=in_tok_it;
+            continue;
+          }
+        ++in_it;
+        if(out_sym==eb)
+          {
+            in_whitespace=true;
+            continue;
+              }
+        if(out_sym==br)
+          continue;
+        if(out_sym==sb)
+          {
+            in_whitespace=false;
+            if(first_sb)
+              first_sb=false;
+            else
+              {
+                ++in_tok_it;
+                if(name.empty())
+                  out_tok_it=in_tok_it;
+              }
+            continue;
+          }
+        if(in_whitespace && name.empty())
+          continue;
+        name.append(out_sym);
+  }
+    if(!name.empty())
+      throw tokenization_error(name);
+  }
+
   void language::do_text_analysis(utterance& u) const
   {
     udict.apply_rules(u);
@@ -1156,6 +1248,15 @@ else
     const std::string& brk=phrasing_dtree.predict(word).as<std::string>();
     return ((brk=="NB")?break_none:break_phrase);
   }
+
+void language::on_token_break(utterance& u) const
+{
+  if(!lcfg.tok_sent)
+    return;
+  if(!u.has_relation("TokIn"))
+    return;
+  u.get_relation("TokIn").last().set("break", true);
+}
 
   void language::phrasify(utterance& u) const
   {
