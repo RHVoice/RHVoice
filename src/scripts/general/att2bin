@@ -2,6 +2,7 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
 # Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,6 +20,7 @@
 import sys
 import codecs
 import struct
+import re
 
 class arc(object):
 	__slots__=["dest","isym","osym"]
@@ -60,7 +62,14 @@ class fst(object):
 			self.states.extend(state() for i in range(n,id+1))
 		return self.states[id]
 
-	def get_sym_id(self,name):
+	def unescape(self, name):
+		m=re.match(r"^#x(\d+)$", name)
+		if not m:
+			return name
+		return chr(int(m.group(1), 16))
+
+	def get_sym_id(self, src_name):
+		name=self.unescape(src_name)
 		if name not in self.symbols:
 			next_id=max(self.symbols.values())+1
 			self.symbols[name]=next_id

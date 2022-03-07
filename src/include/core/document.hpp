@@ -1,4 +1,5 @@
 /* Copyright (C) 2012, 2019, 2020, 2021  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -205,6 +206,7 @@ namespace RHVoice
       void execute(utterance& u) const
       {
         u.get_relation("Event",true).append().set("audio",src);
+        u.get_language().on_token_break(u);
       }
 
       bool has_text() const
@@ -232,7 +234,11 @@ namespace RHVoice
       void execute(utterance& u) const
       {
         if(u.has_relation("TokStructure"))
-          u.get_relation("TokStructure").last().set("break_strength",strength);
+          {
+            u.get_relation("TokStructure").last().set("break_strength",strength);
+            if(strength>=break_phrase)
+              u.get_language().on_token_break(u);
+          }
       }
 
     private:
