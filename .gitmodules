@@ -172,3 +172,6 @@
 [submodule "external/libs/boost/libs/type_index"]
 	path = external/libs/boost/libs/type_index
 	url = https://github.com/boostorg/type_index
+[submodule "data/voices/natan"]
+	path = data/voices/natan
+	url = https://github.com/RHVoice/natan-pol.git

@@ -258,6 +258,8 @@ $IFFTR        = '@IFFTR@';
 $MATLAB   = '@MATLAB@';
 $STRAIGHT = '@STRAIGHT@';
 
+$NUMPROC = 1;
+$NUMCL = 2;
 
 # Switch ================================
 $MKEMV = 1; # preparing environments

@@ -1,7 +1,7 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2012, 2013, 2017  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2013, 2017, 2021  Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ from scipy import stats
 import numpy
 from scipy.signal import firwin,lfilter,kaiserord
 from scipy.io import wavfile
+import pathlib
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
@@ -120,12 +121,12 @@ class task(object):
 		return phoneset
 
 	def load_speech(self,name):
-		samples=numpy.fromfile(os.path.join("data","raw",name+".raw"),numpy.int32).astype(numpy.float)
+		samples=numpy.fromfile(os.path.join("data","raw",name+".raw"),numpy.int32).astype(float)
 		samples/=(2**31)
 		return samples
 
 	def load_f0(self,name):
-		lf0=numpy.fromfile(os.path.join("data","lf0",name+".lf0"),numpy.float32).astype(numpy.float)
+		lf0=numpy.fromfile(os.path.join("data","lf0",name+".lf0"),numpy.float32).astype(float)
 		f0=numpy.zeros(lf0.size)
 		m=(lf0!=-10000000000)
 		f0[m]=numpy.exp(lf0[m])
@@ -135,7 +136,9 @@ class task(object):
 		sr=self.settings["sample_rate"]
 		nyq_freq=sr//2
 		max_freq=min(16000,nyq_freq-2000)
-		edges=[1000]+range(2000,max_freq+1,2000)
+		edges=[1000]
+		for v in range(2000,max_freq+1,2000):
+			edges.append(v)
 		return edges
 
 class configurator(task):
@@ -161,10 +164,10 @@ class configurator(task):
 		params=self.get_configure_params()
 		command=["./configure"]
 		print("HTS configuration script will be called with the folowin arguments:")
-		for key,value in params.iteritems():
+		for key,value in params.items():
 			command.append("{}={}".format(key,value))
 			print(command[-1])
-		answer=raw_input("Continue? ")
+		answer=input("Continue? ")
 		if (len(answer)==0) or (answer[0]=="y"):
 			subprocess.check_call(command)
 
@@ -200,8 +203,9 @@ class recordings_importer(task):
 			 os.path.join(workdir,"data","raw",outname+".raw"),
 			 str(self.settings["sample_rate"]),
 			 "1" if self.settings.get("invert",False) else "0",
-				 str(self.settings.get("silence_threshold",-40))]
-		subprocess.check_call(cmd)
+		str(self.settings.get("silence_threshold",-40))]
+		out=subprocess.check_output(cmd)
+		return tuple(map(float, out.strip().split()))
 
 	def __call__(self,args):
 		subdirs=["raw","wav"]
@@ -211,11 +215,16 @@ class recordings_importer(task):
 				os.mkdir(dir)
 		files=self.get_file_list()
 		mapping=collections.OrderedDict()
+		times=collections.OrderedDict()
 		for inpath,inname,outname in files:
-			self.process(inpath,inname,outname)
-			mapping[outname]=os.path.splitext(inname)[0]
+			inbase=os.path.splitext(inname)[0]
+			t1,t2=self.process(inpath,inname,outname)
+			mapping[outname]=inbase
+			times[inbase]=[t1,t2]
 		with open("file_name_mapping.json","w") as f:
 			json.dump(mapping,f,indent=0)
+		with open("trim.json","w") as f:
+			json.dump(times,f,indent=0)
 
 class htk_segmenter(task):
 	def register(self):
@@ -235,10 +244,10 @@ class htk_segmenter(task):
 		self.make_dirs()
 		self.workdir="htk"
 		self.phoneset=self.get_phoneset()
-		self.plosives=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="s")
-		self.affricates=set(phone for phone,features in self.phoneset.iteritems() if features.get("ctype")=="a")
+		self.plosives=set(phone for phone,features in self.phoneset.items() if features.get("ctype")=="s")
+		self.affricates=set(phone for phone,features in self.phoneset.items() if features.get("ctype")=="a")
 		self.stops=self.plosives|self.affricates
-		self.voiced_consonants=set(phone for phone,features in self.phoneset.iteritems() if features.get("cvox")=="+")
+		self.voiced_consonants=set(phone for phone,features in self.phoneset.items() if features.get("cvox")=="+")
 		self.wavdir=os.path.join("data","wav")
 		self.recordings=[os.path.splitext(name)[0] for name in sorted(os.listdir(self.wavdir))]
 		self.param_settings={
@@ -262,8 +271,20 @@ class htk_segmenter(task):
 		self.param_conf_path=os.path.join(self.workdir,"param.conf")
 		self.hmmdir=os.path.join(self.workdir,"hmm")
 		self.proto_path=os.path.join(self.workdir,"proto")
+		self.proto1_path=os.path.join(self.workdir,"proto1")
+		self.sil_mmf_path=os.path.join(self.workdir, "sil.mmf")
 		with open("file_name_mapping.json") as f:
 			self.file_name_mapping=json.load(f)
+		self.init_sil_flag=self.settings.get("seg_init_sil", False)
+		if self.init_sil_flag:
+			from webrtcvad import Vad
+			self.vad_frame_size=self.settings.get("seg_vad_frame_size", 30)
+			assert(self.vad_frame_size in [10, 20, 30])
+			self.vad_frame_size*=16
+			mode=self.settings.get("seg_vad_mode", 0)
+			assert(mode in [0, 1, 2, 3])
+			self.vad=Vad(mode)
+			self.vad_mlf_path=os.path.join(self.workdir, "vad.mlf")
 
 	def transcribe(self):
 		self.transcriptions=[]
@@ -301,7 +322,7 @@ class htk_segmenter(task):
 	def output_dict(self):
 		dict_path=os.path.join(self.workdir,"dict")
 		with open(dict_path,"wt") as f:
-			for word in sorted(self.lex.iterkeys()):
+			for word in sorted(self.lex.keys()):
 				prons=self.lex[word]
 				for pron in prons:
 					f.write(word)
@@ -327,7 +348,7 @@ class htk_segmenter(task):
 		cmd=[os.path.join(self.settings["htk_bindir"],tool)]
 		cmd.append("-D")
 		cmd.append("-A")
-		cmd.extend(["-T","1"])
+		cmd.extend(["-T","3"])
 		cmd.extend(args)
 		if "tag" in kw:
 			fname=tool+"_"+kw["tag"]
@@ -350,7 +371,7 @@ class htk_segmenter(task):
 
 	def output_config(self,params,path):
 		with open(path,"w") as f:
-			for k,v in sorted(params.iteritems()):
+			for k,v in sorted(params.items()):
 				f.write("{} = {}\n".format(k,v))
 
 	def output_lines(self,values,path):
@@ -394,7 +415,7 @@ class htk_segmenter(task):
 		n=ns+2
 		m=numpy.zeros((n,n))
 		m[0,1]=1
-		for i in xrange(1,n-2):
+		for i in range(1,n-2):
 			m[i,i]=0.6
 			m[i,i+1]=0.4
 		m[-2,-2]=0.7
@@ -407,7 +428,7 @@ class htk_segmenter(task):
 		proto.append('~h "proto"')
 		proto.append("<BeginHMM>")
 		proto.append("<NumStates> {}".format(ns+2))
-		for i in xrange(2,ns+2):
+		for i in range(2,ns+2):
 			proto.append("<State> {}".format(i))
 			proto.append("<Mean> {}".format(n))
 			proto.append(" ".join(["0.0"]*n))
@@ -415,17 +436,31 @@ class htk_segmenter(task):
 			proto.append(" ".join(["1.0"]*n))
 		proto.append("<TransP> {}".format(ns+2))
 		m=self.make_proto_trans_matrix(ns)
-		for i in xrange(m.shape[0]):
+		for i in range(m.shape[0]):
 			proto.append(" ".join(map(str,m[i])))
 		proto.append("<EndHMM>")
 		return proto
+
+	def patch_initial_hmm(self, hmm, name):
+		if name!="pau":
+			return hmm
+		if not self.init_sil_flag:
+			return hmm
+		sil=self.read_lines(self.sil_mmf_path)
+		pau=list(hmm)
+		for t in ["<MEAN>", "<VARIANCE>"]:
+			v=[sil[i+1] for i in range(len(sil)) if sil[i].startswith(t)][0]
+			for i, line in enumerate(hmm):
+				if hmm[i].startswith(t):
+					pau[i+1]=v
+		return pau
 
 	def output_hmmdefs(self):
 		proto=self.read_lines(os.path.join(self.get_hmm_dir(0),"proto"))
 		lines=[]
 		for p in self.phonelist:
 			lines.append('~h "{}"'.format(p))
-			lines.extend(proto[4:])
+			lines.extend(self.patch_initial_hmm(proto, p)[4:])
 		self.output_lines(lines,os.path.join(self.get_hmm_dir(0),"hmmdefs"))
 
 	def output_macros(self):
@@ -451,7 +486,7 @@ class htk_segmenter(task):
 
 	def reest_until(self,n,j,min_epsilon,max_iter):
 		initial=True
-		for i in xrange(n,n+max_iter):
+		for i in range(n,n+max_iter):
 			print("Reestimating hmm {}".format(i))
 			self.reest(i,j)
 			alppf=self.get_alppf(i)
@@ -562,7 +597,7 @@ class htk_segmenter(task):
 			pau_plus_stop_limits[phone]=stats.scoreatpercentile(self.durations[phone],95)
 		for file_name,labs in self.alignments:
 			new_labs=[list(labs[0]),list(labs[1])]
-			for i in xrange(2,len(labs)-1):
+			for i in range(2,len(labs)-1):
 				if new_labs[-1][2]=="pau" and labs[i][2] in self.stops and (labs[i][1]-new_labs[-1][0]) < pau_plus_stop_limits[labs[i][2]]:
 					new_labs[-1][1]=labs[i][1]
 					new_labs[-1][2]=labs[i][2]
@@ -578,14 +613,65 @@ class htk_segmenter(task):
 				for start,end,phone in labs:
 					f.write("{} {} {}\n".format(start,end,phone))
 
+	def generate_vad_data_frames(self, samples):
+		shift=80
+		win_size=self.vad_frame_size
+		half_win_size=win_size//2
+		self.vad_time_factor=10000000
+		padded_samples=numpy.pad(samples, (half_win_size, 0))
+		for i in range(0, padded_samples.size-win_size+1, shift):
+			data=padded_samples[i:i+win_size].tobytes()
+			time=int(i*self.vad_time_factor/16000)
+			yield (data, time)
+
+	def generate_vad_frames(self, samples):
+		for data, time in self.generate_vad_data_frames(samples):
+			is_speech=self.vad.is_speech(data, 16000)
+			yield (is_speech, time)
+
+	def get_vad_start_frames(self, samples):
+		pvf=(None, 0)
+		for vf in self.generate_vad_frames(samples):
+			if vf[0]!=pvf[0]:
+				yield vf
+			pvf=vf
+
+	def vad_file(self, name):
+		print("Vad for", name)
+		sr, samples=wavfile.read(os.path.join(self.wavdir, name+".wav"))
+		assert(sr==16000)
+		assert(samples.dtype==numpy.int16)
+		frames=list(self.get_vad_start_frames(samples))
+		names=["speech" if f[0] else "sil" for f in frames]
+		starts=[f[1] for f in frames]
+		ends=[f[1] for f in frames[1:]]+[int(samples.size*self.vad_time_factor/sr)]
+		return zip(names, starts, ends)
+
+	def do_vad(self):
+		if not self.init_sil_flag:
+			return
+		with open(self.vad_mlf_path, "wt") as f:
+			f.write("#!MLF!#\n")
+			for file_name in self.recordings:
+				f.write('"*/{}.lab"\n'.format(file_name))
+				for name, start, end in self.vad_file(file_name):
+					f.write("{} {} {}\n".format(start, end, name))
+				f.write(".\n")
+
 	def __call__(self,args):
 		self.setup()
+		self.do_vad()
 		self.transcribe()
 		self.output_dict()
 		self.output_words_mlf()
 		self.expand_words_mlf()
 		self.output_phonelist()
 		self.code()
+		if self.init_sil_flag:
+			self.output_lines(self.build_proto(39,1), self.proto1_path)
+			shutil.copy(self.proto1_path, self.sil_mmf_path)
+			self.hrun("HInit", "-C", self.param_conf_path, "-S", self.mfcc_scp_path, "-l", "sil", "-I", self.vad_mlf_path, "-H", self.sil_mmf_path, "-o", "sil", "-M", self.workdir, "proto", tag="sil")
+			self.hrun("HRest", "-C", self.param_conf_path, "-S", self.mfcc_scp_path, "-l", "sil", "-I", self.vad_mlf_path, "-H", self.sil_mmf_path, "-M", self.workdir, "sil", tag="sil")
 		self.output_lines(self.build_proto(39,self.num_states),self.proto_path)
 		self.hrun("HCompV","-C",self.param_conf_path,"-f","0.01","-m","-S",self.mfcc_scp_path,"-M",self.get_hmm_dir(0),self.proto_path)
 		self.output_hmmdefs()
@@ -642,14 +728,13 @@ class f0_extracter(task):
 		command.append("1" if method.endswith("_ac") else "0")
 		output=subprocess.check_output(command)
 		os.remove("utt.wav")
-		return map(float,output.split())
+		return list(map(float,output.split()))
 
 	def extract_with_sptk(self,filepath,method,min_f0,max_f0):
 		methods={"sptk_rapt":"0","sptk_swipe":"1","sptk_reaper":"2"}
 		assert(method in methods.keys())
 		voicing_threshold=self.settings.get(method+"_voicing_threshold",None)
-		audio=((numpy.fromfile(filepath,numpy.int32).astype(numpy.float))/(2**16)).astype(numpy.float32)
-		data=struct.pack("={}f".format(audio.size),*audio)
+		audio=((numpy.fromfile(filepath,numpy.int32).astype(float))/(2**16)).astype(numpy.float32)
 		command=[os.path.join(self.settings["bindir"],"pitch")]
 		command.extend(["-a",methods[method]])
 		command.extend(["-s",str(float(self.settings["sample_rate"])/1000.0)])
@@ -660,9 +745,8 @@ class f0_extracter(task):
 		if voicing_threshold is not None:
 			command.extend(["-t"+methods[method],str(voicing_threshold)])
 		process=subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
-		output=process.communicate(data)[0]
-		count=len(output)/4
-		return list(struct.unpack("={}f".format(count),output))
+		output=process.communicate(audio.tobytes())[0]
+		return list(numpy.frombuffer(output, dtype=numpy.float32))
 
 	def extract_with_reaper(self,raw_path,min_f0,max_f0):
 		f0_path="utt.f0"
@@ -670,7 +754,7 @@ class f0_extracter(task):
 		extra_opts=[]
 		if "reaper_options" in self.settings:
 			extra_opts=self.settings["reaper_options"].split()
-		audio=numpy.fromfile(raw_path,numpy.int32).astype(numpy.float)/(2**31)
+		audio=numpy.fromfile(raw_path,numpy.int32).astype(float)/(2**31)
 		m=2**15
 		audio=numpy.round(audio*m)
 		audio[audio<-m]=-m
@@ -692,8 +776,20 @@ class f0_extracter(task):
 		os.remove(f0_path)
 		return f0s
 
+	def or_values(self, values):
+		r=values[0]
+		for v in values[1:]:
+			r=r or v
+		return r
+
+	def extract_and_or(self, file_path, methods, min_f0, max_f0):
+		values=[self.extract_with(file_path, method, min_f0, max_f0) for method in methods.split("|")]
+		return [self.or_values(x) for x in zip(*values)]
+
 	def extract_with(self,raw_path,method,min_f0,max_f0):
-		if method.startswith("praat_"):
+		if "|" in method:
+			return self.extract_and_or(raw_path, method, min_f0, max_f0)
+		elif method.startswith("praat_"):
 			return self.extract_with_praat(raw_path,method,min_f0,max_f0)
 		elif method=="reaper":
 			return self.extract_with_reaper(raw_path,min_f0,max_f0)
@@ -715,7 +811,7 @@ class f0_extracter(task):
 
 	def extract(self,raw_path,min_f0,max_f0):
 		method=self.settings["f0_method"]
-		if isinstance(method,basestring):
+		if isinstance(method,str):
 			return self.extract_with(raw_path,method,min_f0,max_f0)
 		else:
 			return self.extract_and_vote(raw_path,method,min_f0,max_f0)
@@ -767,16 +863,22 @@ class f0_range_computer(f0_extracter):
 	def __call__(self,args):
 		raw_dir=os.path.join("data","raw")
 		data=list()
+		if "guess_f0_method" in self.settings:
+			method=self.settings["guess_f0_method"]
+		else:
+			method=None
+		if (not isinstance(method,str)) or len(method)==0:
+			method="sptk_rapt"
 		for name in sorted(os.listdir(raw_dir)):
 			print("Processing {}".format(name))
-			values=self.extract_with_sptk(os.path.join(raw_dir,name),"sptk_rapt",40,700)
+			values=self.extract_with(os.path.join(raw_dir,name),method,40,700)
 			values=[v for v in values if v!=0]
 			data.extend(numpy.log(values))
 		data=numpy.array(data)
 		m=numpy.mean(data)
 		d=3.0*numpy.std(data)
-		min_f0=numpy.int(numpy.round(numpy.exp(m-d)))
-		max_f0=numpy.int(numpy.round(numpy.exp(m+d)))
+		min_f0=int(numpy.round(numpy.exp(m-d)))
+		max_f0=int(numpy.round(numpy.exp(m+d)))
 		with open("training.cfg") as f:
 			settings=json.load(f,object_pairs_hook=collections.OrderedDict)
 		settings["lower_f0"]=min_f0
@@ -866,7 +968,10 @@ class phonetic_feature_table(object):
 		return self._tier_names[index-1]
 
 	def tier_features(self,index):
-		return ([None]+self._tiers[self.tier_name(index)].keys())
+		res=[None]
+		for k in self._tiers[self.tier_name(index)].keys():
+			res.append(k)
+		return (res)
 
 	def phonemes_with_feature(self,tier_index,feature):
 		if feature is None:
@@ -944,7 +1049,7 @@ class hts_feature(object):
 		self.regex=re.compile(pattern)
 
 	def extract_value(self,label):
-		return self.regex.match(label).group(1)
+		return self.regex.match(label.decode('utf-8')).group(1)
 
 class questions_maker(task):
 	def register(self):
@@ -953,8 +1058,8 @@ class questions_maker(task):
 
 	def build_phonetic_feature_table(self):
 		feature_table=phonetic_feature_table()
-		for phoneme,features in self.get_phoneset().iteritems():
-			for name,value in features.iteritems():
+		for phoneme,features in self.get_phoneset().items():
+			for name,value in features.items():
 				feature_table.tag(phoneme,name,value)
 		return feature_table
 
@@ -975,7 +1080,7 @@ class questions_maker(task):
 			else:
 				node.expand()
 				unvisited.extend(node.children)
-		return collections.OrderedDict(sorted(questions.iteritems(),key=lambda p: len(p[0]),reverse=True))
+		return collections.OrderedDict(sorted(questions.items(),key=lambda p: len(p[0]),reverse=True))
 
 	def load_hts_features(self):
 		features=collections.OrderedDict()
@@ -997,7 +1102,7 @@ class questions_maker(task):
 				with open(os.path.join(label_dir,fname),"rb") as f:
 					for line in f:
 						label=line.split()[-1]
-						for name,feature in hts_features.iteritems():
+						for name,feature in hts_features.items():
 							value=feature.extract_value(label)
 							try:
 								value=int(value)
@@ -1009,7 +1114,7 @@ class questions_maker(task):
 	def write_feature_questions(self,f_out,feature,values,phonetic_questions=None):
 		m=re.match("^(?:(?:prev_)*|(?:next_)*)(?:name|(?:syl_vowel(?:_in_word)?))$",feature.name)
 		if m:
-			for phonemes,question in phonetic_questions.iteritems():
+			for phonemes,question in phonetic_questions.items():
 				if set(phonemes).intersection(set(values)):
 					if "vowel" in feature.name and set(phonemes).difference(self.vowels):
 						continue
@@ -1019,16 +1124,19 @@ class questions_maker(task):
 						prefix=feature.name+"_"
 					f_out.write('QS "{}{}"\t{{{}}}\n'.format(prefix,question,",".join(feature.format_string.format(phoneme) for phoneme in phonemes)))
 			f_out.write("\n")
-		for value in sorted(values):
+		vals2=[]
+		for v in values:
+			vals2.append(str(v))
+		for value in sorted(vals2):
 			f_out.write('QS "{}=={}"\t{{{}}}\n'.format(feature.name,value,feature.format_string.format(value)))
 		f_out.write("\n")
 		if not m:
-			real_values=sorted(v for v in values if v!="x")
+			real_values=sorted(v for v in vals2 if v!="x")
 			if real_values and all(isinstance(v,int) for v in real_values) and (real_values[-1]>1):
 				min_val=min(1,min(real_values))
 				for v in real_values:
 					lesser_values=["x"] if "x" in values else list()
-					lesser_values.extend(xrange(min_val,v+1))
+					lesser_values.extend(range(min_val,v+1))
 					f_out.write('QS "{}<={}"\t{{{}}}\n'.format(feature.name,v,",".join(feature.format_string.format(i) for i in lesser_values)))
 				f_out.write("\n")
 
@@ -1037,15 +1145,15 @@ class questions_maker(task):
 		if not os.path.isdir(qstdir):
 			os.mkdir(qstdir)
 		self.phoneset=self.get_phoneset()
-		self.vowels=set(phone for phone,features in self.phoneset.iteritems() if features.get("vc")=="+")
+		self.vowels=set(phone for phone,features in self.phoneset.items() if features.get("vc")=="+")
 		phonetic_questions=self.generate_phonetic_questions()
 		hts_features=self.load_hts_features()
 		all_values=self.extract_values(hts_features)
-		with open(os.path.join(qstdir,"questions_qst001.hed"),"wb") as f_out:
-			for name,feature in hts_features.iteritems():
+		with open(os.path.join(qstdir,"questions_qst001.hed"),"w") as f_out:
+			for name,feature in hts_features.items():
 				values=all_values[name]
 				self.write_feature_questions(f_out,feature,values,phonetic_questions)
-		with open(os.path.join(qstdir,"questions_utt_qst001.hed"),"wb") as f_out:
+		with open(os.path.join(qstdir,"questions_utt_qst001.hed"),"w") as f_out:
 			for name in ["num_syls_in_utt","num_words_in_utt","num_phrases_in_utt"]:
 				feature=hts_features[name]
 				values=all_values[name]
@@ -1166,24 +1274,24 @@ class lpf_maker(task):
 		ns=5
 		nf=6
 		nt=31
-		nyq=numpy.float(self.settings["sample_rate"])/2
+		nyq=float(self.settings["sample_rate"])/2
 		counts=nf*numpy.ones(ns,dtype=numpy.int32)
 		vars=numpy.zeros(nt,dtype=numpy.float32)
 		filters=numpy.zeros((nf,nt),dtype=numpy.float32)
-		for j in xrange(nf):
+		for j in range(nf):
 			cf=(j+1)*1000
 			filters[j]=firwin(nt,cf,window="hanning",nyq=nyq)
 		with open(os.path.join(self.outdir,"lpf.pdf"),"wb") as fp:
 			counts.tofile(fp)
-			for i in xrange(ns):
-				for j in xrange(nf):
+			for i in range(ns):
+				for j in range(nf):
 					filters[j].tofile(fp)
 					vars.tofile(fp)
 
 	def make_tree(self):
 		phoneset=self.get_phoneset()
 		sibs=[]
-		for ph,feats in phoneset.iteritems():
+		for ph,feats in phoneset.items():
 			if feats.get("csib",None)=="+":
 				sibs.append(ph)
 		sibs.sort()
@@ -1194,7 +1302,7 @@ class lpf_maker(task):
 			fp.write('QS prev_name==pau { "*^pau-*" }\n')
 			fp.write('QS next_name==pau { "*+pau=*" }\n')
 			fp.write("\n")
-			for i in xrange(2,7):
+			for i in range(2,7):
 				fp.write("{{*}}[{}]\n".format(i))
 				fp.write("{\n")
 				if i==2:
@@ -1242,7 +1350,7 @@ class voice_exporter(task):
 
 	def save_config(self,conf,path):
 		with open(path,"w") as f:
-			for key,val in conf.iteritems():
+			for key,val in conf.items():
 				f.write(key)
 				f.write("=")
 				f.write(val)
@@ -1264,11 +1372,23 @@ class voice_exporter(task):
 		info["revision"]="0"
 		self.save_config(info,path)
 
+	def get_key(self):
+		print("Calculating the speaker's median f0")
+		f0s=[]
+		for f in pathlib.Path("data/lf0").iterdir():
+			utt_lf0s=numpy.fromfile(f, dtype=numpy.float32)
+			utt_f0s=numpy.exp([v for v in utt_lf0s if v>0])
+			f0s.extend(utt_f0s)
+		key=int(numpy.round(numpy.median(f0s)))
+		print("Median f0 = ", key)
+		return key
+
 	def save_params(self):
 		path=os.path.join(self.outdir,"voice.params")
 		if os.path.isfile(path):
 			return
 		params=collections.OrderedDict([("beta","0.4"),("gain","1.0")])
+		params["key"]=str(self.get_key())
 		self.save_config(params,path)
 
 	def copy_voice(self):
@@ -1305,7 +1425,7 @@ class voice_exporter(task):
 		os.rename(os.path.join(self.modoutdir,"pdf.{}".format(n)),os.path.join(self.modoutdir,"{}.pdf".format(type)))
 
 	def copy_windows(self,type,n):
-		for i in xrange(1,n+1):
+		for i in range(1,n+1):
 			file_name="{}.win{}".format(type,i)
 			shutil.copy2(os.path.join("data","win",file_name),os.path.join(self.modoutdir,file_name))
 
@@ -1319,11 +1439,11 @@ class voice_exporter(task):
 				ofp.write(struct.pack(">i",0))
 				ofp.write(struct.pack(">i",1))
 				ofp.write(struct.pack(">i",numtaps))
-				for i in xrange(numstates):
+				for i in range(numstates):
 					n=struct.unpack("<i",ifp.read(4))[0]
 					ofp.write(struct.pack(">i",n))
 				while True:
-					for i in xrange(numtaps):
+					for i in range(numtaps):
 						bytes=ifp.read(4)
 						if not bytes:
 							return
@@ -1363,19 +1483,19 @@ class voice_exporter(task):
 class nccf(object):
 	def __init__(self,speech,sample_rate,frame_shift,frame_number,f0,avg_f0):
 		self.f0=f0
-		self.t0=numpy.float(sample_rate)/f0
-		self.it0=numpy.int(numpy.round(self.t0))
-		avg_t0=numpy.float(sample_rate)/avg_f0
+		self.t0=float(sample_rate)/f0
+		self.it0=int(numpy.round(self.t0))
+		avg_t0=float(sample_rate)/avg_f0
 		self.sample_rate=sample_rate
 		self.speech=speech
-		half_win_len=numpy.int(numpy.round(0.5*avg_t0))
+		half_win_len=int(numpy.round(0.5*avg_t0))
 		self.win_len=2*half_win_len+1
 		self.sample_index=max(0,frame_number*frame_shift-half_win_len)
-		self.min_lag=numpy.int(numpy.round(self.sample_rate/800.0))
-		self.max_lag=numpy.int(numpy.round(self.sample_rate/20.0))
+		self.min_lag=int(numpy.round(self.sample_rate/800.0))
+		self.max_lag=int(numpy.round(self.sample_rate/20.0))
 		self.size=self.max_lag+2
 		self.values=numpy.empty(self.size)
-		self.mask=numpy.zeros(self.size,dtype=numpy.bool)
+		self.mask=numpy.zeros(self.size,dtype=bool)
 		self.x=speech[self.sample_index:self.sample_index+self.win_len]
 		self.sum_xx=numpy.sum(self.x*self.x)
 
@@ -1424,12 +1544,12 @@ class nccf(object):
 		d2y=2.0*y2-y1-y3
 		y=y2+0.5*dy*dy/d2y
 		x=x2+dy/d2y
-		return (numpy.float(self.sample_rate)/x,y)
+		return (float(self.sample_rate)/x,y)
 
 	def find_nearest_peak(self):
 		min_lag=self.min_lag
 		max_lag=self.max_lag
-		lag1=numpy.int(numpy.floor(self.t0))
+		lag1=int(numpy.floor(self.t0))
 		lag2=lag1+1
 		p1=None
 		p2=None
@@ -1444,7 +1564,7 @@ class nccf(object):
 							return p2
 					d=p1[0]-self.f0
 					f=self.f0-d
-					max_lag=numpy.int(numpy.ceil(self.sample_rate/f))
+					max_lag=int(numpy.ceil(self.sample_rate/f))
 				lag1-=1
 			if lag2<=max_lag and (not p2):
 				if self.is_peak_lag(lag2):
@@ -1456,7 +1576,7 @@ class nccf(object):
 							return p1
 					d=self.f0-p2[0]
 					f=self.f0+d
-					min_lag=numpy.int(numpy.floor(self.sample_rate/f))
+					min_lag=int(numpy.floor(self.sample_rate/f))
 				lag2+=1
 		assert((not p1) or (not p2))
 		if p1:
@@ -1480,9 +1600,9 @@ class bap_extractor(task):
 		self.filters=numpy.zeros((num_bands,n))
 		self.filters[0]=firwin(n,freqs[0],nyq=self.nyq,window=b,scale=False)
 		self.filters[-1]=firwin(n,freqs[-1],nyq=self.nyq,window=b,pass_zero=False,scale=False)
-		for i in xrange(1,num_bands-1):
+		for i in range(1,num_bands-1):
 			self.filters[i]=firwin(n,(freqs[i-1],freqs[i]),nyq=self.nyq,window=b,pass_zero=False,scale=False)
-		with open(os.path.join("data","bpf.txt"),"wb") as fp:
+		with open(os.path.join("data","bpf.txt"),"w") as fp:
 			numpy.array(self.filters.shape).tofile(fp,sep="\n")
 			fp.write("\n")
 			self.filters.tofile(fp,sep="\n")
@@ -1492,9 +1612,9 @@ class bap_extractor(task):
 		num_bands=self.filters.shape[0]
 		bands=numpy.zeros((num_bands,speech.size))
 		num_taps=self.filters.shape[1]
-		delay=(num_taps-1)/2
+		delay=(num_taps-1)//2
 		padded_speech=numpy.append(speech,numpy.zeros(delay))
-		for i in xrange(num_bands):
+		for i in range(num_bands):
 			bands[i]=lfilter(self.filters[i],1,padded_speech)[delay:]
 		return bands
 
@@ -1502,11 +1622,11 @@ class bap_extractor(task):
 		num_bands=bands.shape[0]
 		cc=numpy.zeros((f0.size,num_bands))
 		af0=numpy.median(f0[f0!=0])
-		for i in xrange(f0.size):
+		for i in range(f0.size):
 			if f0[i]==0:
 				continue
 			cf0=f0[i]
-			for j in xrange(0,num_bands):
+			for j in range(0,num_bands):
 				f=nccf(bands[j],self.sample_rate,self.frame_shift,i,cf0,af0)
 				f0_j,cc[i,j]=f.find_nearest_peak()
 		return cc
@@ -1534,9 +1654,50 @@ class bap_extractor(task):
 			base,ext=os.path.splitext(name)
 			self.process(base)
 
+class mgc_extractor(task):
+	def register(self):
+		subparser=subparsers.add_parser("extract-mgc")
+		subparser.set_defaults(func=self)
+
+	def process(self,name):
+		import pyworld
+		print("Processing {}".format(name))
+		sample_rate=self.settings["sample_rate"]
+		speech=self.load_speech(name)
+		target_db=self.settings.get("volume",-20)
+		target=10.0**(target_db/20.0)
+		rms=numpy.sqrt(numpy.mean((speech*speech)))
+		nf=target/rms
+		speech*=nf
+		f0s=self.load_f0(name)
+		mf0=numpy.median(f0s[f0s!=0])
+		f0s[f0s==0]=mf0
+		times=numpy.arange(len(f0s))*0.005
+		sp=pyworld.cheaptrick(speech, f0s, times, sample_rate)
+		fft_len=(sp.shape[1]-1)*2
+		sp=numpy.sqrt(sp)*32768.0
+		sp.astype(numpy.float32).tofile("tmp.sp")
+		mcep_cmd="{mcep} -a {a} -m {m} -l {l} -e 1.0E-08 -q 3 tmp.sp > {mgc}".format(mcep=os.path.join(self.settings["bindir"],"mcep"),a=self.aparams["FREQWARP"],m=self.aparams["MGCORDER"],l=fft_len,mgc=os.path.join(self.mgc_dir,name+".mgc"))
+		subprocess.check_call(mcep_cmd,shell=True)
+		os.remove("tmp.sp")
+
+	def __call__(self,args):
+		self.aparams=self.get_analysis_params()
+		self.mgc_dir=os.path.join("data","mgc")
+		self.raw_dir=os.path.join("data", "raw")
+		if not os.path.isdir(self.mgc_dir):
+			os.mkdir(self.mgc_dir)
+		print("Extracting MGC")
+		for name in sorted(os.listdir(self.raw_dir)):
+			base,ext=os.path.splitext(name)
+			self.process(base)
+
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor, mgc_extractor]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
-	args.func(args)
+	if not hasattr(args, 'func'):
+		parser.error("Not enough parameters.");
+	else:
+		args.func(args)

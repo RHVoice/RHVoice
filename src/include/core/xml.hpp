@@ -1,4 +1,4 @@
-/* Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -20,6 +20,7 @@
 #include <map>
 #include <algorithm>
 #include <iterator>
+#include <utility>
 #include "rapidxml/rapidxml.hpp"
 #include "utf.hpp"
 #include "str.hpp"
@@ -201,20 +202,30 @@ namespace RHVoice
     }
 
     template<typename ch>
-    std::string get_attribute_value(const rapidxml::xml_node<ch>* node,const char* name)
+    bool get_attribute_value_range(const rapidxml::xml_node<ch>* node,const char* name, text_iterator<const ch*>& start, text_iterator<const ch*>& end)
     {
-      std::string result;
       if(const rapidxml::xml_attribute<ch>* attr=find_attribute(node,name))
         {
           std::size_t value_size=attr->value_size();
           if(value_size>0)
             {
               const ch* value_start=attr->value();
-              text_iterator<const ch*> pos1(value_start,value_start,value_start+value_size);
-              text_iterator<const ch*> pos2(value_start+value_size,value_start,value_start+value_size);
-              std::copy(pos1,pos2,str::utf8_inserter(std::back_inserter(result)));
+              start=text_iterator<const ch*>(value_start,value_start,value_start+value_size);
+              end=text_iterator<const ch*>(value_start+value_size,value_start,value_start+value_size);
+              return true;
             }
         }
+      return false;
+    }
+
+    template<typename ch>
+    std::string get_attribute_value(const rapidxml::xml_node<ch>* node,const char* name)
+    {
+      std::string result;
+      text_iterator<const ch*> start, end;
+      auto r=get_attribute_value_range(node, name, start, end);
+      if(r)
+        std::copy(start, end, str::utf8_inserter(std::back_inserter(result)));
       return result;
     }
 

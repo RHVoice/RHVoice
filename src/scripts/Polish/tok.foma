@@ -61,7 +61,7 @@ define Letter a|A|ą|Ą|b|B|c|C|ć|Ć|d|D|e|E|ę|Ę|f|F|g|G|h|H|i|I|j|J|k|K|l|L|
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
 
-define Number %0 | [NZDigit Digit*];
+define Number (%-) [%0 | [NZDigit Digit*]];
 
 define Word Letter+ ;
 
@@ -77,4 +77,9 @@ num -> dig || Digit^15 _ ;
 define Stage3 
 lseq -> word ||.#.  [w|z|W|Z] _ ;
 
-regex Stage1 .o. Stage2 .o. Stage3;
+source unicodechars.foma
+
+regex UnicodeToNativeTranslitTok .o.
+Stage1 .o.
+Stage2 .o. 
+Stage3;

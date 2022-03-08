@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2013, 2014, 2018, 2019, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2014, 2018, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -304,6 +304,7 @@ namespace RHVoice
     std::vector<utf8::uint32_t> remove_emoji_presentation_selectors(const std::string& text) const;
     void translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
     void translate_emoji_sequence(item& token,const std::string& text) const;
+    void set_user_phones(item& word) const;
 
     std::map<std::string,std::shared_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;

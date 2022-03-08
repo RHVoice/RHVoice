@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2019, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2019, 2020, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -86,6 +86,21 @@ namespace RHVoice
             token.set<verbosity_t>("verbosity",verbosity_name|verbosity_spell);
           }
       }
+  }
+
+  void sentence::append_phones::execute(utterance& u) const
+  {
+    item& parent_token=u.get_relation("TokStructure",true).append();
+    parent_token.set("name",name);
+    u.get_relation("Token",true).append(parent_token);
+    parent_token.set("whitespace",whitespace);
+    parent_token.set("position",position);
+    parent_token.set("length",length);
+    u.get_relation("Event",true).append(parent_token);
+    item& token=parent_token.append_child();
+    token.set("name",name);
+    token.set<std::string>("pos","ph");
+    token.set<verbosity_t>("verbosity",verbosity_name);
   }
 
   sentence::sentence(document* parent_):

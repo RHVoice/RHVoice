@@ -92,9 +92,12 @@ define Symbol
 %\:bekslesz | 
 %^:daszek | 
 %_:podkreślacz | 
+%µ:mikro | 
 %`:akcent | 
 %|:[kreska pionowa] | 
 %~:tylda ; 
 
+source unicodechars.foma
+
 regex 
-Letter | Digit | Whitespace | Punctuation | Symbol ; 
+Letter | Digit | Whitespace | Punctuation | Symbol | UnicodeSpell ; 
