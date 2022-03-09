@@ -18,6 +18,7 @@ package com.github.olga_yakovleva.rhvoice;
 public final class VoiceInfo
 {
     private String name=null;
+    private String id;
     private LanguageInfo language=null;
 
     void setName(String name)
@@ -29,6 +30,17 @@ public final class VoiceInfo
     {
         return name;
     }
+
+    void setId(String id)
+    {
+        this.id=id;
+    }
+
+    public String getId()
+    {
+        return id;
+    }
+
 
     void setLanguage(LanguageInfo lang)
     {

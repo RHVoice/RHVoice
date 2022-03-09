@@ -23,19 +23,30 @@ import android.view.MenuItem;
 
 public final class MainActivity extends AppCompatActivity implements AvailableLanguagesFragment.Listener,AvailableVoicesFragment.Listener,ConfirmVoiceRemovalDialogFragment.Listener
 {
+    private DataManager dm;
+
     @Override
     protected void onCreate(Bundle state)
     {
         super.onCreate(state);
+        dm=new DataManager();
         setContentView(R.layout.frame);
+        Repository.get().getPackageDirectoryLiveData().observe(this, this::onPackageDirectory);
         if(state==null)
             getSupportFragmentManager().beginTransaction().replace(R.id.frame,new AvailableLanguagesFragment(),"languages").add(new PlayerFragment(),"player").commit();
 }
 
-    public void onLanguageSelected(LanguagePack language)
+    private void onPackageDirectory(PackageDirectory dir) {
+        dm.setPackageDirectory(dir);
+        dm.scheduleSync(this, false);
+    }
+
+    public void onAccentSelected(VoiceAccent accent)
     {
         Bundle args=new Bundle();
-        args.putString(AvailableVoicesFragment.ARG_LANGUAGE,language.getTag());
+        args.putString(AvailableVoicesFragment.ARG_LANGUAGE,accent.getLanguage().getId());
+        args.putString(AvailableVoicesFragment.ARG_COUNTRY,accent.getTag().country3);
+        args.putString(AvailableVoicesFragment.ARG_VARIANT,accent.getTag().variant);
         AvailableVoicesFragment frag=new AvailableVoicesFragment();
         frag.setArguments(args);
         getSupportFragmentManager().beginTransaction().replace(R.id.frame,frag,"voices").addToBackStack(null).commit();
@@ -97,6 +108,6 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
     public void onStart()
     {
         super.onStart();
-        Data.scheduleSync(this,false);
+        Repository.get().refresh();
 }
 }

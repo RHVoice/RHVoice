@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.google.common.collect.Iterables;
 
 public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder>
 {
@@ -70,7 +71,8 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
 }
 
     private final FragmentActivity activity;
-    private final List<VoicePack> voices;
+    private VoiceAccent accent;
+    private final List<VoicePack> voices=new ArrayList<>();
     private final LayoutInflater inflater;
 
     private PlayerFragment findPlayerFragment()
@@ -78,25 +80,37 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
         return (PlayerFragment)(activity.getSupportFragmentManager().findFragmentByTag("player"));
 }
 
-    public VoiceListAdapter(FragmentActivity activity,LanguagePack lang)
+    private String getVersionString(VoicePack voice)
+    {
+        if(!voice.getEnabled(activity))
+            return null;
+        final Version ver=voice.getInstalledVersion(activity);
+        if(ver==null)
+            return null;
+        final Version langVer=voice.getLanguage().getInstalledVersion(activity);
+        if(langVer==null)
+            return ver.toString();
+        return (ver.toString()+"."+langVer.toString());
+    }
+
+    public VoiceListAdapter(FragmentActivity activity)
     {
         this.activity=activity;
         inflater=(LayoutInflater)activity.getSystemService(FragmentActivity.LAYOUT_INFLATER_SERVICE);
-        voices=new ArrayList<VoicePack>(lang.getVoices());
-        Collections.<VoicePack>sort(voices,new DataPackNameComparator<VoicePack>());
-        setHasStableIds(true);
 }
+
+    public void setAccent(VoiceAccent accent) {
+        this.accent=accent;
+        voices.clear();
+        voices.addAll(accent.getVoices());
+        Collections.<VoicePack>sort(voices,new DataPackNameComparator<VoicePack>());
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getItemCount()
     {
         return voices.size();
-}
-
-    @Override
-    public long getItemId(int pos)
-    {
-        return pos;
 }
 
     @Override
@@ -132,6 +146,10 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
                 if (attrib!=null) {
                     vh.attribView.setText(attrib);
                 }
+                String ver=getVersionString(voice);
+                vh.versionView.setVisibility(ver==null?View.GONE:View.VISIBLE);
+                if (ver!=null)
+                    vh.versionView.setText(ver);
                 boolean enabled=voice.getEnabled(activity);
                 boolean installed=voice.isInstalled(activity);
                 boolean upToDate=voice.isUpToDate(activity);
@@ -188,7 +206,7 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
 
     public void notifyVoiceItemChanged(VoicePack v, Long change)
     {
-        int i=voices.indexOf(v);
+        int i=Iterables.indexOf(voices, a-> a.getId().equals(v.getId()));
         if(i<0)
             throw new IllegalArgumentException();
         notifyItemChanged(i,change);

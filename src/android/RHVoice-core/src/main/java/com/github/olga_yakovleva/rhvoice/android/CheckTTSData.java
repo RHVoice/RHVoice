@@ -29,6 +29,7 @@ import android.util.Log;
 public final class CheckTTSData extends Activity
 {
     private static final String TAG="RHVoiceCheckDataActivity";
+    private DataManager dm;
     private ArrayList<String> installedLanguages=new ArrayList<String>();
     private ArrayList<String> notInstalledLanguages=new ArrayList<String>();
 
@@ -36,18 +37,18 @@ public final class CheckTTSData extends Activity
     {
         installedLanguages.clear();
         notInstalledLanguages.clear();
-        for(LanguagePack language: Data.getLanguages())
+        for(VoiceAccent accent: dm.getAccents())
             {
                 boolean installed=false;
                 boolean notInstalled=false;
-                for(VoicePack voice: language.getVoices())
+                for(VoicePack voice: accent.getVoices())
                     {
                         if(voice.getEnabled(this)&&voice.isUpToDate(this))
                             installed=true;
                         else
                             notInstalled=true;
                     }
-                String tag=language.getTag();
+                String tag=accent.getTag().toString3();
                 if(installed)
                     {
                         if(BuildConfig.DEBUG)
@@ -57,13 +58,14 @@ public final class CheckTTSData extends Activity
                 if(notInstalled)
                     notInstalledLanguages.add(tag);
             }
-        Data.scheduleSync(this,false);
+        dm.scheduleSync(this,false);
 }
 
     @Override
     protected void onCreate(Bundle state)
     {
         super.onCreate(state);
+        dm=Repository.get().createDataManager();
         if(BuildConfig.DEBUG)
             Log.v(TAG,"checking data");
         checkData();

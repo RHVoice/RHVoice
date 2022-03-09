@@ -62,11 +62,11 @@ public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFrag
     {
         super.onCreate(state);
         Bundle args=getArguments();
-        String languageName=args.getString(ARG_LANGUAGE);
-        String voiceName=args.getString(ARG_VOICE);
-        LanguagePack language=Data.getLanguage(languageName);
+        String languageId=args.getString(ARG_LANGUAGE);
+        String voiceId=args.getString(ARG_VOICE);
+        LanguagePack language=Repository.get().createDataManager().getLanguageById(languageId);
         if(language!=null)
-            voice=language.findVoice(voiceName);
+            voice=language.findVoiceById(voiceId);
 }
 
     @Override
@@ -90,8 +90,8 @@ public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFrag
     public static void show(AppCompatActivity activity,VoicePack voice)
     {
         Bundle args=new Bundle();
-        args.putString(ARG_LANGUAGE,voice.getLanguage().getTag());
-        args.putString(ARG_VOICE,voice.getName());
+        args.putString(ARG_LANGUAGE,voice.getLanguage().getId());
+        args.putString(ARG_VOICE,voice.getId());
         ConfirmVoiceRemovalDialogFragment frag=new ConfirmVoiceRemovalDialogFragment();
         frag.setArguments(args);
         frag.show(activity.getSupportFragmentManager(),"confirm_voice_removal");

@@ -1,8 +1,8 @@
-/* Copyright (C) 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
-/* the Free Software Foundation, either version 2.1 of the License, or */
+/* the Free Software Foundation, either version 3 of the License, or */
 /* (at your option) any later version. */
 
 /* This program is distributed in the hope that it will be useful, */
@@ -15,20 +15,15 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+public class Version {
+    public int major=1;
+    public int minor=0;
 
-public final class OnMyPackageReceiver extends BroadcastReceiver
-{
-    private static final String TAG="RHVoiceOnMyPackageReceiver";
+    public Version() {}
 
     @Override
-    public void onReceive(Context context,Intent intent)
+    public String toString()
     {
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"My package has been updated");
-        Repository.get().createDataManager().scheduleSync(context,true);
+        return String.format("%s.%s", major, minor);
     }
 }

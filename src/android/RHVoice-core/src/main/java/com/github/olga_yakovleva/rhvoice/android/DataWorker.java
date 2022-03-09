@@ -19,10 +19,14 @@ import android.content.Context;
 import android.util.Log;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import com.google.common.util.concurrent.Striped;
+import java.util.concurrent.locks.Lock;
 
 abstract class DataWorker extends Worker
 {
     protected static final String TAG="RHVoice.DataWorker";
+    private static final Striped<Lock> locks=Striped.lazyWeakLock(4*Runtime.getRuntime().availableProcessors());
+    private final DataManager dm=new DataManager();
 
     protected abstract Result doWork(DataPack p);
 
@@ -39,7 +43,7 @@ abstract class DataWorker extends Worker
         String langId=d.getString("language_id");
         if(langId==null)
             return null;
-        LanguagePack lang=Data.getLanguageById(langId);
+        LanguagePack lang=dm.getLanguageById(langId);
         if(lang==null)
             return null;
         String voiceId=d.getString("voice_id");
@@ -51,6 +55,10 @@ abstract class DataWorker extends Worker
     @Override
     public final Result doWork()
     {
+        final PackageDirectory dir=Repository.get().getPackageDirectory();
+        if(dir==null)
+            return Result.retry();
+        dm.setPackageDirectory(dir);
         if(BuildConfig.DEBUG)
             Log.v(TAG,"doWork: "+getClass().getName());
         DataPack p=getTarget();
@@ -62,12 +70,19 @@ abstract class DataWorker extends Worker
 }
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Target: "+p.getId());
-        synchronized(p)
+        final String key=p.getType()+"."+p.getId();
+        Lock lock=locks.get(key);
+        if (!lock.tryLock())
+            return Result.retry();
+            try
             {
                 Result res=doWork(p);
                 if(BuildConfig.DEBUG)
                     Log.v(TAG,"Result from "+getClass().getName()+": "+res);
                 return res;
 }
+            finally {
+                lock.unlock();
+            }
 }
 }
