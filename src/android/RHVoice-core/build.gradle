@@ -4,7 +4,7 @@ ext.lifecycle_version = "2.3.1"
 
 ext.major_version=1
 ext.minor_version=7
-ext.revision_number=11
+ext.revision_number=12
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 
 ext.base_pkg_dir_url='https://rhvoice.org/download/packages-%s.json'
