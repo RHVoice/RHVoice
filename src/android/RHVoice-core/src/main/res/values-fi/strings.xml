@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Oletusääni.</string>
+  <string name="default_voice_dialog_title">Valitse ääni.</string>
+  <string name="detect_language_title">Kielen tunnistus.</string>
+  <string name="detect_language_desc">Automaattinen kielen vaihto.</string>
+  <string name="speech_volume">Puheen äänenvoimakkuus</string>
+  <string name="speech_rate">Puheen nopeus.</string>
+  <string name="pseudo_english_title">Englanninkieliset sanat.</string>
+  <string name="pseudo_english_desc">Yritä lukea englanninkieliset sanat oikein.</string>
+  <string name="settings">Asetukset.</string>
+  <string name="wifi_only_title">Vain Wi-Fi.</string>
+  <string name="wifi_only_desc">Lataa ääniä vain Wi-Fi-verkossa.</string>
+  <string name="speech_quality">Puheen laatu.</string>
+  <string-array name="quality_labels">
+    <item>Paras mahdollinen suorituskyky</item>
+    <item>Vakiolaatu.</item>
+    <item>Paras mahdollinen laatu.</item>
+  </string-array>
+  <string name="languages">Kielet</string>
+  <string name="voice_remove_question">Oletko varma, että haluat poistaa tämän äänen?</string>
+  <string name="install">Asenna.</string>
+  <string name="uninstall">Poista asennus.</string>
+  <string name="play">Toista.</string>
+  <string name="stop">Pysäytä.</string>
+  <string name="increase">Lisää.</string>
+  <string name="decrease">Vähennä.</string>
+  <string name="reset">Nollaa</string>
+  <string name="version">Versio</string>
+</resources>

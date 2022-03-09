@@ -1,5 +1,7 @@
 /* Copyright (C) 2012, 2013, 2014, 2018, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
+/* Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org> */
+
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
 /* the Free Software Foundation, either version 2.1 of the License, or */
@@ -247,6 +249,9 @@ namespace RHVoice
       downcase_fst.translate(first,last,output);
     }
 
+    void on_token_break(utterance& u) const;
+    void tokenize(utterance& u) const;
+
   protected:
     explicit language(const language_info& info_);
 
@@ -305,6 +310,7 @@ namespace RHVoice
     void translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
     void translate_emoji_sequence(item& token,const std::string& text) const;
     void set_user_phones(item& word) const;
+    item& append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const;
 
     std::map<std::string,std::shared_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
@@ -330,6 +336,7 @@ std::unique_ptr<fst> qst_fst;
     struct lang_config
     {
       bool_property tok_eos{"tok.eos", false};
+      bool_property tok_sent{"tok.sent", false};
       stringset_property ph_flags{"ph.flags"};
       bool_property g2p_case{"g2p.case", false};
     };

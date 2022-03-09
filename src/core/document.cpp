@@ -1,4 +1,5 @@
 /* Copyright (C) 2012, 2014, 2019, 2020, 2021  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -29,6 +30,7 @@ namespace RHVoice
 
   void sentence::append_chars::execute(utterance& u) const
   {
+    u.get_language().on_token_break(u);
     const language_info& lang_info=u.get_language().get_info();
     item& parent_token=u.get_relation("TokStructure",true).append();
     parent_token.set("name",name);
@@ -62,6 +64,7 @@ namespace RHVoice
 
   void sentence::append_key::execute(utterance& u) const
   {
+    u.get_language().on_token_break(u);
     const language_info& lang_info=u.get_language().get_info();
     item& parent_token=u.get_relation("TokStructure",true).append();
     parent_token.set("name",name);
@@ -90,6 +93,7 @@ namespace RHVoice
 
   void sentence::append_phones::execute(utterance& u) const
   {
+    u.get_language().on_token_break(u);
     item& parent_token=u.get_relation("TokStructure",true).append();
     parent_token.set("name",name);
     u.get_relation("Token",true).append(parent_token);
@@ -376,6 +380,7 @@ namespace RHVoice
     std::unique_ptr<utterance> u=new_utterance();
     apply_speech_settings(*u);
     execute_commands(*u);
+    u->get_language().tokenize(*u);
     if(pos==sentence_position_single)
       set_spell_single_symbol(*u);
     apply_verbosity_settings(*u);
