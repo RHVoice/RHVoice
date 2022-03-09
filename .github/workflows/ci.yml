@@ -30,14 +30,22 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
 
+      - name: Install Scons
+        run: |
+          sudo apt-get -q -y update
+          sudo apt-get -q -y install scons
+
       - name: Assemble app debug APK
         run: ./gradlew assembleDebug --stacktrace
 
-      - name: Upload app APK
-        uses: actions/upload-artifact@v2
+      - name: Upload app APKs
+        uses: actions/upload-artifact@v3
         with:
           name: app-debug
-          path: src/android/RHVoice-core/build/outputs/apk/debug/RHVoice-core-debug.apk
+          path: |
+            src/android/RHVoice-core/build/outputs/apk/stable/debug/RHVoice-core-stable-debug.apk
+            src/android/RHVoice-core/build/outputs/apk/alpha/debug/RHVoice-core-alpha-debug.apk
+            src/android/RHVoice-core/build/outputs/apk/dev/debug/RHVoice-core-dev-debug.apk
 
   linuxBuild:
     name: Linux build

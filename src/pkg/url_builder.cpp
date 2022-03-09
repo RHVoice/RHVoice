@@ -1,4 +1,4 @@
-/* Copyright (C) 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -13,22 +13,17 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
-package com.github.olga_yakovleva.rhvoice.android;
+#include "url_builder.hpp"
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-
-public final class OnMyPackageReceiver extends BroadcastReceiver
+namespace RHVoice
 {
-    private static final String TAG="RHVoiceOnMyPackageReceiver";
-
-    @Override
-    public void onReceive(Context context,Intent intent)
+  namespace pkg
+  {
+    std::string url_builder::build() const
     {
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"My package has been updated");
-        Repository.get().createDataManager().scheduleSync(context,true);
+      if(rel_path.empty())
+        return base_url;
+      return (base_url+"/"+rel_path);
     }
+  }
 }
