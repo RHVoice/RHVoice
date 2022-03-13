@@ -17,13 +17,15 @@ args = parser.parse_args()
 with open(args.txt, "r", encoding = "utf8") as f:
     root = Element("speak")
     root.attrib["xml:lang"] = args.language
-    for index, line in enumerate(f):
+    number = 1
+    for line in f:
         sentence = line.strip()
         if sentence:
+            number += 1
             s = SubElement(root, "s")
             s.text = sentence
             if args.number_sentences:
-                s.attrib["number"] = str(index + 1)
+                s.attrib["number"] = str(number)
 
 
 result = tostring(root, encoding="UTF-8")
