@@ -21,11 +21,11 @@ with open(args.txt, "r", encoding = "utf8") as f:
     for line in f:
         sentence = line.strip()
         if sentence:
-            number += 1
             s = SubElement(root, "s")
             s.text = sentence
             if args.number_sentences:
                 s.attrib["number"] = str(number)
+            number += 1
 
 
 result = tostring(root, encoding="UTF-8")
