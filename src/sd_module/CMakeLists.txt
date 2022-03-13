@@ -23,7 +23,7 @@ target_link_libraries(sd_rhvoice "RHVoice_core" "RHVoice_audio" "${SPEECHD_LIBRA
 harden(sd_rhvoice)
 add_sanitizers(sd_rhvoice)
 
-set(SPEECH_DISPATCHER_MODULES_DIR "${CMAKE_INSTALL_PREFIX}/lib/speech-dispatcher-modules" CACHE PATH "Speech Dispatcher's module directory path")
+set(SPEECH_DISPATCHER_MODULES_DIR "${CMAKE_INSTALL_PREFIX}/lib/speech-dispatcher/speech-dispatcher-modules" CACHE PATH "Speech Dispatcher's module directory path")
 
 
 cpack_add_component(sd_module
