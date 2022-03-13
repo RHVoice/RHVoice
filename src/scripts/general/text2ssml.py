@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+
+# Copyright (C) 2022 Kirill Belousov <belousov.k.m@yandex.ru>
+
+# This script converts plain text files into SSML format, which is required by voice building scripts.
+
 import argparse
 from xml.etree.ElementTree import Element, SubElement, tostring
 from xml.dom import minidom
