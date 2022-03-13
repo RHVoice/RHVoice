@@ -6,7 +6,6 @@
 
 import argparse
 from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom import minidom
 
 parser = argparse.ArgumentParser()
 parser.add_argument("txt", help="Plain text file that should be converted")
@@ -24,7 +23,7 @@ with open(args.txt, "r", encoding = "utf8") as f:
             s = SubElement(root, "s")
             s.text = sentence
             if args.number_sentences:
-                s.attrib["number"] = str(index)
+                s.attrib["number"] = str(index + 1)
 
 
 result = tostring(root, encoding="UTF-8")
