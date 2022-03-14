@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 # Copyright (C) 2022 Kirill Belousov <belousov.k.m@yandex.ru>
 
