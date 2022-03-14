@@ -27,13 +27,6 @@ else {
     ext.signRelease=false
 }
 
-if(hasProperty("RHVoice.signDebug")) {
-    ext.signDebug=Boolean.parseBoolean(property("RHVoice.signDebug"))
-}
-else {
-    ext.signDebug=false
-}
-
 task clean(type: Delete) {
     delete rootProject.buildDir
 }

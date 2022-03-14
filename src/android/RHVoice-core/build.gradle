@@ -45,7 +45,7 @@ arguments 'V=1'
 }
 }
 
-if(rootProject.signRelease||rootProject.signDebug) {
+if(rootProject.signRelease) {
 signingConfigs {
 release {
 storeFile file(rootProject.property("RHVoice.keyStore"))
@@ -72,9 +72,6 @@ shrinkResources true
 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
 }
 debug {
-if(rootProject.signDebug) {
-signingConfig signingConfigs.release
-}
 minifyEnabled true
 shrinkResources true
 proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
