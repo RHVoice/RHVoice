@@ -178,3 +178,6 @@
 [submodule "bin/msi"]
 	path = bin/msi
 	url = https://github.com/RHVoice/msi
+[submodule "data/voices/suze"]
+	path = data/voices/suze
+	url = git@github.com:RHVoice/suze-mkd.git
