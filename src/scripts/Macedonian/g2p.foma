@@ -72,9 +72,10 @@ define noStressV  a0 | e0 | ii0 | o0 | u0 | i0 | ry0 | ax0 ;
 define stressV  a1 | e1 | ii1 | o1 | u1 | i1 | ax1 ;
 define vowel  noStressV  | stressV;
 define pc   \vowel;
+define pcx   pc - StressMark;
 define noStress noStressV | pc | StressMark;
 
-define vowelizeR  r -> [i0 r]  || pc _ pc ,,
+define vowelizeR  r -> [i0 r]  || pc _ pcx ,,
 ax0 -> i0 || _ r ; 
 
 # Two passes at adding stress.
@@ -110,12 +111,12 @@ define StressRules
 markedStressRule
 .o.  [StressMark -> 0] 
 .o. adverbkiStressRule 
-.o. stressSuffixRule 
+### .o. stressSuffixRule #  moved to stress dictionary
 .o. antePenultStressRule 
 .o. frontStressRule 
 ; 
 
-define SoftenLRule l -> lj || _ ii0 | e0 | j ; 
+define SoftenLRule l -> lj || _  [ii0 | ii1 | e0 | e1 | j] ; 
 source latin_convert.foma
 source unstressed_words.foma
 source downcase.foma
@@ -124,9 +125,8 @@ source  stress_dictionary.foma
 define TranscriptionRules  
 Word .o. 
 InitialTranscription
-.o. SoftenLRule 
+#.o. SoftenLRule 
 .o. vowelizeR ; 
-
 
 
 # To be written
@@ -138,7 +138,9 @@ define Rules
 [AbbrevTranslation] .P.
 [Downcase .o.  LatinConvert] .o. 
  [[UnstressedWords .o. TranscriptionRules] .P. 
-  [ApplyStressDictionary .o. TranscriptionRules .o. StressRules]] ;
+  [ApplyStressDictionary .o. TranscriptionRules .o. StressRules]] 
+.o. SoftenLRule 
+	;
 
 
 regex Rules ; 
