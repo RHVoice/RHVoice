@@ -23,10 +23,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
+import android.net.Uri;
+import androidx.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Spanned;
+import android.util.Base64;
 import android.util.Log;
+import androidx.annotation.MainThread;
 import androidx.core.text.HtmlCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
@@ -58,72 +61,36 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+
 public abstract class DataPack
 {
     private static final String TAG="RHVoiceDataPack";
-    protected final String name;
-    protected final int format;
-    protected final int revision;
-    protected String altLink;
-    protected String tempLink;
-    private final String id;
-    protected final byte[] checksum;
-    protected final String workName;
 
-    private String createWorkName()
+    private String getWorkName()
     {
         StringBuilder b=new StringBuilder();
-        b.append(Data.WORK_PREFIX_STRING).append('.');
+        b.append(DataManager.WORK_PREFIX_STRING).append('.');
         b.append(getType()).append('.');
         b.append(getId());
         return b.toString();
 }
 
-    protected DataPack(String id,String name,int format,int revision,byte[] checksum)
+    protected DataPack()
     {
-        this.id=id;
-        this.name=name;
-        this.format=format;
-        this.revision=revision;
-        this.checksum=checksum;
-        this.workName=createWorkName();
 }
 
-    protected DataPack(String name,int format,int revision,byte[] checksum)
-    {
-        this(null,name,format,revision,checksum);
-}
-
-    protected DataPack(String id,String name,int format,int revision,byte[] checksum,String altLink,String tempLink)
-    {
-        this(id,name,format,revision,checksum);
-        this.altLink=altLink;
-        this.tempLink=tempLink;
-}
-
-    protected DataPack(String name,int format,int revision,byte[] checksum,String altLink,String tempLink)
-    {
-        this(null,name,format,revision,checksum,altLink,tempLink);
-}
+    public abstract TtsResource getRes();
 
     public abstract String getType();
 
     public final String getName()
     {
-        return name;
+        return getRes().name;
 }
 
     public final String getId()
     {
-        if(id!=null)
-            return id;
-        else
-            return name.toLowerCase().replace("-","_");
-}
-
-    public final String getWorkName()
-    {
-        return workName;
+        return getRes().getId();
 }
 
     public abstract String getDisplayName();
@@ -132,20 +99,30 @@ public abstract class DataPack
 
     public final String getVersionString()
     {
-        return String.format("%s.%s",format,revision);
+        final Version v=getRes().version;
+        return String.format("%s.%s",v.major,v.minor);
 }
 
-    protected final int getVersionCode(int format,int revision)
+    protected final int getVersionCode(int major,int minor)
     {
-        return (1000*format+10*revision);
+        return (1000*major+10*minor);
 }
 
     public final int getVersionCode()
     {
-        return getVersionCode(format,revision);
+        final Version v=getRes().version;
+        return getVersionCode(v.major,v.minor);
 }
 
     protected final int getVersionCode(File dir) throws IOException
+    {
+        final Version ver=getVersion(dir);
+        if(dir==null)
+            return 0;
+        return getVersionCode(ver.major, ver.minor);
+}
+
+    protected final Version getVersion(File dir) throws IOException
     {
         File file=new File(dir,getType()+".info");
         InputStreamReader reader=new InputStreamReader(new BufferedInputStream(new FileInputStream(file)),"utf-8");
@@ -155,17 +132,20 @@ public abstract class DataPack
                 props.load(reader);
                 String strFormat=props.getProperty("format");
                 if(strFormat==null)
-                    return 0;
+                    return null;
                 String strRevision=props.getProperty("revision");
                 if(strRevision==null)
-                    return 0;
+                    return null;
                 try
                     {
-                        return getVersionCode(Integer.parseInt(strFormat),Integer.parseInt(strRevision));
+                        Version ver=new Version();
+                        ver.major=Integer.parseInt(strFormat);
+                        ver.minor=Integer.parseInt(strRevision);
+                        return ver;
 }
                 catch(NumberFormatException e)
                     {
-                        return 0;
+                        return null;
 }
 }
         finally
@@ -195,13 +175,9 @@ public abstract class DataPack
 }
 }
 
-    public final String getLink()
+    public final String getLink(Context context)
     {
-        if(tempLink!=null)
-            return tempLink;
-        if(altLink!=null)
-            return altLink;
-        return String.format("%s/%s-v%s.zip", Data.REPO_URL, getBaseFileName(),getVersionString());
+        return getRes().dataUrl;
 }
 
     private String getDownloadFileName()
@@ -292,7 +268,7 @@ public abstract class DataPack
             }
     }
 
-    protected final boolean close(Closeable obj)
+    public static final boolean close(Closeable obj)
     {
         if(obj!=null)
             {
@@ -385,14 +361,23 @@ catch(PackageManager.NameNotFoundException e)
 
     private void verifyFile(File file) throws IOException
     {
-        if(checksum==null)
+        final String strChecksum=getRes().dataMd5;
+        if(strChecksum.isEmpty())
             {
                 if(BuildConfig.DEBUG)
                     Log.w(TAG,"Checksum unknown");
                 return;
             }
+        byte[] checksum=null;
+        try {
+            checksum=Base64.decode(strChecksum, Base64.DEFAULT);
+        } catch (Exception e) {
+            if(BuildConfig.DEBUG)
+                Log.w(TAG,"Checksum encoded incorrectly");
+            return;
+        }
         InputStream str=null;
-        if(BuildConfig.DEBUG)
+               if(BuildConfig.DEBUG)
             Log.v(TAG,"Verifying file integrity: "+file.getName());
         MessageDigest md=null;
         try
@@ -420,11 +405,11 @@ try
         byte[] value=md.digest();
         if(MessageDigest.isEqual(checksum,value))
             {
-                if(BuildConfig.DEBUG)
+                               if(BuildConfig.DEBUG)
                     Log.v(TAG,"File integrity verified: "+file.getName());
                 return;
 }
-        if(BuildConfig.DEBUG)
+               if(BuildConfig.DEBUG)
             Log.e(TAG,"File integrity verification failed: "+file.getName());
         file.delete();
         throw new IOException("Bad file");
@@ -450,7 +435,7 @@ finally
     private void downloadFile(Context context,IDataSyncCallback callback) throws IOException
     {
         checkIfStopped(callback);
-        String link=getLink();
+        String link=getLink(context);
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Trying to download the file from "+link);
         if(!callback.isConnected())
@@ -739,6 +724,7 @@ finally
         cleanup(context,0);
         getPrefs(context).edit().remove(getVersionKey()).commit();
         notifyRemoval(callback);
+        context.sendBroadcast(new Intent(TextToSpeech.Engine.ACTION_TTS_DATA_INSTALLED));
 }
 
     public abstract boolean getEnabled(Context context);
@@ -814,7 +800,11 @@ finally
         if(getClass()!=other.getClass())
             return false;
         DataPack pack=(DataPack)other;
-        return (name.equalsIgnoreCase(pack.name)&&format==pack.format&&revision==pack.revision);
+        TtsResource res=getRes();
+        TtsResource otherRes=pack.getRes();
+        return (res.name.equalsIgnoreCase(otherRes.name)&&
+                res.version.major==otherRes.version.major&&
+                res.version.minor==otherRes.version.minor);
 }
 
     public static NetworkType getNetworkTypeSetting(Context context)
@@ -829,6 +819,7 @@ finally
         return b;
 }
 
+    @MainThread
     public final void scheduleSync(Context context,boolean replace)
     {
         long flag=getSyncFlag(context);
@@ -837,12 +828,12 @@ finally
         if(BuildConfig.DEBUG)
             Log.v(TAG,"Scheduling "+getWorkName()+", replace="+replace);
         ExistingWorkPolicy policy=replace?ExistingWorkPolicy.REPLACE:ExistingWorkPolicy.KEEP;
-        OneTimeWorkRequest localRequest=(new OneTimeWorkRequest.Builder(DataSyncWorker.class)).addTag(Data.WORK_TAG).setInputData(setWorkInput(new androidx.work.Data.Builder()).build()).build();
+        OneTimeWorkRequest localRequest=(new OneTimeWorkRequest.Builder(DataSyncWorker.class)).addTag(DataManager.WORK_TAG).setInputData(setWorkInput(new androidx.work.Data.Builder()).build()).build();
         WorkContinuation cont=WorkManager.getInstance().beginUniqueWork(getWorkName(),policy,localRequest);
         if(flag==SyncFlags.NETWORK)
             {
-                cont=cont.then((new OneTimeWorkRequest.Builder(ConfirmNetworkDataWorker.class)).addTag(Data.WORK_TAG).build());
-                cont=cont.then((new OneTimeWorkRequest.Builder(NetworkDataSyncWorker.class)).addTag(Data.WORK_TAG).setConstraints((new Constraints.Builder()).setRequiredNetworkType(getNetworkTypeSetting(context)).build()).build());
+                cont=cont.then((new OneTimeWorkRequest.Builder(ConfirmNetworkDataWorker.class)).addTag(DataManager.WORK_TAG).build());
+                cont=cont.then((new OneTimeWorkRequest.Builder(NetworkDataSyncWorker.class)).addTag(DataManager.WORK_TAG).setConstraints((new Constraints.Builder()).setRequiredNetworkType(getNetworkTypeSetting(context)).build()).build());
 }
         cont.enqueue();
 }
@@ -877,5 +868,19 @@ finally
             return null;
         }
         return HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_COMPACT);
+    }
+
+    public abstract String getTestMessage();
+
+    public final Version getInstalledVersion(Context ctx)
+    {
+        final String path=getPath(ctx);
+        if(path==null)
+            return null;
+        try {
+            return getVersion(new File(path));
+        } catch (IOException e) {
+            return null;
+        }
     }
 }

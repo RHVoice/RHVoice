@@ -243,6 +243,7 @@ namespace
   jmethodID VoiceInfo_setName_method;
   jmethodID VoiceInfo_getName_method;
   jmethodID VoiceInfo_setLanguage_method;
+  jmethodID VoiceInfo_setId_method;
   jclass LanguageInfo_class;
   jmethodID LanguageInfo_constructor;
   jmethodID LanguageInfo_setName_method;
@@ -418,6 +419,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
   VoiceInfo_setName_method=get_string_setter(env,VoiceInfo_class,"setName");
   VoiceInfo_getName_method=get_string_getter(env,VoiceInfo_class,"getName");
   VoiceInfo_setLanguage_method=get_method(env,VoiceInfo_class,"setLanguage","(Lcom/github/olga_yakovleva/rhvoice/LanguageInfo;)V");
+  VoiceInfo_setId_method=get_string_setter(env,VoiceInfo_class,"setId");
     SynthesisParameters_class=find_class(env,"com/github/olga_yakovleva/rhvoice/SynthesisParameters");
     SynthesisParameters_getVoiceProfile_method=get_string_getter(env,SynthesisParameters_class,"getVoiceProfile");
     SynthesisParameters_getSSMLMode_method=get_method(env,SynthesisParameters_class,"getSSMLMode","()Z");
@@ -436,7 +438,7 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
 }
 
 JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
-(JNIEnv *env, jobject obj, jstring data_path, jstring config_path, jobjectArray resource_paths, jobject logger)
+(JNIEnv *env, jobject obj, jstring data_path, jstring config_path, jobjectArray resource_paths, jstring pkg_path, jobject logger)
 {
   TRY
   clear_native_field(env,obj,data_field);
@@ -454,9 +456,13 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
           params.resource_paths.push_back(jstring_to_string(env,static_cast<jstring>(jstr)));
         }
     }
+  if(pkg_path)
+    {
+      params.pkg_path=jstring_to_string(env, pkg_path);
+    }
   params.logger=std::shared_ptr<event_logger>(new java_logger_wrapper(env,logger));
   data->engine_ptr=engine::create(params);
-  if(data->engine_ptr->get_voices().empty())
+  if(params.has_data_paths() && data->engine_ptr->get_voices().empty())
     throw no_voices();
   set_native_field(env,obj,data_field,data.get());
   data.release();
@@ -486,6 +492,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine
       jobject jvoice=new_object(env,VoiceInfo_class,VoiceInfo_constructor);
       const std::string& name=it->get_name();
       call_string_setter(env,jvoice,VoiceInfo_setName_method,name);
+      const std::string& id=it->get_id();
+      call_string_setter(env,jvoice,VoiceInfo_setId_method,id);
       const language_info& lang=*(it->get_language());
       jobject jlanguage=new_object(env,LanguageInfo_class,LanguageInfo_constructor);
       const std::string& language_name=lang.get_name();
@@ -529,4 +537,34 @@ JNIEXPORT jboolean JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doC
     Data* data=get_native_field<Data>(env,obj,data_field);
   return data->engine_ptr->configure(jstring_to_string(env,key),jstring_to_string(env,value));
   CATCH2(env,false)
+}
+
+JNIEXPORT jstring JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doGetCachedPackageDir
+  (JNIEnv *env, jobject obj)
+{
+  TRY
+    Data* data=get_native_field<Data>(env,obj,data_field);
+  auto pkgc=data->engine_ptr->get_package_client();
+  if(pkgc) {
+    auto const s=pkgc->get_cached_dir_as_string();
+  if(!s.empty())
+    return string_to_jstring(env, s);
+  }
+  return 0;
+  CATCH2(env,0)
+}
+
+JNIEXPORT jstring JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doGetPackageDirFromServer
+  (JNIEnv *env, jobject obj)
+{
+  TRY
+    Data* data=get_native_field<Data>(env,obj,data_field);
+  auto pkgc=data->engine_ptr->get_package_client();
+  if(pkgc) {
+    const auto s=pkgc->get_dir_from_server_as_string();
+  if(!s.empty())
+    return string_to_jstring(env, s);
+  }
+  return 0;
+  CATCH2(env,0)
 }

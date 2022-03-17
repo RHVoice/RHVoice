@@ -29,6 +29,6 @@ public final class OnMyPackageReceiver extends BroadcastReceiver
     {
         if(BuildConfig.DEBUG)
             Log.i(TAG,"My package has been updated");
-        Data.scheduleSync(context,true);
+        Repository.get().createDataManager().scheduleSync(context,true);
     }
 }

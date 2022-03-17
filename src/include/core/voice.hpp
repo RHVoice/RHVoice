@@ -99,6 +99,11 @@ private:
       return format;
     }
 
+    const std::string& get_id() const
+    {
+      return id;
+    }
+
     voice_params settings;
 
     void register_settings(config& cfg);
@@ -132,6 +137,7 @@ private:
     std::string alpha3_country_code;
     sample_rate_property sample_rate;
     enum_property<RHVoice_voice_gender> gender;
+    std::string id;
     bool_property enabled,preferred;
     string_property country;
     stringset_property extra_utt_types;

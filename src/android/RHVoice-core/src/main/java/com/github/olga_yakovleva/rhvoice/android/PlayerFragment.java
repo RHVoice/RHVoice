@@ -1,4 +1,4 @@
-/* Copyright (C) 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2018, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -15,49 +15,57 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import android.media.MediaPlayer;
-import android.speech.tts.TextToSpeech;
 import android.content.Context;
-import java.util.Map;
-import java.util.HashMap;
 import android.content.res.AssetFileDescriptor;
-import java.io.IOException;
-import android.util.Log;
-import android.os.Handler;
-import android.speech.tts.UtteranceProgressListener;
-import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
-import android.media.AudioFocusRequest;
+import android.os.Bundle;
+import android.os.Handler;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
+import androidx.fragment.app.Fragment;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.android.exoplayer2.PlaybackException;
 
-public final class PlayerFragment extends Fragment
+
+public final class PlayerFragment extends Fragment implements Player.Listener
 {
     private static final String TAG="RHVoice.PlayerFragment";
 
-    private final MediaPlayer.OnCompletionListener playerDoneListener=new MediaPlayer.OnCompletionListener()
-        {
-            @Override
-            public void onCompletion(MediaPlayer mp)
-            {
-                if(BuildConfig.DEBUG)
-                    Log.v(TAG,"Playback completed");
-                playerState.onStop();
-            }
-        };
+    @Override
+    public void onPlaybackStateChanged(int state) {
+        switch (state) {
+        case Player.STATE_IDLE:
+            if(BuildConfig.DEBUG)
+                Log.v(TAG, "Audio player state changed to idle");
+            playerState.onStop();
+            playerState=new IdlePlayerState();
+            break;
+        case Player.STATE_ENDED:
+            if (BuildConfig.DEBUG)
+                Log.v(TAG, "Audio player state changed to ended");
+            playerState.onStop();
+            break;
+        default:
+            break;
+        }
+    }
 
-    private final MediaPlayer.OnErrorListener playerErrorListener=new MediaPlayer.OnErrorListener()
-        {
-            @Override
-            public boolean onError(MediaPlayer mp,int what,int extra)
-            {
-                if(BuildConfig.DEBUG)
-                    Log.e(TAG,"Error: "+what+", "+extra);
-                playerState.reset();
-                return true;
-}
-        };
+    @Override
+public void onPlayerError​(PlaybackException error)
+    {
+        if(BuildConfig.DEBUG)
+            Log.e(TAG, "Audio playback error", error);
+    }
 
     private final TextToSpeech.OnInitListener ttsInitListener=new TextToSpeech.OnInitListener()
         {
@@ -124,9 +132,8 @@ public final class PlayerFragment extends Fragment
 
     private AudioManager audioManager;
     private AudioAttributes audioAttrs;
-    private final Map<String,Map<String,Integer>> resIdCache=new HashMap<String,Map<String,Integer>>();
     private VoicePack playerVoice;
-    private MediaPlayer player;
+    private SimpleExoPlayer player;
     private PlayerState playerState=new UninitializedPlayerState();
     private VoicePack ttsVoice;
     private TextToSpeech tts;
@@ -135,51 +142,6 @@ public final class PlayerFragment extends Fragment
     private Handler ttsHandler;
     private AudioFocusListener audioFocusListener;
     private AudioFocusRequest audioFocusRequest;
-
-    private int doGetResId(String name,String type)
-    {
-        Context context=getActivity();
-        if(BuildConfig.DEBUG)
-            Log.v(TAG,"Looking for resource: name="+name+", type="+type);
-        int id=context.getResources().getIdentifier(name,type,context.getPackageName());
-        if(BuildConfig.DEBUG)
-            {
-                if(id==0)
-                    Log.w(TAG,"Resource not found");
-}
-        return id;
-    }
-
-    private int getResId(String name,String type)
-    {
-        Map<String,Integer> typeCache=resIdCache.get(type);
-        if(typeCache!=null)
-            {
-                Integer id0=typeCache.get(name);
-                if(id0!=null)
-                    return id0;
-            }
-        int id=doGetResId(name,type);
-        if(typeCache==null)
-            {
-                typeCache=new HashMap<String,Integer>();
-                resIdCache.put(type,typeCache);
-            }
-        typeCache.put(name,id);
-        return id;
-    }
-
-    private int getDemoResId(VoicePack v)
-    {
-        String name="demo_"+v.getId();
-        return getResId(name,"raw");
-    }
-
-    private int getTestResId(VoicePack v)
-    {
-        String name="test_"+v.getLanguage().getCode();
-        return getResId(name,"string");
-    }
 
     private void abandonAudioFocus()
     {
@@ -207,7 +169,7 @@ public final class PlayerFragment extends Fragment
             {
                 AudioFocusRequest.Builder b=new AudioFocusRequest.Builder(dur);
                 b.setAcceptsDelayedFocusGain(false);
-                b.setAudioAttributes(audioAttrs);
+                b.setAudioAttributes(audioAttrs.getAudioAttributesV21());
                 b.setOnAudioFocusChangeListener(audioFocusListener);
                 b.setWillPauseWhenDucked(true);
                 audioFocusRequest=b.build();
@@ -257,33 +219,42 @@ public final class PlayerFragment extends Fragment
             return false;
         }
 
-        protected void onOpen(VoicePack v)
+        protected void onOpen()
         {
-            playerVoice=v;
             if(!requestAudioFocus())
                 {
                     playerState=new StoppedPlayerState();
                     return;
                 }
-            player.start();
+            player.play();
             playerState=new PlayingPlayerState();
             refreshUI();
+        }
+
+        protected boolean setMediaItem(VoicePack v) {
+            String url=v.getDemoUrl();
+            if(url.isEmpty())
+                return false;
+            if (BuildConfig.DEBUG)
+                Log.v(TAG, "Setting media item for "+v.getId()+": "+url);
+            MediaItem item=MediaItem.fromUri(url);
+            if (item==null)
+                return false;
+            player.setMediaItem(item);
+            player.prepare();
+            return true;
         }
 
         public abstract void play(VoicePack v);
 
         public boolean canPlay(VoicePack v)
         {
-            return (getDemoResId(v)!=0);
+            return (!v.getDemoUrl().isEmpty());
 }
 
         public boolean isPlaying(VoicePack v)
         {
-            return (isPlaying()&&playerVoice==v);
-}
-
-        public void reset()
-        {
+            return (isPlaying()&&playerVoice.getId().equals(v.getId()));
 }
 
         public void pause()
@@ -300,12 +271,9 @@ public final class PlayerFragment extends Fragment
         @Override
         public void play(VoicePack v)
         {
-            player=new MediaPlayer();
-            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
-                player.setAudioAttributes(audioAttrs);
-            player.setOnErrorListener(playerErrorListener);
-            player.setOnCompletionListener(playerDoneListener);
-            playerState=new ResetPlayerState();
+            player=new SimpleExoPlayer.Builder(requireActivity()).setAudioAttributes(audioAttrs, false).build();
+            player.addListener(PlayerFragment.this);
+            playerState=new IdlePlayerState();
             playerState.play(v);
         }
     }
@@ -319,13 +287,6 @@ public final class PlayerFragment extends Fragment
             player=null;
             playerState=new UninitializedPlayerState();
         }
-
-        @Override
-        public void reset()
-        {
-            player.reset();
-            playerState=new ResetPlayerState();
-}
     }
 
     private class PlayingPlayerState extends CreatedPlayerState
@@ -333,16 +294,16 @@ public final class PlayerFragment extends Fragment
         @Override
         public void release()
         {
-            stop();
-            super.release();
+            player.stop();
+            onStop();
+            playerState.release();
         }
 
         @Override
         public void stop()
         {
-            player.stop();
+            player.pause();
             onStop();
-            playerState.reset();
         }
 
         @Override
@@ -367,13 +328,6 @@ public final class PlayerFragment extends Fragment
         }
 
         @Override
-        public void reset()
-        {
-            super.reset();
-            refreshUI();
-}
-
-        @Override
         public void pause()
         {
             player.pause();
@@ -386,7 +340,7 @@ public final class PlayerFragment extends Fragment
         @Override
         public void resume()
         {
-            player.start();
+            player.play();
             playerState=new PlayingPlayerState();
 }
 }
@@ -400,52 +354,27 @@ public final class PlayerFragment extends Fragment
                 {
                     if(BuildConfig.DEBUG)
                         Log.v(TAG,"Request to play the same demo, just restarting");
-                    onOpen(v);
+                    player.seekToDefaultPosition();
+                    onOpen();
                     return;
                 }
-            reset();
-            playerState.play(v);
+            if(!setMediaItem(v))
+                return;
+            playerVoice=v;
+            onOpen();
         }
     }
 
-    private final class ResetPlayerState extends CreatedPlayerState
+    private final class IdlePlayerState extends CreatedPlayerState
     {
         @Override
         public void play(VoicePack v)
         {
-            int demoId=getDemoResId(v);
-            if(demoId==0)
+            if(!setMediaItem(v))
                 return;
-            AssetFileDescriptor afd=null;
-            try
-                {
-                    afd=getActivity().getResources().openRawResourceFd(demoId);
-                    player.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
-                    player.prepare();
-                    onOpen(v);
-}
-            catch(IOException e)
-                {
-                    if(BuildConfig.DEBUG)
-                        Log.e(TAG,"Unable to set new data source",e);
-                    if(afd!=null)
-                        player.reset();
-                    return;
-}
-            finally
-                {
-                    if(afd!=null)
-                        {
-                            try
-                                {
-                                    afd.close();
-}
-                            catch(IOException e)
-                                {
-}
-}
-}
-        }
+            playerVoice=v;
+            onOpen();
+    }
     }
 
     private abstract class TTSUttEvent implements Runnable
@@ -531,7 +460,7 @@ public final class PlayerFragment extends Fragment
 
         public boolean canPlay(VoicePack v)
         {
-            return (getTestResId(v)!=0);
+            return (!v.getTestMessage().isEmpty());
 }
 
         public boolean isPlaying()
@@ -541,7 +470,7 @@ public final class PlayerFragment extends Fragment
 
         public boolean isPlaying(VoicePack v)
         {
-            return (isPlaying()&&(ttsVoice==v));
+            return (isPlaying()&&(ttsVoice.getId().equals(v.getId())));
 }
 
         public void pause()
@@ -577,13 +506,12 @@ public final class PlayerFragment extends Fragment
 
         boolean doPlay(VoicePack v)
         {
-            int resId=getTestResId(v);
-            if(resId==0)
+            final String msg=v.getTestMessage();
+            if(msg.isEmpty())
                 return false;
             if(!requestAudioFocus())
                 return false;
             ttsVoice=v;
-            String msg=getString(resId);
             HashMap<String,String> params=new HashMap<String,String>();
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,String.valueOf(ttsUttId));
             params.put(RHVoiceService.KEY_PARAM_TEST_VOICE,v.getName());
@@ -754,8 +682,7 @@ public final class PlayerFragment extends Fragment
         super.onCreate(state);
         ttsHandler=new Handler();
         audioManager=(AudioManager)(getActivity().getSystemService(Context.AUDIO_SERVICE));
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.LOLLIPOP)
-            audioAttrs=(new AudioAttributes.Builder()).setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build();
+        audioAttrs=(new AudioAttributes.Builder()).setUsage(C.USAGE_MEDIA).setContentType(C.CONTENT_TYPE_SPEECH).build();
 }
 
     @Override
