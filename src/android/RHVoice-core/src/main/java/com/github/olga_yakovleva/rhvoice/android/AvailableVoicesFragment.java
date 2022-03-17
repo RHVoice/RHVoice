@@ -39,7 +39,10 @@ public final class AvailableVoicesFragment extends Fragment
 }
 
     public static final String ARG_LANGUAGE="language";
-    private LanguagePack language;
+    public static final String ARG_COUNTRY="country";
+    public static final String ARG_VARIANT="variant";
+    private DataManager dm;
+    private VoiceAccent accent;
     private VoiceListAdapter adapter;
 
     private final BroadcastReceiver voiceInstalledReceiver=new BroadcastReceiver()
@@ -48,9 +51,20 @@ public final class AvailableVoicesFragment extends Fragment
             public void onReceive(Context context,Intent intent)
             {
                 String name=intent.getStringExtra("name");
-                VoicePack voice=language.findVoice(name);
+                VoicePack voice=accent.getLanguage().findVoice(name);
                 if(voice!=null)
                     refresh(voice,VoiceViewChange.INSTALLED);
+}
+        };
+
+    private final BroadcastReceiver languageInstalledReceiver=new BroadcastReceiver()
+        {
+            @Override
+            public void onReceive(Context context,Intent intent)
+            {
+                String name=intent.getStringExtra("name");
+                if(name.equals(accent.getLanguage().getName()))
+                    refresh();
 }
         };
 
@@ -61,28 +75,41 @@ public final class AvailableVoicesFragment extends Fragment
 }
 
     @Override
-    public void onActivityCreated(Bundle state)
+    public void onViewCreated(View view, Bundle state)
     {
-        super.onActivityCreated(state);
-        language=Data.getLanguage(getArguments().getString(ARG_LANGUAGE));
-        adapter=new VoiceListAdapter(getActivity(),language);
-        RecyclerView listView=getView().findViewById(R.id.voice_list);
+        super.onViewCreated(view, state);
+        dm=new DataManager();
+        adapter=new VoiceListAdapter(getActivity());
+        RecyclerView listView=view.findViewById(R.id.voice_list);
         listView.setHasFixedSize(true);
         listView.setLayoutManager(new LinearLayoutManager(getActivity()));
             listView.setAdapter(adapter);
+            Repository.get().getPackageDirectoryLiveData().observe(getViewLifecycleOwner(), this::onPackageDirectory);
 }
+
+    private void onPackageDirectory(PackageDirectory dir) {
+        dm.setPackageDirectory(dir);
+        final Bundle args=getArguments();
+        LanguagePack language=dm.getLanguageById(args.getString(ARG_LANGUAGE));
+        accent=language.getAccent(args.getString(ARG_COUNTRY), args.getString(ARG_VARIANT));
+        ActionBar actionBar=((AppCompatActivity)getActivity()).getSupportActionBar();
+        if(actionBar!=null)
+            actionBar.setSubtitle(accent.getDisplayName());
+        adapter.setAccent(accent);
+    }
 
     @Override
     public void onStart()
     {
         super.onStart();
-        refresh();
         IntentFilter filter=new IntentFilter(DataSyncWorker.ACTION_VOICE_INSTALLED);
         filter.addAction(DataSyncWorker.ACTION_VOICE_REMOVED);
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(voiceInstalledReceiver,filter);
-        ActionBar actionBar=((AppCompatActivity)getActivity()).getSupportActionBar();
-        if(actionBar!=null)
-            actionBar.setSubtitle(language.getDisplayName());
+        filter=new IntentFilter(DataSyncWorker.ACTION_LANGUAGE_INSTALLED);
+        filter.addAction(DataSyncWorker.ACTION_LANGUAGE_REMOVED);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(languageInstalledReceiver,filter);
+        if(accent!=null)
+            refresh();
 }
 
     @Override

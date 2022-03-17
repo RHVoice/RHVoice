@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -18,32 +18,27 @@ package com.github.olga_yakovleva.rhvoice.android;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import android.content.Context;
 import android.content.Intent;
+import android.speech.tts.Voice;
+import java.util.Locale;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import android.speech.tts.TextToSpeech;
 
 public final class VoicePack extends DataPack
 {
     private final LanguagePack lang;
+    private final VoiceResource res;
 
-    public VoicePack(String id,String name,LanguagePack lang,int format,int revision,byte[] checksum)
+    public VoicePack(LanguagePack lang, VoiceResource res)
     {
-        super(id,name,format,revision,checksum);
         this.lang=lang;
+        this.res=res;
 }
 
-    public VoicePack(String id,String name,LanguagePack lang,int format,int revision,byte[] checksum,String altLink,String tempLink)
+    public VoiceResource getRes()
     {
-        super(id,name,format,revision,checksum,altLink,tempLink);
-        this.lang=lang;
-}
-
-    public VoicePack(String name,LanguagePack lang,int format,int revision,byte[] checksum)
-    {
-        this(null,name,lang,format,revision,checksum);
-}
-
-    public VoicePack(String name,LanguagePack lang,int format,int revision,byte[] checksum,String altLink,String tempLink)
-    {
-        this(null,name,lang,format,revision,checksum,altLink,tempLink);
-}
+        return res;
+    }
 
     public String getType()
     {
@@ -119,4 +114,23 @@ public final class VoicePack extends DataPack
         lang.setWorkInput(b);
         return super.setWorkInput(b);
 }
+
+    public String getTestMessage() {
+        return lang.getTestMessage();
+    }
+
+    public String getDemoUrl() {
+        return res.demoUrl;
+    }
+
+    public AccentTag getAccentTag()
+    {
+        return new AccentTag(lang.getCode(), lang.getOldCode(), res.ctry3code, res.ctry2code, res.accent);
+    }
+
+    public Voice createAndroidVoice(Context ctx) {
+        final Locale loc=getAccentTag().createLocale();
+        final Set<String> features=isInstalled(ctx)?ImmutableSet.of():ImmutableSet.of(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED);
+        return new Voice(getName(), loc, Voice.QUALITY_NORMAL, Voice.LATENCY_NORMAL, false, features);
+    }
 }

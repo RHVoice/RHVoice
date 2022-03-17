@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2017, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2017, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -26,6 +26,12 @@
 #include "voice_profile.hpp"
 #include "quality_setting.hpp"
 #include "event_logger.hpp"
+#ifndef ENABLE_PKG
+#include "config.h"
+#endif
+#if ENABLE_PKG
+#include "package_client.hpp"
+#endif
 
 namespace RHVoice
 {
@@ -44,7 +50,7 @@ namespace RHVoice
     struct init_params
     {
       init_params();
-      std::string data_path,config_path;
+      std::string data_path, config_path, pkg_path;
       std::vector<std::string> resource_paths;
       std::shared_ptr<event_logger> logger;
 
@@ -56,6 +62,11 @@ namespace RHVoice
       std::vector<std::string> get_voice_paths() const
       {
         return get_resource_paths("voice");
+      }
+
+      bool has_data_paths() const
+      {
+        return !(data_path.empty() && resource_paths.empty());
       }
 
     private:
@@ -104,6 +115,13 @@ namespace RHVoice
       return version;
     }
 
+#if ENABLE_PKG
+    pkg::package_client::ptr get_package_client() const
+    {
+      return pkgc;
+    }
+#endif
+
     static std::shared_ptr<engine> create(const init_params& p=init_params())
     {
       return std::shared_ptr<engine>(new engine(p));
@@ -135,6 +153,9 @@ namespace RHVoice
     std::set<voice_profile> voice_profiles;
     std::shared_ptr<event_logger> logger;
     config cfg;
+    #if ENABLE_PKG
+    pkg::package_client::ptr pkgc;
+    #endif
 
     void create_voice_profiles();
 

@@ -1,0 +1,590 @@
+{
+"languages": [
+{
+"lang2code": "en",
+"lang3code": "eng",
+"testMessage": "If you can hear this message, then the voice is installed and working.",
+"name": "English",
+"version": {
+"major": 2,
+"minor": 8
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-English-v2.8.zip",
+"dataMd5": "eFptOFRVOVxhPpzLuoj2OQ==",
+"id": "english",
+"voices": [
+{
+"name": "Alan",
+"ctry2code": "GB",
+"ctry3code": "GBR",
+"accent": "Scotland",
+"demoUrl": "https://rhvoice.org/download/demo_android_alan.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-English-Alan-v4.0.zip",
+"dataMd5": "Kt8qf8WHum+Kcbetp4HtZQ==",
+"id": "alan"
+},
+{
+"name": "BDL",
+"ctry2code": "US",
+"ctry3code": "USA",
+"demoUrl": "https://rhvoice.org/download/demo_android_bdl.ogg",
+"version": {
+"major": 4,
+"minor": 1
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-English-BDL-v4.1.zip",
+"dataMd5": "E3/pQyFc64MEABd73bHlCQ==",
+"id": "bdl"
+},
+{
+"name": "CLB",
+"ctry2code": "US",
+"ctry3code": "USA",
+"demoUrl": "https://rhvoice.org/download/demo_android_clb.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-English-CLB-v4.0.zip",
+"dataMd5": "scMEZGjJ+2X+lgDOPQ5zBA==",
+"id": "clb"
+},
+{
+"name": "Evgeniy-Eng",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_evgeniy_eng.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/evgeniy-eng/releases/download/4.0/data.zip",
+"dataMd5": "oRAw8okuQlgOifBkm1DqHQ==",
+"id": "evgeniy_eng"
+},
+{
+"name": "Lyubov",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_lyubov.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/lyubov-eng/releases/download/4.0/data.zip",
+"dataMd5": "nrgFeBK3hutQk7Q+UlqTSg==",
+"id": "lyubov"
+},
+{
+"name": "SLT",
+"ctry2code": "US",
+"ctry3code": "USA",
+"demoUrl": "https://rhvoice.org/download/demo_android_slt.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-English-SLT-v4.0.zip",
+"dataMd5": "QKnnzCNv3gMYMCgds4hxbQ==",
+"id": "slt"
+}
+]
+},
+{
+"lang2code": "eo",
+"lang3code": "epo",
+"testMessage": "Se vi aŭdas ĉi tiun mesaĝon, tio signifas, ke la voĉo estas instalita kaj funkcianta.",
+"name": "Esperanto",
+"version": {
+"major": 1,
+"minor": 2
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-Esperanto-v1.2.zip",
+"dataMd5": "aWIb6DlXE/J2Iil+ON5sdQ==",
+"id": "esperanto",
+"voices": [
+{
+"name": "Spomenka",
+"ctry2code": "",
+"ctry3code": "",
+"demoUrl": "https://rhvoice.org/download/demo_android_spomenka.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Esperanto-Spomenka-v4.0.zip",
+"dataMd5": "y0UyA1U4P7C/apuR6DELXg==",
+"id": "spomenka"
+}
+]
+},
+{
+"lang2code": "ka",
+"lang3code": "kat",
+"testMessage": "თუ თქვენ უსმენთ ამ შეტყობინებას ესეიგი ხმა დაინსტალირებულია და მუშაობს.",
+"name": "Georgian",
+"version": {
+"major": 1,
+"minor": 12
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-Georgian-v1.12.zip",
+"dataMd5": "AZsA2eikYkV9IkdkBg9vWw==",
+"id": "georgian",
+"voices": [
+{
+"name": "Natia",
+"ctry2code": "GE",
+"ctry3code": "GEO",
+"demoUrl": "https://rhvoice.org/download/demo_android_natia.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Georgian-Natia-v4.0.zip",
+"dataMd5": "l9lG9ylhbzpjD6jsFlKkPw==",
+"id": "natia"
+}
+]
+},
+{
+"lang2code": "ky",
+"lang3code": "kir",
+"testMessage": "Эгерде сиз бул маалыматты угуп жатсаңыз, анда үн орнотулду жана иштеп   жатат.",
+"name": "Kyrgyz",
+"version": {
+"major": 1,
+"minor": 19
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-Kyrgyz-v1.19.zip",
+"dataMd5": "LcJ8wPyg+/qJPcmTVzad5g==",
+"id": "kyrgyz",
+"voices": [
+{
+"name": "Azamat",
+"ctry2code": "KG",
+"ctry3code": "KGZ",
+"demoUrl": "https://rhvoice.org/download/demo_android_azamat.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Kyrgyz-Azamat-v4.0.zip",
+"dataMd5": "snFB0XHadLJsnccpnCooCw==",
+"id": "azamat"
+},
+{
+"name": "Nazgul",
+"ctry2code": "KG",
+"ctry3code": "KGZ",
+"demoUrl": "https://rhvoice.org/download/demo_android_nazgul.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Kyrgyz-Nazgul-v4.0.zip",
+"dataMd5": "sBQ6OAVW7rgdWMWb67szzg==",
+"id": "nazgul"
+}
+]
+},
+{
+"lang2code": "mk",
+"lang3code": "mkd",
+"testMessage": "Ако можете да ја слушнете оваа порака, тогаш гласот е инсталиран и работи.",
+"name": "Macedonian",
+"version": {
+"major": 1,
+"minor": 21
+},
+"dataUrl": "https://rhvoice.org/download//RHVoice-language-Macedonian-v1.21.zip",
+"dataMd5": "YwjfUpwWLJY8AXc/Rsb/0w==",
+"id": "macedonian",
+"voices": [
+{
+"name": "Kiko",
+"id": "mac_m1",
+"ctry2code": "MK",
+"ctry3code": "MKD",
+"demoUrl": "https://rhvoice.org/download/demo_android_mac_m1.ogg",
+"version": {
+"major": 4,
+"minor": 7
+},
+"dataUrl": "https://rhvoice.org/download//RHVoice-voice-Macedonian-Kiko-v4.7.zip",
+"dataMd5": "SFE+u7R4pWepHPKkU+UcsA=="
+}
+]
+},
+{
+"lang2code": "pt",
+"lang3code": "por",
+"testMessage": "Se você consegue ouvir esta mensagem, a voz está instalada e funcionando.",
+"name": "Brazilian-Portuguese",
+"version": {
+"major": 1,
+"minor": 19
+},
+"dataUrl": "https://rhvoice.org/download//RHVoice-F123-Brazilian-Portuguese-language-v1.19.zip",
+"dataMd5": "K+z3WVG57pCijclnSgD0iQ==",
+"id": "brazilian_portuguese",
+"voices": [
+{
+"name": "Letícia-F123",
+"id": "leticia_f123",
+"ctry2code": "BR",
+"ctry3code": "BRA",
+"demoUrl": "https://rhvoice.org/download/demo_android_leticia_f123.ogg",
+"version": {
+"major": 4,
+"minor": 6
+},
+"dataUrl": "https://rhvoice.org/download//Leticia-F123-v4.6.zip",
+"dataMd5": "SS6VO5heOty8HtUEeDPeBw=="
+}
+]
+},
+{
+"lang2code": "ru",
+"lang3code": "rus",
+"testMessage": "Если вы слышите это сообщение, значит, голос установлен и работает.",
+"name": "Russian",
+"version": {
+"major": 2,
+"minor": 10
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-Russian-v2.10.zip",
+"dataMd5": "1Ig0mPCmYWdK3/AJiBCZcw==",
+"id": "russian",
+"voices": [
+{
+"name": "Aleksandr",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_aleksandr.ogg",
+"version": {
+"major": 4,
+"minor": 2
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Russian-Aleksandr-v4.2.zip",
+"dataMd5": "XXoN3Zr6Q8sawtNoGvnsHw==",
+"id": "aleksandr"
+},
+{
+"name": "Aleksandr-hq",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_aleksandr_hq.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/aleksandr-hq-rus/releases/download/4.0/data.zip",
+"dataMd5": "7kKpW1E49OaDQkzb+VP6nw==",
+"id": "aleksandr_hq"
+},
+{
+"name": "Anna",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_anna.ogg",
+"version": {
+"major": 4,
+"minor": 1
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Russian-Anna-v4.1.zip",
+"dataMd5": "w8cZcM7Lnl+b8XYzN06cvw==",
+"id": "anna"
+},
+{
+"name": "Arina",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_arina.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/arina-rus/releases/download/4.0/data.zip",
+"dataMd5": "hnxspjxo8Do408Fxh3eGMA==",
+"id": "arina"
+},
+{
+"name": "Artemiy",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_artemiy.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/artemiy-rus/releases/download/4.0/data.zip",
+"dataMd5": "Z2zgJXdFdLRX6nE5/L25sw==",
+"id": "artemiy"
+},
+{
+"name": "Elena",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_elena.ogg",
+"version": {
+"major": 4,
+"minor": 2
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Russian-Elena-v4.2.zip",
+"dataMd5": "vOhrNeH6rM6rC+Kpmq2TlQ==",
+"id": "elena"
+},
+{
+"name": "Evgeniy-Rus",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_evgeniy_rus.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/evgeniy-rus/releases/download/4.0/data.zip",
+"dataMd5": "XJEc88uM6bmB7w77+iA2gA==",
+"id": "evgeniy_rus"
+},
+{
+"name": "Irina",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_irina.ogg",
+"version": {
+"major": 4,
+"minor": 1
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Russian-Irina-v4.1.zip",
+"dataMd5": "cbfxD6AxqSyy52giKVHMhw==",
+"id": "irina"
+},
+{
+"name": "Mikhail",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_mikhail.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/mikhail-rus/releases/download/4.0/data.zip",
+"dataMd5": "zqCs6HF/c6pDkSiNKX4fNw==",
+"id": "mikhail"
+},
+{
+"name": "Pavel",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_pavel.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/pavel-rus/releases/download/4.0/data.zip",
+"dataMd5": "iYyAch4E7t+J0hwabi3qzw==",
+"id": "pavel"
+},
+{
+"name": "Tatiana",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_tatiana.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/tatiana-rus/releases/download/4.0/data.zip",
+"dataMd5": "CxXykyy+3U/88dSMWtyxtw==",
+"id": "tatiana"
+},
+{
+"name": "Victoria",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_victoria.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/victoria-rus/releases/download/4.0/data.zip",
+"dataMd5": "IlxepBh6Mk998MhZhglNLg==",
+"id": "victoria"
+},
+{
+"name": "Vitaliy",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_vitaliy.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/vitaliy-rus/releases/download/4.0/data.zip",
+"dataMd5": "JGas1U6ah36mOeiTh6AozQ==",
+"id": "vitaliy"
+},
+{
+"name": "Yuriy",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_yuriy.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/yuriy-rus/releases/download/4.0/data.zip",
+"dataMd5": "pThyAfNw3zf/VQx6Vx9BNw==",
+"id": "yuriy"
+}
+]
+},
+{
+"lang2code": "sq",
+"lang3code": "sqi",
+"testMessage": "Nëse mund ta dëgjoni këtë mesazh, atëherë zëri është i instaluar dhe punon.",
+"name": "Albanian",
+"version": {
+"major": 1,
+"minor": 19
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-LP-language-Albanian-v1.19.zip",
+"dataMd5": "35vjpZzLFO3cGWpMdaossw==",
+"id": "albanian",
+"voices": [
+{
+"name": "Hana",
+"ctry2code": "MK",
+"ctry3code": "MKD",
+"demoUrl": "https://rhvoice.org/download/demo_android_hana.ogg",
+"version": {
+"major": 4,
+"minor": 4
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-LP-voice-Hana-v4.4.zip",
+"dataMd5": "xp4Np4ukrHBeWtc7BXzO0g==",
+"id": "hana"
+}
+]
+},
+{
+"lang2code": "tt",
+"lang3code": "tat",
+"testMessage": "Әгәр сез бу хәбәрне ишетәсез икән, димәк, тавыш җиһазга урнаштырылган һәм эшли.",
+"name": "Tatar",
+"version": {
+"major": 1,
+"minor": 10
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-Tatar-v1.10.zip",
+"dataMd5": "uKyQNml1O4bScYfpt/MzCQ==",
+"id": "tatar",
+"voices": [
+{
+"name": "Talgat",
+"ctry2code": "RU",
+"ctry3code": "RUS",
+"demoUrl": "https://rhvoice.org/download/demo_android_talgat.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/Talgat/RHVoice-voice-Tatar-Talgat-v4.0.zip",
+"dataMd5": "/qufPbkHFo8MP3sym+WMhg==",
+"id": "talgat"
+}
+]
+},
+{
+"lang2code": "uk",
+"lang3code": "ukr",
+"testMessage": "Якщо ви слухаєте це повідомлення, то голос встановлено і він працює.",
+"name": "Ukrainian",
+"version": {
+"major": 1,
+"minor": 13
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-language-Ukrainian-v1.13.zip",
+"dataMd5": "AAiMevVPZZZmfcMu2rnplw==",
+"id": "ukrainian",
+"voices": [
+{
+"name": "Anatol",
+"ctry2code": "UA",
+"ctry3code": "UKR",
+"demoUrl": "https://rhvoice.org/download/demo_android_anatol.ogg",
+"version": {
+"major": 4,
+"minor": 1
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Ukrainian-Anatol-v4.1.zip",
+"dataMd5": "Psn45B1zN6vENH71mfC4DQ==",
+"id": "anatol"
+},
+{
+"name": "Marianna",
+"ctry2code": "UA",
+"ctry3code": "UKR",
+"demoUrl": "https://rhvoice.org/download/demo_android_marianna.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/marianna-ukr/releases/download/4.0/data.zip",
+"dataMd5": "kis27tCCddYh/Jq7mEpI9Q==",
+"id": "marianna"
+},
+{
+"name": "Natalia",
+"ctry2code": "UA",
+"ctry3code": "UKR",
+"demoUrl": "https://rhvoice.org/download/demo_android_natalia.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://rhvoice.org/download/RHVoice-voice-Ukrainian-Natalia-v4.0.zip",
+"dataMd5": "7PMdu4TFaCxW5A2nJlMiqg==",
+"id": "natalia"
+},
+{
+"name": "Volodymyr",
+"ctry2code": "UA",
+"ctry3code": "UKR",
+"demoUrl": "https://rhvoice.org/download/demo_android_volodymyr.ogg",
+"version": {
+"major": 4,
+"minor": 0
+},
+"dataUrl": "https://github.com/RHVoice/volodymyr-ukr/releases/download/4.0/data.zip",
+"dataMd5": "oh0J0yh6BaSn+wrBz0x0kA==",
+"id": "volodymyr"
+}
+]
+}
+],
+"defaultVoices": {
+"en": {
+"*": "alan",
+"US": "slt",
+"USA": "slt",
+"CA": "slt",
+"CAN": "slt"
+},
+"ky": {
+"*": "nazgul"
+},
+"ru": {
+"*": "anna"
+},
+"uk": {
+"*": "natalia"
+}
+},
+"ttl": 86400
+}

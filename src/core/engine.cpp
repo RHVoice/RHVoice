@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2014, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2014, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -75,7 +75,7 @@ namespace RHVoice
     prefer_primary_language("prefer_primary_language",true)
   {
     logger->log(tag,RHVoice_log_level_info,"creating a new engine");
-    if(languages.empty())
+    if(p.has_data_paths() && languages.empty())
       throw no_languages();
     cfg.set_logger(logger);
     cfg.register_setting(voice_profiles_spec);
@@ -96,9 +96,16 @@ namespace RHVoice
     #else
     cfg.load(path::join(config_path,"RHVoice.conf"));
     #endif
-    if(languages.empty())
+    if(p.has_data_paths() && languages.empty())
       throw no_languages();
     create_voice_profiles();
+    #if ENABLE_PKG
+    if(!p.pkg_path.empty())
+      {
+        logger->log(tag,RHVoice_log_level_info,"getting the package client instance");
+        pkgc=pkg::package_client::get(p.pkg_path);
+      }
+    #endif
     logger->log(tag,RHVoice_log_level_info,"engine created");
   }
 

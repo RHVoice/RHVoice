@@ -56,34 +56,16 @@ import java.util.regex.Pattern;
         private final ActivityResultLauncher<String[]> openUserDict=Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT?registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onUserDictSelected):null;
         private final ActivityResultLauncher<String[]> openConfigFile=Build.VERSION.SDK_INT>=Build.VERSION_CODES.KITKAT?registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::onConfigFileSelected):null;
 
-        private Map<String,List<VoiceInfo>> groupVoicesByLanguage(List<VoiceInfo> voices)
-        {
-            Map<String,List<VoiceInfo>> result=new TreeMap<String,List<VoiceInfo>>();
-            for(VoiceInfo voice:voices)
-                {
-                    LanguageInfo language=voice.getLanguage();
-                    String code=language.getAlpha3Code();
-                    List<VoiceInfo> languageVoices=result.get(code);
-                    if(languageVoices==null)
-                        {
-                            languageVoices=new ArrayList<VoiceInfo>();
-                            result.put(code,languageVoices);
-                        }
-                    languageVoices.add(voice);
-                }
-            return result;
-        }
 
-        private void buildLanguagePreferenceCategory(PreferenceCategory cat0,List<VoiceInfo> voices)
+        private void buildLanguagePreferenceCategory(PreferenceCategory cat0, LanguagePack lp, List<VoicePack> voices)
         {
             Context ctx=getPreferenceManager().getContext();
             PreferenceScreen cat=getPreferenceManager().createPreferenceScreen(ctx);
             cat.setPersistent(false);
-            LanguageInfo language=voices.get(0).getLanguage();
             String firstVoiceName=voices.get(0).getName();
-            String code3=language.getAlpha3Code();
+            String code3=lp.getCode();
             cat.setKey("language."+code3);
-            cat.setTitle(Data.getLanguage(language.getTag3()).getDisplayName());
+            cat.setTitle(lp.getDisplayName());
             cat0.addPreference(cat);
             ListPreference voicePref=new ListPreference(ctx);
             voicePref.setKey("language."+code3+".voice");
@@ -106,7 +88,7 @@ import java.util.regex.Pattern;
             detectPref.setSummary(R.string.detect_language_desc);
             detectPref.setDefaultValue(true);
             cat.addPreference(detectPref);
-            if(language.getPseudoEnglish())
+            if(lp.getRes().pseudoEnglish)
                 {
                     CheckBoxPreference engPref=new CheckBoxPreference(ctx);
                     engPref.setKey("language."+code3+".use_pseudo_english");
@@ -151,19 +133,21 @@ import java.util.regex.Pattern;
                     configFilePref.setChecked(Config.getConfigFile(requireActivity()).exists());
                     configFilePref.setVisible(true);
                 }
-            List<VoiceInfo> voices=Data.getVoices(getActivity());
-            if(voices.isEmpty())
-                return;
-            Map<String,List<VoiceInfo>> voiceGroups=groupVoicesByLanguage(voices);
-            PreferenceCategory cat=new PreferenceCategory(getPreferenceManager().getContext());
-            cat.setOrder(100);
-            cat.setKey("languages");
-            cat.setTitle(R.string.languages);
-            getPreferenceScreen().addPreference(cat);
-            for(Map.Entry<String,List<VoiceInfo>> entry: voiceGroups.entrySet())
-                {
-                    buildLanguagePreferenceCategory(cat,entry.getValue());
+            PreferenceCategory cat=null;
+            final DataManager dm=Repository.get().createDataManager();
+            for (LanguagePack lp: dm.iterLanguages()) {
+                final List<VoicePack> voices=lp.iterVoices().filter(v-> v.getEnabled(requireContext()) && v.isInstalled(requireContext())).toList();
+                if(voices.isEmpty())
+                    continue;
+                if (cat==null) {
+                    cat=new PreferenceCategory(getPreferenceManager().getContext());
+                    cat.setOrder(100);
+                    cat.setKey("languages");
+                    cat.setTitle(R.string.languages);
+                    getPreferenceScreen().addPreference(cat);
                 }
+                buildLanguagePreferenceCategory(cat, lp, voices);
+            }
             String argLanguageKey=null;
             Bundle args=getArguments();
             if(args!=null)
@@ -180,7 +164,7 @@ import java.util.regex.Pattern;
         public void onSharedPreferenceChanged(SharedPreferences prefs,String key)
         {
             if("wifi_only".equals(key))
-                Data.scheduleSync(getActivity(),true);
+                Repository.get().createDataManager().scheduleSync(requireActivity(),true);
         }
 
         @Override
@@ -241,10 +225,11 @@ import java.util.regex.Pattern;
 
         private String getLanguageName()
         {
+            final DataManager dm=Repository.get().createDataManager();
             final String code=getLanguageCode();
             if(code==null)
                 return null;
-            return FluentIterable.from(Data.getLanguages()).firstMatch(l-> l.getCode().equals(code)).transform(l-> l.getName()).orNull();
+            return FluentIterable.from(dm.getLanguages()).firstMatch(l-> l.getCode().equals(code)).transform(l-> l.getName()).orNull();
         }
 
         private boolean onConfigFilePrefChange(Preference pref, Object val)

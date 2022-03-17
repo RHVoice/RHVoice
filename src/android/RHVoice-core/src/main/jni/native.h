@@ -66,10 +66,10 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onClass
 /*
  * Class:     com_github_olga_yakovleva_rhvoice_TTSEngine
  * Method:    onInit
- * Signature: (Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;Lcom/github/olga_yakovleva/rhvoice/Logger)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;Ljava/lang/String;Lcom/github/olga_yakovleva/rhvoice/Logger)V
  */
 JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_onInit
-(JNIEnv *, jobject, jstring, jstring, jobjectArray, jobject);
+(JNIEnv *, jobject, jstring, jstring, jobjectArray, jstring, jobject);
 
 /*
  * Class:     com_github_olga_yakovleva_rhvoice_TTSEngine
@@ -102,6 +102,12 @@ JNIEXPORT void JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doSpeak
  */
 JNIEXPORT jboolean JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doConfigure
 (JNIEnv *, jobject, jstring, jstring);
+
+JNIEXPORT jstring JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doGetCachedPackageDir
+  (JNIEnv *, jobject);
+
+JNIEXPORT jstring JNICALL Java_com_github_olga_1yakovleva_rhvoice_TTSEngine_doGetPackageDirFromServer
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

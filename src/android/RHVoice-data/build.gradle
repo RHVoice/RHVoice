@@ -84,7 +84,7 @@ myData.each {spec->
 sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
 }
 
-if(rootProject.signRelease||rootProject.signDebug) {
+if(rootProject.signRelease) {
 signingConfigs {
 release {
 storeFile file(rootProject.property("RHVoice.keyStore"))
@@ -98,11 +98,6 @@ keyPassword rootProject.property("RHVoice.keyPassword")
 buildTypes {
 release {
 if(rootProject.signRelease) {
-signingConfig signingConfigs.release
-}
-}
-debug {
-if(rootProject.signDebug) {
 signingConfig signingConfigs.release
 }
 }

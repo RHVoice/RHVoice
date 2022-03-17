@@ -25,6 +25,20 @@ public final class AndroidVoiceInfo
 {
     private final VoiceInfo source;
 
+    private VoicePack findPackage()
+    {
+        final DataManager dm=Repository.get().createDataManager();
+        final LanguagePack lp=dm.getLanguageByCode(source.getLanguage().getAlpha3Code());
+        if(lp==null)
+            return null;
+        return lp.findVoiceById(source.getId());
+    }
+
+    private AccentTag getAccentTag() {
+        final VoicePack vp=findPackage();
+        return vp==null?null:vp.getAccentTag();
+    }
+
     public AndroidVoiceInfo(VoiceInfo source)
     {
         this.source=source;
@@ -42,7 +56,8 @@ public final class AndroidVoiceInfo
 
     public String getCountry()
     {
-        String code=source.getLanguage().getAlpha3CountryCode();
+        final AccentTag tag=getAccentTag();
+        final String code=tag!=null?tag.country3:source.getLanguage().getAlpha3CountryCode();
         if(TextUtils.isEmpty(code))
             return "";
         else
@@ -51,7 +66,8 @@ public final class AndroidVoiceInfo
 
     public String getVariant()
     {
-        return source.getName();
+        final AccentTag tag=getAccentTag();
+        return tag!=null?tag.variant:"";
     }
 
     public int getSupportLevel(String language,String country,String variant)
@@ -108,18 +124,18 @@ public final class AndroidVoiceInfo
         return source.getName();
 }
 
-    public Locale getLocale()
-    {
-        String language=source.getLanguage().getAlpha2Code();
-        String country=source.getLanguage().getAlpha2CountryCode();
-        if(TextUtils.isEmpty(country))
-            return new Locale(language);
-        else
-            return new Locale(language,country);
-}
+//     public Locale getLocale()
+//     {
+//         String language=source.getLanguage().getAlpha2Code();
+//         String country=source.getLanguage().getAlpha2CountryCode();
+//         if(TextUtils.isEmpty(country))
+//             return new Locale(language);
+//         else
+//             return new Locale(language,country);
+// }
 
-    public Voice getAndroidVoice()
-    {
-        return new Voice(getName(),getLocale(),Voice.QUALITY_NORMAL,Voice.LATENCY_NORMAL,false,new HashSet<String>());
-}
+//     public Voice getAndroidVoice()
+//     {
+//         return new Voice(getName(),getLocale(),Voice.QUALITY_NORMAL,Voice.LATENCY_NORMAL,false,new HashSet<String>());
+// }
 }

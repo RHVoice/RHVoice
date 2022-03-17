@@ -25,3 +25,12 @@ sudo add-apt-repository ppa:linvinus/rhvoice
 sudo apt-get update
 sudo apt-get install rhvoice
 ```
+
+## Solus
+
+Команды установки:
+
+```bash
+sudo eopkg upgrade
+sudo eopkg install rhvoice
+```

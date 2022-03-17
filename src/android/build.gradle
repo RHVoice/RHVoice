@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0'
+        classpath 'com.android.tools.build:gradle:7.1.2'
     }
 }
 
@@ -17,7 +17,7 @@ allprojects {
 
     ext.myMinSdkVersion=16
     ext.myCompileSdkVersion=31
-    ext.myTargetSdkVersion=30
+    ext.myTargetSdkVersion=31
 }
 
 if(hasProperty("RHVoice.signRelease")) {
@@ -25,13 +25,6 @@ if(hasProperty("RHVoice.signRelease")) {
 }
 else {
     ext.signRelease=false
-}
-
-if(hasProperty("RHVoice.signDebug")) {
-    ext.signDebug=Boolean.parseBoolean(property("RHVoice.signDebug"))
-}
-else {
-    ext.signDebug=false
 }
 
 task clean(type: Delete) {
