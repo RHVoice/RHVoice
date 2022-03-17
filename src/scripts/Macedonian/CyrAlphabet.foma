@@ -16,7 +16,7 @@
 
 
 define lcCVowelLetter а|е|è|ѐ|и|ѝ|о|у|%'|’ ; 
-define ucCVowelLetter А|Е|È|Ѐ|И|Ѝ|О|У|%'|’ ; 
+define ucCVowelLetter А|Е|È|Ѐ|И|Ѝ|О|У; #|%'|’ ; 
 define lcCConsonantLetter б|в|г|д|ѓ|ж|з|ѕ|ј|к|л|љ|м|н|њ|п|р|с|т|ќ|ф|х|ц|ч|џ|ш ; 
 define ucCConsonantLetter Б|В|Г|Д|Ѓ|Ж|З|Ѕ|Ј|К|Л|Љ|М|Н|Њ|П|Р|С|Т|Ќ|Ф|Х|Ц|Ч|Џ|Ш ; 
 define lcCLetter lcCVowelLetter | lcCConsonantLetter ;
