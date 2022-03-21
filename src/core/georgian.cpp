@@ -25,10 +25,10 @@ namespace RHVoice
   {
     bool can_start_harmonic_cluster(const item& seg)
     {
-      const std::string& type=seg.eval("ph_ctype").as<std::string>();
+      const std::string type=seg.eval("ph_ctype").as<std::string>();
       if(!((type=="s")||(type=="f")||(type=="a")))
         return false;
-      const std::string& place=seg.eval("ph_cplace").as<std::string>();
+      const std::string place=seg.eval("ph_cplace").as<std::string>();
       if(!((place=="b")||(place=="a")||(place=="p")))
         return false;
       return true;
@@ -36,7 +36,7 @@ namespace RHVoice
 
     bool can_end_harmonic_cluster(const item& seg)
     {
-      const std::string& place=seg.eval("ph_cplace").as<std::string>();
+      const std::string place=seg.eval("ph_cplace").as<std::string>();
       return ((place=="v")||(place=="u"));
     }
 
