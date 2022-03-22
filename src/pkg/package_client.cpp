@@ -26,8 +26,11 @@
 #include "curl.hpp"
 #include "url_builder.hpp"
 
+#define STRINGIFY(x) #x
+#define STRINGIFY_VALUE(x) STRINGIFY(x)
+
 #ifndef PKG_DIR_URL
-#define PKG_DIR_URL "https://rhvoice.org/download/packages-1.8.json"
+#define PKG_DIR_URL https://rhvoice.org/download/packages-1.8.json
 #endif
 
 namespace RHVoice
@@ -121,7 +124,7 @@ namespace
       auto t=ptime::second_clock::universal_time();
       cu.do_http_get(
                      h,
-                     PKG_DIR_URL,
+                     STRINGIFY_VALUE(PKG_DIR_URL),
                      [&parser, &ec] (const char* data, std::size_t size) {
                        parser.write(data, size, ec);
                        return !ec;});
