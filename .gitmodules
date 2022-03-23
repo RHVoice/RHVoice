@@ -175,3 +175,6 @@
 [submodule "data/voices/natan"]
 	path = data/voices/natan
 	url = https://github.com/RHVoice/natan-pol.git
+[submodule "bin/msi"]
+	path = bin/msi
+	url = https://github.com/RHVoice/msi
