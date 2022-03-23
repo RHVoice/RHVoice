@@ -1,4 +1,4 @@
-# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2018, 2020  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2010, 2011, 2012, 2013, 2014, 2018, 2020, 2022  Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ if sys.platform=="win32":
 boost_includedir=Dir("#external").Dir("libs").Dir("boost").Dir("include")
 
 def get_version(is_release):
-    next_version="1.7.0"
+    next_version="1.7.15"
     return next_version
 
 def passthru(env, cmd, unique=False):
@@ -168,9 +168,9 @@ def create_user_vars():
     vars.Add(create_audio_libs_user_var())
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
+        vars.Add(BoolVariable("sapi_dev_core", "Use the development version of the core in SAPI5 voice installers", False))
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
         vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",False))
-        vars.Add(PathVariable("msi_repo","Where the msi packages are kept for reuse",None,PathVariable.PathIsDir))
     else:
         vars.Add(PathVariable("spd_module_dir", "Speech dispatcher module directory", get_spd_module_dir(),  PathVariable.PathAccept))
         vars.Add("spd_version","Speech dispatcher version",validator=validate_spd_version)
