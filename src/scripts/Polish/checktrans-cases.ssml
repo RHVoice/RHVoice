@@ -5,6 +5,7 @@
 <s>51000</s>
 <s>53001</s>
 <s>600</s>
+<s>aqua</s>
 <s>aksis</s>
 <s>aksisie</s>
 <s>anastasisie</s>
@@ -15,6 +16,7 @@
 <s>antysystem</s>
 <s>antyustrojowy</s>
 <s>aeropressie</s>
+<s>artrodezie</s>
 <s>bayerowski</s>
 <s>basista</s>
 <s>bentley</s>
@@ -39,6 +41,8 @@
 <s>cosinus</s>
 <s>cyberzabawki</s>
 <s>cyberzagrożenia</s>
+<s>deziluzja</s>
+<s>dezinformowała</s>
 <s>disneyland</s>
 <s>disneylandach</s>
 <s>domierzacie</s>
@@ -48,6 +52,7 @@
 <s>działo</s>
 <s>dzień</s>
 <s>dzisiaj</s>
+<s>dżazira</s>
 <s>eliksir</s>
 <s>eliksirach</s>
 <s>epsilon</s>
@@ -66,12 +71,15 @@
 <s>kałamarza</s>
 <s>Kambodży</s>
 <s>karczmarza</s>
+<s>kazirodztwo</s>
 <s>kilodżul</s>
 <s>klient</s>
 <s>kramarza</s>
 <s>krzew</s>
 <s>kufrze</s>
 <s>lodżia</s>
+<s>łysino</s>
+<s>łysinom</s>
 <s>marksizować</s>
 <s>marzanna</s>
 <s>marzli</s>
@@ -81,23 +89,30 @@
 <s>menadżerowaniem</s>
 <s>mierzi</s>
 <s>mierzy</s>
+<s>mov</s>
 <s>muezin</s>
 <s>muezzin</s>
 <s>nadzieja</s>
+<s>nadziemny</s>
 <s>nadzorca</s>
 <s>nadzwyczajny</s>
 <s>nadżarcie</s>
 <s>nadżerka</s>
+<s>nazir</s>
 <s>niania</s>
 <s>niebezimienny</s>
+<s>niedeziluzyjna</s>
 <s>niemarzanowata</s>
 <s>niemenadżerska</s>
 <s>nienadzwyczajny</s>
+<s>nieodzowny</s>
 <s>nieodżelaziona</s>
+<s>nieosinową</s>
 <s>niepodziemny</s>
 <s>nieprzekomarzań</s>
 <s>nierozigrane </s>
 <s>nieroziskrzone</s>
+<s>niesinobrodą</s>
 <s>odkomarzania</s>
 <s>odmrozili </s>
 <s>odzew</s>
@@ -113,17 +128,21 @@
 <s>odżałowanemu</s>
 <s>odżużloną</s>
 <s>odżywiać</s>
+<s>ó</s>
 <s>pleksiglas</s>
+<s>podzelować</s>
 <s>podzielny</s>
 <s>podziemię</s>
 <s>podzięb</s>
 <s>podziębić</s>
+<s>podzwrotnikowy </s>
 <s>podżarcie</s>
 <s>podżartować</s>
 <s>podżółkły</s>
 <s>podżuchwowa</s>
 <s>podżyrować</s>
 <s>poprzekomarza</s>
+<s>powsinoga</s>
 <s>prośba</s>
 <s>przekomarzacie</s>
 <s>przyimek</s>
@@ -134,6 +153,11 @@
 <s>psim</s>
 <s>psin</s>
 <s>psiząb</s>
+<s>quad</s>
+<s>quasi-cząstka</s>
+<s>qui</s>
+<s>quo</s>
+<s>quorum</s>
 <s>rozfalowania</s>
 <s>roziskrzone </s>
 <s>rozmarza</s>
@@ -150,6 +174,10 @@
 <s>singiel</s>
 <s>single</s>
 <s>sini</s>
+<s>sinobrody</s>
+<s>sinolodzy</s>
+<s>sinolog</s>
+<s>sinologa</s>
 <s>sinus</s>
 <s>siny</s>
 <s>sizal</s>
@@ -159,6 +187,7 @@
 <s>stolarz</s>
 <s>superzdrowy</s>
 <s>także</s>
+<s>tychże</s>
 <s>ubezimiennić</s>
 <s>umarza</s>
 <s>umarzalność</s>
@@ -179,6 +208,7 @@
 <s>zaczęła</s>
 <s>zakrzep</s>
 <s>zamarza</s>
+<s>zdezintegrowaną</s>
 <s>zim</s>
 <s>zima</s>
 <s>zimą</s>
