@@ -8,7 +8,7 @@ ext.revision_number=0
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 
 ext.base_pkg_dir_url='https://rhvoice.org/download/packages-%s.json'
-ext.pkg_dir_url_def_fmt=/-DPKG_DIR_URL='"%s"'/
+ext.pkg_dir_url_def_fmt=/-DPKG_DIR_URL="\"%s\""/
 
 task BoostIncludes(type: Exec) {
      workingDir '../../..'
