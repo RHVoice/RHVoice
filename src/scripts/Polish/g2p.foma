@@ -154,8 +154,10 @@ p o _ e ,,
 {si} @-> si2 ||
 #sigm, sign, siglum, pleksiglas:
 _ g [l|m|n],
-#sinus, singiel, single, sinolog, not sina, sinego...:
-_ n [ g |{olo} | u ],
+#silikon, silicon, not silnik:
+_ l i,
+#sinus, singiel, single, sinolog, not sina, sinego, sinów...:
+_ n [ g |{olo} | [ u s ]],
 #aksis aksisie not basista
  _ s [.#.|\t],
  #eliksir
@@ -220,14 +222,6 @@ Softening @-> || SofteningConsonantPhonem _ ,
 .#. _ p,,
 #e.g. historia to historja:
 i @-> y || _ VowelPhonem ,,
-#y jak j:
-ih @-> y ||
-#y vowel yaht, yeti, 
-.#. _ VowelPhonem&\ih,
-#boy, boya, boye, bayerowski, boyizm
-VowelPhonem&\ih&\u _ [VowelPhonem&\ih]|.#.,
-#boys, boysband, disneyland,
-VowelPhonem _ \VowelPhonem ,,
 #e.g.: zaczął=zaczoł, zaczęła=zaczeła:
 [on : o |
 en: e] @-> || _ w ,,
