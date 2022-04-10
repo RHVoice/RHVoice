@@ -43,14 +43,12 @@ service on [this page.](https://data2data.ru/tts/)
 
 RHVoice supports the following platforms:
 
-* Windows (prebuilt binaries is available [here](doc/en/Binaries.md))
-* GNU/Linux (building instructions can be found
-  [here](doc/en/Compiling-on-Linux.md). You can also look at
-  [packaging status](doc/en/Packaging-status.md).)
+* Windows (prebuilt binaries is available in documentation)
+* GNU/Linux (building instructions and packaging status
+  can be found in "Compiling instructions" section of documentation.
 * Android (can be installed thru
   [F-Droid](https://f-droid.org/packages/com.github.olga_yakovleva.rhvoice.android/)
   or [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
-  you can also download an APK consult [this file](doc/en/Binaries.md#user-content-android))
 
 It is compatible with standard text-to-speech interfaces on these platforms:
 SAPI5 on Windows, [Speech Dispatcher](https://devel.freebsoft.org/speechd) on
