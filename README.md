@@ -8,7 +8,7 @@ RHVoice is a free and open-source speech synthesizer.
 
 RHVoice uses [statistical parametric synthesis](https://en.wikipedia.org/wiki/Speech_synthesis#HMM-based_synthesis).
 It relies on existing open-source speech technologies (mainly
-[HTS](http://hts.sp.nitech.ac.jp) and related software).
+[HTS](https://hts.sp.nitech.ac.jp) and related software).
 
 Voices are built from recordings of natural speech. They have small footprints,
 because only statistical models are stored on users' computers. And though the
