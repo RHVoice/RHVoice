@@ -18,7 +18,9 @@ cmake_minimum_required(VERSION 3.9)
 project("RHVoice")
 
 set(customCMakeModulesDir "${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${customCMakeModulesDir}/thirdparty/sanitizers/cmake")
+set(thirdPartyCMakeModulesDir "${customCMakeModulesDir}/thirdParty")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${customCMakeModulesDir}" "${thirdPartyCMakeModulesDir}/sanitizers/cmake")
+add_subdirectory("${thirdPartyCMakeModulesDir}/CCache")
 
 include(FindPkgConfig)
 include(GNUInstallDirs)

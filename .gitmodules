@@ -181,3 +181,6 @@
 [submodule "data/voices/suze"]
 	path = data/voices/suze
 	url = https://github.com/RHVoice/suze-mkd.git
+[submodule "cmake/thirdParty/CCache"]
+	path = cmake/thirdParty/CCache
+	url = https://github.com/TheLartians/Ccache.cmake
