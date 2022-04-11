@@ -20,6 +20,7 @@ set("ISO639_1_NAME2CODE_English" "en")
 set("ISO639_1_NAME2CODE_Ukrainian" "uk")
 set("ISO639_1_NAME2CODE_Brazilian" "br")
 set("ISO639_1_NAME2CODE_Portuguese" "pt")
+set("ISO639_1_NAME2CODE_Polish" "pl")
 set("ISO639_1_NAME2CODE_Brazilian-Portuguese" "${ISO639_1_NAME2CODE_Portuguese}-BR")
 
 set("ISO639_1_NAME2CODE_Esperanto" "eo")
@@ -78,10 +79,16 @@ set("VOICE_natia_LANG" "ka")
 
 set("VOICE_azamat_LANG" "ky")
 set("VOICE_nazgul_LANG" "ky")
+
 set("VOICE_kiko_LANG" "mk")
+set("VOICE_suze_LANG" "mk")
+
 set("VOICE_hana_LANG" "sq")
 
 set("VOICE_talgat_LANG" "tt")
+
+set("VOICE_magda_LANG" "pl")
+set("VOICE_natan_LANG" "pl")
 
 cpack_add_component_group("data"
 	DISPLAY_NAME "Data files"
