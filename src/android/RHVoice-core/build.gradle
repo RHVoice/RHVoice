@@ -18,8 +18,8 @@ task BoostIncludes(type: Exec) {
 android {
 compileOptions {
 coreLibraryDesugaringEnabled true
-sourceCompatibility JavaVersion.VERSION_1_8
-targetCompatibility JavaVersion.VERSION_1_8
+sourceCompatibility JavaVersion.VERSION_11
+targetCompatibility JavaVersion.VERSION_11
 }
 
 compileSdkVersion myCompileSdkVersion
@@ -37,6 +37,7 @@ versionName "${major_version}.${minor_version}.${revision_number}"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
 }
+ndkVersion "23.1.7779620"
 externalNativeBuild {
 ndkBuild {
 arguments 'V=1'
@@ -111,7 +112,7 @@ flavorDimensions 'dir'
 }
 
 dependencies {
-    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.work:work-runtime:2.7.1'
