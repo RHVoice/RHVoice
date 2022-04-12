@@ -16,7 +16,7 @@ allprojects {
     }
 
     ext.myMinSdkVersion=16
-    ext.myCompileSdkVersion=31
+    ext.myCompileSdkVersion=32
     ext.myTargetSdkVersion=31
 }
 
