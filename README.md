@@ -20,7 +20,7 @@ intelligible and resemble the speakers who recorded the source material.
 
 Initially, RHVoice could speak only Russian. Now it also supports:
 
-* American English
+* American and Scottish English
 * Brazilian Portuguese
 * Esperanto
 * Georgian
@@ -29,6 +29,7 @@ Initially, RHVoice could speak only Russian. Now it also supports:
 * Tatar
 * Macedonian
 * Albanian
+* Polish
 
 In theory, it is possible to implement support for
 other languages, if all the necessary resources can be found or
@@ -37,7 +38,7 @@ created.
 ### Synthesis example
 
 If you want to listen to an example of speech synthesis, You can use the TTS
-service on [this page.](https://data2data.ru/tts/)
+service on [this page](https://data2data.ru/tts/).
 
 ### Supported platforms
 
