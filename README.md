@@ -60,7 +60,7 @@ by RHVoice itself).
 
 All prebuild binaries packages, main
 and legal information and more
-are available for three languages:
+are available in three languages:
 
 * [English](doc/en/index.md)
 * [Русский](doc/ru/index.md)
