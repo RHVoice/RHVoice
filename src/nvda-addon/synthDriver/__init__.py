@@ -736,7 +736,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 	@classmethod
 	def check(cls):
 		for addon in addonHandler.getRunningAddons():
-			if addon.name.startswith("RHVoice-voice"):
+			if re.match("RHVoice.*-voice", addon.name):
 				return True
 		return False
 
