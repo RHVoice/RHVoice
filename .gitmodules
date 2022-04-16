@@ -175,3 +175,12 @@
 [submodule "data/voices/natan"]
 	path = data/voices/natan
 	url = https://github.com/RHVoice/natan-pol.git
+[submodule "bin/msi"]
+	path = bin/msi
+	url = https://github.com/RHVoice/msi
+[submodule "data/voices/suze"]
+	path = data/voices/suze
+	url = https://github.com/RHVoice/suze-mkd.git
+[submodule "cmake/thirdParty/CCache"]
+	path = cmake/thirdParty/CCache
+	url = https://github.com/TheLartians/Ccache.cmake

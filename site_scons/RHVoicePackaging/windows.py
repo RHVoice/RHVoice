@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2013, 2014, 2018, 2019, 2021  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2013, 2014, 2018, 2019, 2021, 2022  Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import os.path
 from collections import OrderedDict
 import uuid
 from lxml import etree
+from SCons.Script import Dir
 from .common import *
 
 uuid_namespace=uuid.UUID(hex="de5ba08b-8b9f-46e3-b0ee-d6bbac37017c")
@@ -36,9 +37,6 @@ class windows_packager(packager):
 		self.version=version
 		self.tmp_dir=self.outdir.Dir("tmp")
 		self.src=self.tmp_dir.Dir("src").File(name+"."+self.get_file_ext()+"."+self.get_src_ext())
-		self.msi_repo=env.get("msi_repo",None)
-		if self.msi_repo:
-			self.msi_repo=Dir(self.msi_repo)
 
 	def make_uuid(self,name):
 		return str(uuid.uuid5(uuid_namespace,name)).upper()
@@ -88,9 +86,17 @@ class wix_packager(windows_packager):
 class msi_packager(wix_packager):
 	def __init__(self,upgrade_code,name,outdir,env,display_name,version,nsis_name=None):
 		super(msi_packager,self).__init__(upgrade_code,name,outdir,env,display_name,version)
-		msi_file_name=os.path.split(self.outfile.path)[1]
-		self.product_code=self.make_uuid("Product: {}".format(msi_file_name))
+		self.msi_file_name=os.path.split(self.outfile.path)[1]
+		self.product_code=self.make_uuid("Product: {}".format(self.msi_file_name))
 		self.visible="yes"
+		self.reuse=False
+		msi_repo=Dir("#bin").Dir("msi")
+		for subdir_name in ["local", "shared"]:
+			msi_file=msi_repo.Dir(subdir_name).File(self.msi_file_name)
+			if os.path.exists(msi_file.abspath):
+				self.reuse=True
+				self.outfile=msi_file
+				return
 		self.nsis_name=nsis_name if nsis_name else name
 		self.nsis_uninst_reg_key=r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{}'.format(self.nsis_name)
 		self.nsis_uninstaller_file_name="uninstall-{}.exe".format(self.nsis_name)
@@ -383,6 +389,11 @@ class msi_packager(wix_packager):
 	def get_file_ext(self):
 		return "msi"
 
+	def package(self):
+		if self.reuse:
+			return
+		super().package()
+
 class data_packager(msi_packager):
 	def get_parent_directory_id(self):
 		return "CommonAppDataFolder"
@@ -441,7 +452,7 @@ class nsis_bootstrapper_packager(windows_packager):
 		super(nsis_bootstrapper_packager,self).__init__(name,outdir,env,display_name,version)
 		self.msis=[]
 		self.script=["Unicode true"]
-		self.languages=["English","Russian","Portuguese","Esperanto","Georgian","Tatar","Ukrainian","Macedonian", "Albanian"]
+		self.languages=["English","Russian","Portuguese","Esperanto","Georgian","Tatar","Ukrainian","Macedonian", "Albanian", "polish"]
 		self.add_includes()
 		self.add_settings()
 
@@ -492,10 +503,6 @@ class nsis_bootstrapper_packager(windows_packager):
 			file_name=os.path.split(msi.outfile.path)[1]
 			log_path=os.path.join(outpath,msi.short_name+".log")
 			file=msi.outfile
-			if self.msi_repo:
-				repo_file=self.msi_repo.File(file_name)
-				if os.path.isfile(repo_file.path):
-					file=repo_file
 			self.env.Depends(self.outfile,file)
 			file_path=outpath+"\\"+file_name
 			delete_command="Delete {}".format(file_path)

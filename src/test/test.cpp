@@ -143,6 +143,8 @@ int main(int argc,const char* argv[])
       auto pitch_arg =  cmd.add_option("-t,--pitch",pitch_argStor,"speech pitch");  //percent
       unsigned int volume_argStor = 100;
       auto volume_arg =  cmd.add_option("-v,--volume",volume_argStor,"speech volume");  // percent
+      std::string quality_argStor;
+      auto quality_arg = cmd.add_option("-q,--quality",quality_argStor,"quality");
       cmd.allow_windows_style_options();
 #else
       TCLAP::ValueArg<std::string> inpath_arg("i","input","input file",false,"-","path",cmd);
@@ -153,6 +155,7 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<uint32_t> sample_rate("R","sample-rate","sample rate",false, 24000,"Hz",cmd);
       TCLAP::ValueArg<unsigned int> pitch_arg("t","pitch","speech pitch",false,100,"percent",cmd);
       TCLAP::ValueArg<unsigned int> volume_arg("v","volume","speech volume",false,100,"percent",cmd);
+      TCLAP::ValueArg<std::string> quality_arg("q","quality","quality",false,"","quality",cmd);
 #endif
 
 #ifdef WITH_CLI11
@@ -176,6 +179,10 @@ int main(int argc,const char* argv[])
       player.set_sample_rate(GET_CLI_PARAM_VALUE(sample_rate));
       player.set_buffer_size(20);
       std::shared_ptr<engine> eng(new engine);
+      auto q=GET_CLI_PARAM_VALUE(quality_arg);
+      if(!q.empty())
+        eng->configure("quality", q);
+
       voice_profile profile;
       if(!GET_CLI_PARAM_VALUE(voice_arg).empty())
         profile=eng->create_voice_profile(GET_CLI_PARAM_VALUE(voice_arg));

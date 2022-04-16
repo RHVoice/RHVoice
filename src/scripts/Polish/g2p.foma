@@ -40,7 +40,6 @@ n:n |
 o:o | 
 ó:u | 
 p:p | 
-q:{ku} | 
 r:r | 
 s:s | 
 {sz}:sh | 
@@ -48,11 +47,11 @@ s:s |
 t:t | 
 u:u | 
 w:v | 
-v:v | 
+v:v2 | 
 y:ih | 
 z:z | 
-ź:zi |
-ż: zh ;
+ź:zi ;
+#q and ż processed later.
 
 define Stage1 InitialTranscribe @-> ;
 
@@ -73,7 +72,7 @@ e _ a t z ,
 #superzdrowy, hiperzręczny, cyberzagrożenia:
 {supe}| {hipe} | [c  ih b e] _ ,,
 #d ż, nie dż:
-[d zh] @-> dzh2 ||
+[d ż] @-> dzh2 ||
 #budże*
 {bu} _ e,
 #nadżarcie, nadżerka, podżartować:
@@ -108,7 +107,7 @@ k o m a _ a,
 #rymarza:
 r ih m a _ a,,
 #dż to dzh:
-[d zh] -> dzh || _ ,,
+[d ż] -> dzh || _ ,,
 #exceptions from dzh2:
 dzh2 -> dzh ||
 #menadżer:
@@ -131,16 +130,20 @@ define FlagExceptions
 ih @-> ih2 || {ant} _ VowelPhonem,,
 #d z, not dz:
 [dz] @-> dz2 ||
-#odzew, odzmysławiać, odznaka, odzywać...
-.#. o _ \i ,
+#odzew,  nieodzowny, odzmysławiać, odznaka, odzywać...
+.#. (n i e) o _ \i ,
 #nadzorca, nadzwyczaj, not nadzie
-{na} _ \i ,,
+{na} _ \i,
+#podzwrotnikowy
+p o _ v r,
+#podzelować, podzespół:
+p o _ e ,,
 #d zi, not dzi:
 [dz i] @-> dzi2 ||
 #odziomek
 .#. o _ o ,
-#podziemię, niepodziemny:
-.#. (n i e) p o _ e m,
+#podziemię, nadziemny, niepodziemny:
+.#. (n i e) [p o] | [n a] _ e m,
 #podzięb:
 .#. (n i e) p o _ en b ,,
 #d zi i not dzi
@@ -151,8 +154,10 @@ ih @-> ih2 || {ant} _ VowelPhonem,,
 {si} @-> si2 ||
 #sigm, sign, siglum, pleksiglas:
 _ g [l|m|n],
-#sinus, singiel, single, not sina, sinego...:
-_ n [ g | u ],
+#silikon, silicon, not silnik:
+_ l i,
+#sinus, singiel, single, sinolog, not sina, sinego, sinów...:
+_ n [ g |{olo} | [ u s ]],
 #aksis aksisie not basista
  _ s [.#.|\t],
  #eliksir
@@ -167,16 +172,19 @@ _ z [\on&\m&\o],,
 {zi} @-> zi2 ||
 #*bezi (not bezik*)
 .#. [u | n i e | 0] b e _ \k,
+#dezinstalacja and similar, not artrodezie
+d e _ \e,
+#dżazira, nazir, not kazir*
+[\k] a _ r,
 #muezin, muezzin:
 m u e (z) _ n,
 #rozigrane, nieroziskrzone, 
 .#. (n i e) r o _ ,,
 #Not soften zh:
-zh @-> zh2 ||
-#także wszakże jakże:
-{ak} _ e .#. ,,
 #xie na ksie:
-x i e @-> k si e || _ ;
+x i e @-> k si e || _ ,,
+#quasi:
+q u a s i @-> k f a zi2 || _ ;
 
 
 define UnflagExceptions [
@@ -185,6 +193,7 @@ dzi2:[d zi] |
 dzi3:[d zi i] |
 dzh2:[d zh] |
 si2: [s i] |
+v2 : v |
 ih2: ih |
 zi2:[z i] |
 zh2:zh ] @-> || _ ;
@@ -213,14 +222,6 @@ Softening @-> || SofteningConsonantPhonem _ ,
 .#. _ p,,
 #e.g. historia to historja:
 i @-> y || _ VowelPhonem ,,
-#y jak j:
-ih @-> y ||
-#y vowel yaht, yeti, 
-.#. _ VowelPhonem&\ih,
-#boy, boya, boye, bayerowski, boyizm
-VowelPhonem&\ih&\u _ [VowelPhonem&\ih]|.#.,
-#boys, boysband, disneyland,
-VowelPhonem _ \VowelPhonem ,,
 #e.g.: zaczął=zaczoł, zaczęła=zaczeła:
 [on : o |
 en: e] @-> || _ w ,,
@@ -230,6 +231,10 @@ k l i e @-> k l i y e || _ ,,
 u a @-> u w a || _ .#. ,,
 #statuy:
 u ih @-> u w ih || _ .#. ,,
+#q na ku:
+q @-> {ku} || _ ,,
+#ż na zh
+ż @-> zh || _ ,,
 #x na ks:
 x @-> k s || _ ;
 

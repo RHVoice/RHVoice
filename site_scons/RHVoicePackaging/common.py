@@ -87,4 +87,4 @@ class names:
 	email="rhvoice@rhvoice.org"
 	def_with_email="{} <{}>".format(dev, email)
 	src_url="https://github.com/RHVoice/RHVoice"
-	url=src_url
+	url="https://rhvoice.org"
