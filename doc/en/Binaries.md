@@ -8,7 +8,7 @@
 
 ## NVDA
 
-[Main add-on](https://rhvoice.org/download/RHVoice-1.8.0.nvda-addon), version 1.8.0
+[Main add-on](https://rhvoice.org/download/RHVoice-1.8.1.nvda-addon), version 1.8.1
 
 ### Russian
 
