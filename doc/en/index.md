@@ -24,7 +24,8 @@ intelligible and resemble the speakers who recorded the source material.
 ### Supported languages
 
 Initially, RHVoice could speak only Russian. Now it also supports American
-English, Brazilian Portuguese, Esperanto, Georgian, Ukrainian, Kyrgyz and Tatar.
+English, Brazilian Portuguese, Esperanto, Georgian, Ukrainian,
+Kyrgyz, Tatar, Macedonian, Albanian and Polish.
 In theory, it is possible to implement support for other languages, if all the
 necessary resources can be found or created.
 
