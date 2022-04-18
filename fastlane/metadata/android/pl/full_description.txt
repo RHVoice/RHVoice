@@ -1,4 +1,4 @@
-<p>Aplikacja RHVoice jest wolnym i otwartoźródłowym systetyzatorem mowy.</p>
-<p>Głosy są tworzone w oparciu o próbki mowy prawdziwych ludzi. Pliki głosów są niewielkie, ponieważ tylko statystyczne modele są przechowywane na komputerach użytkowników. Pomimo braku naturalności – co jest typowe dla syntetyzatorów tworzących mowę poprzez składanie fragmentów próbek głosów – wciąż są zrozumiałe i imitują głosy osób, które dostarczyły próbek.</p>
+<p>Aplikacja RHVoice jest wolnym i otwartoźródłowym syntezatorem mowy.</p>
+<p>Głosy są tworzone w oparciu o próbki mowy prawdziwych ludzi. Pliki głosów są niewielkie, ponieważ tylko statystyczne modele są przechowywane na komputerach użytkowników. Pomimo braku naturalności – co jest typowe dla syntezatorów tworzących mowę poprzez składanie fragmentów próbek głosów – wciąż są zrozumiałe i imitują głosy osób, które dostarczyły próbek.</p>
 <p><br><b>Wspierane języki:</b><br>
 Początkowo aplikacja RHVoice wspierała tylko język rosyjski. Obecnie wspierany jest także język polski, albański, szkocki i amerykański angielski, esperanto, gruziński, kirgijski, macedoński, brazylijski portugalski, tatarski i ukraiński. Teoretycznie można byłoby dodać kolejne języki, po znalezieniu lub utworzeniu niezbędnych zasobów.</p>
