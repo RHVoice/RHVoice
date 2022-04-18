@@ -11,7 +11,7 @@
   <string name="settings">Ustawienia</string>
   <string name="wifi_only_title">Tylko Wi-Fi</string>
   <string name="wifi_only_desc">Pobieraj głosy używając tylko Wi-fi</string>
-  <string name="speech_quality">Tryb Jakości mowy</string>
+  <string name="speech_quality">Tryb jakości mowy</string>
   <string-array name="quality_labels">
     <item>Najwyższa wydajność</item>
     <item>Standardowa jakość</item>
