@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2016, 2017, 2021  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2013, 2014, 2016, 2017, 2021, 2022  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -34,6 +34,10 @@ public final class TTSEngine
 
     static
     {
+System.loadLibrary("crypto");
+        System.loadLibrary("ssl");
+        System.loadLibrary("curl");
+        System.loadLibrary("c++_shared");
         System.loadLibrary("RHVoice_jni");
         onClassInit();
     }
