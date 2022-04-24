@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Copyright 2022 by Zvonimir stanecic-->
 <resources>
   <string name="default_voice_title">Domyślny głos</string>
   <string name="default_voice_dialog_title">Wybierz głos</string>
