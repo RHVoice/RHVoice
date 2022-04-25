@@ -1,0 +1,1 @@
+Syntezator mowy obsługujący wiele języków (w tym polski)
