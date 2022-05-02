@@ -194,6 +194,13 @@ def create_user_vars():
     vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
     vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
     vars.Add("LINKFLAGS","Linker flags",["/LTCG","/OPT:REF","/OPT:ICF"] if sys.platform=="win32" else [],converter=convert_flags)
+    
+    if sys.platform=="darwin":
+      vars.Add(EnumVariable("platform", "Platform to build", "ios", ("ios", "macos")))
+      vars.Add(EnumVariable("arch", "Architecture to build. Ignored for macOS builds.", "arm64", ("arm64", "x86_64")))
+      vars.Add(EnumVariable("scheme", "Scheme to build. Ignored for macOS builds.", "release", ("release", "debug")))
+      vars.Add(BoolVariable("simulator", "Simulator build. Ignored for macOS builds",False))
+      vars.Add("IPHONEPATH","Path Xcode tool chain","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain")
     return vars
 
 def create_base_env(user_vars):
@@ -344,6 +351,42 @@ def build_for_linux(base_env,user_vars):
         SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env},
                    variant_dir=os.path.join(BUILDDIR,subdir),
                    duplicate=0)
+                   
+def build_for_ios(base_env,user_vars):
+
+    global BUILDDIR
+    print("Building for iOS")
+    base_env["audio_libs"] = ["none"]
+    BUILDDIR = "build/" + base_env["platform"] + "_" + base_env["arch"]
+    if base_env["simulator"]:
+       BUILDDIR = BUILDDIR + "_simulator"
+    #building binaries
+    env=clone_base_env(base_env,user_vars, base_env["arch"])
+    
+    base_env["tools"]=False
+    base_env["BUILDDIR"] = BUILDDIR
+    
+    sys.path.insert(0, "src/ios/")
+    import configure_ios
+    configure_ios.configure(env)
+    
+    if base_env["BUILDDIR"]!=BUILDDIR:
+        Execute(Mkdir(env["BUILDDIR"]))
+    
+    src_subdirs=configure(env)
+    
+    for subdir in src_subdirs:
+        if subdir == "test" or subdir == "sd_module":
+            continue 
+        SConscript(os.path.join("src",subdir,"SConscript"),
+                   variant_dir=os.path.join(env["BUILDDIR"],subdir),
+                   exports={"env":env},
+                   duplicate=0)
+    
+    for subdir in ["data","config"]:
+        SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env},
+                   variant_dir=os.path.join(BUILDDIR,subdir),
+                   duplicate=0)
 
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
@@ -386,4 +429,7 @@ SConscript(dirs=boost_includedir)
 if sys.platform=="win32":
     build_for_windows(base_env,vars)
 else:
-    build_for_linux(base_env,vars)
+    if base_env["platform"] == "ios":
+        build_for_ios(base_env,vars)
+    else:
+        build_for_linux(base_env,vars)
