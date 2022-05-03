@@ -1,0 +1,679 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0109CBF028214EDE001CB7DE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CBEF28214EDE001CB7DE /* AppDelegate.m */; };
+		0109CBF328214EDF001CB7DE /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CBF228214EDF001CB7DE /* SceneDelegate.m */; };
+		0109CBF628214EDF001CB7DE /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CBF528214EDF001CB7DE /* ViewController.m */; };
+		0109CBF928214EDF001CB7DE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0109CBF728214EDF001CB7DE /* Main.storyboard */; };
+		0109CBFB28214EE0001CB7DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0109CBFA28214EE0001CB7DE /* Assets.xcassets */; };
+		0109CBFE28214EE0001CB7DE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0109CBFC28214EE0001CB7DE /* LaunchScreen.storyboard */; };
+		0109CC0128214EE0001CB7DE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC0028214EE0001CB7DE /* main.m */; };
+		0109CC072821538B001CB7DE /* RHVoice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD1EE28206207008486B1 /* RHVoice.framework */; platformFilter = ios; };
+		0109CC082821538B001CB7DE /* RHVoice.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD1EE28206207008486B1 /* RHVoice.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		0109CC1628215510001CB7DE /* RHSpeechSynthesisVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC1728215510001CB7DE /* RHVoiceBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1328215510001CB7DE /* RHVoiceBridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC1828215510001CB7DE /* RHSpeechSynthesisVoice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */; };
+		0109CC1928215510001CB7DE /* RHVoiceBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1528215510001CB7DE /* RHVoiceBridge.mm */; };
+		0109CC1C282155B1001CB7DE /* RHSpeechUtterance.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC1D282155B1001CB7DE /* RHSpeechUtterance.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */; };
+		0109CC20282155EE001CB7DE /* RHSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC21282155EE001CB7DE /* RHSpeechSynthesizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */; };
+		0109CC232821564A001CB7DE /* RHVoiceBridge+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC2228215647001CB7DE /* RHVoiceBridge+Private.h */; };
+		015DD1FA282062B2008486B1 /* RHVoice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD1F9282062B2008486B1 /* RHVoice.xcframework */; };
+		015DD1FC282062C2008486B1 /* RHVoiceData in Resources */ = {isa = PBXBuildFile; fileRef = 015DD1FB282062C2008486B1 /* RHVoiceData */; };
+		015DD20B28206B55008486B1 /* RHVoiceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD20A28206B55008486B1 /* RHVoiceWrapper.h */; };
+		015DD21628206C05008486B1 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD21528206C05008486B1 /* AVFAudio.framework */; };
+		015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 015DD21828206C2F008486B1 /* NSString+Additions.m */; };
+		015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD21928206C30008486B1 /* NSString+Additions.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0109CC0528214EE8001CB7DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 015DD1E528206207008486B1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 015DD1ED28206207008486B1;
+			remoteInfo = RHVoice;
+		};
+		0109CC092821538B001CB7DE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 015DD1E528206207008486B1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 015DD1ED28206207008486B1;
+			remoteInfo = RHVoice;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0109CC0B2821538B001CB7DE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				0109CC082821538B001CB7DE /* RHVoice.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0109CBEC28214EDE001CB7DE /* RHVoiceSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RHVoiceSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0109CBEE28214EDE001CB7DE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		0109CBEF28214EDE001CB7DE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		0109CBF128214EDE001CB7DE /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
+		0109CBF228214EDF001CB7DE /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
+		0109CBF428214EDF001CB7DE /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		0109CBF528214EDF001CB7DE /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		0109CBF828214EDF001CB7DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		0109CBFA28214EE0001CB7DE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0109CBFD28214EE0001CB7DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0109CBFF28214EE0001CB7DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0109CC0028214EE0001CB7DE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHSpeechSynthesisVoice.h; sourceTree = "<group>"; };
+		0109CC1328215510001CB7DE /* RHVoiceBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceBridge.h; sourceTree = "<group>"; };
+		0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RHSpeechSynthesisVoice.mm; sourceTree = "<group>"; };
+		0109CC1528215510001CB7DE /* RHVoiceBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RHVoiceBridge.mm; sourceTree = "<group>"; };
+		0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHSpeechUtterance.h; sourceTree = "<group>"; };
+		0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RHSpeechUtterance.m; sourceTree = "<group>"; };
+		0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHSpeechSynthesizer.h; sourceTree = "<group>"; };
+		0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RHSpeechSynthesizer.mm; sourceTree = "<group>"; };
+		0109CC2228215647001CB7DE /* RHVoiceBridge+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RHVoiceBridge+Private.h"; sourceTree = "<group>"; };
+		0109CC252821697A001CB7DE /* RHSpeechSynthesisVoice+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RHSpeechSynthesisVoice+Private.h"; sourceTree = "<group>"; };
+		015DD1EE28206207008486B1 /* RHVoice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RHVoice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		015DD1F9282062B2008486B1 /* RHVoice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = RHVoice.xcframework; path = ../../../../../build/ios_output/RHVoice.xcframework; sourceTree = "<group>"; };
+		015DD1FB282062C2008486B1 /* RHVoiceData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RHVoiceData; path = ../../../../../build/ios_output/RHVoiceData; sourceTree = "<group>"; };
+		015DD1FF28206360008486B1 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		015DD20228206400008486B1 /* build_core_lib.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_core_lib.sh; sourceTree = "<group>"; };
+		015DD20828206744008486B1 /* build_ios_core_lib.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_ios_core_lib.sh; path = ../../../../build_ios_core_lib.sh; sourceTree = "<group>"; };
+		015DD20A28206B55008486B1 /* RHVoiceWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceWrapper.h; sourceTree = "<group>"; };
+		015DD21528206C05008486B1 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
+		015DD21828206C2F008486B1 /* NSString+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Additions.m"; sourceTree = "<group>"; };
+		015DD21928206C30008486B1 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
+		015DD21C28206CEF008486B1 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0109CBE928214EDE001CB7DE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0109CC072821538B001CB7DE /* RHVoice.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		015DD1EB28206207008486B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				015DD1FA282062B2008486B1 /* RHVoice.xcframework in Frameworks */,
+				015DD21628206C05008486B1 /* AVFAudio.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0109CBED28214EDE001CB7DE /* RHVoiceSampleApp */ = {
+			isa = PBXGroup;
+			children = (
+				0109CBEE28214EDE001CB7DE /* AppDelegate.h */,
+				0109CBEF28214EDE001CB7DE /* AppDelegate.m */,
+				0109CBF128214EDE001CB7DE /* SceneDelegate.h */,
+				0109CBF228214EDF001CB7DE /* SceneDelegate.m */,
+				0109CBF428214EDF001CB7DE /* ViewController.h */,
+				0109CBF528214EDF001CB7DE /* ViewController.m */,
+				0109CBF728214EDF001CB7DE /* Main.storyboard */,
+				0109CBFA28214EE0001CB7DE /* Assets.xcassets */,
+				0109CBFC28214EE0001CB7DE /* LaunchScreen.storyboard */,
+				0109CBFF28214EE0001CB7DE /* Info.plist */,
+				0109CC0028214EE0001CB7DE /* main.m */,
+			);
+			path = RHVoiceSampleApp;
+			sourceTree = "<group>";
+		};
+		0109CC1128215510001CB7DE /* RHVoice */ = {
+			isa = PBXGroup;
+			children = (
+				0109CC1328215510001CB7DE /* RHVoiceBridge.h */,
+				0109CC2228215647001CB7DE /* RHVoiceBridge+Private.h */,
+				0109CC1528215510001CB7DE /* RHVoiceBridge.mm */,
+				0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */,
+				0109CC252821697A001CB7DE /* RHSpeechSynthesisVoice+Private.h */,
+				0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */,
+				0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */,
+				0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */,
+				0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */,
+				0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */,
+			);
+			path = RHVoice;
+			sourceTree = "<group>";
+		};
+		015DD1E428206207008486B1 = {
+			isa = PBXGroup;
+			children = (
+				015DD1F028206207008486B1 /* RHVoice */,
+				0109CBED28214EDE001CB7DE /* RHVoiceSampleApp */,
+				015DD1EF28206207008486B1 /* Products */,
+				015DD21428206C05008486B1 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		015DD1EF28206207008486B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1EE28206207008486B1 /* RHVoice.framework */,
+				0109CBEC28214EDE001CB7DE /* RHVoiceSampleApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		015DD1F028206207008486B1 /* RHVoice */ = {
+			isa = PBXGroup;
+			children = (
+				015DD21728206C23008486B1 /* Utils */,
+				015DD1FD28206360008486B1 /* BuildScripts */,
+				015DD1F828206290008486B1 /* CoreLib */,
+				0109CC1128215510001CB7DE /* RHVoice */,
+			);
+			path = RHVoice;
+			sourceTree = "<group>";
+		};
+		015DD1F828206290008486B1 /* CoreLib */ = {
+			isa = PBXGroup;
+			children = (
+				015DD20A28206B55008486B1 /* RHVoiceWrapper.h */,
+				015DD1FB282062C2008486B1 /* RHVoiceData */,
+				015DD1F9282062B2008486B1 /* RHVoice.xcframework */,
+			);
+			path = CoreLib;
+			sourceTree = "<group>";
+		};
+		015DD1FD28206360008486B1 /* BuildScripts */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1FE28206360008486B1 /* Configs */,
+				015DD20028206360008486B1 /* Scripts */,
+			);
+			path = BuildScripts;
+			sourceTree = "<group>";
+		};
+		015DD1FE28206360008486B1 /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1FF28206360008486B1 /* common.xcconfig */,
+			);
+			path = Configs;
+			sourceTree = "<group>";
+		};
+		015DD20028206360008486B1 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				015DD20228206400008486B1 /* build_core_lib.sh */,
+				015DD20828206744008486B1 /* build_ios_core_lib.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
+		015DD21428206C05008486B1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				015DD21C28206CEF008486B1 /* AVFoundation.framework */,
+				015DD21528206C05008486B1 /* AVFAudio.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		015DD21728206C23008486B1 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				015DD21928206C30008486B1 /* NSString+Additions.h */,
+				015DD21828206C2F008486B1 /* NSString+Additions.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		015DD1E928206207008486B1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				015DD20B28206B55008486B1 /* RHVoiceWrapper.h in Headers */,
+				0109CC232821564A001CB7DE /* RHVoiceBridge+Private.h in Headers */,
+				0109CC20282155EE001CB7DE /* RHSpeechSynthesizer.h in Headers */,
+				0109CC1628215510001CB7DE /* RHSpeechSynthesisVoice.h in Headers */,
+				0109CC1728215510001CB7DE /* RHVoiceBridge.h in Headers */,
+				015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */,
+				0109CC1C282155B1001CB7DE /* RHSpeechUtterance.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		0109CBEB28214EDE001CB7DE /* RHVoiceSampleApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0109CC0228214EE0001CB7DE /* Build configuration list for PBXNativeTarget "RHVoiceSampleApp" */;
+			buildPhases = (
+				0109CBE828214EDE001CB7DE /* Sources */,
+				0109CBE928214EDE001CB7DE /* Frameworks */,
+				0109CBEA28214EDE001CB7DE /* Resources */,
+				0109CC0B2821538B001CB7DE /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0109CC0628214EE8001CB7DE /* PBXTargetDependency */,
+				0109CC0A2821538B001CB7DE /* PBXTargetDependency */,
+			);
+			name = RHVoiceSampleApp;
+			productName = RHVoiceSampleApp;
+			productReference = 0109CBEC28214EDE001CB7DE /* RHVoiceSampleApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		015DD1ED28206207008486B1 /* RHVoice */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 015DD1F528206207008486B1 /* Build configuration list for PBXNativeTarget "RHVoice" */;
+			buildPhases = (
+				015DD1E928206207008486B1 /* Headers */,
+				015DD1EA28206207008486B1 /* Sources */,
+				015DD1EB28206207008486B1 /* Frameworks */,
+				015DD1EC28206207008486B1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RHVoice;
+			productName = RHVoice;
+			productReference = 015DD1EE28206207008486B1 /* RHVoice.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		015DD1E528206207008486B1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					0109CBEB28214EDE001CB7DE = {
+						CreatedOnToolsVersion = 13.3;
+					};
+					015DD1ED28206207008486B1 = {
+						CreatedOnToolsVersion = 13.3;
+					};
+				};
+			};
+			buildConfigurationList = 015DD1E828206207008486B1 /* Build configuration list for PBXProject "RHVoice" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 015DD1E428206207008486B1;
+			productRefGroup = 015DD1EF28206207008486B1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				015DD1ED28206207008486B1 /* RHVoice */,
+				0109CBEB28214EDE001CB7DE /* RHVoiceSampleApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0109CBEA28214EDE001CB7DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0109CBFE28214EE0001CB7DE /* LaunchScreen.storyboard in Resources */,
+				0109CBFB28214EE0001CB7DE /* Assets.xcassets in Resources */,
+				0109CBF928214EDF001CB7DE /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		015DD1EC28206207008486B1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				015DD1FC282062C2008486B1 /* RHVoiceData in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0109CBE828214EDE001CB7DE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0109CBF628214EDF001CB7DE /* ViewController.m in Sources */,
+				0109CBF028214EDE001CB7DE /* AppDelegate.m in Sources */,
+				0109CC0128214EE0001CB7DE /* main.m in Sources */,
+				0109CBF328214EDF001CB7DE /* SceneDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		015DD1EA28206207008486B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0109CC1928215510001CB7DE /* RHVoiceBridge.mm in Sources */,
+				015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */,
+				0109CC21282155EE001CB7DE /* RHSpeechSynthesizer.mm in Sources */,
+				0109CC1828215510001CB7DE /* RHSpeechSynthesisVoice.mm in Sources */,
+				0109CC1D282155B1001CB7DE /* RHSpeechUtterance.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0109CC0628214EE8001CB7DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 015DD1ED28206207008486B1 /* RHVoice */;
+			targetProxy = 0109CC0528214EE8001CB7DE /* PBXContainerItemProxy */;
+		};
+		0109CC0A2821538B001CB7DE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 015DD1ED28206207008486B1 /* RHVoice */;
+			targetProxy = 0109CC092821538B001CB7DE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		0109CBF728214EDF001CB7DE /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0109CBF828214EDF001CB7DE /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		0109CBFC28214EE0001CB7DE /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0109CBFD28214EE0001CB7DE /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		0109CC0328214EE0001CB7DE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RHVoiceSampleApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoiceSampleApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0109CC0428214EE0001CB7DE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = RHVoiceSampleApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoiceSampleApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		015DD1F328206207008486B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		015DD1F428206207008486B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		015DD1F628206207008486B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoice;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		015DD1F728206207008486B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoice;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0109CC0228214EE0001CB7DE /* Build configuration list for PBXNativeTarget "RHVoiceSampleApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0109CC0328214EE0001CB7DE /* Debug */,
+				0109CC0428214EE0001CB7DE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		015DD1E828206207008486B1 /* Build configuration list for PBXProject "RHVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				015DD1F328206207008486B1 /* Debug */,
+				015DD1F428206207008486B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		015DD1F528206207008486B1 /* Build configuration list for PBXNativeTarget "RHVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				015DD1F628206207008486B1 /* Debug */,
+				015DD1F728206207008486B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 015DD1E528206207008486B1 /* Project object */;
+}

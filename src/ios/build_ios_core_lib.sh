@@ -1,5 +1,7 @@
-echo "Clearing build folder."
-rm -rfv build/*
+if [[ $2 ]]; then
+    echo "Clearing build folder."
+    rm -rfv build/*
+fi
 
 echo "Building..."
 LANGUAGES="$1"
@@ -66,3 +68,4 @@ done
 echo "Copping data complete."
 
 echo "Building is completed. Resulst can be found here:\n$IOS_OUTPUT_FOLDER"
+

@@ -5,3 +5,7 @@ local/
 /CMakeLists.txt.user
 external/libs/boost/include/boost/
 
+# iOS project file
+src/ios/RHVoice/prebuild.log
+src/ios/RHVoice/RHVoice.xcodeproj/project.xcworkspace/xcuserdata
+src/ios/RHVoice/RHVoice.xcodeproj/xcuserdata

@@ -19,7 +19,6 @@ def detect_darwin_sdk_path(platform, env):
 
     env[var_name] = subprocess.check_output(["xcrun", "--sdk", sdk_name, "--show-sdk-path"]).strip().decode("utf-8")
 
-
 def configure(env):
     ## Build type
 
