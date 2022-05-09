@@ -14,7 +14,6 @@
 #include "core/engine.hpp"
 
 @interface RHVoiceBridge(private_additions)
-
 - (const std::set<RHVoice::voice_profile>)voiceProfiles;
 - (std::shared_ptr<RHVoice::engine>)engine;
 

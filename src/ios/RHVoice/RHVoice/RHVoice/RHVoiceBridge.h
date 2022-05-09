@@ -7,11 +7,12 @@
 
 #import <Foundation/Foundation.h>
 
+#import <RHVoice/RHVoiceBridgeParams.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface RHVoiceBridge : NSObject
-@property (strong, nonatomic) NSString *dataPath;
-
+@property (nonatomic, strong) RHVoiceBridgeParams *params;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)sharedInstance;
 

@@ -13,6 +13,7 @@
 #import "RHVoiceBridge+Private.h"
 
 #import "NSString+Additions.h"
+#import "NSFileManager+Additions.h"
 
 #include "RHVoiceWrapper.h"
 
@@ -88,6 +89,7 @@
     }
     
     self.currentUtterance = nil;
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
 }
 
 - (void)speakInternal:(RHSpeechUtterance *)utterance {
@@ -97,18 +99,19 @@
     }
     
     _isSpeaking = YES;
-    NSString *path = [NSString temporaryPathWithExtesnion:@"wav"];
+    [[NSFileManager defaultManager] RHCreateTempFolderIfNeededPath:[NSString RHTemporaryFolderPath]];
+    NSString *path = [NSString RHTemporaryPathWithExtesnion:@"wav"];
     
     [self synthesizeInternalUtterance:utterance
                          toFileAtPath:path];
 
     NSError *error = nil;
+    NSURL *url = [NSURL fileURLWithPath:path];
+    self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
+    CALLDELEGATE_WITH_ERROR_IF_NEEDED_AND_EXIT(error);
     [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
     CALLDELEGATE_WITH_ERROR_IF_NEEDED_AND_EXIT(error);
     [[AVAudioSession sharedInstance] setActive:YES error:&error];
-    CALLDELEGATE_WITH_ERROR_IF_NEEDED_AND_EXIT(error);
-    NSURL *url = [NSURL fileURLWithPath:path];
-    self.player = [[AVAudioPlayer alloc] initWithContentsOfURL:url error:&error];
     CALLDELEGATE_WITH_ERROR_IF_NEEDED_AND_EXIT(error);
     
     self.currentUtterance = utterance;
@@ -169,6 +172,7 @@
     if([self.delegate respondsToSelector:@selector(speechSynthesizer:didFailToSynthesize:withError:)]) {
         [self.delegate speechSynthesizer:self didFailToSynthesize:utterance withError:error];
     }
+    [self cleanUp];
 }
 
 #pragma mark - AVAudioPlayerDelegate
@@ -179,6 +183,5 @@
 
 - (void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError * __nullable)error {
     [self callDelegateWithError:error forUtterance:self.currentUtterance];
-    [self cleanUp];
 }
 @end

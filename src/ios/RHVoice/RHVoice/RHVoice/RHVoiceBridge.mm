@@ -7,10 +7,16 @@
 
 #import "RHVoiceBridge.h"
 
+#import "RHVoiceBridge+Private.h"
+
 #import <AVFAudio/AVAudioSession.h>
 #import <AVFAudio/AVAudioPlayer.h>
 #import <AVFAudio/AVSpeechSynthesis.h>
 
+#import "NSFileManager+Additions.h"
+#import "NSString+Additions.h"
+
+#include "RHEventLoggerImpl.hpp"
 #include "core/engine.hpp"
 
 @interface RHVoiceBridge () {
@@ -31,10 +37,10 @@
     return sharedInstance;
 }
 
-- (void)setDataPath:(NSString *)dataPath {
-    if(![_dataPath isEqual:dataPath]) {
-        _dataPath = dataPath;
-        [self createRHEngineWithDataPath:dataPath];
+- (void)setParams:(RHVoiceBridgeParams *)params {
+    if(![self.params isEqual:params]) {
+        _params = params;
+        [self createRHEngineWithParams:self.params];
     }
 }
 
@@ -51,23 +57,29 @@
 
 #pragma mark - Private
 
++ (void)load {
+    [[NSFileManager defaultManager] RHRemoveTempFolderIfNeededPath:[NSString RHTemporaryFolderPath]];
+}
+
 - (instancetype)init {
     self = [super init];
     if(self) {
-        NSString *dataPath = [[NSBundle bundleForClass:[self class]] pathForResource:@"RHVoiceData" ofType:nil];
-        self.dataPath = dataPath;
+        self.params = [RHVoiceBridgeParams defaultParams];
     }
     return self;
 }
 
-- (void)createRHEngineWithDataPath:(NSString *)dataPath {
+- (void)createRHEngineWithParams:(RHVoiceBridgeParams *)params {
     try {
         RHVoice::engine::init_params param;
-        param.data_path = dataPath.UTF8String;
-        std::shared_ptr<RHVoice::engine> newEngine(new RHVoice::engine(param));
-        RHEngine = newEngine;
+        param.data_path = params.dataPath.UTF8String;
+        if(params.logger != nil && [params.logger respondsToSelector:@selector(logAtLevel:message:)]) {
+            param.logger = std::make_shared<RHEventLoggerImpl>();
+        }
+        
+        RHEngine = std::make_shared<RHVoice::engine>(param);
     } catch (RHVoice::no_languages) {
-        NSLog(@"No Languages folder is located at: %@", dataPath);
+        NSLog(@"No Languages folder is located at: %@", params.dataPath);
         NSLog(@"Please set  valid 'dataPath' property for %@ object. This folder has to contain 'languages' and 'voices' folders.", NSStringFromClass([self class]));
     }
 

@@ -25,12 +25,21 @@
 		0109CC20282155EE001CB7DE /* RHSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0109CC21282155EE001CB7DE /* RHSpeechSynthesizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */; };
 		0109CC232821564A001CB7DE /* RHVoiceBridge+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC2228215647001CB7DE /* RHVoiceBridge+Private.h */; };
+		0109CC2B2821C03D001CB7DE /* NSFileManager+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */; };
+		0109CC2C2821C03D001CB7DE /* NSFileManager+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */; };
+		01242E4A2829676B00BB4D71 /* RHVoiceBridgeParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01242E4B2829676B00BB4D71 /* RHVoiceBridgeParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */; };
 		015DD1FA282062B2008486B1 /* RHVoice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD1F9282062B2008486B1 /* RHVoice.xcframework */; };
 		015DD1FC282062C2008486B1 /* RHVoiceData in Resources */ = {isa = PBXBuildFile; fileRef = 015DD1FB282062C2008486B1 /* RHVoiceData */; };
 		015DD20B28206B55008486B1 /* RHVoiceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD20A28206B55008486B1 /* RHVoiceWrapper.h */; };
 		015DD21628206C05008486B1 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD21528206C05008486B1 /* AVFAudio.framework */; };
 		015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 015DD21828206C2F008486B1 /* NSString+Additions.m */; };
 		015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD21928206C30008486B1 /* NSString+Additions.h */; };
+		01FF73FD282268930050EFCA /* RHVoiceLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FB282268930050EFCA /* RHVoiceLogger.h */; };
+		01FF73FE282268930050EFCA /* RHVoiceLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 01FF73FC282268930050EFCA /* RHVoiceLogger.m */; };
+		01FF74002822691C0050EFCA /* RHVoiceLoggerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01FF740628226C360050EFCA /* RHEventLoggerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */; };
+		01FF740728226C360050EFCA /* RHEventLoggerImpl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +96,10 @@
 		0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RHSpeechSynthesizer.mm; sourceTree = "<group>"; };
 		0109CC2228215647001CB7DE /* RHVoiceBridge+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RHVoiceBridge+Private.h"; sourceTree = "<group>"; };
 		0109CC252821697A001CB7DE /* RHSpeechSynthesisVoice+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RHSpeechSynthesisVoice+Private.h"; sourceTree = "<group>"; };
+		0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+Additions.h"; sourceTree = "<group>"; };
+		0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+Additions.m"; sourceTree = "<group>"; };
+		01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoiceBridgeParams.h; sourceTree = "<group>"; };
+		01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RHVoiceBridgeParams.m; sourceTree = "<group>"; };
 		015DD1EE28206207008486B1 /* RHVoice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RHVoice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		015DD1F9282062B2008486B1 /* RHVoice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = RHVoice.xcframework; path = ../../../../../build/ios_output/RHVoice.xcframework; sourceTree = "<group>"; };
 		015DD1FB282062C2008486B1 /* RHVoiceData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RHVoiceData; path = ../../../../../build/ios_output/RHVoiceData; sourceTree = "<group>"; };
@@ -98,6 +111,11 @@
 		015DD21828206C2F008486B1 /* NSString+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Additions.m"; sourceTree = "<group>"; };
 		015DD21928206C30008486B1 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
 		015DD21C28206CEF008486B1 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		01FF73FB282268930050EFCA /* RHVoiceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceLogger.h; sourceTree = "<group>"; };
+		01FF73FC282268930050EFCA /* RHVoiceLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RHVoiceLogger.m; sourceTree = "<group>"; };
+		01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoiceLoggerProtocol.h; sourceTree = "<group>"; };
+		01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RHEventLoggerImpl.mm; sourceTree = "<group>"; };
+		01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RHEventLoggerImpl.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +160,8 @@
 		0109CC1128215510001CB7DE /* RHVoice */ = {
 			isa = PBXGroup;
 			children = (
+				01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */,
+				01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */,
 				0109CC1328215510001CB7DE /* RHVoiceBridge.h */,
 				0109CC2228215647001CB7DE /* RHVoiceBridge+Private.h */,
 				0109CC1528215510001CB7DE /* RHVoiceBridge.mm */,
@@ -152,6 +172,7 @@
 				0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */,
 				0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */,
 				0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */,
+				01FF73FA282268930050EFCA /* Logger */,
 			);
 			path = RHVoice;
 			sourceTree = "<group>";
@@ -236,8 +257,22 @@
 			children = (
 				015DD21928206C30008486B1 /* NSString+Additions.h */,
 				015DD21828206C2F008486B1 /* NSString+Additions.m */,
+				0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */,
+				0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		01FF73FA282268930050EFCA /* Logger */ = {
+			isa = PBXGroup;
+			children = (
+				01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */,
+				01FF73FB282268930050EFCA /* RHVoiceLogger.h */,
+				01FF73FC282268930050EFCA /* RHVoiceLogger.m */,
+				01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */,
+				01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */,
+			);
+			path = Logger;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,13 +282,18 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01242E4A2829676B00BB4D71 /* RHVoiceBridgeParams.h in Headers */,
 				015DD20B28206B55008486B1 /* RHVoiceWrapper.h in Headers */,
+				01FF73FD282268930050EFCA /* RHVoiceLogger.h in Headers */,
 				0109CC232821564A001CB7DE /* RHVoiceBridge+Private.h in Headers */,
 				0109CC20282155EE001CB7DE /* RHSpeechSynthesizer.h in Headers */,
 				0109CC1628215510001CB7DE /* RHSpeechSynthesisVoice.h in Headers */,
 				0109CC1728215510001CB7DE /* RHVoiceBridge.h in Headers */,
+				0109CC2B2821C03D001CB7DE /* NSFileManager+Additions.h in Headers */,
 				015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */,
+				01FF740728226C360050EFCA /* RHEventLoggerImpl.hpp in Headers */,
 				0109CC1C282155B1001CB7DE /* RHSpeechUtterance.h in Headers */,
+				01FF74002822691C0050EFCA /* RHVoiceLoggerProtocol.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -372,9 +412,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				0109CC1928215510001CB7DE /* RHVoiceBridge.mm in Sources */,
+				01FF73FE282268930050EFCA /* RHVoiceLogger.m in Sources */,
 				015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */,
+				01242E4B2829676B00BB4D71 /* RHVoiceBridgeParams.m in Sources */,
 				0109CC21282155EE001CB7DE /* RHSpeechSynthesizer.mm in Sources */,
+				01FF740628226C360050EFCA /* RHEventLoggerImpl.mm in Sources */,
 				0109CC1828215510001CB7DE /* RHSpeechSynthesisVoice.mm in Sources */,
+				0109CC2C2821C03D001CB7DE /* NSFileManager+Additions.m in Sources */,
 				0109CC1D282155B1001CB7DE /* RHSpeechUtterance.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

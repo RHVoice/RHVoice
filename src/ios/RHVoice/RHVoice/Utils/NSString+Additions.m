@@ -8,9 +8,13 @@
 #import "NSString+Additions.h"
 
 @implementation NSString (Additions)
-+ (NSString *)temporaryPathWithExtesnion:(NSString *)extesnion
-{
+
++ (NSString *)RHTemporaryFolderPath {
+    return [NSTemporaryDirectory() stringByAppendingPathComponent:@"RHVoice"];
+}
+
++ (NSString *)RHTemporaryPathWithExtesnion:(NSString *)extesnion {
     NSString *uuidString = [NSUUID UUID].UUIDString;
-    return [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", uuidString, extesnion]];
+    return [[self RHTemporaryFolderPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", uuidString, extesnion]];
 }
 @end
