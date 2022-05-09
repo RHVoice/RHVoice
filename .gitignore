@@ -9,3 +9,6 @@ external/libs/boost/include/boost/
 src/ios/RHVoice/prebuild.log
 src/ios/RHVoice/RHVoice.xcodeproj/project.xcworkspace/xcuserdata
 src/ios/RHVoice/RHVoice.xcodeproj/xcuserdata
+src/ios/RHVoice/build_iphoneos
+src/ios/RHVoice/build_iphonesimulator
+src/ios/RHVoice/RHVoice.xcframework

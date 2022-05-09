@@ -3,6 +3,7 @@ if ! command -v scons &> /dev/null
 then
    echo "scons can not be found in your enviroment"
    echo "please run 'sudo ln -s /opt/homebrew/bin/scons /usr/local/bin/'"
+   echo "or install scons"
    exit 1
 fi
 
