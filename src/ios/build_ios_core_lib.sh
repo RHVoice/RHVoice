@@ -1,10 +1,13 @@
-if [[ $2 ]]; then
+if [[ $3 ]]; then
     echo "Clearing build folder."
     rm -rfv build/*
 fi
 
-echo "Building..."
+IFS=',' read -r -a VOICES <<< "$2"
+
 LANGUAGES="$1"
+echo "Building for LANGUAGES=$LANGUAGES and VOICES=$2"
+
 scons enable_shared=no languages=$LANGUAGES audio_libs=none platform=ios simulator=False arch=arm64
 scons enable_shared=no languages=$LANGUAGES audio_libs=none platform=ios simulator=True arch=arm64
 scons enable_shared=no languages=$LANGUAGES audio_libs=none platform=ios simulator=True arch=x86_64
@@ -61,7 +64,19 @@ for filename in $PACKAGES_FOLDER/*.zip; do
         unzip $filename -d $IOS_LANGUAGES_FOLDER/$(basename  -s .zip $filename)
     elif [[ $filename == *"/$ARTICFACT_NAME-voice"*  ]] ;
     then
-        unzip $filename -d $IOS_VOICES_FOLDER/$(basename  -s .zip $filename)
+        if [ ${#VOICES[@]} -eq 0 ]; then
+            unzip $filename -d $IOS_VOICES_FOLDER/$(basename  -s .zip $filename)
+        else
+            for voice in "${VOICES[@]}"
+            do
+                echo "$voice"
+                if  [[ $filename == *"$voice"*  ]] ;
+                then
+                    unzip $filename -d $IOS_VOICES_FOLDER/$(basename  -s .zip $filename)
+                    break
+                fi
+            done
+        fi
     fi
 done
 

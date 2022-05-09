@@ -34,7 +34,6 @@
 
     NSMutableArray *result = [[NSMutableArray alloc] initWithCapacity:[[RHVoiceBridge sharedInstance] voiceProfiles].size()];
     
-    
     for(auto profile : [[RHVoiceBridge sharedInstance] voiceProfiles]) {
         [result addObject:[[RHSpeechSynthesisVoice alloc] initWith:profile]];
     }

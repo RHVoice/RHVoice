@@ -7,5 +7,5 @@ then
 fi
 
 pushd ${PROJECT_DIR}/../../../
-./src/ios/build_ios_core_lib.sh $LANGUAGES
+./src/ios/build_ios_core_lib.sh $LANGUAGES $VOICES
 popd
