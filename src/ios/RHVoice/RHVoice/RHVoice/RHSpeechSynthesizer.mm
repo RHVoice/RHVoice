@@ -95,6 +95,9 @@
 - (void)speakInternal:(RHSpeechUtterance *)utterance {
     
     if(utterance.text.length == 0) {
+        if([self.delegate respondsToSelector:@selector(speechSynthesizer:didFinish:)]) {
+            [self.delegate speechSynthesizer:self didFinish:utterance];
+        }
         return;
     }
     
@@ -132,6 +135,9 @@
 - (void)synthesizeInternalUtterance:(RHSpeechUtterance *)utterance
                        toFileAtPath:(NSString *)path {
     if(utterance.text.length == 0) {
+        if([self.delegate respondsToSelector:@selector(speechSynthesizer:didFinish:)]) {
+            [self.delegate speechSynthesizer:self didFinish:utterance];
+        }
         return;
     }
     

@@ -21,6 +21,7 @@ SDK_NAMES=($IPHONE_SDK_NAME $IPHONESIMULATOR_SDK_NAME)
 
 rm -rfv $IPHONEOS_OUTPUT/*
 rm -rfv $IPHONESIMULATOR_OUTPUT/*
+rm -rfv $TARGET_NAME.xcframework/*
 
 pushd ../../../
 ./src/ios/build_ios_core_lib.sh "$1" "$2" true
