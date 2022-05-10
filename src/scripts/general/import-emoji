@@ -55,6 +55,14 @@ languages={
 	{
 		"ids":["uk"]
 	 },
+	"Polish":
+	{
+		"ids":["pl"]
+	 },
+	"Albanian":
+	{
+		"ids":["sq"]
+	 },
 	"Macedonian":
 	{
 		"ids":["mk"]
