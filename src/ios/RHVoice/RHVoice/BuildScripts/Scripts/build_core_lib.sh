@@ -7,6 +7,10 @@ then
    exit 1
 fi
 
+if [ "$BUILD_VIA_SCRIPT" = true ] ; then
+    exit 0
+fi
+
 pushd ${PROJECT_DIR}/../../../
 ./src/ios/build_ios_core_lib.sh $LANGUAGES $VOICES
 popd
