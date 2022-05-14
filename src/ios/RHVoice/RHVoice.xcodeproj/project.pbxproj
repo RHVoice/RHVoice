@@ -35,6 +35,7 @@
 		015DD21628206C05008486B1 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD21528206C05008486B1 /* AVFAudio.framework */; };
 		015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 015DD21828206C2F008486B1 /* NSString+Additions.m */; };
 		015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD21928206C30008486B1 /* NSString+Additions.h */; };
+		01C4A93928301834008679D4 /* RHVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 01C4A93828301830008679D4 /* RHVoice.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		01FF73FD282268930050EFCA /* RHVoiceLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FB282268930050EFCA /* RHVoiceLogger.h */; };
 		01FF73FE282268930050EFCA /* RHVoiceLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 01FF73FC282268930050EFCA /* RHVoiceLogger.m */; };
 		01FF74002822691C0050EFCA /* RHVoiceLoggerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -111,6 +112,7 @@
 		015DD21828206C2F008486B1 /* NSString+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Additions.m"; sourceTree = "<group>"; };
 		015DD21928206C30008486B1 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
 		015DD21C28206CEF008486B1 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		01C4A93828301830008679D4 /* RHVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoice.h; sourceTree = "<group>"; };
 		01FF73FB282268930050EFCA /* RHVoiceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceLogger.h; sourceTree = "<group>"; };
 		01FF73FC282268930050EFCA /* RHVoiceLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RHVoiceLogger.m; sourceTree = "<group>"; };
 		01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoiceLoggerProtocol.h; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 		0109CC1128215510001CB7DE /* RHVoice */ = {
 			isa = PBXGroup;
 			children = (
+				01C4A93828301830008679D4 /* RHVoice.h */,
 				01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */,
 				01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */,
 				0109CC1328215510001CB7DE /* RHVoiceBridge.h */,
@@ -294,6 +297,7 @@
 				01FF740728226C360050EFCA /* RHEventLoggerImpl.hpp in Headers */,
 				0109CC1C282155B1001CB7DE /* RHSpeechUtterance.h in Headers */,
 				01FF74002822691C0050EFCA /* RHVoiceLoggerProtocol.h in Headers */,
+				01C4A93928301834008679D4 /* RHVoice.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
