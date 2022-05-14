@@ -1,0 +1,1 @@
+RHVoice - um sintetizador de voz de software livre.
