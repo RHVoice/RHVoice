@@ -1,0 +1,4 @@
+<p>RHVoice é um sintetizador de voz de software livre.</p>
+<p>A voz é construída a partir de gravações da fala natural. A base têm tamanho pequeno, porque apenas modelos estatísticos são armazenados em aparelhos de usuários. Embora as vozes careçam da naturalidade de sintetizadores que geram a voz através da combinação de segmentos das próprias gravações, mesmo assim são muito inteligíveis e se parecem com os falantes que gravaram o material de origem.</p>
+<p><br><b>Idiomas suportados:</b></p>
+<p>Inicialmente, RHVoice falava apenas russo. Agora ele também tem suporte ao albanês, esperanto, georgiano, inglês americano e britânico, macedônio, polonês, português brasileiro, quirguiz, tártaro e ucraniano. Em teoria, é possível implementar suporte para outros idiomas, se todos os recursos necessários puderem ser detectados ou criados.</p>
