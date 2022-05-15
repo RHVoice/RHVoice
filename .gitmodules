@@ -6,40 +6,40 @@
 	url = https://github.com/unicode-org/cldr.git
 [submodule "data/voices/victoria"]
 	path = data/voices/victoria
-	url = https://github.com/rhvoice/victoria-ru
+	url = https://github.com/rhvoice/victoria-rus.git
 [submodule "data/voices/evgeniy-rus"]
 	path = data/voices/evgeniy-rus
-	url = https://github.com/rhvoice/evgeniy-rus
+	url = https://github.com/rhvoice/evgeniy-rus.git
 [submodule "data/voices/evgeniy-eng"]
 	path = data/voices/evgeniy-eng
-	url = https://github.com/rhvoice/evgeniy-eng
+	url = https://github.com/rhvoice/evgeniy-eng.git
 [submodule "external/libs/sonic"]
 	path = external/libs/sonic
 	url = https://github.com/waywardgeek/sonic.git
 [submodule "data/voices/aleksandr-hq"]
 	path = data/voices/aleksandr-hq
-	url = https://github.com/rhvoice/aleksandr-hq-rus
+	url = https://github.com/rhvoice/aleksandr-hq-rus.git
 [submodule "data/voices/yuriy"]
 	path = data/voices/yuriy
-	url = https://github.com/rhvoice/yuriy-rus
+	url = https://github.com/rhvoice/yuriy-rus.git
 [submodule "data/voices/volodymyr"]
 	path = data/voices/volodymyr
-	url = https://github.com/rhvoice/volodymyr-ukr
+	url = https://github.com/rhvoice/volodymyr-ukr.git
 [submodule "data/voices/tatiana"]
 	path = data/voices/tatiana
-	url = https://github.com/rhvoice/tatiana-rus
+	url = https://github.com/rhvoice/tatiana-rus.git
 [submodule "data/voices/mikhail"]
 	path = data/voices/mikhail
-	url = https://github.com/rhvoice/mikhail-rus
+	url = https://github.com/rhvoice/mikhail-rus.git
 [submodule "data/voices/marianna"]
 	path = data/voices/marianna
-	url = https://github.com/rhvoice/marianna-ukr
+	url = https://github.com/rhvoice/marianna-ukr.git
 [submodule "data/voices/lyubov"]
 	path = data/voices/lyubov
-	url = https://github.com/rhvoice/lyubov-eng
+	url = https://github.com/rhvoice/lyubov-eng.git
 [submodule "data/voices/vitaliy"]
 	path = data/voices/vitaliy
-	url = https://github.com/rhvoice/vitaliy-rus
+	url = https://github.com/rhvoice/vitaliy-rus.git
 [submodule "data/languages/Polish"]
 	path = data/languages/Polish
 	url = https://github.com/RHVoice/Polish.git
@@ -147,40 +147,133 @@
 	url = https://github.com/boostorg/date_time.git
 [submodule "external/libs/boost/libs/range"]
 	path = external/libs/boost/libs/range
-	url = http://github.com/boostorg/range.git
+	url = https://github.com/boostorg/range.git
 [submodule "external/libs/boost/libs/iterator"]
 	path = external/libs/boost/libs/iterator
-	url = http://github.com/boostorg/iterator.git
+	url = https://github.com/boostorg/iterator.git
 [submodule "external/libs/boost/libs/mpl"]
 	path = external/libs/boost/libs/mpl
-	url = http://github.com/boostorg/mpl.git
+	url = https://github.com/boostorg/mpl.git
 [submodule "external/libs/boost/libs/concept_check"]
 	path = external/libs/boost/libs/concept_check
-	url = http://github.com/boostorg/concept_check.git
+	url = https://github.com/boostorg/concept_check.git
 [submodule "external/libs/boost/libs/numeric_conversion"]
 	path = external/libs/boost/libs/numeric_conversion
-	url = http://github.com/boostorg/numeric_conversion.git
+	url = https://github.com/boostorg/numeric_conversion.git
 [submodule "external/libs/boost/libs/array"]
 	path = external/libs/boost/libs/array
-	url = http://github.com/boostorg/array.git
+	url = https://github.com/boostorg/array.git
 [submodule "external/libs/boost/libs/bind"]
 	path = external/libs/boost/libs/bind
-	url = https://github.com/boostorg/bind
+	url = https://github.com/boostorg/bind.git
 [submodule "external/libs/boost/libs/function"]
 	path = external/libs/boost/libs/function
-	url = https://github.com/boostorg/function
+	url = https://github.com/boostorg/function.git
 [submodule "external/libs/boost/libs/type_index"]
 	path = external/libs/boost/libs/type_index
-	url = https://github.com/boostorg/type_index
+	url = https://github.com/boostorg/type_index.git
 [submodule "data/voices/natan"]
 	path = data/voices/natan
 	url = https://github.com/RHVoice/natan-pol.git
 [submodule "bin/msi"]
 	path = bin/msi
-	url = https://github.com/RHVoice/msi
+	url = https://github.com/RHVoice/msi.git
 [submodule "data/voices/suze"]
 	path = data/voices/suze
 	url = https://github.com/RHVoice/suze-mkd.git
 [submodule "cmake/thirdParty/CCache"]
 	path = cmake/thirdParty/CCache
-	url = https://github.com/TheLartians/Ccache.cmake
+	url = https://github.com/TheLartians/Ccache.cmake.git
+[submodule "data/languages/Albanian"]
+	path = data/languages/Albanian
+	url = https://github.com/RHVoice/Albanian.git
+[submodule "data/languages/Brazilian-Portuguese"]
+	path = data/languages/Brazilian-Portuguese
+	url = https://github.com/RHVoice/Brazilian-Portuguese.git
+[submodule "data/languages/English"]
+	path = data/languages/English
+	url = https://github.com/RHVoice/English.git
+[submodule "data/languages/Esperanto"]
+	path = data/languages/Esperanto
+	url = https://github.com/RHVoice/Esperanto.git
+[submodule "data/languages/Georgian"]
+	path = data/languages/Georgian
+	url = https://github.com/RHVoice/Georgian.git
+[submodule "data/languages/Kyrgyz"]
+	path = data/languages/Kyrgyz
+	url = https://github.com/RHVoice/Kyrgyz.git
+[submodule "data/languages/Macedonian"]
+	path = data/languages/Macedonian
+	url = https://github.com/RHVoice/Macedonian.git
+[submodule "data/languages/Russian"]
+	path = data/languages/Russian
+	url = https://github.com/RHVoice/Russian.git
+[submodule "data/languages/Tatar"]
+	path = data/languages/Tatar
+	url = https://github.com/RHVoice/Tatar.git
+[submodule "data/languages/Ukrainian"]
+	path = data/languages/Ukrainian
+	url = https://github.com/RHVoice/Ukrainian.git
+[submodule "data/voices/alan"]
+	path = data/voices/alan
+	url = https://github.com/RHVoice/alan-eng.git
+[submodule "data/voices/aleksandr"]
+	path = data/voices/aleksandr
+	url = https://github.com/RHVoice/aleksandr-rus.git
+[submodule "data/voices/anatol"]
+	path = data/voices/anatol
+	url = https://github.com/RHVoice/anatol-ukr.git
+[submodule "data/voices/anna"]
+	path = data/voices/anna
+	url = https://github.com/RHVoice/anna-rus.git
+[submodule "data/voices/azamat"]
+	path = data/voices/azamat
+	url = https://github.com/RHVoice/azamat-kir.git
+[submodule "data/voices/bdl"]
+	path = data/voices/bdl
+	url = https://github.com/RHVoice/bdl-eng.git
+[submodule "data/voices/clb"]
+	path = data/voices/clb
+	url = https://github.com/RHVoice/clb-eng.git
+[submodule "data/voices/elena"]
+	path = data/voices/elena
+	url = https://github.com/RHVoice/elena-rus.git
+[submodule "data/voices/hana"]
+	path = data/voices/hana
+	url = https://github.com/RHVoice/hana-sqi.git
+[submodule "data/voices/irina"]
+	path = data/voices/irina
+	url = https://github.com/RHVoice/irina-rus.git
+[submodule "data/voices/kiko"]
+	path = data/voices/kiko
+	url = https://github.com/RHVoice/kiko-mkd.git
+[submodule "data/voices/Leticia-F123"]
+	path = data/voices/Leticia-F123
+	url = https://github.com/RHVoice/leticia-f123-pt-br.git
+[submodule "data/voices/natalia"]
+	path = data/voices/natalia
+	url = https://github.com/RHVoice/natalia-ukr.git
+[submodule "data/voices/natia"]
+	path = data/voices/natia
+	url = https://github.com/RHVoice/natia-kat.git
+[submodule "data/voices/nazgul"]
+	path = data/voices/nazgul
+	url = https://github.com/RHVoice/nazgul-kir.git
+[submodule "data/voices/slt"]
+	path = data/voices/slt
+	url = https://github.com/RHVoice/slt-eng.git
+[submodule "data/voices/spomenka"]
+	path = data/voices/spomenka
+	url = https://github.com/RHVoice/spomenka-epo.git
+[submodule "data/voices/talgat"]
+	path = data/voices/talgat
+	url = https://github.com/RHVoice/talgat-tat.git
+[submodule "data/voices/arina"]
+	path = data/voices/arina
+	url = https://github.com/RHVoice/arina-rus.git
+[submodule "data/voices/artemiy"]
+	path = data/voices/artemiy
+	url = https://github.com/RHVoice/artemiy-rus.git
+[submodule "data/voices/pavel"]
+	path = data/voices/pavel
+	url = https://github.com/RHVoice/pavel-rus.git
