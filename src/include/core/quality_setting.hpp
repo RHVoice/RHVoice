@@ -1,4 +1,4 @@
-/* Copyright (C) 2017, 2018  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2017, 2018, 2022  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -17,10 +17,6 @@
 #define RHVOICE_QUALITY_SETTING_HPP
 
 #include "property.hpp"
-#ifndef ENABLE_MAGE
-#include "config.h"
-#endif
-
 namespace RHVoice
 {
   enum quality_t
@@ -35,7 +31,6 @@ namespace RHVoice
   {
   public:
     quality_setting():
-#if ENABLE_MAGE
       enum_property<quality_t>("quality",quality_std)
     {
       define("min",quality_min);
@@ -49,9 +44,6 @@ namespace RHVoice
       define("maximum",quality_max);
       define("100",quality_max);
     }
-#else
-    enum_property<quality_t>("quality",quality_max) {}
-    #endif
   };
 }
 #endif

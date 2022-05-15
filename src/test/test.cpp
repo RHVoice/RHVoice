@@ -145,6 +145,8 @@ int main(int argc,const char* argv[])
       auto volume_arg =  cmd.add_option("-v,--volume",volume_argStor,"speech volume");  // percent
       std::string quality_argStor;
       auto quality_arg = cmd.add_option("-q,--quality",quality_argStor,"quality");
+      unsigned int view_argStor = 0;
+      auto view_arg =  cmd.add_option("-w,--view", view_argStor,"stream view size");
       cmd.allow_windows_style_options();
 #else
       TCLAP::ValueArg<std::string> inpath_arg("i","input","input file",false,"-","path",cmd);
@@ -156,6 +158,7 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<unsigned int> pitch_arg("t","pitch","speech pitch",false,100,"percent",cmd);
       TCLAP::ValueArg<unsigned int> volume_arg("v","volume","speech volume",false,100,"percent",cmd);
       TCLAP::ValueArg<std::string> quality_arg("q","quality","quality",false,"","quality",cmd);
+      TCLAP::ValueArg<unsigned int> view_arg("w","view","stream view size",false,0,"positive",cmd);
 #endif
 
 #ifdef WITH_CLI11
@@ -182,6 +185,9 @@ int main(int argc,const char* argv[])
       auto q=GET_CLI_PARAM_VALUE(quality_arg);
       if(!q.empty())
         eng->configure("quality", q);
+      auto w=GET_CLI_PARAM_VALUE(view_arg);
+      if(w>0)
+        eng->stream_settings.view_size=w;
 
       voice_profile profile;
       if(!GET_CLI_PARAM_VALUE(voice_arg).empty())

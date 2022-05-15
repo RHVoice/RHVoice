@@ -1,4 +1,5 @@
-/* Copyright (C) 2012, 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2012, 2013, 2022  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2022 Non-Routine LLC.  <lp@louderpages.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -19,13 +20,7 @@
 #include <string>
 #include <list>
 #include "threading.hpp"
-#include "std_hts_engine_impl.hpp"
-#ifndef ENABLE_MAGE
-#include "config.h"
-#endif
-#if ENABLE_MAGE
-#include "mage_hts_engine_impl.hpp"
-#endif
+#include "str_hts_engine_impl.hpp"
 #include "quality_setting.hpp"
 
 namespace RHVoice
@@ -38,10 +33,7 @@ namespace RHVoice
     explicit hts_engine_pool(const voice_info& info_):
       info(info_)
     {
-      prototypes.push_back(hts_engine_impl::pointer(new std_hts_engine_impl(info_)));
-#if ENABLE_MAGE
-      prototypes.push_back(hts_engine_impl::pointer(new mage_hts_engine_impl(info_)));
-#endif
+      prototypes.push_back(hts_engine_impl::pointer(new str_hts_engine_impl(info_)));
     }
 
     hts_engine_impl::pointer acquire(quality_t quality)

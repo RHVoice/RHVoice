@@ -84,6 +84,7 @@ namespace RHVoice
     verbosity_settings.register_self(cfg);
     cfg.register_setting(prefer_primary_language);
     cfg.register_setting(quality);
+    stream_settings.register_self(cfg);
     languages.register_settings(cfg);
     voices.register_settings(cfg);
     for(language_list::iterator it(languages.begin());it!=languages.end();++it)
@@ -91,6 +92,8 @@ namespace RHVoice
         it->voice_settings.default_to(voice_settings);
         it->text_settings.default_to(text_settings);
       }
+    for(auto& v: voices)
+      v.set_stream_settings(stream_settings);
     #ifdef WIN32
     cfg.load(path::join(config_path,"RHVoice.ini"));
     #else

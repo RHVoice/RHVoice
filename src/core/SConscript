@@ -1,5 +1,5 @@
 # -*- mode: Python; indent-tabs-mode: t; tab-width: 4 -*-
-# Copyright (C) 2012, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2012, 2018, 2019, 2022  Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,12 +27,11 @@ except NameError:
 Import("env", "libhts_engine", "boost_headers")
 if env["enable_sonic"]:
 	Import("libsonic")
-if env["enable_mage"]:
-	Import("libmage")
 if env["enable_pkg"]:
 	Import("libpkg")
 extern_libs_dir=Dir("#external").Dir("libs")
 local_env=env.Clone()
+local_env.Prepend(CPPPATH=os.path.join("#src", "hts_engine"))
 if env["enable_sonic"]:
 		local_env.Append(CPPPATH=[extern_libs_dir.Dir("sonic")])
 local_env["libversion"]="7.0.0"
@@ -46,7 +45,6 @@ coreConfig = {
 globalConfig = {
 	"VERSION": local_env["package_version"],
 	"ENABLE_PKG": bool(local_env["enable_pkg"]),
-	"ENABLE_MAGE": bool(local_env["enable_mage"]),
 	"ENABLE_SONIC": bool(local_env["enable_sonic"])
 }
 
@@ -103,7 +101,9 @@ src=["unicode.cpp",
 	 "userdict.cpp",
 	 "voice.cpp",
 	 "hts_engine_impl.cpp",
-	 "std_hts_engine_impl.cpp",
+	 "hts_vocoder_wrapper.cpp",
+	 "model_answer_cache.cpp",
+	 "str_hts_engine_impl.cpp",
 	 "hts_engine_call.cpp",
 	 "hts_label.cpp",
 	 "hts_labeller.cpp",
@@ -114,14 +114,10 @@ src=["unicode.cpp",
 		 "question_matcher.cpp",
 		 "emoji.cpp",
 		 "pitch.cpp"]
-if local_env["enable_mage"]:
-	src.append("mage_hts_engine_impl.cpp")
 for lib in [libhts_engine]:
 	src.extend(lib)
 if local_env["enable_sonic"]:
 	src.extend(libsonic)
-if local_env["enable_mage"]:
-	src.extend(libmage)
 
 if local_env["enable_pkg"]:
 	src.extend(libpkg)

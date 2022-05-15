@@ -158,4 +158,10 @@ namespace RHVoice
     cfg.register_setting(punctuation_list,prefix);
     cfg.register_setting(capitals_mode,prefix);
   }
+
+  void stream_params::register_self(config& cfg)
+  {
+    cfg.register_setting(fixed_size);
+    cfg.register_setting(view_size);
+  }
 }

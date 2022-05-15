@@ -99,5 +99,13 @@ namespace RHVoice
     verbosity_params(const verbosity_params&);
     verbosity_params& operator=(const verbosity_params&);
   };
+
+  struct stream_params
+  {
+    numeric_property<unsigned int> fixed_size{"stream.fixed_size", 1, 1, 10};
+    numeric_property<unsigned int> view_size{"stream.view_size", 3, 1, 10};
+
+    void register_self(config& cfg);
+  };
 }
 #endif

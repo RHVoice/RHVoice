@@ -162,7 +162,6 @@ def create_user_vars():
     vars=Variables(var_cache,args)
     vars.Add(BoolVariable("dev","The build will only be used for development: no global installation, run from the source directory, compile helper utilities",False))
     vars.Add(create_languages_user_var())
-    vars.Add(BoolVariable("enable_mage","Build with MAGE",True))
     vars.Add(BoolVariable("enable_sonic","Build with Sonic",False))
     vars.Add(BoolVariable("enable_pkg","Enable package directory code",False))
     vars.Add(create_audio_libs_user_var())
@@ -310,7 +309,7 @@ def configure(env):
         env.AppendUnique(LIBS="kernel32")
     conf.Finish()
     env.Prepend(LIBPATH=os.path.join("#"+env["BUILDDIR"],"core"))
-    src_subdirs=["third-party", "pkg", "core", "lib"]
+    src_subdirs=["third-party", "pkg", "hts_engine", "core", "lib"]
     if env["dev"]:
         src_subdirs.append("utils")
     src_subdirs.append("audio")

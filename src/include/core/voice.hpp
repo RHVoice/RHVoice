@@ -125,6 +125,16 @@ private:
       return extra_utt_types.includes(ut);
 }
 
+    const stream_params& get_stream_settings() const
+    {
+      return *stream_settings;
+    }
+
+    void set_stream_settings(const stream_params& s)
+    {
+      stream_settings=&s;
+    }
+
   private:
     std::shared_ptr<voice> create_instance() const
     {
@@ -141,6 +151,7 @@ private:
     bool_property enabled,preferred;
     string_property country;
     stringset_property extra_utt_types;
+    const stream_params* stream_settings{nullptr};
   };
 
   class voice_list: public resource_list<voice_info>

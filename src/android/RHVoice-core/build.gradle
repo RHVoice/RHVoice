@@ -3,8 +3,8 @@ apply plugin: 'com.android.application'
 ext.lifecycle_version = "2.4.1"
 
 ext.major_version=1
-ext.minor_version=8
-ext.revision_number=1
+ext.minor_version=9
+ext.revision_number=0
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 
 ext.base_pkg_dir_url='https://rhvoice.org/download/packages-%s.json'
