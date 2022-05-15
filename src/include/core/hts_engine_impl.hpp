@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018, 2019, 2022  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -27,17 +27,9 @@
 #include "quality_setting.hpp"
 #include "pitch.hpp"
 #include "equalizer.hpp"
-#ifndef ENABLE_MAGE
-#include "config.h"
-#endif
 
 struct _HTS_Audio;
 extern "C" void HTS_Audio_write(_HTS_Audio * audio, short sample);
-#if ENABLE_MAGE
-struct _HTS106_Audio;
-extern "C" void HTS106_Audio_write(_HTS106_Audio * audio, short sample);
-#endif
-
 namespace RHVoice
 {
   class voice_info;
@@ -45,9 +37,6 @@ namespace RHVoice
   class hts_engine_impl
   {
     friend void ::HTS_Audio_write(_HTS_Audio * audio, short sample);
-#if ENABLE_MAGE
-    friend void ::HTS106_Audio_write(_HTS106_Audio * audio, short sample);
-    #endif
   public:
     typedef std::shared_ptr<hts_engine_impl> pointer;
 

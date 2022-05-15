@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2014, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2014, 2018, 2019, 2022  Olga Yakovleva <olga@rhvoice.prg> */ 
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <iostream>
 #include "core/str.hpp"
 #include "core/path.hpp"
 #include "core/config.hpp"

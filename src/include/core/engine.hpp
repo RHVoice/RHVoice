@@ -165,6 +165,7 @@ namespace RHVoice
     verbosity_params verbosity_settings;
     bool_property prefer_primary_language;
     quality_setting quality;
+    stream_params stream_settings;
   };
 }
 #endif
