@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-if(ENABLE_MAGE)
-	add_subdirectory("mage")
-endif()
 
 if(ENABLE_SONIC)
 	add_subdirectory("sonic")

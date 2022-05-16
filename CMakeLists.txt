@@ -56,7 +56,6 @@ endif()
 
 set("dev" OFF CACHE BOOL "The build will only be used for development: no global installation, run from the source directory, compile helper utilities")
 set("WITH_CLI11" OFF CACHE BOOL "Use CLI11 instead of bundled tclap")
-set("ENABLE_MAGE" ON CACHE BOOL "Build with MAGE")
 set("ENABLE_SONIC" OFF CACHE BOOL "Build with libsonic.")
 set("WITH_DATA" ON CACHE BOOL "Build packages with data. Long to compress. When debugging RHVoice itself it makes sense to disable it.")
 #set("spd_version" validate_spd_version CACHE ??? "Speech dispatcher version")
@@ -103,11 +102,7 @@ set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/RHVoice/RHVoice")
 set(CPACK_NSIS_URL_INFO_ABOUT "${CPACK_PACKAGE_HOMEPAGE_URL}")
 #set(CPACK_NSIS_MUI_FINISHPAGE_RUN "echo \'Проверка связи!\" | RHVoice-test > %CSIDL_DEFAULT_DESKTOP%/RHVoice_test.wav")
 
-if(ENABLE_MAGE)
-	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/licenses/gpl-3.0.txt")
-else()
-	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/licenses/lgpl-2.1.txt")
-endif()
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
 
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 
