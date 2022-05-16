@@ -214,7 +214,6 @@ HTS_Boolean HTS_SStreamSet_create(HTS_SStreamSet * sss, HTS_ModelSet * ms, HTS_L
    size_t state;
    HTS_SStream *sst;
    double *duration_mean, *duration_vari;
-   double frame_length;
    size_t next_time;
    size_t next_state;
    double label_dur_mod;
