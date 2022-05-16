@@ -31,6 +31,7 @@ set(HTS_LABELS_KIT_INCLUDES "${UTF8_INCLUDE_DIR}" "${RAPIDXML_INCLUDE_DIR}")
 add_subdirectory("core")
 add_subdirectory("audio")
 add_subdirectory("lib")
+add_subdirectory("hts_engine")
 
 if (BUILD_CLIENT)
 	add_subdirectory("bin")
