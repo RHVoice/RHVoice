@@ -133,7 +133,7 @@ size_t HTS_fread_big_endian(void *buf, size_t size, size_t n, HTS_File * fp);
 size_t HTS_fread_little_endian(void *buf, size_t size, size_t n, HTS_File * fp);
 
 /* HTS_fwrite_little_endian: fwrite with byteswap */
-size_t HTS_fwrite_little_endian(const void *buf, size_t size, size_t n, FILE * fp);
+size_t HTS_fwrite_little_endian(void *buf, size_t size, size_t n, FILE * fp);
 
 /* HTS_get_pattern_token: get pattern token (single/double quote can be used) */
 HTS_Boolean HTS_get_pattern_token(HTS_File * fp, char *buff);
