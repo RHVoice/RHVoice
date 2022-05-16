@@ -14,16 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-file(GLOB_RECURSE SRCFILES1 "${CMAKE_CURRENT_SOURCE_DIR}/HTS_*.c")
+file(GLOB_RECURSE SRCFILES "${CMAKE_CURRENT_SOURCE_DIR}/HTS_*.c")
 
-if(ENABLE_MAGE)
-	file(GLOB_RECURSE SRCFILES2 "${CMAKE_CURRENT_SOURCE_DIR}/HTS106_*.c")
-	set(CPACK_DEBIAN_LIBHTS_ENGINE_PACKAGE_DEPENDS "${CPACK_DEBIAN_LIBMAGE_PACKAGE_NAME}")
-else()
-	set(SRCFILES2 "")
-endif()
-
-add_library(libhts_engine SHARED "${SRCFILES1}" "${SRCFILES2}")
+add_library(libhts_engine SHARED "${SRCFILES}")
 target_compile_definitions(libhts_engine PRIVATE "-DAUDIO_PLAY_NONE")
 
 set(LIBHTS_VERSION_MAJOR 1)
