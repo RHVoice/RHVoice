@@ -343,8 +343,8 @@ size_t HTS_fread_little_endian(void *buf, size_t size, size_t n, HTS_File * fp)
 /* HTS_fwrite_little_endian: fwrite with byteswap */
 size_t HTS_fwrite_little_endian(const void *buf, size_t size, size_t n, FILE * fp)
 {
-  if(is_machine_big_endian())
-   HTS_byte_swap(buf, size, n * size);
+   if(is_machine_big_endian())
+      HTS_byte_swap(buf, size, n * size);
    return fwrite(buf, size, n, fp);
 }
 
