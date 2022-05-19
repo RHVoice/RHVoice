@@ -33,7 +33,9 @@ namespace RHVoice
   public:
     typedef std::vector<voice_list::const_iterator>::const_iterator iterator;
 
-    voice_profile() = default;
+    voice_profile()
+    {
+    }
 
     explicit voice_profile(voice_list::const_iterator only_voice)
     {

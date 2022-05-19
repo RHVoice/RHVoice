@@ -52,7 +52,9 @@ namespace RHVoice
     class utf8_insert_iterator: public std::iterator<std::output_iterator_tag,void,void,void,void>
     {
     public:
-      utf8_insert_iterator() = default;
+      utf8_insert_iterator()
+      {
+      }
 
       explicit utf8_insert_iterator(output_iterator pos_):
       pos(pos_)

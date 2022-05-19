@@ -276,7 +276,7 @@ namespace RHVoice
     std::unique_ptr<emoji_scanner_state> new_state=state->next(c);
     if(new_state.get()==0)
       return false;
-    state = std::move(new_state);
+    state.reset(new_state.release());
     ++length;
     if(state->can_end_emoji())
       result=length;

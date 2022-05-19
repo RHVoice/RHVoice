@@ -82,7 +82,7 @@ namespace RHVoice
             {
               new_impl.reset(new file_playback_stream_impl(params));
               new_impl->open(params.sample_rate);
-              impl = std::move(new_impl);
+              impl.reset(new_impl.release());
               return;
             }
           for(std::vector<std::shared_ptr<library> >::iterator it=libraries.begin();it!=libraries.end();++it)
@@ -95,7 +95,7 @@ namespace RHVoice
                     {
                       new_impl.reset((*it)->new_playback_stream_impl(params));
                       new_impl->open(params.sample_rate);
-                      impl = std::move(new_impl);
+                      impl.reset(new_impl.release());
                       return;
                     }
                   catch(const error& e)
@@ -106,7 +106,7 @@ namespace RHVoice
                 {
                   new_impl.reset((*it)->new_playback_stream_impl(params));
                   new_impl->open(params.sample_rate);
-                  impl = std::move(new_impl);
+                  impl.reset(new_impl.release());
                   return;
                 }
             }

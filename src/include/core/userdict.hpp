@@ -649,7 +649,9 @@ namespace RHVoice
       list_of_rules rules;
 
     public:
-      ruleset() = default;
+      ruleset()
+      {
+      }
 
       typedef std::vector<rule>::const_iterator iterator;
 

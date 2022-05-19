@@ -255,7 +255,9 @@ namespace RHVoice
     class element_handler
     {
     public:
-      virtual ~element_handler() = default;
+      virtual ~element_handler()
+      {
+      }
 
       const std::basic_string<ch>& get_name() const
       {
@@ -288,7 +290,9 @@ namespace RHVoice
     class text_handler
     {
     public:
-      virtual ~text_handler() = default;
+      virtual ~text_handler()
+      {
+      }
 
       virtual void process(handler_args<ch>& args);
     };
