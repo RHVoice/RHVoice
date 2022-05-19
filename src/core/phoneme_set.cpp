@@ -32,12 +32,10 @@ namespace RHVoice
     text.push_back('\0');
     rapidxml::xml_document<> doc;
     doc.parse<0>(&text[0]);
+    std::string err_msg("Phoneme set format is incorrect");
     rapidxml::xml_node<>* root_node=doc.first_node("phonemes");
-    if ((root_node == 0) || (root_node->type() != rapidxml::node_element))
-      {
-        std::string err_msg("Phoneme set format is incorrect");
-        throw file_format_error(err_msg);
-      }
+    if((root_node==0)||(root_node->type()!=rapidxml::node_element))
+      throw file_format_error(err_msg);
     rapidxml::node_iterator<char> last_node;
     rapidxml::attribute_iterator<char> last_attr;
     std::string attr_name;
