@@ -1,4 +1,4 @@
-/* Copyright (C) 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2019, 2022  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -276,7 +276,7 @@ namespace RHVoice
     std::unique_ptr<emoji_scanner_state> new_state=state->next(c);
     if(new_state.get()==0)
       return false;
-    state.reset(new_state.release());
+    state.swap(new_state);
     ++length;
     if(state->can_end_emoji())
       result=length;
