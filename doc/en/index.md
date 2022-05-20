@@ -52,6 +52,7 @@ by RHVoice itself).
 ## Compiling instructions
 
 * [Compiling on linux](Compiling-on-Linux.md)
+* [Compiling iOS xcframework](Compiling-iOS.md)
 * [Packaging status](Packaging-status.md)
 
 ## Legal information

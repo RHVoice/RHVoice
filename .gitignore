@@ -12,3 +12,5 @@ src/ios/RHVoice/RHVoice.xcodeproj/xcuserdata
 src/ios/RHVoice/build_iphoneos
 src/ios/RHVoice/build_iphonesimulator
 src/ios/RHVoice/RHVoice.xcframework
+src/ios/RHVoice/build_iphoneos.xcarchive
+src/ios/RHVoice/build_iphonesimulator.xcarchive
