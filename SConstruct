@@ -429,7 +429,10 @@ SConscript(dirs=boost_includedir)
 if sys.platform=="win32":
     build_for_windows(base_env,vars)
 else:
-    if base_env["platform"] == "ios":
-        build_for_ios(base_env,vars)
+    if sys.platform=="darwin": 
+        if base_env["platform"] == "ios":
+            build_for_ios(base_env,vars)
+        else:
+            build_for_linux(base_env,vars)
     else:
         build_for_linux(base_env,vars)
