@@ -4,6 +4,7 @@
 //
 //  Created by Ihor Shevchuk on 02.05.2022.
 //
+//  Copyright (C) 2022  Olga Yakovleva <olga@rhvoice.org>
 
 #import "RHVoiceBridge.h"
 
@@ -45,8 +46,8 @@
 }
 
 - (NSString *)version {
-    if(RHEngine.get()) {
-        return [NSString stringWithUTF8String:RHEngine->get_version().c_str()];
+    if([self engine].get()) {
+        return [NSString stringWithUTF8String:[self engine]->get_version().c_str()];
     }
     return @"Not initilzed!";
 }
@@ -86,8 +87,8 @@
 }
 
 - (const std::set<RHVoice::voice_profile>)voiceProfiles {
-    if(RHEngine.get()) {
-        return RHEngine->get_voice_profiles();
+    if([self engine].get()) {
+        return [self engine]->get_voice_profiles();
     }
     return std::set<RHVoice::voice_profile>();
 }

@@ -4,6 +4,7 @@
 //
 //  Created by Ihor Shevchuk on 02.05.2022.
 //
+//  Copyright (C) 2022  Olga Yakovleva <olga@rhvoice.org>
 
 #import <Foundation/Foundation.h>
 

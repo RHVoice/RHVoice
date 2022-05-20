@@ -4,6 +4,7 @@
 //
 //  Created by Ihor Shevchuk on 03.05.2022.
 //
+//  Copyright (C) 2022  Olga Yakovleva <olga@rhvoice.org>
 
 #import "ViewController.h"
 

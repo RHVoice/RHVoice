@@ -45,3 +45,6 @@ done
 xcodebuild -create-xcframework -framework "$IPHONEOS_OUTPUT/Products/Library/Frameworks/$TARGET_NAME.framework" \
                                -framework "$IPHONESIMULATOR_OUTPUT/Products/Library/Frameworks/$TARGET_NAME.framework" \
                                -output "$TARGET_NAME.xcframework"
+
+rm -rf $IPHONEOS_OUTPUT
+rm -rf $IPHONESIMULATOR_OUTPUT

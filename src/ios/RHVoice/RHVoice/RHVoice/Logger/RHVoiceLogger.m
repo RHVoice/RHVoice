@@ -4,6 +4,7 @@
 //
 //  Created by Ihor Shevchuk on 04.05.2022.
 //
+//  Copyright (C) 2022  Olga Yakovleva <olga@rhvoice.org>
 
 #import "RHVoiceLogger.h"
 
@@ -53,9 +54,3 @@
 
 @end
 
-
-/*    virtual void log(const std::string& tag,RHVoice_log_level level,const std::string& message) const
- {
- }*/
-
-//RHVoice_log_level
