@@ -55,8 +55,6 @@ def configure(env):
         env["CC"] = ccache_path + " " + compiler_path + "clang"
         env["CXX"] = ccache_path + " " + compiler_path + "clang++"
         env["S_compiler"] = ccache_path + " " + s_compiler_path + "gcc"
-    env["AR"] = compiler_path + "ar"
-    env["RANLIB"] = compiler_path + "ranlib"
 
     ## Compile flags
     env.extra_suffix = ""
@@ -86,10 +84,6 @@ def configure(env):
                 " -isysroot $IPHONESDK".split()
             )
         )
-        env.Append(CPPDEFINES=["NEED_LONG_INT"])
-
-    # Temp fix for ABS/MAX/MIN macros in iPhone SDK blocking compilation
-    env.Append(CCFLAGS=["-Wno-ambiguous-macro"])
     
     env.Prepend(
         CPPPATH=[
