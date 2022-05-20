@@ -14,7 +14,8 @@ scons enable_shared=no languages=$LANGUAGES audio_libs=none platform=ios simulat
 
 echo "Building complete."
 BUILD_FOLDER=build
-ARTICFACT_NAME=RHVoice
+PRODUCT_NAME=RHVoice
+ARTICFACT_NAME="${PRODUCT_NAME}Core"
 
 IOS_OUTPUT_FOLDER=$BUILD_FOLDER/ios_output
 
@@ -58,11 +59,10 @@ mkdir $IOS_VOICES_FOLDER
 
 PACKAGES_FOLDER=$BUILD_FOLDER/ios_arm64/packages/zip
 for filename in $PACKAGES_FOLDER/*.zip; do
-    #echo "$filename"
-    if  [[ $filename == *"/$ARTICFACT_NAME-language"*  ]] ;
+    if  [[ $filename == *"/$PRODUCT_NAME-language"*  ]] ;
     then
         unzip $filename -d $IOS_LANGUAGES_FOLDER/$(basename  -s .zip $filename)
-    elif [[ $filename == *"/$ARTICFACT_NAME-voice"*  ]] ;
+    elif [[ $filename == *"/$PRODUCT_NAME-voice"*  ]] ;
     then
         if [ ${#VOICES[@]} -eq 0 ]; then
             unzip $filename -d $IOS_VOICES_FOLDER/$(basename  -s .zip $filename)
