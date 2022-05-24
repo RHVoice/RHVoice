@@ -32,9 +32,7 @@ namespace RHVoice
   class resource_info
   {
   public:
-    virtual ~resource_info()
-    {
-    }
+    virtual ~resource_info() = default;
 
     const std::string& get_data_path() const
     {
@@ -58,9 +56,7 @@ namespace RHVoice
     }
 
   protected:
-    resource_info()
-    {
-    }
+    resource_info() = default;
 
     void set_name(const std::string& name_)
     {
@@ -166,9 +162,7 @@ namespace RHVoice
     class iterator: public std::iterator<std::forward_iterator_tag,T>
     {
     public:
-      iterator()
-      {
-      }
+      iterator() = default;
 
       iterator(typename container::iterator pos_,typename container::iterator end_pos_):
         pos(pos_),
@@ -279,13 +273,9 @@ namespace RHVoice
     }
 
   protected:
-    resource_list()
-    {
-    }
+    resource_list() = default;
 
-    ~resource_list()
-    {
-    }
+    ~resource_list() = default;
 
     bool can_add(const std::string& name,const version_info& ver) const
     {
