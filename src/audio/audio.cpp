@@ -1,4 +1,4 @@
-/* Copyright (C) 2012, 2019, 2022  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2012, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU General Public License as published by */
@@ -82,7 +82,7 @@ namespace RHVoice
             {
               new_impl.reset(new file_playback_stream_impl(params));
               new_impl->open(params.sample_rate);
-              impl.swap(new_impl);
+              impl.reset(new_impl.release());
               return;
             }
           for(std::vector<std::shared_ptr<library> >::iterator it=libraries.begin();it!=libraries.end();++it)
@@ -95,7 +95,7 @@ namespace RHVoice
                     {
                       new_impl.reset((*it)->new_playback_stream_impl(params));
                       new_impl->open(params.sample_rate);
-                      impl.swap(new_impl);
+                      impl.reset(new_impl.release());
                       return;
                     }
                   catch(const error& e)
@@ -106,7 +106,7 @@ namespace RHVoice
                 {
                   new_impl.reset((*it)->new_playback_stream_impl(params));
                   new_impl->open(params.sample_rate);
-                  impl.swap(new_impl);
+                  impl.reset(new_impl.release());
                   return;
                 }
             }
