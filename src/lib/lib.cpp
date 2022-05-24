@@ -166,7 +166,7 @@ RHVoice_tts_engine_struct::RHVoice_tts_engine_struct(const RHVoice_init_params* 
       const char** p=init_params->resource_paths;
       while(*p)
         {
-          engine_params.resource_paths.push_back(std::string(*p));
+          engine_params.resource_paths.emplace_back(*p);
           ++p;
         }
     }

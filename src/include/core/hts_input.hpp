@@ -25,9 +25,7 @@ namespace RHVoice
   class hts_input
   {
   public:
-    hts_input()
-    {
-    }
+    hts_input() = default;
 
     label_sequence::iterator lbegin()
     {
