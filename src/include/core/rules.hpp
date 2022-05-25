@@ -16,7 +16,7 @@
 #ifndef RHVOICE_RULES_HPP
 #define RHVOICE_RULES_HPP
 
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 #include <vector>
 #include <queue>
