@@ -48,7 +48,7 @@ namespace RHVoice
 
     void register_setting(abstract_property& setting,const std::string& prefix="")
     {
-      registered_settings.insert(registration_map::value_type(prefix.empty()?setting.get_name():(prefix+"."+setting.get_name()),&setting));
+      registered_settings.emplace(prefix.empty()?setting.get_name():(prefix+"."+setting.get_name()),&setting);
     }
 
     bool set(const std::string& name,const std::string& value);

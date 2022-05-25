@@ -90,7 +90,7 @@ namespace RHVoice
           ts.push_back(t);
           t.clear();
         }
-      cache.insert(cache_t::value_type(spec,ts));
+      cache.emplace(spec,ts);
       return ts;
     }
 
@@ -304,7 +304,6 @@ namespace RHVoice
             {
             case 'h':
               v=0.5*(ppt.value+top_pitch);
-              break;
               break;
             case 'l':
               v=0.5*(ppt.value+bottom_pitch);
