@@ -1,4 +1,4 @@
-/* Copyright (C) 2021  Olga Yakovleva <olga@rhvoice.org> */
+/* Copyright (C) 2021, 2022  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -74,7 +74,6 @@ final class Repository {
         moshi=new Moshi.Builder().build();
         jsonAdapter=moshi.adapter(PackageDirectory.class).nonNull();
         exec=MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
-                exec.submit(this::initCerts);
                 initialLoad();
     }
 
@@ -101,20 +100,6 @@ public static void initialize(Context context) {
 
     public LiveData<PackageDirectory> getPackageDirectoryLiveData() {
         return pkgDirLiveData;
-    }
-
-    private void initCerts() {
-        try(InputStream is=context.getResources().openRawResource(R.raw.cacert))
-            {
-                try(FileOutputStream os=new FileOutputStream(new File(new File(PackageClient.getPath(context)), "cacert.pem")))
-                    {
-                        DataPack.copyBytes(is, os, null);
-                    }
-            }
-        catch(IOException e)
-            {
-                throw new IllegalStateException(e);
-            }
     }
 
     private boolean parse(String str) throws IOException {

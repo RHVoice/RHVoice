@@ -34,10 +34,6 @@ public final class TTSEngine
 
     static
     {
-System.loadLibrary("crypto");
-        System.loadLibrary("ssl");
-        System.loadLibrary("curl");
-        System.loadLibrary("c++_shared");
         System.loadLibrary("RHVoice_jni");
         onClassInit();
     }
