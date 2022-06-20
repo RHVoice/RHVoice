@@ -11,7 +11,12 @@ set(BUILD_SPEECHDISPATCHER_MODULE "${SPEECHD_FOUND}" CACHE BOOL "Build SpeechDis
 set(INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 configure_file("${INCLUDE_DIR}/core/config.h.in" "${INCLUDE_DIR}/core/config.h")
 
-set(UTF8_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third-party/utf8")
+find_package(utf8cpp)
+if (utf8cpp_FOUND)
+    get_target_property(UTF8_INCLUDE_DIR utf8cpp INTERFACE_INCLUDE_DIRECTORIES)
+else(utf8cpp_FOUND)
+    set(UTF8_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third-party/utf8")
+endif(utf8cpp_FOUND)
 
 cpack_add_component_group("libraries"
 	DISPLAY_NAME "libraries"
