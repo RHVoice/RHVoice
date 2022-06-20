@@ -66,3 +66,15 @@ are available in three languages:
 * [English](doc/en/index.md)
 * [Русский](doc/ru/index.md)
 * [Українська](doc/ua/index.md)
+
+## Community
+
+### Official
+
+* [GitHub Discussions](https://github.com/RHVoice/RHVoice/discussions/)
+* [Mailing list](https://groups.io/g/RHVoice-rus) (Russian)
+
+### Unofficial
+
+* IRC channel: `#rhvoice` at [irc.libera.chat](ircs://irc.libera.chat:6697)
+* Matrix room: [#rhvoice:libera.chat](https://matrix.to/#/#rhvoice:libera.chat)
