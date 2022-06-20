@@ -38,7 +38,7 @@ set("servicedir" "${CMAKE_INSTALL_DATADIR}/dbus-1/services" CACHE PATH ".service
 set("servicedir_full" "${CMAKE_INSTALL_PREFIX}/${servicedir}")
 configure_file("${serviceInputFile}" "${serviceOutputFile}")
 install(FILES "${serviceOutputFile}"
-	DESTINATION "${servicedir}/systemd/system"
+	DESTINATION "${servicedir}"
 	COMPONENT "service"
 )
 set("CPACK_DEBIAN_SERVICE_PACKAGE_NAME" "rhvoice-systemd-service" PARENT_SCOPE)
