@@ -1,0 +1,67 @@
+; Examples of the various types of correcting pronounciation.
+; Please note, that in the fragmentin which we alter the pronounciation
+; of one word, spaces are not allowed.
+
+; Correcting the accent in the word itself.
+м+ало
+
+; pronounciation after the equals sign.
+себе=себ+е
+
+; Referring to the number of the accented syllable.
+; Negative number mean, that syllables are calculated from the end.
+чего/2
+кого/-1
+среды=среды/-1
+дома=дома/1
+
+; Pronounciation of names.
+; These rules does not apply to words, written with the small letters.
+Тома=т+ома
+Тому/1
+
+; Correcting the pronounciation "in the place of the word",
+; without need of writing the equals sign after the word.
+б(е=+э)та
+
+; Pronounciation of multiple words at once
+; with the alternatives list.
+лист{а,е}/-1
+бр+ауз(е=э)р{,ы,а,ов,у,ам,ом,ами,е,ах}
+
+; Abbreviation, which should be pronounced as lseq (letter by letter).
+чгу/i
+
+; Breaking of the word, to avoid the vocal reduction applies to russian!.
+егэ=е&гэ
+гос&дум{а,ы,е,у,ой}
+
+; The rule can start or end with the  * sign.
+; For example, this rule refers to any word,
+; which starts with "ростелеком".
+рос&телек+ом*
+
+; Altering the pronounciation of collocations.
+;Words are separated by spaces.
+{в,о,на} ч(е=ё)м
+{во,обо,на} вс(е=ё)м
+все=всё равно
+{в,о} н(е=ё)м
+к ч(е=ё)рту
+
+; The case, when the accent should be placed on the preposition,
+; but the next word should be left unaccented.
+{на,за,под}/1 рук{у,и}/u
+
+;In collocations, the sign * is allowed,
+; but at the beginning of the first, or at the end of the last word.
+*{ы,и}е дом+а
+
+; Changing of the symbol pronunciation.
+\=бэк&слэш
+
+; Pronounciation of the reserved symbol, used by the dictionary.
+#/=слэш
+
+; Pronounciation of the symbol, but referring to it with code.
+#8470=номер
