@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Grzegorz Zlotowicz  <grzezlo@gmail.com>
+# Copyright (C) 2021 - 2022 Grzegorz Zlotowicz  <grzezlo@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -134,6 +134,8 @@ ih @-> ih2 || {ant} _ VowelPhonem,,
 .#. (n i e) o _ \i ,
 #nadzorca, nadzwyczaj, not nadzie
 {na} _ \i,
+#podzakres, podzamcze, podzamkowy:
+p o _ a [k|m],
 #podzwrotnikowy
 p o _ v r,
 #podzelować, podzespół:
@@ -155,17 +157,21 @@ p o _ e ,,
 #sigm, sign, siglum, pleksiglas:
 _ g [l|m|n],
 #silikon, silicon, not silnik:
-_ l i,
+_ l i [c|k],
 #sinus, singiel, single, sinolog, not sina, sinego, sinów...:
 _ n [ g |{olo} | [ u s ]],
-#aksis aksisie not basista
- _ s [.#.|\t],
+#aksis aksisie not basista, not nosiska
+ _ s [.#.|\[t|k]],
  #eliksir
  k _ r,
 #epsilon, ypsilon
 p _ l ,
 #impossible, not aeropressie
 s _ \e,
+#pepsi:
+p e p _ ,
+#sim, not psim, not cieplusimi
+.#. _ m,
 #sizal, sizalami, not bruksizm, marksizować, psiząb...
 _ z [\on&\m&\o],,
 #"z i", not convert to zi:
@@ -176,10 +182,16 @@ _ z [\on&\m&\o],,
 d e _ \e,
 #dżazira, nazir, not kazir*
 [\k] a _ r,
+#mozilla:
+_ l l,
 #muezin, muezzin:
 m u e (z) _ n,
+#niezidentyfikowany, niezintegrowany,  niezilustrowany 
+.#. (n i e) _ [d|l|n],
 #rozigrane, nieroziskrzone, 
-.#. (n i e) r o _ ,,
+.#. (n i e) r o _ ,
+#Zanzibar,
+n _ b ,,
 #Not soften zh:
 #xie na ksie:
 x i e @-> k si e || _ ,,
@@ -217,7 +229,7 @@ Softening @-> || SofteningConsonantPhonem _ ,
 #in the middle of word
 {zi} @-> [zi i] || \.#. _ \VowelPhonem|.#. ,
 #zim, zima, zimie, zimo, zimu, zimy:
-.#. _ m [.#.|a|on|en|i|n|o|u|ih],
+.#. (n i e) _ m [.#.|a|on|en|i|n|o|u|ih],
 #zip*
 .#. _ p,,
 #e.g. historia to historja:
