@@ -39,6 +39,8 @@
 <s>budżecie</s>
 <s>budżet</s>
 <s>chwyt</s>
+<s>cieplusim</s>
+<s>cieplusimi</s>
 <s>cosinus</s>
 <s>cyberzabawki</s>
 <s>cyberzagrożenia</s>
@@ -63,12 +65,15 @@
 <s>erzatzem</s>
 <s>fixie</s>
 <s>fixing</s>
+<s>filezilla</s>
 <s>fortissimo</s>
 <s>gipsiarnia</s>
+<s>godzilla</s>
 <s>grypsik</s>
 <s>hiperzręczny</s>
 <s>historia</s>
 <s>jakże</s>
+<s>jesziba</s>
 <s>kałamarza</s>
 <s>Kambodży</s>
 <s>karczmarza</s>
@@ -91,6 +96,7 @@
 <s>mierzi</s>
 <s>mierzy</s>
 <s>mov</s>
+<s>mozilla</s>
 <s>muezin</s>
 <s>muezzin</s>
 <s>nadzieja</s>
@@ -114,6 +120,12 @@
 <s>nierozigrane </s>
 <s>nieroziskrzone</s>
 <s>niesinobrodą</s>
+<s>niezanzibarscy</s>
+<s>niezidentyfikowany</s>
+<s>niezilustrowany</s>
+<s>niezindywidualizowany</s>
+<s>niezintegrowany</s>
+<s>nosiska</s>
 <s>odkomarzania</s>
 <s>odmrozili </s>
 <s>odzew</s>
@@ -131,7 +143,11 @@
 <s>odżywiać</s>
 <s>osinówce</s>
 <s>ó</s>
+<s>pepsi</s>
 <s>pleksiglas</s>
+<s>podzakres</s>
+<s>podzamcze</s>
+<s>podzamkowy</s>
 <s>podzelować</s>
 <s>podzielny</s>
 <s>podziemię</s>
@@ -166,12 +182,15 @@
 <s>rycerzach</s>
 <s>rymarza</s>
 <s>siara</s>
+<s>siedzibach</s>
 <s>siglum</s>
 <s>sigma</s>
 <s>sign</s>
 <s>silicon</s>
 <s>silikon</s>
 <s>silnik</s>
+<s>sim</s>
+<s>simon</s>
 <s>sina</s>
 <s>siną</s>
 <s>sinego</s>
@@ -213,7 +232,13 @@
 <s>zaczęła</s>
 <s>zakrzep</s>
 <s>zamarza</s>
+<s>Zanzibar</s>
 <s>zdezintegrowaną</s>
+<s>zgłosili</s>
+<s>zgłosiliby</s>
+<s>zgłosiliście</s>
+<s>zidentyfikowany</s>
+<s>zilustrowany </s>
 <s>zim</s>
 <s>zima</s>
 <s>zimą</s>
@@ -226,6 +251,7 @@
 <s>zimuje</s>
 <s>zimy</s>
 <s>zin</s>
+<s>zintegrowany</s>
 <s>zip</s>
 <s>zipie</s>
 <s>zmierzły</s>
