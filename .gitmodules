@@ -280,3 +280,6 @@
 [submodule "data/voices/vitaliy-ng"]
 	path = data/voices/vitaliy-ng
 	url = https://github.com/rhvoice/vitaliy-ng-rus
+[submodule "data/voices/umka"]
+	path = data/voices/umka
+	url = https://github.com/rhvoice/umka-rus
