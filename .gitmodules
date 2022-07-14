@@ -277,3 +277,6 @@
 [submodule "data/voices/pavel"]
 	path = data/voices/pavel
 	url = https://github.com/RHVoice/pavel-rus.git
+[submodule "data/voices/vitaliy-ng"]
+	path = data/voices/vitaliy-ng
+	url = https://github.com/rhvoice/vitaliy-ng-rus
