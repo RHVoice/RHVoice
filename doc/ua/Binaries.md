@@ -13,17 +13,17 @@
 ### Російська
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-4.2.2010.9.nvda-addon), версія 4.2.2010.9
-* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda), версія 4.0.2009.9
-* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda), версія 4.0.2009.9
-* [Vitaliy](https://rhvoice.su/downloads/?voice=vitaliy&type=nvda), версія 4.0.2009.9
+* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=nvda&version=4.1.2011.10), версія 4.1.2011.10
+* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Vitaliy](https://rhvoice.su/downloads/?voice=vitaliy&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-4.1.2010.9.nvda-addon), версія 4.1.2010.9
-* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda), версія 4.0.2009.9
-* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda), версія 4.0.2009.9
-* [Tatiana](https://rhvoice.su/downloads/?voice=tatiana&type=nvda), версія 4.0.2009.9
-* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda), версія 4.0.2009.9
-* [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=nvda), версія 4.0.2009.9
-* [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda), версія 4.0.2009.9
-* [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda), версія 4.0.2009.9
+* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Tatiana](https://rhvoice.su/downloads/?voice=tatiana&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=nvda&version=4.0.2011.10), версія 4.0.2010.10
+* [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 * [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-4.2.2010.9.nvda-addon), версія 4.2.2010.9
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-4.1.2010.9.nvda-addon), версія 4.1.2010.9
 
@@ -33,9 +33,9 @@
 
 #### Голоси
 
-* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda), версія 4.0.2007.9
+* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda&version=4.0.2008.10), версія 4.0.2008.10
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-4.0.2008.9.nvda-addon), версія 4.0.2008.9
-* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=nvda), версія 4.0.2007.9
+* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=nvda&version=4.0.2008.10), версія 4.0.2008.10
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-4.1.2008.9.nvda-addon), версія 4.1.2008.9
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-4.0.2008.9.nvda-addon), версія 4.0.2008.9
 * [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-4.0.2008.9.nvda-addon), версія 4.0.2008.9
@@ -63,9 +63,9 @@
 
 ### Українська
 
-* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda), версія 4.0.1011.9
-* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=nvda), версія 4.0.1011.9
-* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-4.1.7.nvda-addon), версія 4.1.7
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda&version=4.0.1014.10), версія 4.0.1014.10
+* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=nvda&version=4.0.1014.10), версія 4.0.1014.10
+* [Anatol](https://github.com/RHVoice/anatol-ukr/releases/download/4.1/RHVoice-voice-Ukrainian-Anatol-4.2.1014.10.nvda-addon), версія 4.2.1014.10
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.1013.9.nvda-addon), версія 4.0.1013.9
 
 ### македонський
@@ -79,25 +79,25 @@
 
 ### польський
 
-* [Magda](https://github.com/RHVoice/magda-pol/releases/download/rev42/RHVoice-voice-Polish-Magda-4.42.1010.10.nvda-addon), версія 4.42.1010.10
-* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.8/RHVoice-voice-Polish-Natan-4.8.1010.10.nvda-addon), версія 4.8.1010.10
+* [Magda](https://github.com/RHVoice/magda-pol/releases/download/rev42/RHVoice-voice-Polish-Magda-4.42.1011.10.nvda-addon), версія 4.42.1011.10
+* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.9/RHVoice-voice-Polish-Natan-4.9.1011.10.nvda-addon), версія 4.9.1011.10
 
 ## SAPI 5
 
 ### Російська
 
 * [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.2010.15-setup.exe), версія 4.2.2010.15
-* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi), версія 4.0.2009.14
-* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi), версія 4.0.2009.14
-* [Vitaliy](https://rhvoice.su/downloads/?voice=vitaliy&type=sapi), версія 4.0.2009.14
+* [Aleksandr-HQ](https://rhvoice.su/downloads/?voice=aleksandr-hq&type=sapi&version=4.1.2011.17), версія 4.1.2011.17
+* [Yuriy](https://rhvoice.su/downloads/?voice=yuriy&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Vitaliy](https://rhvoice.su/downloads/?voice=vitaliy&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 * [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.2010.15-setup.exe), версія 4.1.2010.15
-* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi), версія 4.0.2009.14
-* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi), версія 4.0.2009.14
-* [Tatiana](https://rhvoice.su/downloads/?voice=tatiana&type=sapi), версія 4.0.2009.14
-* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi), версія 4.0.2009.14
-* [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=sapi), версія 4.0.2009.14
-* [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi), версія 4.0.2009.14
-* [Pavel](https://rhvoice.su/downloads/?voice=arina&type=sapi), версія 4.0.2009.14
+* [Evgeniy-rus](https://rhvoice.su/downloads/?voice=evgeniy-rus&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Artemiy](https://rhvoice.su/downloads/?voice=artemiy&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Tatiana](https://rhvoice.su/downloads/?voice=tatiana&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Victoria](https://rhvoice.su/downloads/?voice=victoria&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 * [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.2010.15-setup.exe), версія 4.2.2010.15
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.2010.15-setup.exe), версія 4.1.2010.15
 
@@ -107,9 +107,9 @@
 
 #### Голоси
 
-* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi), версія 4.0.2007.14
+* [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi&version=4.0.2008.17), версія 4.0.2008.17
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.2008.15-setup.exe), версія 4.0.2008.15
-* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=sapi), версія 4.0.2007.14
+* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=sapi&version=4.0.2008.17), версія 4.0.2008.17
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.2008.15-setup.exe), версія 4.1.2008.15
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.2008.15-setup.exe), версія 4.0.2008.15
 * [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-v4.0.2008.15-setup.exe), версія 4.0.2008.15
@@ -137,9 +137,9 @@
 
 ### Українська
 
-* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi), версія 4.0.1011.14
-* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=sapi), версія 4.0.1011.14
-* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.11-setup.exe), версія 4.1.11
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi&version=4.0.1014.17), версія 4.0.1014.17
+* [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=sapi&version=4.0.1014.17), версія 4.0.1014.17
+* [Anatol](https://github.com/RHVoice/anatol-ukr/releases/download/4.1/RHVoice-voice-Ukrainian-Anatol-v4.2.1014.17-setup.exe), версія 4.2.1014.17
 * [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.1013.9-setup.exe), версія 4.0.1013.9
 
 ### македонський
@@ -153,68 +153,10 @@
 
 ### польський
 
-* [Magda](https://github.com/RHVoice/magda-pol/releases/download/rev42/RHVoice-voice-Polish-Magda-4.42.1010.10.nvda-addon), версія 4.42.1010.10
-* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.8/RHVoice-voice-Polish-Natan-4.8.1010.10.nvda-addon), версія 4.8.1010.10
+* [Magda](https://github.com/RHVoice/magda-pol/releases/download/rev42/RHVoice-voice-Polish-Magda-v4.42.1011.17-setup.exe), версія 4.42.1011.17
+* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.9/RHVoice-voice-Polish-Natan-v4.9.1011.17-setup.exe), версія 4.9.1011.17
 
 ## Android
 
 * [Додаток для Android у Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
 * [Пряме посилання на додаток для Android](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-v1.8.0.apk), версія 1.8.0
-
-Здебільшого краще встановлювати голоси безпосередньо з основного додатка. Однак, якщо це з якихось причин неможливо, ви можете встановити мовні й голосові дані з таких пакетів:
-
-### Російська
-
-[Мовний пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Russian-v2.6.apk), версія 2.6
-
-#### Голоси
-
-* [Aleksandr](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Aleksandr-v4.2.apk), версія 4.2
-* [Anna](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Anna-v4.1.apk), версія 4.1
-* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.apk), версія 4.2
-* [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.apk), версія 4.1
-
-### Англійська
-
-[Мовний пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-English-v2.5.apk), версія 2.5
-
-#### Голоси
-
-* [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.apk), версія 4.0
-* [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.apk), версія 4.1
-* [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.apk), версія 4.0
-* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-v4.0.apk), версія 4.0
-
-### Бразильська португальська
-
-[Мовний пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-F123-Brazilian-Portuguese-language-v1.15.apk), версія 1.15
-
-#### Голоси
-
-* [Letícia-F123](https://f123.org/leticia/download/Android/apk/RHVoice-Brazilian-Portuguese-voice-Leticia-F123-v4.6.apk), версія 4.6
-
-### Есперанто
-
-[Мовний пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Esperanto-v1.2.apk), версія 1.2
-
-#### Голоси
-
-* [Spomenka](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Esperanto-Spomenka-v4.0.apk), версія 4.0
-
-### Киргизька
-
-[Мовний пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Kyrgyz-v1.16.apk), версія 1.16
-
-#### Голоси
-
-* [Azamat](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Azamat-v4.0.apk), версія 4.0
-* [Nazgul](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Kyrgyz-Nazgul-v4.0.apk), версія 4.0
-
-### Українська
-
-[Мовний пакет](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-language-Ukrainian-v1.9.apk), версія 1.9
-
-#### Голоси
-
-* [Anatol](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Anatol-v4.1.apk), версія 4.1
-* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.apk), версія 4.0
