@@ -65,7 +65,7 @@
 
 ### Українська
 
-* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda&version=4.0.1014.10), версія 4.0.1014.10
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda&version=4.1.1014.10), версія 4.1.1014.10
 * [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=nvda&version=4.0.1014.10), версія 4.0.1014.10
 * [Anatol](https://github.com/RHVoice/anatol-ukr/releases/download/4.1/RHVoice-voice-Ukrainian-Anatol-4.2.1014.10.nvda-addon), версія 4.2.1014.10
 * [Natalia](https://github.com/RHVoice/natalia-ukr/releases/download/v4.1/RHVoice-voice-Ukrainian-Natalia-4.1.1014.10.nvda-addon), версія 4.1.1014.10
@@ -141,7 +141,7 @@
 
 ### Українська
 
-* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi&version=4.0.1014.17), версія 4.0.1014.17
+* [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi&version=4.1.1014.17), версія 4.1.1014.17
 * [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=sapi&version=4.0.1014.17), версія 4.0.1014.17
 * [Anatol](https://github.com/RHVoice/anatol-ukr/releases/download/4.1/RHVoice-voice-Ukrainian-Anatol-v4.2.1014.17-setup.exe), версія 4.2.1014.17
 * [Natalia](https://github.com/RHVoice/natalia-ukr/releases/download/v4.1/RHVoice-voice-Ukrainian-Natalia-v4.1.1014.17-setup.exe), версія 4.1.1014.17
