@@ -24,8 +24,10 @@
 * [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=nvda&version=4.0.2011.10), версія 4.0.2010.10
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 * [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
-* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-4.2.2010.9.nvda-addon), версія 4.2.2010.9
+* [Elena](https://github.com/RHVoice/elena-rus/releases/download/v4.3/RHVoice-voice-Russian-Elena-4.3.2011.10.nvda-addon), версія 4.3.2011.10
+* [Umka](https://rhvoice.su/downloads/?voice=umka&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-4.1.2010.9.nvda-addon), версія 4.1.2010.9
+* [Vitaliy-ng](https://rhvoice.su/downloads/?voice=vitaliy-ng&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 
 ### Англійська
 
@@ -66,7 +68,7 @@
 * [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=nvda&version=4.0.1014.10), версія 4.0.1014.10
 * [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=nvda&version=4.0.1014.10), версія 4.0.1014.10
 * [Anatol](https://github.com/RHVoice/anatol-ukr/releases/download/4.1/RHVoice-voice-Ukrainian-Anatol-4.2.1014.10.nvda-addon), версія 4.2.1014.10
-* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-4.0.1013.9.nvda-addon), версія 4.0.1013.9
+* [Natalia](https://github.com/RHVoice/natalia-ukr/releases/download/v4.1/RHVoice-voice-Ukrainian-Natalia-4.1.1014.10.nvda-addon), версія 4.1.1014.10
 
 ### македонський
 
@@ -80,7 +82,7 @@
 ### польський
 
 * [Magda](https://github.com/RHVoice/magda-pol/releases/download/rev42/RHVoice-voice-Polish-Magda-4.42.1011.10.nvda-addon), версія 4.42.1011.10
-* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.9/RHVoice-voice-Polish-Natan-4.9.1011.10.nvda-addon), версія 4.9.1011.10
+* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.10/RHVoice-voice-Polish-Natan-4.10.1011.10.nvda-addon), версія 4.10.1011.10
 
 ## SAPI 5
 
@@ -98,8 +100,10 @@
 * [Mikhail](https://rhvoice.su/downloads/?voice=mikhail&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 * [Arina](https://rhvoice.su/downloads/?voice=arina&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 * [Pavel](https://rhvoice.su/downloads/?voice=pavel&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
-* [Elena](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Elena-v4.2.2010.15-setup.exe), версія 4.2.2010.15
+* [Elena](https://github.com/RHVoice/elena-rus/releases/download/v4.3/RHVoice-voice-Russian-Elena-v4.3.2011.17-setup.exe), версія 4.3.2011.17
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.2010.15-setup.exe), версія 4.1.2010.15
+* [Umka](https://rhvoice.su/downloads/?voice=umka&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Vitaliy-ng](https://rhvoice.su/downloads/?voice=vitaliy-ng&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 
 ### Англійська
 
@@ -140,7 +144,7 @@
 * [Volodymyr](https://rhvoice.su/downloads/?voice=volodymyr&type=sapi&version=4.0.1014.17), версія 4.0.1014.17
 * [Marianna](https://rhvoice.su/downloads/?voice=marianna&type=sapi&version=4.0.1014.17), версія 4.0.1014.17
 * [Anatol](https://github.com/RHVoice/anatol-ukr/releases/download/4.1/RHVoice-voice-Ukrainian-Anatol-v4.2.1014.17-setup.exe), версія 4.2.1014.17
-* [Natalia](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Ukrainian-Natalia-v4.0.1013.9-setup.exe), версія 4.0.1013.9
+* [Natalia](https://github.com/RHVoice/natalia-ukr/releases/download/v4.1/RHVoice-voice-Ukrainian-Natalia-v4.1.1014.17-setup.exe), версія 4.1.1014.17
 
 ### македонський
 
@@ -154,7 +158,7 @@
 ### польський
 
 * [Magda](https://github.com/RHVoice/magda-pol/releases/download/rev42/RHVoice-voice-Polish-Magda-v4.42.1011.17-setup.exe), версія 4.42.1011.17
-* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.9/RHVoice-voice-Polish-Natan-v4.9.1011.17-setup.exe), версія 4.9.1011.17
+* [Natan](https://github.com/RHVoice/natan-pol/releases/download/v4.10/RHVoice-voice-Polish-Natan-v4.10.1011.17-setup.exe), версія 4.10.1011.17
 
 ## Android
 
