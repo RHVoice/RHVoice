@@ -1280,7 +1280,10 @@ class lpf_maker(task):
 		filters=numpy.zeros((nf,nt),dtype=numpy.float32)
 		for j in range(nf):
 			cf=(j+1)*1000
-			filters[j]=firwin(nt,cf,window="hanning",nyq=nyq)
+			try:
+				filters[j]=firwin(nt,cf,window="hanning",nyq=nyq)
+			except:
+				filters[j]=firwin(nt,cf,window="hann",nyq=nyq)
 		with open(os.path.join(self.outdir,"lpf.pdf"),"wb") as fp:
 			counts.tofile(fp)
 			for i in range(ns):
