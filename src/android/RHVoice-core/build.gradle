@@ -118,6 +118,7 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-android'
 implementation("com.squareup.moshi:moshi:1.13.0")
 implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
 implementation 'io.github.vvb2060.ndk:curl:7.84.0'
 implementation 'com.google.android.exoplayer:exoplayer-core:2.17.1'
