@@ -59,11 +59,13 @@ from spec["inDataDir"]
 }
 
 android {
-compileSdkVersion myCompileSdkVersion
+compileSdk myCompileSdkVersion
+buildToolsVersion myBuildToolsVersion
+namespace "com.github.olga_yakovleva.rhvoice.android"
 
 defaultConfig {
-minSdkVersion myMinSdkVersion
-targetSdkVersion myTargetSdkVersion
+minSdk myMinSdkVersion
+targetSdk myTargetSdkVersion
 }
 
 flavorDimensions "package"

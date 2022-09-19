@@ -22,7 +22,10 @@ sourceCompatibility JavaVersion.VERSION_11
 targetCompatibility JavaVersion.VERSION_11
 }
 
-compileSdkVersion myCompileSdkVersion
+compileSdk myCompileSdkVersion
+buildToolsVersion myBuildToolsVersion
+ndkVersion myNdkVersion
+namespace "com.github.olga_yakovleva.rhvoice.android"
 
 buildFeatures {
 prefab true
@@ -30,14 +33,13 @@ prefab true
 
 defaultConfig {
 multiDexEnabled true
-minSdkVersion myMinSdkVersion
-targetSdkVersion myTargetSdkVersion
+minSdk myMinSdkVersion
+targetSdk myTargetSdkVersion
 applicationId "com.github.olga_yakovleva.rhvoice.android"
 versionName "${major_version}.${minor_version}.${revision_number}"
 ndk{
 abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
 }
-ndkVersion "25.1.8937393"
 externalNativeBuild {
 ndkBuild {
 arguments 'V=1'
@@ -70,7 +72,7 @@ signingConfig signingConfigs.release
 }
 minifyEnabled true
 shrinkResources true
-proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 }
 }
 
@@ -116,13 +118,13 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation "androidx.documentfile:documentfile:1.0.1"
     implementation 'com.google.guava:guava:31.1-android'
-implementation("com.squareup.moshi:moshi:1.13.0")
+implementation("com.squareup.moshi:moshi:1.14.0")
 implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
-implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
 implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
-implementation 'io.github.vvb2060.ndk:curl:7.84.0'
+implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+implementation 'io.github.vvb2060.ndk:curl:7.85.1'
 implementation 'com.google.android.exoplayer:exoplayer-core:2.17.1'
-coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
 
 preBuild.dependsOn BoostIncludes
