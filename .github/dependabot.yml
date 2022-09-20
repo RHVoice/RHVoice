@@ -1,12 +1,12 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: "./"
+    directory: "/"
     schedule:
       interval: daily
-    target-branch: main
+    target-branch: master
   - package-ecosystem: gradle
-    directory: "./src/android"
+    directory: "/src/android"
     schedule:
       interval: daily
-    target-branch: main
+    target-branch: master
