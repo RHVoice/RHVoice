@@ -15,18 +15,17 @@ allprojects {
         mavenCentral()
     }
 
-    ext.myMinSdkVersion=16
-    ext.myCompileSdkVersion=33
+    ext.myMinSdkVersion = 16
+    ext.myCompileSdkVersion = 33
     ext.myBuildToolsVersion = '33.0.0'
     ext.myNdkVersion = '25.1.8937393'
-    ext.myTargetSdkVersion=31
+    ext.myTargetSdkVersion = 31
 }
 
-if(hasProperty("RHVoice.signRelease")) {
-    ext.signRelease=Boolean.parseBoolean(property("RHVoice.signRelease"))
-}
-else {
-    ext.signRelease=false
+if (hasProperty("RHVoice.signRelease")) {
+    ext.signRelease = Boolean.parseBoolean(property("RHVoice.signRelease"))
+} else {
+    ext.signRelease = false
 }
 
 task clean(type: Delete) {
