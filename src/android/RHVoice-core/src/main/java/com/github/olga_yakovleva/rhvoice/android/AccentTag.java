@@ -31,62 +31,56 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import com.google.common.base.Objects;
+
 import java.util.Locale;
 
-public final class AccentTag
-{
+public final class AccentTag {
     public final String language3;
     public final String language2;
     public final String country3;
     public final String country2;
     public final String variant;
 
-    public AccentTag(String l3, String l2, String c3, String c2, String v)
-    {
-        language3=l3;
-        country3=c3;
-        language2=l2;
-        country2=c2;
-        variant=v;
+    public AccentTag(String l3, String l2, String c3, String c2, String v) {
+        language3 = l3;
+        country3 = c3;
+        language2 = l2;
+        country2 = c2;
+        variant = v;
     }
 
     @Override
-    public boolean equals(Object other)
-    {
-        if(this==other)
+    public boolean equals(Object other) {
+        if (this == other)
             return true;
-        if(!(other instanceof AccentTag))
+        if (!(other instanceof AccentTag))
             return false;
-        final AccentTag otherTag=(AccentTag)other;
+        final AccentTag otherTag = (AccentTag) other;
         return Objects.equal(language3, otherTag.language3) && Objects.equal(country3, otherTag.country3) && Objects.equal(variant, otherTag.variant);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hashCode(language3, country3, variant);
     }
 
-    public Locale createLocale()
-    {
-        if(country2.isEmpty())
+    public Locale createLocale() {
+        if (country2.isEmpty())
             return new Locale(language2);
-        if(variant.isEmpty())
+        if (variant.isEmpty())
             return new Locale(language2, country2);
         return new Locale(language2, country2, variant);
     }
 
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return createLocale().getDisplayName();
     }
 
-    public String toString3()
-    {
-        if(country3.isEmpty())
+    public String toString3() {
+        if (country3.isEmpty())
             return language3;
-        if(variant.isEmpty())
-            return (language3+"-"+country3);
-        return (language3+"-"+country3+"-"+variant);
+        if (variant.isEmpty())
+            return (language3 + "-" + country3);
+        return (language3 + "-" + country3 + "-" + variant);
     }
 }

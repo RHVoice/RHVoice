@@ -15,10 +15,9 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-public final class VoiceViewChange
-{
-    public static final long NAME=1;
-    public static final long INSTALLED=2;
-    public static final long PLAYING=4;
-    public static final long ALL=NAME|INSTALLED|PLAYING;
+public final class VoiceViewChange {
+    public static final long NAME = 1;
+    public static final long INSTALLED = 2;
+    public static final long PLAYING = 4;
+    public static final long ALL = NAME | INSTALLED | PLAYING;
 }

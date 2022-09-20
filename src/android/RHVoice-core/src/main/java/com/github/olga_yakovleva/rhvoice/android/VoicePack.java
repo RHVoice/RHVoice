@@ -16,104 +16,94 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.content.Context;
 import android.content.Intent;
 import android.speech.tts.Voice;
+
 import java.util.Locale;
+
 import com.google.common.collect.ImmutableSet;
+
 import java.util.Set;
+
 import android.speech.tts.TextToSpeech;
 
-public final class VoicePack extends DataPack
-{
+public final class VoicePack extends DataPack {
     private final LanguagePack lang;
     private final VoiceResource res;
 
-    public VoicePack(LanguagePack lang, VoiceResource res)
-    {
-        this.lang=lang;
-        this.res=res;
-}
+    public VoicePack(LanguagePack lang, VoiceResource res) {
+        this.lang = lang;
+        this.res = res;
+    }
 
-    public VoiceResource getRes()
-    {
+    public VoiceResource getRes() {
         return res;
     }
 
-    public String getType()
-    {
+    public String getType() {
         return "voice";
-}
+    }
 
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return getName();
-}
+    }
 
-    protected String getBaseFileName()
-    {
-        return String.format("RHVoice-voice-%s-%s",lang.getName(),getName());
-}
+    protected String getBaseFileName() {
+        return String.format("RHVoice-voice-%s-%s", lang.getName(), getName());
+    }
 
-    private String getEnabledKey()
-    {
-        return String.format("voice.%s.enabled",getId());
-}
+    private String getEnabledKey() {
+        return String.format("voice.%s.enabled", getId());
+    }
 
     @Override
-    public final boolean getEnabled(Context context)
-    {
-        return getPrefs(context).getBoolean(getEnabledKey(),getPackageInfo(context)!=null);
-}
+    public final boolean getEnabled(Context context) {
+        return getPrefs(context).getBoolean(getEnabledKey(), getPackageInfo(context) != null);
+    }
 
-    public final void setEnabled(Context context,boolean value)
-    {
-        boolean langEnabled=lang.getEnabled(context);
-        boolean oldValue=getEnabled(context);
-        getPrefs(context).edit().putBoolean(getEnabledKey(),value).apply();
-        if(value==oldValue)
+    public final void setEnabled(Context context, boolean value) {
+        boolean langEnabled = lang.getEnabled(context);
+        boolean oldValue = getEnabled(context);
+        getPrefs(context).edit().putBoolean(getEnabledKey(), value).apply();
+        if (value == oldValue)
             return;
-            LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
-            if(lang.getEnabled(context)!=langEnabled)
-                lang.scheduleSync(context,true);
-            scheduleSync(context,true);
-}
+        LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
+        if (lang.getEnabled(context) != langEnabled)
+            lang.scheduleSync(context, true);
+        scheduleSync(context, true);
+    }
 
     @Override
-    protected void notifyDownloadStart(IDataSyncCallback callback)
-    {
+    protected void notifyDownloadStart(IDataSyncCallback callback) {
         callback.onVoiceDownloadStart(this);
-}
+    }
 
     @Override
-    protected void notifyDownloadDone(IDataSyncCallback callback)
-    {
+    protected void notifyDownloadDone(IDataSyncCallback callback) {
         callback.onVoiceDownloadDone(this);
     }
 
     @Override
-    protected void notifyInstallation(IDataSyncCallback callback)
-    {
+    protected void notifyInstallation(IDataSyncCallback callback) {
         callback.onVoiceInstallation(this);
     }
 
     @Override
-    protected void notifyRemoval(IDataSyncCallback callback)
-    {
+    protected void notifyRemoval(IDataSyncCallback callback) {
         callback.onVoiceRemoval(this);
     }
 
-    public LanguagePack getLanguage()
-    {
+    public LanguagePack getLanguage() {
         return lang;
-}
+    }
 
     @Override
-    protected androidx.work.Data.Builder setWorkInput(androidx.work.Data.Builder b)
-    {
+    protected androidx.work.Data.Builder setWorkInput(androidx.work.Data.Builder b) {
         lang.setWorkInput(b);
         return super.setWorkInput(b);
-}
+    }
 
     public String getTestMessage() {
         return lang.getTestMessage();
@@ -123,14 +113,13 @@ public final class VoicePack extends DataPack
         return res.demoUrl;
     }
 
-    public AccentTag getAccentTag()
-    {
+    public AccentTag getAccentTag() {
         return new AccentTag(lang.getCode(), lang.getOldCode(), res.ctry3code, res.ctry2code, res.accent);
     }
 
     public Voice createAndroidVoice(Context ctx) {
-        final Locale loc=getAccentTag().createLocale();
-        final Set<String> features=isInstalled(ctx)?ImmutableSet.of():ImmutableSet.of(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED);
+        final Locale loc = getAccentTag().createLocale();
+        final Set<String> features = isInstalled(ctx) ? ImmutableSet.of() : ImmutableSet.of(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED);
         return new Voice(getName(), loc, Voice.QUALITY_NORMAL, Voice.LATENCY_NORMAL, false, features);
     }
 }

@@ -15,8 +15,7 @@
 
 package com.github.olga_yakovleva.rhvoice;
 
-public enum LogLevel
-{
+public enum LogLevel {
     TRACE,
     DEBUG,
     INFO,

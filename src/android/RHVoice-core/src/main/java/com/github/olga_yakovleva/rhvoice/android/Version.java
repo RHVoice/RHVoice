@@ -16,14 +16,14 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 public class Version {
-    public int major=1;
-    public int minor=0;
+    public int major = 1;
+    public int minor = 0;
 
-    public Version() {}
+    public Version() {
+    }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("%s.%s", major, minor);
     }
 }

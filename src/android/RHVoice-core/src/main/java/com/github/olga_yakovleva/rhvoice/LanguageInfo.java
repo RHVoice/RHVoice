@@ -17,84 +17,70 @@ package com.github.olga_yakovleva.rhvoice;
 
 import android.text.TextUtils;
 
-public final class LanguageInfo
-{
-    private String name=null;
-    private String alpha2_code=null;
-    private String alpha3_code=null;
-    private String alpha2_country_code=null;
-    private String alpha3_country_code=null;
-    private boolean pseudoEnglish=false;
+public final class LanguageInfo {
+    private String name = null;
+    private String alpha2_code = null;
+    private String alpha3_code = null;
+    private String alpha2_country_code = null;
+    private String alpha3_country_code = null;
+    private boolean pseudoEnglish = false;
 
-    void setName(String name)
-    {
-        this.name=name;
+    void setName(String name) {
+        this.name = name;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    void setAlpha2Code(String code)
-    {
-        alpha2_code=code;
+    void setAlpha2Code(String code) {
+        alpha2_code = code;
     }
 
-    public String getAlpha2Code()
-    {
+    public String getAlpha2Code() {
         return alpha2_code;
     }
 
-    void setAlpha3Code(String code)
-    {
-        alpha3_code=code;
+    void setAlpha3Code(String code) {
+        alpha3_code = code;
     }
 
-    public String getAlpha3Code()
-    {
+    public String getAlpha3Code() {
         return alpha3_code;
     }
 
-    void setAlpha2CountryCode(String code)
-    {
-        alpha2_country_code=code;
+    void setAlpha2CountryCode(String code) {
+        alpha2_country_code = code;
     }
 
-    public String getAlpha2CountryCode()
-    {
-        if(TextUtils.isEmpty(alpha2_country_code))
+    public String getAlpha2CountryCode() {
+        if (TextUtils.isEmpty(alpha2_country_code))
             return "ZZ";
         return alpha2_country_code;
     }
 
-    void setAlpha3CountryCode(String code)
-    {
-        alpha3_country_code=code;
+    void setAlpha3CountryCode(String code) {
+        alpha3_country_code = code;
     }
 
-    public String getAlpha3CountryCode()
-    {
-        if(TextUtils.isEmpty(alpha3_country_code))
+    public String getAlpha3CountryCode() {
+        if (TextUtils.isEmpty(alpha3_country_code))
             return "ZZZ";
         return alpha3_country_code;
     }
 
-    void setPseudoEnglish(boolean value)
-    {
-        pseudoEnglish=value;
-}
+    void setPseudoEnglish(boolean value) {
+        pseudoEnglish = value;
+    }
 
-    public boolean getPseudoEnglish()
-    {
+    public boolean getPseudoEnglish() {
         return pseudoEnglish;
-}
+    }
 
-    public String getTag3()
-    {
-        if(TextUtils.isEmpty(alpha3_country_code))
+    public String getTag3() {
+        if (TextUtils.isEmpty(alpha3_country_code))
             return alpha3_code;
         else
-            return (alpha3_code+"-"+alpha3_country_code.toUpperCase());
-}
+            return (alpha3_code + "-" + alpha3_country_code.toUpperCase());
+    }
 }

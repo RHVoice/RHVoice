@@ -20,19 +20,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public final class OnPackageReceiver extends BroadcastReceiver
-{
-    private static final String TAG="RHVoiceOnPackageReceiver";
+public final class OnPackageReceiver extends BroadcastReceiver {
+    private static final String TAG = "RHVoiceOnPackageReceiver";
 
     @Override
-    public void onReceive(Context context,Intent intent)
-    {
-        int uid=context.getApplicationInfo().uid;
-        if(intent.getIntExtra(Intent.EXTRA_UID,uid)!=uid)
+    public void onReceive(Context context, Intent intent) {
+        int uid = context.getApplicationInfo().uid;
+        if (intent.getIntExtra(Intent.EXTRA_UID, uid) != uid)
             return;
-        String packageName=intent.getData().getSchemeSpecificPart();
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"Package "+packageName+" has been installed/updated/removed");
-        Repository.get().createDataManager().scheduleSync(context,true);
+        String packageName = intent.getData().getSchemeSpecificPart();
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "Package " + packageName + " has been installed/updated/removed");
+        Repository.get().createDataManager().scheduleSync(context, true);
     }
 }

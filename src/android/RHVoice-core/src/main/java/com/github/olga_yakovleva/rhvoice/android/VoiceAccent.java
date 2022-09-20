@@ -31,59 +31,51 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
+
 import java.util.List;
 import java.util.Locale;
+
 import com.google.common.collect.FluentIterable;
 
-public final class VoiceAccent
-{
+public final class VoiceAccent {
     private final LanguagePack lang;
     private final AccentTag tag;
 
-    public VoiceAccent(LanguagePack lang, AccentTag tag)
-    {
-        this.lang=lang;
-        this.tag=tag;
+    public VoiceAccent(LanguagePack lang, AccentTag tag) {
+        this.lang = lang;
+        this.tag = tag;
     }
 
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return tag.getDisplayName();
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return getDisplayName();
     }
 
-    public FluentIterable<VoicePack> iterVoices()
-    {
-        return lang.iterVoices().filter(v-> tag.equals(v.getAccentTag()));
+    public FluentIterable<VoicePack> iterVoices() {
+        return lang.iterVoices().filter(v -> tag.equals(v.getAccentTag()));
     }
 
-    public List<VoicePack> getVoices()
-    {
+    public List<VoicePack> getVoices() {
         return iterVoices().toList();
     }
 
-    public LanguagePack getLanguage()
-    {
+    public LanguagePack getLanguage() {
         return lang;
     }
 
-    public AccentTag getTag()
-    {
+    public AccentTag getTag() {
         return tag;
     }
 
-    public Locale createLocale()
-    {
+    public Locale createLocale() {
         return tag.createLocale();
     }
 
-    public boolean isInstalled(Context context)
-    {
-        return iterVoices().anyMatch(v-> v.isInstalled(context));
+    public boolean isInstalled(Context context) {
+        return iterVoices().anyMatch(v -> v.isInstalled(context));
     }
 }

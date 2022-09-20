@@ -20,10 +20,10 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-public final class VoiceViewHolder extends RecyclerView.ViewHolder
-{
+public final class VoiceViewHolder extends RecyclerView.ViewHolder {
     public final TextView nameView;
     public final TextView versionView;
     public final TextView attribView;
@@ -31,15 +31,14 @@ public final class VoiceViewHolder extends RecyclerView.ViewHolder
     public final ImageButton actionButton;
     public final ImageButton playButton;
 
-    public VoiceViewHolder(View v)
-    {
+    public VoiceViewHolder(View v) {
         super(v);
-        nameView=v.findViewById(R.id.voice);
-        versionView=v.findViewById(R.id.version);
-        attribView=v.findViewById(R.id.attrib);
+        nameView = v.findViewById(R.id.voice);
+        versionView = v.findViewById(R.id.version);
+        attribView = v.findViewById(R.id.attrib);
         attribView.setMovementMethod(LinkMovementMethod.getInstance());
-        progressBar=v.findViewById(R.id.progress);
-        actionButton=v.findViewById(R.id.action);
-        playButton=v.findViewById(R.id.play);
-}
+        progressBar = v.findViewById(R.id.progress);
+        actionButton = v.findViewById(R.id.action);
+        playButton = v.findViewById(R.id.play);
+    }
 }

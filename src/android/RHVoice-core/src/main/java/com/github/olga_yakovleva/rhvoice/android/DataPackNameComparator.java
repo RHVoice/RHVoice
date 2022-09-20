@@ -18,18 +18,15 @@ package com.github.olga_yakovleva.rhvoice.android;
 import java.util.Comparator;
 import java.text.Collator;
 
-final class DataPackNameComparator<T extends DataPack> implements Comparator<T>
-{
+final class DataPackNameComparator<T extends DataPack> implements Comparator<T> {
     private final Collator col;
 
-    public DataPackNameComparator()
-    {
-        col=Collator.getInstance();
+    public DataPackNameComparator() {
+        col = Collator.getInstance();
         col.setStrength(Collator.PRIMARY);
-}
+    }
 
-    public int compare(T p1,T p2)
-    {
-        return col.compare(p1.toString(),p2.toString());
-}
+    public int compare(T p1, T p2) {
+        return col.compare(p1.toString(), p2.toString());
+    }
 }

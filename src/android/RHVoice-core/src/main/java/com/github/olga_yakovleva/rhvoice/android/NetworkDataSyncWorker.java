@@ -17,27 +17,24 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 import android.util.Log;
+
 import androidx.work.WorkerParameters;
 
-public class NetworkDataSyncWorker extends DataSyncWorker
-{
+public class NetworkDataSyncWorker extends DataSyncWorker {
     @Override
-    public boolean isConnected()
-    {
+    public boolean isConnected() {
         return true;
-}
+    }
 
-    public NetworkDataSyncWorker(Context context,WorkerParameters params)
-    {
-        super(context,params);
-}
+    public NetworkDataSyncWorker(Context context, WorkerParameters params) {
+        super(context, params);
+    }
 
     @Override
-    protected Result doWork(DataPack p)
-    {
-        boolean done=doSync(p);
-        if(BuildConfig.DEBUG)
-            Log.v(TAG,"Network download of "+p.getId()+" finished with result "+done);
-        return done?Result.success():Result.retry();
-}
+    protected Result doWork(DataPack p) {
+        boolean done = doSync(p);
+        if (BuildConfig.DEBUG)
+            Log.v(TAG, "Network download of " + p.getId() + " finished with result " + done);
+        return done ? Result.success() : Result.retry();
+    }
 }

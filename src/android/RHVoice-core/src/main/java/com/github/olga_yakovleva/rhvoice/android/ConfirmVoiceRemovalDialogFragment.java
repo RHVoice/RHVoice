@@ -18,82 +18,73 @@ package com.github.olga_yakovleva.rhvoice.android;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFragment
-{
-    public interface Listener
-    {
-        public void onConfirmVoiceRemovalResponse(VoicePack voice,boolean response);
-}
+public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFragment {
+    public interface Listener {
+        public void onConfirmVoiceRemovalResponse(VoicePack voice, boolean response);
+    }
 
-    private static final String ARG_LANGUAGE="language";
-    private static final String ARG_VOICE="voice";
+    private static final String ARG_LANGUAGE = "language";
+    private static final String ARG_VOICE = "voice";
 
     private VoicePack voice;
 
-    private void onResponse(boolean response)
-    {
-        if(voice==null)
+    private void onResponse(boolean response) {
+        if (voice == null)
             return;
-        ((Listener)getActivity()).onConfirmVoiceRemovalResponse(voice,response);
+        ((Listener) getActivity()).onConfirmVoiceRemovalResponse(voice, response);
     }
 
-    private class ClickListener implements DialogInterface.OnClickListener
-    {
+    private class ClickListener implements DialogInterface.OnClickListener {
         private final boolean response;
 
-        public ClickListener(boolean response)
-        {
-            this.response=response;
-}
+        public ClickListener(boolean response) {
+            this.response = response;
+        }
 
         @Override
-        public void onClick(DialogInterface dialog,int id)
-        {
+        public void onClick(DialogInterface dialog, int id) {
             onResponse(response);
-}
-}
+        }
+    }
 
     @Override
-    public void onCreate(Bundle state)
-    {
+    public void onCreate(Bundle state) {
         super.onCreate(state);
-        Bundle args=getArguments();
-        String languageId=args.getString(ARG_LANGUAGE);
-        String voiceId=args.getString(ARG_VOICE);
-        LanguagePack language=Repository.get().createDataManager().getLanguageById(languageId);
-        if(language!=null)
-            voice=language.findVoiceById(voiceId);
-}
+        Bundle args = getArguments();
+        String languageId = args.getString(ARG_LANGUAGE);
+        String voiceId = args.getString(ARG_VOICE);
+        LanguagePack language = Repository.get().createDataManager().getLanguageById(languageId);
+        if (language != null)
+            voice = language.findVoiceById(voiceId);
+    }
 
     @Override
-    public Dialog onCreateDialog(Bundle state)
-    {
-        AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
-        if(voice!=null)
+    public Dialog onCreateDialog(Bundle state) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        if (voice != null)
             builder.setTitle(voice.getName());
         builder.setMessage(R.string.voice_remove_question);
-        builder.setPositiveButton(android.R.string.ok,this.new ClickListener(true));
-        builder.setNegativeButton(android.R.string.cancel,this.new ClickListener(false));
+        builder.setPositiveButton(android.R.string.ok, this.new ClickListener(true));
+        builder.setNegativeButton(android.R.string.cancel, this.new ClickListener(false));
         return builder.create();
-}
+    }
 
     @Override
-    public void onCancel(DialogInterface dialog)
-    {
+    public void onCancel(DialogInterface dialog) {
         onResponse(false);
-}
+    }
 
-    public static void show(AppCompatActivity activity,VoicePack voice)
-    {
-        Bundle args=new Bundle();
-        args.putString(ARG_LANGUAGE,voice.getLanguage().getId());
-        args.putString(ARG_VOICE,voice.getId());
-        ConfirmVoiceRemovalDialogFragment frag=new ConfirmVoiceRemovalDialogFragment();
+    public static void show(AppCompatActivity activity, VoicePack voice) {
+        Bundle args = new Bundle();
+        args.putString(ARG_LANGUAGE, voice.getLanguage().getId());
+        args.putString(ARG_VOICE, voice.getId());
+        ConfirmVoiceRemovalDialogFragment frag = new ConfirmVoiceRemovalDialogFragment();
         frag.setArguments(args);
-        frag.show(activity.getSupportFragmentManager(),"confirm_voice_removal");
-}
+        frag.show(activity.getSupportFragmentManager(), "confirm_voice_removal");
+    }
 }

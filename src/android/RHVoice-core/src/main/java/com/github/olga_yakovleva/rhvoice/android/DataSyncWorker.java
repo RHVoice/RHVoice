@@ -17,94 +17,81 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 import android.content.Intent;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.WorkerParameters;
 
-public class DataSyncWorker extends DataWorker implements IDataSyncCallback
-{
-    public static final String ACTION_VOICE_DOWNLOADED="com.github.olga_yakovleva.rhvoice.android.action.voice_downloaded";
-    public static final String ACTION_VOICE_INSTALLED="com.github.olga_yakovleva.rhvoice.android.action.voice_installed";
-    public static final String ACTION_VOICE_REMOVED="com.github.olga_yakovleva.rhvoice.android.action.voice_removed";
-    public static final String ACTION_LANGUAGE_INSTALLED="org.rhvoice.action.voice_installed";
-    public static final String ACTION_LANGUAGE_REMOVED="org.rhvoice.action.voice_removed";
+public class DataSyncWorker extends DataWorker implements IDataSyncCallback {
+    public static final String ACTION_VOICE_DOWNLOADED = "com.github.olga_yakovleva.rhvoice.android.action.voice_downloaded";
+    public static final String ACTION_VOICE_INSTALLED = "com.github.olga_yakovleva.rhvoice.android.action.voice_installed";
+    public static final String ACTION_VOICE_REMOVED = "com.github.olga_yakovleva.rhvoice.android.action.voice_removed";
+    public static final String ACTION_LANGUAGE_INSTALLED = "org.rhvoice.action.voice_installed";
+    public static final String ACTION_LANGUAGE_REMOVED = "org.rhvoice.action.voice_removed";
 
-    public boolean isConnected()
-    {
+    public boolean isConnected() {
         return false;
-}
+    }
 
-    public void onLanguageDownloadStart(LanguagePack language)
-    {
+    public void onLanguageDownloadStart(LanguagePack language) {
 
-}
+    }
 
-    public void onLanguageDownloadDone(LanguagePack language)
-    {
+    public void onLanguageDownloadDone(LanguagePack language) {
 
-}
+    }
 
-    public void onLanguageInstallation(LanguagePack language)
-    {
-        Intent event=new Intent(ACTION_LANGUAGE_INSTALLED);
-        event.putExtra("name",language.getName());
+    public void onLanguageInstallation(LanguagePack language) {
+        Intent event = new Intent(ACTION_LANGUAGE_INSTALLED);
+        event.putExtra("name", language.getName());
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
-}
+    }
 
-    public void onLanguageRemoval(LanguagePack language)
-    {
-        Intent event=new Intent(ACTION_LANGUAGE_REMOVED);
-        event.putExtra("name",language.getName());
+    public void onLanguageRemoval(LanguagePack language) {
+        Intent event = new Intent(ACTION_LANGUAGE_REMOVED);
+        event.putExtra("name", language.getName());
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
-}
+    }
 
-    public void onVoiceDownloadStart(VoicePack voice)
-    {
+    public void onVoiceDownloadStart(VoicePack voice) {
 
-}
+    }
 
-    public void onVoiceDownloadDone(VoicePack voice)
-    {
-        Intent event=new Intent(ACTION_VOICE_DOWNLOADED);
-        event.putExtra("name",voice.getName());
+    public void onVoiceDownloadDone(VoicePack voice) {
+        Intent event = new Intent(ACTION_VOICE_DOWNLOADED);
+        event.putExtra("name", voice.getName());
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
-}
+    }
 
-    public void onVoiceInstallation(VoicePack voice)
-    {
-        Intent event=new Intent(ACTION_VOICE_INSTALLED);
-        event.putExtra("name",voice.getName());
+    public void onVoiceInstallation(VoicePack voice) {
+        Intent event = new Intent(ACTION_VOICE_INSTALLED);
+        event.putExtra("name", voice.getName());
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
-}
+    }
 
-    public void onVoiceRemoval(VoicePack voice)
-    {
-        Intent event=new Intent(ACTION_VOICE_REMOVED);
-        event.putExtra("name",voice.getName());
+    public void onVoiceRemoval(VoicePack voice) {
+        Intent event = new Intent(ACTION_VOICE_REMOVED);
+        event.putExtra("name", voice.getName());
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(event);
-}
+    }
 
-    public final boolean isTaskStopped()
-    {
+    public final boolean isTaskStopped() {
         return isStopped();
-}
+    }
 
-    public DataSyncWorker(Context context,WorkerParameters params)
-    {
-        super(context,params);
-}
+    public DataSyncWorker(Context context, WorkerParameters params) {
+        super(context, params);
+    }
 
-    protected final boolean doSync(DataPack p)
-    {
-        boolean done=p.sync(getApplicationContext(),this);
-        if(done)
+    protected final boolean doSync(DataPack p) {
+        boolean done = p.sync(getApplicationContext(), this);
+        if (done)
             LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(RHVoiceService.ACTION_CHECK_DATA));
         return done;
-}
+    }
 
     @Override
-    protected Result doWork(DataPack p)
-    {
+    protected Result doWork(DataPack p) {
         doSync(p);
-        return (p.getSyncFlag(getApplicationContext())!=SyncFlags.LOCAL)?Result.success(getInputData()):Result.retry();
-}
+        return (p.getSyncFlag(getApplicationContext()) != SyncFlags.LOCAL) ? Result.success(getInputData()) : Result.retry();
+    }
 }
