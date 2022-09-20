@@ -1,130 +1,132 @@
 apply plugin: 'com.android.application'
 
-ext.lifecycle_version = "2.5.1"
-
-ext.major_version=1
-ext.minor_version=9
-ext.revision_number=0
+ext.major_version = 1
+ext.minor_version = 9
+ext.revision_number = 0
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 
-ext.base_pkg_dir_url='https://rhvoice.org/download/packages-%s.json'
-ext.pkg_dir_url_def_fmt=/-DPKG_DIR_URL="\"%s\""/
+ext.base_pkg_dir_url = 'https://rhvoice.org/download/packages-%s.json'
+ext.pkg_dir_url_def_fmt = /-DPKG_DIR_URL="\"%s\""/
 
 task BoostIncludes(type: Exec) {
-     workingDir '../../..'
-     commandLine 'scons', 'external/libs/boost/include/boost'
+    workingDir '../../..'
+    commandLine 'scons', 'external/libs/boost/include/boost'
 }
 
 android {
-compileOptions {
-coreLibraryDesugaringEnabled true
-sourceCompatibility JavaVersion.VERSION_11
-targetCompatibility JavaVersion.VERSION_11
-}
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
 
-compileSdk myCompileSdkVersion
-buildToolsVersion myBuildToolsVersion
-ndkVersion myNdkVersion
-namespace "com.github.olga_yakovleva.rhvoice.android"
+    compileSdk myCompileSdkVersion
+    buildToolsVersion myBuildToolsVersion
+    ndkVersion myNdkVersion
+    namespace "com.github.olga_yakovleva.rhvoice.android"
 
-buildFeatures {
-prefab true
-}
+    buildFeatures {
+        prefab true
+    }
 
-defaultConfig {
-multiDexEnabled true
-minSdk myMinSdkVersion
-targetSdk myTargetSdkVersion
-applicationId "com.github.olga_yakovleva.rhvoice.android"
-versionName "${major_version}.${minor_version}.${revision_number}"
-ndk{
-abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
-}
-externalNativeBuild {
-ndkBuild {
-arguments 'V=1'
-          cppFlags = ['-fexceptions', '-frtti', '-std=c++11']
-}
-}
-}
+    defaultConfig {
+        multiDexEnabled true
+        minSdk myMinSdkVersion
+        targetSdk myTargetSdkVersion
+        applicationId "com.github.olga_yakovleva.rhvoice.android"
+        versionName "${major_version}.${minor_version}.${revision_number}"
+        ndk {
+            abiFilters 'armeabi-v7a', 'x86', 'arm64-v8a', 'x86_64'
+        }
+        externalNativeBuild {
+            ndkBuild {
+                arguments 'V=1'
+                cppFlags = ['-fexceptions', '-frtti', '-std=c++11']
+            }
+        }
+    }
 
-if(rootProject.signRelease) {
-signingConfigs {
-release {
-storeFile file(rootProject.property("RHVoice.keyStore"))
-storePassword rootProject.property("RHVoice.keyStorePassword")
-keyAlias rootProject.property("RHVoice.keyAlias")
-keyPassword rootProject.property("RHVoice.keyPassword")
-}
-}
-}
+    if (rootProject.signRelease) {
+        signingConfigs {
+            release {
+                storeFile file(rootProject.property("RHVoice.keyStore"))
+                storePassword rootProject.property("RHVoice.keyStorePassword")
+                keyAlias rootProject.property("RHVoice.keyAlias")
+                keyPassword rootProject.property("RHVoice.keyPassword")
+            }
+        }
+    }
 
-externalNativeBuild {
-ndkBuild {
-path 'src/main/jni/Android.mk'
-}
-}
+    externalNativeBuild {
+        ndkBuild {
+            path 'src/main/jni/Android.mk'
+        }
+    }
 
-buildTypes {
-release {
-if(rootProject.signRelease) {
-signingConfig signingConfigs.release
-}
-minifyEnabled true
-shrinkResources true
-proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-}
-}
+    buildTypes {
+        release {
+            if (rootProject.signRelease) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
 
-flavorDimensions 'dir'
+    flavorDimensions 'dir'
 
-                 productFlavors {
-                 stable {
-                 dimension 'dir'
-                 versionCode = baseVersionCode
-}
+    productFlavors {
+        stable {
+            dimension 'dir'
+            versionCode = baseVersionCode
+        }
 
         alpha {
-        dimension 'dir'
-        versionCode = baseVersionCode + 5
-        versionNameSuffix '-alpha'
-        externalNativeBuild {
-        ndkBuild {
-        cppFlags+=[sprintf(pkg_dir_url_def_fmt, sprintf(base_pkg_dir_url, "latest"))]
-        }
-        }
+            dimension 'dir'
+            versionCode = baseVersionCode + 5
+            versionNameSuffix '-alpha'
+            externalNativeBuild {
+                ndkBuild {
+                    cppFlags += [sprintf(pkg_dir_url_def_fmt, sprintf(base_pkg_dir_url, "latest"))]
                 }
+            }
+        }
 
         dev {
-        dimension 'dir'
-        versionCode = baseVersionCode + 9
-        versionNameSuffix '-dev'
-        externalNativeBuild {
-        ndkBuild {
-        cppFlags+=[sprintf(pkg_dir_url_def_fmt, findProperty('RHVoice.devPkgDirUrl')?:sprintf(base_pkg_dir_url, "dev"))]
-        }
-        }
+            dimension 'dir'
+            versionCode = baseVersionCode + 9
+            versionNameSuffix '-dev'
+            externalNativeBuild {
+                ndkBuild {
+                    cppFlags += [sprintf(pkg_dir_url_def_fmt, findProperty('RHVoice.devPkgDirUrl') ?: sprintf(base_pkg_dir_url, "dev"))]
                 }
-}
+            }
+        }
+    }
 }
 
 dependencies {
-    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
+
+    def lifecycle_version = "2.5.1"
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    implementation 'androidx.preference:preference:1.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.work:work-runtime:2.7.1'
-    implementation 'androidx.preference:preference:1.2.0'
-    implementation 'org.conscrypt:conscrypt-android:2.5.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation "androidx.documentfile:documentfile:1.0.1"
+
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.17.1'
     implementation 'com.google.guava:guava:31.1-android'
-implementation("com.squareup.moshi:moshi:1.14.0")
-implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
-implementation "androidx.lifecycle:lifecycle-service:$lifecycle_version"
-implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-implementation 'io.github.vvb2060.ndk:curl:7.85.1'
-implementation 'com.google.android.exoplayer:exoplayer-core:2.17.1'
-coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    implementation 'com.squareup.moshi:moshi:1.14.0'
+    implementation 'io.github.vvb2060.ndk:curl:7.85.1'
+    implementation 'org.conscrypt:conscrypt-android:2.5.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
 
 preBuild.dependsOn BoostIncludes

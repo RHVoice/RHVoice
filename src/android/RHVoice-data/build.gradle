@@ -1,111 +1,111 @@
 apply plugin: 'com.android.application'
 
-ext.myDataDir=file("../../../data")
-ext.myLanguagesDir=new File(myDataDir,"languages")
-ext.myVoicesDir=new File(myDataDir,"voices")
-ext.myExcludedNames=["CMakeLists.txt"]
-ext.myLanguageNames=myLanguagesDir.list() - myExcludedNames
-ext.myVoiceNames=myVoicesDir.list() - myExcludedNames
+ext.myDataDir = file("../../../data")
+ext.myLanguagesDir = new File(myDataDir, "languages")
+ext.myVoicesDir = new File(myDataDir, "voices")
+ext.myExcludedNames = ["CMakeLists.txt"]
+ext.myLanguageNames = myLanguagesDir.list() - myExcludedNames
+ext.myVoiceNames = myVoicesDir.list() - myExcludedNames
 
-def getDataItemSpec(type,baseDir,dirName) {
-def spec=["type":type,"dirName":dirName]
-spec["inDataDir"]=new File(baseDir,dirName)
-def infoFile=new File(spec["inDataDir"],"${type}.info")
-def reader=new BufferedReader(new InputStreamReader(new FileInputStream(infoFile),"utf-8"))
-def props=new Properties()
-props.load(reader)
-reader.close()
-if(!props.containsKey("file_name")) {
-                                    props.setProperty("file_name",props.getProperty("name"));
-}
-if(!props.containsKey("android_id")) {
-                                     props.setProperty("android_id",props.getProperty("name").replace("-","_"));
-}
-spec["outDataDir"]=new File(new File(new File(project.buildDir,"data"),"${type}s"),props.getProperty("file_name"))
-spec["resDir"]=new File(spec["outDataDir"],"res")
-spec["rawDir"]=new File(spec["resDir"],"raw")
-spec["format"]=Integer.parseInt(props.getProperty("format"))
-spec["revision"]=Integer.parseInt(props.getProperty("revision"))
-spec["id"]=props.getProperty("android_id")
-spec["file_name"]=props.getProperty("file_name")
-if(type.equals("voice")) {
-spec["display_name"]=props.getProperty("name")
-spec["language"]=props.getProperty("language")
-spec["display_language"]=spec["language"].replace("-"," ")
-} else {
-spec["display_name"]=props.getProperty("name").replace("-"," ")
-}
-spec["versionCode"]=1000*spec["format"]+10*spec["revision"]
-spec["versionName"]="${spec['format']}.${spec['revision']}"
-spec["package"]="com.github.olga_yakovleva.rhvoice.android.${type}.${spec['id'].toLowerCase()}"
-spec["flavor"]=type.equals("voice")?"voice-${spec['language']}-${spec['file_name']}":"language-${spec['file_name']}"
-spec["appName"]=type.equals("voice")?"RHVoice ${spec['display_language']} ${spec['display_name']}":"RHVoice ${spec['display_name']}"
-spec["task"]="pack_${type}_${spec['id']}"
-return spec
+def getDataItemSpec(type, baseDir, dirName) {
+    def spec = ["type": type, "dirName": dirName]
+    spec["inDataDir"] = new File(baseDir, dirName)
+    def infoFile = new File(spec["inDataDir"], "${type}.info")
+    def reader = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile), "utf-8"))
+    def props = new Properties()
+    props.load(reader)
+    reader.close()
+    if (!props.containsKey("file_name")) {
+        props.setProperty("file_name", props.getProperty("name"));
+    }
+    if (!props.containsKey("android_id")) {
+        props.setProperty("android_id", props.getProperty("name").replace("-", "_"));
+    }
+    spec["outDataDir"] = new File(new File(new File(project.buildDir, "data"), "${type}s"), props.getProperty("file_name"))
+    spec["resDir"] = new File(spec["outDataDir"], "res")
+    spec["rawDir"] = new File(spec["resDir"], "raw")
+    spec["format"] = Integer.parseInt(props.getProperty("format"))
+    spec["revision"] = Integer.parseInt(props.getProperty("revision"))
+    spec["id"] = props.getProperty("android_id")
+    spec["file_name"] = props.getProperty("file_name")
+    if (type.equals("voice")) {
+        spec["display_name"] = props.getProperty("name")
+        spec["language"] = props.getProperty("language")
+        spec["display_language"] = spec["language"].replace("-", " ")
+    } else {
+        spec["display_name"] = props.getProperty("name").replace("-", " ")
+    }
+    spec["versionCode"] = 1000 * spec["format"] + 10 * spec["revision"]
+    spec["versionName"] = "${spec['format']}.${spec['revision']}"
+    spec["package"] = "com.github.olga_yakovleva.rhvoice.android.${type}.${spec['id'].toLowerCase()}"
+    spec["flavor"] = type.equals("voice") ? "voice-${spec['language']}-${spec['file_name']}" : "language-${spec['file_name']}"
+    spec["appName"] = type.equals("voice") ? "RHVoice ${spec['display_language']} ${spec['display_name']}" : "RHVoice ${spec['display_name']}"
+    spec["task"] = "pack_${type}_${spec['id']}"
+    return spec
 }
 
-ext.myData=[]
+ext.myData = []
 
-myLanguageNames.each {languageName -> myData.add(getDataItemSpec("language",myLanguagesDir,languageName))}
-myVoiceNames.each {voiceName -> myData.add(getDataItemSpec("voice",myVoicesDir,voiceName))}
+myLanguageNames.each { languageName -> myData.add(getDataItemSpec("language", myLanguagesDir, languageName)) }
+myVoiceNames.each { voiceName -> myData.add(getDataItemSpec("voice", myVoicesDir, voiceName)) }
 
-myData.each {spec ->
-task "${spec['task']}" (type: Zip) {
-description="Creates data archive"
-archiveFileName="data.zip"
-destinationDirectory=spec["rawDir"]
-from spec["inDataDir"]
-}
+myData.each { spec ->
+    task "${spec['task']}"(type: Zip) {
+        description = "Creates data archive"
+        archiveFileName = "data.zip"
+        destinationDirectory = spec["rawDir"]
+        from spec["inDataDir"]
+    }
 }
 
 android {
-compileSdk myCompileSdkVersion
-buildToolsVersion myBuildToolsVersion
-namespace "com.github.olga_yakovleva.rhvoice.android"
+    compileSdk myCompileSdkVersion
+    buildToolsVersion myBuildToolsVersion
+    namespace "com.github.olga_yakovleva.rhvoice.android"
 
-defaultConfig {
-minSdk myMinSdkVersion
-targetSdk myTargetSdkVersion
+    defaultConfig {
+        minSdk myMinSdkVersion
+        targetSdk myTargetSdkVersion
+    }
+
+    flavorDimensions "package"
+
+    productFlavors {
+        myData.each { spec ->
+            "${spec['flavor']}" {
+                applicationId spec["package"]
+                versionCode spec["versionCode"]
+                versionName spec["versionName"]
+                resValue "string", "app_name", spec["appName"]
+                dimension "package"
+            }
+        }
+    }
+
+    myData.each { spec ->
+        sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
+    }
+
+    if (rootProject.signRelease) {
+        signingConfigs {
+            release {
+                storeFile file(rootProject.property("RHVoice.keyStore"))
+                storePassword rootProject.property("RHVoice.keyStorePassword")
+                keyAlias rootProject.property("RHVoice.keyAlias")
+                keyPassword rootProject.property("RHVoice.keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (rootProject.signRelease) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
 }
 
-flavorDimensions "package"
-
-productFlavors {
-myData.each {spec ->
-"${spec['flavor']}" {
-applicationId spec["package"]
-versionCode spec["versionCode"]
-versionName spec["versionName"]
-resValue "string","app_name",spec["appName"]
-dimension "package"
-}
-}
-}
-
-myData.each {spec->
-sourceSets.getByName(spec["flavor"]).res.srcDir(spec["resDir"])
-}
-
-if(rootProject.signRelease) {
-signingConfigs {
-release {
-storeFile file(rootProject.property("RHVoice.keyStore"))
-storePassword rootProject.property("RHVoice.keyStorePassword")
-keyAlias rootProject.property("RHVoice.keyAlias")
-keyPassword rootProject.property("RHVoice.keyPassword")
-}
-}
-}
-
-buildTypes {
-release {
-if(rootProject.signRelease) {
-signingConfig signingConfigs.release
-}
-}
-}
-}
-
-myData.each {spec ->
-preBuild.dependsOn tasks.getByName(spec["task"])
+myData.each { spec ->
+    preBuild.dependsOn tasks.getByName(spec["task"])
 }
