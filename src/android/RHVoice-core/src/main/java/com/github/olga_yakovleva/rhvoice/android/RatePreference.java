@@ -17,40 +17,34 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 
-public final class RatePreference extends ProsodyPreference
-{
-    public RatePreference(Context context)
-    {
+public final class RatePreference extends ProsodyPreference {
+    public RatePreference(Context context) {
         super(context);
         setTitle(R.string.speech_rate);
         setDialogTitle(R.string.speech_rate);
-}
+    }
 
     @Override
-    public int getMaxProgress()
-    {
+    public int getMaxProgress() {
         return 250;
-}
+    }
 
     @Override
-    protected int convertFromProgress(int progress)
-    {
-        return (progress+50);
-}
+    protected int convertFromProgress(int progress) {
+        return (progress + 50);
+    }
 
     @Override
-    protected int convertToProgress(int value)
-    {
-        if(value>300)
-            value=300;
-        else if(value<50)
-            value=50;
-        return (value-50);
-}
+    protected int convertToProgress(int value) {
+        if (value > 300)
+            value = 300;
+        else if (value < 50)
+            value = 50;
+        return (value - 50);
+    }
 
     @Override
-    public int getProgressStep()
-    {
+    public int getProgressStep() {
         return 5;
-}
+    }
 }

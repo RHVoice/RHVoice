@@ -31,10 +31,11 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 public class VoiceResource extends TtsResource {
-    public String ctry2code="";
-    public String ctry3code="";
-    public String accent="";
-    public String demoUrl="";
+    public String ctry2code = "";
+    public String ctry3code = "";
+    public String accent = "";
+    public String demoUrl = "";
 
-    public VoiceResource() {}
+    public VoiceResource() {
+    }
 }

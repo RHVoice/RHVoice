@@ -16,36 +16,35 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import androidx.multidex.MultiDexApplication;
+
 import android.util.Log;
+
 import java.security.Provider;
 import java.security.Security;
+
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+
 import org.conscrypt.Conscrypt;
 
-public final class MyApplication extends MultiDexApplication
-{
-    private static final String TAG="RHVoice.MyApplication";
+public final class MyApplication extends MultiDexApplication {
+    private static final String TAG = "RHVoice.MyApplication";
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
-        try
-            {
-                Provider provider=Conscrypt.newProvider();
-                Security.insertProviderAt(provider,1);
-                SSLContext context=SSLContext.getInstance("TLS",provider);
-                context.init(null,null,null);
-                HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
-                if(BuildConfig.DEBUG)
-                    Log.d(TAG,"Replaced default ssl socket factory");
-            }
-        catch(Exception e)
-            {
-                if(BuildConfig.DEBUG)
-                    Log.e(TAG,"Error",e);
-}
+        try {
+            Provider provider = Conscrypt.newProvider();
+            Security.insertProviderAt(provider, 1);
+            SSLContext context = SSLContext.getInstance("TLS", provider);
+            context.init(null, null, null);
+            HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+            if (BuildConfig.DEBUG)
+                Log.d(TAG, "Replaced default ssl socket factory");
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG)
+                Log.e(TAG, "Error", e);
+        }
         Repository.initialize(this);
-}
+    }
 }

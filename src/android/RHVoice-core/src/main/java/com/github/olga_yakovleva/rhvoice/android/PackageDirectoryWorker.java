@@ -16,33 +16,31 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import android.util.Log;
-import android.content.Context ;
+import android.content.Context;
+
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
+
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public final class PackageDirectoryWorker extends ListenableWorker
-{
-    private static final String TAG="RHVoicePackageDirectoryWorker";
+public final class PackageDirectoryWorker extends ListenableWorker {
+    private static final String TAG = "RHVoicePackageDirectoryWorker";
 
-    public PackageDirectoryWorker(Context context, WorkerParameters params)
-    {
+    public PackageDirectoryWorker(Context context, WorkerParameters params) {
         super(context, params);
     }
 
-public ListenableFuture<ListenableWorker.Result> startWork ()
-    {
-        if(BuildConfig.DEBUG)
+    public ListenableFuture<ListenableWorker.Result> startWork() {
+        if (BuildConfig.DEBUG)
             Log.v(TAG, "startWork()");
-        if (!Repository.get().getPackageDirectoryLiveData().hasActiveObservers())
-            {
-                if(BuildConfig.DEBUG)
-                    Log.v(TAG, "Probably idle, don't check now");
-                return Futures.immediateFuture(Result.success());
-            }
-        ListenableFuture<Boolean> ok=Repository.get().refresh();
-        return Futures.transform(ok, r-> r?Result.success():Result.retry(), MoreExecutors.directExecutor());
+        if (!Repository.get().getPackageDirectoryLiveData().hasActiveObservers()) {
+            if (BuildConfig.DEBUG)
+                Log.v(TAG, "Probably idle, don't check now");
+            return Futures.immediateFuture(Result.success());
+        }
+        ListenableFuture<Boolean> ok = Repository.get().refresh();
+        return Futures.transform(ok, r -> r ? Result.success() : Result.retry(), MoreExecutors.directExecutor());
     }
 }

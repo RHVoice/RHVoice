@@ -23,45 +23,38 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 
-public final class SampleTextActivity extends Activity
-{
-    private final String TAG="RHVoiceSampleTextActivity";
+public final class SampleTextActivity extends Activity {
+    private final String TAG = "RHVoiceSampleTextActivity";
 
     @Override
-    public void onCreate(Bundle bundle)
-    {
+    public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        final Intent request=getIntent();
-        String language=request.getStringExtra("language");
-        if(language==null)
-            {
-                Locale locale=Locale.getDefault();
-                language=locale.getISO3Language();
-                if(BuildConfig.DEBUG)
-                    Log.i(TAG,"No language requested, using default language "+language);
+        final Intent request = getIntent();
+        String language = request.getStringExtra("language");
+        if (language == null) {
+            Locale locale = Locale.getDefault();
+            language = locale.getISO3Language();
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "No language requested, using default language " + language);
+        } else {
+            if (BuildConfig.DEBUG)
+                Log.i(TAG, "Should return sample text for " + language);
+        }
+        Resources resources = getResources();
+        String[] languages = resources.getStringArray(R.array.sample_languages);
+        String[] messages = resources.getStringArray(R.array.sample_messages);
+        String message = messages[0];
+        for (int i = 0; i < languages.length; ++i) {
+            if (languages[i].equals(language)) {
+                if (BuildConfig.DEBUG)
+                    Log.i(TAG, "Found sample text for " + language);
+                message = messages[i];
+                break;
             }
-        else
-            {
-                if(BuildConfig.DEBUG)
-                    Log.i(TAG,"Should return sample text for "+language);
-            }
-        Resources resources=getResources();
-        String[] languages=resources.getStringArray(R.array.sample_languages);
-        String[] messages=resources.getStringArray(R.array.sample_messages);
-        String message=messages[0];
-        for(int i=0;i<languages.length;++i)
-            {
-                if(languages[i].equals(language))
-                    {
-                        if(BuildConfig.DEBUG)
-                            Log.i(TAG,"Found sample text for "+language);
-                        message=messages[i];
-                        break;
-                    }
-            }
-        final Intent response=new Intent();
-        response.putExtra("sampleText",message);
-        setResult(RESULT_OK,response);
+        }
+        final Intent response = new Intent();
+        response.putExtra("sampleText", message);
+        setResult(RESULT_OK, response);
         finish();
     }
 }

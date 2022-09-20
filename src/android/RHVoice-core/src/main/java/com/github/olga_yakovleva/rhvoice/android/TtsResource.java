@@ -18,17 +18,18 @@ package com.github.olga_yakovleva.rhvoice.android;
 import android.text.TextUtils;
 
 public class TtsResource {
-    public String name="";
-    public Version version=new Version();
-    public String dataUrl="";
-    public String dataMd5="";
-    public String id=null;
+    public String name = "";
+    public Version version = new Version();
+    public String dataUrl = "";
+    public String dataMd5 = "";
+    public String id = null;
 
-    protected TtsResource() {}
+    protected TtsResource() {
+    }
 
     public final String getId() {
-        if(id!=null)
+        if (id != null)
             return id;
-        return name.toLowerCase().replace("-","_");
+        return name.toLowerCase().replace("-", "_");
     }
 }

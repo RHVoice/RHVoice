@@ -19,14 +19,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.PreferenceDialogFragmentCompat;
 
-public final class ProsodyPreferenceDialogFragment extends PreferenceDialogFragmentCompat implements SeekBar.OnSeekBarChangeListener, View.OnClickListener
-{
-    public static final String TAG="ProsodyPreferenceDialogFragment";
-    private static final String SAVE_STATE_PROGRESS="ProsodyPreferenceDialogFragment.progress";
-    private static final String SAVE_STATE_MAX_PROGRESS="ProsodyPreferenceDialogFragment.maxProgress";
+public final class ProsodyPreferenceDialogFragment extends PreferenceDialogFragmentCompat implements SeekBar.OnSeekBarChangeListener, View.OnClickListener {
+    public static final String TAG = "ProsodyPreferenceDialogFragment";
+    private static final String SAVE_STATE_PROGRESS = "ProsodyPreferenceDialogFragment.progress";
+    private static final String SAVE_STATE_MAX_PROGRESS = "ProsodyPreferenceDialogFragment.maxProgress";
 
     private int progress;
     private int maxProgress;
@@ -36,123 +36,107 @@ public final class ProsodyPreferenceDialogFragment extends PreferenceDialogFragm
     private Button incBtn;
     private Button decBtn;
 
-    public static ProsodyPreferenceDialogFragment newInstance(String key)
-    {
-        ProsodyPreferenceDialogFragment f=new ProsodyPreferenceDialogFragment();
-        Bundle b=new Bundle(1);
-        b.putString(ARG_KEY,key);
+    public static ProsodyPreferenceDialogFragment newInstance(String key) {
+        ProsodyPreferenceDialogFragment f = new ProsodyPreferenceDialogFragment();
+        Bundle b = new Bundle(1);
+        b.putString(ARG_KEY, key);
         f.setArguments(b);
         return f;
-}
+    }
 
-    private ProsodyPreference getProsodyPreference()
-    {
-        return (ProsodyPreference)getPreference();
-}
+    private ProsodyPreference getProsodyPreference() {
+        return (ProsodyPreference) getPreference();
+    }
 
     @Override
-    public void onCreate(Bundle state)
-    {
+    public void onCreate(Bundle state) {
         super.onCreate(state);
-        if(state==null)
-            {
-                ProsodyPreference pref=getProsodyPreference();
-                maxProgress=pref.getMaxProgress();
-                progress=pref.getProgress();
-}
-        else
-            {
-                maxProgress=state.getInt(SAVE_STATE_MAX_PROGRESS,100);
-                progress=state.getInt(SAVE_STATE_PROGRESS,50);
-}
-}
+        if (state == null) {
+            ProsodyPreference pref = getProsodyPreference();
+            maxProgress = pref.getMaxProgress();
+            progress = pref.getProgress();
+        } else {
+            maxProgress = state.getInt(SAVE_STATE_MAX_PROGRESS, 100);
+            progress = state.getInt(SAVE_STATE_PROGRESS, 50);
+        }
+    }
 
     @Override
-    public void onSaveInstanceState(Bundle outState)
-    {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(SAVE_STATE_MAX_PROGRESS,maxProgress);
-        outState.putInt(SAVE_STATE_PROGRESS,progress);
-}
+        outState.putInt(SAVE_STATE_MAX_PROGRESS, maxProgress);
+        outState.putInt(SAVE_STATE_PROGRESS, progress);
+    }
 
     @Override
-    protected void onBindDialogView(View view)
-    {
+    protected void onBindDialogView(View view) {
         super.onBindDialogView(view);
-        slider=view.findViewById(R.id.slider);
+        slider = view.findViewById(R.id.slider);
         slider.setMax(maxProgress);
         slider.setProgress(progress);
         slider.setOnSeekBarChangeListener(this);
-        defBtn=view.findViewById(R.id.def_btn);
+        defBtn = view.findViewById(R.id.def_btn);
         defBtn.setOnClickListener(this);
-        incBtn=view.findViewById(R.id.inc_btn);
+        incBtn = view.findViewById(R.id.inc_btn);
         incBtn.setOnClickListener(this);
-        decBtn=view.findViewById(R.id.dec_btn);
+        decBtn = view.findViewById(R.id.dec_btn);
         decBtn.setOnClickListener(this);
         syncButtonStates(progress);
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder)
-    {
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
         builder.setPositiveButton(null, null);
         builder.setNegativeButton(null, null);
     }
 
     @Override
-    public void onDialogClosed(boolean positiveResult)
-    {
-}
+    public void onDialogClosed(boolean positiveResult) {
+    }
 
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-    {
-        this.progress=progress;
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        this.progress = progress;
         getProsodyPreference().setProgress(progress);
         syncButtonStates(progress);
-}
+    }
 
     @Override
-    public void onStartTrackingTouch (SeekBar seekBar)
-    {
-}
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
 
     @Override
-    public void onStopTrackingTouch (SeekBar seekBar)
-    {
-}
+    public void onStopTrackingTouch(SeekBar seekBar) {
+    }
 
     @Override
-    public void onClick(View view)
-    {
-        if(view.getId()==R.id.def_btn)
-            {
-                slider.setProgress(getProsodyPreference().getDefaultProgress());
-                return;
-}
-        int step=getProsodyPreference().getProgressStep();
-        if(view.getId()==R.id.dec_btn)
-            step=-step;
-        else if(view.getId()!=R.id.inc_btn)
+    public void onClick(View view) {
+        if (view.getId() == R.id.def_btn) {
+            slider.setProgress(getProsodyPreference().getDefaultProgress());
             return;
-        int newProgress=slider.getProgress()+step;
-        if(newProgress<0)
-            newProgress=0;
-        else if(newProgress>getProsodyPreference().getMaxProgress())
-            newProgress=getProsodyPreference().getMaxProgress();
+        }
+        int step = getProsodyPreference().getProgressStep();
+        if (view.getId() == R.id.dec_btn)
+            step = -step;
+        else if (view.getId() != R.id.inc_btn)
+            return;
+        int newProgress = slider.getProgress() + step;
+        if (newProgress < 0)
+            newProgress = 0;
+        else if (newProgress > getProsodyPreference().getMaxProgress())
+            newProgress = getProsodyPreference().getMaxProgress();
         slider.setProgress(newProgress);
-}
+    }
 
-    private void syncButtonStates(int progress)
-    {
-        if(progress>=maxProgress)
+    private void syncButtonStates(int progress) {
+        if (progress >= maxProgress)
             incBtn.setEnabled(false);
-        else if(!incBtn.isEnabled())
+        else if (!incBtn.isEnabled())
             incBtn.setEnabled(true);
-        if(progress<=0)
+        if (progress <= 0)
             decBtn.setEnabled(false);
-        else if(!decBtn.isEnabled())
+        else if (!decBtn.isEnabled())
             decBtn.setEnabled(true);
-}
+    }
 }

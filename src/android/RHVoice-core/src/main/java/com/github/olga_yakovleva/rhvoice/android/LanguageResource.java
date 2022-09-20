@@ -33,22 +33,24 @@ package com.github.olga_yakovleva.rhvoice.android;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableList;
 
 public class LanguageResource extends TtsResource {
-    public String lang2code="";
-    public String lang3code="";
-    public String testMessage="";
-    public List<VoiceResource> voices=ImmutableList.of();
+    public String lang2code = "";
+    public String lang3code = "";
+    public String testMessage = "";
+    public List<VoiceResource> voices = ImmutableList.of();
     public boolean pseudoEnglish;
     public transient Map<String, VoiceResource> voiceIndexById;
     public transient Map<String, VoiceResource> voiceIndexByName;
 
-    public LanguageResource() {}
+    public LanguageResource() {
+    }
 
     public final void index() {
-        voiceIndexById=Maps.uniqueIndex(voices, VoiceResource::getId);
-        voiceIndexByName=Maps.uniqueIndex(voices, r-> r.name);
+        voiceIndexById = Maps.uniqueIndex(voices, VoiceResource::getId);
+        voiceIndexByName = Maps.uniqueIndex(voices, r -> r.name);
     }
 }

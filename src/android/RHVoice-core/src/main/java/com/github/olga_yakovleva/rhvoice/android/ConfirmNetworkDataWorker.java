@@ -17,21 +17,19 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 import android.util.Log;
+
 import androidx.work.WorkerParameters;
 
-public class ConfirmNetworkDataWorker extends DataWorker
-{
-    public ConfirmNetworkDataWorker(Context context,WorkerParameters params)
-    {
-        super(context,params);
-}
+public class ConfirmNetworkDataWorker extends DataWorker {
+    public ConfirmNetworkDataWorker(Context context, WorkerParameters params) {
+        super(context, params);
+    }
 
     @Override
-    protected Result doWork(DataPack p)
-    {
-        boolean confirmed=(p.getSyncFlag(getApplicationContext())==SyncFlags.NETWORK);
-        if(BuildConfig.DEBUG)
-            Log.v(TAG,"Network requirement confirmation result: "+confirmed);
-        return confirmed?Result.success(getInputData()):Result.failure();
-}
+    protected Result doWork(DataPack p) {
+        boolean confirmed = (p.getSyncFlag(getApplicationContext()) == SyncFlags.NETWORK);
+        if (BuildConfig.DEBUG)
+            Log.v(TAG, "Network requirement confirmation result: " + confirmed);
+        return confirmed ? Result.success(getInputData()) : Result.failure();
+    }
 }

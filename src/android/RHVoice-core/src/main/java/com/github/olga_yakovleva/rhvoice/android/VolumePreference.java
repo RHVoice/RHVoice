@@ -17,44 +17,38 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
 
-public final class VolumePreference extends ProsodyPreference
-{
-    public VolumePreference(Context context)
-    {
+public final class VolumePreference extends ProsodyPreference {
+    public VolumePreference(Context context) {
         super(context);
         setTitle(R.string.speech_volume);
         setDialogTitle(R.string.speech_volume);
-}
+    }
 
     @Override
-    public int getMaxProgress()
-    {
+    public int getMaxProgress() {
         return 96;
-}
+    }
 
     @Override
-    protected int convertFromProgress(int progress)
-    {
-        double db=(progress-48)/4.0;
-        double m=Math.pow(10,db/20);
-        return (int)Math.round(m*100);
-}
+    protected int convertFromProgress(int progress) {
+        double db = (progress - 48) / 4.0;
+        double m = Math.pow(10, db / 20);
+        return (int) Math.round(m * 100);
+    }
 
     @Override
-    protected int convertToProgress(int value)
-    {
-        if(value>400)
-            value=400;
-        else if(value<25)
-            value=25;
-        double m=value/100.0;
-        double db=20.0*Math.log10(m);
-        return (int)Math.round((db+12)*4);
-}
+    protected int convertToProgress(int value) {
+        if (value > 400)
+            value = 400;
+        else if (value < 25)
+            value = 25;
+        double m = value / 100.0;
+        double db = 20.0 * Math.log10(m);
+        return (int) Math.round((db + 12) * 4);
+    }
 
     @Override
-    public int getProgressStep()
-    {
+    public int getProgressStep() {
         return 4;
-}
+    }
 }

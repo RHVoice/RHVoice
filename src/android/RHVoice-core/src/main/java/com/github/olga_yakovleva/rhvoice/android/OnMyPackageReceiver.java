@@ -20,15 +20,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public final class OnMyPackageReceiver extends BroadcastReceiver
-{
-    private static final String TAG="RHVoiceOnMyPackageReceiver";
+public final class OnMyPackageReceiver extends BroadcastReceiver {
+    private static final String TAG = "RHVoiceOnMyPackageReceiver";
 
     @Override
-    public void onReceive(Context context,Intent intent)
-    {
-        if(BuildConfig.DEBUG)
-            Log.i(TAG,"My package has been updated");
-        Repository.get().createDataManager().scheduleSync(context,true);
+    public void onReceive(Context context, Intent intent) {
+        if (BuildConfig.DEBUG)
+            Log.i(TAG, "My package has been updated");
+        Repository.get().createDataManager().scheduleSync(context, true);
     }
 }

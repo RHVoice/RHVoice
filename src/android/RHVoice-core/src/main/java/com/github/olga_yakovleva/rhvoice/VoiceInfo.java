@@ -15,40 +15,33 @@
 
 package com.github.olga_yakovleva.rhvoice;
 
-public final class VoiceInfo
-{
-    private String name=null;
+public final class VoiceInfo {
+    private String name = null;
     private String id;
-    private LanguageInfo language=null;
+    private LanguageInfo language = null;
 
-    void setName(String name)
-    {
-        this.name=name;
+    void setName(String name) {
+        this.name = name;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    void setId(String id)
-    {
-        this.id=id;
+    void setId(String id) {
+        this.id = id;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
 
-    void setLanguage(LanguageInfo lang)
-    {
-        language=lang;
+    void setLanguage(LanguageInfo lang) {
+        language = lang;
     }
 
-    public LanguageInfo getLanguage()
-    {
+    public LanguageInfo getLanguage() {
         return language;
     }
 }

@@ -19,58 +19,56 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import com.google.common.collect.FluentIterable;
+
 import java.io.File;
 import java.util.Arrays;
 
-public final class RemoveUserDictDialogFragment extends AppCompatDialogFragment
-{
-    private static final String ARG_LANGUAGE="language";
+public final class RemoveUserDictDialogFragment extends AppCompatDialogFragment {
+    private static final String ARG_LANGUAGE = "language";
     private String languageName;
     private String[] userDicts;
 
-    public void onCreate(Bundle state)
-    {
+    public void onCreate(Bundle state) {
         super.onCreate(state);
-        Bundle args=getArguments();
-        languageName=args.getString(ARG_LANGUAGE);
-        final File[] dictFiles=Config.getLangDictsDir(requireActivity(), languageName).listFiles();
-        if(dictFiles==null)
-            userDicts=new String[]{};
+        Bundle args = getArguments();
+        languageName = args.getString(ARG_LANGUAGE);
+        final File[] dictFiles = Config.getLangDictsDir(requireActivity(), languageName).listFiles();
+        if (dictFiles == null)
+            userDicts = new String[]{};
         else
-            userDicts=FluentIterable.from(dictFiles).filter(f-> f.isFile()).transform(f-> f.getName()).toArray(String.class);
+            userDicts = FluentIterable.from(dictFiles).filter(f -> f.isFile()).transform(f -> f.getName()).toArray(String.class);
         Arrays.sort(userDicts);
-}
+    }
 
     @Override
-    public Dialog onCreateDialog(Bundle state)
-    {
-        AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
+    public Dialog onCreateDialog(Bundle state) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.remove);
         builder.setItems(userDicts, this::onDictSelected);
         return builder.create();
     }
 
-    private void onDictSelected(DialogInterface dialog, int index)
-    {
-        final File dictFile=new File(Config.getLangDictsDir(getActivity(), languageName), userDicts[index]);
+    private void onDictSelected(DialogInterface dialog, int index) {
+        final File dictFile = new File(Config.getLangDictsDir(getActivity(), languageName), userDicts[index]);
         dictFile.delete();
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
     }
 
-    public static void show(FragmentActivity activity, String langName)
-    {
-        if(langName==null)
+    public static void show(FragmentActivity activity, String langName) {
+        if (langName == null)
             return;
-        Bundle args=new Bundle();
-        args.putString(ARG_LANGUAGE,langName);
-        RemoveUserDictDialogFragment frag=new RemoveUserDictDialogFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_LANGUAGE, langName);
+        RemoveUserDictDialogFragment frag = new RemoveUserDictDialogFragment();
         frag.setArguments(args);
         frag.show(activity.getSupportFragmentManager(), "remove_user_dict");
-}
+    }
 }

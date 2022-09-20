@@ -16,50 +16,50 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
+
 import androidx.fragment.app.ListFragment;
 import androidx.appcompat.app.ActionBar;
+
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
 import java.util.ArrayList;
+
 import com.google.common.collect.Ordering;
 
-public final class AvailableLanguagesFragment extends ListFragment
-{
+public final class AvailableLanguagesFragment extends ListFragment {
     private ArrayAdapter<VoiceAccent> accents;
     private DataManager dm;
 
-    public interface Listener
-    {
+    public interface Listener {
         public void onAccentSelected(VoiceAccent accent);
-}
+    }
 
     @Override
-    public void onActivityCreated(Bundle state)
-    {
+    public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
-        accents=new ArrayAdapter<VoiceAccent>(getActivity(),android.R.layout.simple_list_item_1);
+        accents = new ArrayAdapter<VoiceAccent>(getActivity(), android.R.layout.simple_list_item_1);
         setListAdapter(accents);
-        dm=new DataManager();
+        dm = new DataManager();
         Repository.get().getPackageDirectoryLiveData().observe(getViewLifecycleOwner(), this::onPackageDirectory);
-}
+    }
 
     @Override
-    public void onListItemClick(ListView lv,View v,int pos,long id)
-    {
-        VoiceAccent accent=(VoiceAccent)lv.getItemAtPosition(pos);
-        ((Listener)getActivity()).onAccentSelected(accent);
-}
+    public void onListItemClick(ListView lv, View v, int pos, long id) {
+        VoiceAccent accent = (VoiceAccent) lv.getItemAtPosition(pos);
+        ((Listener) getActivity()).onAccentSelected(accent);
+    }
 
     @Override
-    public void onStart()
-    {
+    public void onStart() {
         super.onStart();
-        ActionBar actionBar=((AppCompatActivity)getActivity()).getSupportActionBar();
-        if(actionBar!=null)
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null)
             actionBar.setSubtitle(R.string.languages);
-}
+    }
 
     private void onPackageDirectory(PackageDirectory dir) {
         dm.setPackageDirectory(dir);
@@ -67,6 +67,6 @@ public final class AvailableLanguagesFragment extends ListFragment
         accents.clear();
         accents.addAll(dm.getAccents());
         accents.sort(Ordering.usingToString());
-                accents.notifyDataSetChanged();
+        accents.notifyDataSetChanged();
     }
 }

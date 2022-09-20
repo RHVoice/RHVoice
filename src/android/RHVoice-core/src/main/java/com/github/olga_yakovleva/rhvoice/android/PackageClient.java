@@ -17,13 +17,12 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
-    import java.io.File;
 
-final class PackageClient
-{
-    public static final String getPath(Context context)
-    {
-        File dir=context.getDir("packages", 0);
+import java.io.File;
+
+final class PackageClient {
+    public static final String getPath(Context context) {
+        File dir = context.getDir("packages", 0);
         if (!dir.isDirectory()) {
             dir.mkdirs();
         }

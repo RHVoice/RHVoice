@@ -18,33 +18,33 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.app.IntentService;
 import android.content.Intent;
+
 import androidx.documentfile.provider.DocumentFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.FileOutputStream;
+
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-public final class ImportConfigService extends IntentService
-{
-    public static final String ACTION_IMPORT_USER_DICT="org.rhvoice.action.IMPORT_USER_DICT";
-    public static final String ACTION_IMPORT_CONFIG_FILE="org.rhvoice.action.IMPORT_CONFIG_FILE";
-    public static final String EXTRA_LANGUAGE="language";
+public final class ImportConfigService extends IntentService {
+    public static final String ACTION_IMPORT_USER_DICT = "org.rhvoice.action.IMPORT_USER_DICT";
+    public static final String ACTION_IMPORT_CONFIG_FILE = "org.rhvoice.action.IMPORT_CONFIG_FILE";
+    public static final String EXTRA_LANGUAGE = "language";
 
-    public ImportConfigService()
-    {
+    public ImportConfigService() {
         super("RHVoice.ImportConfigService");
     }
 
-    private void importUserDict(Intent intent)
-    {
-        final DocumentFile inFile=DocumentFile.fromSingleUri(this, intent.getData());
-        final String lang=intent.getStringExtra(EXTRA_LANGUAGE);
-        final File outDir=Config.getLangDictsDir(this, lang);
+    private void importUserDict(Intent intent) {
+        final DocumentFile inFile = DocumentFile.fromSingleUri(this, intent.getData());
+        final String lang = intent.getStringExtra(EXTRA_LANGUAGE);
+        final File outDir = Config.getLangDictsDir(this, lang);
         outDir.mkdirs();
-        final File outFile=new File(outDir, inFile.getName());
-        try(InputStream in=getContentResolver().openInputStream(intent.getData());
-            FileOutputStream out=new FileOutputStream(outFile)) {
+        final File outFile = new File(outDir, inFile.getName());
+        try (InputStream in = getContentResolver().openInputStream(intent.getData());
+             FileOutputStream out = new FileOutputStream(outFile)) {
             DataPack.copyBytes(in, out, null);
         } catch (IOException e) {
             outFile.delete();
@@ -53,13 +53,12 @@ public final class ImportConfigService extends IntentService
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
     }
 
-    private void importConfigFile(Intent intent)
-    {
-        final DocumentFile inFile=DocumentFile.fromSingleUri(this, intent.getData());
-        final File outFile=Config.getConfigFile(this);
+    private void importConfigFile(Intent intent) {
+        final DocumentFile inFile = DocumentFile.fromSingleUri(this, intent.getData());
+        final File outFile = Config.getConfigFile(this);
         outFile.getParentFile().mkdirs();
-        try(InputStream in=getContentResolver().openInputStream(intent.getData());
-            FileOutputStream out=new FileOutputStream(outFile)) {
+        try (InputStream in = getContentResolver().openInputStream(intent.getData());
+             FileOutputStream out = new FileOutputStream(outFile)) {
             DataPack.copyBytes(in, out, null);
         } catch (IOException e) {
             outFile.delete();
@@ -69,17 +68,16 @@ public final class ImportConfigService extends IntentService
     }
 
     @Override
-    protected void onHandleIntent(Intent intent)
-    {
+    protected void onHandleIntent(Intent intent) {
         switch (intent.getAction()) {
-        case ACTION_IMPORT_USER_DICT:
-            importUserDict(intent);
-            break;
-        case ACTION_IMPORT_CONFIG_FILE:
-            importConfigFile(intent);
-            break;
-        default:
-            break;
+            case ACTION_IMPORT_USER_DICT:
+                importUserDict(intent);
+                break;
+            case ACTION_IMPORT_CONFIG_FILE:
+                importConfigFile(intent);
+                break;
+            default:
+                break;
         }
     }
 }

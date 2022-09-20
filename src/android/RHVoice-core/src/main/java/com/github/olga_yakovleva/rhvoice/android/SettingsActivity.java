@@ -17,48 +17,44 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
-public final class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback
-{
+public final class SettingsActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
     @Override
-    public void onCreate(Bundle state)
-    {
+    public void onCreate(Bundle state) {
         super.onCreate(state);
         setContentView(R.layout.frame);
-        if(state==null)
-            {
-                getSupportFragmentManager().beginTransaction().replace(R.id.frame,new SettingsFragment(),SettingsFragment.NAME).commit();
-            }
+        if (state == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, new SettingsFragment(), SettingsFragment.NAME).commit();
+        }
     }
 
     @Override
-    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,PreferenceScreen pref)
-    {
-        String key=pref.getKey();
-        if(key==null)
+    public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref) {
+        String key = pref.getKey();
+        if (key == null)
             throw new IllegalStateException();
-        Bundle args=new Bundle();
-        args.putString(SettingsFragment.ARG_LANGUAGE_KEY,key);
-        SettingsFragment frag=new SettingsFragment();
+        Bundle args = new Bundle();
+        args.putString(SettingsFragment.ARG_LANGUAGE_KEY, key);
+        SettingsFragment frag = new SettingsFragment();
         frag.setArguments(args);
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame,frag,key).addToBackStack(null).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame, frag, key).addToBackStack(null).commit();
         return true;
-}
+    }
 
     @Override
-    public boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller,Preference pref)
-    {
-        if(!(pref instanceof ProsodyPreference))
+    public boolean onPreferenceDisplayDialog(PreferenceFragmentCompat caller, Preference pref) {
+        if (!(pref instanceof ProsodyPreference))
             return false;
-        if(getSupportFragmentManager().findFragmentByTag(ProsodyPreferenceDialogFragment.TAG)!=null)
+        if (getSupportFragmentManager().findFragmentByTag(ProsodyPreferenceDialogFragment.TAG) != null)
             return true;
-        ProsodyPreferenceDialogFragment f=ProsodyPreferenceDialogFragment.newInstance(pref.getKey());
-        f.setTargetFragment(caller,0);
-        f.show(getSupportFragmentManager(),ProsodyPreferenceDialogFragment.TAG);
+        ProsodyPreferenceDialogFragment f = ProsodyPreferenceDialogFragment.newInstance(pref.getKey());
+        f.setTargetFragment(caller, 0);
+        f.show(getSupportFragmentManager(), ProsodyPreferenceDialogFragment.TAG);
         return true;
-}
+    }
 }
