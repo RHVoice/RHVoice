@@ -283,3 +283,6 @@
 [submodule "data/voices/umka"]
 	path = data/voices/umka
 	url = https://github.com/rhvoice/umka-rus
+[submodule "data/voices/timofey"]
+	path = data/voices/timofey
+	url = https://github.com/rhvoice/timofey-rus
