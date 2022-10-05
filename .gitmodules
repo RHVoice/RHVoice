@@ -286,3 +286,6 @@
 [submodule "data/voices/timofey"]
 	path = data/voices/timofey
 	url = https://github.com/rhvoice/timofey-rus
+[submodule "data/voices/michal"]
+	path = data/voices/michal
+	url = https://github.com/RHVoice/michal-pol.git
