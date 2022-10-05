@@ -28,6 +28,7 @@
 * [Umka](https://rhvoice.su/downloads/?voice=umka&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-4.1.2010.9.nvda-addon), версія 4.1.2010.9
 * [Vitaliy-ng](https://rhvoice.su/downloads/?voice=vitaliy-ng&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
+* [Timofey](https://rhvoice.su/downloads/?voice=timofey&type=nvda&version=4.0.2011.10), версія 4.0.2011.10
 
 ### Англійська
 
@@ -37,10 +38,10 @@
 
 * [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=nvda&version=4.0.2008.10), версія 4.0.2008.10
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-4.0.2008.9.nvda-addon), версія 4.0.2008.9
-* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=nvda&version=4.0.2008.10), версія 4.0.2008.10
+* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=nvda&version=4.1.2008.10), версія 4.1.2008.10
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-4.1.2008.9.nvda-addon), версія 4.1.2008.9
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-4.0.2008.9.nvda-addon), версія 4.0.2008.9
-* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-4.0.2008.9.nvda-addon), версія 4.0.2008.9
+* [Slt](https://github.com/RHVoice/slt-eng/releases/download/4.1/RHVoice-voice-English-Slt-4.1.2008.10.nvda-addon), версія 4.1.2008.10
 
 ### Бразильська португальська
 
@@ -104,6 +105,7 @@
 * [Irina](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-Russian-Irina-v4.1.2010.15-setup.exe), версія 4.1.2010.15
 * [Umka](https://rhvoice.su/downloads/?voice=umka&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 * [Vitaliy-ng](https://rhvoice.su/downloads/?voice=vitaliy-ng&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
+* [Timofey](https://rhvoice.su/downloads/?voice=timofey&type=sapi&version=4.0.2011.17), версія 4.0.2011.17
 
 ### Англійська
 
@@ -113,10 +115,10 @@
 
 * [Evgeniy-eng](https://rhvoice.su/downloads/?voice=evgeniy-eng&type=sapi&version=4.0.2008.17), версія 4.0.2008.17
 * [Alan](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Alan-v4.0.2008.15-setup.exe), версія 4.0.2008.15
-* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=sapi&version=4.0.2008.17), версія 4.0.2008.17
+* [Lyubov](https://rhvoice.su/downloads/?voice=lyubov&type=sapi&version=4.1.2008.17), версія 4.1.2008.17
 * [Bdl](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Bdl-v4.1.2008.15-setup.exe), версія 4.1.2008.15
 * [Clb](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Clb-v4.0.2008.15-setup.exe), версія 4.0.2008.15
-* [Slt](https://rhvoice.eu-central-1.linodeobjects.com/RHVoice-voice-English-Slt-v4.0.2008.15-setup.exe), версія 4.0.2008.15
+* [Slt](https://github.com/RHVoice/slt-eng/releases/download/4.1/RHVoice-voice-English-Slt-v4.1.2008.17-setup.exe), версія 4.1.2008.17
 
 ### Бразильська португальська
 
