@@ -2,6 +2,7 @@ Lower case	Upper case	Translit	spell	Notes
 ß	ẞ	s	szarfes es	
 ñ	Ñ	ń	en z tyldą	
 ç	Ç	s	ce z cedyllą	
+ş	Ş	sz	es z cedyllą	
 ḉ	Ḉ	c	ce ostre z cedyllą	
 á	Á	a	a ostre	
 é	É	e	e ostre	
@@ -15,6 +16,8 @@ Lower case	Upper case	Translit	spell	Notes
 ž	Ž	ż	zet z haczkiem	
 š	Š	sz	es z haczkiem	
 đ	Đ	dź	de skreślone	
+å	Å	o	a z kółkiem	på svenska
+ø	Ø	o	o skreślone	
 ř	Ř	rz	er z haczkiem	
 ň	Ň	ń	en z haczkiem	
 ě	Ě	ie	e z haczkiem	
@@ -267,3 +270,53 @@ Lower case	Upper case	Translit	spell	Notes
 ⱜ	Ⱜ	sz	sztapicz	GLAGOLITIC SMALL LETTER SHTAPIC
 ⱝ	Ⱝ	a	az	GLAGOLITIC SMALL LETTER TROKUTASTI A
 ⱞ	Ⱞ	m	myślicie	GLAGOLITIC SMALL LETTER LATINATE MYSLITE
+ְ	ְ	e	szewa	hebrew point sheva
+ֱ	ֱ	e	segol	hebrew point hataf segol
+ֲ	ֲ	a	hataf patah	hebrew point hataf patah
+ֳ	ֳ	a	hataf kamac	hebrew point hataf qamats
+ִ	ִ	i	hirik	hebrew point hiriq
+ֵ	ֵ	e	cere	hebrew point tsere
+ֶ	ֶ	e	segol	hebrew point segol
+ַ	ַ	a	patah	hebrew point patah
+ָ	ָ	a	kamac	hebrew point qamats
+ֹ	ֹ	o	holam	hebrew point holam
+ֺ	ֺ	o	holam haser	hebrew point holam haser for vav
+ֻ	ֻ	u	kubuc	hebrew point qubuts
+ּ	ּ	dagesz	dagesz	hebrew point dagesh or mapiq
+ֽ	ֽ	meteg	meteg	hebrew point meteg
+־	־	makaf	makaf	hebrew punctuation maqaf
+ֿ	ֿ	rafe	rafe	hebrew point rafe
+ׁ	ׁ	sz	szin z kropką	hebrew point shin dot
+ׂ	ׂ	s	sin z kropką	hebrew point sin dot
+ׇ	ׇ	a	kamac ktan	hebrew point qamats qatan
+א	א	a	alef	hebrew letter alef
+ב	ב	b	bet	hebrew letter bet
+ג	ג	g	gimel	hebrew letter gimel
+ד	ד	d	daled	hebrew letter dalet
+ה	ה	h	he	hebrew letter he
+ו	ו	w	wav	hebrew letter vav
+ז	ז	z	zajin	hebrew letter zayin
+ח	ח	h	het	hebrew letter het
+ט	ט	t	tet	hebrew letter tet
+י	י	j	jod	hebrew letter yod
+ך	ך	k	kaf sofit	hebrew letter final kaf
+כ	כ	k	kaf	hebrew letter kaf
+ל	ל	l	lamed	hebrew letter lamed
+ם	ם	m	mem sofit	hebrew letter final mem
+מ	מ	m	mem	hebrew letter mem
+ן	ן	n	nun sofit	hebrew letter final nun
+נ	נ	n	nun	hebrew letter nun
+ס	ס	s	sameh	hebrew letter samekh
+ע	ע	a	ajin	hebrew letter ayin
+ף	ף	p	pe sofit	hebrew letter final pe
+פ	פ	pe	p	hebrew letter pe
+ץ	ץ	c	cadi sofit	hebrew letter final tsadi
+צ	צ	c	cadi sofit	hebrew letter tsadi
+ק	ק	k	kof	hebrew letter qof
+ר	ר	r	resz	hebrew letter resh
+ש	ש	sz	szin	hebrew letter shin
+ת	ת	t	tav	hebrew letter tav
+ׯ	ׯ	j	jod	hebrew yod triangle
+װ	װ	w	vavvav	hebrew ligature yiddish double vav
+ױ	ױ	wj	wavjod	hebrew ligature yiddish vav yod
+ײ	ײ	jj	jodjod	hebrew ligature yiddish double yod
