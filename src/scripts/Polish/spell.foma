@@ -95,6 +95,91 @@ define Symbol
 %µ:mikro | 
 %`:akcent | 
 %|:[kreska pionowa] | 
+%• : [punktor] |
+%… : [wielokropek] |
+%“ : [lewy cudzysłów] |
+%” : [prawy cudzysłów] |
+%‘ : [lewy apostrof] |
+%’ : [prawy apostrof] |
+%– : [półpauza	] |
+%— : [myślnik] |
+%­ : [miękki myślnik] |
+%⁃ : [podłużny punktor] |
+%● : [kółko] |
+%○ : [białe kółko] |
+%¨ : [diereza] |
+%¯ : [nadkreślenie] |
+%´ : [akut] |
+%¸ : [cedylla] |
+%¶ : [paragraf] |
+%■ : [czarny kwadrat] |
+%▪ : [czarny kwadrat] |
+%◾ : [czarny kwadrat] |
+%□ : [biały kwadrat] |
+%◦ : [biały punktor] |
+%⇒ : [podwójna strzałka w prawo] |
+%⇨ : [biała strzałka w prawo] |
+%➔ : [strzałka wskazująca w prawo] |
+%➢ : [prawy grot strzałki] |
+%⮚ : [strzałka w prawo] |
+%❖ : [czarny diament minus białe iks] |
+%♣ : [czarny trefl] |
+%♦ : [czarny diament] |
+%◆ : [czarny diament] |
+%§ : [paragraf] |
+%« : [podwójny cudzysłów otwierający] |
+%» : [podwójny cudzysłów zamykający] |
+%º : [index górny o] |
+%ª : [index górny a] |
+%⁰ : [indeks górny 0] |
+%¹ : [indeks górny 1] |
+%² : [kwadrat] |
+%³ : [sześcian] |
+%⁴ : [indeks górny 4] |
+%⁵ : [indeks górny 5] |
+%⁶ : [indeks górny 6] |
+%⁷ : [indeks górny 7] |
+%⁸ : [indeks górny 8] |
+%⁹ : [indeks górny 9] |
+%⁺ : [indeks górny plus] |
+%⁻ : [indeks górny minus] |
+%⁼ : [indeks górny równa sie] |
+%⁽ : [indeks górny lewy nawias] |
+%⁾ : [indeks górny prawy nawias] |
+%ⁿ : [indeks górny n] |
+%₀ : [indeks dolny 0] |
+%₁ : [indeks dolny 1] |
+%₂ : [indeks dolny 2] |
+%₃ : [indeks dolny 3] |
+%₄ : [indeks dolny 4] |
+%₅ : [indeks dolny 5] |
+%₆ : [indeks dolny 6] |
+%₇ : [indeks dolny 7] |
+%₈ : [indeks dolny 8] |
+%₉ : [indeks dolny 9] |
+%₊ : [indeks dolny plus] |
+%₋ : [indeks dolny minus] |
+%₌ : [indeks dolny równa się] |
+%₍ : [indeks dolny lewy nawias] |
+%₎ : [indeks dolny prawy nawias] |
+%® : [zarejestrowany] |
+%™ : [znak handlowy] |
+%© : [znak praw autorskich] |
+%± : [plus minus] |
+%× : [razy] |
+%÷ : [dzielenie] |
+%← : [strzałka w lewo] |
+%↑ : [strzałka w górę] |
+%→ : [strzałka w prawo] |
+%↓ : [strzałka w dół] |
+%✓ : [haczyk] |
+%✔ : [haczyk] |
+%€ : [euro] |
+%🡺 : [strzałka w prawo] |
+%† : [krzyżyk] |
+%‡ : [podwójny krzyżyk] |
+%‣ : [trójkątna kropka] |
+%✗ : [kropka w kształcie x] |
 %~:tylda ; 
 
 source unicodechars.foma
