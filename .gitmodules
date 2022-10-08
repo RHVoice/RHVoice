@@ -289,3 +289,6 @@
 [submodule "data/voices/michal"]
 	path = data/voices/michal
 	url = https://github.com/RHVoice/michal-pol.git
+[submodule "data/voices/alicja"]
+	path = data/voices/alicja
+	url = https://github.com/RHVoice/alicja-pol.git
