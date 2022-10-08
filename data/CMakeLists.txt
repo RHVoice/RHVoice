@@ -90,6 +90,7 @@ set("VOICE_hana_LANG" "sq")
 
 set("VOICE_talgat_LANG" "tt")
 
+set("VOICE_alicja_LANG" "pl")
 set("VOICE_magda_LANG" "pl")
 set("VOICE_michal_LANG" "pl")
 set("VOICE_natan_LANG" "pl")
