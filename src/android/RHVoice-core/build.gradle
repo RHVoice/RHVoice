@@ -126,7 +126,7 @@ dependencies {
     implementation 'com.squareup.moshi:moshi:1.14.0'
     implementation 'io.github.vvb2060.ndk:curl:7.85.1'
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.0'
 }
 
 preBuild.dependsOn BoostIncludes
