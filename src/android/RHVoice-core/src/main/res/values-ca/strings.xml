@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Veu predeterminada</string>
+  <string name="default_voice_dialog_title">Trieu una llengua</string>
+  <string name="detect_language_title">Detecció de la llengua</string>
+  <string name="detect_language_desc">Canvi de llengua automàtic</string>
+  <string name="speech_volume">Volum de la veu</string>
+  <string name="speech_rate">Velocitat de la veu</string>
+  <string name="pseudo_english_title">Paraules en anglès</string>
+  <string name="pseudo_english_desc">Prova de llegir les paraules en anglès correctament</string>
+  <string name="settings">Configuració</string>
+  <string name="wifi_only_title">Només per Wi-Fi</string>
+  <string name="wifi_only_desc">Baixa les veus només per Wi-Fi</string>
+  <string name="speech_quality">Qualitat de la veu</string>
+  <string-array name="quality_labels">
+    <item>Millor rendiment possible</item>
+    <item>Qualitat estàndard</item>
+    <item>Millor qualitat possible</item>
+  </string-array>
+  <string name="languages">Llengües</string>
+  <string name="voice_remove_question">Esteu segur que voleu desintal·lar aquesta veu?</string>
+  <string name="install">Instal·la</string>
+  <string name="uninstall">Desinstal·la</string>
+  <string name="play">Reprodueix</string>
+  <string name="stop">Atura\'t</string>
+  <string name="increase">Augmenta</string>
+  <string name="decrease">Disminueix</string>
+  <string name="reset">Restableix</string>
+  <string name="version">Versio</string>
+  <string name="user_dicts">Diccionaris d\'usuari</string>
+  <string name="add">Afegeix</string>
+  <string name="remove">Suprimeix</string>
+  <string name="config_file">Fitxer de configuració</string>
+</resources>
