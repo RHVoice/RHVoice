@@ -39,6 +39,7 @@ define UnicodeToNativeTranslit
 [%ã|%Ã] -> {a} || _ ,,
 [%ë|%Ë] -> {e} || _ ,,
 [%ō|%Ō] -> {ó} || _ ,,
+[%ă|%Ă] -> {a} || _ ,,
 [%ŏ|%Ŏ] -> {o} || _ ,,
 [%õ|%Õ] -> {o} || _ ,,
 [%ŭ|%Ŭ] -> {ł} || _ ,,
@@ -285,10 +286,6 @@ define UnicodeToNativeTranslit
 [%ֹ|%ֹ] -> {o} || _ ,,
 [%ֺ|%ֺ] -> {o} || _ ,,
 [%ֻ|%ֻ] -> {u} || _ ,,
-[%ּ|%ּ] -> {dagesz} || _ ,,
-[%ֽ|%ֽ] -> {meteg} || _ ,,
-[%־|%־] -> {makaf} || _ ,,
-[%ֿ|%ֿ] -> {rafe} || _ ,,
 [%ׁ|%ׁ] -> {sz} || _ ,,
 [%ׂ|%ׂ] -> {s} || _ ,,
 [%ׇ|%ׇ] -> {a} || _ ,,
@@ -364,6 +361,7 @@ define UnicodeToNativeTranslitTok
 [%ã|%Ã] -> a || _ ,,
 [%ë|%Ë] -> e || _ ,,
 [%ō|%Ō] -> ó || _ ,,
+[%ă|%Ă] -> a || _ ,,
 [%ŏ|%Ŏ] -> o || _ ,,
 [%õ|%Õ] -> o || _ ,,
 [%ŭ|%Ŭ] -> ł || _ ,,
@@ -610,10 +608,6 @@ define UnicodeToNativeTranslitTok
 [%ֹ|%ֹ] -> o || _ ,,
 [%ֺ|%ֺ] -> o || _ ,,
 [%ֻ|%ֻ] -> u || _ ,,
-[%ּ|%ּ] -> d || _ ,,
-[%ֽ|%ֽ] -> m || _ ,,
-[%־|%־] -> m || _ ,,
-[%ֿ|%ֿ] -> r || _ ,,
 [%ׁ|%ׁ] -> s || _ ,,
 [%ׂ|%ׂ] -> s || _ ,,
 [%ׇ|%ׇ] -> a || _ ,,
@@ -689,6 +683,7 @@ define UnicodeSpell
 [[%ã|%Ã]:[a z tyldą]]|
 [[%ë|%Ë]:[e umlaut]]|
 [[%ō|%Ō]:[o z makronem]]|
+[[%ă|%Ă]:[a z łuczkiem]]|
 [[%ŏ|%Ŏ]:[o z łuczkiem]]|
 [[%õ|%Õ]:[o z tyldą]]|
 [[%ŭ|%Ŭ]:[u z łuczkiem]]|
@@ -935,10 +930,6 @@ define UnicodeSpell
 [[%ֹ|%ֹ]:[holam]]|
 [[%ֺ|%ֺ]:[holam haser]]|
 [[%ֻ|%ֻ]:[kubuc]]|
-[[%ּ|%ּ]:[dagesz]]|
-[[%ֽ|%ֽ]:[meteg]]|
-[[%־|%־]:[makaf]]|
-[[%ֿ|%ֿ]:[rafe]]|
 [[%ׁ|%ׁ]:[szin z kropką]]|
 [[%ׂ|%ׂ]:[sin z kropką]]|
 [[%ׇ|%ׇ]:[kamac ktan]]|
@@ -962,7 +953,7 @@ define UnicodeSpell
 [[%ס|%ס]:[sameh]]|
 [[%ע|%ע]:[ajin]]|
 [[%ף|%ף]:[pe sofit]]|
-[[%פ|%פ]:[p]]|
+[[%פ|%פ]:[pe]]|
 [[%ץ|%ץ]:[cadi sofit]]|
 [[%צ|%צ]:[cadi sofit]]|
 [[%ק|%ק]:[kof]]|
@@ -1014,6 +1005,7 @@ define UnicodeLseq
 %ã:[a z t ih l d on]|
 %ë:[e u m l a u t]|
 %ō:[o z m a k r o n e m]|
+%ă:[a z w u ch k y e m]|
 %ŏ:[o z w u ch k y e m]|
 %õ:[o z t ih l d on]|
 %ŭ:[u z w u ch k y e m]|
@@ -1260,10 +1252,6 @@ define UnicodeLseq
 %ֹ:[h o l a m]|
 %ֺ:[h o l a m h a s e r]|
 %ֻ:[k u b u c]|
-%ּ:[d a g e sh]|
-%ֽ:[m e t e g]|
-%־:[m a k a f]|
-%ֿ:[r a f e]|
 %ׁ:[sh i n z k r o p k on]|
 %ׂ:[si i n z k r o p k on]|
 %ׇ:[k a m a c k t a n]|
@@ -1339,6 +1327,7 @@ define UnicodeDowncase
 %Ã -> %ã || _ ,,
 %Ë -> %ë || _ ,,
 %Ō -> %ō || _ ,,
+%Ă -> %ă || _ ,,
 %Ŏ -> %ŏ || _ ,,
 %Õ -> %õ || _ ,,
 %Ŭ -> %ŭ || _ ,,
@@ -1585,10 +1574,6 @@ define UnicodeDowncase
 %ֹ -> %ֹ || _ ,,
 %ֺ -> %ֺ || _ ,,
 %ֻ -> %ֻ || _ ,,
-%ּ -> %ּ || _ ,,
-%ֽ -> %ֽ || _ ,,
-%־ -> %־ || _ ,,
-%ֿ -> %ֿ || _ ,,
 %ׁ -> %ׁ || _ ,,
 %ׂ -> %ׂ || _ ,,
 %ׇ -> %ׇ || _ ,,
