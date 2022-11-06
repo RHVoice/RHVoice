@@ -36,6 +36,8 @@ from scipy.signal import firwin,lfilter,kaiserord
 from scipy.io import wavfile
 import pathlib
 
+import pyworld
+
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
 RHVoice_bindir=os.path.normpath(os.path.join(scriptdir,"..","..","..","local","bin"))
@@ -776,6 +778,16 @@ class f0_extracter(task):
 		os.remove(f0_path)
 		return f0s
 
+	def extract_with_world(self,raw_path,method,min_f0,max_f0):
+		assert(method in ["world_dio","world_harvest"])
+		samples=numpy.fromfile(raw_path,numpy.int32).astype(float)
+		samples/=(2**31)
+		if method.endswith("_dio"):
+			f0s, times = pyworld.dio(samples, self.settings["sample_rate"], min_f0, max_f0)
+		else:
+			f0s, times = pyworld.harvest(samples, self.settings["sample_rate"], min_f0, max_f0)
+		return f0s.tolist()
+
 	def or_values(self, values):
 		r=values[0]
 		for v in values[1:]:
@@ -793,6 +805,8 @@ class f0_extracter(task):
 			return self.extract_with_praat(raw_path,method,min_f0,max_f0)
 		elif method=="reaper":
 			return self.extract_with_reaper(raw_path,min_f0,max_f0)
+		elif method.startswith("world_"):
+			return self.extract_with_world(raw_path,method,min_f0,max_f0)
 		else:
 			return self.extract_with_sptk(raw_path,method,min_f0,max_f0)
 
@@ -1663,7 +1677,7 @@ class mgc_extractor(task):
 		subparser.set_defaults(func=self)
 
 	def process(self,name):
-		import pyworld
+
 		print("Processing {}".format(name))
 		sample_rate=self.settings["sample_rate"]
 		speech=self.load_speech(name)
@@ -1676,7 +1690,7 @@ class mgc_extractor(task):
 		mf0=numpy.median(f0s[f0s!=0])
 		f0s[f0s==0]=mf0
 		times=numpy.arange(len(f0s))*0.005
-		sp=pyworld.cheaptrick(speech, f0s, times, sample_rate)
+		sp=pyworld.cheaptrick(speech, f0s, times, sample_rate,f0_floor=self.settings["lower_f0"])
 		fft_len=(sp.shape[1]-1)*2
 		sp=numpy.sqrt(sp)*32768.0
 		sp.astype(numpy.float32).tofile("tmp.sp")
