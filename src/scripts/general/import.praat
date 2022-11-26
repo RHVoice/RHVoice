@@ -74,7 +74,7 @@ speech=Extract part... start end rectangular 1 no
 if invert!=0
 speech=Multiply: -1
 endif
-speech=Subtract mean
+Subtract mean
 if sample_rate!=src_sample_rate
 Resample: sample_rate, 70
 endif
