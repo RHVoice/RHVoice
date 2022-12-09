@@ -164,6 +164,7 @@ namespace RHVoice
     text_params text_settings;
     verbosity_params verbosity_settings;
     bool_property prefer_primary_language;
+    bool_property enable_bilingual;
     quality_setting quality;
     stream_params stream_settings;
   };
