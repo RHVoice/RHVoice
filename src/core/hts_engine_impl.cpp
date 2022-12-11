@@ -28,6 +28,7 @@ namespace RHVoice
     beta("beta",0.4,-0.8,0.8),
     gain("gain",1.0,0.5,2.0),
     native_rate("rate", 1.0, 0.5, 2.0),
+    voicing("voicing", 0.5, 0, 1.0),
     quality(quality_none),
     int_key("key",200,50,500),
     emph_shift("emph_shift",0,-12,12),
@@ -65,6 +66,7 @@ namespace RHVoice
   {
     config cfg2;
     cfg2.register_setting(beta);
+    cfg2.register_setting(voicing);
     cfg2.register_setting(gain);
     cfg2.register_setting(native_rate);
     cfg2.register_setting(int_key);
