@@ -295,3 +295,6 @@
 [submodule "data/voices/cezary"]
 	path = data/voices/cezary
 	url = https://github.com/RHVoice/cezary-pol.git
+[submodule "data/voices/vsevolod"]
+	path = data/voices/vsevolod
+	url = https://github.com/RHVoice/vsevolod-rus.git
