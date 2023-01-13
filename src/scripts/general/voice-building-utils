@@ -1288,16 +1288,15 @@ class lpf_maker(task):
 		ns=5
 		nf=6
 		nt=31
-		nyq=float(self.settings["sample_rate"])/2
 		counts=nf*numpy.ones(ns,dtype=numpy.int32)
 		vars=numpy.zeros(nt,dtype=numpy.float32)
 		filters=numpy.zeros((nf,nt),dtype=numpy.float32)
 		for j in range(nf):
 			cf=(j+1)*1000
 			try:
-				filters[j]=firwin(nt,cf,window="hanning",nyq=nyq)
+				filters[j]=firwin(nt,cf,window="hanning",fs=self.settings["sample_rate"])
 			except:
-				filters[j]=firwin(nt,cf,window="hann",nyq=nyq)
+				filters[j]=firwin(nt,cf,window="hann",fs=self.settings["sample_rate"])
 		with open(os.path.join(self.outdir,"lpf.pdf"),"wb") as fp:
 			counts.tofile(fp)
 			for i in range(ns):
@@ -1615,10 +1614,10 @@ class bap_extractor(task):
 		if n%2==0:
 			n+=1
 		self.filters=numpy.zeros((num_bands,n))
-		self.filters[0]=firwin(n,freqs[0],nyq=self.nyq,window=b,scale=False)
-		self.filters[-1]=firwin(n,freqs[-1],nyq=self.nyq,window=b,pass_zero=False,scale=False)
+		self.filters[0]=firwin(n,freqs[0],fs=self.settings["sample_rate"],window=b,scale=False)
+		self.filters[-1]=firwin(n,freqs[-1],fs=self.settings["sample_rate"],window=b,pass_zero=False,scale=False)
 		for i in range(1,num_bands-1):
-			self.filters[i]=firwin(n,(freqs[i-1],freqs[i]),nyq=self.nyq,window=b,pass_zero=False,scale=False)
+			self.filters[i]=firwin(n,(freqs[i-1],freqs[i]),fs=self.settings["sample_rate"],window=b,pass_zero=False,scale=False)
 		with open(os.path.join("data","bpf.txt"),"w") as fp:
 			numpy.array(self.filters.shape).tofile(fp,sep="\n")
 			fp.write("\n")
