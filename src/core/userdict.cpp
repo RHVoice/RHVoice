@@ -18,6 +18,7 @@
 #include "core/path.hpp"
 #include "core/io.hpp"
 #include "core/language.hpp"
+#include "core/config.hpp"
 #include "userdict_parser.h"
 #include "userdict_parser.c"
 
@@ -143,6 +144,9 @@ namespace RHVoice
 
     namespace
     {
+      const int UDTK_SECT_END=-1;
+      const int UDTK_SECT_SIMPLE=-2;
+
       class lexer
       {
       public:
@@ -150,7 +154,13 @@ namespace RHVoice
           lang(lng),
           input(input_),
           pos(input.begin())
-        {
+	{
+	  config cfg;
+	  string_property special_chars_string{"userdict.special_chars"};
+	  cfg.register_setting(special_chars_string);
+	  cfg.load(path::join(lang.get_data_path(), "language.conf"));
+	  const auto s=special_chars_string.get();
+	  special_chars.insert(str::utf8_string_begin(s), str::utf8_string_end(s));
         }
 
         std::unique_ptr<token> get_next_token();
@@ -158,6 +168,40 @@ namespace RHVoice
       private:
         lexer(const lexer&);
         lexer& operator=(const lexer&);
+
+        bool match_section_simple()
+        {
+          if(*(pos+1)=='s')
+            {
+              next_token->set_type(UDTK_SECT_SIMPLE);
+              pos+=2;
+              return true;
+            }
+          else
+            return false;
+        }
+
+			           bool match_section_end()
+			           {
+			             if(*(pos+1)=='e')
+			               {
+			                 next_token->set_type(UDTK_SECT_END);
+			                 pos+=2;
+			                 return true;
+			               }
+			             else
+			               return false;
+			           }
+
+        bool match_section()
+        {
+          if(*pos!='\\')
+            return false;
+          if((pos+1)==input.end())
+            return false;
+          return (match_section_simple() ||
+                  match_section_end());
+        }
 
         bool match_reserved_symbol(utf8::uint32_t chr,int type)
         {
@@ -259,7 +303,7 @@ namespace RHVoice
         bool match_native_letters()
         {
           chars32::const_iterator old_pos=pos;
-          for(;((pos!=input.end())&&(lang.is_letter(*pos)||lang.is_sign(*pos)));++pos)
+          for(;((pos!=input.end())&&(lang.is_letter(*pos)||lang.is_sign(*pos)||(special_chars.find(*pos)!=special_chars.end())));++pos)
             {
               next_token->append(*pos);
             }
@@ -327,23 +371,31 @@ namespace RHVoice
           pos=end;
           return true;
         }
-
         const language_info& lang;
         const chars32& input;
         std::unique_ptr<token> next_token;
         chars32::const_iterator pos;
+	std::set<utf8::uint32_t> special_chars;
       };
 
       class compiler
       {
       public:
+struct result_t
+{
+  std::unique_ptr<ruleset> rules;
+  std::map<std::string, std::string> simple;
+};
+
         compiler(const language_info& lng,const std::string& file_path);
         ~compiler();
-        std::unique_ptr<ruleset> compile();
+        result_t compile();
 
       private:
         compiler(const compiler&);
         compiler& operator=(const compiler&);
+
+	std::map<std::string, std::string> parse_simple(lexer& lxr);
 
         void read_source(const std::string& file_path);
 
@@ -358,6 +410,7 @@ namespace RHVoice
           return std::unique_ptr<token>();
         next_token.reset(new token);
         match_native_letters()||
+	  match_section() ||
           match_english_letters()||
         match_reserved_symbol('(',UDTK_LPAREN)||
           match_reserved_symbol(')',UDTK_RPAREN)||
@@ -394,8 +447,38 @@ namespace RHVoice
       userdictParseFree(parser,std::free);
     }
 
-    std::unique_ptr<ruleset> compiler::compile()
+    std::map<std::string, std::string> compiler::parse_simple(lexer& lxr)
     {
+      std::map<std::string, std::string> simple;
+      std::unique_ptr<token> tok;
+      while((tok=lxr.get_next_token()).get()!=nullptr)
+	{
+	  if(tok->get_type()==UDTK_SECT_END)
+	    break;
+	  if(tok->get_type()!=UDTK_NATIVE_LETTERS)
+	    continue;
+	  const auto k=tok->as_string();
+	  if(auto et=lxr.get_next_token())
+	    {
+	      if(et->get_type()!=UDTK_EQUALS)
+		continue;
+	    }
+	  else
+	    continue;
+	  if(auto vt=lxr.get_next_token())
+	    {
+	      if(vt->get_type()!=UDTK_NATIVE_LETTERS)
+		continue;
+	      const auto v=vt->as_string();
+	      simple.emplace(k, v);
+	    }
+	}
+      return simple;
+    }
+
+    compiler::result_t compiler::compile()
+    {
+      result_t res;
       lexer lxr(lang,source);
       parse_state ps;
       std::unique_ptr<token> tok;
@@ -404,6 +487,11 @@ namespace RHVoice
           int type=tok->get_type();
           if(type==0)
             continue;
+	  if(type==UDTK_SECT_SIMPLE)
+	    {
+	      res.simple=parse_simple(lxr);
+	      continue;
+	    }
           userdictParse(parser,type,tok.release(),&ps);
           if(type==UDTK_NEWLINE)
             {
@@ -411,7 +499,8 @@ namespace RHVoice
               ps.error=false;
             }
         }
-      return std::move(ps.result);
+      res.rules=std::move(ps.result);
+      return res;
     }
 
     void compiler::read_source(const std::string& file_path)
@@ -464,8 +553,9 @@ namespace RHVoice
       try
         {
           compiler comp(lang,file_path);
-          std::unique_ptr<ruleset> result(comp.compile());
-          for(ruleset::iterator it=result->begin();it!=result->end();++it)
+          auto result=comp.compile();
+	  simple.insert(result.simple.begin(), result.simple.end());
+          for(ruleset::iterator it=result.rules->begin();it!=result.rules->end();++it)
             {
               chars32 key=it->get_key();
               rules.insert(key.begin(),key.end(),*it);
@@ -510,6 +600,15 @@ namespace RHVoice
       if((type=="word")||(type=="sym")||(type=="char"))
         return false;
       return true;
+    }
+
+    std::string dict::simple_search(const std::string& w) const
+    {
+      auto pos=simple.find(w);
+      if(pos==simple.end())
+	return "";
+      else
+	return pos->second;
     }
   }
 }

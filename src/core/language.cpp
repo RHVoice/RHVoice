@@ -1053,7 +1053,10 @@ item& language::append_emoji(utterance& u,const std::string& text) const
     if(decode_as_english(token))
       return;
     if(token_pos=="word")
-      decode_as_word(token,token_name);
+      {
+	decode_as_word(token,token_name);
+	apply_simple_dict(token);
+      }
     else if(token_pos=="lseq")
                 decode_as_letter_sequence(token,token_name);
     else if(token_pos=="num")
@@ -1085,6 +1088,27 @@ else
   void language::decode_as_word(item& token,const std::string& token_name) const
   {
     return default_decode_as_word(token,token_name);
+  }
+
+  void language::apply_simple_dict(item& tok) const
+  {
+    if(!tok.has_children())
+      return;
+    item& word=tok.first_child();
+    if(word.has_next())
+      return;
+    std::string name=word.get("name").as<std::string>();
+    std::string cname=word.has_feature("cname")?word.get("cname").as<std::string>():"";
+    std::string repl;
+    if(!cname.empty())
+      repl=udict.simple_search(cname);
+    if(repl.empty())
+      repl=udict.simple_search(name);
+    if(repl.empty())
+      return;
+    word.set("name", repl);
+    if(!cname.empty())
+      word.set("cname", repl);
   }
 
   void language::decode_as_letter_sequence(item& token,const std::string& token_name) const
