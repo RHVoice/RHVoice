@@ -22,6 +22,8 @@ define UkrainianDowncase
 І : і | 
 Ї : ї | 
 Ґ : ґ | 
+ʼ : %' | 
+‘ : %' | 
 ’ : %' ; 
 
 regex 

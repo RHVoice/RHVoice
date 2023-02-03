@@ -59,6 +59,9 @@ namespace RHVoice
     register_vowel_letter(1110);
     register_vowel_letter(1111);
     register_sign('\'');
+    register_sign(700);
+    register_sign(8217);
+    register_sign(8216);
   }
 
   std::shared_ptr<language> ukrainian_info::create_instance() const
