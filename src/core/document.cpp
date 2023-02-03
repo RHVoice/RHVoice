@@ -168,6 +168,11 @@ namespace RHVoice
         for(std::vector<utf8::uint32_t>::const_iterator it(final_punctuation_start);it!=prev_token.text.end();++it)
           {
             cp=*it;
+	    if(language_and_voice.first!=parent->get_engine().get_languages().end())
+	      {
+		if(language_and_voice.first->get_instance().is_eos_punct(cp))
+		  return true;
+	      }
             if((cp=='.')||(cp=='\?')||(cp=='!')||(cp==';')||(cp==':'))
               return true;
           }

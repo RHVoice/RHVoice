@@ -584,6 +584,7 @@ else
 cfg.register_setting(lcfg.tok_sent);
     cfg.register_setting(lcfg.ph_flags);
     cfg.register_setting(lcfg.g2p_case);
+    cfg.register_setting(lcfg.punct_eos);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -691,6 +692,14 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_syl_coda_size));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_onset_size));
     register_feature(std::shared_ptr<feature_function>(new feat_utt_type));
+  }
+
+  bool language::is_eos_punct(utf8::uint32_t c) const
+  {
+    const auto ps=lcfg.punct_eos.get();
+    const auto start=str::utf8_string_begin(ps);
+    const auto end=str::utf8_string_end(ps);
+    return (std::find(start, end, c)!=end);
   }
 
   item& language::append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const
