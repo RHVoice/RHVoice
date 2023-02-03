@@ -133,6 +133,7 @@ namespace RHVoice
     numeric_property<double> beta;
     numeric_property<double> gain;
     numeric_property<double> native_rate;
+    numeric_property<double> voicing;
     quality_t quality;
     numeric_property<unsigned int> int_key;
     numeric_property<double> emph_shift;
