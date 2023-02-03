@@ -113,6 +113,11 @@ namespace RHVoice
       return gain;
 }
 
+    double get_native_rate() const
+    {
+      return native_rate;
+    }
+
     virtual bool supports_quality(quality_t q) const=0;
 
     bool uses_eq() const {return (eq!=nullptr);}
@@ -127,6 +132,7 @@ namespace RHVoice
     sample_rate_property sample_rate;
     numeric_property<double> beta;
     numeric_property<double> gain;
+    numeric_property<double> native_rate;
     quality_t quality;
     numeric_property<unsigned int> int_key;
     numeric_property<double> emph_shift;

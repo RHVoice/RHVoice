@@ -388,7 +388,7 @@ namespace RHVoice
           output.append(sii);
         // trim* t=new trim(input.lbegin(),input.lend());
         // output.append(t);
-        double rate=input.lbegin()->get_rate();
+        double rate=input.lbegin()->get_rate()*engine_impl->get_native_rate();
         if(rate!=1)
           {
             #if ENABLE_SONIC
