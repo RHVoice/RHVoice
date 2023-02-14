@@ -81,9 +81,10 @@ namespace RHVoice
     void set_input(hts_input& input_)
     {
       input=&input_;
+      pitch_shift=std::log(2.0)*base_pitch_shift/12.0;
       if(input->lbegin()!=input->lend())
         {
-          pitch_shift=std::log(input->lbegin()->get_pitch());
+          pitch_shift+=std::log(input->lbegin()->get_pitch());
           if(input->lbegin()->get_segment().get_relation().get_utterance().get_utt_type()=="e")
             pitch_shift+=std::log(2.0)*emph_shift/12.0;
         }
@@ -137,6 +138,7 @@ namespace RHVoice
     quality_t quality;
     numeric_property<unsigned int> int_key;
     numeric_property<double> emph_shift;
+    numeric_property<double> base_pitch_shift;
     std::unique_ptr<equalizer> eq;
 
     double get_emph_shift() const
