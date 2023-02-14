@@ -383,6 +383,7 @@ namespace RHVoice
   std::unique_ptr<utterance> sentence::create_utterance(sentence_position pos) const
   {
     std::unique_ptr<utterance> u=new_utterance();
+    u->set_bilingual_enabled(parent->enable_bilingual);
     apply_speech_settings(*u);
     execute_commands(*u);
     u->get_language().tokenize(*u);
