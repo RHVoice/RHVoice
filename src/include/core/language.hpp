@@ -327,6 +327,8 @@ namespace RHVoice
     item& append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const;
     item* try_as_foreign_token(utterance& u, const std::string& text, bool eos) const;
 
+    void apply_simple_dict(item&) const;
+
     std::map<std::string,std::shared_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
     hts_labeller labeller;
