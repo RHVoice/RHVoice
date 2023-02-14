@@ -32,6 +32,7 @@ namespace RHVoice
     quality(quality_none),
     int_key("key",200,50,500),
     emph_shift("emph_shift",0,-12,12),
+    base_pitch_shift("pitch_shift",0,-12,12),
     input(0),
     output(0),
     rate(1.0),
@@ -71,6 +72,7 @@ namespace RHVoice
     cfg2.register_setting(native_rate);
     cfg2.register_setting(int_key);
     cfg2.register_setting(emph_shift);
+    cfg2.register_setting(base_pitch_shift);
     cfg2.load(path::join(data_path,"voice.params"));
     if(int_key.is_set())
       pitch_editor.set_key(int_key);
