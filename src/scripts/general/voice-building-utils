@@ -178,7 +178,36 @@ class recordings_importer(task):
 		subparser=subparsers.add_parser("import-recordings")
 		subparser.set_defaults(func=self)
 
+	def get_file_list_from_ssml(self):
+		ssml_path=self.settings["text"]
+		if not os.path.exists(ssml_path):
+			return None
+		print("Checking ids in ssml")
+		wavedir=self.settings["wavedir"]
+		doc=xml.parse(ssml_path)
+		res=[]
+		i=0
+		for e in doc.iterfind("s"):
+			id=e.get("{http://www.w3.org/XML/1998/namespace}id", None)
+			if not id:
+				if res:
+					print("No xml:id for sentence:", e.text)
+					sys.exit()
+				return None
+			wav_path=os.path.abspath(os.path.join(wavedir, id+".wav"))
+			if not os.path.exists(wav_path):
+				print(wav_path, "not found")
+				sys.exit()
+			i+=1
+			out_name="{}_{}_{:04}".format(dataset, self.settings["speaker"], i)
+			print(id, "-> ", out_name)
+			res.append((wav_path, id, out_name))
+		return res
+
 	def get_file_list(self):
+		files=self.get_file_list_from_ssml()
+		if files:
+			return files
 		regex=re.compile(r"([^0-9]*)([0-9]+)[^0-9]?.*\.wav")
 		wavedir=self.settings["wavedir"]
 		files=[]
