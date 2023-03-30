@@ -584,10 +584,19 @@ else
 cfg.register_setting(lcfg.tok_sent);
     cfg.register_setting(lcfg.ph_flags);
     cfg.register_setting(lcfg.g2p_case);
+    cfg.register_setting(lcfg.punct_eos);
+    cfg.register_setting(lcfg.bilingual);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
         english_phone_mapping_fst.reset(new fst(path::join(info_.get_data_path(),"english_phone_mapping.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        foreign_phone_mapping_fst.reset(new fst(path::join(info_.get_data_path(),"sl_phone_mapping.fst")));
       }
     catch(const io::open_error& e)
       {
@@ -630,6 +639,13 @@ cfg.register_setting(lcfg.tok_sent);
     try
       {
         accented_dtree.reset(new dtree(path::join(info_.get_data_path(),"accented.dt")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        vocab_fst.reset(new fst(path::join(info_.get_data_path(), "vocab.fst")));
       }
     catch(const io::open_error& e)
       {
@@ -693,6 +709,14 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_utt_type));
   }
 
+  bool language::is_eos_punct(utf8::uint32_t c) const
+  {
+    const auto ps=lcfg.punct_eos.get();
+    const auto start=str::utf8_string_begin(ps);
+    const auto end=str::utf8_string_end(ps);
+    return (std::find(start, end, c)!=end);
+  }
+
   item& language::append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const
   {
     item& token=parent_token.as("TokStructure").append_child();
@@ -704,8 +728,56 @@ cfg.register_setting(lcfg.tok_sent);
             return token;
   }
 
+  item* language::try_as_foreign_token(utterance& u, const std::string& text, bool eos) const
+  {
+    if(lcfg.bilingual.is_set() && lcfg.tok_sent)
+      {
+	std::cerr << "Warning: need to implement language switching in sentence level tokenizers!";
+	return nullptr;
+      }
+    if(!u.get_bilingual_enabled())
+      return nullptr;
+    auto sl=get_second_language();
+    if(!sl)
+      return nullptr;
+    const auto is_not_punct=[] (utf8::uint32_t cp) {return !str::ispunct(cp);};
+    const utf8::iterator<std::string::const_iterator> token_start(text.begin(), text.begin(), text.end());
+    decltype(token_start) token_end(text.end(), text.begin(), text.end());
+		const auto word_start=std::find_if(token_start, token_end, is_not_punct);
+	if(word_start==token_end)
+	  return nullptr;
+	auto word_end=token_end;
+	do
+	  {
+	    --word_end;
+	    if(is_not_punct(*word_end))
+	      {
+		++word_end;
+		break;
+	      }
+	  }
+	while(word_end!=word_start);
+	std::vector<utf8::uint32_t> word;
+	std::transform(word_start, word_end, std::back_inserter(word), str::tolower);
+	if(is_in_vocabulary(word.begin(), word.end()))
+	  return nullptr;
+	if(!sl->is_in_vocabulary(word.begin(), word.end()))
+	  return nullptr;
+	auto& pt=sl->append_token(u, text, eos);
+	const std::string lang_name=sl->get_info().get_name();
+	for(auto& i: pt.as("TokStructure"))
+	  {
+	    const std::string& pos=i.get("pos").as<std::string>();
+	    if(pos=="word" || pos=="lseq")
+	      i.set("lang", lang_name);
+	  }
+	return &pt;
+  }
+
   item& language::append_token(utterance& u,const std::string& text, bool eos) const
   {
+    if(auto p=try_as_foreign_token(u, text, eos))
+      return *p;
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     item& parent_token=tokstruct_rel.append(token_rel.append());
@@ -967,9 +1039,12 @@ item& language::append_emoji(utterance& u,const std::string& text) const
 
   void language::decode(item& token) const
   {
+    if(auto sl=get_item_second_language(token))
+      return sl->decode(token);
     if(token.has_children())
       return;
     const std::string& token_pos=token.get("pos").as<std::string>();
+    const std::string& token_name=token.get("name").as<std::string>();
     if(token_pos=="ph")
       {
         token.append_child().set<std::string>("name", "_");
@@ -977,9 +1052,11 @@ item& language::append_emoji(utterance& u,const std::string& text) const
       }
     if(decode_as_english(token))
       return;
-    const std::string& token_name=token.get("name").as<std::string>();
     if(token_pos=="word")
-      decode_as_word(token,token_name);
+      {
+	decode_as_word(token,token_name);
+	apply_simple_dict(token);
+      }
     else if(token_pos=="lseq")
                 decode_as_letter_sequence(token,token_name);
     else if(token_pos=="num")
@@ -1011,6 +1088,27 @@ else
   void language::decode_as_word(item& token,const std::string& token_name) const
   {
     return default_decode_as_word(token,token_name);
+  }
+
+  void language::apply_simple_dict(item& tok) const
+  {
+    if(!tok.has_children())
+      return;
+    item& word=tok.first_child();
+    if(word.has_next())
+      return;
+    std::string name=word.get("name").as<std::string>();
+    std::string cname=word.has_feature("cname")?word.get("cname").as<std::string>():"";
+    std::string repl;
+    if(!cname.empty())
+      repl=udict.simple_search(cname);
+    if(repl.empty())
+      repl=udict.simple_search(name);
+    if(repl.empty())
+      return;
+    word.set("name", repl);
+    if(!cname.empty())
+      word.set("cname", repl);
   }
 
   void language::decode_as_letter_sequence(item& token,const std::string& token_name) const
@@ -1436,9 +1534,31 @@ void language::on_token_break(utterance& u) const
     return native_trans;
 }
 
+  std::vector<std::string> language::get_foreign_word_transcription(const item& word) const
+  {
+    auto fl=get_item_second_language(word.as("TokStructure").parent());
+    if(!fl)
+      return {};
+    if(foreign_phone_mapping_fst.get()==0)
+      throw std::runtime_error("No foreign phone mapping");
+    std::vector<std::string> fl_trans=fl->get_word_transcription(word);
+    std::vector<std::string> native_trans;
+    foreign_phone_mapping_fst->translate(fl_trans.begin(),fl_trans.end(),std::back_inserter(native_trans));
+    return native_trans;
+}
+
   void language::assign_pronunciation(item& word) const
   {
-    std::vector<std::string> transcription((get_info().use_pseudo_english&&word.has_feature("english"))?get_english_word_transcription(word):get_word_transcription(word));
+    std::vector<std::string> transcription=get_foreign_word_transcription(word);
+      if(word.has_feature("foreign"))
+      transcription=get_foreign_word_transcription(word);
+      if(transcription.empty())
+	{
+	  if(get_info().use_pseudo_english&&word.has_feature("english"))
+	    transcription=get_english_word_transcription(word);
+	  else
+	    transcription=get_word_transcription(word);
+	}
     str::tokenizer<str::is_equal_to> tokenizer("",str::is_equal_to('_'));
     std::string val("1");
     for(std::vector<std::string>::const_iterator it1=transcription.begin();it1!=transcription.end();++it1)
@@ -1650,7 +1770,36 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
 }
 }
 
+const language* language::get_second_language() const
+{
+  const auto name=lcfg.bilingual.get();
+  if(name.empty())
+    return nullptr;
+  if(!vocab_fst)
+    return nullptr;
+  if(!foreign_phone_mapping_fst)
+    return nullptr;
+    const auto& languages=get_info().get_all_languages();
+    auto lang_it=languages.find(name);
+    if(lang_it==languages.end())
+      return nullptr;
+    const auto& inst=lang_it->get_instance();
+    return &inst;
+}
 
+const language* language::get_item_second_language(const item& i) const
+{
+  if(!i.has_feature("lang"))
+    return nullptr;
+  auto sl=get_second_language();
+  if(!sl)
+    return nullptr;
+  const std::string& name=i.get("lang").as<std::string>();
+  if(sl->get_info().get_name()==name)
+    return sl;
+  else
+    return nullptr;
+}
 
   language_info::language_info(const std::string& name,const std::string& data_path_,const std::string& userdict_path_):
     use_pseudo_english("use_pseudo_english",true),

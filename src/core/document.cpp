@@ -168,6 +168,11 @@ namespace RHVoice
         for(std::vector<utf8::uint32_t>::const_iterator it(final_punctuation_start);it!=prev_token.text.end();++it)
           {
             cp=*it;
+	    if(language_and_voice.first!=parent->get_engine().get_languages().end())
+	      {
+		if(language_and_voice.first->get_instance().is_eos_punct(cp))
+		  return true;
+	      }
             if((cp=='.')||(cp=='\?')||(cp=='!')||(cp==';')||(cp==':'))
               return true;
           }
@@ -378,6 +383,7 @@ namespace RHVoice
   std::unique_ptr<utterance> sentence::create_utterance(sentence_position pos) const
   {
     std::unique_ptr<utterance> u=new_utterance();
+    u->set_bilingual_enabled(parent->enable_bilingual);
     apply_speech_settings(*u);
     execute_commands(*u);
     u->get_language().tokenize(*u);

@@ -22,6 +22,7 @@
 #include <iterator>
 #include <algorithm>
 #include <sstream>
+#include <map>
 
 #include "str.hpp"
 #include "item.hpp"
@@ -295,6 +296,12 @@ namespace RHVoice
         std::istringstream s(as_string());
         s >> n;
         return n;
+      }
+
+      void clear()
+      {
+	type=0;
+	text.clear();
       }
 
     private:
@@ -766,6 +773,7 @@ namespace RHVoice
   public:
     explicit dict(const language_info& lng);
     void apply_rules(utterance& u) const;
+    std::string simple_search(const std::string& w) const;
 
   private:
     dict(const dict&);
@@ -789,6 +797,7 @@ namespace RHVoice
 
     const language_info& lang;
     trie<utf8::uint32_t,rule,to_lower> rules;
+    std::map<std::string, std::string> simple;
   };
   }
 }

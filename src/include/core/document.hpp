@@ -321,6 +321,7 @@ namespace RHVoice
     speech_params speech_settings;
     verbosity_params verbosity_settings;
     quality_setting quality;
+    bool_property enable_bilingual{"enable_bilingual", true};
 
     explicit document(const std::shared_ptr<engine>& engine_ptr_,const voice_profile& profile_=voice_profile()):
       engine_ptr(engine_ptr_),
@@ -331,6 +332,7 @@ namespace RHVoice
     {
       verbosity_settings.default_to(engine_ptr->verbosity_settings);
       quality.default_to(engine_ptr->quality);
+      enable_bilingual.default_to(engine_ptr->enable_bilingual);
     }
 
     const engine& get_engine() const

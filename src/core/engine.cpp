@@ -72,7 +72,8 @@ namespace RHVoice
     languages(p.get_language_paths(),path::join(config_path,"dicts"),*p.logger),
     voices(p.get_voice_paths(),languages,*p.logger),
     logger(p.logger),
-    prefer_primary_language("prefer_primary_language",true)
+    prefer_primary_language("prefer_primary_language",true),
+    enable_bilingual("enable_bilingual", true)
   {
     logger->log(tag,RHVoice_log_level_info,"creating a new engine");
     if(p.has_data_paths() && languages.empty())
@@ -83,6 +84,7 @@ namespace RHVoice
     text_settings.register_self(cfg);
     verbosity_settings.register_self(cfg);
     cfg.register_setting(prefer_primary_language);
+    cfg.register_setting(enable_bilingual);
     cfg.register_setting(quality);
     stream_settings.register_self(cfg);
     languages.register_settings(cfg);

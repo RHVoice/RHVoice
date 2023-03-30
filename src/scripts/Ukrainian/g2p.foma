@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-define Letter б|г|ґ|д|ж|з|к|л|м|н|п|р|с|т|ф|х|ц|ч|ш|щ|а|е|э|є|и|ы|і|ї|о|у|ю|я|ё|А|Е|Э|Є|И|Ы|І|Ї|О|У|Ю|Я|Ё|й|в|ь|ъ|%'|’ ; 
+define Letter б|г|ґ|д|ж|з|к|л|м|н|п|р|с|т|ф|х|ц|ч|ш|щ|а|е|э|є|и|ы|і|ї|о|у|ю|я|ё|А|Е|Э|Є|И|Ы|І|Ї|О|У|Ю|Я|Ё|й|в|ь|ъ|%'|’|‘|ʼ ; 
 
 define Word Letter + ; 
 
@@ -65,7 +65,7 @@ define InitialLetterMapping
 й : j | 
 в : w |
 ь : softSign | 
-[%' | ’ | ъ] : apos ; 
+[%' | ’ | ʼ | ‘ | ъ] : apos ; 
 
 define InitialTranscription InitialLetterMapping @-> ; 
 

@@ -85,6 +85,7 @@ namespace RHVoice
         throw initialization_error();
       }
     HTS_Engine_set_beta(engine.get(),beta);
+    HTS_Engine_set_msd_threshold(engine.get(), 1, voicing);
     HTS_Engine_set_audio_buff_size(engine.get(),HTS_Engine_get_fperiod(engine.get()));
     base_frame_shift=HTS_Engine_get_fperiod(engine.get());
   }

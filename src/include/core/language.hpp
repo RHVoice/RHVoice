@@ -216,12 +216,22 @@ namespace RHVoice
 
     const std::set<std::string> get_ph_flags() const {return lcfg.ph_flags.get();}
 
+    bool is_eos_punct(utf8::uint32_t c) const;
+
     item& append_token(utterance& u,const std::string& text, bool eos) const;
 
     bool supports_emoji() const
     {
       return (emoji_fst.get()!=0);
 }
+
+    template<typename T> bool is_in_vocabulary(T first, T last) const
+    {
+      if(!vocab_fst)
+	return false;
+      std::vector<std::string> out;
+      return vocab_fst->translate(first, last, std::back_inserter(out));
+    }
 
     item& append_emoji(utterance& u,const std::string& text) const;
     void do_text_analysis(utterance& u) const;
@@ -269,6 +279,9 @@ namespace RHVoice
 
     virtual void assign_pronunciation(item& word) const;
 
+    const language* get_second_language() const;
+    const language* get_item_second_language(const item& i) const;
+
   private:
     language(const language&);
     language& operator=(const language&);
@@ -296,6 +309,7 @@ namespace RHVoice
     bool should_break_emoji(const item& word) const;
     bool decode_as_english(item& tok) const;
     std::vector<std::string> get_english_word_transcription(const item& word) const;
+    std::vector<std::string> get_foreign_word_transcription(const item& word) const;
 
     virtual void before_g2p(item& word) const
 {
@@ -311,6 +325,9 @@ namespace RHVoice
     void translate_emoji_sequence(item& token,const std::string& text) const;
     void set_user_phones(item& word) const;
     item& append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const;
+    item* try_as_foreign_token(utterance& u, const std::string& text, bool eos) const;
+
+    void apply_simple_dict(item&) const;
 
     std::map<std::string,std::shared_ptr<feature_function> > feature_functions;
     const phoneme_set phonemes;
@@ -339,11 +356,15 @@ std::unique_ptr<fst> qst_fst;
       bool_property tok_sent{"tok.sent", false};
       stringset_property ph_flags{"ph.flags"};
       bool_property g2p_case{"g2p.case", false};
+      string_property punct_eos{"punct.eos"};
+      string_property bilingual{"bilingual"};
     };
 
     const fst spell_fst;
     const fst downcase_fst;
     std::unique_ptr<fst> pg2p_fst;
+    std::unique_ptr<fst> vocab_fst;
+    std::unique_ptr<fst> foreign_phone_mapping_fst;
     lang_config lcfg;
   };
 

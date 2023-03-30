@@ -60,7 +60,8 @@ namespace RHVoice
     absolute_volume(0),
     relative_volume(1.0),
     utt_type("s"),
-    flags(0)
+    flags(0),
+    bilingual_enabled(true)
     {
     }
 
@@ -167,6 +168,16 @@ namespace RHVoice
         relative_volume=val;
     }
 
+    void set_bilingual_enabled(bool v)
+    {
+      bilingual_enabled=v;
+    }
+
+    bool get_bilingual_enabled()
+    {
+      return bilingual_enabled;
+    }
+
     relation& add_relation(const std::string& name);
     void remove_relation(const std::string& name);
 
@@ -220,6 +231,7 @@ namespace RHVoice
     double absolute_rate,relative_rate,absolute_pitch,relative_pitch,absolute_volume,relative_volume;
     std::string utt_type;
     int flags;
+    bool bilingual_enabled;
   };
 
   class utterance_function

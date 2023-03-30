@@ -26,7 +26,7 @@ A|E|I|O|U|Y ;
 define Letter 
 Consonant|Vowel|ь|Ь|ъ|Ъ ; 
 
-define Apos %'|’;
+define Apos %'|’|‘|ʼ;
 
 source stress_in_text.foma
 

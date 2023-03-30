@@ -51,7 +51,7 @@ z -> z|Z ,
 ż -> ż|Ż ; 
 
 define ConsonantLetterSequence 
-[b|c|ć|d|f|g|h|j|k|l|ł|m|n|ń|q|p|r|s|ś|t|v|w|x|z|ź|ż]+ ; 
+[b|c|ć|d|f|g|h|j|k|l|ł|m|n|ń|q|p|r|s|ś|t|v|w|x|z|ź|ż]+ - [w|z]; 
 
 define LetterSequence 
 [ConsonantLetterSequence .o. CaseVariants].l ; 
@@ -75,7 +75,6 @@ word -> lseq || [.#.|word|num|sym] LetterSequence _ ,,
 num -> dig || Digit^15 _ ;
 
 define Stage3 
-lseq -> word ||.#.  [w|z|W|Z] _ ,,
 word -> lseq || .#.  [y|Y|ó|Ó] _ ;
 
 source unicodechars.foma
