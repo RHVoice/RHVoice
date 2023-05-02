@@ -298,3 +298,9 @@
 [submodule "data/voices/vsevolod"]
 	path = data/voices/vsevolod
 	url = https://github.com/RHVoice/vsevolod-rus.git
+[submodule "data/languages/Czech"]
+	path = data/languages/Czech
+	url = https://github.com/RHVoice/Czech.git
+[submodule "data/voices/zdenek"]
+	path = data/voices/zdenek
+	url = https://github.com/RHVoice/zdenek-cze.git
