@@ -1,0 +1,8 @@
+#!/bin/bash
+#Transcription checking script:
+# Transcribes checktrans-cases.ssml, compares result with checktrans-expected-results.txt, prints found differences if any.
+pushd $(dirname $0) >/dev/null
+../../../local/bin/RHVoice-transcribe-sentences checktrans-cases.ssml /dev/stdout |
+diff -b -u0 checktrans-expected-results.txt /dev/stdin &&
+echo "All $(wc -l <checktrans-expected-results.txt) tests passed." &&
+popd >/dev/null
