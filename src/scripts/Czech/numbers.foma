@@ -1,0 +1,127 @@
+# Copyright (C) 2023 Darko Milosevic <daremc86@gmail.com>, Zvonimir Stanecic
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define Number (%+) (%-) [ %0|[ NZDigit Digit^<15]];
+
+define InsertPlus %+ @-> plus || _ ;
+
+define InsertMinus %- @-> mínus || _ ;
+
+define InsertThousands 
+[..] -> tisíc || Digit _ Digit^3 .#.;
+
+define InsertMillions 
+[..] -> miliónů || Digit _ Digit^3 tisíc;
+
+define InsertBillions 
+[..] -> miliárd || Digit _ Digit^3 miliónů;
+
+define InsertTrillions 
+[..] -> biliónů || Digit _ Digit^3 miliárd;
+
+define RemoveSkippedParts 
+%0 %0 %0 [tisíc|miliónů|miliárd|biliónů] -> 0 ;
+
+define Units %0:0|1:jedna|2:dva|3:tři|4:čtyři|5:pět|6:šest|7:sedum|8:osum|9:devět;
+
+define Teens 1:0 [%0:deset|1:jedenáct|2:dvanáct|3:třináct|4:čtrnáct|5:patnáct|6:šestnáct|7:sedmnáct|8:osmnáct|9:devatenáct];
+
+define Tens %0:0|2:dvacet|3:třicet|4:čtyřicet|5:padesát|6:šedesát|7:sedmdesát|8:osmdesát|9:devadesát;
+
+define Hundreds %0:0|1:sto|2:dvěstě|3:třista|4:čtyřista|5:pětset|6:šestset|7:sedmset|8:osmset|9:devětset;
+
+define UpToThousand %0:nula .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
+
+define DigitsToWords 
+UpToThousand @->;
+
+define FixCase 
+tisíc:tisíc|miliónů:milión|miliárd:miliárda|biliónů:bilión -> || jedna _ ,, 
+tisíc:tisíce|miliónů:milióny|miliárd:miliárdy|bilión:bilióny -> || dva|tři|čtyři _  ;
+
+define ReplaceDva 
+dva -> dvě || ^ _ miliárdy ;
+
+define ReplaceJedna 
+jedna -> jeden || ^ _ bilión ,, 
+jedna -> jeden || ^ _ milión ;
+
+
+define Fix31Tys 
+tisíc:tisíc|
+miliónů:miliónů|
+miliárd:miliárd|
+biliónů:biliónů -> || 
+[dvacet|třicet|čtyřicet|padesát|
+šedesát|sedmdesát|osmdesát|devadesát|
+sto|dvěstě|třista|čtyřista|pětset|šestset|
+sedmset|osmset|devětset] jedna _ ;
+
+define Fix32Tys 
+tisíce:tisíc|
+milióny:miliónů|
+miliárdy:miliárd|
+bilióny:biliónů -> || 
+[dvacet|třicet|čtyřicet|padesát|
+šedesát|sedmdesát|osmdesát|devadesát|
+sto|dvěstě|třista|čtyřista|pětset|šestset|
+sedmset|osmset|devětset] dva _ ;
+
+define Fix33Tys 
+tisíce:tisíc|
+milióny:miliónů|
+miliárdy:miliárd|
+bilióny:biliónů -> || 
+[dvacet|třicet|čtyřicet|padesát|
+šedesát|sedmdesát|osmdesát|devadesát|
+sto|dvěstě|třista|čtyřista|pětset|šestset|
+sedmset|osmset|devětset] tři _ ;
+
+define Fix34Tys 
+tisíce:tisíc|
+milióny:miliónů|
+miliárdy:miliárd|
+bilióny:biliónů -> || 
+[dvacet|třicet|čtyřicet|padesát|
+šedesát|sedmdesát|osmdesát|devadesát|
+sto|dvěstě|třista|čtyřista|pětset|šestset|
+sedmset|osmset|devětset] čtyři _ ;
+
+define RemoveOne 
+jedna -> 0 || .#.|GroupName _ tisíc,, 
+jedna -> 0 || .#.|GroupName _ milión,, 
+jedna -> 0 || .#.|GroupName _ miliárda,, 
+jedna -> 0 || .#.|GroupName _ bilión ; 
+
+regex 
+Number .o. 
+InsertThousands .o. 
+InsertMillions .o. 
+InsertBillions .o. 
+InsertTrillions .o. 
+RemoveSkippedParts .o. 
+DigitsToWords .o. 
+FixCase .o. 
+ReplaceDva .o. 
+ReplaceJedna .o. 
+RemoveOne .o.
+Fix31Tys  .o.
+Fix32Tys  .o.
+Fix33Tys  .o.
+Fix34Tys  .o.
+InsertPlus .o.
+InsertMinus ;
