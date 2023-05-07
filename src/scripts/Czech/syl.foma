@@ -1,0 +1,19 @@
+# Copyright (C) 2013 - 2022 Olga Yakovleva <yakovleva.o.v@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define Vowel a0 | a1 | aa0 | aa1 | e0 | e1 | ee0 | ee1 | ije0 | ije1 | i0 | i1 | ii0 | ii1 | o0 | o1 | oo0 | oo1 | u0 | u1 | uu0 | uu1 | ou0 | ou1 | y0 | y1 | yy0 | yy1 | iii0 | iii1 | ax0 | ax1 ; 
+
+regex 
+[..] -> %. || Vowel _ [\Vowel]* Vowel ; 
