@@ -1684,15 +1684,15 @@ define_feature(std::shared_ptr<feature_function>(new hts_next_syl_coda_length));
     define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_prev_","p.p.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("","",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_in_word_","n.",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_in_word","p.",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_next_in_word","n.n",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_prev_in_word","p.p",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("first_in_word","parent.daughter1",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("last_in_word","parent.daughtern",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_","n.",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_","p.",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_next_","n.n.",name)));
-    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_prev","p.p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_in_word_","p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_next_in_word_","n.n",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_prev_in_word_","p.p",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("first_in_word_","parent.daughter1",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("last_in_word_","parent.daughtern",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_","R:syllable.n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_","R:syllable.p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_next_","R:Syllable.n.n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_prev_","R:syllable.p.p.",name)));
 }
 }
  
