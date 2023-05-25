@@ -1486,6 +1486,24 @@ namespace RHVoice
     };
   }
 
+    struct hts_syl_vowel_ph_flag_feat: public feature_function
+    {
+    private:
+      const std::string full_name;
+
+    public:
+      hts_syl_vowel_ph_flag_feat(const std::string& hts_prefix,const std::string& path,const std::string& short_name):
+        feature_function(hts_prefix+"syl_vowel_ph_flag_"+short_name),
+        full_name("R:SylStructure.parent."+path+"syl_vowel_ph_flag_"+short_name)
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval(full_name,zero);
+      }
+    };
+
   void hts_labeller::load_label_format_description(const std::string& file_path)
   {
     std::ifstream infile;
@@ -1664,5 +1682,17 @@ define_feature(std::shared_ptr<feature_function>(new hts_next_syl_coda_length));
     define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_","p.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("next_next_","n.n.",name)));
     define_feature(std::shared_ptr<feature_function>(new hts_ph_flag_feat("prev_prev_","p.p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("","",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_in_word_","n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_in_word","p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_next_in_word","n.n",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_prev_in_word","p.p",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("first_in_word","parent.daughter1",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("last_in_word","parent.daughtern",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_","n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_","p.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("next_next_","n.n.",name)));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_vowel_ph_flag_feat("prev_prev","p.p.",name)));
 }
 }
+ 
