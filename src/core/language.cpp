@@ -273,6 +273,25 @@ namespace RHVoice
       }
     };
 
+    struct feat_syl_vowel_ph_flag: public feature_function
+    {
+      feat_syl_vowel_ph_flag(const std::string& flag):
+        feature_function("syl_vowel_ph_flag_"+flag),
+	name(flag)
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& syl_in_word=syl.as("Syllable").as("SylStructure");
+        item::const_iterator vowel_pos=std::find_if(syl_in_word.begin(),syl_in_word.end(),feature_equals<std::string>("ph_vc","+"));
+        return ((vowel_pos==syl_in_word.end())?zero:(vowel_pos->eval("ph_flag_"+name)));
+      }
+
+    private:
+      const std::string name;
+    };
+
     struct feat_pos_in_phrase: public feature_function
     {
       feat_pos_in_phrase():
@@ -693,6 +712,8 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_asyl_in));
     register_feature(std::shared_ptr<feature_function>(new feat_asyl_out));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_vowel));
+    for(const auto& flag: lcfg.ph_flags.get())
+      register_feature(std::shared_ptr<feature_function>(new feat_syl_vowel_ph_flag(flag)));
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_phrase));
     register_feature(std::shared_ptr<feature_function>(new feat_words_out));
     register_feature(std::shared_ptr<feature_function>(new feat_content_words_in));
