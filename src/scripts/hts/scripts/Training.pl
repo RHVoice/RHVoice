@@ -350,8 +350,8 @@ if ($IN_RE) {
 
          if ( grep( $_ eq $phone, keys %mdcp ) <= 0 ) {
             print "=============== $phone ================\n";
-            shell("$HInit -H $initmmf{'cmp'} -M $hinit{'cmp'} -I $lab -l $phone -o $phone $prtfile{'cmp'}");
-            shell("$HRest -H $initmmf{'cmp'} -M $hrest{'cmp'} -I $lab -l $phone -g $hrest{'dur'}/$phone $hinit{'cmp'}/$phone");
+            shell("$HInit -i $NUMPHON -H $initmmf{'cmp'} -M $hinit{'cmp'} -I $lab -l $phone -o $phone $prtfile{'cmp'}");
+            shell("$HRest -i $NUMPHON -H $initmmf{'cmp'} -M $hrest{'cmp'} -I $lab -l $phone -g $hrest{'dur'}/$phone $hinit{'cmp'}/$phone");
          }
       }
       close(LIST);
