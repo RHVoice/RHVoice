@@ -304,3 +304,12 @@
 [submodule "data/voices/zdenek"]
 	path = data/voices/zdenek
 	url = https://github.com/RHVoice/zdenek-cze.git
+[submodule "data/languages/Uzbek"]
+	path = data/languages/Uzbek
+	url = https://github.com/RHVoice/Uzbek-bin.git
+[submodule "src/scripts/Uzbek"]
+	path = src/scripts/Uzbek
+	url = https://github.com/RHVoice/Uzbek-src.git
+[submodule "data/voices/sevinch"]
+	path = data/voices/sevinch
+	url = https://github.com/RHVoice/Sevinch-uzb.git
