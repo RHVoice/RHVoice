@@ -42,8 +42,11 @@ for dir_name in ["languages","voices"]:
 		if not os.path.isdir(os.path.join(dir.abspath, subdir_name)):
 			continue
 		subdir=dir.Dir(subdir_name)
+		info_path=subdir.File(type+".info").abspath
+		if not os.path.isfile(info_path):
+			continue
 		data_files=list_files(subdir)
-		props=RHVoiceInfoParser.parse(subdir.File(type+".info").abspath)
+		props=RHVoiceInfoParser.parse(info_path)
 		if type=="language":
 			props["language"]=props["name"]
 		if props["language"].lower() not in local_env["languages"]:
