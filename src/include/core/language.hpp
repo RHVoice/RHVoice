@@ -362,6 +362,7 @@ std::unique_ptr<fst> qst_fst;
 
     const fst spell_fst;
     const fst downcase_fst;
+    std::unique_ptr<fst> norm_fst;
     std::unique_ptr<fst> pg2p_fst;
     std::unique_ptr<fst> vocab_fst;
     std::unique_ptr<fst> foreign_phone_mapping_fst;

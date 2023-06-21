@@ -643,6 +643,13 @@ cfg.register_setting(lcfg.tok_sent);
       }
     try
       {
+        norm_fst.reset(new fst(path::join(info_.get_data_path(),"norm.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
         pitch_mod_dtree.reset(new dtree(path::join(info_.get_data_path(),"pitch-mod.dt")));
       }
     catch(const io::open_error& e)
@@ -1099,11 +1106,16 @@ else
 
   void language::default_decode_as_word(item& token,const std::string& token_name) const
   {
+    std::string norm_token_name;
+    if(norm_fst)
+      norm_fst->translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(norm_token_name));
+    else
+      norm_token_name=token_name;
     std::string word_name;
-    downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(word_name));
+    downcase_fst.translate(str::utf8_string_begin(norm_token_name),str::utf8_string_end(norm_token_name),str::append_string_iterator(word_name));
     item& word=token.append_child();
     word.set("name",word_name);
-    word.set("cname", token_name);
+    word.set("cname", norm_token_name);
   }
 
   void language::decode_as_word(item& token,const std::string& token_name) const
