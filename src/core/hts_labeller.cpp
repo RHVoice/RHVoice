@@ -1484,6 +1484,27 @@ namespace RHVoice
         return is_silence(seg)?x:seg.eval(full_name,zero);
       }
     };
+
+    struct hts_dist_to_prev_round_vowel_in_word: public feature_function
+    {
+      hts_dist_to_prev_round_vowel_in_word():
+        feature_function("dist_to_prev_round_vowel_in_word")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        if(is_silence(seg))
+          return x;
+        const item& syl=seg.as("SylStructure").parent();
+        const item& word=syl.parent();
+        item::const_reverse_iterator syl_pos=syl.get_reverse_iterator();
+        item::const_reverse_iterator round_syl_pos=std::find_if(syl_pos,word.rend(),feature_equals<std::string>("syl_vowel_vrnd","+"));
+        unsigned int result=(round_syl_pos==word.rend())?0:(std::distance(syl_pos,round_syl_pos)+1);
+        return result;
+      }
+    };
+
   }
 
     struct hts_syl_vowel_ph_flag_feat: public feature_function
@@ -1664,6 +1685,7 @@ define_feature(std::shared_ptr<feature_function>(new hts_utt_type));
 define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_coda_length));
 define_feature(std::shared_ptr<feature_function>(new hts_syl_coda_length));
 define_feature(std::shared_ptr<feature_function>(new hts_next_syl_coda_length));
+ define_feature(std::shared_ptr<feature_function>(new hts_dist_to_prev_round_vowel_in_word));
   }
 
   void hts_labeller::define_extra_phonetic_feature(const std::string& name)
