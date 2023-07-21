@@ -30,6 +30,8 @@ set("ISO639_1_NAME2CODE_Macedonian" "mk")
 set("ISO639_1_NAME2CODE_Albanian" "sq")
 set("ISO639_1_NAME2CODE_Tatar" "tt")
 set("ISO639_1_NAME2CODE_Czech" "cs")
+set("ISO639_1_NAME2CODE_Slovak" "sk")
+set("ISO639_1_NAME2CODE_Uzbek" "uz")
 
 function(createLangCodeToNameMapping)
 	get_cmake_property(varsHere VARIABLES)
@@ -98,6 +100,8 @@ set("VOICE_magda_LANG" "pl")
 set("VOICE_michal_LANG" "pl")
 set("VOICE_natan_LANG" "pl")
 set("VOICE_zdenek_LANG" "cs")
+set("VOICE_ondro_LANG" "sk")
+set("VOICE_sevinch_LANG" "uz")
 
 cpack_add_component_group("data"
 	DISPLAY_NAME "Data files"
