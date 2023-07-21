@@ -1,0 +1,74 @@
+# Copyright (C) 2022 Darko Milosevic <daremc86@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
+define LetterLseq [
+а:ax1 |
+и:iii1 |
+a:a |
+ä:[p r e h l a s o v a n ee aa] |
+á:[aa] |
+b:[b ee] |
+c:[c ee] |
+č:[ts ee] |
+d:[d ee] |
+ě:[ee z m e k ts e nj o m] |
+e:e |
+ď:[dj ee] |
+é:[ee] |
+f:[e f] |
+g:[g ee] |
+h:[h aa] |
+i:i |
+í:[ii] |
+j:[j ee] |
+k:[k aa] |
+l:[e l] |
+ľ:[e l z m e k ts e nj o m] |
+ĺ:[e l z d ll zh nj o m] |
+m:[e m] |
+n:[e n] |
+ň:[e nj] |
+o:o |
+ó:[oo] |
+ô:[oo z v o k aa nj o m]|
+p:[p ee] |
+q:[k v ee] |
+r:[e r] |
+ř:[e r z m e k ts e nj o m] |
+ŕ:[e r s d l zh nj o m] |
+s:[e s] |
+š:[e sh] |
+t:[t ee] |
+ť:[tj ee] |
+u:u |
+ú:[uu] |
+ů:[uu s k r uu sh k o m] |
+v:[v ee] |
+w:[d v o j i t ee v ee] |
+x:[i k s] |
+y:[y p s i l oo n] |
+ý:[yy p s i l oo n] |
+z:[z e t] |
+ž:[zh e t] ] ;
+
+source stress.foma
+source unicodechars.foma
+
+
+define TranscribeLetterSequence LetterLseq|UnicodeLseq -> || _ ;
+
+regex TranscribeLetterSequence .o.
+procStressLseq .o. procStress2; 

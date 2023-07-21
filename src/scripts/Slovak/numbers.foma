@@ -1,0 +1,138 @@
+# Copyright (C) 2022 Darko Milosevic <daremc86@gmail.com>
+# Copyright (C) 2023 Peter Vagner <pvagner@pvagner.tk>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+define UnformattedNumber (%-) [ Digit Digit^<16];
+define DecimalNumber [UnformattedNumber] [Digit | [%. Digit] | [%, Digit]]+ ;
+define Number DecimalNumber | UnformattedNumber;
+
+
+define InsertMinus %- @-> mínus || _ ;
+define InsertDot %. @-> bodka || _ ;
+define InsertComma %, @-> čiarka || _ ;
+
+define Insertzeros 
+[%0] -> nula || [ .#. | %, | %. | [[.#. | %, | %.] %0+]] _ ;
+
+define InsertThousands 
+[..] -> tisíc || Digit _ Digit^3 [.#. | %, | %.];
+
+define InsertMillions 
+[..] -> miliónov || Digit _ Digit^3 tisíc;
+
+define InsertBillions 
+[..] -> miliárd || Digit _ Digit^3 miliónov;
+
+define InsertTrillions 
+[..] -> biliónov || Digit _ Digit^3 miliárd;
+
+define RemoveSkippedParts 
+%0 %0 %0 [tisíc|miliónov|miliárd|biliónov] -> 0 ;
+
+define Units %0:0|1:jeden|2:dva|3:tri|4:štyri|5:päť|6:šesť|7:sedem|8:osem|9:deväť;
+
+define Teens 1:0 [%0:desať|1:jedenásť|2:dvanásť|3:trinásť|4:štrnásť|5:pätnásť|6:šestnásť|7:sedemnásť|8:osemnásť|9:devätnásť];
+
+define Tens %0:0|2:dvadsať|3:tridsať|4:štyridsať|5:päťdesiat|6:šesťdesiat|7:sedemdesiat|8:osemdesiat|9:deväťdesiat;
+
+define Hundreds %0:0|1:sto|2:dvesto|3:tristo|4:štyristo|5:päťsto|6:šesťsto|7:sedemsto|8:osemsto|9:deväťsto;
+
+define UpToThousand %0:nula .P. [[(Hundreds) Teens] | [((Hundreds) Tens) Units]];
+
+define DigitsToWords 
+UpToThousand @->;
+
+define FixCase 
+tisíc:tisíc|miliónov:milión|miliárd:miliarda|biliónov:bilión -> || jeden _ ,, 
+tisíc:tisíc|miliónov:milióny|miliárd:miliardy|bilión:bilióny -> || dva|tri|štyri _  ;
+
+define ReplaceDva 
+dva -> dve || ^ _ miliardy ,,
+dva -> dva || ^ _ tisíc ;
+
+define ReplaceDvaDve 
+dva -> dve || ^ .#. _ tisíc ;
+
+define ReplaceJeden 
+jeden -> jeden || ^ _ bilión ,, 
+jeden -> jeden || ^ _ milión ;
+
+
+define Fix31Tys 
+tisíc:tisíc|
+miliónov:miliónov|
+miliárd:miliárd|
+biliónov:biliónov -> || 
+[dvadsať|tridsať|štyridsať|päťdesiat|
+šesťdesiat|sedemdesiat|osemdesiat|deväťdesiat|
+sto|dvesto|tristo|štyristo|päťsto|šesťsto|
+sedemsto|osemsto|deväťsto] jeden _ ;
+
+define Fix32Tys 
+tisíc:tisíc|
+milióny:miliónov|
+miliardy:miliárd|
+bilióny:biliónov -> || 
+[dvadsať|tridsať|štyridsať|päťdesiat|
+šesťdesiat|sedemdesiat|osemdesiat|deväťdesiat|
+sto|dvesto|tristo|štyristo|päťsto|šesťsto|
+sedemsto|osemsto|deväťsto] dva _ ;
+
+define Fix33Tys 
+tisíc:tisíc|
+milióny:miliónov|
+miliardy:miliárd|
+bilióny:biliónov -> || 
+[dvadsať|tridsať|štyridsať|päťdesiat|
+šesťdesiat|sedemdesiat|osemdesiat|deväťdesiat|
+sto|dvesto|tristo|štyristo|päťsto|šesťsto|
+sedemsto|osemsto|deväťsto] tri _ ;
+
+define Fix34Tys 
+tisíc:tisíc|
+milióny:miliónov|
+miliardy:miliárd|
+bilióny:biliónov -> || 
+[dvadsať|tridsať|štyridsať|päťdesiat|
+šesťdesiat|sedemdesiat|osemdesiat|deväťdesiat|
+sto|dvesto|tristo|štyristo|päťsto|šesťsto|
+sedemsto|osemsto|deväťsto] štyri _ ;
+
+define RemoveOne 
+jeden -> 0 || [.#. | %, | %.]|GroupName _ tisíc,, 
+jeden -> 0 || [.#. | %, | %.]|GroupName _ milión,, 
+jeden -> 0 || [.#. | %, | %.]|GroupName _ miliarda,, 
+jeden -> 0 || [.#. | %, | %.]|GroupName _ bilión ; 
+
+regex 
+Number .o. 
+Insertzeros .o. 
+InsertThousands .o. 
+InsertMillions .o. 
+InsertBillions .o. 
+InsertTrillions .o. 
+RemoveSkippedParts .o. 
+DigitsToWords .o. 
+FixCase .o. 
+ReplaceDva .o. ReplaceDvaDve .o. 
+ReplaceJeden .o. 
+RemoveOne .o.
+Fix31Tys  .o.
+Fix32Tys  .o.
+Fix33Tys  .o.
+Fix34Tys  .o.
+InsertMinus .o. InsertDot .o. InsertComma ;
