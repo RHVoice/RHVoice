@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Predvolený hlas</string>
+  <string name="default_voice_dialog_title">Vyberte hlas</string>
+  <string name="detect_language_title">Detekcia jazyka</string>
+  <string name="detect_language_desc">Automatické prepínanie jazyka</string>
+  <string name="speech_volume">Hlasitosť reči</string>
+  <string name="speech_rate">Tempo reči</string>
+  <string name="pseudo_english_title">Anglické slová</string>
+  <string name="pseudo_english_desc">Pokúsiť sa správne čítať anglický text</string>
+  <string name="settings">Nastavenia</string>
+  <string name="wifi_only_title">Len cez Wi-Fi</string>
+  <string name="wifi_only_desc">Inštalovať hlasy len cez Wi-Fi</string>
+  <string name="speech_quality">Kvalita reči</string>
+  <string-array name="quality_labels">
+    <item>Najlepší možný výkon</item>
+    <item>Štandardná kvalita</item>
+    <item>Najlepšia možná kvalita</item>
+  </string-array>
+  <string name="languages">Jazyky</string>
+  <string name="voice_remove_question">Ste si istí, že si želáte odinštalovať tento hlas?</string>
+  <string name="install">Inštalovať</string>
+  <string name="uninstall">Odinštalovať</string>
+  <string name="play">Prehrať</string>
+  <string name="stop">Zastaviť</string>
+  <string name="increase">Zvýšiť</string>
+  <string name="decrease">Znížiť</string>
+  <string name="reset">Obnoviť</string>
+  <string name="version">Verzia</string>
+  <string name="user_dicts">Používateľské slovníky</string>
+  <string name="add">Pridať</string>
+  <string name="remove">Odstrániť</string>
+  <string name="config_file">Konfiguračný súbor</string>
+</resources>
