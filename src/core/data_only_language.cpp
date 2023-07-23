@@ -89,6 +89,13 @@ namespace RHVoice
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        lex_fst.reset(new fst(path::join(info_.get_data_path(),"lex.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   std::vector<std::string> data_only_language::get_word_transcription(const item& word) const
@@ -110,6 +117,10 @@ namespace RHVoice
 	    if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
 	      g2p_input=tmp;
 	  }
+	if(lex_fst!=nullptr) {
+	  if(lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+	    return tmp;
+}
 	g2p_fst.translate(g2p_input.begin(),g2p_input.end(),std::back_inserter(transcription));
     return transcription;
   }
