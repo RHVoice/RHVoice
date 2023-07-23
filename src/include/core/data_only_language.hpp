@@ -69,6 +69,7 @@ struct locale_info
     const fst g2p_fst;
     const fst lseq_fst;
 std::unique_ptr<fst> g2g_fst;
+std::unique_ptr<fst> lex_fst;
   };
 }
 #endif
