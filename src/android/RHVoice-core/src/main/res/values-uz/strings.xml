@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="default_voice_title">Birlamchi ovoz</string>
+  <string name="default_voice_dialog_title">Ovozni tanlang</string>
+  <string name="detect_language_title">Tilni aniqlash</string>
+  <string name="detect_language_desc">Tildan-tilga avtomatik o\'tish</string>
+  <string name="speech_volume">Ovoz balandligi</string>
+  <string name="speech_rate">Nutq tezligi</string>
+  <string name="pseudo_english_title">Ingliz tilidagi so\'zlar</string>
+  <string name="pseudo_english_desc">Ingliz tilidagi so\'zlarni to\'g\'ri o\'qishga harakat qilish</string>
+  <string name="settings">Sozlamalar</string>
+  <string name="wifi_only_title">Faqat WI-FI orqali</string>
+  <string name="wifi_only_desc">Ovozlarni faqat WI-FI orqali yuklash</string>
+  <string name="speech_quality">Sifat</string>
+  <string-array name="quality_labels">
+    <item>Yuqori ishlash tezligi</item>
+    <item>Standart sifat</item>
+    <item>Yuqori darajadagi ovoz sifati</item>
+  </string-array>
+  <string name="languages">Tillar</string>
+  <string name="voice_remove_question">Ovozni o\'chirib tashlashni xohlaysizmi?</string>
+  <string name="install">O\'rnatish</string>
+  <string name="uninstall">O\'chirish</string>
+  <string name="play">Na\'munani tinglash</string>
+  <string name="stop">To\'xtatish</string>
+  <string name="increase">Ko\'paytirish</string>
+  <string name="decrease">Kamaytirish</string>
+  <string name="reset">Qaytarish</string>
+  <string name="version">Versiya</string>
+  <string name="user_dicts">Foydalanuvchi lug\'ati</string>
+  <string name="add">Qo\'shish</string>
+  <string name="remove">O\'chirish</string>
+  <string name="config_file">Konfiguratsiya fayli</string>
+</resources>

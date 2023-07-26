@@ -1,0 +1,209 @@
+#!/bin/bash
+
+# Asking user where to install the RHVoice building environment
+
+echo "Please specify the path you want to setup RHVoice environment"
+read environment_path
+
+# Removing previously installed environment
+echo "Removing previous environment"
+rm -rf $environment_path
+
+# Creating working directory, it seems to be directory specifyed in $environment_path variable
+
+echo "Creating working directory"
+mkdir $environment_path
+
+# Entering working directory
+
+echo "Entering working directory"
+cd $environment_path
+
+# Setting up necessary packages
+
+setup_packages () {
+    echo "Setting up Speech dispatcher development header libraries, GNU Library, LIBX11-DEV, LIBNCURSES-DEV, Gawk, CSH, Python Is Python 3, Python 3 PIP, SOX, SCONS, LIBASOUND 2 Development and WGET for downloading PRAAT."
+    sudo apt install gnulib -y
+    sudo apt install libx11-dev -y
+    sudo apt install libncurses-dev -y
+    sudo apt install gawk -y
+    sudo apt install csh -y
+    sudo apt install python-is-python3 python3-pip sox scons -y
+    sudo apt install libasound2-dev wget -y
+    # Installing curl
+    sudo apt-get install curl -y
+    sudo apt-get install git -y
+}
+
+# Downloading praat
+
+download_praat() {
+    echo "Downloading praat"
+    wget https://github.com/praat/praat/releases/download/v6.3.02/praat6302_linux64barren.tar.gz
+    # Extracting praat archive
+    echo "Extracting praat archive"
+    tar -xvf praat6302_linux64barren.tar.gz
+    # Removing archive
+    rm praat6302_linux64barren.tar.gz
+    # Renaming praat
+    mv ./praat* ./praat
+}
+
+# Now installing festival and speech tools.
+
+
+setup_festival_and_speech_tools () {
+    echo "Setting up Festival, and Speech tools"
+    echo "Cloning Festvox Speech tools from git repository"
+    git clone --recurse https://github.com/festvox/speech_tools.git
+    echo "Cloning Festival from git repository"
+    git clone --recurse https://github.com/festvox/festival.git
+    echo "Configuring speech tools"
+    cd speech_tools
+    ./configure
+    make
+    echo "Configuring Festival"
+    cd ../festival
+    ./configure
+    make
+    cd ..
+}
+
+# Now, downloading, extracting, and configuring the Speech signal processing toolkit
+
+configure_sptk () {
+    echo "Downloading, extracting, configuring, and installing the Speech signal processing toolkit."
+    curl -O http://kumisystems.dl.sourceforge.net/project/sp-tk/SPTK/SPTK-3.11/SPTK-3.11.tar.gz
+    tar -xvf SPTK-3.11.tar.gz
+    cd SPTK-3.11
+    ./configure --prefix=$environment_path/SPTK-3.11/build
+    echo "Now, it's time to patch the SPTK.\nYou need to add word extern in line 46.\nThe line, should look like below one:\nextern struct bbmargin {               /*  Bounding Box Margin  */\nAfter modification, press CTRL+x, then y, and then Enter to save the file, and exit."
+    nano +46 bin/psgr/psgr.h
+    echo "Now, you must patch line 80 of bin/psgr/psgr.c, and this line should look like\nstruct bbmargin bbm;\nAfter modification, press CTRL+x, then y, and then Enter to save, and close the file."
+    nano +80 bin/psgr/psgr.c
+    echo "Making and installing the Speech signal processing toolkit"
+    make
+    make install
+    cd ..
+}
+# HTS installation
+
+hts_installation () {
+    echo "Please provide the information about your user ID and password you register the HTK from https://htk.eng.cam.ac.uk/register.shtml\nYour User ID:"
+    read user_id
+    echo "Your HTK password:"
+    read user_password
+    curl -O https://$user_id:$user_password@htk.eng.cam.ac.uk/ftp/software/HTK-3.4.1.tar.gz
+    curl -O https://$user_id:$user_password@htk.eng.cam.ac.uk/ftp/software/hdecode/HDecode-3.4.1.tar.gz
+    tar -xvf HTK-3.4.1.tar.gz
+    cd htk
+    echo "Installing 32 bit tools"
+    sudo apt install gcc-multilib -y
+    sudo dpkg --add-architecture i386
+    sudo apt update
+    sudo apt install libx11-dev:i386 -y
+    ./configure --prefix=$environment_path/htk341
+    mkdir $environment_path/htk341
+    sed -i '77s/        /\t/' HLMTools/Makefile
+    make
+    make install
+    cd ..
+    rm -r htk
+    curl -O http://hts.sp.nitech.ac.jp/archives/2.3/HTS-2.3_for_HTK-3.4.1.tar.bz2
+    tar -xvf HTS-2.3_for_HTK-3.4.1.tar.bz2
+    curl -O http://hts.sp.nitech.ac.jp/archives/2.2/HTS-2.2_for_HTK-3.4.1.tar.bz2
+    tar -xvf HTS-2.2_for_HTK-3.4.1.tar.bz2
+    tar -xvf HTK-3.4.1.tar.gz
+    tar -xvf HDecode-3.4.1.tar.gz
+    cd htk
+    patch -p1 -d . < ../HTS-2.3_for_HTK-3.4.1.patch
+    ./configure --prefix=$environment_path/hts23 CFLAGS="-DARCH=linux"
+    mkdir $environment_path/hts23
+    make
+    make install
+    cd ..
+    rm -r htk
+    tar -xvf HTK-3.4.1.tar.gz
+    tar -xvf HDecode-3.4.1.tar.gz
+    cd htk
+    patch -p1 -d . < ../HTS-2.2_for_HTK-3.4.1.patch
+    ./configure --prefix=$environment_path/hts22
+    mkdir $environment_path/hts22
+    make
+    make install
+    cd ..
+    rm -r htk
+    curl -O https://kumisystems.dl.sourceforge.net/project/hts-engine/hts_engine%20API/hts_engine_API-1.10/hts_engine_API-1.10.tar.gz
+    tar -xvf hts_engine_API-1.10.tar.gz
+    cd hts_engine_API-1.10
+    ./configure --prefix=$environment_path/hts_engine_api110
+    mkdir $environment_path/hts_engine_api110
+    make
+    make install
+    cd ..
+    rm -r hts_engine_API-1.10
+}
+
+# Cloning and building the RHVoice
+
+build_rh_voice () {
+    echo "Installing some additional packages"
+    pip install matplotlib argparse cython pysoundfile
+    pip install numpy scipy webrtcvad pyworld
+    sudo apt install libparallel-forkmanager-perl jq -y
+    echo "Cloning RHVoice"
+    git clone --recurse https://github.com/RHVoice/RHVoice.git
+    echo "Building RHVoice for development"
+    cd RHVoice
+    scons dev=True
+    cd ..
+    # Setting permissions to praat
+    echo "Setting permissions to praat"
+    chmode +x praat
+}
+
+# Copying bin files to bin directory
+
+copy_bin () {
+    echo "Copying bin files to bin directory"
+    mkdir bin
+    cd bin
+    cp --symbolic-link ../SPTK-3.11/build/bin/* ./
+    cp --symbolic-link ../hts_engine_api110/bin/* ./
+    cp --symbolic-link ../hts23/bin/* ./
+    cd ../
+}
+
+# Changing ./RHVoice/src/scripts/general/training.cfg with new paths update
+
+create_training_cfg () {
+    cd $environment_path/RHVoice/src/scripts/general
+    jq --arg pwd "$(pwd)" --arg working_dir "$environment_path" \
+    '.festdir=$working_dir+"/festival/"|
+    .bindir=$working_dir+"/bin"|
+    .htk_bindir=$working_dir+"/htk341/bin"|
+    .praat_path=$working_dir+"/praat"|
+    .hts22_bindir=$working_dir+"/hts22/bin"' \
+    training.cfg >training2.cfg &&
+    mv training2.cfg training.cfg
+cd $environment_path
+}
+
+# Calling all of these methods one by one
+
+setup_packages
+download_praat
+setup_festival_and_speech_tools
+configure_sptk
+hts_installation
+build_rh_voice
+copy_bin
+create_training_cfg
+
+# Removing archives
+
+echo "Removing archives"
+rm *.tar.gz
+rm *.tar.bz2
+
+echo "All done"

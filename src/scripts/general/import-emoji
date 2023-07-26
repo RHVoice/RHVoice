@@ -66,6 +66,18 @@ languages={
 	"Macedonian":
 	{
 		"ids":["mk"]
+	 },
+"Czech":
+	{
+		"ids":["cs"]
+	 },
+"Uzbek":
+	{
+		"ids":["uz"]
+	 },
+	"Slovak":
+	{
+		"ids":["sk"]
 	 }
 	   }
 

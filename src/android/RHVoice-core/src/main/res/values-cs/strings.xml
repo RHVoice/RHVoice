@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright 2023 by Darko milosevic and Zvonimir stanecic-->
+
+<resources>
+  <string name="default_voice_title">Výchozí hlas</string>
+  <string name="default_voice_dialog_title">Výběr hlasu</string>
+  <string name="detect_language_title">Rozpoznávání jazyka</string>
+  <string name="detect_language_desc">Automatické přepínání jazyků</string>
+  <string name="speech_volume">Hlasitost řeči</string>
+  <string name="speech_rate">Rychlost řeči</string>
+  <string name="pseudo_english_title">Anglická slova</string>
+  <string name="pseudo_english_desc">Snažte se správně číst anglická slova</string>
+  <string name="settings">Nastavení</string>
+  <string name="wifi_only_title">Pouze Wi-Fi</string>
+  <string name="wifi_only_desc">Stahování hlasů pouze přes Wi-Fi</string>
+  <string name="speech_quality">Kvalita řeči</string>
+  <string-array name="quality_labels">
+    <item>Nejlepší možný výkon</item>
+    <item>Standardní kvalita</item>
+    <item>Nejlepší možná kvalita</item>
+  </string-array>
+  <string name="languages">Jazyky</string>
+  <string name="voice_remove_question">Opravdu chcete odinstalovat tento hlas?</string>
+  <string name="install">Nainstalovat</string>
+  <string name="uninstall">Odinstalovat-</string>
+  <string name="play">Přehrát</string>
+  <string name="stop">Zastavte</string>
+  <string name="increase">Zvýšit</string>
+  <string name="decrease">Snížit</string>
+  <string name="reset">Resetovat</string>
+  <string name="version">Verze</string>
+  <string name="user_dicts">Uživatelské slovníky</string>
+  <string name="add">Přidat</string>
+  <string name="remove">Odstranit</string>
+  <string name="config_file">Konfigurační soubor</string>
+</resources>

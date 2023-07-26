@@ -1,4 +1,4 @@
-# Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
+# Copyright (C) 2023 Grzegorz Zlotowicz  <grzezlo@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
@@ -13,25 +13,16 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-define Untransliterate 
-{cx} -> ĉ ,, 
-{gx} -> ĝ ,, 
-{hx} -> ĥ ,, 
-{jx} -> ĵ ,, 
-{sx} -> ŝ ,, 
-{ux} -> ŭ ; 
+#  Czech przepozisions should be pronounced as letters, not words,  when such word is only one in the utterance.
 
-# Now, we need to untransliterate the Esperanto chars with "h" variant.
-# In Esperanto, we can use normal Esperanto chars:ĉ, ĝ, ĵ, or with x variant:cx, gx, jx, and with h variant:ch, gh, jh.
+define czechPrep [
+v: [v ee1] |
+k: [k aa1] |
+l: [e l] |
+s: [e s] |
+z: [z e1 t] |
+r:[e r]]
+@-> || .#. _ .#.;
 
-define UntransliterateH 
-[ch] -> ĉ ,, 
-[gh] -> ĝ ,, 
-[sh] -> ŝ ,, 
-[jh] -> ĵ ,, 
-[hh] -> ĥ ,,
-[uh] -> ŭ ; 
 
-regex 
-Untransliterate .o. 
-UntransliterateH;
+regex czechPrep;

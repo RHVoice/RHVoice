@@ -298,3 +298,24 @@
 [submodule "data/voices/vsevolod"]
 	path = data/voices/vsevolod
 	url = https://github.com/RHVoice/vsevolod-rus.git
+[submodule "data/languages/Czech"]
+	path = data/languages/Czech
+	url = https://github.com/RHVoice/Czech.git
+[submodule "data/voices/zdenek"]
+	path = data/voices/zdenek
+	url = https://github.com/RHVoice/zdenek-cze.git
+[submodule "data/languages/Uzbek"]
+	path = data/languages/Uzbek
+	url = https://github.com/RHVoice/Uzbek-bin.git
+[submodule "src/scripts/Uzbek"]
+	path = src/scripts/Uzbek
+	url = https://github.com/RHVoice/Uzbek-src.git
+[submodule "data/voices/sevinch"]
+	path = data/voices/sevinch
+	url = https://github.com/RHVoice/Sevinch-uzb.git
+[submodule "data/languages/Slovak"]
+	path = data/languages/Slovak
+	url = https://github.com/RHVoice/Slovak.git
+[submodule "data/voices/ondro"]
+	path = data/voices/ondro
+	url = https://github.com/RHVoice/ondro-slk.git

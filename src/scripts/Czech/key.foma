@@ -1,0 +1,96 @@
+# Copyright (C) 2023 Darko Milosevic <daremc86@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define NZDigit 
+1:jedna | 
+2:dva | 
+3:tři | 
+4:čtyři | 
+5:pět | 
+6:šest | 
+7:sedm | 
+8:osm | 
+9:devět ; 
+
+define Digit [%0 : nula] | NZDigit;
+
+define Number 
+NZDigit | 
+[[1:0] [
+%0:deset | 
+1:jedenáct | 
+2:dvanáct | 
+3:třináct | 
+4:čtrnáct | 
+5:patnáct | 
+6:šestnáct | 
+7:sedmnáct | 
+8:osmnáct | 
+9:devatenáct]] | 
+[[2:dvacet] [%0:0 | NZDigit]] ;
+
+define Plus %+ : plus;
+define Minus %- : minus;
+define Slash %/ : lomítko;
+define BackSlash %\ :zpětné lomítko ;
+define Star %* : hvjezďička;
+define Dot %. : tečka;
+define SpecialChar Plus | Minus | Slash | BackSlash | Star | Dot;
+
+define Enter {enter} : entr;
+
+define OtherKey 
+{underscore} : podtržítko | 
+{double-quote} : uvozovki | 
+{alt} : alt | 
+{control} : kontrol | 
+{hyper} : hiper | 
+{meta} : meta | 
+{shift} : šift | 
+{super} : super | 
+{backspace} : [bek spejs] | 
+{break} : break | 
+{delete} : delete | 
+{down} : down | 
+{end} : end | 
+Enter | 
+{escape} : iskejp | 
+{home} : home | 
+{insert} : insert | 
+{left} : levó | 
+{menu} : menu | 
+{next} : další | 
+{num-lock} : [num lock] | 
+{pause} : pause | 
+{print} : print | 
+{prior} : prior | 
+{return} : return | 
+{right} : pravó | 
+{scroll-lock} : [scroll lock] | 
+{space} : mezera | 
+{tab} : tabulátor | 
+{up} : up | 
+{window} : windows ; 
+
+define KPKey 
+[{kp-} : 0] [Digit | Plus | Minus | Star | Slash | Dot | Enter];
+
+define FKey 
+f:ef Number ;
+
+define Key 
+KPKey | FKey | SpecialChar | OtherKey;
+
+regex Key;

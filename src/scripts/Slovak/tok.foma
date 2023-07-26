@@ -1,0 +1,100 @@
+# Copyright (C) 2022 Darko Milosevic <daremc86@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define CaseVariants 
+a -> a|A , 
+ä -> ä|Ä , 
+á -> á|Á , 
+b -> b|B , 
+c -> c|C , 
+č -> č|Č , 
+d -> d|D , 
+ď -> ď|Ď , 
+e -> e|E , 
+é -> é|É , 
+ě -> ě|Ě , 
+f -> f|F , 
+g -> g|G , 
+h -> h|H , 
+i -> i|I , 
+í -> í|Í , 
+j -> j|J , 
+k -> k|K , 
+l -> l|L , 
+ľ -> ľ|Ľ , 
+ĺ -> ĺ|Ĺ , 
+m -> m|M , 
+n -> n|N , 
+ň -> ň|Ň , 
+o -> o|O , 
+ó -> ó|Ó , 
+ô -> ô|Ô , 
+ö -> ö|Ö , 
+p -> p|P , 
+q -> q|Q , 
+r -> r|R , 
+ř -> ř|Ř , 
+ŕ -> ŕ|Ŕ , 
+s -> s|S , 
+š -> š|Š , 
+ß -> ß|ẞ , 
+t -> t|T , 
+ť -> ť|Ť , 
+u -> u|U , 
+ú -> ú|Ú , 
+ů -> ů|Ů , 
+ü -> ü|Ü , 
+v -> v|V , 
+w -> w|W , 
+x -> x|X , 
+y -> y|Y , 
+ý -> ý|Ý , 
+z -> z|Z , 
+ž -> ž|ž ; 
+
+#We should to define vocalics r and l
+# so we exclude r and l from ConsonantLetterSequence.
+define ConsonantLetterSequence 
+[b|c|č|d|ď|f|g|h|j|k|m|n|ň|q|p|ř|s|š|t|ť|v|w|x|z|ž]+ - [l|k|r|s|v|z]; 
+
+define LetterSequence 
+[ConsonantLetterSequence .o. CaseVariants].l ; 
+
+define Letter a|A|ä|Ä|á|Á|b|B|c|C|č|Č|d|D|ď|Ď|e|E|é|É|ě|Ě|f|F|g|G|h|H|i|I|í|Í|j|J|k|K|l|L|ľ|Ľ|ĺ|Ĺ|m|M|n|N|ň|Ň|o|O|ó|Ó|ô|Ô|ö|Ö|p|P|q|Q|r|R|ř|Ř|ŕ|Ŕ|s|S|š|Š|ß|ẞ|t|T|ť|Ť|u|U|ú|Ú|ů|Ů|ü|Ü|v|V|w|W|x|X|y|Y|ý|Ý|z|Z|ž|Ž;
+
+define NZDigit 1|2|3|4|5|6|7|8|9;
+define Digit %0|NZDigit;
+
+define UnformattedNumber (%-) [Digit Digit*] ;
+define DecimalNumber [UnformattedNumber] [Digit | [%. Digit] | [%, Digit]]+ ;
+define Number DecimalNumber | UnformattedNumber;
+
+define Word Letter+ ;
+
+define Stage1 
+Number @-> ... num || _ ,, 
+Word @-> ... word || _ .#. | \Letter ,, 
+\[Letter | Digit] @-> ... sym || _ ; 
+
+define Stage2 
+word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
+num -> dig || Digit^16 _ ;
+
+source unicodechars.foma
+
+regex UnicodeToNativeTranslitTok .o. 
+Stage1 .o.
+Stage2 ; 
+

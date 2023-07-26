@@ -259,6 +259,7 @@ $MATLAB   = '@MATLAB@';
 $STRAIGHT = '@STRAIGHT@';
 
 $NUMPROC = 1;
+$NUMPHON = 20;
 $NUMCL = 2;
 
 # Switch ================================

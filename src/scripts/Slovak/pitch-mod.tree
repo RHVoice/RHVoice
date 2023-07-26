@@ -1,0 +1,60 @@
+; Copyright (C) 2021 Non-Routine LLC.  <lp@louderpages.org>
+
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU Affero General Public License as published by
+; the Free Software Foundation, version 3.0 of the License.
+
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU Affero General Public License for more details.
+
+; You should have received a copy of the GNU Affero General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+                                        ; -*- mode: Scheme -*-
+((utt_type is q)
+ ((R:SylStructure.parent.R:Phrase.parent.phrases_out is 0)
+  ((ssyl_out < 2)
+   ((n.stress is 1)
+    (("[e x)"))
+    ((ssyl_out is 0)
+     ((stress is 1)
+      ((syl_break is 4)
+       ((syl_in is 0)
+        (("[i m) (e T) (F T]"))
+        (("(e T) (F T)")))
+       ((syl_in is 0)
+        (("[i m) (e d)"))
+        (("(e d)"))))
+      ((syl_break is 4)
+       ((ssyl_in > 0)
+        (("(f T) (F T]"))
+        ((NONE)))
+       ((NONE))))
+     ((NONE))))
+   ((NONE)))
+  ((NONE)))
+ ((utt_type is e)
+  ((R:SylStructure.parent.R:Phrase.parent.phrases_out is 0)
+   ((ssyl_out < 2)
+    ((n.stress is 1)
+     (("[e x)"))
+     ((ssyl_out is 0)
+      ((stress is 1)
+       ((syl_break is 4)
+        ((syl_in is 0)
+         (("[i m) (m t) (f b) (F s]"))
+         (("(m t) (f b) (F s]")))
+        ((syl_in is 0)
+         (("[i m) (m t)"))
+         (("(m t)"))))
+       ((syl_break is 4)
+        ((ssyl_in > 0)
+         (("(f b) (F s]"))
+         ((NONE)))
+        ((NONE))))
+      ((NONE))))
+    ((NONE)))
+   ((NONE)))
+  ((NONE))))

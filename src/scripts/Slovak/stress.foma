@@ -1,0 +1,46 @@
+define UnstressedVowelPhonem [a | aa | e | ee | ije | i | ii | o | oo | u | uu | ou | y | yy ] ;
+
+define setStress [a:a1|
+aa:aa1|
+e:e1|
+ee:ee1|
+ije:ije1|
+i:i1|
+ii:ii1|
+o:o1|
+oo:oo1|
+u:u1|
+uu:uu1|
+ou:ou1|
+y:y1|
+yy:yy1
+iii:iii1
+ax:ax1
+];
+
+define procStressG2p setStress @-> ||
+_ \UnstressedVowelPhonem+ UnstressedVowelPhonem+ .#.,
+_ \UnstressedVowelPhonem+ UnstressedVowelPhonem+ \UnstressedVowelPhonem+ .#.,
+.#. \UnstressedVowelPhonem+ _ \UnstressedVowelPhonem+ .#.;
+
+define procStressLseq setStress @-> ||
+_ \UnstressedVowelPhonem+ .#.,
+_  .#.;
+
+
+define procStress2 [a:a0|
+aa:aa0|
+e:e0|
+ee:ee0|
+ije:ije0|
+i:i0|
+o:o0|
+oo:oo0|
+u:u0|
+uu:uu0|
+ou:ou0|
+y:y0|
+yy:yy0
+iii:iii0
+ax:ax0
+] @-> || _ ;

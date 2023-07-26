@@ -1,0 +1,9 @@
+#!/bin/bash
+pushd $(dirname $0) >/dev/null
+rm tmp.att >/dev/null 2>&1
+echo "source $1.foma
+write att tmp.att
+quit" | foma &&
+/bin/python3 ../general/att2bin tmp.att ../../../data/languages/Slovak/$1.fst
+rm tmp.att >/dev/null 2>&1
+popd >/dev/null

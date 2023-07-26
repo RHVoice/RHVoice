@@ -32,7 +32,8 @@ The `RHVoice.ini` file must be put into the `RHVoice-config` subfolder.
 ### Android
 
 Depending on your device, the configuration file may be stored either in
-internal memory or on an SD card. The path is
+internal memory or on an SD card. This will likely be somewhere in a subdirectory of `/storage`. 
+The relative file path is
 `Android/data/com.github.olga_yakovleva.rhvoice.android/files/RHVoice.conf`.
 
 ## Format

@@ -1,0 +1,144 @@
+# Copyright (C) 2023 Darko Milosevic <daremc86@gmail.com>, zvonimir Stanecic
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define Letter 
+[[a|A]:a] | 
+[[ä|Ä]:a] | 
+[[á|Á]:[á dlouhé]] | 
+[[b|B]:bé] | 
+[[c|C]:cé] | 
+[[č|Č]:čé] | 
+[[d|D]:dé] | 
+[[ď|Ď]:ďé] | 
+[[e|E]:e] | 
+[[é|É]:[é dlouhé]] | 
+[[ě|Ě]:ije] | 
+[[f|F]:ef] | 
+[[g|G]:gé] | 
+[[h|H]:há] | 
+[[i|I]:i] | 
+[[í|Í]:[í dlouhé ]] | 
+[[j|J]:jé] | 
+[[k|K]:ká] | 
+[[l|L]:el] | 
+[[ľ|Ľ]:el] | 
+[[ĺ|Ĺ]:el] | 
+[[m|M]:em] | 
+[[n|N]:en] | 
+[[ň|Ň]:eň] | 
+[[o|O]:o] | 
+[[ó|Ó]:[ó dlouhé]] | 
+[[ô|Ô]:o] | 
+[[p|P]:pé] | 
+[[q|Q]:kvé] | 
+[[r|R]:er] | 
+[[ř|Ř]:eř] | 
+[[ŕ|Ŕ]:er] | 
+[[s|S]:es] | 
+[[š|Š]:eš] | 
+[[t|T]:té] | 
+[[ť|Ť]:ťé] | 
+[[u|U]:u] | 
+[[ú|Ú]:[ú dlouhé]] | 
+[[ů|Ů]:[ů s kroužkem]] | 
+[[v|V]:vé] | 
+[[w|W]:[dvojité vé]] | 
+[[x|X]:iks] | 
+[[y|Y]:ypsilon] | 
+[[ý|Ý]:[ypsilon dlouhé]] | 
+[[z|Z]:zet] |
+[[ž|Ž]:žet] ; 
+
+define Digit %0:nula|1:jedna|2:dva|3:tři|4:čtyři|5:pět|6:šest|7:sedum|8:osum|9:devět;
+
+define Whitespace 
+tab:tabulátor | 
+nl:[noví řádek] | 
+cr:[konec řádku] | 
+sp:mezera | 
+nbsp:[nerozbitný prostor] ; 
+
+define Punctuation 
+%,:čárka | 
+%.:tečka | 
+%?:otazník | 
+%!:vykřičník | 
+%::dvojtečka | 
+%;:středník | 
+%":uvozovky | 
+%':apostrof | 
+%(:[levá závorka] | 
+%):[pravá závorka] | 
+%-:minus | 
+%[:[levá hranatá] | 
+%]:[pravá hranatá] | 
+%{:[levá složená] | 
+%}:[pravá složená] ; 
+
+define Symbol 
+%$:dolár | 
+%%:procent | 
+%° : stupeň | 
+%#:mřížka | 
+%&:amprsand | 
+%*:hvjezďička | 
+%+:plus | 
+%/:lomítko | 
+%<:menší | 
+%=:rovna se | 
+%>:větší | 
+%@:zavináč | 
+%\:zpětné lomítko | 
+%^:stříško | 
+%_:podtržítko | 
+%µ:mikro | 
+%`:přízvuk | 
+%|:[svislítko] | 
+%• : [bulit] |
+%… : [troitečka] |
+%“ : [levé uvozovky] |
+%” : [pravé uvozovky] |
+%‘ : [levé apostrof] |
+%’ : [pravé apostrof] |
+%– : [pomlčka	] |
+%— : [pomlčka] |
+%­ : [měkká pomlčka] |
+%⁃ : [podélná střela] |
+%● : [kolo] |
+%○ : [bílý kruh] |
+%¨ : [direza] |
+%¯ : [přílišný důraz] |
+%´ : [čárka] |
+%¸ : [cedylla] |
+%¶ : [paragraf] |
+%■ : [černý čtverec] |
+%▪ : [černý čtverec] |
+%◾ : [černý čtverec] |
+%□ : [bílý čtverec] |
+%◦ : [bílá tečka] |
+%⇒ : [Dvojitá šipka vpravo] |
+%§ : [paragraf] |
+%® : [registrovaný] |
+%™ : [ochranná známka] |
+%© : [značka autorských práv] |
+%± : [plus minus] |
+%× : [krát] |
+%÷ : [dělení] |
+%€ : [euro] |
+%~:vlnka ; 
+
+
+regex 
+Letter | Digit | Whitespace | Punctuation | Symbol ; 

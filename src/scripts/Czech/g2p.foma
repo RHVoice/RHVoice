@@ -1,0 +1,121 @@
+# Copyright (C) 2023 Darko Milosevic <daremc86@gmail.com>, Zvonimir Stanecic
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define InitialTranscribe 
+# Now, we should define some phonemes which represents something symillar as schwa for vocalize R and L
+а:ax1 | 
+и:iii1 | 
+a:a | 
+ä:a | 
+á:aa | 
+b:b | 
+c:c | 
+č:ts | 
+d:d | 
+[dz]:dz | 
+ď:dj | 
+e:e | 
+é:ee | 
+ě:ije | 
+f:f | 
+g:g | 
+h:h | 
+i:i | 
+í:ii | 
+j:j | 
+k:k | 
+l:l | 
+ľ:l | 
+ĺ:l | 
+m:m | 
+n:n | 
+ň:nj | 
+o:o | 
+ó:oo | 
+ô:o | 
+p:p | 
+q:[k v] | 
+r:r | 
+ř:rz | 
+ŕ:r | 
+s:s | 
+š:sh | 
+t:t | 
+ť:tj | 
+u:u | 
+ú:uu | 
+ů:ou | 
+w:v | 
+v:v | 
+x:[k s] | 
+y:y | 
+ý:yy | 
+z:z | 
+ž:zh ; 
+
+define Digraphs 
+[c h]:[hh] | 
+[d zh]:[dzh] | 
+[m ě]:[m nj e] | 
+[d ije]:[dj e] | 
+[t ije]:[tj e] | 
+[n ije]:[nj e] | 
+[d i]:[dj i] | 
+[t i]:[tj i] | 
+[n i]:[nj i] | 
+[d ii]:[dj ii] | 
+[t ii]:[tj ii] | 
+[n ii]:[nj ii] ; 
+
+define SpecialRules 
+[c g]:[dz g] | 
+[tsh g]:[dzh g] | 
+[c d]:[dz d] | 
+[tsh d]:[dzh d] | 
+[c b]:[dz b] | 
+[tsh b]:[dzh b] ; 
+
+define Stage1 InitialTranscribe @-> ; 
+define Stage2 Digraphs @-> ; 
+define Stage3 SpecialRules @-> ; 
+
+define VowelPhonem [a | aa | e | ee | i | ii | o | oo | u | uu | ou | y | yy | iii1 | ax1 ] ;
+define ConsonantPhonem [b|c|ts|d|dj|dz|dzh|f|g|h|hh|j|k|l|m|n|nj|p|r|rz|s|sh|t|tj|v|z|zh] ;
+
+define tgStress a0:a1|aa0:aa1|e0:e1|ee0:ee1|ije0:ije1|i0:i1|ii0:ii1|iii0:iii1|o0:o1|oo0:oo1|u0:u1|uu0:uu1|ou0:ou1|y0:y1|yy0:yy1|ax0:ax1;
+define noStressV  a0 | aa0 | e0 | ee0 | ije0 | i0 | ii0 | iii0 | o0 | oo0 | u0 | uu0 | ou0 | y0 | yy0 | ax0 ;
+define stressV  a1 | aa1 | e1 | ee1 | ije1 | i1 | ii1 | iii1 | o1 | oo1 | u1 | uu1 | ou1 | y1 | yy1 | ax1 ;
+define vowel  noStressV  | stressV;
+define pc   \vowel;
+define pcx   pc - StressMark;
+define noStress noStressV | pc | StressMark;
+
+define vowelizeR  r -> [iii0 r]  || pc _ pcx ,,
+ax0 -> iii0 || _ r ; 
+
+define vowelizeL  l -> [iii0 l]  || pc _ pcx ,,
+ax0 -> iii0 || _ l ; 
+
+
+source stress.foma
+
+regex Stage1 .o.
+Stage2 .o.
+Stage3 .o.
+procStressG2p .o.
+procStress2 .o.
+vowelizeR .o.
+vowelizeL ;
+
