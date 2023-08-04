@@ -82,6 +82,7 @@ final class Repository {
         moshi = new Moshi.Builder().build();
         jsonAdapter = moshi.adapter(PackageDirectory.class).nonNull();
         exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+	exec.submit(this::initCerts);
         initialLoad();
     }
 
@@ -193,4 +194,22 @@ final class Repository {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork("dir.packages.rhvoice.org", policy, request);
         prefs.edit().putLong("ttl", newTtl).commit();
     }
-}
+
+    private void initCerts() {
+	final File file_path=new File(new File(PackageClient.getPath(context)), "cacert.pem");
+	final File tmp_path=new File(file_path.getPath()+".tmp");
+        try(InputStream is=context.getResources().openRawResource(R.raw.cacert))
+            {
+                try(FileOutputStream os=new FileOutputStream(tmp_path))
+                    {
+                        DataPack.copyBytes(is, os, null);
+		    }
+		    }
+        catch(IOException e)
+            {
+		return;
+            }
+		tmp_path.renameTo(file_path);
+	    }
+
+    }
