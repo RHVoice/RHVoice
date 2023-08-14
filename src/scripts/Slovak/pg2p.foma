@@ -1,0 +1,68 @@
+# Copyright (C) 2023 Grzegorz Zlotowicz  <grzezlo@gmail.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# - will separate the phrases, and the .#. is the usual boundary mark
+# - in Foma, which in this case will mean the start and end of the
+# - utterance.
+define PB %- ; 
+
+# # will separate the words in the same phrase.
+define WB %# | PB ; 
+
+#  Czech przepozisions should be pronounced as letters, not words,  when such word is only one in the utterance.
+
+define czechPrep [
+[a0]: [aa1] | 
+[aa0]: [d iii1 l h ee0 aa1] | 
+[e0]: [ee1] | 
+[ee0]: [d iii1 l h ee0 ee1] | 
+[i0]: [ii1] | 
+[ii0]: [d iii1 l h ee0 ii1] | 
+k: [k aa1] | 
+l: [e l] | 
+[lj]: [e1 l z m e0 k ts e0 nj o1 m] |
+[ll]: [e1 l z d iii1 ll zh nj o1 m] |
+[o0]: [oo1] | 
+[oo0]: [d iii1 l h ee0 oo1] | 
+[uo]: [oo1 z v o0 k aa1 nj o0 m] | 
+r:[e r] | 
+[rz]: [e1 r z m e0 k ts e0 nj o1 m] |
+[rr]: [e1 r z d iii1 ll zh nj o1 m] |
+s: [e s] |
+[u0]: [u1] | 
+[uu0]: [d iii1 l h ee0 uu1] | 
+v: [v ee1] | 
+z: [z e1 t] 
+] @-> || .#. _ .#. ;
+
+define spellLetters [
+y0: [y p s i0 l oo1 n] |
+yy: [yy p s i0 l oo1 n]]
+@-> || [.#. | WB] _ [.#. | WB] ;
+
+define VoicedConsonantPhonem [b|d|dj|dz|dzh|g|h|z|zh|v|m|n|nj|l|ľ|r|j] ; 
+define VoicelessConsonantPhonem [p|t|tj|c|ts|k|hh|s|sh|f] ; 
+define ShortVowelPhonem [a | e | i | o | u ] ;
+
+define vzAssimilation v @-> f || WB | .#. _ WB VoicelessConsonantPhonem ,, z @-> s || WB | .#. _ WB VoicelessConsonantPhonem ,, k @-> g || WB | .#. _ WB VoicedConsonantPhonem ;
+
+define sExceptions s @-> pvlz || WB | .#. _ WB [[nj ii1 m] | [nj i1 m] | [v a1 m]] ;
+define sAssimilation s @-> z || WB | .#. _ WB [VoicedConsonantPhonem | ShortVowelPhonem] ;
+define VoicelessAssimilation pvlb @-> b || \WB _ WB VoicedConsonantPhonem ,, pvld @-> d || \WB _ WB VoicedConsonantPhonem ,, pvldj @-> dj || \WB _ WB VoicedConsonantPhonem ,, pvldz @-> dz || \WB _ WB VoicedConsonantPhonem ,, pvldzh @-> dzh || \WB _ WB VoicedConsonantPhonem ,, pvlg @-> g || \WB _ WB VoicedConsonantPhonem ,, pvlh @-> h || \WB _ WB VoicedConsonantPhonem ,, pvlz @-> z || \WB _ WB VoicedConsonantPhonem ,, pvlzh @-> zh || \WB _ WB VoicedConsonantPhonem ,, pvlv @-> v || \WB _ WB VoicedConsonantPhonem ;
+define AssimilationEnd pvlb @-> p || _ ,, pvld @-> t || _ ,, pvldj @-> tj || _ ,, pvldz @-> c || _ ,, pvldzh @-> ts || _ ,, pvlg @-> k || _ ,, pvlh @-> hh || _ ,, pvlz @-> s || _ ,, pvlzh @-> sh || _ ,, pvlv @-> f || _ ; 
+
+define FixForeign kv @-> [k v] ,, ks @-> [k s] ;
+
+regex czechPrep .o. spellLetters .o. vzAssimilation .o. sExceptions .o. sAssimilation .o. VoicelessAssimilation .o. AssimilationEnd .o. FixForeign ;

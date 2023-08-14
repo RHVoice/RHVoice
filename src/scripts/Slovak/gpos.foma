@@ -1,0 +1,145 @@
+# Copyright (C) 2022 Darko Milosevic <daremc86@gmail.com>
+# Copyright (C) 2023 Peter Vagner <pvagner@pvagner.tk>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define Conjunction 
+a | 
+i | 
+aj | 
+ba | 
+aby | 
+ale | 
+že | 
+pretože | 
+keď | 
+keďže | 
+až | 
+pokým | 
+dokiaľ | 
+no | 
+predsa | 
+keby | 
+alebo | 
+či | 
+buď | 
+preto | 
+ani | 
+než;
+
+define Preposition 
+bez | 
+blízko | 
+do | 
+od | 
+dolu | 
+hore | 
+okolo | 
+kolo | 
+vôkol | 
+uprostred | 
+vinou | 
+koncom | 
+pri | 
+popri | 
+cez | 
+vedľa | 
+z | 
+zo | 
+k | 
+ku | 
+kvôli | 
+proti | 
+napriek | 
+voči | 
+na | 
+o | 
+pre | 
+v | 
+vo | 
+medzi | 
+mimo | 
+pomedzi | 
+spomedzi | 
+nad | 
+namiesto | 
+naproti | 
+okrem | 
+po | 
+pod | 
+spod | 
+ponad | 
+sponad | 
+popod | 
+poza | 
+spoza | 
+s | 
+so | 
+za;
+
+define Particle 
+nie | 
+lebo | 
+nuž | 
+kiež | 
+bodaj | 
+budiž | 
+azda | 
+nech | 
+však | 
+by | 
+iba | 
+ešte | 
+sotva | 
+asi | 
+čo | 
+áno;
+
+define Personal 
+ja | 
+ty | 
+on | 
+ona | 
+ono | 
+my | 
+vy | 
+oni | 
+ony;
+
+define Possessive 
+môj | 
+moja | 
+moje | 
+tvoj | 
+tvoja | 
+tvoje | 
+jeho | 
+jej | 
+náš | 
+naša | 
+naše | 
+váš | 
+vaša | 
+vaše | 
+ich;
+
+define FunctionWord Conjunction | Preposition | Particle | Personal | Possessive;
+
+regex 
+Conjunction -> conj || _ ,, 
+Preposition -> prep || _ ,, 
+Particle -> part || _ ,, 
+Personal -> pers || _ ,, 
+Possessive -> pos || _ ,, 
+\FunctionWord -> content || _ ; 

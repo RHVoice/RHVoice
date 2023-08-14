@@ -1,0 +1,167 @@
+# Copyright (C) 2022 Darko Milosevic <daremc86@gmail.com>
+# Copyright (C) 2023 Peter Vagner <pvagner@pvagner.tk>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 2.1 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+define Letter 
+[[a|A]:a] | 
+[[ä|Ä]:[prehlasované á]] | 
+[[á|Á]:[dlhé á]] | 
+[[b|B]:bé] | 
+[[c|C]:cé] | 
+[[č|Č]:čé] | 
+[[d|D]:dé] | 
+[[ď|Ď]:ďé] | 
+[[e|E]:e] | 
+[[é|É]:[dlhé é]] | 
+[[ě|Ě]:[é s mäkčeňom]] | 
+[[f|F]:ef] | 
+[[g|G]:gé] | 
+[[h|H]:há] | 
+[[i|I]:i] | 
+[[í|Í]:[dlhé í]] | 
+[[j|J]:jé] | 
+[[k|K]:ká] | 
+[[l|L]:el] | 
+[[ľ|Ľ]:[el s mäkčeňom]] | 
+[[ĺ|Ĺ]:[el s dĺžňom]] | 
+[[m|M]:em] | 
+[[n|N]:en] | 
+[[ň|Ň]:eň] | 
+[[o|O]:o] | 
+[[ó|Ó]:[dlhé ó]] | 
+[[ô|Ô]:[ó s vokáňom]] | 
+[[ö|Ö]:[prehlasované ó]] | 
+[[p|P]:pé] | 
+[[q|Q]:kvé] | 
+[[r|R]:er] | 
+[[ř|Ř]:[er s mekčeňom]] | 
+[[ŕ|Ŕ]:[er s dĺžňom]] | 
+[[s|S]:es] | 
+[[š|Š]:eš] | 
+[[ß|ẞ]:[ostré es]] | 
+[[t|T]:té] | 
+[[ť|Ť]:ťé] | 
+[[u|U]:u] | 
+[[ú|Ú]:[dlhé ú]] | 
+[[ů|Ů]:[ú s krúžkom]] | 
+[[ü|Ü]:[prehlasované ú]] | 
+[[v|V]:vé] | 
+[[w|W]:[dvojité vé]] | 
+[[x|X]:iks] | 
+[[y|Y]:ypsilón] | 
+[[ý|Ý]:[dlhé ýpsilón]] | 
+[[z|Z]:zet] |
+[[ž|Ž]:žet] ; 
+
+define Digit %0:nula|1:jeden|2:dva|3:tri|4:štyri|5:päť|6:šesť|7:sedem|8:osem|9:deväť;
+
+define Whitespace 
+tab:tabulátor | 
+nl:[noví riadok] | 
+cr:[koniec riadku] | 
+sp:medzera | 
+nbsp:[tvrdá medzera] ; 
+
+define Punctuation 
+%,:čiarka | 
+%.:bodka | 
+%?:otáznik | 
+%!:výkričník | 
+%::dvojbodka | 
+%;:bodkočiarka | 
+%":úvodzovky | 
+%':apostrof | 
+%(:[zátvorka] | 
+%):[zatvoriť] | 
+%-:spojovník | 
+%[:[hranatá zátvorka] | 
+%]:[hranatá zatvoriť] | 
+%{:[zložená zátvorka] | 
+%}:[zložená zatvoriť] ; 
+
+define Symbol 
+%$:dolár | 
+%%:percento | 
+%° : stupňov | 
+%#:krížik | 
+%&:end | 
+%*:hviezda | 
+%+:plus | 
+%/:lomka | 
+%\:[opačná lomka] | 
+%<:menší | 
+%=:[rovná sa] | 
+%>:väčší | 
+%@:zavináč | 
+%\:opačná lomka | 
+%^:vokáň | 
+%_:podčiarkovník | 
+%µ:mikro | 
+%`:prízvuk | 
+%|:[zvislá čiara] | 
+%• : [odrážka] |
+%… : [tri bodky] |
+%“ : [horné úvodzovky] |
+%” : [dvojitá horná opačná úvodzovka] |
+%‘ : [horné jednoduché úvodzovky] |
+%’ : [odsuvník] |
+%– : [pomlčka] |
+%— : [dlhá pomlčka] |
+%­ : [rozdeľovník] |
+%⁃ : [odrážka v tvare pomlčky] |
+%● : [čierny kruh] |
+%○ : [biely kruh] |
+%¨ : [prehláska] |
+%¯ : [pruh nad] |
+%´ : [dĺžeň] |
+%¸ : [sédi] |
+%¶ : [označenie odseku] |
+%■ : [čierny štvorec] |
+%▪ : [čierny štvorec] |
+%◾ : [čierny stredneveľký štvorec] |
+%□ : [biely štvorec] |
+%◦ : [odrážka v tvare bielej bodky] |
+%⇒ : [dvojitá šípka vpravo] |
+%§ : [paragraf] |
+%® : [registrované] |
+%™ : [ochranná známka] |
+%© : [značka autorských práv] |
+%± : [plus mínus] |
+%× : [krát] |
+%÷ : [deleno] |
+%€ : [euro] |
+%£ : [libra] |
+%¢ : [centov] |
+%¥ : [jen] |
+%₹ : [rupia] |
+%ƒ : [florén] |
+%¤ : [mena] |
+%‰ : [promile] |
+%¦ : [prerušená čiara] |
+%¡ : [obrátený výkričník] |
+%¿ : [obrátený otáznik] |
+%· : [bodka v prostriedku] |
+%‚ : [dolné jednoduché úvodzovky] |
+%„ : [dolné úvodzovky] |
+%′ : [indexová čiarka] |
+%″ : [dvojitá indexová čiarka] |
+%‴ : [trojitá indexová čiarka] |
+%‴ : [trojitá indexová čiarka] |
+%~:vlnovka ; 
+
+source unicodechars.foma
+
+regex 
+Letter | Digit | Whitespace | Punctuation | Symbol | UnicodeSpell ; 

@@ -313,3 +313,9 @@
 [submodule "data/voices/sevinch"]
 	path = data/voices/sevinch
 	url = https://github.com/RHVoice/Sevinch-uzb.git
+[submodule "data/languages/Slovak"]
+	path = data/languages/Slovak
+	url = https://github.com/RHVoice/Slovak.git
+[submodule "data/voices/ondro"]
+	path = data/voices/ondro
+	url = https://github.com/RHVoice/ondro-slk.git
