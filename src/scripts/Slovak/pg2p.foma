@@ -56,7 +56,8 @@ define VoicedConsonantPhonem [b|d|dj|dz|dzh|g|h|z|zh|v|m|n|nj|l|ľ|r|j] ;
 define VoicelessConsonantPhonem [p|t|tj|c|ts|k|hh|s|sh|f] ; 
 define ShortVowelPhonem [a | e | i | o | u ] ;
 
-define vzAssimilation v @-> f || WB | .#. _ WB VoicelessConsonantPhonem ,, z @-> s || WB | .#. _ WB VoicelessConsonantPhonem ,, k @-> g || WB | .#. _ WB VoicedConsonantPhonem ;
+define NounsAfterK [[nj i1 m] | [nj e1 m u0] | [nj e1 j] | [n aa1 m] | [v aa1 m]] ; 
+define vzAssimilation v @-> f || WB | .#. _ WB VoicelessConsonantPhonem ,, z @-> s || WB | .#. _ WB VoicelessConsonantPhonem ,, k @-> pvlg || WB | .#. _ WB NounsAfterK ,, k @-> g || WB | .#. _ WB VoicedConsonantPhonem ;
 
 define sExceptions s @-> pvlz || WB | .#. _ WB [[nj ii1 m] | [nj i1 m] | [v a1 m]] ;
 define sAssimilation s @-> z || WB | .#. _ WB [VoicedConsonantPhonem | ShortVowelPhonem] ;
