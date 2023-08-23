@@ -1725,6 +1725,16 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         seg_iter=seg_start;
         for(std::vector<std::string>::const_iterator pos=result.begin();pos!=result.end();++pos)
           {
+	    if((*pos)[0]>='1' && (*pos)[0]<='9')
+	      {
+		if(*pos!=seg_iter->get("name").as<std::string>())
+		  throw syllabification_error(*word_iter);
+		auto tmp=seg_iter;
+		++seg_iter;
+		tmp->remove();
+		word_with_syls.last_child().set("lex_tone", *pos);
+		continue;
+	      }
             if((*pos)[0]=='_')
               {
                 feat_name=pos->substr(1);
