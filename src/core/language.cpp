@@ -1731,6 +1731,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
 		  throw syllabification_error(*word_iter);
 		auto tmp=seg_iter;
 		++seg_iter;
+		tmp->as("Segment").remove();
 		tmp->remove();
 		word_with_syls.last_child().set("lex_tone", *pos);
 		continue;
