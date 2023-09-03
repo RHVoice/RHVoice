@@ -35,6 +35,7 @@ Depending on your device, the configuration file may be stored either in
 internal memory or on an SD card. This will likely be somewhere in a subdirectory of `/storage`. 
 The relative file path is
 `Android/data/com.github.olga_yakovleva.rhvoice.android/files/RHVoice.conf`.
+Users will often not have edit permissions to a file in this location. Instead, use the import functionality located in the app's settings, which will copy a file from a location you select to this location. This will overwrite any copy of the file previously placed in the aforementioned path.
 
 ## Format
 
