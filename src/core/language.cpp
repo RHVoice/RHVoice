@@ -676,6 +676,13 @@ cfg.register_setting(lcfg.tok_sent);
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        en_words_fst.reset(new fst(path::join(info_.get_data_path(), "enwords.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
