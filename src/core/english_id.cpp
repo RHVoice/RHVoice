@@ -1,5 +1,5 @@
 #include "core/english_id.hpp"
-
+#include <iostream>
 namespace RHVoice
 {
   std::atomic_bool english_id::was_english(false);
@@ -25,7 +25,7 @@ namespace RHVoice
   int english_id::set_result(int r) const {
     if(r<0)
       return r;
-    was_english=(r==2);
+    was_english=(r==1);
     return r;
   }
 
@@ -43,7 +43,7 @@ namespace RHVoice
 	if(common_count<eng_count)
 	  return set_result(1);
 	else
-	  return set_result(0);
+	  return last_result();
       }
     return last_result();
   }
