@@ -5,12 +5,12 @@
 #include <algorithm>
 #include "str.hpp"
 #include "voice_profile.hpp"
-
+#include <iostream>
 namespace RHVoice {
 class english_id
 {
 public:
-  english_id(const voice_profile& p);
+  explicit english_id(const voice_profile& p);
 
   bool is_enabled() const
   {
@@ -31,7 +31,7 @@ private:
   }
 
 
-  const voice_profile profile;
+  const voice_profile& profile;
   language_list::const_iterator lang, eng;
   bool enabled{false};
   std::size_t word_count{0};
@@ -47,16 +47,16 @@ private:
   {
     if(!enabled)
       return;
-    for(auto it=first;it!=last;++it)
+    std::vector<utf8::uint32_t> word(first, last);
+    for(auto c: word)
       {
-	if(lang->is_letter(*it) && !eng->is_letter(*it))
+	if(lang->is_letter(c) && !eng->is_letter(c))
 	  {
 	    has_unique_letters=true;
 	    ++word_count;
 	    return;
 	  }
       }
-    std::vector<utf8::uint32_t> word(first, last);
     auto not_punct=[](utf8::uint32_t c)-> bool {return !str::ispunct(c);};
     auto start=std::find_if(word.begin(), word.end(), not_punct);
     if(start==word.end())
@@ -73,14 +73,15 @@ private:
 	return;
       }
     std::vector<utf8::uint32_t> lword;
-    std::transform(word.begin(), word.end(), std::back_inserter(lword), str::to_lower());
+    std::transform(start, end, std::back_inserter(lword), str::to_lower());
     if(lang->get_instance().is_common_with_english(lword.begin(), lword.end()))
       {
 	++eng_count;
 	++common_count;
       }
-    else if(eng->get_instance().is_in_vocabulary(lword.begin(), lword.end()))
+    else if(eng->get_instance().is_in_vocabulary(lword.begin(), lword.end())){
       ++eng_count;
+    }
   }
 }
 #endif
