@@ -1057,7 +1057,18 @@ item& language::append_emoji(utterance& u,const std::string& text) const
     if(pos!="word"&&pos!="lseq"&&pos!="sym"&&pos!="char")
       return false;
     const std::string& name=token.get("name").as<std::string>();
-    if(!lang_it->are_all_letters(str::utf8_string_begin(name),str::utf8_string_end(name)))
+    bool is_eng=false;
+    for(auto it=str::utf8_string_begin(name);it!=str::utf8_string_end(name);++it)
+      {
+	if(lang_it->is_letter(*it))
+	  is_eng=true;
+	else if(str::isalpha(*it))
+	  {
+	    is_eng=false;
+	    break;
+	  }
+      }
+    if(!is_eng)
       return false;
     if(name.length()==1)
       {
