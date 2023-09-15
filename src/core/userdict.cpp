@@ -83,6 +83,7 @@ namespace RHVoice
       std::string name;
       std::copy(text.begin(),text.end(),str::utf8_inserter(std::back_inserter(name)));
       item& token=cursor.get_token();
+      token.set("userdict",true);
       const language& lang=utt.get_language();
       if(initialism)
         lang.decode_as_letter_sequence(token,name);

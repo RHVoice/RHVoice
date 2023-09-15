@@ -114,8 +114,11 @@ namespace RHVoice
 	std::vector<std::string> tmp;
 	if(g2g_fst)
 	  {
-	    if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
-	      g2p_input=tmp;
+	    const item& tok=word.as("TokStructure").parent();
+	    const std::string& pos=tok.get("pos").as<std::string>();
+	    if(pos=="word" && !tok.has_feature("userdict"))
+	      if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+		g2p_input=tmp;
 	  }
 	if(lex_fst!=nullptr) {
 	  if(lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
