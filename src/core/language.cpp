@@ -1160,6 +1160,7 @@ else
     word.set("name", repl);
     if(!cname.empty())
       word.set("cname", repl);
+    tok.set("userdict", true);
   }
 
   void language::decode_as_letter_sequence(item& token,const std::string& token_name) const
