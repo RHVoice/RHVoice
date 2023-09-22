@@ -52,7 +52,7 @@ api_version_0=(0,0,0)
 api_version_2019_3=(2019,3,0)
 api_version=api_version_0
 try:
-	import AddonAPIVersion
+	import addonAPIVersion
 	api_version=addonAPIVersion.CURRENT
 except ImportError:
 	pass
