@@ -114,7 +114,8 @@ src=["unicode.cpp",
 		 "question_matcher.cpp",
 		 "emoji.cpp",
 		 "pitch.cpp",
-	 "english_id.cpp"]
+	 "english_id.cpp",
+	 "vietnamese.cpp"]
 for lib in [libhts_engine]:
 	src.extend(lib)
 if local_env["enable_sonic"]:

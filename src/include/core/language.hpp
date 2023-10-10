@@ -279,6 +279,16 @@ namespace RHVoice
       downcase_fst.translate(first,last,output);
     }
 
+    template<typename forward_iterator,typename output_iterator>
+    void normalize(forward_iterator first,forward_iterator last,output_iterator output) const
+    {
+      if(norm_fst)
+      norm_fst->translate(first,last,output);
+      else
+	std::copy(first, last, output);
+    }
+
+
     void on_token_break(utterance& u) const;
     void tokenize(utterance& u) const;
 
@@ -297,6 +307,8 @@ namespace RHVoice
 
     virtual bool decode_as_known_character(item& token,const std::string& name) const;
 
+    void default_decode_as_word(item& token,const std::string& name) const;
+
     virtual void assign_pronunciation(item& word) const;
 
     const language* get_second_language() const;
@@ -313,7 +325,6 @@ namespace RHVoice
     }
 
     void decode(item& token) const;
-    void default_decode_as_word(item& token,const std::string& name) const;
     void decode_as_number(item& token,const std::string& name) const;
     void decode_as_digit_string(item& token,const std::string& name) const;
     void decode_as_unknown_character(item& token,const std::string& name) const;
