@@ -31,6 +31,7 @@
 #include "core/tatar.hpp"
 #include "core/brazilian_portuguese.hpp"
 #include "core/macedonian.hpp"
+#include "core/vietnamese.hpp"
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 #include "core/emoji.hpp"
@@ -1943,6 +1944,7 @@ const language* language::get_item_second_language(const item& i) const
     register_language<tatar_info>("Tatar",1);
     register_language<brazilian_portuguese_info>("Brazilian-Portuguese",1);
     register_language<macedonian_info>("Macedonian",1);
+register_language<vietnamese_info>("Vietnamese",1);
     for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));
