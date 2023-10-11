@@ -1725,6 +1725,13 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
         seg_iter=seg_start;
         for(std::vector<std::string>::const_iterator pos=result.begin();pos!=result.end();++pos)
           {
+	    if(seg_iter!=seg_end && seg_iter->get("name").as<std::string>()==".")
+	      {
+		auto tmp=seg_iter;
+		++seg_iter;
+		tmp->as("Segment").remove();
+		tmp->remove();
+	      }
 	    if((*pos)[0]>='1' && (*pos)[0]<='9')
 	      {
 		if(*pos!=seg_iter->get("name").as<std::string>())
