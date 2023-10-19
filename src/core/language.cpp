@@ -803,7 +803,7 @@ cfg.register_setting(lcfg.tok_sent);
 	for(auto& i: pt.as("TokStructure"))
 	  {
 	    const std::string& pos=i.get("pos").as<std::string>();
-	    if(pos=="word" || pos=="lseq")
+	    if(pos=="word" || pos=="lseq" || pos=="graph")
 	      i.set("lang", lang_name);
 	  }
 	return &pt;
@@ -1054,7 +1054,7 @@ item& language::append_emoji(utterance& u,const std::string& text) const
     if(lang_it==languages.end())
       return false;
     std::string pos=token.get("pos").as<std::string>();
-    if(pos!="word"&&pos!="lseq"&&pos!="sym"&&pos!="char")
+    if(pos!="word"&&pos!="lseq"&&pos!="sym"&&pos!="char" && pos!="graph")
       return false;
     const std::string& name=token.get("name").as<std::string>();
     bool is_eng=false;
@@ -1114,7 +1114,7 @@ else
       }
     else if(token_pos=="dig")
       decode_as_digit_string(token,token_name);
-    else if(token_pos=="sym")
+    else if(token_pos=="sym" || token_pos=="graph")
       decode_as_character(token,token_name);
     else if((token_pos=="key")||(token_pos=="char"))
       decode_as_key(token,token_name);
