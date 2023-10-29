@@ -24,5 +24,15 @@ z: [z e1 t] |
 r:[e r]]
 @-> || .#. _ .#.;
 
+define spellLetters [
+aa0: [aa d l o u1 h ee0] |
+ee0: [ee d l o u1 h ee0] |
+ii: [ii d l o u1 h ee0] |
+oo0: [oo d l o u1 h ee0] |
+uu0: [uu0 s ts aa1 r k o u0] |
+ou0: [ou0 s k r o u1 zh k e0 m] |
+y0: [y p s i1 l o0 n] |
+yy: [y p s i0 l o0 n d l o u1 h ee0]]
+@-> || .#. _ .#.;
 
-regex czechPrep;
+regex czechPrep .o. spellLetters;
