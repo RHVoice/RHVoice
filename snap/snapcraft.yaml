@@ -1,0 +1,68 @@
+name: rhvoice
+title: RHVoice
+
+base: core22
+
+version: '1.14.0-1'
+
+summary: Multilingual text-to-speech engine
+description: |
+  RHVoice is a multilingual speech synthesizer primarily developed for
+  use with screen readers, maintaining the balance between speech
+  quality and responsiveness.
+
+contact: rhvoice@rhvoice.org
+source-code: https://github.com/RHVoice/RHVoice
+issues: https://github.com/RHVoice/RHVoice/issues/
+website: https://rhvoice.org
+
+license: GPL-3.0+
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict
+
+parts:
+  rhvoice:
+    plugin: nil
+    override-build:
+      snapcraftctl build && scons prefix=/usr  sysconfdir=/etc datadir=/var/lib/RHVoice/data languages= DESTDIR=$SNAPCRAFT_PART_INSTALL install
+    source-type: local
+    source: .
+    build-packages:
+      - scons
+      - g++
+      - pkg-config
+      - libpulse-dev
+    stage-packages:
+      - libpulse0
+
+  vm:
+    source-type: local
+    source: src/vm
+    plugin: python
+
+  sd:
+    source-type: local
+    source: src/snap-extra
+    plugin: dump
+
+apps:
+  test:
+    extensions: [gnome]
+    command: usr/bin/RHVoice-test
+    plugs: [audio-playback]
+
+  sd:
+    extensions: [gnome]
+    command: usr/bin/sd_rhvoice
+    plugs: [audio-playback]
+
+  vm:
+    command: bin/RHVoice-vm
+    plugs: [network]
+
+layout:
+  /var/lib/RHVoice:
+    bind: $SNAP_COMMON/var/lib/RHVoice
+  /etc/RHVoice:
+    bind: $SNAP_COMMON/etc/RHVoice
