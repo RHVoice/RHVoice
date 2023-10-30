@@ -16,7 +16,7 @@
 # - will separate the phrases, and the .#. is the usual boundary mark
 # - in Foma, which in this case will mean the start and end of the
 # - utterance.
-define PB %- ; 
+define PB %- | %, ; 
 
 # # will separate the words in the same phrase.
 define WB %# | PB ; 
@@ -61,9 +61,12 @@ define vzAssimilation v @-> f || WB | .#. _ WB VoicelessConsonantPhonem ,, z @->
 
 define sExceptions s @-> pvlz || WB | .#. _ WB [[nj ii1 m] | [nj i1 m] | [v a1 m]] ;
 define sAssimilation s @-> z || WB | .#. _ WB [VoicedConsonantPhonem | ShortVowelPhonem] ;
-define VoicelessAssimilation pvlb @-> b || \WB _ WB VoicedConsonantPhonem ,, pvld @-> d || \WB _ WB VoicedConsonantPhonem ,, pvldj @-> dj || \WB _ WB VoicedConsonantPhonem ,, pvldz @-> dz || \WB _ WB VoicedConsonantPhonem ,, pvldzh @-> dzh || \WB _ WB VoicedConsonantPhonem ,, pvlg @-> g || \WB _ WB VoicedConsonantPhonem ,, pvlh @-> h || \WB _ WB VoicedConsonantPhonem ,, pvlz @-> z || \WB _ WB VoicedConsonantPhonem ,, pvlzh @-> zh || \WB _ WB VoicedConsonantPhonem ,, pvlv @-> v || \WB _ WB VoicedConsonantPhonem ;
+define VoicelessAssimilationPause 
+pvlb @-> p || _ PB ,, pvld @-> t || _ PB ,, pvldj @-> tj || _ PB ,, pvldz @-> c ||  PB ,, pvldzh @-> ts || _ PB ,, pvlg @-> k || _ PB ,, pvlh @-> hh || _ PB ,, pvlz @-> s || _ PB ,, pvlzh @-> sh || _ PB ,, pvlv @-> f || _ PB ;
+define VoicelessAssimilation 
+pvlb @-> b || \WB _ WB VoicedConsonantPhonem ,, pvld @-> d || \WB _ WB VoicedConsonantPhonem ,, pvldj @-> dj || \WB _ WB VoicedConsonantPhonem ,, pvldz @-> dz || \WB _ WB VoicedConsonantPhonem ,, pvldzh @-> dzh || \WB _ WB VoicedConsonantPhonem ,, pvlg @-> g || \WB _ WB VoicedConsonantPhonem ,, pvlh @-> h || \WB _ WB VoicedConsonantPhonem ,, pvlz @-> z || \WB _ WB VoicedConsonantPhonem ,, pvlzh @-> zh || \WB _ WB VoicedConsonantPhonem ,, pvlv @-> v || \WB _ WB VoicedConsonantPhonem ;
 define AssimilationEnd pvlb @-> p || _ ,, pvld @-> t || _ ,, pvldj @-> tj || _ ,, pvldz @-> c || _ ,, pvldzh @-> ts || _ ,, pvlg @-> k || _ ,, pvlh @-> hh || _ ,, pvlz @-> s || _ ,, pvlzh @-> sh || _ ,, pvlv @-> f || _ ; 
 
 define FixForeign kv @-> [k v] ,, ks @-> [k s] ;
 
-regex czechPrep .o. spellLetters .o. vzAssimilation .o. sExceptions .o. sAssimilation .o. VoicelessAssimilation .o. AssimilationEnd .o. FixForeign ;
+regex czechPrep .o. spellLetters .o. vzAssimilation .o. sExceptions .o. sAssimilation .o. VoicelessAssimilationPause .o. VoicelessAssimilation .o. AssimilationEnd .o. FixForeign ;
