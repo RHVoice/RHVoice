@@ -120,9 +120,11 @@ define UnicodeToNativeTranslit
 [%ṥ|%Ṥ] -> {s} || _ ,,
 [%ŝ|%Ŝ] -> {s} || _ ,,
 [%ṡ|%Ṡ] -> {s} || _ ,,
+[%ș|%Ș] -> {s} || _ ,,
 [%ş|%Ş] -> {s} || _ ,,
 [%ṫ|%Ṫ] -> {t} || _ ,,
 [%ẗ] -> {t} || _ ,,
+[%ț|%Ț] -> {t} || _ ,,
 [%ţ|%Ţ] -> {t} || _ ,,
 [%ù] -> {u} || _ ,,
 [%û] -> {u} || _ ,,
@@ -211,7 +213,52 @@ define UnicodeToNativeTranslit
 [%ɍ|%Ɍ] -> {r} || _ ,,
 [%ɏ|%Ɏ] -> {y} || _ ,,
 [%ɐ|%Ɐ] -> {a} || _ ,,
-[%ɕ|%ɕ] -> {c} || _ ;
+[%ɕ|%ɕ] -> {c} || _ ,,
+[%ɘ|%ɘ] -> {e} || _ ,,
+[%ɜ|%Ɜ] -> {e} || _ ,,
+[%ɝ|%ɝ] -> {e} || _ ,,
+[%ɞ|%ɞ] -> {e} || _ ,,
+[%ɟ|%ɟ] -> {j} || _ ,,
+[%ɡ|%Ɡ] -> {g} || _ ,,
+[%ɢ|%ɢ] -> {g} || _ ,,
+[%ɥ|%Ɥ] -> {h} || _ ,,
+[%ɦ|%Ɦ] -> {h} || _ ,,
+[%ɪ|%Ɪ] -> {i} || _ ,,
+[%ɫ|%Ɫ] -> {l} || _ ,,
+[%ɬ|%Ɬ] -> {l} || _ ,,
+[%ɭ|%ɭ] -> {l} || _ ,,
+[%ɰ|%ɰ] -> {m} || _ ,,
+[%ɱ|%Ɱ] -> {m} || _ ,,
+[%ɳ|%ɳ] -> {n} || _ ,,
+[%ɴ|%ɴ] -> {n} || _ ,,
+[%ɶ|%ɶ] -> {e} || _ ,,
+[%ɹ|%ɹ] -> {r} || _ ,,
+[%ɺ|%ɺ] -> {r} || _ ,,
+[%ɻ|%ɻ] -> {r} || _ ,,
+[%ɼ|%ɼ] -> {r} || _ ,,
+[%ɽ|%Ɽ] -> {r} || _ ,,
+[%ɾ|%ɾ] -> {r} || _ ,,
+[%ɿ|%ɿ] -> {r} || _ ,,
+[%ʁ|%ʁ] -> {r} || _ ,,
+[%ʂ|%Ʂ] -> {s} || _ ,,
+[%ʄ|%ʄ] -> {j} || _ ,,
+[%ʇ|%Ʇ] -> {t} || _ ,,
+[%ʍ|%ʍ] -> {w} || _ ,,
+[%ʎ|%ʎ] -> {y} || _ ,,
+[%ʏ|%ʏ] -> {y} || _ ,,
+[%ʐ|%ʐ] -> {z} || _ ,,
+[%ʑ|%ʑ] -> {z} || _ ,,
+[%ʗ|%ʗ] -> {c} || _ ,,
+[%ʙ|%ʙ] -> {b} || _ ,,
+[%ʚ|%ʚ] -> {e} || _ ,,
+[%ʛ|%ʛ] -> {g} || _ ,,
+[%ʜ|%ʜ] -> {h} || _ ,,
+[%ʝ|%Ʝ] -> {j} || _ ,,
+[%ʞ|%Ʞ] -> {k} || _ ,,
+[%ʟ|%ʟ] -> {l} || _ ,,
+[%ʠ|%ʠ] -> {q} || _ ,,
+[%ʮ|%ʮ] -> {h} || _ ,,
+[%ʯ|%ʯ] -> {h} || _ ;
 
 
 #For tok (single char to single letter):
@@ -334,9 +381,11 @@ define UnicodeToNativeTranslitTok
 [%ṥ|%Ṥ] -> s || _ ,,
 [%ŝ|%Ŝ] -> s || _ ,,
 [%ṡ|%Ṡ] -> s || _ ,,
+[%ș|%Ș] -> s || _ ,,
 [%ş|%Ş] -> s || _ ,,
 [%ṫ|%Ṫ] -> t || _ ,,
 [%ẗ] -> t || _ ,,
+[%ț|%Ț] -> t || _ ,,
 [%ţ|%Ţ] -> t || _ ,,
 [%ù] -> u || _ ,,
 [%û] -> u || _ ,,
@@ -425,7 +474,52 @@ define UnicodeToNativeTranslitTok
 [%ɍ|%Ɍ] -> r || _ ,,
 [%ɏ|%Ɏ] -> y || _ ,,
 [%ɐ|%Ɐ] -> a || _ ,,
-[%ɕ|%ɕ] -> c || _ ;
+[%ɕ|%ɕ] -> c || _ ,,
+[%ɘ|%ɘ] -> e || _ ,,
+[%ɜ|%Ɜ] -> e || _ ,,
+[%ɝ|%ɝ] -> e || _ ,,
+[%ɞ|%ɞ] -> e || _ ,,
+[%ɟ|%ɟ] -> j || _ ,,
+[%ɡ|%Ɡ] -> g || _ ,,
+[%ɢ|%ɢ] -> g || _ ,,
+[%ɥ|%Ɥ] -> h || _ ,,
+[%ɦ|%Ɦ] -> h || _ ,,
+[%ɪ|%Ɪ] -> i || _ ,,
+[%ɫ|%Ɫ] -> l || _ ,,
+[%ɬ|%Ɬ] -> l || _ ,,
+[%ɭ|%ɭ] -> l || _ ,,
+[%ɰ|%ɰ] -> m || _ ,,
+[%ɱ|%Ɱ] -> m || _ ,,
+[%ɳ|%ɳ] -> n || _ ,,
+[%ɴ|%ɴ] -> n || _ ,,
+[%ɶ|%ɶ] -> e || _ ,,
+[%ɹ|%ɹ] -> r || _ ,,
+[%ɺ|%ɺ] -> r || _ ,,
+[%ɻ|%ɻ] -> r || _ ,,
+[%ɼ|%ɼ] -> r || _ ,,
+[%ɽ|%Ɽ] -> r || _ ,,
+[%ɾ|%ɾ] -> r || _ ,,
+[%ɿ|%ɿ] -> r || _ ,,
+[%ʁ|%ʁ] -> r || _ ,,
+[%ʂ|%Ʂ] -> s || _ ,,
+[%ʄ|%ʄ] -> j || _ ,,
+[%ʇ|%Ʇ] -> t || _ ,,
+[%ʍ|%ʍ] -> w || _ ,,
+[%ʎ|%ʎ] -> y || _ ,,
+[%ʏ|%ʏ] -> y || _ ,,
+[%ʐ|%ʐ] -> z || _ ,,
+[%ʑ|%ʑ] -> z || _ ,,
+[%ʗ|%ʗ] -> c || _ ,,
+[%ʙ|%ʙ] -> b || _ ,,
+[%ʚ|%ʚ] -> e || _ ,,
+[%ʛ|%ʛ] -> g || _ ,,
+[%ʜ|%ʜ] -> h || _ ,,
+[%ʝ|%Ʝ] -> j || _ ,,
+[%ʞ|%Ʞ] -> k || _ ,,
+[%ʟ|%ʟ] -> l || _ ,,
+[%ʠ|%ʠ] -> q || _ ,,
+[%ʮ|%ʮ] -> h || _ ,,
+[%ʯ|%ʯ] -> h || _ ;
 
 
 #For spelling:
@@ -548,9 +642,11 @@ define UnicodeSpell
 [[%ṥ|%Ṥ]:[es s dĺžňom a s bodkou nad]]|
 [[%ŝ|%Ŝ]:[es s vokáňom]]|
 [[%ṡ|%Ṡ]:[es s bodkou nad]]|
+[[%ș|%Ș]:[es s čiarkov pod]]|
 [[%ş|%Ş]:[es s cedillou]]|
 [[%ṫ|%Ṫ]:[té s bodkou nad]]|
 [[%ẗ]:[té s prehláskou]]|
+[[%ț|%Ț]:[té s čiarkov pod]]|
 [[%ţ|%Ţ]:[té s cedillou]]|
 [[%ù]:[ú s prízvukom]]|
 [[%û]:[ú s vokáňom]]|
@@ -603,7 +699,7 @@ define UnicodeSpell
 [[%ɗ|%Ɗ]:[dé s hákom]]|
 [[%ƌ|%Ƌ]:[dé s čiarou na vrchu]]|
 [[%ƍ|%ƍ]:[otočená delta]]|
-[[%ǝ|%Ǝ]:[obrátené é]]|
+[[%ǝ|%Ǝ]:[otočené é]]|
 [[%ə|%Ə]:[šwa]]|
 [[%ɛ|%Ɛ]:[otvorené é]]|
 [[%ƒ|%Ƒ]:[florén]]|
@@ -668,8 +764,79 @@ define UnicodeSpell
 [[%ɏ|%Ɏ]:[ypsylón so šikmým dĺžňom]]|
 [[%ɐ|%Ɐ]:[otočené á]]|
 [[%ɑ|%Ɑ]:[alfa]]|
-[[%ɒ|%Ɒ]:[otočená alfa]]|
-[[%ɕ|%ɕ]:[kučeravé cé]];
+[[%ɒ|%Ɒ]:[otočené alfa]]|
+[[%ɕ|%ɕ]:[kučeravé cé]]|
+[[%ɘ|%ɘ]:[obrátené é]]|
+[[%ɚ|%ɚ]:[šva s hákom]]|
+[[%ɜ|%Ɜ]:[obrátené otvorené é]]|
+[[%ɝ|%ɝ]:[obrátené otvorené é s hákom]]|
+[[%ɞ|%ɞ]:[zatvorené obrátené otvorené é]]|
+[[%ɟ|%ɟ]:[preškrtnuté jé bez bodky]]|
+[[%ɡ|%Ɡ]:[skript gé]]|
+[[%ɢ|%ɢ]:[malé veľké gé]]|
+[[%ɤ|%ɤ]:[rams horn]]|
+[[%ɥ|%Ɥ]:[otočené há]]|
+[[%ɦ|%Ɦ]:[há s hákom]]|
+[[%ɧ|%ɧ]:[heng s hákom]]|
+[[%ɪ|%Ɪ]:[malé veľké í]]|
+[[%ɫ|%Ɫ]:[el s vlnovkou v prostriedku]]|
+[[%ɬ|%Ɬ]:[el s pásikom]]|
+[[%ɭ|%ɭ]:[el s ohnutým hákom]]|
+[[%ɮ|%ɮ]:[lezh]]|
+[[%ɰ|%ɰ]:[otočené em s dlhou nožičkou]]|
+[[%ɱ|%Ɱ]:[em s hákom]]|
+[[%ɳ|%ɳ]:[n s ohnutým hákom]]|
+[[%ɴ|%ɴ]:[malé veľké en]]|
+[[%ɶ|%ɶ]:[malé veľké oé]]|
+[[%ɷ|%ɷ]:[zatvorené omega]]|
+[[%ɸ|%ɸ]:[fí]]|
+[[%ɹ|%ɹ]:[otočené er]]|
+[[%ɺ|%ɺ]:[otočené er s dlhou nožičkou]]|
+[[%ɻ|%ɻ]:[otočené er s hákom]]|
+[[%ɼ|%ɼ]:[er s dlhou nožičkou]]|
+[[%ɽ|%Ɽ]:[er s chôstíkom]]|
+[[%ɾ|%ɾ]:[er s háčikom]]|
+[[%ɿ|%ɿ]:[obrátené er s háčikom]]|
+[[%ʁ|%ʁ]:[malé obrátené veľké er]]|
+[[%ʂ|%Ʂ]:[ess s hákom]]|
+[[%ʄ|%ʄ]:[preškrtnuté jé bez bodky s hákom]]|
+[[%ʅ|%ʅ]:[skrčené obrátené ezh]]|
+[[%ʆ|%ʆ]:[kučeravé ezh]]|
+[[%ʇ|%Ʇ]:[otočené té]]|
+[[%ʍ|%ʍ]:[otočené dvojité vé]]|
+[[%ʎ|%ʎ]:[otočené ypsylón]]|
+[[%ʏ|%ʏ]:[malé veľké ypsylón]]|
+[[%ʐ|%ʐ]:[zet s ohnutým hákom]]|
+[[%ʑ|%ʑ]:[kučeravé zet]]|
+[[%ʓ|%ʓ]:[kučeravé ezh]]|
+[[%ʔ|%ʔ]:[hlasivková clona]]|
+[[%ʕ|%ʕ]:[znelý hltanový frikatív]]|
+[[%ʖ|%ʖ]:[opačná hlasivková clona]]|
+[[%ʗ|%ʗ]:[roztiahnuté cé]]|
+[[%ʘ|%ʘ]:[cvaknutie perami]]|
+[[%ʙ|%ʙ]:[malé veľké bé]]|
+[[%ʚ|%ʚ]:[zatvorené otvorené é]]|
+[[%ʛ|%ʛ]:[malé veľké gé s hákom]]|
+[[%ʜ|%ʜ]:[malé veľké há]]|
+[[%ʝ|%Ʝ]:[jé so skríženým chvostíkom]]|
+[[%ʞ|%Ʞ]:[otočené ká]]|
+[[%ʟ|%ʟ]:[malé veľké el]]|
+[[%ʠ|%ʠ]:[kvé s hákom]]|
+[[%ʡ|%ʡ]:[preškrtnutá hlasivková clona]]|
+[[%ʢ|%ʢ]:[obrátená preškrtnutá hlasivková clona]]|
+[[%ʣ|%ʣ]:[dvojhláska dé zet]]|
+[[%ʤ|%ʤ]:[dvojhláska desh]]|
+[[%ʥ|%ʥ]:[kučeravá dvojhláska dé zet]]|
+[[%ʦ|%ʦ]:[dvojhláska té es]]|
+[[%ʧ|%ʧ]:[dvojhláska tesh]]|
+[[%ʨ|%ʨ]:[kučeravá dvojhláska té cé]]|
+[[%ʩ|%ʩ]:[dvojhláska feng]]|
+[[%ʪ|%ʪ]:[dvojhláska el es]]|
+[[%ʫ|%ʫ]:[dvojhláska el zet]]|
+[[%ʬ|%ʬ]:[perný náraz]]|
+[[%ʭ|%ʭ]:[zubný náraz]]|
+[[%ʮ|%ʮ]:[otočené há s háčikom]]|
+[[%ʯ|%ʯ]:[otočené há s háčikom a chvostíkom]];
 
 
 #For lseq:
@@ -792,9 +959,11 @@ define UnicodeLseq
 %ṥ:[e z z d ll zh nj o m a z b o t k o u n a t]|
 %ŝ:[e z z v o k aa nj o m]|
 %ṡ:[e z z b o t k o u n a t]|
+%ș:[e s s ts i a r k o u p o t]|
 %ş:[e s s c e dj i l l o u]|
 %ṫ:[t ee z b o t k o u n a t]|
 %ẗ:[t ee s p r e h l aa s k o u]|
+%ț:[t ee s ts i a r k o u p o t]|
 %ţ:[t ee s c e dj i l l o u]|
 %ù:[uu s p iii r ii z v u k o m]|
 %û:[uu z v o k aa nj o m]|
@@ -847,7 +1016,7 @@ define UnicodeLseq
 %ɗ:[d ee z h aa k o m]|
 %ƌ:[d ee s ts i a r o u n a v iii r hh u]|
 %ƍ:[o t o ts e n aa dj e l t a]|
-%ǝ:[o b r aa tj e n ee ee]|
+%ǝ:[o t o ts e n ee ee]|
 %ə:[sh v a]|
 %ɛ:[o t v o r e n ee ee]|
 %ƒ:[f l o r ee n]|
@@ -878,7 +1047,7 @@ define UnicodeLseq
 %ƶ:[z e t s o sh i k m yy m d ll zh nj o m]|
 %ʒ:[ee z e d h aa]|
 %ƹ:[o b r aa tj e n ee ee z e d h aa]|
-%ƺ:[ee z e d h aa s hh v o s t ii k o m]|
+%ƺ:[ee z e d h aa s hh v o s tj ii k o m]|
 %ƻ:[d v a s o sh i k m yy m d ll zh nj o m]|
 %ƽ:[t oo n p e tj]|
 %ƾ:[o b r aa tj e n aa h l a s i u k o v aa c l o n a s o sh i k m yy m d ll zh nj o m]|
@@ -900,20 +1069,91 @@ define UnicodeLseq
 %ⱥ:[aa s o sh i k m yy m d ll zh nj o m]|
 %ȼ:[c ee s o sh i k m yy m d ll zh nj o m]|
 %ⱦ:[t ee s u h l o p r i e ts n y m sh i k m yy m d ll zh nj o m]|
-%ȿ:[e s s o z d o b n yy m hh v o s t ii k o m]|
-%ɀ:[z e t s o z d o b n yy m hh v o s t ii k o m]|
+%ȿ:[e s s o z d o b n yy m hh v o s tj ii k o m]|
+%ɀ:[z e t s o z d o b n yy m hh v o s tj ii k o m]|
 %ɂ:[h l a s i u k o v aa c l o n a]|
 %ʉ:[uu s ts i a r o u]|
 %ʌ:[o t o ts e n ee v ee]|
 %ɇ:[ee s o sh i k m yy m d ll zh nj o m]|
 %ɉ:[j ee s o sh i k m yy m d ll zh nj o m]|
-%ɋ:[k v ee s hh v o s t ii k o m f t v a r e h aa k u]|
+%ɋ:[k v ee s hh v o s tj ii k o m f t v a r e h aa k u]|
 %ɍ:[e r s o sh i k m yy m d ll zh nj o m]|
 %ɏ:[y p s y l oo n s o sh i k m yy m d ll zh nj o m]|
 %ɐ:[o t o ts e n ee aa]|
 %ɑ:[a l f a]|
-%ɒ:[o t o ts e n aa a l f a]|
-%ɕ:[k u ts e r a v ee c ee];
+%ɒ:[o t o ts e n ee a l f a]|
+%ɕ:[k u ts e r a v ee c ee]|
+%ɘ:[o b r aa tj e n ee ee]|
+%ɚ:[sh v a z h aa k o m]|
+%ɜ:[o b r aa tj e n ee o t v o r e n ee ee]|
+%ɝ:[o b r aa tj e n ee o t v o r e n ee ee z h aa k o m]|
+%ɞ:[z a t v o r e n ee o b r aa tj e n ee o t v o r e n ee ee]|
+%ɟ:[p r e sh k iii r t n u t ee j ee b e s b o t k y]|
+%ɡ:[s k r i p d g ee]|
+%ɢ:[m a l ee v e lj k ee g ee]|
+%ɤ:[r a m z h o r n]|
+%ɥ:[o t o ts e n ee h aa]|
+%ɦ:[h aa z h aa k o m]|
+%ɧ:[h e n k z h aa k o m]|
+%ɪ:[m a l ee v e lj k ee ii]|
+%ɫ:[e l z v iii l n o u k o u f p r o s t r i e t k u]|
+%ɬ:[e l s p aa s i k o m]|
+%ɭ:[e l s o h n u t yy m h aa k o m]|
+%ɮ:[lj e s hh]|
+%ɰ:[o t o ts e n ee e m z d iii l h o u n o zh i ts k o u]|
+%ɱ:[e m z h aa k o m]|
+%ɳ:[e n s o h n u t yy m h aa k o m]|
+%ɴ:[m a l ee v e lj k ee e n]|
+%ɶ:[m a l ee v e lj k ee o ee]|
+%ɷ:[z a t v o r e n ee o m e g a]|
+%ɸ:[f ii]|
+%ɹ:[o t o ts e n ee e r]|
+%ɺ:[o t o ts e n ee e r z d iii l h o u n o zh i ts k o u]|
+%ɻ:[o t o ts e n ee e r z h aa k o m]|
+%ɼ:[e r z d iii l h o u n o zh i ts k o u]|
+%ɽ:[e r s hh uo s tj ii k o m]|
+%ɾ:[e r z h aa ts i k o m]|
+%ɿ:[o b r aa tj e n ee e r z h aa ts i k o m]|
+%ʁ:[m a l ee o b r aa tj e n ee v e lj k ee e r]|
+%ʂ:[e s z z h aa k o m]|
+%ʄ:[p r e sh k iii r t n u t ee j ee b e s b o t k y z h aa k o m]|
+%ʅ:[s k iii r ts e n ee o b r aa tj e n ee e s hh]|
+%ʆ:[k u ts e r a v ee e s hh]|
+%ʇ:[o t o ts e n ee t ee]|
+%ʍ:[o t o ts e n ee d v o j i t ee v ee]|
+%ʎ:[o t o ts e n ee y p s y l oo n]|
+%ʏ:[m a l ee v e lj k ee y p s y l oo n]|
+%ʐ:[z e t s o h n u t yy m h aa k o m]|
+%ʑ:[k u ts e r a v ee z e t]|
+%ʓ:[k u ts e r a v ee e s hh]|
+%ʔ:[h l a s i u k o v aa c l o n a]|
+%ʕ:[z nj e l yy h iii l t a n o v yy f r i k a t ii u]|
+%ʖ:[o p a ts n aa h l a s i u k o v aa c l o n a]|
+%ʗ:[r o s tj i a h n u t ee c ee]|
+%ʘ:[c v a k n u tj i e p e r a m i]|
+%ʙ:[m a l ee v e lj k ee b ee]|
+%ʚ:[z a t v o r e n ee o t v o r e n ee ee]|
+%ʛ:[m a l ee v e lj k ee g ee z h aa k o m]|
+%ʜ:[m a l ee v e lj k ee h aa]|
+%ʝ:[j ee s o s k iii r ii zh e n yy m hh v o s tj ii k o m]|
+%ʞ:[o t o ts e n ee k aa]|
+%ʟ:[m a l ee v e lj k ee e l]|
+%ʠ:[k v ee z h aa k o m]|
+%ʡ:[p r e sh k iii r t n u t aa h l a s i u k o v aa c l o n a]|
+%ʢ:[o b r aa tj e n aa p r e sh k iii r t n u t aa h l a s i u k o v aa c l o n a]|
+%ʣ:[d v o j h l aa s k a d ee z e t]|
+%ʤ:[d v o j h l aa s k a dj e s hh]|
+%ʥ:[k u ts e r a v aa d v o j h l aa s k a d ee z e t]|
+%ʦ:[d v o j h l aa s k a t ee e s]|
+%ʧ:[d v o j h l aa s k a tj e s hh]|
+%ʨ:[k u ts e r a v aa d v o j h l aa s k a t ee c ee]|
+%ʩ:[d v o j h l aa s k a f e n k]|
+%ʪ:[d v o j h l aa s k a e l e s]|
+%ʫ:[d v o j h l aa s k a e l z e t]|
+%ʬ:[p e r n yy n aa r a s]|
+%ʭ:[z u b n yy n aa r a s]|
+%ʮ:[o t o ts e n ee h aa z h aa ts i k o m]|
+%ʯ:[o t o ts e n ee h aa z h aa ts i k o m a hh v o s tj ii k o m];
 
 
 #For downcase:
@@ -1021,8 +1261,10 @@ define UnicodeDowncase
 %Ṥ -> %ṥ || _ ,,
 %Ŝ -> %ŝ || _ ,,
 %Ṡ -> %ṡ || _ ,,
+%Ș -> %ș || _ ,,
 %Ş -> %ş || _ ,,
 %Ṫ -> %ṫ || _ ,,
+%Ț -> %ț || _ ,,
 %Ţ -> %ţ || _ ,,
 %Ũ -> %ũ || _ ,,
 %Ṹ -> %ṹ || _ ,,
@@ -1136,4 +1378,75 @@ define UnicodeDowncase
 %Ɐ -> %ɐ || _ ,,
 %Ɑ -> %ɑ || _ ,,
 %Ɒ -> %ɒ || _ ,,
-%ɕ -> %ɕ || _ ;
+%ɕ -> %ɕ || _ ,,
+%ɘ -> %ɘ || _ ,,
+%ɚ -> %ɚ || _ ,,
+%Ɜ -> %ɜ || _ ,,
+%ɝ -> %ɝ || _ ,,
+%ɞ -> %ɞ || _ ,,
+%ɟ -> %ɟ || _ ,,
+%Ɡ -> %ɡ || _ ,,
+%ɢ -> %ɢ || _ ,,
+%ɤ -> %ɤ || _ ,,
+%Ɥ -> %ɥ || _ ,,
+%Ɦ -> %ɦ || _ ,,
+%ɧ -> %ɧ || _ ,,
+%Ɪ -> %ɪ || _ ,,
+%Ɫ -> %ɫ || _ ,,
+%Ɬ -> %ɬ || _ ,,
+%ɭ -> %ɭ || _ ,,
+%ɮ -> %ɮ || _ ,,
+%ɰ -> %ɰ || _ ,,
+%Ɱ -> %ɱ || _ ,,
+%ɳ -> %ɳ || _ ,,
+%ɴ -> %ɴ || _ ,,
+%ɶ -> %ɶ || _ ,,
+%ɷ -> %ɷ || _ ,,
+%ɸ -> %ɸ || _ ,,
+%ɹ -> %ɹ || _ ,,
+%ɺ -> %ɺ || _ ,,
+%ɻ -> %ɻ || _ ,,
+%ɼ -> %ɼ || _ ,,
+%Ɽ -> %ɽ || _ ,,
+%ɾ -> %ɾ || _ ,,
+%ɿ -> %ɿ || _ ,,
+%ʁ -> %ʁ || _ ,,
+%Ʂ -> %ʂ || _ ,,
+%ʄ -> %ʄ || _ ,,
+%ʅ -> %ʅ || _ ,,
+%ʆ -> %ʆ || _ ,,
+%Ʇ -> %ʇ || _ ,,
+%ʍ -> %ʍ || _ ,,
+%ʎ -> %ʎ || _ ,,
+%ʏ -> %ʏ || _ ,,
+%ʐ -> %ʐ || _ ,,
+%ʑ -> %ʑ || _ ,,
+%ʓ -> %ʓ || _ ,,
+%ʔ -> %ʔ || _ ,,
+%ʕ -> %ʕ || _ ,,
+%ʖ -> %ʖ || _ ,,
+%ʗ -> %ʗ || _ ,,
+%ʘ -> %ʘ || _ ,,
+%ʙ -> %ʙ || _ ,,
+%ʚ -> %ʚ || _ ,,
+%ʛ -> %ʛ || _ ,,
+%ʜ -> %ʜ || _ ,,
+%Ʝ -> %ʝ || _ ,,
+%Ʞ -> %ʞ || _ ,,
+%ʟ -> %ʟ || _ ,,
+%ʠ -> %ʠ || _ ,,
+%ʡ -> %ʡ || _ ,,
+%ʢ -> %ʢ || _ ,,
+%ʣ -> %ʣ || _ ,,
+%ʤ -> %ʤ || _ ,,
+%ʥ -> %ʥ || _ ,,
+%ʦ -> %ʦ || _ ,,
+%ʧ -> %ʧ || _ ,,
+%ʨ -> %ʨ || _ ,,
+%ʩ -> %ʩ || _ ,,
+%ʪ -> %ʪ || _ ,,
+%ʫ -> %ʫ || _ ,,
+%ʬ -> %ʬ || _ ,,
+%ʭ -> %ʭ || _ ,,
+%ʮ -> %ʮ || _ ,,
+%ʯ -> %ʯ || _ ;

@@ -77,9 +77,9 @@ define Letter a|A|ä|Ä|á|Á|b|B|c|C|č|Č|d|D|ď|Ď|e|E|é|É|ě|Ě|f|F|g|G|h|
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
 
-define UnformattedNumber (%-) [Digit Digit*] ;
-define DecimalNumber [UnformattedNumber] [Digit | [%. Digit] | [%, Digit]]+ ;
-define Number DecimalNumber | UnformattedNumber;
+define UnformattedNumber [Digit Digit*] ;
+define Number  UnformattedNumber;
+define DecimalSeparator %.|%,;
 
 define Word Letter+ ;
 
@@ -90,11 +90,20 @@ Word @-> ... word || _ .#. | \Letter ,,
 
 define Stage2 
 word -> lseq || [.#.|word|num|sym] LetterSequence _ ,, 
+sym -> num || [sym|.#.] %- _ Digit,
+sym -> num || [sym|.#.] %+ _ Digit,
+num DecimalSeparator _ Digit+,,
+Digit num [% sym]* € _ ,,
 num -> dig || Digit^16 _ ;
+
+define Stage3 
+word -> lseq || .#.  [y|Y] _ ,,
+num -> sym || DecimalSeparator _ Digit+ num DecimalSeparator num,
+ DecimalSeparator num Digit+ num DecimalSeparator _ ;
 
 source unicodechars.foma
 
 regex UnicodeToNativeTranslitTok .o. 
 Stage1 .o.
-Stage2 ; 
-
+Stage2 .o. 
+Stage3;
