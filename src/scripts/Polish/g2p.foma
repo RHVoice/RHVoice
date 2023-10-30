@@ -132,8 +132,8 @@ ih @-> ih2 || {ant} _ VowelPhonem,,
 [dz] @-> dz2 ||
 #odzew,  nieodzowny, odzmysławiać, odznaka, odzywać...
 .#. (n i e) o _ \i ,
-#nadzorca, nadzwyczaj, not nadzie
-{na} _ \i,
+#nadzorca, nadzwyczaj, not [nadzie nadze nadzy ]
+{na} _ \[e|i|ih],
 #podzakres, podzamcze, podzamkowy:
 p o _ a [k|m],
 #podzwrotnikowy
@@ -243,6 +243,8 @@ k l i e @-> k l i y e || _ ,,
 u a @-> u w a || _ .#. ,,
 #statuy:
 u ih @-> u w ih || _ .#. ,,
+# nadzerowy pominięte  wcześniej przez flagexceptions:
+dz @-> dz2  || n a _ e r o ,,
 #q na ku:
 q @-> {ku} || _ ,,
 #ż na zh
