@@ -1,4 +1,3 @@
-# -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 # Copyright (C) 2010, 2011, 2012, 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
 # Copyright (C) 2019, 2023  Beka Gozalishvili <beqaprogger@gmail.com>
 # Copyright (C) 2022 Alexander Linkov <kvark128@yandex.ru>
@@ -28,7 +27,6 @@ import copy
 
 from io import StringIO
 
-
 import config
 import globalVars
 import nvwave
@@ -51,14 +49,8 @@ from speech.commands import (
 import languageHandler
 import addonHandler
 
-api_version_0 = (0, 0, 0)
-api_version_2019_3 = (2019, 3, 0)
-api_version = api_version_0
-try:
-    import addonAPIVersion
-    api_version = addonAPIVersion.CURRENT
-except ImportError:
-    pass
+import addonAPIVersion
+api_version = addonAPIVersion.CURRENT
 
 module_dir = os.path.dirname(__file__)
 lib_path = os.path.join(module_dir, "RHVoice.dll")

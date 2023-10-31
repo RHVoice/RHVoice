@@ -30,7 +30,7 @@ class addon_packager(archiver):
 		self.set_string("author", names.def_with_email)
 		self.set_string("url", names.url)
 		self.set_string("version",version)
-		self.set_string("minimumNVDAVersion", "2012.2.0")
+		self.set_string("minimumNVDAVersion", "2021.1.0")
 		if data_package:
 			self.set_string("lastTestedNVDAVersion", "2099.4.0")
 		else:
