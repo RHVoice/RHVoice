@@ -33,7 +33,12 @@ import config
 import globalVars
 import nvwave
 from logHandler import log
-import synthDriverHandler
+from synthDriverHandler import (
+    SynthDriver,
+    synthDoneSpeaking,
+    synthIndexReached,
+    VoiceInfo
+)
 try:
     from speech.commands import (IndexCommand, CharacterModeCommand, LangChangeCommand, PitchCommand, VolumeCommand, RateCommand)
 except ImportError:
@@ -55,28 +60,6 @@ lib_path = os.path.join(module_dir, "RHVoice.dll")
 config_path = os.path.join(globalVars.appArgs.configPath, "RHVoice-config")
 
 
-class nvda_notification_wrapper(object):
-    def __init__(self, name, lst):
-        self.name = name
-        try:
-            self.target = getattr(synthDriverHandler, name)
-            lst.append(self.target)
-        except AttributeError:
-            self.target = None
-
-    def is_supported(self):
-        return (self.target is not None)
-
-    def notify(self, synth, **kw0):
-        if not self.is_supported():
-            return
-        kw = {"synth": synth}
-        kw.update(kw0)
-        self.target.notify(**kw)
-
-nvda_notifications = []
-nvda_notification_synthIndexReached = nvda_notification_wrapper("synthIndexReached", nvda_notifications)
-nvda_notification_synthDoneSpeaking = nvda_notification_wrapper("synthDoneSpeaking", nvda_notifications)
 
 data_addon_name_pattern = re.compile("^RHVoice-.*(voice|language).*")
 
@@ -265,7 +248,7 @@ class audio_player(object):
             if index is None:
                 player.feed(data)
             else:
-                player.feed(data, onDone=lambda synth=self.__synth, next_index=index: nvda_notification_synthIndexReached.notify(synth, index=next_index))
+                player.feed(data, onDone=lambda next_index=index: synthIndexReached.notify(synth=self.__synth, index=next_index))
             if self.__cancel_flag.is_set():
                 player.stop()
 
@@ -359,10 +342,7 @@ class mark_callback(object):
     def __call__(self, name, user_data):
         try:
             index = int(name)
-            if nvda_notification_synthIndexReached.is_supported():
-                self.__player.on_index(index)
-            else:
-                self.index = index
+            self.__player.on_index(index)
             return 1
         except Exception:
             log.error("RHVoice mark callback", exc_info=True)
@@ -383,7 +363,7 @@ class done_callback(object):
             self.__player.idle()
             if self.__cancel_flag.is_set():
                 return
-            nvda_notification_synthDoneSpeaking.notify(self.__synth)
+            synthDoneSpeaking.notify(synth=self.__synth)
         except Exception:
             log.error("RHVoice done callback", exc_info=True)
 
@@ -710,26 +690,24 @@ class nvda_speech_sequence_converter(nvda_speak_argument_converter):
     def get_ssml_tag_name(self):
         return "speak"
 
-class SynthDriver(synthDriverHandler.SynthDriver):
+class SynthDriver(SynthDriver):
     name = "RHVoice"
     description = "RHVoice"
 
-    supportedSettings = [synthDriverHandler.SynthDriver.VoiceSetting(),
-                       synthDriverHandler.SynthDriver.RateSetting()] + \
-                       ([synthDriverHandler.SynthDriver.RateBoostSetting()] if hasattr(synthDriverHandler.SynthDriver,"RateBoostSetting") else []) + \
-                       [synthDriverHandler.SynthDriver.PitchSetting(),
-                       synthDriverHandler.SynthDriver.VolumeSetting()]
+    supportedSettings = [
+        SynthDriver.VoiceSetting(),
+        SynthDriver.RateSetting(),
+        SynthDriver.RateBoostSetting(),
+        SynthDriver.PitchSetting(),
+        SynthDriver.VolumeSetting()
+    ]
 
-    if api_version >= api_version_2019_3:
-        supportedCommands = frozenset([cnv.get_item_class() for cnv in speech_command_converters])
-        supportedNotifications = frozenset(nvda_notifications)
+    supportedCommands = frozenset([cnv.get_item_class() for cnv in speech_command_converters])
+    supportedNotifications = {synthIndexReached, synthDoneSpeaking}
 
     @classmethod
     def check(cls):
-        for addon in addonHandler.getRunningAddons():
-            if re.match("RHVoice.*-voice", addon.name):
-                return True
-        return False
+        return any(re.match(r"RHVoice.*-voice", addon.name) for addon in addonHandler.getRunningAddons())
 
     def __languages_match(self, code1, code2, bfull=True):
         lang1 = code1.split("_")
@@ -743,15 +721,11 @@ class SynthDriver(synthDriverHandler.SynthDriver):
         return (lang1[1] == lang2[1])
 
     def __get_resource_paths(self):
-        paths = []
-        for addon in addonHandler.getRunningAddons():
-            if not data_addon_name_pattern.match(addon.name):
-                continue
-            for name in ["data", "langdata"]:
-                data_path = os.path.join(addon.path, name)
-                if os.path.isdir(data_path):
-                    paths.append(data_path.encode("UTF-8"))
-        return paths
+        return [os.path.join(addon.path, name).encode("utf-8")
+            for addon in addonHandler.getRunningAddons()
+            if data_addon_name_pattern.match(addon.name)
+            for name in ["data", "langdata"]
+            if os.path.isdir(os.path.join(addon.path, name))]
 
     def __init__(self):
         self.__lib = load_tts_library()
@@ -860,7 +834,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
         return self.__mark_callback.index
 
     def _get_availableVoices(self):
-        return OrderedDict((profile, synthDriverHandler.VoiceInfo(profile, profile, self.__voice_languages[profile.split("+")[0]])) for profile in self.__profiles)
+        return OrderedDict((profile, VoiceInfo(profile, profile, self.__voice_languages[profile.split("+")[0]])) for profile in self.__profiles)
 
     def _get_language(self):
         return self.__voice_languages[self.__profile.split("+")[0]]
