@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 # Copyright (C) 2010, 2011, 2012, 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
-# Copyright (C) 2019  Beqa Gozalishvili <beqaprogger@gmail.com>
+# Copyright (C) 2019, 2023  Beka Gozalishvili <beqaprogger@gmail.com>
 # Copyright (C) 2022 Alexander Linkov <kvark128@yandex.ru>
 
 # This program is free software: you can redistribute it and/or modify
@@ -63,7 +63,6 @@ except ImportError:
 module_dir = os.path.dirname(__file__)
 lib_path = os.path.join(module_dir, "RHVoice.dll")
 config_path = os.path.join(globalVars.appArgs.configPath, "RHVoice-config")
-
 
 
 data_addon_name_pattern = re.compile("^RHVoice-.*(voice|language).*")
@@ -182,7 +181,7 @@ def load_tts_library():
     return lib
 
 
-class audio_player(object):
+class AudioPlayer:
     def __init__(self, synth, cancel_flag):
         self.__synth = synth
         self.__cancel_flag = cancel_flag
@@ -276,7 +275,8 @@ class audio_player(object):
             data = b""
         self.do_play(data, index)
 
-class sample_rate_callback(object):
+
+class SampleRateCallback:
     def __init__(self, lib, player):
         self.__lib = lib
         self.__player = player
@@ -289,7 +289,8 @@ class sample_rate_callback(object):
             log.error("RHVoice sample rate callback", exc_info=True)
             return 0
 
-class speech_callback(object):
+
+class SpeechCallback:
     def __init__(self, lib, player, cancel_flag):
         self.__lib = lib
         self.__player = player
@@ -308,7 +309,8 @@ class speech_callback(object):
             log.error("RHVoice speech callback", exc_info=True)
             return 0
 
-class mark_callback(object):
+
+class MarkCallback:
     def __init__(self, lib, player):
         self.__lib = lib
         self.__player = player
@@ -334,7 +336,8 @@ class mark_callback(object):
             log.error("RHVoice mark callback", exc_info=True)
             return 0
 
-class done_callback(object):
+
+class DoneCallback:
     def __init__(self, synth, lib, player, cancel_flag):
         self.__synth = synth
         self.__lib = lib
@@ -353,7 +356,8 @@ class done_callback(object):
         except Exception:
             log.error("RHVoice done callback", exc_info=True)
 
-class speak_text(object):
+
+class SpeakText:
     def __init__(self, lib, tts_engine, text, cancel_flag, player):
         self.__lib = lib
         self.__tts_engine = tts_engine
@@ -409,6 +413,7 @@ class speak_text(object):
             self.__player.idle()
             self.__lib.RHVoice_delete_message(msg)
 
+
 class TTSThread(threading.Thread):
     def __init__(self, tts_queue):
         self.__queue = tts_queue
@@ -425,6 +430,7 @@ class TTSThread(threading.Thread):
                     task()
             except Exception:
                 log.error("RHVoice: error while executing a tts task", exc_info=True)
+
 
 class SynthDriver(SynthDriver):
     name = "RHVoice"
@@ -473,14 +479,14 @@ class SynthDriver(SynthDriver):
     def __init__(self):
         self.__lib = load_tts_library()
         self.__cancel_flag = threading.Event()
-        self.__player = audio_player(self, self.__cancel_flag)
-        self.__sample_rate_callback = sample_rate_callback(self.__lib, self.__player)
+        self.__player = AudioPlayer(self, self.__cancel_flag)
+        self.__sample_rate_callback = SampleRateCallback(self.__lib, self.__player)
         self.__c_sample_rate_callback = RHVoice_callback_types.set_sample_rate(self.__sample_rate_callback)
-        self.__speech_callback = speech_callback(self.__lib,self.__player, self.__cancel_flag)
+        self.__speech_callback = SpeechCallback(self.__lib,self.__player, self.__cancel_flag)
         self.__c_speech_callback = RHVoice_callback_types.play_speech(self.__speech_callback)
-        self.__mark_callback = mark_callback(self.__lib, self.__player)
+        self.__mark_callback = MarkCallback(self.__lib, self.__player)
         self.__c_mark_callback = RHVoice_callback_types.process_mark(self.__mark_callback)
-        self.__done_callback = done_callback(self, self.__lib, self.__player, self.__cancel_flag)
+        self.__done_callback = DoneCallback(self, self.__lib, self.__player, self.__cancel_flag)
         self.__c_done_callback = RHVoice_callback_types.done(self.__done_callback)
         resource_paths = self.__get_resource_paths()
         c_resource_paths = (c_char_p*(len(resource_paths)+1))(*(resource_paths+[None]))
@@ -535,7 +541,7 @@ class SynthDriver(SynthDriver):
         self.__tts_queue = queue.Queue()
         self.__tts_thread = TTSThread(self.__tts_queue)
         self.__tts_thread.start()
-        log.info("Using RHVoice version {}".format(self.__lib.RHVoice_get_version()))
+        log.info("Using RHVoice version {}".format(self.__lib.RHVoice_get_version().decode()))
 
     def terminate(self):
         self.cancel()
@@ -548,7 +554,7 @@ class SynthDriver(SynthDriver):
     def speak(self, speechSequence):
         conv = speechXml.SsmlConverter(self.language)
         text = conv.convertToXml(speechSequence)
-        task = speak_text(self.__lib, self.__tts_engine, text, self.__cancel_flag, self.__player)
+        task = SpeakText(self.__lib, self.__tts_engine, text, self.__cancel_flag, self.__player)
         task.set_voice_profile(self.__profile)
         task.set_rate(self.__rate)
         task.set_pitch(self.__pitch)
@@ -568,6 +574,9 @@ class SynthDriver(SynthDriver):
             self.__tts_queue.put(self.__cancel_flag.clear)
             self.__player.stop()
 
+    def clamp(self, value, minValue=0, maxValue=100):
+        return max(minValue, min(maxValue, value))
+
     def _get_lastIndex(self):
         return self.__mark_callback.index
 
@@ -581,19 +590,19 @@ class SynthDriver(SynthDriver):
         return self.__rate
 
     def _set_rate(self, rate):
-        self.__rate = max(0, min(100, rate))
+        self.__rate = self.clamp(rate)
 
     def _get_pitch(self):
         return self.__pitch
 
     def _set_pitch(self, pitch):
-        self.__pitch = max(0, min(100, pitch))
+        self.__pitch = self.clamp(pitch)
 
     def _get_volume(self):
         return self.__volume
 
     def _set_volume(self, volume):
-        self.__volume = max(0, min(100, volume))
+        self.__volume = self.clamp(volume)
 
     def _get_voice(self):
         return self.__profile
