@@ -33,16 +33,21 @@ import config
 import globalVars
 import nvwave
 from logHandler import log
+import speechXml
 from synthDriverHandler import (
     SynthDriver,
     synthDoneSpeaking,
     synthIndexReached,
     VoiceInfo
 )
-try:
-    from speech.commands import (IndexCommand, CharacterModeCommand, LangChangeCommand, PitchCommand, VolumeCommand, RateCommand)
-except ImportError:
-    from speech import (IndexCommand, CharacterModeCommand, LangChangeCommand, PitchCommand, VolumeCommand, RateCommand)
+from speech.commands import (
+    CharacterModeCommand,
+    IndexCommand,
+    LangChangeCommand,
+    PitchCommand,
+    RateCommand,
+    VolumeCommand
+)
 import languageHandler
 import addonHandler
 
@@ -176,25 +181,6 @@ def load_tts_library():
     lib.RHVoice_speak.restype = c_int
     return lib
 
-def escape_text(text):
-    parts = list()
-    for c in text:
-        if c.isspace():
-            part = "&#{};".format(ord(c))
-        elif c == "<":
-            part = "&lt;"
-        elif c == ">":
-            part = "&gt;"
-        elif c == "&":
-            part = "&amp;"
-        elif c == "'":
-            part = "&apos;"
-        elif c == '"':
-            part = "&quot;"
-        else:
-            part = c
-        parts.append(part)
-    return "".join(parts)
 
 class audio_player(object):
     def __init__(self, synth, cancel_flag):
@@ -440,256 +426,6 @@ class TTSThread(threading.Thread):
             except Exception:
                 log.error("RHVoice: error while executing a tts task", exc_info=True)
 
-class nvda_speak_argument_converter(object):
-    def outputs_element(self):
-        return True
-
-    def get_ssml_tag_name(self):
-        raise NotImplementedError
-
-    def get_ssml_attributes(self):
-        return {}
-
-    def get_text(self):
-        return ""
-
-    def write(self, out):
-        txt = self.get_text()
-        if txt:
-            out.write(txt)
-            return
-        if not self.outputs_element():
-            for child in self.children:
-                child.write(out)
-            return
-        tag = self.get_ssml_tag_name()
-        out.write('<')
-        out.write(tag)
-        a = self.get_ssml_attributes()
-        for k, v in a.items():
-            out.write(' {}="{}"'.format(k, v))
-        if len(self.children) == 0:
-            out.write('/>')
-            return
-        out.write('>')
-        for child in self.children:
-            child.write(out)
-        out.write('</')
-        out.write(tag)
-        out.write('>')
-
-class nvda_speech_item_converter(nvda_speak_argument_converter):
-    def check_item_class(self):
-        try:
-            cls = self.get_item_class()
-            return True
-        except AttributeError:
-            return False
-
-    def accepts(self, item):
-        return isinstance(item, self.get_item_class())
-
-    def get_item_class(self):
-        raise NotImplementedError
-
-    def converts_speech_command(self):
-        return False
-
-    def on_create(self):
-        pass
-
-    def create(self, synthDriver, item=None):
-        obj = type(self)()
-        obj.synthDriver = synthDriver
-        obj.item = item
-        obj.children = []
-        obj.on_create()
-        return obj
-
-    def converts_mode_command(self):
-        return False
-
-class nvda_speech_command_converter(nvda_speech_item_converter):
-    def converts_speech_command(self):
-        return True
-
-class nvda_text_item_converter(nvda_speech_item_converter):
-    def get_item_class(self):
-        return str
-
-    def outputs_element(self):
-        return False
-
-    def get_text(self):
-        return escape_text(str(self.item))
-
-class nvda_index_command_converter(nvda_speech_command_converter):
-    def get_item_class(self):
-        return IndexCommand
-
-    def get_ssml_tag_name(self):
-        return "mark"
-
-    def get_ssml_attributes(self):
-        return {"name": self.item.index}
-
-class nvda_speech_mode_command_converter(nvda_speech_command_converter):
-    def converts_mode_command(self):
-        return True
-
-    def is_default(self):
-        return (self.item is None)
-
-    def outputs_element(self):
-        return (not self.is_default())
-
-    def is_empty(self):
-        n = len(self.children)
-        if n == 0:
-            return True
-        if n > 1:
-            return False
-        if not self.children[0].converts_mode_command():
-            return False
-        return self.children[0].is_empty()
-
-    def on_clone(self, src):
-        pass
-
-    def clone(self, item=None):
-        obj = type(self)()
-        obj.children = []
-        obj.synthDriver = self.synthDriver
-        if item:
-            obj.item = item
-            obj.on_create()
-        else:
-            obj.item = self.item
-            obj.on_clone(self)
-        if len(self.children) > 0 and self.children[-1].converts_mode_command():
-            obj.children.append(self.children[-1].clone())
-        return obj
-
-class nvda_char_mode_command_converter(nvda_speech_mode_command_converter):
-    def get_item_class(self):
-        return CharacterModeCommand
-
-    def is_default(self):
-        return not (self.item is not None and self.item.state)
-
-    def get_ssml_tag_name(self):
-        return "say-as"
-
-    def get_ssml_attributes(self):
-        return {"interpret-as": "characters"}
-
-class nvda_lang_change_command_converter(nvda_speech_mode_command_converter):
-    def get_item_class(self):
-        return LangChangeCommand
-
-    def get_ssml_tag_name(self):
-        return "voice"
-
-    def get_ssml_attributes(self):
-        return {"xml:lang": self.lang}
-
-    def is_default(self):
-        return (self.lang is None)
-
-    def on_create(self):
-        self.lang = None
-        if self.item is None:
-            return
-        if not self.item.lang:
-            return
-        lang = "_".join(self.item.lang.split("_")[:2])
-        if lang not in self.synthDriver._SynthDriver__languages:
-            return
-        if self.synthDriver._SynthDriver__languages_match(lang, self.synthDriver._SynthDriver__voice_languages[self.synthDriver._SynthDriver__profile.split("+")[0]]):
-            return
-        self.lang = lang.replace("_", "-")
-
-    def on_clone(self, src):
-        self.lang = src.lang
-
-class nvda_prosody_command_converter(nvda_speech_mode_command_converter):
-    def get_ssml_tag_name(self):
-        return "prosody"
-
-    def get_ssml_attribute_name(self):
-        raise NotImplementedError
-
-    def get_ssml_attributes(self):
-        value = "{}%".format(int(round(self.item.multiplier*100.0)))
-        return {self.get_ssml_attribute_name(): value}
-
-    def is_default(self):
-        return (self.item is None or self.item.multiplier == 1)
-
-class nvda_pitch_command_converter(nvda_prosody_command_converter):
-    def get_item_class(self):
-        return PitchCommand
-
-    def get_ssml_attribute_name(self):
-        return "pitch"
-
-class nvda_volume_command_converter(nvda_prosody_command_converter):
-    def get_item_class(self):
-        return VolumeCommand
-
-    def get_ssml_attribute_name(self):
-        return "volume"
-
-class nvda_rate_command_converter(nvda_prosody_command_converter):
-    def get_item_class(self):
-        return RateCommand
-
-    def get_ssml_attribute_name(self):
-        return "rate"
-
-all_speech_item_converters = [nvda_lang_change_command_converter(), nvda_pitch_command_converter(), nvda_rate_command_converter(), nvda_volume_command_converter(), nvda_char_mode_command_converter(), nvda_index_command_converter(), nvda_text_item_converter()]
-speech_item_converters = [cnv for cnv in all_speech_item_converters if cnv.check_item_class()]
-speech_command_converters = [cnv for cnv in speech_item_converters if cnv.converts_speech_command()]
-mode_command_converters = [cnv for cnv in speech_command_converters if cnv.converts_mode_command()]
-content_item_converters = [cnv for cnv in speech_item_converters if not cnv.converts_mode_command()]
-
-class nvda_speech_sequence_converter(nvda_speak_argument_converter):
-    def __init__(self, synthDriver):
-        self.synthDriver = synthDriver
-        self.children = []
-        self.current = self
-        for cnv in mode_command_converters:
-            self.current.children.append(cnv.create(self.synthDriver))
-            self.current = self.current.children[-1]
-
-    def append(self, item):
-        for cnv in content_item_converters:
-            if cnv.accepts(item):
-                self.current.children.append(cnv.create(self.synthDriver, item))
-                return
-        found = False
-        p = self
-        while p.children and p.children[-1].converts_mode_command():
-            n = p.children[-1]
-            if found:
-                self.current = n
-            elif n.accepts(item):
-                found = True
-                if n.is_empty():
-                    n.item = item
-                    n.on_create()
-                    return
-                else:
-                    n = n.clone(item)
-                    p.children.append(n)
-                    self.current = n
-            p = n
-        if not found:
-            log.debugWarning("RHVoice: unsupported item: {}".format(item))
-
-    def get_ssml_tag_name(self):
-        return "speak"
-
 class SynthDriver(SynthDriver):
     name = "RHVoice"
     description = "RHVoice"
@@ -702,7 +438,14 @@ class SynthDriver(SynthDriver):
         SynthDriver.VolumeSetting()
     ]
 
-    supportedCommands = frozenset([cnv.get_item_class() for cnv in speech_command_converters])
+    supportedCommands = {
+        CharacterModeCommand,
+        IndexCommand,
+        LangChangeCommand,
+        PitchCommand,
+        RateCommand,
+        VolumeCommand
+	}
     supportedNotifications = {synthIndexReached, synthDoneSpeaking}
 
     @classmethod
@@ -802,14 +545,9 @@ class SynthDriver(SynthDriver):
         self.__lib.RHVoice_delete_tts_engine(self.__tts_engine)
         self.__tts_engine = None
 
-    def speak(self, speech_sequence):
-        cnv = nvda_speech_sequence_converter(self)
-        for item in speech_sequence:
-            cnv.append(item)
-        out = StringIO()
-        cnv.write(out)
-        text = out.getvalue()
-        out.close()
+    def speak(self, speechSequence):
+        conv = speechXml.SsmlConverter(self.language)
+        text = conv.convertToXml(speechSequence)
         task = speak_text(self.__lib, self.__tts_engine, text, self.__cancel_flag, self.__player)
         task.set_voice_profile(self.__profile)
         task.set_rate(self.__rate)
