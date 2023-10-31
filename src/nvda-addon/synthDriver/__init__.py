@@ -18,10 +18,7 @@
 
 import sys
 import os.path
-try:
-    import Queue
-except ImportError:
-    import queue as Queue
+import queue
 from collections import OrderedDict, defaultdict
 import threading
 import ctypes
@@ -29,12 +26,8 @@ from ctypes import c_char_p, c_wchar_p, c_void_p, c_short, c_int, c_uint, c_doub
 import re
 import copy
 
-try:
-    from io import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
-PY2 = sys.version_info[0] == 2
 
 import config
 import globalVars
@@ -57,22 +50,9 @@ try:
 except ImportError:
     pass
 
-if PY2:
-    # Convert __file__ to unicode to avoid problems on Windows
-    # https://stackoverflow.com/questions/35117936/save-file-with-russian-letters-in-the-file-name
-    fs_encoding = sys.getfilesystemencoding()
-    module_dir = os.path.dirname(__file__.decode(fs_encoding))
-else:
-    module_dir = os.path.dirname(__file__)
+module_dir = os.path.dirname(__file__)
 lib_path = os.path.join(module_dir, "RHVoice.dll")
 config_path = os.path.join(globalVars.appArgs.configPath, "RHVoice-config")
-
-try:
-    basestring
-    unicode
-except NameError:
-    basestring = str
-    unicode = str
 
 
 class nvda_notification_wrapper(object):
@@ -217,21 +197,21 @@ def escape_text(text):
     parts = list()
     for c in text:
         if c.isspace():
-            part = u"&#{};".format(ord(c))
+            part = "&#{};".format(ord(c))
         elif c == "<":
-            part = u"&lt;"
+            part = "&lt;"
         elif c == ">":
-            part = u"&gt;"
+            part = "&gt;"
         elif c == "&":
-            part = u"&amp;"
+            part = "&amp;"
         elif c == "'":
-            part = u"&apos;"
+            part = "&apos;"
         elif c == '"':
-            part = u"&quot;"
+            part = "&quot;"
         else:
             part = c
         parts.append(part)
-    return u"".join(parts)
+    return "".join(parts)
 
 class audio_player(object):
     def __init__(self, synth, cancel_flag):
@@ -491,7 +471,7 @@ class nvda_speak_argument_converter(object):
         return {}
 
     def get_text(self):
-        return u""
+        return ""
 
     def write(self, out):
         txt = self.get_text()
@@ -503,20 +483,20 @@ class nvda_speak_argument_converter(object):
                 child.write(out)
             return
         tag = self.get_ssml_tag_name()
-        out.write(u'<')
+        out.write('<')
         out.write(tag)
         a = self.get_ssml_attributes()
         for k, v in a.items():
-            out.write(u' {}="{}"'.format(k, v))
+            out.write(' {}="{}"'.format(k, v))
         if len(self.children) == 0:
-            out.write(u'/>')
+            out.write('/>')
             return
-        out.write(u'>')
+        out.write('>')
         for child in self.children:
             child.write(out)
-        out.write(u'</')
+        out.write('</')
         out.write(tag)
-        out.write(u'>')
+        out.write('>')
 
 class nvda_speech_item_converter(nvda_speak_argument_converter):
     def check_item_class(self):
@@ -555,20 +535,20 @@ class nvda_speech_command_converter(nvda_speech_item_converter):
 
 class nvda_text_item_converter(nvda_speech_item_converter):
     def get_item_class(self):
-        return basestring
+        return str
 
     def outputs_element(self):
         return False
 
     def get_text(self):
-        return escape_text(unicode(self.item))
+        return escape_text(str(self.item))
 
 class nvda_index_command_converter(nvda_speech_command_converter):
     def get_item_class(self):
         return IndexCommand
 
     def get_ssml_tag_name(self):
-        return u"mark"
+        return "mark"
 
     def get_ssml_attributes(self):
         return {"name": self.item.index}
@@ -618,7 +598,7 @@ class nvda_char_mode_command_converter(nvda_speech_mode_command_converter):
         return not (self.item is not None and self.item.state)
 
     def get_ssml_tag_name(self):
-        return u"say-as"
+        return "say-as"
 
     def get_ssml_attributes(self):
         return {"interpret-as": "characters"}
@@ -628,7 +608,7 @@ class nvda_lang_change_command_converter(nvda_speech_mode_command_converter):
         return LangChangeCommand
 
     def get_ssml_tag_name(self):
-        return u"voice"
+        return "voice"
 
     def get_ssml_attributes(self):
         return {"xml:lang": self.lang}
@@ -654,7 +634,7 @@ class nvda_lang_change_command_converter(nvda_speech_mode_command_converter):
 
 class nvda_prosody_command_converter(nvda_speech_mode_command_converter):
     def get_ssml_tag_name(self):
-        return u"prosody"
+        return "prosody"
 
     def get_ssml_attribute_name(self):
         raise NotImplementedError
@@ -725,10 +705,10 @@ class nvda_speech_sequence_converter(nvda_speak_argument_converter):
                     self.current = n
             p = n
         if not found:
-            log.debugWarning(u"RHVoice: unsupported item: {}".format(item))
+            log.debugWarning("RHVoice: unsupported item: {}".format(item))
 
     def get_ssml_tag_name(self):
-        return u"speak"
+        return "speak"
 
 class SynthDriver(synthDriverHandler.SynthDriver):
     name = "RHVoice"
@@ -835,7 +815,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
         self.__pitch = 50
         self.__volume = 50
         self.__rate_boost = False
-        self.__tts_queue = Queue.Queue()
+        self.__tts_queue = queue.Queue()
         self.__tts_thread = TTSThread(self.__tts_queue)
         self.__tts_thread.start()
         log.info("Using RHVoice version {}".format(self.__lib.RHVoice_get_version()))
@@ -871,7 +851,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
         try:
             while True:
                 self.__tts_queue.get_nowait()
-        except Queue.Empty:
+        except queue.Empty:
             self.__cancel_flag.set()
             self.__tts_queue.put(self.__cancel_flag.clear)
             self.__player.stop()
