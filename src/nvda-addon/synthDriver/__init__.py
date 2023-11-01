@@ -427,11 +427,29 @@ class TTSThread(threading.Thread):
 class SsmlConverter(speechXml.SsmlConverter):
     """ This class removes xml:lang attribute from ssml string to make profiles work correctly."""
 
+    def __init__(self, synth, defaultLanguage):
+        self.synth = synth
+        super().__init__(defaultLanguage)
+
     def generateBalancerCommands(self, speechSequence):
         attrs = OrderedDict((("version", "1.0"), ("xmlns", "http://www.w3.org/2001/10/synthesis")))
         yield speechXml.EncloseAllCommand("speak", attrs)
         for command in super(speechXml.SsmlConverter, self).generateBalancerCommands(speechSequence):
             yield command
+
+    def convertLangChangeCommand(self, command):
+        lang=None
+        if command is None:
+            return
+        if not command.lang:
+            return
+        lang="_".join(command.lang.split("_")[:2])
+        if lang not in self.synth._SynthDriver__languages:
+            return
+        if self.synth._SynthDriver__languages_match(lang,self.synth._SynthDriver__voice_languages[self.synth._SynthDriver__profile.split("+")[0]]):
+            return
+        lang = speechXml.toXmlLang(lang)
+        return speechXml.SetAttrCommand("voice", "xml:lang", lang)
 
 
 class SynthDriver(SynthDriver):
@@ -554,7 +572,7 @@ class SynthDriver(SynthDriver):
         self.__tts_engine = None
 
     def speak(self, speechSequence):
-        conv = SsmlConverter(self.language)
+        conv = SsmlConverter(self, self.language)
         text = conv.convertToXml(speechSequence)
         task = SpeakText(self.__lib, self.__tts_engine, text, self.__cancel_flag, self.__player)
         task.set_voice_profile(self.__profile)
