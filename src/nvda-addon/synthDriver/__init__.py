@@ -450,7 +450,7 @@ class SynthDriver(SynthDriver):
     def check(cls):
         return any(re.match(r"RHVoice.*-voice", addon.name) for addon in addonHandler.getRunningAddons())
 
-    def __languages_match(self, code1, code2, bfull=True):
+    def __languages_match(self, code1, code2, full=True):
         lang1 = code1.split("_")
         lang2 = code2.split("_")
         if lang1[0] != lang2[0]:
