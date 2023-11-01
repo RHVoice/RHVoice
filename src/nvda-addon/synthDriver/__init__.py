@@ -447,7 +447,7 @@ class SsmlConverter(speechXml.SsmlConverter):
         if lang not in self.synth._SynthDriver__languages:
             return
         if self.synth._SynthDriver__languages_match(lang,self.synth._SynthDriver__voice_languages[self.synth._SynthDriver__profile.split("+")[0]]):
-            return
+            return speechXml.DelAttrCommand("voice", "xml:lang")
         lang = speechXml.toXmlLang(lang)
         return speechXml.SetAttrCommand("voice", "xml:lang", lang)
 
