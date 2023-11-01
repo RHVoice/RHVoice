@@ -424,6 +424,20 @@ class TTSThread(threading.Thread):
                 log.error("RHVoice: error while executing a tts task", exc_info=True)
 
 
+class SsmlConverter(speechXml.SsmlConverter):
+    def __init__(self, defaultLanguage, isAutoLanguageSwitchingEnabled):
+        self.isAutoLanguageSwitchingEnabled = isAutoLanguageSwitchingEnabled
+        super().__init__(defaultLanguage)
+
+    def generateBalancerCommands(self, speechSequence):
+        attrs = OrderedDict((("version", "1.0"), ("xmlns", "http://www.w3.org/2001/10/synthesis")))
+        if self.isAutoLanguageSwitchingEnabled:
+            attrs["xml:lang"] = self.defaultLanguage
+        yield speechXml.EncloseAllCommand("speak", attrs)
+        for command in super(speechXml.SsmlConverter, self).generateBalancerCommands(speechSequence):
+            yield command
+
+
 class SynthDriver(SynthDriver):
     name = "RHVoice"
     description = "RHVoice"
@@ -544,7 +558,7 @@ class SynthDriver(SynthDriver):
         self.__tts_engine = None
 
     def speak(self, speechSequence):
-        conv = speechXml.SsmlConverter(self.language)
+        conv = SsmlConverter(self.language, config.conf["speech"]["autoLanguageSwitching"])
         text = conv.convertToXml(speechSequence)
         task = SpeakText(self.__lib, self.__tts_engine, text, self.__cancel_flag, self.__player)
         task.set_voice_profile(self.__profile)
