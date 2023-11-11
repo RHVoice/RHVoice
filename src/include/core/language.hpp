@@ -225,12 +225,30 @@ namespace RHVoice
       return (emoji_fst.get()!=0);
 }
 
+    bool has_vocabulary() const
+    {
+      return vocab_fst!=nullptr;
+    }
+
     template<typename T> bool is_in_vocabulary(T first, T last) const
     {
       if(!vocab_fst)
 	return false;
       std::vector<std::string> out;
       return vocab_fst->translate(first, last, std::back_inserter(out));
+    }
+
+    bool has_english_words() const
+    {
+      return en_words_fst!=nullptr;
+    }
+
+    template<typename T> bool is_common_with_english(T first, T last) const
+    {
+      if(!en_words_fst)
+	return false;
+      std::vector<std::string> out;
+      return en_words_fst->translate(first, last, std::back_inserter(out));
     }
 
     item& append_emoji(utterance& u,const std::string& text) const;
@@ -362,9 +380,11 @@ std::unique_ptr<fst> qst_fst;
 
     const fst spell_fst;
     const fst downcase_fst;
+    std::unique_ptr<fst> norm_fst;
     std::unique_ptr<fst> pg2p_fst;
     std::unique_ptr<fst> vocab_fst;
     std::unique_ptr<fst> foreign_phone_mapping_fst;
+    std::unique_ptr<fst> en_words_fst;
     lang_config lcfg;
   };
 

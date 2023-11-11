@@ -82,6 +82,20 @@ namespace RHVoice
     g2p_fst(path::join(info_.get_data_path(),"g2p.fst")),
     lseq_fst(path::join(info_.get_data_path(),"lseq.fst"))
   {
+    try
+      {
+        g2g_fst.reset(new fst(path::join(info_.get_data_path(),"g2g.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        lex_fst.reset(new fst(path::join(info_.get_data_path(),"lex.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   std::vector<std::string> data_only_language::get_word_transcription(const item& word) const
@@ -95,7 +109,22 @@ namespace RHVoice
       }
         if(lcfg.g2p_case)
           name=word.eval("cname", name).as<std::string>();
-    g2p_fst.translate(str::utf8_string_begin(name),str::utf8_string_end(name),std::back_inserter(transcription));
+	std::vector<std::string> g2p_input;
+	str::utf8explode(name, std::back_inserter(g2p_input));
+	std::vector<std::string> tmp;
+	if(g2g_fst)
+	  {
+	    const item& tok=word.as("TokStructure").parent();
+	    const std::string& pos=tok.get("pos").as<std::string>();
+	    if(pos=="word" && !tok.has_feature("userdict"))
+	      if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+		g2p_input=tmp;
+	  }
+	if(lex_fst!=nullptr) {
+	  if(lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+	    return tmp;
+}
+	g2p_fst.translate(g2p_input.begin(),g2p_input.end(),std::back_inserter(transcription));
     return transcription;
   }
 }

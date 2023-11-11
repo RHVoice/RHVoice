@@ -273,6 +273,25 @@ namespace RHVoice
       }
     };
 
+    struct feat_syl_vowel_ph_flag: public feature_function
+    {
+      feat_syl_vowel_ph_flag(const std::string& flag):
+        feature_function("syl_vowel_ph_flag_"+flag),
+	name(flag)
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& syl_in_word=syl.as("Syllable").as("SylStructure");
+        item::const_iterator vowel_pos=std::find_if(syl_in_word.begin(),syl_in_word.end(),feature_equals<std::string>("ph_vc","+"));
+        return ((vowel_pos==syl_in_word.end())?zero:(vowel_pos->eval("ph_flag_"+name)));
+      }
+
+    private:
+      const std::string name;
+    };
+
     struct feat_pos_in_phrase: public feature_function
     {
       feat_pos_in_phrase():
@@ -624,6 +643,13 @@ cfg.register_setting(lcfg.tok_sent);
       }
     try
       {
+        norm_fst.reset(new fst(path::join(info_.get_data_path(),"norm.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
         pitch_mod_dtree.reset(new dtree(path::join(info_.get_data_path(),"pitch-mod.dt")));
       }
     catch(const io::open_error& e)
@@ -646,6 +672,13 @@ cfg.register_setting(lcfg.tok_sent);
     try
       {
         vocab_fst.reset(new fst(path::join(info_.get_data_path(), "vocab.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        en_words_fst.reset(new fst(path::join(info_.get_data_path(), "enwords.fst")));
       }
     catch(const io::open_error& e)
       {
@@ -693,6 +726,8 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_asyl_in));
     register_feature(std::shared_ptr<feature_function>(new feat_asyl_out));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_vowel));
+    for(const auto& flag: lcfg.ph_flags.get())
+      register_feature(std::shared_ptr<feature_function>(new feat_syl_vowel_ph_flag(flag)));
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_phrase));
     register_feature(std::shared_ptr<feature_function>(new feat_words_out));
     register_feature(std::shared_ptr<feature_function>(new feat_content_words_in));
@@ -768,7 +803,7 @@ cfg.register_setting(lcfg.tok_sent);
 	for(auto& i: pt.as("TokStructure"))
 	  {
 	    const std::string& pos=i.get("pos").as<std::string>();
-	    if(pos=="word" || pos=="lseq")
+	    if(pos=="word" || pos=="lseq" || pos=="graph")
 	      i.set("lang", lang_name);
 	  }
 	return &pt;
@@ -1019,10 +1054,21 @@ item& language::append_emoji(utterance& u,const std::string& text) const
     if(lang_it==languages.end())
       return false;
     std::string pos=token.get("pos").as<std::string>();
-    if(pos!="word"&&pos!="lseq"&&pos!="sym"&&pos!="char")
+    if(pos!="word"&&pos!="lseq"&&pos!="sym"&&pos!="char" && pos!="graph")
       return false;
     const std::string& name=token.get("name").as<std::string>();
-    if(!lang_it->are_all_letters(str::utf8_string_begin(name),str::utf8_string_end(name)))
+    bool is_eng=false;
+    for(auto it=str::utf8_string_begin(name);it!=str::utf8_string_end(name);++it)
+      {
+	if(lang_it->is_letter(*it))
+	  is_eng=true;
+	else if(str::isalpha(*it))
+	  {
+	    is_eng=false;
+	    break;
+	  }
+      }
+    if(!is_eng)
       return false;
     if(name.length()==1)
       {
@@ -1068,7 +1114,7 @@ else
       }
     else if(token_pos=="dig")
       decode_as_digit_string(token,token_name);
-    else if(token_pos=="sym")
+    else if(token_pos=="sym" || token_pos=="graph")
       decode_as_character(token,token_name);
     else if((token_pos=="key")||(token_pos=="char"))
       decode_as_key(token,token_name);
@@ -1078,11 +1124,16 @@ else
 
   void language::default_decode_as_word(item& token,const std::string& token_name) const
   {
+    std::string norm_token_name;
+    if(norm_fst)
+      norm_fst->translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(norm_token_name));
+    else
+      norm_token_name=token_name;
     std::string word_name;
-    downcase_fst.translate(str::utf8_string_begin(token_name),str::utf8_string_end(token_name),str::append_string_iterator(word_name));
+    downcase_fst.translate(str::utf8_string_begin(norm_token_name),str::utf8_string_end(norm_token_name),str::append_string_iterator(word_name));
     item& word=token.append_child();
     word.set("name",word_name);
-    word.set("cname", token_name);
+    word.set("cname", norm_token_name);
   }
 
   void language::decode_as_word(item& token,const std::string& token_name) const
@@ -1109,6 +1160,7 @@ else
     word.set("name", repl);
     if(!cname.empty())
       word.set("cname", repl);
+    tok.set("userdict", true);
   }
 
   void language::decode_as_letter_sequence(item& token,const std::string& token_name) const
