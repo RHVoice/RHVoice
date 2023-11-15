@@ -23,7 +23,7 @@ import RHVoicePackaging.common
 
 outdir=Dir("..").Dir("packages").Dir("sapi")
 
-stable_version="1.12.0"
+stable_version="1.14.0"
 
 class core_packager(RHVoicePackaging.windows.msi_packager):
 	def __init__(self,upgrade_code,x64_flag):
