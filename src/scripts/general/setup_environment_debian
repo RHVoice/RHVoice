@@ -39,12 +39,12 @@ setup_packages () {
 
 download_praat() {
     echo "Downloading praat"
-    wget https://github.com/praat/praat/releases/download/v6.3.02/praat6302_linux64barren.tar.gz
+    wget https://github.com/praat/praat/releases/download/v6.3.17/praat6317_linux64barren.tar.gz
     # Extracting praat archive
     echo "Extracting praat archive"
-    tar -xvf praat6302_linux64barren.tar.gz
+    tar -xvf praat6317_linux64barren.tar.gz
     # Removing archive
-    rm praat6302_linux64barren.tar.gz
+    rm praat6317_linux64barren.tar.gz
     # Renaming praat
     mv ./praat* ./praat
 }
@@ -159,7 +159,7 @@ build_rh_voice () {
     cd ..
     # Setting permissions to praat
     echo "Setting permissions to praat"
-    chmode +x praat
+    chmod +x praat
 }
 
 # Copying bin files to bin directory
