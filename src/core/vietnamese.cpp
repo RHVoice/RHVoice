@@ -35,6 +35,18 @@ namespace
       return nullptr;
     return &tok;
   }
+
+  void remove_consumed_syllable(item* syl)
+  {
+    item& par=syl->parent();
+    item& prev_par=par.prev();
+    syl->remove();
+    for(const item& child: par) {
+      prev_par.append_child().replace_features(child);
+    }
+    par.as("Token").remove();
+    par.remove();
+  }
 }
 
   vietnamese_info::vietnamese_info(const std::string& data_path,const std::string& userdict_path):
@@ -73,14 +85,27 @@ namespace
 #include <iostream>
   void vietnamese::decode_as_word(item& token,const std::string& name) const
   {
+    if(name.find("-")!=std::string::npos)
+      {
+	default_decode_as_word(token, name);
+	return;
+      }
     std::string search_string=name;
     std::string syl=name;
     std::string word=syl;
     bool in_dict=is_word_in_tok_dict(syl);
     bool unknown_syls=!in_dict;
     item* next_tok=&token;
+    item* consumed=nullptr;
     while((next_tok=next_syl_token(next_tok))!=nullptr) {
+      if(consumed)
+	{
+	  remove_consumed_syllable(consumed);
+	  consumed=nullptr;
+	}
       syl=next_tok->get("name").as<std::string>();
+      if(syl.find("-")!=std::string::npos)
+	break;
       search_string+=("+"+syl);
       unknown_syls= unknown_syls && !is_word_in_tok_dict(syl);
       in_dict=is_word_in_tok_dict(search_string);
@@ -88,10 +113,16 @@ namespace
 	{
 	  word+=("-"+syl);
 	  next_tok->set<verbosity_t>("verbosity", verbosity_silent);
+	  consumed=next_tok;
 	}
       else
 	break;
     }
+    if(consumed)
+      {
+	remove_consumed_syllable(consumed);
+	consumed=nullptr;
+      }
     default_decode_as_word(token, word);
   }
 }

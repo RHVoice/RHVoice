@@ -376,6 +376,10 @@ namespace RHVoice
     value eval(const std::string& feature) const;
     value eval(const std::string& feature,const value& default_value) const;
 
+    void replace_features(const item& other) {
+      data->features=other.data->features;
+    }
+
   class const_iterator: public std::iterator<std::bidirectional_iterator_tag,const item>
   {
   private:
