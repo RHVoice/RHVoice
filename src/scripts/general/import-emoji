@@ -79,6 +79,10 @@ languages={
 	{
 		"ids":["sk"]
 	 }
+	"Serbian":
+	{
+		"ids":["sr"]
+	 }
 	   }
 
 sets=defaultdict(set)
