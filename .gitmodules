@@ -325,3 +325,6 @@
 [submodule "src/scripts/Serbian"]
 	path = src/scripts/Serbian
 	url = https://github.com/RHVoice/Serbian-src
+[submodule "data/voices/dragana"]
+	path = data/voices/dragana
+	url = https://github.com/RHVoice/dragana-srp.git
