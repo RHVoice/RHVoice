@@ -319,3 +319,6 @@
 [submodule "data/voices/ondro"]
 	path = data/voices/ondro
 	url = https://github.com/RHVoice/ondro-slk.git
+[submodule "data/voices/dragana"]
+	path = data/voices/dragana
+	url = https://github.com/RHVoice/dragana-srp.git
