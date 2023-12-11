@@ -37,8 +37,6 @@ from scipy.io import wavfile
 import pathlib
 
 import pyworld
-import torch
-import penn
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
@@ -860,6 +858,10 @@ class f0_extracter(task):
 		elif method=="reaper":
 			return self.extract_with_reaper(raw_path,min_f0,max_f0)
 		elif method=="penn":
+			global torch
+			global penn
+			if "torch" not in sys.modules: import torch
+			if "penn" not in sys.modules: import penn
 			return self.extract_with_penn(raw_path,min_f0,max_f0)
 		elif method.startswith("world_"):
 			return self.extract_with_world(raw_path,method,min_f0,max_f0)
