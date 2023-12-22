@@ -807,6 +807,29 @@ class f0_extracter(task):
 		os.remove(f0_path)
 		return f0s
 
+	def extract_with_penn(self,raw_path,min_f0,max_f0):
+		samples=numpy.fromfile(raw_path,numpy.int32).astype(float)
+		samples /= numpy.quantile(numpy.abs(samples), 0.999)
+		audio = torch.tensor(numpy.copy(samples))[None].float()
+		f0, periodicity = penn.from_audio(
+			audio,
+			self.settings["sample_rate"],
+			hopsize=0.005,
+			fmin=min_f0,
+			fmax=max_f0,
+			# Select a checkpoint to use for inference. The default checkpoint will
+			# download and use FCNF0++ pretrained on MDB-stem-synth and PTDB
+			checkpoint=None,
+			# If you are using a gpu, pick a batch size that doesn't cause memory errors
+			# on your gpu
+			batch_size=2048,
+			# Centers frames at hopsize / 2, 3 * hopsize / 2, 5 * hopsize / 2, ...
+			center = 'zero',
+			# (Optional) Linearly interpolate unvoiced regions below periodicity threshold
+			interp_unvoiced_at=0.65,
+			gpu=None)
+		return f0[0].numpy().tolist()
+
 	def extract_with_world(self,raw_path,method,min_f0,max_f0):
 		assert(method in ["world_dio","world_harvest"])
 		samples=numpy.fromfile(raw_path,numpy.int32).astype(float)
@@ -834,6 +857,12 @@ class f0_extracter(task):
 			return self.extract_with_praat(raw_path,method,min_f0,max_f0)
 		elif method=="reaper":
 			return self.extract_with_reaper(raw_path,min_f0,max_f0)
+		elif method=="penn":
+			global torch
+			global penn
+			if "torch" not in sys.modules: import torch
+			if "penn" not in sys.modules: import penn
+			return self.extract_with_penn(raw_path,min_f0,max_f0)
 		elif method.startswith("world_"):
 			return self.extract_with_world(raw_path,method,min_f0,max_f0)
 		else:
