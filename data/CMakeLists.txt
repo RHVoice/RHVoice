@@ -103,7 +103,8 @@ set("VOICE_natan_LANG" "pl")
 set("VOICE_zdenek_LANG" "cs")
 set("VOICE_ondro_LANG" "sk")
 set("VOICE_sevinch_LANG" "uz")
-
+set("VOICE_islom_LANG" "uz")
+set("VOICE_dilnavoz_LANG" "uz")
 set("VOICE_dragana_LANG" "sr")
 
 cpack_add_component_group("data"

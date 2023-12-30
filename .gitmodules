@@ -328,3 +328,9 @@
 [submodule "data/voices/dragana"]
 	path = data/voices/dragana
 	url = https://github.com/RHVoice/dragana-srp.git
+[submodule "data/voices/islom"]
+	path = data/voices/islom
+	url = https://github.com/RHVoice/islom-uzb.git
+[submodule "data/voices/dilnavoz"]
+	path = data/voices/dilnavoz
+	url = https://github.com/RHVoice/dilnavoz-uzb.git
