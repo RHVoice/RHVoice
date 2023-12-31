@@ -13,16 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+define ProcNumChar [ %-:mínus |
+%€: euro |
+%+: plus |
+%.: tečka |
+%,: čárka ] ;
+
 define NZDigit 1|2|3|4|5|6|7|8|9;
 define Digit %0|NZDigit;
-define Number (%+) (%-) [ %0|[ NZDigit Digit^<15]];
+define UnformattedNumber [ Digit Digit^<16];
+define Number  UnformattedNumber;
 
-define InsertPlus %+ @-> plus || _ ;
-
-define InsertMinus %- @-> mínus || _ ;
+define Insertzeros 
+[%0] -> nula || [ .#. | [.#. %0+]] _ ;
 
 define InsertThousands 
-[..] -> tisíc || Digit _ Digit^3 .#.;
+[..] -> tisíc || Digit _ Digit^3 .#.  ;
 
 define InsertMillions 
 [..] -> miliónů || Digit _ Digit^3 tisíc;
@@ -102,13 +108,13 @@ sto|dvěstě|třista|čtyřista|pětset|šestset|
 sedmset|osmset|devětset] čtyři _ ;
 
 define RemoveOne 
-jedna -> 0 || .#.|GroupName _ tisíc,, 
-jedna -> 0 || .#.|GroupName _ milión,, 
-jedna -> 0 || .#.|GroupName _ miliárda,, 
-jedna -> 0 || .#.|GroupName _ bilión ; 
+jedna -> 0 || .#. | GroupName _ tisíc,, 
+jeden -> 0 || .#. | GroupName _ milión,, 
+jedna -> 0 || .#.  | GroupName _ miliárda,, 
+jeden -> 0 || .#. | GroupName _ bilión ; 
 
-regex 
-Number .o. 
+define ProcNumber Number .o. 
+Insertzeros .o. 
 InsertThousands .o. 
 InsertMillions .o. 
 InsertBillions .o. 
@@ -122,6 +128,6 @@ RemoveOne .o.
 Fix31Tys  .o.
 Fix32Tys  .o.
 Fix33Tys  .o.
-Fix34Tys  .o.
-InsertPlus .o.
-InsertMinus ;
+Fix34Tys  ;
+
+regex ProcNumChar | ProcNumber;

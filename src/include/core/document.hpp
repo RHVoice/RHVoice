@@ -34,6 +34,7 @@
 #include "params.hpp"
 #include "quality_setting.hpp"
 #include "emoji.hpp"
+#include "english_id.hpp"
 
 #ifndef RHVOICE_DOCUMENT_HPP
 #define RHVOICE_DOCUMENT_HPP
@@ -263,6 +264,7 @@ namespace RHVoice
     double rate,pitch,volume;
     language_voice_pair language_and_voice;
     std::size_t length,num_tokens;
+    english_id en_id;
 
     static const std::size_t max_token_length=200;
     static const std::size_t max_sentence_length=1000;
@@ -305,7 +307,7 @@ namespace RHVoice
     template<typename text_iterator>
     text_iterator get_next_token(text_iterator text_start,text_iterator text_end,const tts_markup& markup_info);
     bool next_token_starts_new_sentence(const tts_markup& markup_info) const;
-    voice_list::const_iterator determine_next_token_voice() const;
+    voice_list::const_iterator determine_next_token_voice();
     language_voice_pair get_language_and_voice_from_markup(const tts_markup& markup_info) const;
     std::unique_ptr<utterance> new_utterance() const;
     void execute_commands(utterance& u) const;

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 ext.major_version = 1
-ext.minor_version = 12
+ext.minor_version = 14
 ext.revision_number = 0
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 

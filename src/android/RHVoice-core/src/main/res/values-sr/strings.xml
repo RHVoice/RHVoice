@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Подразумевани глас</string>
+  <string name="default_voice_dialog_title">Изаберите глас</string>
+  <string name="detect_language_title">Детектовање језика</string>
+  <string name="detect_language_desc">Аутоматско препознавање језика</string>
+  <string name="speech_volume">Јачина говора</string>
+  <string name="speech_rate">Брезина говора</string>
+  <string name="pseudo_english_title">Енглеске речи</string>
+  <string name="pseudo_english_desc">Покушај да прочиташ енглеске речи исправно</string>
+  <string name="settings">Подешавања</string>
+  <string name="wifi_only_title">Само путем бежичне мреже</string>
+  <string name="wifi_only_desc">Преузимај гласове само путем бежичне мреже</string>
+  <string name="speech_quality">Квалитет говора</string>
+  <string-array name="quality_labels">
+    <item>Најбољи могући квалитет</item>
+    <item>Подразумевани квалитет</item>
+    <item>Најбољи могући квалитет</item>
+  </string-array>
+  <string name="languages">Језици</string>
+  <string name="voice_remove_question">Јесте ли сигурни да желите да деинсталирате овај глас?</string>
+  <string name="install">Инсталирај</string>
+  <string name="uninstall">Деинсталирај</string>
+  <string name="play">Пусти</string>
+  <string name="stop">Заустави</string>
+  <string name="increase">Повећај</string>
+  <string name="decrease">Смањи</string>
+  <string name="reset">Ресетуј</string>
+  <string name="version">Верзија</string>
+  <string name="user_dicts">Кориснички речници</string>
+  <string name="add">Додај</string>
+  <string name="remove">Избриши</string>
+  <string name="config_file">Конфигурациона датотека</string>
+</resources>

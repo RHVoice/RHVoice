@@ -95,6 +95,12 @@ namespace RHVoice
       return voices.at(0);
     }
 
+    voice_list::const_iterator get_voice(std::size_t i) const
+    {
+      return voices.at(i);
+    }
+
+
     iterator voice_for_language(language_list::const_iterator lang) const
     {
       for(iterator it=begin();it!=end();++it)

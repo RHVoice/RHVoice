@@ -27,7 +27,7 @@
 #include "url_builder.hpp"
 
 #ifndef PKG_DIR_URL
-#define PKG_DIR_URL "https://rhvoice.org/download/packages-1.8.json"
+#define PKG_DIR_URL "https://rhvoice.org/download/packages-1.14.json"
 #endif
 
 namespace RHVoice
@@ -112,6 +112,10 @@ namespace
     {
       auto& cu=curl::get_instance();
       auto h=cu.easy_init();
+      #ifdef ANDROID
+      std::string ca_cert_path{path::join(state_dir_path, "cacert.pem")};
+      curl_easy_setopt(h.get(), CURLOPT_CAINFO, ca_cert_path.c_str());
+      #endif
       js::stream_parser parser;
       js::error_code ec;
       auto t=ptime::second_clock::universal_time();

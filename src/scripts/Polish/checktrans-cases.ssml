@@ -1,4 +1,16 @@
 <speak xml:lang="pl">
+<s>-1</s>
+<s>+1</s>
+<s>test-1</s>
+<s>a-1-2</s>
+<s>b-0001</s>
+<s>-123.456</s>
+<s>33.44.55.66</s>
+<s>21.22,32.42</s>
+<s>2,5cm</s>
+<s>2.5cm</s>
+<s>33.22,</s>
+<s>-12.34;</s>
 <s>1000</s>
 <s>31000</s>
 <s>50</s>
@@ -83,6 +95,7 @@
 <s>kazirodztwo</s>
 <s>kilodżul</s>
 <s>klient</s>
+<s>knadze</s>
 <s>kramarza</s>
 <s>krzew</s>
 <s>kufrze</s>
@@ -102,10 +115,12 @@
 <s>mozilla</s>
 <s>muezin</s>
 <s>muezzin</s>
+<s>nadzerowy</s>
 <s>nadzieja</s>
 <s>nadziemny</s>
 <s>nadzorca</s>
 <s>nadzwyczajny</s>
+<s>nadzy</s>
 <s>nadżarcie</s>
 <s>nadżerka</s>
 <s>nazir</s>
@@ -152,6 +167,7 @@
 <s>podzamcze</s>
 <s>podzamkowy</s>
 <s>podzelować</s>
+<s>podzerowy</s>
 <s>podzielny</s>
 <s>podziemię</s>
 <s>podzięb</s>
@@ -186,6 +202,8 @@
 <s>rymarza</s>
 <s>siara</s>
 <s>siedzibach</s>
+<s>siesta</s>
+<s>siestę</s>
 <s>siglum</s>
 <s>sigma</s>
 <s>sign</s>
@@ -213,6 +231,7 @@
 <s>statuy</s>
 <s>stolarz</s>
 <s>superzdrowy</s>
+<s>Szewardnadze</s>
 <s>także</s>
 <s>tychże</s>
 <s>ubezimiennić</s>

@@ -114,7 +114,8 @@ namespace RHVoice
     volume(1),
     language_and_voice(parent->get_engine().get_languages().end(),parent->get_engine().get_voices().end()),
     length(0),
-    num_tokens(0)
+    num_tokens(0),
+    en_id(parent->get_voice_profile())
     {
     }
 
@@ -180,9 +181,14 @@ namespace RHVoice
       }
   }
 
-  voice_list::const_iterator sentence::determine_next_token_voice() const
+  voice_list::const_iterator sentence::determine_next_token_voice()
   {
     voice_list::const_iterator no_result=parent->get_engine().get_voices().end();
+    if(en_id.is_enabled())
+      {
+	en_id.add_word(next_token.text.begin(), next_token.text.end());
+	return no_result;
+      }
     const voice_profile& profile=parent->get_voice_profile();
     if(profile.empty())
       return no_result;
@@ -235,6 +241,13 @@ namespace RHVoice
   std::unique_ptr<utterance> sentence::new_utterance() const
   {
     const voice_profile& profile=parent->get_voice_profile();
+    int lang_index=0;
+    if(en_id.is_enabled())
+      {
+	auto r=en_id.get_result();
+	if(r>=0)
+	  lang_index=r;
+      }
     std::unique_ptr<utterance> u;
     const language_list& languages=parent->get_engine().get_languages();
     language_list::const_iterator current_language=language_and_voice.first;
@@ -243,7 +256,7 @@ namespace RHVoice
     if(current_language==languages.end())
       {
         if(!profile.empty())
-          current_language=profile.primary()->get_language();
+          current_language=profile.get_voice(lang_index)->get_language();
         else
           current_language=languages.begin();
       }
