@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Voz predeterminada</string>
+  <string name="default_voice_dialog_title">Selecciona una voz</string>
+  <string name="detect_language_title">Detección de idioma</string>
+  <string name="detect_language_desc">Alternado automático de idioma</string>
+  <string name="speech_volume">Volumen de voz</string>
+  <string name="speech_rate">Velocidad de voz</string>
+  <string name="pseudo_english_title">Palabras en Inglés</string>
+  <string name="pseudo_english_desc">Intenta leer las palabras en inglés correctamente</string>
+  <string name="settings">Opciones</string>
+  <string name="wifi_only_title">solo Wi-Fi</string>
+  <string name="wifi_only_desc">Descargar voces solo en Wi-Fi</string>
+  <string name="speech_quality">Calidad de voz</string>
+  <string-array name="quality_labels">
+    <item>El mejor rendimiento posible</item>
+    <item>Calidad estándar</item>
+    <item>La mejor calidad posible</item>
+  </string-array>
+  <string name="languages">Idiomas</string>
+  <string name="voice_remove_question">¿Estás seguro de que quieres desinstalar esta voz?</string>
+  <string name="install">Instalar</string>
+  <string name="uninstall">Desinstalar</string>
+  <string name="play">Reproducir</string>
+  <string name="stop">Detener</string>
+  <string name="increase">Incrementar</string>
+  <string name="decrease">Decrementar</string>
+  <string name="reset">Restablecer</string>
+  <string name="version">Versión</string>
+  <string name="user_dicts">Diccionarios de usuario</string>
+  <string name="add">Agregar</string>
+  <string name="remove">Eliminar</string>
+  <string name="config_file">Archivo de configuración</string>
+</resources>
