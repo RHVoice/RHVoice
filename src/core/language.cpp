@@ -1722,6 +1722,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
           throw syllabification_error(*word_iter);
         word_with_syls.append_child().set<std::string>("stress","0");
         word_with_syls.last_child().set<std::string>("accented","0");
+	word_with_syls.last_child().set<std::string>("lex_tone","0");
         seg_iter=seg_start;
         for(std::vector<std::string>::const_iterator pos=result.begin();pos!=result.end();++pos)
           {
@@ -1757,6 +1758,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
               {
                 word_with_syls.append_child().set<std::string>("stress","0");
                 word_with_syls.last_child().set<std::string>("accented","0");
+word_with_syls.last_child().set<std::string>("lex_tone","0");
               }
             else
               {
