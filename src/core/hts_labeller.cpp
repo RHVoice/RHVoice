@@ -169,6 +169,18 @@ namespace RHVoice
       }
     };
 
+    struct hts_prev_prev_syl_lex_tone: public feature_function
+    {
+      hts_prev_prev_syl_lex_tone():
+        feature_function("prev_prev_syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.R:Syllable.p.lex_tone":"R:SylStructure.parent.R:Syllable.p.p.lex_tone",zero);
+      }
+    };
 
     struct hts_prev_syl_lex_tone: public feature_function
     {
@@ -672,6 +684,19 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.syl_break":"R:SylStructure.parent.R:Syllable.n.syl_break",zero);
+      }
+    };
+
+    struct hts_next_next_syl_lex_tone: public feature_function
+    {
+      hts_next_next_syl_lex_tone():
+        feature_function("next_next_syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.R:Syllable.n.lex_tone":"R:SylStructure.parent.R:Syllable.n.n.lex_tone",zero);
       }
     };
 
@@ -1643,6 +1668,7 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_accented));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_lex_tone));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_prev_syl_lex_tone));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_length));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_accented));
@@ -1675,6 +1701,7 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_accented));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_lex_tone));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_next_syl_lex_tone));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_length));
         define_feature(std::shared_ptr<feature_function>(new hts_next_syl_break));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_word_gpos));
