@@ -334,3 +334,6 @@
 [submodule "data/voices/dilnavoz"]
 	path = data/voices/dilnavoz
 	url = https://github.com/RHVoice/dilnavoz-uzb.git
+[submodule "data/voices/ksp"]
+	path = data/voices/ksp
+	url = https://github.com/RHVoice/ksp-eng.git
