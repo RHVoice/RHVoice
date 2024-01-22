@@ -155,31 +155,18 @@ namespace RHVoice
 	    output.clear();
 	    for(auto it=w1it;it!=w2it;++it)
 	      {
-		if(input.empty())
-		  input.push_back(wb);
 		name=it->get("name").as<std::string>();
-		str::utf8explode(name, std::back_inserter(input));
-		input.push_back(wb);
+		input.push_back(name);
 	      }
 	    gg2g_fst->translate(input.begin(), input.end(), std::back_inserter(output));
 	    auto out_it=output.begin();
-	    if(out_it!=output.end() && *out_it==wb)
-	      ++out_it;
 	    for(auto w_it=w1it;w_it!=w2it;++w_it)
 	      {
-		name.clear();
-		for(;out_it!=output.end();++out_it)
-		  {
-		    if(*out_it==wb)
-		      {
-			++out_it;
-			break;
-		      }
-		    name.append(*out_it);
-		  }
-		if(name.empty())
-		  throw std::runtime_error("gg2g word count mismatch");
+		if(out_it==output.end())
+		  throw std::runtime_error("Gg2g word count mismatch");
+		name=*out_it;
 		w_it->set("name", name);
+		++out_it;
 	      }
 	    w1it=std::find_if(w2it, phr.end(), is_word);
 	  }
