@@ -96,6 +96,13 @@ namespace RHVoice
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        gg2g_fst.reset(new fst(path::join(info_.get_data_path(),"gg2g.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   std::vector<std::string> data_only_language::get_word_transcription(const item& word) const
@@ -126,5 +133,54 @@ namespace RHVoice
 }
 	g2p_fst.translate(g2p_input.begin(),g2p_input.end(),std::back_inserter(transcription));
     return transcription;
+  }
+
+  void data_only_language::before_g2p(utterance& u) const
+  {
+    if(!gg2g_fst)
+      return;
+    const auto is_word=[] (const item& i) {return i.as("TokStructure").parent().get("pos").as<std::string>()=="word";};
+    const auto is_not_word=[&is_word] (const item& i) {return !is_word(i);};
+    const std::string wb{"#"};
+    auto& phr_rel=u.get_relation("Phrase");
+    std::vector<std::string> input, output;
+    std::string name;
+    for(auto& phr: phr_rel)
+      {
+	auto w1it=std::find_if(phr.begin(), phr.end(), is_word);
+	while(w1it!=phr.end())
+	  {
+	    auto w2it=std::find_if(w1it, phr.end(), is_not_word);
+	    input.clear();
+	    output.clear();
+	    for(auto it=w1it;it!=w2it;++it)
+	      {
+		if(!input.empty())
+		  input.push_back(wb);
+		name=it->get("name").as<std::string>();
+		str::utf8explode(name, std::back_inserter(input));
+	      }
+	    gg2g_fst->translate(input.begin(), input.end(), std::back_inserter(output));
+	    auto out_it=output.begin();
+	    for(auto w_it=w1it;w_it!=w2it;++w_it)
+	      {
+		name.clear();
+		for(;out_it!=output.end();++out_it)
+		  {
+		    if(*out_it==wb)
+		      {
+			++out_it;
+			break;
+		      }
+		    name.append(*out_it);
+		  }
+		if(name.empty())
+		  throw std::runtime_error("gg2g word count mismatch");
+		w_it->set("name", name);
+		
+	      }
+	    w1it=std::find_if(w2it, phr.end(), is_word);
+	  }
+      }
   }
 }

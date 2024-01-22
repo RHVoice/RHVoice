@@ -65,11 +65,14 @@ struct locale_info
     std::vector<std::string> get_word_transcription(const item& word) const;
   private:
 
+    void before_g2p(utterance& u) const;
+
     const data_only_language_info& info;
     const fst g2p_fst;
     const fst lseq_fst;
 std::unique_ptr<fst> g2g_fst;
 std::unique_ptr<fst> lex_fst;
+std::unique_ptr<fst> gg2g_fst;
   };
 }
 #endif

@@ -63,6 +63,7 @@ namespace RHVoice
     {
       break_default,
       break_none,
+      break_minor,
       break_phrase,
       break_sentence
     };
@@ -329,6 +330,7 @@ namespace RHVoice
     std::vector<std::string> get_english_word_transcription(const item& word) const;
     std::vector<std::string> get_foreign_word_transcription(const item& word) const;
 
+    virtual void before_g2p(utterance& u) const {}
     virtual void before_g2p(item& word) const
 {
 }
