@@ -21,10 +21,7 @@ import shutil
 import globalVars
 
 def onInstall():
-    try:
-        module_dir=os.path.dirname(__file__.decode("mbcs"))
-    except AttributeError:
-        module_dir=os.path.dirname(__file__)
+    module_dir=os.path.dirname(__file__)
     config_dir=os.path.join(module_dir,"synthDrivers","RHVoice","config")
     user_config_dir=os.path.join(globalVars.appArgs.configPath,"RHVoice-config")
     if not os.path.isdir(user_config_dir):
