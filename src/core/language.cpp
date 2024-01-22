@@ -1396,7 +1396,7 @@ else
           }
       }
     const std::string& brk=phrasing_dtree.predict(word).as<std::string>();
-    return ((brk=="NB")?break_none:break_phrase);
+    return ((brk=="NB")?break_none:(brk=="MB"?break_minor:break_phrase));
   }
 
 void language::on_token_break(utterance& u) const
@@ -1421,8 +1421,10 @@ void language::on_token_break(utterance& u) const
             phrase_rel.last().append_child(*word_iter);
             break_strength strength=get_word_break(*word_iter);
             ++word_iter;
-            if((strength!=break_none)&&(word_iter!=word_rel.end()))
+            if((strength!=break_none)&&(word_iter!=word_rel.end())) {
+	      phrase_rel.last().set<std::string>("minor_break", strength==break_minor?"1":"0");
               phrase_rel.append();
+	    }
           }
         while(word_iter!=word_rel.end());
       }
@@ -1679,6 +1681,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
 
   void language::do_g2p(utterance& u) const
   {
+    before_g2p(u);
     relation& word_rel=u.get_relation("Word");
     relation& seg_rel=u.add_relation("Segment");
     relation& trans_rel=u.add_relation("Transcription");
