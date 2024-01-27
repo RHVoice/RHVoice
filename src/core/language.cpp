@@ -102,6 +102,28 @@ namespace RHVoice
       }
     };
 
+    struct feat_syl_pos_type: public feature_function
+    {
+      feat_syl_pos_type():
+        feature_function("syl_pos_type")
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& wsyl=syl.as("SylStructure");
+	std::string result{"mid"};
+	if(syl.has_next())
+	  {
+	    if(!syl.has_prev())
+	      result="initial";
+	  } else {
+	  result=syl.has_prev()?"final":"single";
+	}
+        return result;
+      }
+    };
+
     struct feat_seg_pos_in_word: public feature_function
     {
       feat_seg_pos_in_word():
@@ -715,6 +737,7 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_syl_bw));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_numphones));
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_word));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_pos_type));
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_word_bw));
     register_feature(std::shared_ptr<feature_function>(new feat_seg_pos_in_word));
     register_feature(std::shared_ptr<feature_function>(new feat_seg_pos_in_word_bw));

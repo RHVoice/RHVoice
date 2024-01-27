@@ -286,6 +286,20 @@ namespace RHVoice
       }
     };
 
+    struct hts_syl_pos_type: public feature_function
+    {
+      hts_syl_pos_type():
+        feature_function("syl_pos_type")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:(seg.eval("R:SylStructure.parent.syl_pos_type"));
+      }
+    };
+
+
     struct hts_syl_pos_in_word_fw: public feature_function
     {
       hts_syl_pos_in_word_fw():
@@ -1677,6 +1691,7 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_syl_break));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_fw));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_bw));
+define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_type));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_fw));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_bw));
     define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_before_this_syl));
