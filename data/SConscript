@@ -39,7 +39,7 @@ for dir_name in ["languages","voices"]:
 	type=dir_name[:-1]
 	dir=root_dir.Dir(dir_name)
 	for subdir_name in os.listdir(dir.abspath):
-		if os.path.isfile(subdir_name):
+		if not os.path.isdir(os.path.join(dir.abspath, subdir_name)):
 			continue
 		subdir=dir.Dir(subdir_name)
 		data_files=list_files(subdir)
