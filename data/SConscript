@@ -12,7 +12,7 @@ import RHVoiceInfoParser
 Import("env")
 local_env=env.Clone()
 
-nvda_addon_build_number=".10"
+nvda_addon_build_number=".11"
 
 def list_files(dir):
 	files=[]
@@ -84,13 +84,17 @@ for dir_name in ["languages","voices"]:
 				lang_files[props["name"]]=data_files
 			else:
 				packagers["msi"].visible="no"
-				for f in lang_files[props["language"]]:
-					packagers["nvda"].add(f,os.path.normpath(os.path.join("langdata",os.path.relpath(f.Dir(".").abspath,root_dir.Dir("languages").Dir(props["language"]).abspath))))
+				for lang_key, lang_dir_name in [("language", "langdata"), ("language2", "lang2data")]:
+					if lang_key in props:
+						for f in lang_files[props[lang_key]]:
+							packagers["nvda"].add(f,os.path.normpath(os.path.join(lang_dir_name,os.path.relpath(f.Dir(".").abspath,root_dir.Dir("languages").Dir(props[lang_key]).abspath))))
 				packagers["exe"]=RHVoicePackaging.windows.nsis_bootstrapper_packager(package_name,pkgdir.Dir("sapi"),local_env,description,full_version+exe_build_number)
 				if env["enable_x64"]:
 					packagers["exe"].msis.append(local_env["WindowsInstallers_core_64"])
 				packagers["exe"].msis.append(local_env["WindowsInstallers_core_32"])
 				packagers["exe"].msis.append(lang_msis[props["language"]])
+				if "language2" in props:
+					packagers["exe"].msis.append(lang_msis[props["language2"]])
 				packagers["exe"].msis.append(packagers["msi"])
 		for p in packagers.values():
 			p.package()

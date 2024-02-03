@@ -493,7 +493,7 @@ class SynthDriver(SynthDriver):
         return [os.path.join(addon.path, name).encode("utf-8")
             for addon in addonHandler.getRunningAddons()
             if data_addon_name_pattern.match(addon.name)
-            for name in ["data", "langdata"]
+            for name in ["data", "langdata", "lang2data"]
             if os.path.isdir(os.path.join(addon.path, name))]
 
     def __init__(self):
