@@ -3,7 +3,7 @@ title: RHVoice
 
 base: core22
 
-version: '1.14.0-3'
+version: '1.14.0-4'
 
 summary: Multilingual text-to-speech engine
 description: |
@@ -18,7 +18,7 @@ website: https://rhvoice.org
 
 license: GPL-3.0+
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict
 
 parts:
