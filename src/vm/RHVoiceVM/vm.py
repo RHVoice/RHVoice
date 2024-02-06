@@ -46,12 +46,17 @@ pkg_dir=None
 installed={}
 voices={}
 
+eng_pkg=None
+
 def mkdir(p):
     p.mkdir(parents=True, exist_ok=True)
 
 def make_voice_index():
     global voices
+    global eng_pkg
     for lang in pkg_dir["languages"]:
+        if lang["name"]=="English":
+            eng_pkg=lang
         for v in lang["voices"]:
             key=v["name"].lower()
             voices[key]=(v, lang)
@@ -177,6 +182,8 @@ def install():
     v, lng=voices[key]
     if get_pkg_id(lng) not in installed:
         install_package(lng, False)
+    if lng.get("pseudoEnglish", False) and get_pkg_id(eng_pkg) not in installed:
+        install_package(eng_pkg, False)
     if get_pkg_id(v) in installed:
         print("Already installed")
     else:
@@ -219,6 +226,8 @@ def uninstall():
         print("This voice is not installed")
         return
     uninstall_package(v, True)
+    if lng["name"]=="English":
+        return
     for v1 in lng["voices"]:
         if get_pkg_id(v1) in installed:
             return
@@ -273,7 +282,6 @@ def main():
             elif args.installed:
                 list_installed()
             elif args.install:
-
                 install()
             elif args.uninstall:
                 uninstall()
