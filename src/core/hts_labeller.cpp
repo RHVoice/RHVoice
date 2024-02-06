@@ -178,7 +178,7 @@ namespace RHVoice
 
       value eval(const item& seg) const
       {
-        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.R:Syllable.p.lex_tone":"R:SylStructure.parent.R:Syllable.p.p.lex_tone",zero);
+        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.R:PhraseSylStructure.p.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.p.p.lex_tone",x);
       }
     };
 
@@ -191,7 +191,7 @@ namespace RHVoice
 
       value eval(const item& seg) const
       {
-        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.lex_tone":"R:SylStructure.parent.R:Syllable.p.lex_tone",zero);
+        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.p.lex_tone",x);
       }
     };
 
@@ -710,7 +710,7 @@ namespace RHVoice
 
       value eval(const item& seg) const
       {
-        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.R:Syllable.n.lex_tone":"R:SylStructure.parent.R:Syllable.n.n.lex_tone",zero);
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.R:PhraseSylStructure.n.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.n.n.lex_tone",x);
       }
     };
 
@@ -723,7 +723,7 @@ namespace RHVoice
 
       value eval(const item& seg) const
       {
-        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.lex_tone":"R:SylStructure.parent.R:Syllable.n.lex_tone",zero);
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.n.lex_tone",x);
       }
     };
 
