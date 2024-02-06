@@ -1734,6 +1734,10 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     relation& syl_rel=u.add_relation("Syllable");
     relation& sylstruct_rel=u.add_relation("SylStructure");
     relation& trans_rel=u.get_relation("Transcription");
+    relation& phrase_rel=u.get_relation("Phrase");
+    relation& phrase_syl_rel=u.add_relation("PhraseSylStructure");
+    for(item& phr: phrase_rel)
+      phrase_syl_rel.append(phr);
     std::vector<std::string> result;
     item::iterator seg_start,seg_end,seg_iter;
     std::string seg_name;
@@ -1742,6 +1746,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
       {
         item& word_with_syls=sylstruct_rel.append(*word_iter);
+	item& syl_phrase=word_iter->as("Phrase").parent().as("PhraseSylStructure");
         seg_start=word_iter->begin();
         seg_end=word_iter->end();
         if(!syl_fst.translate(seg_start,seg_end,std::back_inserter(result)))
@@ -1806,6 +1811,7 @@ word_with_syls.last_child().set<std::string>("lex_tone","0");
               }
           }
         std::copy(word_with_syls.begin(),word_with_syls.end(),syl_rel.back_inserter());
+	std::copy(word_with_syls.begin(),word_with_syls.end(),syl_phrase.back_inserter());
         stress_pattern stress=word_with_syls.eval("word_stress_pattern").as<stress_pattern>();
         if(stress.get_state()!=stress_pattern::undefined)
           stress.apply(word_with_syls);
