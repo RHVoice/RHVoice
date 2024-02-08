@@ -97,6 +97,24 @@ sudo dnf install rhvoice
 sudo dnf install rhvoice-speech-dispatcher-plugin
 ```
 
+### Gentoo
+
+Can be installed from [GURU](https://wiki.gentoo.org/wiki/GURU).
+
+You might want to enable nonfree (CC-BY-NC-ND 4.0) voices:
+
+```bash
+echo "app-accessibility/rhvoice redistributable" | sudo tee -a /etc/portage/package.use
+```
+
+Installation commands:
+
+```bash
+sudo eselect repository enable guru
+sudo emaint sync -r guru
+sudo emerge app-accessibility/rhvoice
+```
+
 ### Manjaro
 
 Example installation commands:
