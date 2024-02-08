@@ -56,6 +56,25 @@ sudo dnf install rhvoice-speech-dispatcher-plugin
 sudo dnf install rhvoice-russian
 ```
 
+## Gentoo
+
+Можно найти в [GURU](https://wiki.gentoo.org/wiki/GURU).
+
+Несвободные (CC-BY-NC-ND 4.0) голоса не устанавливаются по умолчанию, выполните
+следующую команду, чтобы их включить:
+
+```bash
+echo "app-accessibility/rhvoice redistributable" | sudo tee -a /etc/portage/package.use
+```
+
+Команды установки:
+
+```bash
+sudo eselect repository enable guru
+sudo emaint sync -r guru
+sudo emerge app-accessibility/rhvoice
+```
+
 ## Manjaro
 
 Пример команд установки:
