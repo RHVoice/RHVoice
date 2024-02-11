@@ -220,6 +220,7 @@ namespace RHVoice
     bool is_eos_punct(utf8::uint32_t c) const;
 
     item& append_token(utterance& u,const std::string& text, bool eos) const;
+    item& append_token(utterance& u,item& parent_token,const std::string& text, bool eos) const;
 
     bool supports_emoji() const
     {
@@ -345,7 +346,7 @@ namespace RHVoice
     void translate_emoji_sequence(item& token,const std::string& text) const;
     void set_user_phones(item& word) const;
     item& append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const;
-    item* try_as_foreign_token(utterance& u, const std::string& text, bool eos) const;
+    bool try_as_foreign_subtoken(utterance& u, item& parent_token, const std::string& text) const;
 
     void apply_simple_dict(item&) const;
 
@@ -378,6 +379,7 @@ std::unique_ptr<fst> qst_fst;
       bool_property g2p_case{"g2p.case", false};
       string_property punct_eos{"punct.eos"};
       string_property bilingual{"bilingual"};
+      bool_property default_language{"default_language", true};
     };
 
     const fst spell_fst;
