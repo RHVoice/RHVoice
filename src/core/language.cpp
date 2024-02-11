@@ -627,6 +627,7 @@ cfg.register_setting(lcfg.tok_sent);
     cfg.register_setting(lcfg.g2p_case);
     cfg.register_setting(lcfg.punct_eos);
     cfg.register_setting(lcfg.bilingual);
+    cfg.register_setting(lcfg.default_language);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -783,59 +784,37 @@ cfg.register_setting(lcfg.tok_sent);
             if(((++str::utf8_string_begin(name))==str::utf8_string_end(name))&&(pos=="word"||pos=="lseq"))
               token.set("one-letter",true);
             token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
+	    if(pos=="word" || pos=="lseq" || pos=="graph")
+	      token.set("lang", get_info().get_name());
             return token;
   }
 
-  item* language::try_as_foreign_token(utterance& u, const std::string& text, bool eos) const
+  bool language::try_as_foreign_subtoken(utterance& u, item& parent_token, const std::string& text) const
   {
     if(lcfg.bilingual.is_set() && lcfg.tok_sent)
       {
 	std::cerr << "Warning: need to implement language switching in sentence level tokenizers!";
-	return nullptr;
+	return false;
       }
     if(!u.get_bilingual_enabled())
-      return nullptr;
+      return false;
     auto sl=get_second_language();
     if(!sl)
-      return nullptr;
-    const auto is_not_punct=[] (utf8::uint32_t cp) {return !str::ispunct(cp);};
+      return false;
     const utf8::iterator<std::string::const_iterator> token_start(text.begin(), text.begin(), text.end());
     decltype(token_start) token_end(text.end(), text.begin(), text.end());
-		const auto word_start=std::find_if(token_start, token_end, is_not_punct);
-	if(word_start==token_end)
-	  return nullptr;
-	auto word_end=token_end;
-	do
-	  {
-	    --word_end;
-	    if(is_not_punct(*word_end))
-	      {
-		++word_end;
-		break;
-	      }
-	  }
-	while(word_end!=word_start);
 	std::vector<utf8::uint32_t> word;
-	std::transform(word_start, word_end, std::back_inserter(word), str::tolower);
+	std::transform(token_start, token_end, std::back_inserter(word), str::tolower);
 	if(is_in_vocabulary(word.begin(), word.end()))
-	  return nullptr;
-	if(!sl->is_in_vocabulary(word.begin(), word.end()))
-	  return nullptr;
-	auto& pt=sl->append_token(u, text, eos);
-	const std::string lang_name=sl->get_info().get_name();
-	for(auto& i: pt.as("TokStructure"))
-	  {
-	    const std::string& pos=i.get("pos").as<std::string>();
-	    if(pos=="word" || pos=="lseq" || pos=="graph")
-	      i.set("lang", lang_name);
-	  }
-	return &pt;
+	  return false;
+	if(!sl->is_in_vocabulary(word.begin(), word.end()) && lcfg.default_language)
+	  return false;
+	sl->append_token(u, parent_token, text, false);
+	return true;
   }
 
   item& language::append_token(utterance& u,const std::string& text, bool eos) const
   {
-    if(auto p=try_as_foreign_token(u, text, eos))
-      return *p;
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     item& parent_token=tokstruct_rel.append(token_rel.append());
@@ -845,6 +824,13 @@ cfg.register_setting(lcfg.tok_sent);
         u.get_relation("TokIn", true).append(parent_token);
         return parent_token.as("Token");
       }
+    return append_token(u, parent_token, text, eos);
+  }
+
+  item& language::append_token(utterance& u,item& parent_token,const std::string& text, bool eos) const
+  {
+    relation& token_rel=u.get_relation("Token",true);
+    relation& tokstruct_rel=u.get_relation("TokStructure",true);
     const language_info& lang_info=get_info();
     utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
     bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
@@ -896,9 +882,13 @@ cfg.register_setting(lcfg.tok_sent);
             if(token_start==token_end)
               throw tokenization_error(text);
             pos=*it;
+	    if(pos=="word" && try_as_foreign_subtoken(u, parent_token, name))
+	      ;
+	    else {
             item& token=append_subtoken(parent_token, name, pos);
             if((pos=="word")&&(stress.get_state()!=stress_pattern::undefined))
               token.set("stress_pattern",stress);
+	    }
             stress.reset();
             name.clear();
             token_start=token_end;
