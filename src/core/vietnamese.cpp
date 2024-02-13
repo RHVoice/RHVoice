@@ -103,6 +103,8 @@ namespace
 	  remove_consumed_syllable(consumed);
 	  consumed=nullptr;
 	}
+      if(next_tok->has_feature("lang") && next_tok->get("lang").as<std::string>()!=get_info().get_name())
+	break;
       syl=next_tok->get("name").as<std::string>();
       if(syl.find("-")!=std::string::npos)
 	break;
