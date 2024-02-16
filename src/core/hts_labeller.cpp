@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iterator>
 #include <locale>
+#include <cmath>
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_iterators.hpp"
 #include "core/str.hpp"
@@ -336,6 +337,42 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return is_silence(seg)?x:(seg.eval("R:SylStructure.parent.syl_in").as<unsigned int>()+1);
+      }
+    };
+
+    struct hts_rel_syl_in: public feature_function
+    {
+      hts_rel_syl_in():
+        feature_function("rel_syl_in")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+	if(is_silence(seg))
+	  return x;
+        double v=seg.eval("R:SylStructure.parent.syl_in").as<unsigned int>();
+	double n=seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.phrase_numsyls").as<unsigned int>();
+      double rv=v/n*10;
+      return static_cast<unsigned int>(std::round(rv));
+      }
+    };
+
+    struct hts_rel_syl_out: public feature_function
+    {
+      hts_rel_syl_out():
+        feature_function("rel_syl_out")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+	if(is_silence(seg))
+	  return x;
+        double v=seg.eval("R:SylStructure.parent.syl_out").as<unsigned int>();
+	double n=seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.phrase_numsyls").as<unsigned int>();
+      double rv=v/n*10;
+      return static_cast<unsigned int>(std::round(rv));
       }
     };
 
@@ -1693,6 +1730,8 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_bw));
 define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_type));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_rel_syl_in));
+    define_feature(std::shared_ptr<feature_function>(new hts_rel_syl_out));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_bw));
     define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_before_this_syl));
     define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_after_this_syl));
