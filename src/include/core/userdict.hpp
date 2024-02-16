@@ -152,7 +152,8 @@ namespace RHVoice
         utt(u),
         cursor(u),
         changed(false),
-        initialism(false)
+        initialism(false),
+	foreign(false)
       {
       }
 
@@ -229,6 +230,19 @@ namespace RHVoice
         changed=true;
       }
 
+      void mark_word_as_foreign()
+      {
+        foreign=true;
+        changed=true;
+      }
+
+      void mark_word_as_native()
+      {
+        foreign=false;
+        changed=true;
+      }
+
+
       void forward_token()
       {
         cursor.forward_token();
@@ -247,6 +261,7 @@ namespace RHVoice
       bool changed;
       stress_pattern stress;
       bool initialism;
+      bool foreign;
     };
 
     class token
@@ -531,6 +546,34 @@ namespace RHVoice
       std::string describe() const
       {
         return "Initialism";
+      }
+    };
+
+    class foreign_flag: public correction
+    {
+    public:
+      void apply(word_editor& ed) const
+      {
+        ed.mark_word_as_foreign();
+      }
+
+      std::string describe() const
+      {
+        return "Foreign";
+      }
+    };
+
+    class native_flag: public correction
+    {
+    public:
+      void apply(word_editor& ed) const
+      {
+        ed.mark_word_as_native();
+      }
+
+      std::string describe() const
+      {
+        return "Native";
       }
     };
 

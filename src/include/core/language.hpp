@@ -288,9 +288,11 @@ namespace RHVoice
 	std::copy(first, last, output);
     }
 
-
     void on_token_break(utterance& u) const;
     void tokenize(utterance& u) const;
+
+    const language* get_second_language() const;
+    const language* get_item_second_language(const item& i) const;
 
   protected:
     explicit language(const language_info& info_);
@@ -310,10 +312,6 @@ namespace RHVoice
     void default_decode_as_word(item& token,const std::string& name) const;
 
     virtual void assign_pronunciation(item& word) const;
-
-    const language* get_second_language() const;
-    const language* get_item_second_language(const item& i) const;
-
   private:
     language(const language&);
     language& operator=(const language&);
