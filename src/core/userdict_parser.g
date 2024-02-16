@@ -1,4 +1,4 @@
-/* Copyright (C) 2013  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2024  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -93,6 +93,10 @@
 %destructor unstressed_flag {delete $$;}
 %type initialism_flag {RHVoice::userdict::ruleset*}
 %destructor initialism_flag {delete $$;}
+%type foreign_flag {RHVoice::userdict::ruleset*}
+%destructor foreign_flag {delete $$;}
+%type native_flag {RHVoice::userdict::ruleset*}
+%destructor native_flag {delete $$;}
 
 %extra_argument {RHVoice::userdict::parse_state* ps}
 
@@ -251,6 +255,16 @@ word_flags(X) ::= unstressed_flag(Y).
 }
 
 word_flags(X) ::= initialism_flag(Y).
+{
+  X=Y;
+}
+
+word_flags(X) ::= foreign_flag(Y).
+{
+  X=Y;
+}
+
+word_flags(X) ::= native_flag(Y).
 {
   X=Y;
 }
@@ -459,6 +473,16 @@ unstressed_flag(X) ::= UNSTRESSED.
 initialism_flag(X) ::= INITIALISM.
 {
   X=RHVoice::userdict::ruleset::create<RHVoice::userdict::initialism_flag>();
+}
+
+foreign_flag(X) ::= FOREIGN.
+{
+  X=RHVoice::userdict::ruleset::create<RHVoice::userdict::foreign_flag>();
+}
+
+native_flag(X) ::= NATIVE.
+{
+  X=RHVoice::userdict::ruleset::create<RHVoice::userdict::native_flag>();
 }
 
 space ::= . space ::= SPACE.
