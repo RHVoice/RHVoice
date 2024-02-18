@@ -264,6 +264,20 @@ word_flags(X) ::= foreign_flag(Y).
   X=Y;
 }
 
+word_flags(X) ::= initialism_flag(Y) foreign_flag(Z).
+{
+  X=Y;
+  X->append(Z);
+  delete Z;
+}
+
+word_flags(X) ::= foreign_flag(Y) initialism_flag(Z).
+{
+  X=Y;
+  X->append(Z);
+  delete Z;
+}
+
 word_flags(X) ::= native_flag(Y).
 {
   X=Y;
