@@ -384,6 +384,12 @@ word_pron_flags(X) ::= unstressed_flag(Y).
   X=Y;
 }
 
+word_pron_flags(X) ::= foreign_flag(Y).
+{
+  X=Y;
+}
+
+
 text_pron_repr(X) ::= text_pron_repr(Y) text_pron_repr_atom(Z).
 {
   X=Y;
