@@ -629,7 +629,7 @@ struct result_t
       if(tok.get("verbosity").as<verbosity_t>()==verbosity_silent)
         return true;
       const std::string& type=tok.get("pos").as<std::string>();
-      if((type=="word")||(type=="sym")||(type=="char"))
+      if((type=="word")||(type=="lseq")||(type=="sym")||(type=="char"))
         return false;
       return true;
     }
