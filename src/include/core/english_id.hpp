@@ -52,10 +52,10 @@ private:
   std::size_t word_count{0};
   std::size_t eng_count{0};
   std::size_t common_count{0};
+  std::size_t unk_count{0};
   bool has_unique_letters{false};
   static std::atomic_bool was_english;
 };
-
 
   template<typename T>
   void english_id::add_word(T first, T last)
@@ -85,6 +85,7 @@ private:
       {
 	++eng_count;
 	++common_count;
+	++unk_count;
 	return;
       }
     std::vector<utf8::uint32_t> lword;
@@ -96,6 +97,9 @@ private:
       }
     else if(eng->get_instance().is_in_vocabulary(lword.begin(), lword.end())){
       ++eng_count;
+    }
+    else if( lang->get_instance().has_vocabulary() && !lang->get_instance().is_in_vocabulary(lword.begin(), lword.end())) {
+      ++unk_count;
     }
   }
 }

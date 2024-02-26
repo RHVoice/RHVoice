@@ -253,6 +253,11 @@ namespace RHVoice
       return en_words_fst->translate(first, last, std::back_inserter(out));
     }
 
+    bool is_bilingual_default() const
+    {
+      return lcfg.default_language;
+    }
+
     item& append_emoji(utterance& u,const std::string& text) const;
     void do_text_analysis(utterance& u) const;
     void do_pos_tagging(utterance& u) const;

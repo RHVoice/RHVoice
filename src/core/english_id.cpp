@@ -57,7 +57,12 @@ namespace RHVoice
     if(eng_count>thr)
       {
 	if(common_count<eng_count)
-	  return set_result(1);
+	  {
+	    if(lang->get_instance().has_vocabulary() && ((eng_count+unk_count)<word_count))
+	      return last_result();
+	    else
+	      return set_result(1);
+	  }
 	else
 	  return last_result();
       }
