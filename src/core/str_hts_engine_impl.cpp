@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <iostream>
 #include <cmath>
 #include <cstdlib>
 #include <iterator>
@@ -51,6 +52,8 @@ extern "C"
 double HTS_PStreamSet_get_parameter(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index, size_t vector_index);
 double *HTS_PStreamSet_get_parameter_vector(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
 HTS_Boolean HTS_PStreamSet_get_msd_flag(HTS_PStreamSet * pss, size_t stream_index, size_t frame_index);
+void HTS_SStreamSet_set_mean(HTS_SStreamSet * sss, size_t stream_index, size_t state_index, size_t vector_index, double f);
+void HTS_SStreamSet_set_vari(HTS_SStreamSet * sss, size_t stream_index, size_t state_index, size_t vector_index, double f);
 }
 
 namespace RHVoice
@@ -88,6 +91,11 @@ namespace RHVoice
     HTS_Engine_set_msd_threshold(engine.get(), 1, voicing);
     HTS_Engine_set_audio_buff_size(engine.get(),HTS_Engine_get_fperiod(engine.get()));
     base_frame_shift=HTS_Engine_get_fperiod(engine.get());
+        try
+          {
+            units.reset(new unit_db(model_path, engine.get()));
+          }
+        catch(...) {}
   }
 
   str_hts_engine_impl::~str_hts_engine_impl()
@@ -102,6 +110,7 @@ namespace RHVoice
     fixed_size=stream_settings.fixed_size;
     view_size=stream_settings.view_size;
     model_answer_cache answer_cache{&engine->ms};
+    check_units();
     set_speed();
     queue_labels();
     vocoder.init(engine.get(), &pitch_editor, pitch_shift);
@@ -112,8 +121,9 @@ namespace RHVoice
       throw synthesis_error();
 if(output->is_stopped())
       return;
+ if(units_flag)
+   copy_units();
     restore_params();
-
     if(!HTS_Engine_generate_parameter_sequence(engine.get()))
       throw synthesis_error();
 if(output->is_stopped())
@@ -163,6 +173,7 @@ if(output->is_stopped())
     num_mem_frames=0;
     num_voiced_frames=0;
     num_voiced_mem_frames=0;
+      units_flag=false;;
   }
 
   void str_hts_engine_impl::queue_labels()
@@ -180,7 +191,7 @@ if(output->is_stopped())
   {
     if(lab_queue.empty())
       return false;
-    const auto target_size=(quality==quality_max)?lab_queue.size():(first_iter?view_size:(view_size+1));
+    const auto target_size=(quality==quality_max || units_flag)?lab_queue.size():(first_iter?view_size:(view_size+1));
     while(!lab_queue.empty() && lab_view.size() < target_size)
       {
         auto& lab=*(lab_queue.front());
@@ -191,6 +202,53 @@ if(output->is_stopped())
         lab_queue.pop();        
       }
     return true;
+  }
+
+  void str_hts_engine_impl::check_units()
+  {
+    if(!units)
+      return;
+    auto it1=input->lbegin();
+    ++it1;
+    if(it1==input->lend())
+      return;
+    auto it2=input->lend();
+    --it2;
+    if(it1==it2)
+      return;
+	for(auto it=it1; it!=it2;++it)
+	  {
+	    if(!units->has_unit(it->get_name()))
+	      return;
+}
+    units_flag=true;
+  }
+
+  void str_hts_engine_impl::copy_units()
+  {
+    const auto ns=HTS_Engine_get_nstate(engine.get());
+    std::size_t i=0;
+    for(auto lab=engine->label.head;lab!=nullptr;lab=lab->next, ++i)
+      {
+	if(!units->has_unit(lab->name))
+	  continue;
+	const auto& u=units->get_unit(lab->name);
+	for(auto s=0;s<ns;++s)
+	  {
+	    const auto& state=u.states.at(s);
+	    const auto k=i*ns+s;
+	    if(k>=(ns-1))
+	    engine->sss.duration[k]=state.dur_mean;
+	    for(auto j=0; j<state.mgc_mean.size();++j)
+	      {
+      	HTS_SStreamSet_set_mean(&engine->sss, 0, k, j, state.mgc_mean[j]);
+		HTS_SStreamSet_set_vari(&engine->sss, 0, k, j, state.mgc_var[j]);
+	      }
+	  }
+      }
+    engine->sss.total_frame=0;
+    for(auto i=0; i<engine->sss.total_state; ++i)
+      engine->sss.total_frame+=engine->sss.duration[i];
   }
 
   void str_hts_engine_impl::set_frame_ranges()
