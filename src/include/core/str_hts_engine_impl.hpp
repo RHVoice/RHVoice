@@ -63,6 +63,8 @@ struct par_mat_mem_t
     void set_label_timing();
     void save_params();
     void restore_params();
+    void check_units();
+    void copy_units();
 
     std::unique_ptr<_HTS_Engine> engine;
     hts_vocoder_wrapper vocoder;
@@ -80,6 +82,7 @@ struct par_mat_mem_t
     std::size_t num_mem_frames{0};
     std::size_t num_voiced_frames{0};
     std::size_t num_voiced_mem_frames{0};
+    bool units_flag{false};
   };
 }
 #endif
