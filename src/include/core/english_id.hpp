@@ -85,7 +85,6 @@ private:
       {
 	++eng_count;
 	++common_count;
-	++unk_count;
 	return;
       }
     std::vector<utf8::uint32_t> lword;
