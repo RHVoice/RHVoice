@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <sstream>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -68,6 +69,26 @@ namespace RHVoice
     return pointer(new str_hts_engine_impl(info));
   }
 
+  void str_hts_engine_impl::maybe_patch_model(HTS_Model* mod, const std::string& patch_path)
+  {
+    std::ifstream fp;
+    try
+      {
+	io::open_ifstream(fp, patch_path);
+      }
+    catch(...) {return;}
+    std::string line;
+    std::size_t nt, nn, i;
+    double v;
+    while(std::getline(fp, line))
+      {
+	std::istringstream s(line);
+	if(!(s >> nt >> nn >> i >> v))
+	  return;
+	mod->pdf[nt][nn][i]=v;
+      }
+  }
+
   void str_hts_engine_impl::do_initialize()
   {
     engine.reset(new HTS_Engine);
@@ -96,6 +117,8 @@ namespace RHVoice
             units.reset(new unit_db(model_path, engine.get()));
           }
         catch(...) {}
+	maybe_patch_model(&(engine->ms.duration[0]), path::join(model_path, "dur.patch"));
+	maybe_patch_model(&(engine->ms.stream[0][1]), path::join(model_path, "lf0.patch"));
   }
 
   str_hts_engine_impl::~str_hts_engine_impl()
