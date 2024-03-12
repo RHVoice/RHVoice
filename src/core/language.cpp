@@ -18,6 +18,7 @@
 #include <functional>
 #include <iterator>
 #include <sstream>
+#include <queue>
 #include "core/str.hpp"
 #include "core/engine.hpp"
 #include "core/item.hpp"
@@ -1684,6 +1685,19 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
             word.append_child().set("name", *out_iter);
           }
       }
+ auto it=trans_rel.begin();
+ while(it!=trans_rel.end())
+   {
+     auto w=it;
+     ++it;
+     if(w->has_children())
+       continue;
+     w->as("Phrase").remove();
+     w->as("Word").remove();
+     w->as("Token").remove();
+     w->as("TokStructure").remove();
+     w->remove();
+   }
 }
 
   void language::set_user_phones(item& word) const
