@@ -337,3 +337,6 @@
 [submodule "data/voices/ksp"]
 	path = data/voices/ksp
 	url = https://github.com/RHVoice/ksp-eng.git
+[submodule "data/voices/radek"]
+	path = data/voices/radek
+	url = https://github.com/RHVoice/radek-cze.git
