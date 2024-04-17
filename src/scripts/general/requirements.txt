@@ -1,0 +1,9 @@
+matplotlib
+argparse
+cython
+pysoundfile
+numpy
+scipy
+webrtcvad
+pyworld
+tqdm
