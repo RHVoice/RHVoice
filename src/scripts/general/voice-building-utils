@@ -2,6 +2,7 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
 # Copyright (C) 2012, 2013, 2017, 2021  Olga Yakovleva <olga@rhvoice.org>
+# Copyright (C) 2024  Mateo Cedillo <angelitomateocedillo@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,7 +36,7 @@ import numpy
 from scipy.signal import firwin,lfilter,kaiserord
 from scipy.io import wavfile
 import pathlib
-
+from tqdm import tqdm
 import pyworld
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
@@ -226,7 +227,6 @@ class recordings_importer(task):
 		return files
 
 	def process(self,inpath,inname,outname):
-		print("Processing {}".format(inname))
 		cmd=[self.settings.get("praat_path","praat"),"--run",
 			 os.path.join(scriptdir,"import.praat"),
 			 inpath,
@@ -247,8 +247,10 @@ class recordings_importer(task):
 		files=self.get_file_list()
 		mapping=collections.OrderedDict()
 		times=collections.OrderedDict()
+		pbar = tqdm(total=len(files), desc="Processing")
 		for inpath,inname,outname in files:
 			inbase=os.path.splitext(inname)[0]
+			pbar.set_description("Processing {}".format(inname))
 			t1,t2=self.process(inpath,inname,outname)
 			mapping[outname]=inbase
 			times[inbase]=[t1,t2]
@@ -891,7 +893,6 @@ class f0_extracter(task):
 	def process(self,name):
 		raw_dir=os.path.join("data","raw")
 		base,ext=os.path.splitext(name)
-		print("Processing {}".format(base))
 		raw_path=os.path.join(raw_dir,name)
 		min_f0=self.settings["lower_f0"]
 		max_f0=self.settings["upper_f0"]
@@ -906,13 +907,16 @@ class f0_extracter(task):
 		self.shift=self.get_analysis_params()["FRAMESHIFT"]
 		raw_dir=os.path.join("data","raw")
 		f0_dir=os.path.join("data","lf0")
+		filelist = os.listdir(raw_dir)
 		if not os.path.isdir(f0_dir):
 			os.mkdir(f0_dir)
 		print("Extracting f0")
-		for name in sorted(os.listdir(raw_dir)):
+		pbar = tqdm(total=len(filelist), desc="Processing")
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
 			if os.path.exists(os.path.join(f0_dir,base+".lf0")):
 				continue
+			pbar.set_description("Processing {}".format(name))
 			values=self.process(name)
 			nzvalues=[v for v in values if v!=0]
 			assert(len(nzvalues)>0)
@@ -934,6 +938,7 @@ class f0_range_computer(f0_extracter):
 
 	def __call__(self,args):
 		raw_dir=os.path.join("data","raw")
+		filelist = os.listdir(raw_dir)
 		data=list()
 		if "guess_f0_method" in self.settings:
 			method=self.settings["guess_f0_method"]
@@ -941,8 +946,9 @@ class f0_range_computer(f0_extracter):
 			method=None
 		if (not isinstance(method,str)) or len(method)==0:
 			method="sptk_rapt"
-		for name in sorted(os.listdir(raw_dir)):
-			print("Processing {}".format(name))
+		pbar = tqdm(total=len(filelist), desc="Processing")
+		for name in sorted(filelist):
+			pbar.set_description("Processing {}".format(name))
 			values=self.extract_with(os.path.join(raw_dir,name),method,40,700)
 			values=[v for v in values if v!=0]
 			data.extend(numpy.log(values))
@@ -987,7 +993,6 @@ class synthesizer(task):
 		return outpath
 
 	def process(self,name):
-		print("Processing {}".format(name))
 		params=self.get_analysis_params()
 		bindir=self.settings["bindir"]
 		excite=os.path.join(bindir,"excite")
@@ -1008,8 +1013,11 @@ class synthesizer(task):
 		if not os.path.isdir(synth_dir):
 			os.mkdir(synth_dir)
 		raw_dir=os.path.join("data","raw")
-		for name in sorted(os.listdir(raw_dir)):
+		filelist = os.listdir(raw_dir)
+		pbar = tqdm(total=len(filelist), desc="Processing")
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
+			pbar.set_description("Processing {}".format(base))
 			self.process(base)
 
 class phonetic_feature_table(object):
@@ -1706,7 +1714,6 @@ class bap_extractor(task):
 		return cc
 
 	def process(self,name):
-		print("Processing {}".format(name))
 		speech=self.load_speech(name)
 		f0=self.load_f0(name)
 		bands=self.split_into_bands(speech)
@@ -1724,8 +1731,11 @@ class bap_extractor(task):
 		self.bap_dir=os.path.join("data","bap")
 		if not os.path.isdir(self.bap_dir):
 			os.mkdir(self.bap_dir)
-		for name in sorted(os.listdir(os.path.join("data","raw"))):
+		filelist = os.listdir(os.path.join("data","raw"))
+		pbar = tqdm(total=len(filelist), desc="Processing")
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
+			pbar.set_description("Processing {}".format(base))
 			self.process(base)
 
 class mgc_extractor(task):
@@ -1734,8 +1744,6 @@ class mgc_extractor(task):
 		subparser.set_defaults(func=self)
 
 	def process(self,name):
-
-		print("Processing {}".format(name))
 		sample_rate=self.settings["sample_rate"]
 		speech=self.load_speech(name)
 		target_db=self.settings.get("volume",-20)
@@ -1759,11 +1767,14 @@ class mgc_extractor(task):
 		self.aparams=self.get_analysis_params()
 		self.mgc_dir=os.path.join("data","mgc")
 		self.raw_dir=os.path.join("data", "raw")
+		self.filelist = os.listdir(self.raw_dir)
 		if not os.path.isdir(self.mgc_dir):
 			os.mkdir(self.mgc_dir)
 		print("Extracting MGC")
-		for name in sorted(os.listdir(self.raw_dir)):
+		pbar = tqdm(total=len(self.filelist), desc="Processing")
+		for name in sorted(self.filelist):
 			base,ext=os.path.splitext(name)
+			pbar.set_description("Processing {}".format(base))
 			self.process(base)
 
 if __name__=="__main__":
