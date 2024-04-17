@@ -139,6 +139,7 @@ define Symbol
 %€ : [euro] |
 %~:vlnka ; 
 
+source unicodechars.foma
 
 regex 
-Letter | Digit | Whitespace | Punctuation | Symbol ; 
+Letter | Digit | Whitespace | Punctuation | Symbol | UnicodeSpell ; 

@@ -72,6 +72,7 @@ set("VOICE_lyubov_LANG" "en")
 set("VOICE_alan_LANG" "en")
 set("VOICE_bdl_LANG" "en")
 set("VOICE_clb_LANG" "en")
+set("VOICE_ksp_LANG" "en")
 set("VOICE_slt_LANG" "en")
 
 set("VOICE_volodymyr_LANG" "uk")

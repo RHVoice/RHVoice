@@ -65,8 +65,9 @@ z:[z e t] |
 ž:[zh e t] ] ;
 
 source stress.foma
+source unicodechars.foma
 
-define TranscribeLetterSequence LetterLseq -> || _ ;
+define TranscribeLetterSequence LetterLseq|UnicodeLseq -> || _ ;
 
 regex TranscribeLetterSequence .o.
 procStressLseq .o. procStress2; 

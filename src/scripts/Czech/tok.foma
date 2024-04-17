@@ -98,6 +98,9 @@ word -> lseq || .#.  [y|Y] _ ,,
 num -> sym || DecimalSeparator _ Digit+ num DecimalSeparator num,
  DecimalSeparator num Digit+ num DecimalSeparator _ ;
 
-regex Stage1 .o.
+source unicodechars.foma
+
+regex UnicodeToNativeTranslitTok .o. 
+Stage1 .o.
 Stage2 .o. 
 Stage3 ; 

@@ -110,12 +110,13 @@ ax0 -> iii0 || _ l ;
 
 
 source stress.foma
+source unicodechars.foma
 
 regex Stage1 .o.
 Stage2 .o.
 Stage3 .o.
+UnicodeToNativeTranslit .o. 
 procStressG2p .o.
 procStress2 .o.
 vowelizeR .o.
 vowelizeL ;
-

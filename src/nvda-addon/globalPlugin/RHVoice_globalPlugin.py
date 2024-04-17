@@ -27,7 +27,7 @@ addonHandler.initTranslation()
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self):
-		super(GlobalPlugin, self).__init__()
+		super().__init__()
 		if globalVars.appArgs.secure:
 			return
 		if not RHVoice.SynthDriver.check():
