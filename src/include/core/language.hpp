@@ -394,6 +394,8 @@ std::unique_ptr<fst> qst_fst;
       string_property punct_eos{"punct.eos"};
       string_property bilingual{"bilingual"};
       bool_property default_language{"default_language", true};
+      stringset_property spell_tags{"spell.tags"};
+      stringset_property prosody_tags{"prosody.tags"};
     };
 
     const fst spell_fst;
