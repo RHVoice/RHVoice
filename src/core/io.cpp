@@ -52,6 +52,7 @@ namespace RHVoice
       #endif
       if(!stream.is_open())
         throw open_error(path);
+      stream.imbue(std::locale::classic());
     }
 
     void open_ofstream(std::ofstream& stream,const std::string& path,bool binary)
@@ -68,6 +69,7 @@ namespace RHVoice
       #endif
       if(!stream.is_open())
         throw open_error(path);
+      stream.imbue(std::locale::classic());
     }
   }
 }
