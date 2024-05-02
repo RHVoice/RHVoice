@@ -75,14 +75,18 @@ namespace RHVoice
   {
     std::ifstream f;
     io::open_ifstream(f,path,true);
-    symbols.load(f);
-    state_id num_states;
-    if(!io::read_integer(f,num_states))
-      throw file_format_error(err_msg);
-    states.reserve(num_states);
-    for(state_id i=0;i<num_states;++i)
+    parts.push_back(part());
+    parts[0].symbols.load(f);
+    parts[0].states=load_states(f);
+  uint8_t n{0};
+    if(!io::read_integer(f, n) || n==0)
+      return;
+    parts.reserve(n+1);
+    for(auto i=0;i<n;++i)
       {
-        states.push_back(state(f));
+	parts.push_back(part());
+	parts.back().symbols.load(f);
+	parts.back().states=load_states(f);
       }
   }
 
@@ -140,5 +144,91 @@ namespace RHVoice
               current_arc=source_state->find_arc(0);
           }
       }
+  }
+
+  std::vector<fst::state> fst::load_states(std::istream& f)
+  {
+        state_id num_states;
+    if(!io::read_integer(f,num_states))
+      throw file_format_error(err_msg);
+    std::vector<state> states;
+    states.reserve(num_states);
+    for(state_id i=0;i<num_states;++i)
+      {
+        states.push_back(state(f));
+      }
+    return states;
+  }
+
+  bool fst::do_translate(const fst::part& p, const fst::input_symbols& input, fst::input_symbols& output) const
+  {
+    if(p.states.empty())
+      return false;
+    input_symbols::const_iterator pos=input.begin();
+    if(pos==input.end())
+      return false;
+    arc_filter f(p.states.begin(),pos->second);
+    if(f.done())
+      return false;
+    std::vector<arc_filter> path;
+    path.push_back(f);
+    if(f.get().isymbol!=0)
+      ++pos;
+    while(!path.empty())
+      {
+        if(pos==input.end())
+          {
+            if(p.states[path.back().get().target].is_final())
+              break;
+            else
+              f=arc_filter(p.states.begin()+path.back().get().target,0);
+          }
+        else
+          f=arc_filter(p.states.begin()+path.back().get().target,pos->second);
+        if(f.done())
+          {
+            while(!path.empty())
+              {
+                if(path.back().get().isymbol!=0)
+                  --pos;
+                path.back().next();
+                if(path.back().done())
+                  path.pop_back();
+                else
+                  {
+                    if(path.back().get().isymbol!=0)
+                      ++pos;
+                    break;
+                  }
+              }
+          }
+        else
+          {
+            path.push_back(f);
+            if(f.get().isymbol!=0)
+              ++pos;
+          }
+      }
+    if((pos!=input.end())||path.empty()||(!p.states[path.back().get().target].is_final()))
+      return false;
+    pos=input.begin();
+    for(std::vector<arc_filter>::const_iterator it=path.begin();it!=path.end();++it)
+      {
+        if(it->get().osymbol!=0)
+          {
+            if(it->get().osymbol==1)
+              {
+		output.push_back(*pos);
+              }
+            else
+              {
+		auto id=it->get().osymbol;
+                output.push_back(symbol_name(p.symbols.name(id), id));
+              }
+          }
+        if(it->get().isymbol!=0)
+          ++pos;
+      }
+    return true;
   }
 }
