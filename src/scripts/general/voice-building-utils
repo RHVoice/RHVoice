@@ -248,12 +248,14 @@ class recordings_importer(task):
 		mapping=collections.OrderedDict()
 		times=collections.OrderedDict()
 		pbar = tqdm(total=len(files), desc="Processing")
-		for inpath,inname,outname in files:
+		for i, inpath,inname,outname in enumerate(files):
 			inbase=os.path.splitext(inname)[0]
 			pbar.set_description("Processing {}".format(inname))
 			t1,t2=self.process(inpath,inname,outname)
 			mapping[outname]=inbase
 			times[inbase]=[t1,t2]
+			pbar.update(i)
+		pbar.close()
 		with open("file_name_mapping.json","w") as f:
 			json.dump(mapping,f,indent=0)
 		with open("trim.json","w") as f:
@@ -912,7 +914,7 @@ class f0_extracter(task):
 			os.mkdir(f0_dir)
 		print("Extracting f0")
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for name in sorted(filelist):
+		for i, name in enumerate(sorted(filelist)):
 			base,ext=os.path.splitext(name)
 			if os.path.exists(os.path.join(f0_dir,base+".lf0")):
 				continue
@@ -930,6 +932,8 @@ class f0_extracter(task):
 					else:
 						lf0=math.log(f0)
 					f.write(struct.pack("=f",lf0))
+			pbar.update(i)
+		pbar.close()
 
 class f0_range_computer(f0_extracter):
 	def register(self):
@@ -947,11 +951,13 @@ class f0_range_computer(f0_extracter):
 		if (not isinstance(method,str)) or len(method)==0:
 			method="sptk_rapt"
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for name in sorted(filelist):
+		for i, name in enumerate(sorted(filelist)):
 			pbar.set_description("Processing {}".format(name))
 			values=self.extract_with(os.path.join(raw_dir,name),method,40,700)
 			values=[v for v in values if v!=0]
 			data.extend(numpy.log(values))
+			pbar.update(i)
+		pbar.close()
 		data=numpy.array(data)
 		m=numpy.mean(data)
 		d=3.0*numpy.std(data)
@@ -1015,10 +1021,12 @@ class synthesizer(task):
 		raw_dir=os.path.join("data","raw")
 		filelist = os.listdir(raw_dir)
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for name in sorted(filelist):
+		for i, name in enumerate(sorted(filelist)):
 			base,ext=os.path.splitext(name)
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
+			pbar.update(i)
+		pbar.close()
 
 class phonetic_feature_table(object):
 	def __init__(self):
@@ -1733,10 +1741,12 @@ class bap_extractor(task):
 			os.mkdir(self.bap_dir)
 		filelist = os.listdir(os.path.join("data","raw"))
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for name in sorted(filelist):
+		for i, name in enumerate(sorted(filelist)):
 			base,ext=os.path.splitext(name)
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
+			pbar.update(i)
+		pbar.close()
 
 class mgc_extractor(task):
 	def register(self):
@@ -1772,10 +1782,12 @@ class mgc_extractor(task):
 			os.mkdir(self.mgc_dir)
 		print("Extracting MGC")
 		pbar = tqdm(total=len(self.filelist), desc="Processing")
-		for name in sorted(self.filelist):
+		for i, name in enumerate(sorted(self.filelist)):
 			base,ext=os.path.splitext(name)
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
+			pbar.update(i)
+		pbar.close()
 
 if __name__=="__main__":
 	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor, mgc_extractor]:
