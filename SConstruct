@@ -194,6 +194,13 @@ def create_user_vars():
     vars.Add("CFLAGS","C compiler flags",[],converter=convert_flags)
     vars.Add("CXXFLAGS","C++ compiler flags",[],converter=convert_flags)
     vars.Add("LINKFLAGS","Linker flags",["/LTCG","/OPT:REF","/OPT:ICF"] if sys.platform=="win32" else [],converter=convert_flags)
+    
+    if sys.platform=="darwin":
+      vars.Add(EnumVariable("platform", "Platform to build", "ios", ("ios", "macos")))
+      vars.Add(EnumVariable("arch", "Architecture to build.", "arm64", ("arm64", "x86_64")))
+      vars.Add(EnumVariable("scheme", "Scheme to build.", "release", ("release", "debug")))
+      vars.Add(BoolVariable("simulator", "Simulator build. Ignored for macOS builds",False))
+      vars.Add("XCODE_TOOLCHAINT_PATH","Path Xcode tool chain","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain")
     return vars
 
 def create_base_env(user_vars):
@@ -340,10 +347,47 @@ def build_binaries(base_env,user_vars,arch=None):
 
 def build_for_linux(base_env,user_vars):
     build_binaries(base_env,user_vars)
+    build_data(base_env)
+        
+def build_libs_apple(env,user_vars,arch=None):
+    if arch:
+        print("Configuring the build system for {}".format(arch))
+    src_subdirs=configure(env)
+    for subdir in src_subdirs:
+        if subdir == "test" or subdir == "sd_module":
+            continue 
+        SConscript(os.path.join("src",subdir,"SConscript"),
+                   variant_dir=os.path.join(env["BUILDDIR"],subdir),
+                   exports={"env":env},
+                   duplicate=0)
+                   
+def build_data(base_env): 
     for subdir in ["data","config"]:
         SConscript(os.path.join(subdir,"SConscript"),exports={"env":base_env},
                    variant_dir=os.path.join(BUILDDIR,subdir),
                    duplicate=0)
+                   
+def create_build_dir(base_env):
+    global BUILDDIR
+    BUILDDIR = "build/" + base_env["platform"] + "_" + base_env["arch"]
+    if base_env["simulator"]:
+       BUILDDIR = BUILDDIR + "_simulator"
+    base_env["BUILDDIR"] = BUILDDIR
+    Execute(Mkdir(base_env["BUILDDIR"]))
+                   
+def build_for_apple(base_env,user_vars):
+    print("Building for {}".format(base_env["platform"]))
+    env=clone_base_env(base_env,user_vars, base_env["arch"])
+    if env["simulator"] and env["platform"] == "macos":
+       env["simulator"] = False
+    create_build_dir(env)
+
+    sys.path.insert(0, "src/apple/")
+    import configure_apple
+    configure_apple.configure(env)
+    
+    build_libs_apple(env,user_vars, base_env["arch"])
+    build_data(env) 
 
 def preconfigure_for_windows(env):
     conf=env.Configure(conf_dir=os.path.join(BUILDDIR,"configure_tests"),
@@ -385,5 +429,7 @@ vars.Save(var_cache,base_env)
 SConscript(dirs=boost_includedir)
 if sys.platform=="win32":
     build_for_windows(base_env,vars)
+elif sys.platform=="darwin": 
+    build_for_apple(base_env,vars)
 else:
     build_for_linux(base_env,vars)
