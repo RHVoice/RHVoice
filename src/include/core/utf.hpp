@@ -61,34 +61,33 @@ namespace RHVoice
 
     template<typename iterator> utf8::uint32_t next_impl<2>::operator()(iterator& it,iterator end) const
     {
+      const utf8::uint32_t rc{0xfffd};
       utf8::uint32_t c1=*it;
+      ++it;
       if((c1<0xd800)||(c1>0xdfff))
         {
-          ++it;
           return c1;
         }
       else
         {
           if(c1<0xdc00)
             {
-              iterator tmp=it;
-              ++tmp;
-              if(tmp!=end)
+              if(it!=end)
                 {
-                  utf8::uint32_t c2=*tmp;
+                  utf8::uint32_t c2=*it;
                   if((c2>0xdbff)&&(c2<0xe000))
                     {
-                      std::advance(it,2);
+                      ++it;
                       return (0x10000+((c1-0xd800)<<10)+(c2-0xdc00));
                     }
                   else
-                    throw utf8::invalid_utf16(c2);
+                    return rc;
                 }
               else
-                throw utf8::invalid_utf16(c1);
+                return rc;
             }
           else
-            throw utf8::invalid_utf16(c1);
+            return rc;
         }
     }
 
