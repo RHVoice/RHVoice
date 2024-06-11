@@ -58,6 +58,7 @@ namespace RHVoice
     RHVOICE_IO_API file_handle open_file(const std::string& path,const std::string& mode);
     RHVOICE_IO_API void open_ifstream(std::ifstream& stream,const std::string& path,bool binary=false);
     RHVOICE_IO_API void open_ofstream(std::ofstream& stream,const std::string& path,bool binary=false);
+    RHVOICE_IO_API bool skip_bom(std::istream& in);
 
     union host_endianness
     {
