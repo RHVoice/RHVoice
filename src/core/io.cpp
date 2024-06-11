@@ -69,5 +69,15 @@ namespace RHVoice
       if(!stream.is_open())
         throw open_error(path);
     }
+
+    bool skip_bom(std::istream& in)
+    {
+      char head[3]{0};
+      if(in.read(head, sizeof(head)))
+	if(utf8::starts_with_bom(head, head+sizeof(head)))
+	  return true;
+      in.seekg(0);
+      return false;
+    }
   }
 }

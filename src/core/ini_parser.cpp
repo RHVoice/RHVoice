@@ -26,6 +26,7 @@ namespace RHVoice
     standard_format(standard)
   {
     io::open_ifstream(*instream,file_path);
+    io::skip_bom(*instream);
     next();
   }
 
