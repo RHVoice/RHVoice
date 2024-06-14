@@ -29,7 +29,7 @@ if sys.platform=="win32":
 boost_includedir=Dir("#external").Dir("libs").Dir("boost").Dir("include")
 
 def get_version(is_release):
-    next_version="1.16.2"
+    next_version="1.16.3"
     return next_version
 
 def passthru(env, cmd, unique=False):
