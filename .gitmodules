@@ -340,3 +340,6 @@
 [submodule "data/voices/radek"]
 	path = data/voices/radek
 	url = https://github.com/RHVoice/radek-cze.git
+[submodule "data/voices/jasietka"]
+	path = data/voices/jasietka
+	url = https://github.com/RHVoice/jasietka-slk.git

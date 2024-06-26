@@ -838,122 +838,122 @@ define UnicodeSpell
 
 #For lseq:
 define UnicodeLseq 
-%à:[aa s p iii r ii z v u k o m]|
+%à:[aa s p iir r ii z v u k o m]|
 %â:[aa z v o k aa nj o m]|
-%ầ:[aa z v o k aa nj o m a s p iii r ii z v u k o m]|
-%ấ:[aa z v o k aa nj o m a z d ll zh nj o m]|
-%ẫ:[aa z v o k aa nj o m a z v iii l n o u k o u]|
+%ầ:[aa z v o k aa nj o m a s p iir r ii z v u k o m]|
+%ấ:[aa z v o k aa nj o m a z d iil ll zh nj o m]|
+%ẫ:[aa z v o k aa nj o m a z v iil l n o u k o u]|
 %ẩ:[aa z v o k aa nj o m a z h aa ts i k o m n a t]|
-%ã:[aa z v iii l n o u k o u]|
+%ã:[aa z v iil l n o u k o u]|
 %ā:[aa z m a k r oo n o m]|
 %ă:[aa s o b l uu ts i k o m]|
-%ằ:[aa s o b l uu ts i k o m a s p iii r ii z v u k o m]|
-%ắ:[aa s o b l uu ts i k o m a z d ll zh nj o m]|
-%ẵ:[aa s o b l uu ts i k o m a z v iii l n o u k o u]|
+%ằ:[aa s o b l uu ts i k o m a s p iir r ii z v u k o m]|
+%ắ:[aa s o b l uu ts i k o m a z d iil ll zh nj o m]|
+%ẵ:[aa s o b l uu ts i k o m a z v iil l n o u k o u]|
 %ẳ:[aa s o b l uu ts i k o m a z h aa ts i k o m n a t]|
 %ȧ:[aa z b o t k o u n a t]|
 %ǡ:[aa z b o t k o u n a t a z m a k r oo n o m]|
 %ả:[aa z h aa ts i k o m n a t]|
 %å:[aa s k r uu sh k o m]|
-%ǻ:[aa s k r uu sh k o m a z d ll zh nj o m]|
-%ǎ:[aa z m e k ts e nj o m]|
-%ȁ:[aa z d v o j i t yy m p iii r ii z v u k o m]|
+%ǻ:[aa s k r uu sh k o m a z d iil ll zh nj o m]|
+%ǎ:[aa z m ae k ts e nj o m]|
+%ȁ:[aa z d v o j i t yy m p iir r ii z v u k o m]|
 %ȃ:[aa s o b r aa tj e n yy m o b l uu ts i k o m]|
 %ą:[aa s o g o nj k o m]|
 %ḃ:[b ee z b o t k o u n a t]|
-%ć:[c ee z d ll zh nj o m]|
-%ḉ:[c ee z d ll zh nj o m a s c e dj i l l o u]|
+%ć:[c ee z d iil ll zh nj o m]|
+%ḉ:[c ee z d iil ll zh nj o m a s c e dj i l l o u]|
 %ĉ:[c ee z v o k aa nj o m]|
 %ċ:[c ee z b o t k o u n a t]|
 %ç:[c ee s c e dj i l l o u]|
-%ḉ:[c ee s c e dj i l l o u a z d ll zh nj o m]|
+%ḉ:[c ee s c e dj i l l o u a z d iil ll zh nj o m]|
 %ḋ:[d ee z b o t k o u n a t]|
 %ḑ:[d ee s c e dj i l l o u]|
-%è:[ee s p iii r ii z v u k o m]|
+%è:[ee s p iir r ii z v u k o m]|
 %ê:[ee z v o k aa nj o m]|
-%ề:[ee z v o k aa nj o m a s p iii r ii z v u k o m]|
-%ế:[ee z v o k aa nj o m a z d ll zh nj o m]|
-%ễ:[ee z v o k aa nj o m a z v iii l n o u k o u]|
+%ề:[ee z v o k aa nj o m a s p iir r ii z v u k o m]|
+%ế:[ee z v o k aa nj o m a z d iil ll zh nj o m]|
+%ễ:[ee z v o k aa nj o m a z v iil l n o u k o u]|
 %ể:[ee z v o k aa nj o m a z h aa ts i k o m n a t]|
-%ẽ:[ee z v iii l n o u k o u]|
+%ẽ:[ee z v iil l n o u k o u]|
 %ē:[ee z m a k r oo n o m]|
-%ḕ:[ee z m a k r oo n o m a s p iii r ii z v u k o m]|
-%ḗ:[ee z m a k r oo n o m a z d ll zh nj o m]|
+%ḕ:[ee z m a k r oo n o m a s p iir r ii z v u k o m]|
+%ḗ:[ee z m a k r oo n o m a z d iil ll zh nj o m]|
 %ĕ:[ee s o b l uu ts i k o m]|
 %ḝ:[ee s o b l uu ts i k o m a s c e dj i l l o u]|
 %ė:[ee z b o t k o u n a t]|
 %ë:[ee s p r e h l aa s k o u]|
 %ẻ:[ee z h aa ts i k o m n a t]|
-%ȅ:[ee z d v o j i t yy m p iii r ii z v u k o m]|
+%ȅ:[ee z d v o j i t yy m p iir r ii z v u k o m]|
 %ȇ:[ee s o b r aa tj e n yy m o b l uu ts i k o m]|
 %ȩ:[ee s c e dj i l l o u]|
 %ḝ:[ee s c e dj i l l o u a s o b l uu ts i k o m]|
 %ę:[ee s o g o nj k o m]|
 %ḟ:[e v z b o t k o u n a t]|
-%ǵ:[g ee z d ll zh nj o m]|
+%ǵ:[g ee z d iil ll zh nj o m]|
 %ĝ:[g ee z v o k aa nj o m]|
 %ḡ:[g ee z m a k r oo n o m]|
 %ğ:[g ee s o b l uu ts i k o m]|
 %ġ:[g ee z b o t k o u n a t]|
-%ǧ:[g ee z m e k ts e nj o m]|
+%ǧ:[g ee z m ae k ts e nj o m]|
 %ģ:[g ee s c e dj i l l o u]|
 %ĥ:[h aa z v o k aa nj o m]|
 %ḣ:[h aa z b o t k o u n a t]|
 %ḧ:[h aa s p r e h l aa s k o u]|
-%ȟ:[h aa z m e k ts e nj o m]|
+%ȟ:[h aa z m ae k ts e nj o m]|
 %ḩ:[h aa s c e dj i l l o u]|
-%ì:[ii s p iii r ii z v u k o m]|
+%ì:[ii s p iir r ii z v u k o m]|
 %î:[ii z v o k aa nj o m]|
-%ĩ:[ii z v iii l n o u k o u]|
+%ĩ:[ii z v iil l n o u k o u]|
 %ī:[ii z m a k r oo n o m]|
 %ĭ:[ii s o b l uu ts i k o m]|
 %ï:[ii s p r e h l aa s k o u]|
-%ḯ:[ii s p r e h l aa s k o u a z d ll zh nj o m]|
+%ḯ:[ii s p r e h l aa s k o u a z d iil ll zh nj o m]|
 %ỉ:[ii z h aa ts i k o m n a t]|
-%ǐ:[ii z m e k ts e nj o m]|
-%ȉ:[ii z d v o j i t yy m p iii r ii z v u k o m]|
+%ǐ:[ii z m ae k ts e nj o m]|
+%ȉ:[ii z d v o j i t yy m p iir r ii z v u k o m]|
 %ȋ:[ii s o b r aa tj e n yy m o b l uu ts i k o m]|
 %į:[ii s o g o nj k o m]|
 %ĵ:[j ee z v o k aa nj o m]|
-%ǰ:[j ee z m e k ts e nj o m]|
-%ḱ:[k aa z d ll zh nj o m]|
-%ǩ:[k aa z m e k ts e nj o m]|
+%ǰ:[j ee z m ae k ts e nj o m]|
+%ḱ:[k aa z d iil ll zh nj o m]|
+%ǩ:[k aa z m ae k ts e nj o m]|
 %ķ:[k aa s c e dj i l l o u]|
 %ļ:[e l s c e dj i l l o u]|
-%ḿ:[e m z d ll zh nj o m]|
+%ḿ:[e m z d iil ll zh nj o m]|
 %ṁ:[e m z b o t k o u n a t]|
-%ǹ:[e n s p iii r ii z v u k o m]|
-%ń:[e n z d ll zh nj o m]|
-%ñ:[e n z v iii l n o u k o u]|
+%ǹ:[e n s p iir r ii z v u k o m]|
+%ń:[e n z d iil ll zh nj o m]|
+%ñ:[e n z v iil l n o u k o u]|
 %ṅ:[e n z b o t k o u n a t]|
 %ņ:[e n s c e dj i l l o u]|
-%ò:[oo s p iii r ii z v u k o m]|
-%õ:[oo z v iii l n o u k o u]|
-%ṍ:[oo z v iii l n o u k o u a z d ll zh nj o m]|
-%ȭ:[oo z v iii l n o u k o u a z m a k r oo n o m]|
-%ṏ:[oo z v iii l n o u k o u a s p r e h l aa s k o u]|
+%ò:[oo s p iir r ii z v u k o m]|
+%õ:[oo z v iil l n o u k o u]|
+%ṍ:[oo z v iil l n o u k o u a z d iil ll zh nj o m]|
+%ȭ:[oo z v iil l n o u k o u a z m a k r oo n o m]|
+%ṏ:[oo z v iil l n o u k o u a s p r e h l aa s k o u]|
 %ō:[oo z m a k r oo n o m]|
-%ṑ:[oo z m a k r oo n o m a s p iii r ii z v u k o m]|
-%ṓ:[oo z m a k r oo n o m a z d ll zh nj o m]|
+%ṑ:[oo z m a k r oo n o m a s p iir r ii z v u k o m]|
+%ṓ:[oo z m a k r oo n o m a z d iil ll zh nj o m]|
 %ǭ:[oo z m a k r oo n o m a s o g o nj k o m]|
 %ŏ:[oo s o b l uu ts i k o m]|
 %ȯ:[oo z b o t k o u n a t]|
 %ȱ:[oo z b o t k o u n a t a z m a k r oo n o m]|
 %ỏ:[oo z h aa ts i k o m n a t]|
-%ő:[oo z d v o j i t yy m d ll zh nj o m]|
-%ǒ:[oo z m e k ts e nj o m]|
-%ȍ:[oo z d v o j i t yy m p iii r ii z v u k o m]|
+%ő:[oo z d v o j i t yy m d iil ll zh nj o m]|
+%ǒ:[oo z m ae k ts e nj o m]|
+%ȍ:[oo z d v o j i t yy m p iir r ii z v u k o m]|
 %ȏ:[oo s o b r aa tj e n yy m o b l uu ts i k o m]|
 %ǫ:[oo s o g o nj k o m]|
 %ǭ:[oo s o g o nj k o m a z m a k r oo n o m]|
-%ṕ:[p ee z d ll zh nj o m]|
+%ṕ:[p ee z d iil ll zh nj o m]|
 %ṗ:[p ee z b o t k o u n a t]|
 %ṙ:[e r z b o t k o u n a t]|
-%ȑ:[e r z d v o j i t yy m p iii r ii z v u k o m]|
+%ȑ:[e r z d v o j i t yy m p iir r ii z v u k o m]|
 %ȓ:[e r s o b r aa tj e n yy m o b l uu ts i k o m]|
 %ŗ:[e r s c e dj i l l o u]|
-%ś:[e z z d ll zh nj o m]|
-%ṥ:[e z z d ll zh nj o m a z b o t k o u n a t]|
+%ś:[e z z d iil ll zh nj o m]|
+%ṥ:[e z z d iil ll zh nj o m a z b o t k o u n a t]|
 %ŝ:[e z z v o k aa nj o m]|
 %ṡ:[e z z b o t k o u n a t]|
 %ș:[e s s ts i a r k o u p o t]|
@@ -962,57 +962,57 @@ define UnicodeLseq
 %ẗ:[t ee s p r e h l aa s k o u]|
 %ț:[t ee s ts i a r k o u p o t]|
 %ţ:[t ee s c e dj i l l o u]|
-%ù:[uu s p iii r ii z v u k o m]|
+%ù:[uu s p iir r ii z v u k o m]|
 %û:[uu z v o k aa nj o m]|
-%ũ:[uu z v iii l n o u k o u]|
-%ṹ:[uu z v iii l n o u k o u a z d ll zh nj o m]|
+%ũ:[uu z v iil l n o u k o u]|
+%ṹ:[uu z v iil l n o u k o u a z d iil ll zh nj o m]|
 %ū:[uu z m a k r oo n o m]|
 %ṻ:[uu z m a k r oo n o m a s p r e h l aa s k o u]|
 %ŭ:[uu s o b l uu ts i k o m]|
 %ủ:[uu z h aa ts i k o m n a t]|
-%ű:[uu z d v o j i t yy m d ll zh nj o m]|
-%ǔ:[uu z m e k ts e nj o m]|
-%ȕ:[uu z d v o j i t yy m p iii r ii z v u k o m]|
+%ű:[uu z d v o j i t yy m d iil ll zh nj o m]|
+%ǔ:[uu z m ae k ts e nj o m]|
+%ȕ:[uu z d v o j i t yy m p iir r ii z v u k o m]|
 %ȗ:[uu s o b r aa tj e n yy m o b l uu ts i k o m]|
 %ų:[uu s o g o nj k o m]|
-%ṽ:[v ee z v iii l n o u k o u]|
-%ẁ:[d v o j ii t ee v ee s p iii r ii z v u k o m]|
-%ẃ:[d v o j ii t ee v ee z d ll zh nj o m]|
+%ṽ:[v ee z v iil l n o u k o u]|
+%ẁ:[d v o j ii t ee v ee s p iir r ii z v u k o m]|
+%ẃ:[d v o j ii t ee v ee z d iil ll zh nj o m]|
 %ŵ:[d v o j ii t ee v ee z v o k aa nj o m]|
 %ẇ:[d v o j ii t ee v ee z b o t k o u n a t]|
 %ẅ:[d v o j ii t ee v ee s p r e h l aa s k o u]|
 %ẘ:[d v o j ii t ee v ee s k r uu sh k o m]|
 %ẋ:[i k s z b o t k o u n a t]|
 %ẍ:[i k s s p r e h l aa s k o u]|
-%ỳ:[y p s i l oo n s p iii r ii z v u k o m]|
+%ỳ:[y p s i l oo n s p iir r ii z v u k o m]|
 %ŷ:[y p s i l oo n z v o k aa nj o m]|
-%ỹ:[y p s i l oo n z v iii l n o u k o u]|
+%ỹ:[y p s i l oo n z v iil l n o u k o u]|
 %ȳ:[y p s i l oo n z m a k r oo n o m]|
 %ẏ:[y p s i l oo n z b o t k o u n a t]|
 %ÿ:[y p s i l oo n s p r e h l aa s k o u]|
 %ỷ:[y p s i l oo n z h aa ts i k o m n a t]|
 %ẙ:[y p s i l oo n s k r uu sh k o m]|
-%ź:[z e d z d ll zh nj o m]|
+%ź:[z e d z d iil ll zh nj o m]|
 %ẑ:[z e d z v o k aa nj o m]|
 %ż:[z e d z b o t k o u n a t]|
-%đ:[d ee s o sh i k m yy m d ll zh nj o m]|
-%ħ:[h aa s o sh i k m yy m d ll zh nj o m]|
+%đ:[d ee s o sh i k m yy m d iil ll zh nj o m]|
+%ħ:[h aa s o sh i k m yy m d iil ll zh nj o m]|
 %ı:[ii b e s b o t k y]|
 %ĸ:[k r a]|
-%ł:[e l s o sh i k m yy m d ll zh nj o m]|
+%ł:[e l s o sh i k m yy m d iil ll zh nj o m]|
 %ŋ:[e n k]|
 %œ:[lj i g a t uu r a o e]|
-%ŧ:[t ee s o sh i k m yy m d ll zh nj o m]|
-%ƀ:[b ee s o sh i k m yy m d ll zh nj o m]|
+%ŧ:[t ee s o sh i k m yy m d iil ll zh nj o m]|
+%ƀ:[b ee s o sh i k m yy m d iil ll zh nj o m]|
 %ɓ:[b ee z h aa k o m]|
-%ƃ:[b ee s ts i a r o u n a v iii r hh u]|
+%ƃ:[b ee s ts i a r o u n a v iir r hh u]|
 %ƅ:[t oo n sh e s tj]|
 %ɔ:[o t v o r e n ee oo]|
 %ƈ:[c ee z h aa k o m]|
 %ɖ:[a f r i c k ee d ee]|
 %ɗ:[d ee z h aa k o m]|
-%ƌ:[d ee s ts i a r o u n a v iii r hh u]|
-%ƍ:[o t o ts e n aa dj e l t a]|
+%ƌ:[d ee s ts i a r o u n a v iir r hh u]|
+%ƍ:[o t o ts e n aa d e l t a]|
 %ǝ:[o t o ts e n ee ee]|
 %ə:[sh v a]|
 %ɛ:[o t v o r e n ee ee]|
@@ -1020,14 +1020,14 @@ define UnicodeLseq
 %ɣ:[g a m m a]|
 %ƕ:[h aa v ee]|
 %ɩ:[i o t a]|
-%ɨ:[ii s o sh i k m yy m d ll zh nj o m]|
+%ɨ:[ii s o sh i k m yy m d iil ll zh nj o m]|
 %ƙ:[k aa z h aa k o m]|
 %ƚ:[e l s ts i a r o u]|
-%ƛ:[l a m b d a s o sh i k m yy m d ll zh nj o m]|
+%ƛ:[l a m b d a s o sh i k m yy m d iil ll zh nj o m]|
 %ɯ:[o t o ts e n ee e m]|
 %ɲ:[e n z h aa k o m v lj a v o]|
-%ƞ:[e n z d iii l h o u n o zh i ts k o u f p r a v o]|
-%ɵ:[oo z v iii l n o u k o u f s t r e dj e]|
+%ƞ:[e n z d iil l h o u n o zh i ts k o u f p r a v o]|
+%ɵ:[oo z v iil l n o u k o u f s t r e dj e]|
 %ƣ:[o i]|
 %ƥ:[p ee z h aa k o m]|
 %ʀ:[y r]|
@@ -1040,18 +1040,18 @@ define UnicodeLseq
 %ʊ:[u p s i l o n]|
 %ʋ:[v ee z h aa k o m]|
 %ƴ:[y p s y l oo n z h aa k o m]|
-%ƶ:[z e t s o sh i k m yy m d ll zh nj o m]|
+%ƶ:[z e t s o sh i k m yy m d iil ll zh nj o m]|
 %ʒ:[ee z e d h aa]|
 %ƹ:[o b r aa tj e n ee ee z e d h aa]|
 %ƺ:[ee z e d h aa s hh v o s tj ii k o m]|
-%ƻ:[d v a s o sh i k m yy m d ll zh nj o m]|
-%ƽ:[t oo n p e tj]|
-%ƾ:[o b r aa tj e n aa h l a s i u k o v aa c l o n a s o sh i k m yy m d ll zh nj o m]|
+%ƻ:[d v a s o sh i k m yy m d iil ll zh nj o m]|
+%ƽ:[t oo n p ae tj]|
+%ƾ:[o b r aa tj e n aa h l a s i u k o v aa c l o n a s o sh i k m yy m d iil ll zh nj o m]|
 %ǀ:[c v a k n u tj i e z u b a m i]|
 %ǁ:[b o ts n ee c v a k n u tj i e]|
 %ǂ:[dj a s n o v ee c v a k n u tj i e]|
 %ǃ:[o h n u t ee c v a k n u tj i e]|
-%ǥ:[g ee s o sh i k m yy m d ll zh nj o m]|
+%ǥ:[g ee s o sh i k m yy m d iil ll zh nj o m]|
 %ȝ:[y o g hh]|
 %ȡ:[k u ts e r a v ee d ee]|
 %ȣ:[o u]|
@@ -1062,19 +1062,19 @@ define UnicodeLseq
 %ȷ:[j ee b e s b o t k y]|
 %ȸ:[d ee b ee]|
 %ȹ:[k v ee p ee]|
-%ⱥ:[aa s o sh i k m yy m d ll zh nj o m]|
-%ȼ:[c ee s o sh i k m yy m d ll zh nj o m]|
-%ⱦ:[t ee s u h l o p r i e ts n y m sh i k m yy m d ll zh nj o m]|
+%ⱥ:[aa s o sh i k m yy m d iil ll zh nj o m]|
+%ȼ:[c ee s o sh i k m yy m d iil ll zh nj o m]|
+%ⱦ:[t ee s u h l o p r i e ts n y m sh i k m yy m d iil ll zh nj o m]|
 %ȿ:[e s s o z d o b n yy m hh v o s tj ii k o m]|
 %ɀ:[z e t s o z d o b n yy m hh v o s tj ii k o m]|
 %ɂ:[h l a s i u k o v aa c l o n a]|
 %ʉ:[uu s ts i a r o u]|
 %ʌ:[o t o ts e n ee v ee]|
-%ɇ:[ee s o sh i k m yy m d ll zh nj o m]|
-%ɉ:[j ee s o sh i k m yy m d ll zh nj o m]|
+%ɇ:[ee s o sh i k m yy m d iil ll zh nj o m]|
+%ɉ:[j ee s o sh i k m yy m d iil ll zh nj o m]|
 %ɋ:[k v ee s hh v o s tj ii k o m f t v a r e h aa k u]|
-%ɍ:[e r s o sh i k m yy m d ll zh nj o m]|
-%ɏ:[y p s y l oo n s o sh i k m yy m d ll zh nj o m]|
+%ɍ:[e r s o sh i k m yy m d iil ll zh nj o m]|
+%ɏ:[y p s y l oo n s o sh i k m yy m d iil ll zh nj o m]|
 %ɐ:[o t o ts e n ee aa]|
 %ɑ:[a l f a]|
 %ɒ:[o t o ts e n ee a l f a]|
@@ -1084,7 +1084,7 @@ define UnicodeLseq
 %ɜ:[o b r aa tj e n ee o t v o r e n ee ee]|
 %ɝ:[o b r aa tj e n ee o t v o r e n ee ee z h aa k o m]|
 %ɞ:[z a t v o r e n ee o b r aa tj e n ee o t v o r e n ee ee]|
-%ɟ:[p r e sh k iii r t n u t ee j ee b e s b o t k y]|
+%ɟ:[p r e sh k iir r t n u t ee j ee b e s b o t k y]|
 %ɡ:[s k r i p d g ee]|
 %ɢ:[m a l ee v e lj k ee g ee]|
 %ɤ:[r a m z h o r n]|
@@ -1092,11 +1092,11 @@ define UnicodeLseq
 %ɦ:[h aa z h aa k o m]|
 %ɧ:[h e n k z h aa k o m]|
 %ɪ:[m a l ee v e lj k ee ii]|
-%ɫ:[e l z v iii l n o u k o u f p r o s t r i e t k u]|
+%ɫ:[e l z v iil l n o u k o u f p r o s t r i e t k u]|
 %ɬ:[e l s p aa s i k o m]|
 %ɭ:[e l s o h n u t yy m h aa k o m]|
 %ɮ:[lj e s hh]|
-%ɰ:[o t o ts e n ee e m z d iii l h o u n o zh i ts k o u]|
+%ɰ:[o t o ts e n ee e m z d iil l h o u n o zh i ts k o u]|
 %ɱ:[e m z h aa k o m]|
 %ɳ:[e n s o h n u t yy m h aa k o m]|
 %ɴ:[m a l ee v e lj k ee e n]|
@@ -1104,16 +1104,16 @@ define UnicodeLseq
 %ɷ:[z a t v o r e n ee o m e g a]|
 %ɸ:[f ii]|
 %ɹ:[o t o ts e n ee e r]|
-%ɺ:[o t o ts e n ee e r z d iii l h o u n o zh i ts k o u]|
+%ɺ:[o t o ts e n ee e r z d iil l h o u n o zh i ts k o u]|
 %ɻ:[o t o ts e n ee e r z h aa k o m]|
-%ɼ:[e r z d iii l h o u n o zh i ts k o u]|
+%ɼ:[e r z d iil l h o u n o zh i ts k o u]|
 %ɽ:[e r s hh uo s tj ii k o m]|
 %ɾ:[e r z h aa ts i k o m]|
 %ɿ:[o b r aa tj e n ee e r z h aa ts i k o m]|
 %ʁ:[m a l ee o b r aa tj e n ee v e lj k ee e r]|
 %ʂ:[e s z z h aa k o m]|
-%ʄ:[p r e sh k iii r t n u t ee j ee b e s b o t k y z h aa k o m]|
-%ʅ:[s k iii r ts e n ee o b r aa tj e n ee e s hh]|
+%ʄ:[p r e sh k iir r t n u t ee j ee b e s b o t k y z h aa k o m]|
+%ʅ:[s k iir r ts e n ee o b r aa tj e n ee e s hh]|
 %ʆ:[k u ts e r a v ee e s hh]|
 %ʇ:[o t o ts e n ee t ee]|
 %ʍ:[o t o ts e n ee d v o j i t ee v ee]|
@@ -1123,7 +1123,7 @@ define UnicodeLseq
 %ʑ:[k u ts e r a v ee z e t]|
 %ʓ:[k u ts e r a v ee e s hh]|
 %ʔ:[h l a s i u k o v aa c l o n a]|
-%ʕ:[z nj e l yy h iii l t a n o v yy f r i k a t ii u]|
+%ʕ:[z nj e l yy h iil l t a n o v yy f r i k a t ii u]|
 %ʖ:[o p a ts n aa h l a s i u k o v aa c l o n a]|
 %ʗ:[r o s tj i a h n u t ee c ee]|
 %ʘ:[c v a k n u tj i e p e r a m i]|
@@ -1131,12 +1131,12 @@ define UnicodeLseq
 %ʚ:[z a t v o r e n ee o t v o r e n ee ee]|
 %ʛ:[m a l ee v e lj k ee g ee z h aa k o m]|
 %ʜ:[m a l ee v e lj k ee h aa]|
-%ʝ:[j ee s o s k iii r ii zh e n yy m hh v o s tj ii k o m]|
+%ʝ:[j ee s o s k iir r ii zh e n yy m hh v o s tj ii k o m]|
 %ʞ:[o t o ts e n ee k aa]|
 %ʟ:[m a l ee v e lj k ee e l]|
 %ʠ:[k v ee z h aa k o m]|
-%ʡ:[p r e sh k iii r t n u t aa h l a s i u k o v aa c l o n a]|
-%ʢ:[o b r aa tj e n aa p r e sh k iii r t n u t aa h l a s i u k o v aa c l o n a]|
+%ʡ:[p r e sh k iir r t n u t aa h l a s i u k o v aa c l o n a]|
+%ʢ:[o b r aa tj e n aa p r e sh k iir r t n u t aa h l a s i u k o v aa c l o n a]|
 %ʣ:[d v o j h l aa s k a d ee z e t]|
 %ʤ:[d v o j h l aa s k a dj e s hh]|
 %ʥ:[k u ts e r a v aa d v o j h l aa s k a d ee z e t]|
