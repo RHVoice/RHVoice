@@ -25,24 +25,24 @@ define WB %# | PB ;
 
 define czechPrep [
 [a0]: [aa1] | 
-[aa0]: [d iii1 l h ee0 aa1] | 
+[aa0]: [d iil1 l h ee0 aa1] | 
 [e0]: [ee1] | 
-[ee0]: [d iii1 l h ee0 ee1] | 
+[ee0]: [d iil1 l h ee0 ee1] | 
 [i0]: [ii1] | 
-[ii0]: [d iii1 l h ee0 ii1] | 
+[ii0]: [d iil1 l h ee0 ii1] | 
 k: [k aa1] | 
 l: [e l] | 
 [lj]: [e1 l z m e0 k ts e0 nj o1 m] |
-[ll]: [e1 l z d iii1 ll zh nj o1 m] |
+[ll]: [e1 l z d iil1 ll zh nj o1 m] |
 [o0]: [oo1] | 
-[oo0]: [d iii1 l h ee0 oo1] | 
+[oo0]: [d iil1 l h ee0 oo1] | 
 [uo]: [oo1 z v o0 k aa1 nj o0 m] | 
 r:[e r] | 
 [rz]: [e1 r z m e0 k ts e0 nj o1 m] |
-[rr]: [e1 r z d iii1 ll zh nj o1 m] |
+[rr]: [e1 r z d iil1 ll zh nj o1 m] |
 s: [e s] |
 [u0]: [u1] | 
-[uu0]: [d iii1 l h ee0 uu1] | 
+[uu0]: [d iil1 l h ee0 uu1] | 
 v: [v ee1] | 
 z: [z e1 t] 
 ] @-> || .#. _ .#. ;

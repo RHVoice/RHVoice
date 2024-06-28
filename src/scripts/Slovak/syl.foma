@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-define Vowel a0 | a1 | aa0 | aa1 | e0 | e1 | ee0 | ee1 | ije0 | ije1 | i0 | i1 | ii0 | ii1 | o0 | o1 | oo0 | oo1 | u0 | u1 | uu0 | uu1 | ou0 | ou1 | y0 | y1 | yy0 | yy1 | iii0 | iii1 | ax0 | ax1 ; 
+define Vowel a0 | a1 | aa0 | aa1 | e0 | e1 | ee0 | ee1 | ije0 | ije1 | i0 | i1 | ii0 | ii1 | o0 | o1 | oo0 | oo1 | u0 | u1 | uu0 | uu1 | ou0 | ou1 | y0 | y1 | yy0 | yy1 | iil0 | iil1 | iir0 | iir1 | ax0 | ax1 ; 
 
 regex 
 [..] -> %. || Vowel _ [\Vowel]* Vowel ; 
