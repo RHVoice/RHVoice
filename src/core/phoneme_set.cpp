@@ -57,7 +57,7 @@ namespace RHVoice
         if(node_iter->type()!=rapidxml::node_element)
           continue;
         phoneme ph(&(*node_iter),feature_set);
-        phonemes.insert(phoneme_map::value_type(ph.get_name(),ph));
+        phonemes.emplace(ph.get_name(),ph);
       }
   }
 
@@ -65,7 +65,7 @@ namespace RHVoice
   {
     for(phoneme_feature_set::const_iterator iter(feature_set.begin());iter!=feature_set.end();++iter)
       {
-        features.insert(phoneme_feature_map::value_type(*iter,"0"));
+        features.emplace(*iter,"0");
       }
     rapidxml::attribute_iterator<char> last_attr;
     std::string attr_name;
