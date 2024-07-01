@@ -248,13 +248,13 @@ class recordings_importer(task):
 		mapping=collections.OrderedDict()
 		times=collections.OrderedDict()
 		pbar = tqdm(total=len(files), desc="Processing")
-		for i, inpath,inname,outname in enumerate(files):
+		for inpath,inname,outname in files:
 			inbase=os.path.splitext(inname)[0]
 			pbar.set_description("Processing {}".format(inname))
 			t1,t2=self.process(inpath,inname,outname)
 			mapping[outname]=inbase
 			times[inbase]=[t1,t2]
-			pbar.update(i)
+			pbar.update(1)
 		pbar.close()
 		with open("file_name_mapping.json","w") as f:
 			json.dump(mapping,f,indent=0)
@@ -914,9 +914,10 @@ class f0_extracter(task):
 			os.mkdir(f0_dir)
 		print("Extracting f0")
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for i, name in enumerate(sorted(filelist)):
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
 			if os.path.exists(os.path.join(f0_dir,base+".lf0")):
+				pbar.update(1)
 				continue
 			pbar.set_description("Processing {}".format(name))
 			values=self.process(name)
@@ -932,7 +933,7 @@ class f0_extracter(task):
 					else:
 						lf0=math.log(f0)
 					f.write(struct.pack("=f",lf0))
-			pbar.update(i)
+			pbar.update(1)
 		pbar.close()
 
 class f0_range_computer(f0_extracter):
@@ -951,12 +952,12 @@ class f0_range_computer(f0_extracter):
 		if (not isinstance(method,str)) or len(method)==0:
 			method="sptk_rapt"
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for i, name in enumerate(sorted(filelist)):
+		for name in sorted(filelist):
 			pbar.set_description("Processing {}".format(name))
 			values=self.extract_with(os.path.join(raw_dir,name),method,40,700)
 			values=[v for v in values if v!=0]
 			data.extend(numpy.log(values))
-			pbar.update(i)
+			pbar.update(1)
 		pbar.close()
 		data=numpy.array(data)
 		m=numpy.mean(data)
@@ -1021,11 +1022,11 @@ class synthesizer(task):
 		raw_dir=os.path.join("data","raw")
 		filelist = os.listdir(raw_dir)
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for i, name in enumerate(sorted(filelist)):
+		for name in enumerate(sorted(filelist)):
 			base,ext=os.path.splitext(name)
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
-			pbar.update(i)
+			pbar.update(1)
 		pbar.close()
 
 class phonetic_feature_table(object):
@@ -1678,6 +1679,7 @@ class nccf(object):
 class bap_extractor(task):
 	def register(self):
 		subparser=subparsers.add_parser("extract-bap")
+		subparser.add_argument("--skip",type=bool,default=False,help="Skip already extracted data.")
 		subparser.set_defaults(func=self)
 
 	def make_filters(self):
@@ -1741,16 +1743,20 @@ class bap_extractor(task):
 			os.mkdir(self.bap_dir)
 		filelist = os.listdir(os.path.join("data","raw"))
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for i, name in enumerate(sorted(filelist)):
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
+			if args.skip and os.path.exists(os.path.join(self.bap_dir,f"{base}.bap")):
+				pbar.update(1)
+				continue
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
-			pbar.update(i)
+			pbar.update(1)
 		pbar.close()
 
 class mgc_extractor(task):
 	def register(self):
 		subparser=subparsers.add_parser("extract-mgc")
+		subparser.add_argument("--skip",type=bool,default=False,help="Skip already extracted data.")
 		subparser.set_defaults(func=self)
 
 	def process(self,name):
@@ -1782,11 +1788,14 @@ class mgc_extractor(task):
 			os.mkdir(self.mgc_dir)
 		print("Extracting MGC")
 		pbar = tqdm(total=len(self.filelist), desc="Processing")
-		for i, name in enumerate(sorted(self.filelist)):
+		for name in sorted(self.filelist):
 			base,ext=os.path.splitext(name)
+			if args.skip and os.path.exists(os.path.join(self.mgc_dir,f"{base}.mgc")):
+				pbar.update(1)
+				continue
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
-			pbar.update(i)
+			pbar.update(1)
 		pbar.close()
 
 if __name__=="__main__":
