@@ -1022,7 +1022,7 @@ class synthesizer(task):
 		raw_dir=os.path.join("data","raw")
 		filelist = os.listdir(raw_dir)
 		pbar = tqdm(total=len(filelist), desc="Processing")
-		for name in enumerate(sorted(filelist)):
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
 			pbar.set_description("Processing {}".format(base))
 			self.process(base)
