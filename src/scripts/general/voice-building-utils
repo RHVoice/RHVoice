@@ -672,7 +672,6 @@ class htk_segmenter(task):
 			pvf=vf
 
 	def vad_file(self, name):
-		print("Vad for", name)
 		sr, samples=wavfile.read(os.path.join(self.wavdir, name+".wav"))
 		assert(sr==16000)
 		assert(samples.dtype==numpy.int16)
@@ -685,6 +684,7 @@ class htk_segmenter(task):
 	def do_vad(self):
 		if not self.init_sil_flag:
 			return
+		print("Aplying Voice Activity Detection")
 		with open(self.vad_mlf_path, "wt") as f:
 			f.write("#!MLF!#\n")
 			for file_name in self.recordings:
@@ -692,6 +692,7 @@ class htk_segmenter(task):
 				for name, start, end in self.vad_file(file_name):
 					f.write("{} {} {}\n".format(start, end, name))
 				f.write(".\n")
+		print("Done")
 
 	def __call__(self,args):
 		self.setup()
@@ -1742,6 +1743,7 @@ class bap_extractor(task):
 		if not os.path.isdir(self.bap_dir):
 			os.mkdir(self.bap_dir)
 		filelist = os.listdir(os.path.join("data","raw"))
+		print("Extracting bap")
 		pbar = tqdm(total=len(filelist), desc="Processing")
 		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
