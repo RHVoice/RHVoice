@@ -78,11 +78,15 @@ languages={
 	"Slovak":
 	{
 		"ids":["sk"]
-	 }
-	"Serbian":
+	 },
+	 "Serbian":
 	{
 		"ids":["sr"]
-	 }
+	 },
+	"Croatian":
+	{
+	 "ids":["hr"]
+	 },
 	   }
 
 sets=defaultdict(set)
