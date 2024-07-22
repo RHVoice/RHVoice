@@ -343,3 +343,12 @@
 [submodule "data/voices/jasietka"]
 	path = data/voices/jasietka
 	url = https://github.com/RHVoice/jasietka-slk.git
+[submodule "data/languages/Croatian"]
+	path = data/languages/Croatian
+	url = https://github.com/RHVoice/croatian-bin.git
+[submodule "src/scripts/Croatian"]
+	path = src/scripts/Croatian
+	url = https://github.com/RHVoice/croatian-src.git
+[submodule "data/voices/karmela"]
+	path = data/voices/karmela
+	url = https://github.com/RHVoice/karmela-hrv.git
