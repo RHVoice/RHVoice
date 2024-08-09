@@ -40,7 +40,7 @@ def get_args():
     g.add_argument("-u", "--update", help="Check for and install updates", action="store_true")
     args=p.parse_args()
 
-pkg_dir_url="https://rhvoice.org/download/packages-1.14.json"
+pkg_dir_url="https://rhvoice.org/download/packages-1.16.json"
 pkg_dir=None
 
 installed={}
