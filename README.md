@@ -50,6 +50,7 @@ RHVoice supports the following platforms:
 * Android (can be installed thru
   [F-Droid](https://f-droid.org/packages/com.github.olga_yakovleva.rhvoice.android/)
   or [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
+* iOS/macOS (see instruction how to build xcframework in "Compiling instructions" section of documentation)
 
 It is compatible with standard text-to-speech interfaces on these platforms:
 SAPI5 on Windows, [Speech Dispatcher](https://devel.freebsoft.org/speechd) on
