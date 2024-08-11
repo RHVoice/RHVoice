@@ -20,7 +20,7 @@ import struct
 operators={"is":1,"=":1,"<":2,">":3,"in":4}
 
 def is_string(obj):
-	return (isinstance(obj,unicode) and (len(obj)>0) and (len(obj)<256))
+	return (isinstance(obj,str) and (len(obj)>0) and (len(obj)<256))
 
 def is_number(obj):
 	return (isinstance(obj,int) and (obj>=0) and (obj<256))
@@ -54,14 +54,14 @@ def is_node(node):
 	return (is_leaf(node) or (isinstance(node,list) and len(node)==3 and is_question(node[0]) and is_node(node[1]) and is_node(node[2])))
 
 def write_single_value(dest,val,typed=False):
-	if isinstance(val,unicode):
+	if isinstance(val,str):
 		if typed:
-			dest.write("\x00")
+			dest.write(b"\x00")
 		s=val.encode("utf-8")
 		dest.write(struct.pack("{}p".format(len(s)+1),s))
 	elif isinstance(val,int):
 		if typed:
-			dest.write("\x01")
+			dest.write(b"\x01")
 		dest.write(struct.pack("B",val))
 	else:
 		raise RuntimeError("Unexpected value type")
