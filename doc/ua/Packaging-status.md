@@ -8,12 +8,12 @@ RHVoice доступний у нижченаведених дистрибути�
 
 ## ALT Linux
 
-Можна встановити з [Sisyphus](https://packages.altlinux.org/).
+Можна встановити з [Sisyphus](https://packages.altlinux.org/en/sisyphus/srpms/RHVoice/) и [p11](https://packages.altlinux.org/ru/p11/srpms/RHVoice/).
 
 Команди встановлення:
 
 ```bash
-sudo apt-get install RHVoice
+# apt-get install RHVoice-<Lang>-<name>
 ```
 
 ## Arch Linux
