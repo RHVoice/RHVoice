@@ -21,6 +21,7 @@ import globalVars
 import globalPluginHandler
 import addonHandler
 from synthDrivers import RHVoice
+from .downloader import VoiceDownloader
 
 addonHandler.initTranslation()
 
@@ -32,6 +33,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			return
 		if not RHVoice.SynthDriver.check():
 			wx.CallLater(2000, self.onNoVoicesInstalled)
+		self.toolsMenu = gui.mainFrame.sysTrayIcon.toolsMenu
+		self.rhvoiceUi = self.toolsMenu.Append(
+			wx.ID_ANY, _("RHVoice downloader"),
+			_("Download and update languages and voices")
+		)
+		gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, self.onUI, self.rhvoiceUi)
+
+	def onUI(self, evt):
+		gui.mainFrame.popupSettingsDialog(VoiceDownloader)
 
 	def onNoVoicesInstalled(self):
 		# Translators: title of the message box for the user
