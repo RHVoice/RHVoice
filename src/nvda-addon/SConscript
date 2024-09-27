@@ -31,8 +31,11 @@ packager.add(curdir.Dir("synthDriver").File("__init__.py"),synthDriver_dir)
 packager.add(os.path.join("..","x86","lib","RHVoice.dll"),synthDriver_dir)
 packager.add(os.path.join("..","licenses","gpl-3.0.txt"),synthDriver_dir)
 packager.add(os.path.join("..","RHVoice.ini"),os.path.join(synthDriver_dir,"config"))
-packager.add(curdir.Dir("globalPlugin").File("RHVoice_globalPlugin.py"), "globalPlugins")
-
+addon_files = curdir.Dir("globalPlugin").Dir("RHVoice").Glob("**/*")
+for file in addon_files:
+	relative_path = file.get_path().replace(str(curdir.Dir("globalPlugin").Dir("RHVoice")) + os.sep, "")
+	target_path = os.path.join("globalPlugins", "RHVoice", relative_path)
+	packager.add(file, target_path)
 moFiles=env.MOFiles(env.Glob("locale/*/LC_MESSAGES/nvda.po"))
 for mo in moFiles:
 	outdir=os.path.dirname(mo.rstr())
