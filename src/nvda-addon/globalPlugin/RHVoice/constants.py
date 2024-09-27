@@ -1,1 +1,1 @@
-pkg_dir_url = "https://www.dropbox.com/scl/fi/gdgbidq8je341w6xt77z4/packages-dev.json?rlkey=3f168qkz23z6lvwlp4dmn56yo&st=xz3b1ztp&dl=1"
+pkg_dir_url = "https://rhvoice.org/download/packages-1.16.json"
