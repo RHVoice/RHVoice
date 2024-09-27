@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import webbrowser
-
 import wx
 import gui
 import globalVars
@@ -49,11 +47,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		message = _(
 			# Translators: message shown to the user if there are no installed voices
 			"To use RHVoice, at least one voice add-on must be installed in your NVDA copy.\n"
-			"If you don't have voices installed yet, you can download them on the following page: {url}\n"
-			"Do you want to open this page now?"
+			"If you don't have voices installed yet, you can download one using the downloader under NVDA's tools menu\n"
+			"Do you want to open the voice downloader now?"
 		)
-		# Translators: URL of the voice download page in your language
-		voices_url = _("https://rhvoice.org/languages")
 		style = wx.YES|wx.NO|wx.ICON_WARNING
-		if gui.messageBox(message.format(url=voices_url), title, style) == wx.YES:
-			webbrowser.open(voices_url)
+		if gui.messageBox(message, title, style) == wx.YES:
+			gui.mainFrame.popupSettingsDialog(VoiceDownloader)
