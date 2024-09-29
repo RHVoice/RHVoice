@@ -8,7 +8,7 @@ import shutil
 import os
 from .sound_lib import stream
 from .sound_lib import output
-import synthDriverHandler
+from synthDrivers import RHVoice
 import globalVars
 from . import extract_package
 import core
@@ -16,16 +16,18 @@ import core
 class VoiceDownloader(wx.Frame):
 	def __init__(self, *args, **kw):
 		super(VoiceDownloader, self).__init__(*args, **kw)
-		self.synth = synthDriverHandler.getSynth()
-		if not self.synth.name == "RHVoice":
-			gui.messageBox("You must to set RHVoice as synthesizer to use the voice downloader", "Error", wx.OK | wx.ICON_ERROR)
-			return
+		self.voices = None
+		self.installed_voices = []
+		self.have_voices = RHVoice.SynthDriver.check()
+		if self.have_voices:
+			self.synth = RHVoice.SynthDriver()
 		try:
 			self.package_dir = get_packages()
 		except ConnectionError:
 			gui.messageBox("You will need to be connected to internet to use the downloader.", "Error", wx.OK | wx.ICON_ERROR)
 			return
-		self.voices = self.synth._get_availableVoices()
+		if self.have_voices:
+			self.voices = self.synth._get_availableVoices()
 		self.o = output.Output(device=-1)
 		self.audio_stream=None
 		self.installed = False
@@ -68,7 +70,8 @@ class VoiceDownloader(wx.Frame):
 		selected_lang = self.package_dir["languages"][selected_lang_index]
 		voices = selected_lang.get("voices", [])
 		self.voice_choice.Clear()
-		self.installed_voices = [voice.lower() for voice in self.voices.keys()]
+		if self.voices is not None:
+			self.installed_voices = [voice.lower() for voice in self.voices.keys()]
 		for voice in voices:
 			voice_name = voice["id"]
 			if voice_name in self.installed_voices:
@@ -142,7 +145,7 @@ class VoiceDownloader(wx.Frame):
 				self.download_button.SetLabel("Install")
 		else:
 			confirm = gui.messageBox(
-				f"Are you sure you want to remove {self.voice_name}'s voice? You are using {self.synth.voice}",
+				f"Are you sure you want to remove {self.voice_name}'s voice?",
 				"Confirm",
 				wx.YES_NO | wx.ICON_INFORMATION
 			)
