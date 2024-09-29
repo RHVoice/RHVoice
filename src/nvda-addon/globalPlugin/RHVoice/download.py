@@ -29,3 +29,6 @@ def check_pack_hash(zip_path, json_hash):
 		return True
 	else:
 		return False
+
+def capitalize_dash(text):
+	return '-'.join([word.capitalize() for word in text.split('-')])

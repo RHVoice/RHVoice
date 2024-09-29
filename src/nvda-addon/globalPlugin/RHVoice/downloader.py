@@ -1,6 +1,6 @@
 import wx
 import gui
-from .download import get_packages
+from .download import get_packages, capitalize_dash
 import requests
 from requests.exceptions import ConnectionError
 import threading 
@@ -71,13 +71,12 @@ class VoiceDownloader(wx.Frame):
 		voices = selected_lang.get("voices", [])
 		self.voice_choice.Clear()
 		if self.voices is not None:
-			self.installed_voices = [voice.lower() for voice in self.voices.keys()]
+			self.installed_voices = self.voices.keys()
 		for voice in voices:
-			voice_name = voice["id"]
+			voice_name = capitalize_dash(voice["name"])
 			if voice_name in self.installed_voices:
 				voice_name += " (installed)"
 			self.voice_choice.Append(voice_name)
-		self.voice_choice.SetSelection(0)
 
 	def on_voice_select(self, event):
 		selected_voice = self.voice_choice.GetStringSelection()
@@ -91,14 +90,19 @@ class VoiceDownloader(wx.Frame):
 	def on_play(self, event):
 		selected_lang_index = self.lang_choice.GetSelection()
 		selected_lang = self.package_dir["languages"][selected_lang_index]
+		installed_message = selected_lang["testMessage"]
 		selected_voice_index = self.voice_choice.GetSelection()
 		selected_voice = selected_lang["voices"][selected_voice_index]
 		demo_url = selected_voice["demoUrl"]
-		try:
-			self.audio_stream=stream.URLStream(url =demo_url)
-			self.audio_stream.play()
-		except Exception as e:
-			gui.messageBox(f"Failed to play demo: {e}", "Error", wx.OK | wx.ICON_ERROR)
+		if not self.installed:
+			try:
+				self.audio_stream=stream.URLStream(url =demo_url)
+				self.audio_stream.play()
+			except Exception as e:
+				gui.messageBox(f"Failed to play demo: {e}", "Error", wx.OK | wx.ICON_ERROR)
+		else:
+			self.synth._set_voice(capitalize_dash(selected_voice["name"]))
+			self.synth.speak(installed_message)
 
 	def on_download_voice_hnd(self, event):
 		download_thread = threading.Thread(target=self.on_download_voice)
@@ -114,7 +118,7 @@ class VoiceDownloader(wx.Frame):
 		selected_voice = self.selected_lang["voices"][selected_voice_index]
 		voice_url = selected_voice["dataUrl"]
 		self.voice_ver = f'{selected_voice["version"]["major"]}.{selected_voice["version"]["minor"]}'
-		self.voice_name = selected_voice["id"]
+		self.voice_name = capitalize_dash(selected_voice["name"])
 		self.save_path = os.path.join(self.download_working_folder, f"RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}-v{self.voice_ver}.zip")
 		if not self.installed:
 			self.download_button.SetLabel("Cancel")
