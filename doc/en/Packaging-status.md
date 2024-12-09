@@ -50,7 +50,7 @@ RHVoice is available in the following Linux distributions (in alphabet order):
 
 ### ALT Linux
 
-Can be installed from [Sisyphus](https://packages.altlinux.org/en/sisyphus/srpms/RHVoice/) and [p11](https://packages.altlinux.org/en/p11/srpms/RHVoice/).
+Can be installed from [Sisyphus,](https://packages.altlinux.org/en/sisyphus/srpms/RHVoice/) [p11](https://packages.altlinux.org/en/p11/srpms/RHVoice/) and [p10.](https://packages.altlinux.org/en/p10/srpms/RHVoice/)
 
 Installation commands:
 
