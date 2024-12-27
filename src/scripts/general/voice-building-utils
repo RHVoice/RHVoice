@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
-# Copyright (C) 2012, 2013, 2017, 2021  Olga Yakovleva <olga@rhvoice.org>
+# Copyright (C) 2012, 2013, 2017, 2021 - 2024 Olga Yakovleva <olga@rhvoice.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import weakref
 import xml.etree.ElementTree as xml
 from scipy import stats
 import numpy
+import uuid
 from scipy.signal import firwin,lfilter,kaiserord
 from scipy.io import wavfile
 import pathlib
@@ -809,9 +810,9 @@ class f0_extracter(task):
 
 	def extract_with_penn(self,raw_path,min_f0,max_f0):
 		samples=numpy.fromfile(raw_path,numpy.int32).astype(float)
-		samples /= numpy.quantile(numpy.abs(samples), 0.999)
-		audio = torch.tensor(numpy.copy(samples))[None].float()
-		f0, periodicity = penn.from_audio(
+		samples/=(2**31)
+		audio = self.torch.tensor(numpy.copy(samples))[None].float()
+		f0, periodicity = self.penn.from_audio(
 			audio,
 			self.settings["sample_rate"],
 			hopsize=0.005,
@@ -840,6 +841,13 @@ class f0_extracter(task):
 			f0s, times = pyworld.harvest(samples, self.settings["sample_rate"], min_f0, max_f0)
 		return f0s.tolist()
 
+	def extract_with_rmvpe(self,raw_path, min_f0, max_f0):
+		speech=numpy.fromfile(raw_path,numpy.int32).astype(float)
+		speech/=(2**31)
+		f0s = self.rmvpe_model.infer_from_audio(speech, self.settings["sample_rate"], device="cpu", thred=0.009, use_viterbi=False)
+		f0s[(f0s < min_f0) | (f0s > max_f0)] = 0
+		return f0s.tolist()		
+
 	def or_values(self, values):
 		r=values[0]
 		for v in values[1:]:
@@ -858,13 +866,27 @@ class f0_extracter(task):
 		elif method=="reaper":
 			return self.extract_with_reaper(raw_path,min_f0,max_f0)
 		elif method=="penn":
-			global torch
-			global penn
-			if "torch" not in sys.modules: import torch
-			if "penn" not in sys.modules: import penn
+			if hasattr(self, "torch") == False:
+				import torch
+				self.torch = torch
+			if hasattr(self, "penn") == False:
+				import penn
+				self.penn = penn
 			return self.extract_with_penn(raw_path,min_f0,max_f0)
 		elif method.startswith("world_"):
 			return self.extract_with_world(raw_path,method,min_f0,max_f0)
+		elif method=="rmvpe":
+			if hasattr(self, "rmvpe_model") == False:
+				if not os.path.exists(self.settings["rmvpe_dir"]):
+					print("RMVPE dir is not exists.\n", file=sys.stderr)
+					sys.exit(1)
+				sys.path.append(os.path.abspath(self.settings["rmvpe_dir"]))
+				if not os.path.exists(self.settings["rmvpe_model_path"]):
+					print("RMVPE model path is not exists.\n", file=sys.stderr)
+					sys.exit(1)
+				from src import RMVPE
+				self.rmvpe_model = RMVPE(self.settings["rmvpe_model_path"], hop_length=80)
+			return self.extract_with_rmvpe(raw_path, min_f0, max_f0)
 		else:
 			return self.extract_with_sptk(raw_path,method,min_f0,max_f0)
 
@@ -1724,6 +1746,7 @@ class bap_extractor(task):
 		self.bap_dir=os.path.join("data","bap")
 		if not os.path.isdir(self.bap_dir):
 			os.mkdir(self.bap_dir)
+		results = []
 		for name in sorted(os.listdir(os.path.join("data","raw"))):
 			base,ext=os.path.splitext(name)
 			self.process(base)
@@ -1734,15 +1757,15 @@ class mgc_extractor(task):
 		subparser.set_defaults(func=self)
 
 	def process(self,name):
-
 		print("Processing {}".format(name))
 		sample_rate=self.settings["sample_rate"]
 		speech=self.load_speech(name)
-		target_db=self.settings.get("volume",-20)
-		target=10.0**(target_db/20.0)
-		rms=numpy.sqrt(numpy.mean((speech*speech)))
-		nf=target/rms
-		speech*=nf
+		if self.settings.get("audio_normalization",True):
+			target_db=self.settings.get("volume",-20)
+			target=10.0**(target_db/20.0)
+			rms=numpy.sqrt(numpy.mean((speech*speech)))
+			nf=target/rms
+			speech*=nf
 		f0s=self.load_f0(name)
 		mf0=numpy.median(f0s[f0s!=0])
 		f0s[f0s==0]=mf0
@@ -1750,10 +1773,11 @@ class mgc_extractor(task):
 		sp=pyworld.cheaptrick(speech, f0s, times, sample_rate,f0_floor=self.settings["lower_f0"])
 		fft_len=(sp.shape[1]-1)*2
 		sp=numpy.sqrt(sp)*32768.0
-		sp.astype(numpy.float32).tofile("tmp.sp")
-		mcep_cmd="{mcep} -a {a} -m {m} -l {l} -e 1.0E-08 -q 3 tmp.sp > {mgc}".format(mcep=os.path.join(self.settings["bindir"],"mcep"),a=self.aparams["FREQWARP"],m=self.aparams["MGCORDER"],l=fft_len,mgc=os.path.join(self.mgc_dir,name+".mgc"))
+		tmp = str(uuid.uuid4())
+		sp.astype(numpy.float32).tofile(tmp)
+		mcep_cmd="{mcep} -a {a} -m {m} -l {l} -e 1.0E-08 -q 3 {tmpfile} > {mgc}".format(mcep=os.path.join(self.settings["bindir"],"mcep"),a=self.aparams["FREQWARP"],m=self.aparams["MGCORDER"],l=fft_len,tmpfile=tmp,mgc=os.path.join(self.mgc_dir,name+".mgc"))
 		subprocess.check_call(mcep_cmd,shell=True)
-		os.remove("tmp.sp")
+		os.remove(tmp)
 
 	def __call__(self,args):
 		self.aparams=self.get_analysis_params()
@@ -1766,8 +1790,9 @@ class mgc_extractor(task):
 			base,ext=os.path.splitext(name)
 			self.process(base)
 
+
 if __name__=="__main__":
-	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor, mgc_extractor]:
+	for cls in [initializer,configurator,recordings_importer,labeller,f0_extracter,questions_maker,f0_range_computer,synthesizer,realigner,htk_segmenter,lpf_maker,voice_exporter,bap_extractor,mgc_extractor]:
 		obj=cls()
 		obj.register()
 	args=parser.parse_args()
