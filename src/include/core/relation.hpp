@@ -36,8 +36,8 @@ namespace RHVoice
     relation(const std::string& name_,utterance& utterance_ref_):
       name(name_),
       utterance_ref(utterance_ref_),
-      head(0),
-      tail(0)
+      head(nullptr),
+      tail(nullptr)
     {
     }
 
@@ -64,7 +64,7 @@ namespace RHVoice
 
     const item& first() const
     {
-      if(head==0)
+      if(head==nullptr)
         throw item_not_found();
       return *head;
     }
@@ -86,7 +86,7 @@ namespace RHVoice
 
     const item& last() const
     {
-      if(tail==0)
+      if(tail==nullptr)
         throw item_not_found();
       return *tail;
     }
@@ -108,7 +108,7 @@ namespace RHVoice
 
     bool empty() const
     {
-      return (head==0);
+      return (head==nullptr);
     }
 
   private:
@@ -127,24 +127,24 @@ namespace RHVoice
 
     iterator begin()
     {
-      return iterator(head,0,this);
+      return iterator(head,nullptr,this);
     }
 
     iterator end()
     {
-      return iterator(0,0,this);
+      return iterator(nullptr,nullptr,this);
     }
 
     typedef item::const_iterator const_iterator;
 
     const_iterator begin() const
     {
-      return const_iterator(head,0,this);
+      return const_iterator(head,nullptr,this);
     }
 
     const_iterator end() const
     {
-      return const_iterator(0,0,this);
+      return const_iterator(nullptr,nullptr,this);
     }
 
     typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -175,7 +175,7 @@ namespace RHVoice
     {
     public:
       back_insert_iterator():
-        target_relation(0)
+        target_relation(nullptr)
       {
       }
 
@@ -235,7 +235,7 @@ namespace RHVoice
     {
     public:
       front_insert_iterator():
-        target_relation(0)
+        target_relation(nullptr)
       {
       }
 
