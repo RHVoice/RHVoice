@@ -189,7 +189,10 @@ class AudioPlayer:
             return None
         player = self.__players.get(self.__sample_rate, None)
         if player is None:
-            player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=config.conf["speech"]["outputDevice"])
+            try:
+             player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=config.conf["speech"]["outputDevice"])
+            except:
+             player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=config.conf["audio"]["outputDevice"])
             self.__players[self.__sample_rate] = player
         return player
 
