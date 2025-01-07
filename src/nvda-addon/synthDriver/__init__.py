@@ -51,6 +51,7 @@ import addonHandler
 
 import addonAPIVersion
 api_version = addonAPIVersion.CURRENT
+import buildVersion
 
 module_dir = os.path.dirname(__file__)
 lib_path = os.path.join(module_dir, "RHVoice.dll")
@@ -189,9 +190,9 @@ class AudioPlayer:
             return None
         player = self.__players.get(self.__sample_rate, None)
         if player is None:
-            try:
+            if buildVersion.version_year < 2025:
              player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=config.conf["speech"]["outputDevice"])
-            except:
+            else:
              player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=config.conf["audio"]["outputDevice"])
             self.__players[self.__sample_rate] = player
         return player
