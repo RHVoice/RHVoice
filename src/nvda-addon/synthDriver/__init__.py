@@ -51,6 +51,7 @@ import addonHandler
 
 import addonAPIVersion
 api_version = addonAPIVersion.CURRENT
+import buildVersion
 
 module_dir = os.path.dirname(__file__)
 lib_path = os.path.join(module_dir, "RHVoice.dll")
@@ -189,7 +190,7 @@ class AudioPlayer:
             return None
         player = self.__players.get(self.__sample_rate, None)
         if player is None:
-            player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=config.conf["speech"]["outputDevice"])
+            player = nvwave.WavePlayer(channels=1, samplesPerSec=self.__sample_rate, bitsPerSample=16, outputDevice=self.__synth.outputDeviceSection["outputDevice"])
             self.__players[self.__sample_rate] = player
         return player
 
@@ -499,6 +500,7 @@ class SynthDriver(SynthDriver):
     def __init__(self):
         self.__lib = load_tts_library()
         self.__cancel_flag = threading.Event()
+        self.outputDeviceSection = config.conf["speech"] if buildVersion.version_year < 2025 else config.conf["audio"]
         self.__player = AudioPlayer(self, self.__cancel_flag)
         self.__sample_rate_callback = SampleRateCallback(self.__lib, self.__player)
         self.__c_sample_rate_callback = RHVoice_callback_types.set_sample_rate(self.__sample_rate_callback)
