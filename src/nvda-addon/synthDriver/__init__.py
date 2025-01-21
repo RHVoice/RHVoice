@@ -573,6 +573,9 @@ class SynthDriver(SynthDriver):
 
     def speak(self, speechSequence):
         conv = SsmlConverter(self, self.language)
+        for i in range(len(speechSequence)):
+            if isinstance(speechSequence[i], str):
+                speechSequence[i] = speechSequence[i].replace(" , ", ", ")
         text = conv.convertToXml(speechSequence)
         task = SpeakText(self.__lib, self.__tts_engine, text, self.__cancel_flag, self.__player)
         task.set_voice_profile(self.__profile)
