@@ -111,6 +111,7 @@ set("VOICE_islom_LANG" "uz")
 set("VOICE_dilnavoz_LANG" "uz")
 set("VOICE_dragana_LANG" "sr")
 set("VOICE_karmela_LANG" "hr")
+set("VOICE_seva_LANG" "ru")
 
 cpack_add_component_group("data"
 	DISPLAY_NAME "Data files"
