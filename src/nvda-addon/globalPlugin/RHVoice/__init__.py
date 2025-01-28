@@ -1,4 +1,5 @@
 # Copyright (C) 2022 Alexander Linkov <kvark128@yandex.ru>
+# Copyright (C) 2024  Mateo Cedillo <angelitomateocedillo@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
