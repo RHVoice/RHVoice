@@ -27,6 +27,7 @@
 #include "quality_setting.hpp"
 #include "pitch.hpp"
 #include "equalizer.hpp"
+#include "unit_db.hpp"
 
 struct _HTS_Audio;
 extern "C" void HTS_Audio_write(_HTS_Audio * audio, short sample);
@@ -140,6 +141,7 @@ namespace RHVoice
     numeric_property<double> emph_shift;
     numeric_property<double> base_pitch_shift;
     std::unique_ptr<equalizer> eq;
+    std::unique_ptr<unit_db> units;
 
     double get_emph_shift() const
     {

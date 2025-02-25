@@ -46,6 +46,7 @@ int main(int argc,const char* argv[])
       TCLAP::ValueArg<std::string> boundary_arg("b","boundary","word boundary marker",false,"","string",cmd);
       TCLAP::SwitchArg verbose_switch("v","verbose","Output stress and syllable and word boundaries",cmd,false);
       TCLAP::SwitchArg stress_switch("s","stress","Output stress",cmd,false);
+      TCLAP::SwitchArg tone_switch("t","tone","Output tone",cmd,false);
       TCLAP::SwitchArg flags_switch("f","flags","Output flags",cmd,false);
       cmd.parse(argc,argv);
       std::shared_ptr<engine> eng(new engine);
@@ -69,6 +70,13 @@ int main(int argc,const char* argv[])
                 f_out << "1";
           if(verbose_switch.getValue() || flags_switch.getValue())
             output_flags(*seg_iter, f_out);
+          if((verbose_switch.getValue() || tone_switch.getValue()) &&
+	     seg_iter->in("SylStructure") &&
+	     seg_iter->eval("ph_vc").as<std::string>()=="+") {
+	    const auto t=seg_iter->eval("R:SylStructure.parent.lex_tone", std::string("0")).as<std::string>();
+	    if(t!="0")
+	      f_out << '#' << t;
+	  }
               f_out << " ";
               if(verbose_switch.getValue() && seg_iter->in("SylStructure") && !seg_iter->as("SylStructure").has_next() && seg_iter->as("SylStructure").parent().has_next())
                 f_out << ". ";

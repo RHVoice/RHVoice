@@ -50,17 +50,18 @@ namespace RHVoice
     if(has_unique_letters)
       return set_result(0);
     if(word_count==0)
-      return last_result();
-    const auto thr=word_count/2.0;
-    if(eng_count<thr)
       return set_result(0);
-    if(eng_count>thr)
-      {
-	if(common_count<eng_count)
-	  return set_result(1);
-	else
-	  return last_result();
-      }
-    return last_result();
+    if(lang->get_instance().has_vocabulary()) {
+      if((common_count<eng_count || unk_count>0)&&
+	 (eng_count+unk_count)==word_count)
+	return set_result(1);
+      else
+	return set_result(0);
+    }
+    const auto thr=word_count*0.5;
+    if((eng_count-common_count)>thr)
+      return set_result(1);
+    else
+      return set_result(0);
   }
 }

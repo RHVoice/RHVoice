@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iterator>
 #include <locale>
+#include <cmath>
 #include "rapidxml/rapidxml.hpp"
 #include "rapidxml/rapidxml_iterators.hpp"
 #include "core/str.hpp"
@@ -169,6 +170,32 @@ namespace RHVoice
       }
     };
 
+    struct hts_prev_prev_syl_lex_tone: public feature_function
+    {
+      hts_prev_prev_syl_lex_tone():
+        feature_function("prev_prev_syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.R:PhraseSylStructure.p.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.p.p.lex_tone",x);
+      }
+    };
+
+    struct hts_prev_syl_lex_tone: public feature_function
+    {
+      hts_prev_syl_lex_tone():
+        feature_function("prev_syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"p.R:SylStructure.parent.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.p.lex_tone",x);
+      }
+    };
+
     struct hts_prev_syl_length: public feature_function
     {
       hts_prev_syl_length():
@@ -247,6 +274,33 @@ namespace RHVoice
       }
     };
 
+    struct hts_syl_lex_tone: public feature_function
+    {
+      hts_syl_lex_tone():
+        feature_function("syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:seg.eval("R:SylStructure.parent.lex_tone");
+      }
+    };
+
+    struct hts_syl_pos_type: public feature_function
+    {
+      hts_syl_pos_type():
+        feature_function("syl_pos_type")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return is_silence(seg)?x:(seg.eval("R:SylStructure.parent.syl_pos_type"));
+      }
+    };
+
+
     struct hts_syl_pos_in_word_fw: public feature_function
     {
       hts_syl_pos_in_word_fw():
@@ -283,6 +337,42 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return is_silence(seg)?x:(seg.eval("R:SylStructure.parent.syl_in").as<unsigned int>()+1);
+      }
+    };
+
+    struct hts_rel_syl_in: public feature_function
+    {
+      hts_rel_syl_in():
+        feature_function("rel_syl_in")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+	if(is_silence(seg))
+	  return x;
+        double v=seg.eval("R:SylStructure.parent.syl_in").as<unsigned int>();
+	double n=seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.phrase_numsyls").as<unsigned int>();
+      double rv=v/n*10;
+      return static_cast<unsigned int>(std::round(rv));
+      }
+    };
+
+    struct hts_rel_syl_out: public feature_function
+    {
+      hts_rel_syl_out():
+        feature_function("rel_syl_out")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+	if(is_silence(seg))
+	  return x;
+        double v=seg.eval("R:SylStructure.parent.syl_out").as<unsigned int>();
+	double n=seg.eval("R:SylStructure.parent.parent.R:Phrase.parent.phrase_numsyls").as<unsigned int>();
+      double rv=v/n*10;
+      return static_cast<unsigned int>(std::round(rv));
       }
     };
 
@@ -645,6 +735,32 @@ namespace RHVoice
       value eval(const item& seg) const
       {
         return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.syl_break":"R:SylStructure.parent.R:Syllable.n.syl_break",zero);
+      }
+    };
+
+    struct hts_next_next_syl_lex_tone: public feature_function
+    {
+      hts_next_next_syl_lex_tone():
+        feature_function("next_next_syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.R:PhraseSylStructure.n.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.n.n.lex_tone",x);
+      }
+    };
+
+    struct hts_next_syl_lex_tone: public feature_function
+    {
+      hts_next_syl_lex_tone():
+        feature_function("next_syl_lex_tone")
+      {
+      }
+
+      value eval(const item& seg) const
+      {
+        return seg.eval(is_silence(seg)?"n.R:SylStructure.parent.lex_tone":"R:SylStructure.parent.R:PhraseSylStructure.n.lex_tone",x);
       }
     };
 
@@ -1602,14 +1718,20 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_pos_in_syl_bw));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_accented));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_lex_tone));
+    define_feature(std::shared_ptr<feature_function>(new hts_prev_prev_syl_lex_tone));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_syl_length));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_accented));
+    define_feature(std::shared_ptr<feature_function>(new hts_syl_lex_tone));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_length));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_break));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_fw));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_word_bw));
+define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_type));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_fw));
+    define_feature(std::shared_ptr<feature_function>(new hts_rel_syl_in));
+    define_feature(std::shared_ptr<feature_function>(new hts_rel_syl_out));
     define_feature(std::shared_ptr<feature_function>(new hts_syl_pos_in_phrase_bw));
     define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_before_this_syl));
     define_feature(std::shared_ptr<feature_function>(new hts_num_stressed_syls_in_phrase_after_this_syl));
@@ -1632,6 +1754,8 @@ namespace RHVoice
     define_feature(std::shared_ptr<feature_function>(new hts_last_syl_vowel_in_word));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_stress));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_accented));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_syl_lex_tone));
+    define_feature(std::shared_ptr<feature_function>(new hts_next_next_syl_lex_tone));
     define_feature(std::shared_ptr<feature_function>(new hts_next_syl_length));
         define_feature(std::shared_ptr<feature_function>(new hts_next_syl_break));
     define_feature(std::shared_ptr<feature_function>(new hts_prev_word_gpos));

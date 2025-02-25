@@ -84,7 +84,11 @@ namespace RHVoice
       std::copy(text.begin(),text.end(),str::utf8_inserter(std::back_inserter(name)));
       item& token=cursor.get_token();
       token.set("userdict",true);
-      const language& lang=utt.get_language();
+      const language* lang2=nullptr;
+      if(foreign)
+	lang2=utt.get_language().get_second_language();
+      const language& lang=lang2?(*lang2):utt.get_language();
+      token.set("lang", lang.get_info().get_name());
       if(initialism)
         lang.decode_as_letter_sequence(token,name);
       else
@@ -100,6 +104,7 @@ namespace RHVoice
       text.clear();
       stress.reset();
       initialism=false;
+      foreign=false;
       changed=false;
     }
 
@@ -224,6 +229,8 @@ namespace RHVoice
             return false;
           return (match_stressed_syl_number_flag()||
                   match_unstressed_flag()||
+		  match_foreign_flag()||
+		  match_native_flag()||
                   match_initialism_flag());
         }
 
@@ -262,6 +269,30 @@ namespace RHVoice
           if(*(pos+1)=='i')
             {
               next_token->set_type(UDTK_INITIALISM);
+              pos+=2;
+              return true;
+            }
+          else
+            return false;
+        }
+
+        bool match_foreign_flag()
+        {
+          if(*(pos+1)=='f')
+            {
+              next_token->set_type(UDTK_FOREIGN);
+              pos+=2;
+              return true;
+            }
+          else
+            return false;
+        }
+
+        bool match_native_flag()
+        {
+          if(*(pos+1)=='n')
+            {
+              next_token->set_type(UDTK_NATIVE);
               pos+=2;
               return true;
             }
@@ -598,7 +629,7 @@ struct result_t
       if(tok.get("verbosity").as<verbosity_t>()==verbosity_silent)
         return true;
       const std::string& type=tok.get("pos").as<std::string>();
-      if((type=="word")||(type=="sym")||(type=="char"))
+      if((type=="word")||(type=="lseq")||(type=="sym")||(type=="char"))
         return false;
       return true;
     }

@@ -45,6 +45,7 @@ private:
     return was_english?1:0;
   }
 
+  template<typename T> bool check_chars(T first, T last);
 
   const voice_profile& profile;
   language_list::const_iterator lang, eng;
@@ -52,10 +53,27 @@ private:
   std::size_t word_count{0};
   std::size_t eng_count{0};
   std::size_t common_count{0};
+  std::size_t unk_count{0};
   bool has_unique_letters{false};
   static std::atomic_bool was_english;
 };
 
+  template<typename T>
+  bool english_id::check_chars(T first, T last)
+  {
+    for(T it=first;it!=last;++it)
+      {
+	auto c=*it;
+	if(c>='a' && c<='z')
+	  continue;
+	if(c>='A' && c<='Z')
+	  continue;
+	    if(c=='\'')
+	      continue;
+	return false;
+      }
+    return true;
+  }
 
   template<typename T>
   void english_id::add_word(T first, T last)
@@ -81,12 +99,6 @@ private:
     else
       return;
     auto end=std::find_if(word.rbegin(), word.rend(), not_punct).base();
-    if((end-start)==1 && eng->is_letter(*start))
-      {
-	++eng_count;
-	++common_count;
-	return;
-      }
     std::vector<utf8::uint32_t> lword;
     std::transform(start, end, std::back_inserter(lword), str::to_lower());
     if(lang->get_instance().is_common_with_english(lword.begin(), lword.end()))
@@ -96,6 +108,9 @@ private:
       }
     else if(eng->get_instance().is_in_vocabulary(lword.begin(), lword.end())){
       ++eng_count;
+    }
+    else if( lang->get_instance().has_vocabulary() && check_chars(lword.begin(), lword.end()) && !lang->get_instance().is_in_vocabulary(lword.begin(), lword.end())) {
+      ++unk_count;
     }
   }
 }

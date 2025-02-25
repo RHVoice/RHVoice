@@ -18,6 +18,7 @@
 #include <functional>
 #include <iterator>
 #include <sstream>
+#include <queue>
 #include "core/str.hpp"
 #include "core/engine.hpp"
 #include "core/item.hpp"
@@ -31,6 +32,7 @@
 #include "core/tatar.hpp"
 #include "core/brazilian_portuguese.hpp"
 #include "core/macedonian.hpp"
+#include "core/vietnamese.hpp"
 #include "core/stress_pattern.hpp"
 #include "core/event_logger.hpp"
 #include "core/emoji.hpp"
@@ -98,6 +100,28 @@ namespace RHVoice
       {
         const item& syl_in_word=syl.as("Syllable").as("SylStructure");
         unsigned int result=std::distance(syl_in_word.parent().begin(),syl_in_word.get_iterator());
+        return result;
+      }
+    };
+
+    struct feat_syl_pos_type: public feature_function
+    {
+      feat_syl_pos_type():
+        feature_function("syl_pos_type")
+      {
+      }
+
+      value eval(const item& syl) const
+      {
+        const item& wsyl=syl.as("SylStructure");
+	std::string result{"mid"};
+	if(syl.has_next())
+	  {
+	    if(!syl.has_prev())
+	      result="initial";
+	  } else {
+	  result=syl.has_prev()?"final":"single";
+	}
         return result;
       }
     };
@@ -605,6 +629,7 @@ cfg.register_setting(lcfg.tok_sent);
     cfg.register_setting(lcfg.g2p_case);
     cfg.register_setting(lcfg.punct_eos);
     cfg.register_setting(lcfg.bilingual);
+    cfg.register_setting(lcfg.default_language);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -715,6 +740,7 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_syl_bw));
     register_feature(std::shared_ptr<feature_function>(new feat_syl_numphones));
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_word));
+    register_feature(std::shared_ptr<feature_function>(new feat_syl_pos_type));
     register_feature(std::shared_ptr<feature_function>(new feat_pos_in_word_bw));
     register_feature(std::shared_ptr<feature_function>(new feat_seg_pos_in_word));
     register_feature(std::shared_ptr<feature_function>(new feat_seg_pos_in_word_bw));
@@ -760,59 +786,37 @@ cfg.register_setting(lcfg.tok_sent);
             if(((++str::utf8_string_begin(name))==str::utf8_string_end(name))&&(pos=="word"||pos=="lseq"))
               token.set("one-letter",true);
             token.set<verbosity_t>("verbosity",(pos=="sym")?verbosity_silent:verbosity_name);
+	    if(pos=="word" || pos=="lseq" || pos=="graph")
+	      token.set("lang", get_info().get_name());
             return token;
   }
 
-  item* language::try_as_foreign_token(utterance& u, const std::string& text, bool eos) const
+  bool language::try_as_foreign_subtoken(utterance& u, item& parent_token, const std::string& text) const
   {
     if(lcfg.bilingual.is_set() && lcfg.tok_sent)
       {
 	std::cerr << "Warning: need to implement language switching in sentence level tokenizers!";
-	return nullptr;
+	return false;
       }
     if(!u.get_bilingual_enabled())
-      return nullptr;
+      return false;
     auto sl=get_second_language();
     if(!sl)
-      return nullptr;
-    const auto is_not_punct=[] (utf8::uint32_t cp) {return !str::ispunct(cp);};
+      return false;
     const utf8::iterator<std::string::const_iterator> token_start(text.begin(), text.begin(), text.end());
     decltype(token_start) token_end(text.end(), text.begin(), text.end());
-		const auto word_start=std::find_if(token_start, token_end, is_not_punct);
-	if(word_start==token_end)
-	  return nullptr;
-	auto word_end=token_end;
-	do
-	  {
-	    --word_end;
-	    if(is_not_punct(*word_end))
-	      {
-		++word_end;
-		break;
-	      }
-	  }
-	while(word_end!=word_start);
 	std::vector<utf8::uint32_t> word;
-	std::transform(word_start, word_end, std::back_inserter(word), str::tolower);
+	std::transform(token_start, token_end, std::back_inserter(word), str::tolower);
 	if(is_in_vocabulary(word.begin(), word.end()))
-	  return nullptr;
-	if(!sl->is_in_vocabulary(word.begin(), word.end()))
-	  return nullptr;
-	auto& pt=sl->append_token(u, text, eos);
-	const std::string lang_name=sl->get_info().get_name();
-	for(auto& i: pt.as("TokStructure"))
-	  {
-	    const std::string& pos=i.get("pos").as<std::string>();
-	    if(pos=="word" || pos=="lseq" || pos=="graph")
-	      i.set("lang", lang_name);
-	  }
-	return &pt;
+	  return false;
+	if(!sl->is_in_vocabulary(word.begin(), word.end()) && lcfg.default_language)
+	  return false;
+	sl->append_token(u, parent_token, text, false);
+	return true;
   }
 
   item& language::append_token(utterance& u,const std::string& text, bool eos) const
   {
-    if(auto p=try_as_foreign_token(u, text, eos))
-      return *p;
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     item& parent_token=tokstruct_rel.append(token_rel.append());
@@ -822,6 +826,13 @@ cfg.register_setting(lcfg.tok_sent);
         u.get_relation("TokIn", true).append(parent_token);
         return parent_token.as("Token");
       }
+    return append_token(u, parent_token, text, eos);
+  }
+
+  item& language::append_token(utterance& u,item& parent_token,const std::string& text, bool eos) const
+  {
+    relation& token_rel=u.get_relation("Token",true);
+    relation& tokstruct_rel=u.get_relation("TokStructure",true);
     const language_info& lang_info=get_info();
     utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
     bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
@@ -873,9 +884,13 @@ cfg.register_setting(lcfg.tok_sent);
             if(token_start==token_end)
               throw tokenization_error(text);
             pos=*it;
+	    if(pos=="word" && try_as_foreign_subtoken(u, parent_token, name))
+	      ;
+	    else {
             item& token=append_subtoken(parent_token, name, pos);
             if((pos=="word")&&(stress.get_state()!=stress_pattern::undefined))
               token.set("stress_pattern",stress);
+	    }
             stress.reset();
             name.clear();
             token_start=token_end;
@@ -1396,7 +1411,7 @@ else
           }
       }
     const std::string& brk=phrasing_dtree.predict(word).as<std::string>();
-    return ((brk=="NB")?break_none:break_phrase);
+    return ((brk=="NB")?break_none:(brk=="MB"?break_minor:break_phrase));
   }
 
 void language::on_token_break(utterance& u) const
@@ -1421,8 +1436,10 @@ void language::on_token_break(utterance& u) const
             phrase_rel.last().append_child(*word_iter);
             break_strength strength=get_word_break(*word_iter);
             ++word_iter;
-            if((strength!=break_none)&&(word_iter!=word_rel.end()))
+            if((strength!=break_none)&&(word_iter!=word_rel.end())) {
+	      phrase_rel.last().set<std::string>("minor_break", strength==break_minor?"1":"0");
               phrase_rel.append();
+	    }
           }
         while(word_iter!=word_rel.end());
       }
@@ -1668,6 +1685,19 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
             word.append_child().set("name", *out_iter);
           }
       }
+ auto it=trans_rel.begin();
+ while(it!=trans_rel.end())
+   {
+     auto w=it;
+     ++it;
+     if(w->has_children())
+       continue;
+     w->as("Phrase").remove();
+     w->as("Word").remove();
+     w->as("Token").remove();
+     w->as("TokStructure").remove();
+     w->remove();
+   }
 }
 
   void language::set_user_phones(item& word) const
@@ -1679,6 +1709,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
 
   void language::do_g2p(utterance& u) const
   {
+    before_g2p(u);
     relation& word_rel=u.get_relation("Word");
     relation& seg_rel=u.add_relation("Segment");
     relation& trans_rel=u.add_relation("Transcription");
@@ -1708,6 +1739,10 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     relation& syl_rel=u.add_relation("Syllable");
     relation& sylstruct_rel=u.add_relation("SylStructure");
     relation& trans_rel=u.get_relation("Transcription");
+    relation& phrase_rel=u.get_relation("Phrase");
+    relation& phrase_syl_rel=u.add_relation("PhraseSylStructure");
+    for(item& phr: phrase_rel)
+      phrase_syl_rel.append(phr);
     std::vector<std::string> result;
     item::iterator seg_start,seg_end,seg_iter;
     std::string seg_name;
@@ -1716,15 +1751,35 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
     for(relation::iterator word_iter=trans_rel.begin();word_iter!=trans_rel.end();++word_iter)
       {
         item& word_with_syls=sylstruct_rel.append(*word_iter);
+	item& syl_phrase=word_iter->as("Phrase").parent().as("PhraseSylStructure");
         seg_start=word_iter->begin();
         seg_end=word_iter->end();
         if(!syl_fst.translate(seg_start,seg_end,std::back_inserter(result)))
           throw syllabification_error(*word_iter);
         word_with_syls.append_child().set<std::string>("stress","0");
         word_with_syls.last_child().set<std::string>("accented","0");
+	word_with_syls.last_child().set<std::string>("lex_tone","0");
         seg_iter=seg_start;
         for(std::vector<std::string>::const_iterator pos=result.begin();pos!=result.end();++pos)
           {
+	    if(seg_iter!=seg_end && seg_iter->get("name").as<std::string>()==".")
+	      {
+		auto tmp=seg_iter;
+		++seg_iter;
+		tmp->as("Segment").remove();
+		tmp->remove();
+	      }
+	    if((*pos)[0]>='1' && (*pos)[0]<='9')
+	      {
+		if(*pos!=seg_iter->get("name").as<std::string>())
+		  throw syllabification_error(*word_iter);
+		auto tmp=seg_iter;
+		++seg_iter;
+		tmp->as("Segment").remove();
+		tmp->remove();
+		word_with_syls.last_child().set("lex_tone", *pos);
+		continue;
+	      }
             if((*pos)[0]=='_')
               {
                 feat_name=pos->substr(1);
@@ -1739,6 +1794,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
               {
                 word_with_syls.append_child().set<std::string>("stress","0");
                 word_with_syls.last_child().set<std::string>("accented","0");
+word_with_syls.last_child().set<std::string>("lex_tone","0");
               }
             else
               {
@@ -1760,6 +1816,7 @@ if(!pg2p_fst->translate(in_syms.begin(), in_syms.end(), std::back_inserter(out_s
               }
           }
         std::copy(word_with_syls.begin(),word_with_syls.end(),syl_rel.back_inserter());
+	std::copy(word_with_syls.begin(),word_with_syls.end(),syl_phrase.back_inserter());
         stress_pattern stress=word_with_syls.eval("word_stress_pattern").as<stress_pattern>();
         if(stress.get_state()!=stress_pattern::undefined)
           stress.apply(word_with_syls);
@@ -1901,6 +1958,7 @@ const language* language::get_item_second_language(const item& i) const
     register_language<tatar_info>("Tatar",1);
     register_language<brazilian_portuguese_info>("Brazilian-Portuguese",1);
     register_language<macedonian_info>("Macedonian",1);
+register_language<vietnamese_info>("Vietnamese",1);
     for(std::vector<std::string>::const_iterator it1=language_paths.begin();it1!=language_paths.end();++it1)
       {
         logger.log(tag,RHVoice_log_level_info,std::string("Path: ")+(*it1));

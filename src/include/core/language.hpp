@@ -63,6 +63,7 @@ namespace RHVoice
     {
       break_default,
       break_none,
+      break_minor,
       break_phrase,
       break_sentence
     };
@@ -219,6 +220,7 @@ namespace RHVoice
     bool is_eos_punct(utf8::uint32_t c) const;
 
     item& append_token(utterance& u,const std::string& text, bool eos) const;
+    item& append_token(utterance& u,item& parent_token,const std::string& text, bool eos) const;
 
     bool supports_emoji() const
     {
@@ -251,6 +253,11 @@ namespace RHVoice
       return en_words_fst->translate(first, last, std::back_inserter(out));
     }
 
+    bool is_bilingual_default() const
+    {
+      return lcfg.default_language;
+    }
+
     item& append_emoji(utterance& u,const std::string& text) const;
     void do_text_analysis(utterance& u) const;
     void do_pos_tagging(utterance& u) const;
@@ -277,8 +284,20 @@ namespace RHVoice
       downcase_fst.translate(first,last,output);
     }
 
+    template<typename forward_iterator,typename output_iterator>
+    void normalize(forward_iterator first,forward_iterator last,output_iterator output) const
+    {
+      if(norm_fst)
+      norm_fst->translate(first,last,output);
+      else
+	std::copy(first, last, output);
+    }
+
     void on_token_break(utterance& u) const;
     void tokenize(utterance& u) const;
+
+    const language* get_second_language() const;
+    const language* get_item_second_language(const item& i) const;
 
   protected:
     explicit language(const language_info& info_);
@@ -295,11 +314,9 @@ namespace RHVoice
 
     virtual bool decode_as_known_character(item& token,const std::string& name) const;
 
+    void default_decode_as_word(item& token,const std::string& name) const;
+
     virtual void assign_pronunciation(item& word) const;
-
-    const language* get_second_language() const;
-    const language* get_item_second_language(const item& i) const;
-
   private:
     language(const language&);
     language& operator=(const language&);
@@ -311,7 +328,6 @@ namespace RHVoice
     }
 
     void decode(item& token) const;
-    void default_decode_as_word(item& token,const std::string& name) const;
     void decode_as_number(item& token,const std::string& name) const;
     void decode_as_digit_string(item& token,const std::string& name) const;
     void decode_as_unknown_character(item& token,const std::string& name) const;
@@ -329,6 +345,7 @@ namespace RHVoice
     std::vector<std::string> get_english_word_transcription(const item& word) const;
     std::vector<std::string> get_foreign_word_transcription(const item& word) const;
 
+    virtual void before_g2p(utterance& u) const {}
     virtual void before_g2p(item& word) const
 {
 }
@@ -343,7 +360,7 @@ namespace RHVoice
     void translate_emoji_sequence(item& token,const std::string& text) const;
     void set_user_phones(item& word) const;
     item& append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const;
-    item* try_as_foreign_token(utterance& u, const std::string& text, bool eos) const;
+    bool try_as_foreign_subtoken(utterance& u, item& parent_token, const std::string& text) const;
 
     void apply_simple_dict(item&) const;
 
@@ -376,6 +393,7 @@ std::unique_ptr<fst> qst_fst;
       bool_property g2p_case{"g2p.case", false};
       string_property punct_eos{"punct.eos"};
       string_property bilingual{"bilingual"};
+      bool_property default_language{"default_language", true};
     };
 
     const fst spell_fst;
