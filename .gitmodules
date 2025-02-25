@@ -352,3 +352,6 @@
 [submodule "data/voices/karmela"]
 	path = data/voices/karmela
 	url = https://github.com/RHVoice/karmela-hrv.git
+[submodule "data/voices/seva"]
+	path = data/voices/seva
+	url = https://github.com/RHVoice/seva-rus.git
