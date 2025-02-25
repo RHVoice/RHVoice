@@ -147,15 +147,14 @@ hts_installation () {
 # Cloning and building the RHVoice
 
 build_rh_voice () {
-    echo "Installing some additional packages"
-    pip install matplotlib argparse cython pysoundfile
-    pip install numpy scipy webrtcvad pyworld
     sudo apt install libparallel-forkmanager-perl jq -y
     echo "Cloning RHVoice"
     git clone --recurse https://github.com/RHVoice/RHVoice.git
     echo "Building RHVoice for development"
     cd RHVoice
     scons dev=True
+    echo "Installing some additional packages"
+    pip install -R src/scripts/general/requirements.txt
     cd ..
     # Setting permissions to praat
     echo "Setting permissions to praat"
