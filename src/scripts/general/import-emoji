@@ -43,6 +43,10 @@ languages={
 	{
 		"ids":["pt"]
 	 },
+	"Spanish":
+	{
+		"ids":["es"]
+	 },
 	"Georgian":
 	{
 		"ids":["ka"]
