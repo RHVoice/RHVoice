@@ -15,6 +15,7 @@
 
 import wx
 import gui
+#import addonHandler
 from languageHandler import getLanguageDescription
 from .download import get_packages, capitalize_dash
 from .constants import addon_ver
@@ -30,6 +31,8 @@ import globalVars
 from . import extract_package
 import core
 import ui
+
+#addonHandler.initTranslation()
 
 class VoiceDownloader(wx.Frame):
 	def __init__(self, *args, **kw):
@@ -61,26 +64,26 @@ class VoiceDownloader(wx.Frame):
 		self.addon_ver = addon_ver # this is the addon build number.
 		panel = wx.Panel(self)
 		vbox = wx.BoxSizer(wx.VERTICAL)
-		lang_label = wx.StaticText(panel, label="Language")
+		lang_label = wx.StaticText(panel, label=_("Language"))
 		vbox.Add(lang_label, flag=wx.LEFT | wx.TOP, border=10)
-		self.lang_choice = wx.Choice(panel, choices=["obtaining languages and voices from the server..."])
+		self.lang_choice = wx.Choice(panel, choices=[_("obtaining languages and voices from the server...")])
 		vbox.Add(self.lang_choice, flag=wx.LEFT | wx.EXPAND, border=10)
 		self.lang_choice.Bind(wx.EVT_CHOICE, self.on_language_select)
 		self.lang_choice.SetSelection(0)
-		voice_label = wx.StaticText(panel, label="Voice")
+		voice_label = wx.StaticText(panel, label=_("Voice"))
 		vbox.Add(voice_label, flag=wx.LEFT | wx.TOP, border=10)
 		self.voice_choice = wx.Choice(panel, choices=[])
 		vbox.Add(self.voice_choice, flag=wx.LEFT | wx.EXPAND, border=10)
 		self.voice_choice.Bind(wx.EVT_CHOICE, self.on_voice_select)
-		self.play_button = wx.Button(panel, label="Play")
+		self.play_button = wx.Button(panel, label=_("Play"))
 		vbox.Add(self.play_button, flag=wx.LEFT | wx.TOP, border=10)
 		self.play_button.Bind(wx.EVT_BUTTON, self.on_play_hnd)
-		self.download_button = wx.Button(panel, label="Install")
+		self.download_button = wx.Button(panel, label=_("Install"))
 		vbox.Add(self.download_button, flag=wx.LEFT | wx.TOP, border=10)
 		self.download_button.Bind(wx.EVT_BUTTON, self.on_download_voice_hnd)
 		panel.SetSizer(vbox)
 		self.SetSize((400, 300))
-		self.SetTitle("Voice downloader")
+		self.SetTitle(_("Voice downloader"))
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.close_resources)
 
@@ -88,10 +91,13 @@ class VoiceDownloader(wx.Frame):
 		try:
 			self.package_dir = get_packages()
 		except ConnectionError:
-			gui.messageBox("You will need to be connected to internet to use the downloader.", "Error", wx.OK | wx.ICON_ERROR)
+			gui.messageBox(
+				_("You will need to be connected to internet to use the downloader."), _("Error"),
+				wx.OK | wx.ICON_ERROR
+			)
 			return
 		self.update_languages()
-		ui.message("Ready")
+		ui.message(_("Language and voices list got successfully"))
 
 	def update_languages(self):
 		languages_for_UI = [
@@ -110,16 +116,16 @@ class VoiceDownloader(wx.Frame):
 		for voice in voices:
 			voice_name = capitalize_dash(voice["name"])
 			if voice_name in self.installed_voices:
-				voice_name += " (installed)"
+				voice_name += " " + _("(installed)")
 			self.voice_choice.Append(voice_name)
 
 	def on_voice_select(self, event):
 		selected_voice = self.voice_choice.GetStringSelection()
-		if " (installed)" in selected_voice:
-			self.download_button.SetLabel("Uninstall")
+		if _("(installed)") in selected_voice:
+			self.download_button.SetLabel(_("Uninstall"))
 			self.installed = True
 		else:
-			self.download_button.SetLabel("Install")
+			self.download_button.SetLabel(_("Install"))
 			self.installed = False
 
 	def on_play_hnd(self, event):
@@ -140,7 +146,7 @@ class VoiceDownloader(wx.Frame):
 				self.audio_stream=stream.URLStream(url =demo_url)
 				self.audio_stream.play()
 			except Exception as e:
-				gui.messageBox(f"Failed to play demo: {e}", "Error", wx.OK | wx.ICON_ERROR)
+				gui.messageBox(_("Failed to play demo")+": " +e, "Error", wx.OK | wx.ICON_ERROR)
 		else:
 			self.synth._set_voice(capitalize_dash(selected_voice["name"]))
 			# NVDA's synthDriverHandler doesn't provide a way to check if the voice is speaking, however, a possible check can be the synthDoneSpeaking notification.
@@ -181,7 +187,7 @@ class VoiceDownloader(wx.Frame):
 			f"RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}-v{self.voice_ver}.zip"
 		)
 		if not self.installed:
-			self.download_button.SetLabel("Cancel")
+			self.download_button.SetLabel(_("Cancel"))
 			# Lang Pack:
 			try:
 				response = requests.get(lang_url)
@@ -193,8 +199,8 @@ class VoiceDownloader(wx.Frame):
 						f.write(response.content)
 			except Exception as e:
 				gui.messageBox(
-					f"Failed to download {self.selected_lang['name']} language pack, which is required to run the voice(s) propperly.",
-					"Error", wx.OK | wx.ICON_ERROR
+					_("Failed to download {language} language pack, which is required to run the voice(s) propperly.").format(language=self.selected_lang['name']),
+					_("Error"), wx.OK | wx.ICON_ERROR
 				)
 			# Voice:
 			try:
@@ -203,22 +209,26 @@ class VoiceDownloader(wx.Frame):
 					f.write(response.content)
 				self.unzip_and_install()
 				self.generate_manifest()
-				self.download_button.SetLabel("Uninstall")
+				self.download_button.SetLabel(_("Uninstall"))
 				restart = gui.messageBox(
-					f"Downloaded voice {self.voice_name} successfully!\nYou must restart NVDA to update your list of voices. Would you like to restart NVDA now?",
-					"Success",
+					_(
+						"Downloaded voice {voice} successfully!\nYou must restart NVDA to update your list of voices. Would you like to do it now?"
+					).format(voice=self.voice_name),
+					_("Success"),
 					wx.YES_NO | wx.ICON_INFORMATION
 				)
 				if restart == wx.YES:
 					core.restart()
 			except Exception as e:
-				gui.messageBox(f"Failed to download {self.voice_name}. Error message: {e}", "Error", wx.OK | wx.ICON_ERROR)
-				self.download_button.SetLabel("Install")
+				gui.messageBox(
+					_("Failed to download {voice}. Error message: {err}").format(voice=self.voice_name, err=e), 
+					_("Error"), wx.OK | wx.ICON_ERROR
+				)
+				self.download_button.SetLabel(_("Install"))
 		else:
 			confirm = gui.messageBox(
-				f"Are you sure you want to remove {self.voice_name}'s voice?",
-				"Confirm",
-				wx.YES_NO | wx.ICON_INFORMATION
+				_("Are you sure you want to remove {voice}'s voice?").format(voice=self.voice_name),
+				"Confirm", wx.YES_NO | wx.ICON_INFORMATION
 			)
 			if confirm == wx.YES:
 				self.synth = synthDriverHandler.getSynth()
@@ -227,22 +237,19 @@ class VoiceDownloader(wx.Frame):
 						shutil.rmtree(f"{self.addons_dir}/RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}")
 					except:
 						gui.messageBox(
-							f"Could not remove {self.voice_name}.",
-							"Error",
-							wx.ICON_ERROR
+							_("Could not remove {voice}.").format(voice=self.voice_name),
+							_("Error"), wx.ICON_ERROR
 						)
 						return
 				else:
 					gui.messageBox(
-						f"You are using {self.voice_name}, please change to other voice before removing.",
-						"Voice in use",
-						wx.ICON_ERROR
+						_("You are using {voice}, please change to other voice before removing.").format(voice=self.voice_name),
+						_("Voice in use"), wx.ICON_ERROR
 					)
 					return
 				gui.messageBox(
-					f"{self.voice_name} was removed successfully.",
-					"Done",
-					wx.ICON_INFORMATION
+					_("{voice} was removed successfully.").format(voice=self.voice_name),
+					_("Done"), wx.ICON_INFORMATION
 				)
 
 	def unzip_and_install(self):
