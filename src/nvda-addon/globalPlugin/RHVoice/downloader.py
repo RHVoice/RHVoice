@@ -15,7 +15,7 @@
 
 import wx
 import gui
-#import addonHandler
+import addonHandler
 from languageHandler import getLanguageDescription
 from .download import get_packages, capitalize_dash
 from .constants import addon_ver
@@ -26,13 +26,20 @@ import shutil
 import os
 from .sound_lib import stream
 from .sound_lib import output
+import synthDriverHandler
 from synthDrivers import RHVoice
 import globalVars
 from . import extract_package
 import core
 import ui
 
-#addonHandler.initTranslation()
+addonHandler.initTranslation()
+
+class LangDownloadError(Exception):
+	pass
+
+class VoiceDownloadError(Exception):
+	pass
 
 class VoiceDownloader(wx.Frame):
 	def __init__(self, *args, **kw):
@@ -62,6 +69,8 @@ class VoiceDownloader(wx.Frame):
 		self.lang_ver = None
 		self.nvda_lang_ver = None
 		self.addon_ver = addon_ver # this is the addon build number.
+		self.stop_event = threading.Event()
+		self.download_Cancelled = False
 		panel = wx.Panel(self)
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		lang_label = wx.StaticText(panel, label=_("Language"))
@@ -81,6 +90,8 @@ class VoiceDownloader(wx.Frame):
 		self.download_button = wx.Button(panel, label=_("Install"))
 		vbox.Add(self.download_button, flag=wx.LEFT | wx.TOP, border=10)
 		self.download_button.Bind(wx.EVT_BUTTON, self.on_download_voice_hnd)
+		self.progress_bar = wx.Gauge(panel, range=100)
+		vbox.Add(self.progress_bar, flag=wx.LEFT | wx.EXPAND, border=10)
 		panel.SetSizer(vbox)
 		self.SetSize((400, 300))
 		self.SetTitle(_("Voice downloader"))
@@ -153,7 +164,51 @@ class VoiceDownloader(wx.Frame):
 			self.synth.speak(installed_message)
 
 	def on_download_voice_hnd(self, event):
-		download_thread = threading.Thread(target=self.on_download_voice).start()
+		if self.download_button.GetLabel() == _("Cancel"):
+			self.stop_event.set()
+			self.download_button.SetLabel(_("Install"))
+		else:
+			self.stop_event.clear()
+			download_thread = threading.Thread(target=self.on_download_voice, daemon=True)
+			download_thread.start()
+
+	def download_function(self, mode, url, save_path):
+		progress_range = {
+			"language": (0, 50) if not self.pseudo_english else (0, 33),
+			"second_language": (34, 50),
+			"voice": (51, 100),
+		}
+		error_classes = {
+			"language": LangDownloadError, "second_language": LangDownloadError, "voice": VoiceDownloadError
+		}
+		with requests.get(url, stream=True) as response:
+			if response.status_code != 200:
+				raise error_classes[mode]("No internet")
+			total_length = int(response.headers.get("content-length", 0))
+			total_length = max(total_length, 1)
+			downloaded = 0
+			start_progress, end_progress = progress_range[mode]
+			try:
+				with open(save_path, "wb") as f:
+					for chunk in response.iter_content(chunk_size=8192):
+						if self.stop_event.is_set():
+							ui.message(_("Download cancelled"))
+							f.close()
+							os.remove(save_path)
+							self.download_Cancelled = True
+							return
+						f.write(chunk)
+						downloaded += len(chunk)
+						progress = int(start_progress + (downloaded / total_length) * (end_progress - start_progress))
+						#progress = 0 if total_length == 1 else int(downloaded / total_length * 100)
+						wx.CallAfter(self.progress_bar.SetValue, progress)
+			except:
+				if mode == "language" or mode == "second_language":
+					raise LangDownloadError("Could not download language pack")
+				if mode == "voice":
+					raise VoiceDownloadError("Could not download voice")
+		# Reset download state:
+		self.download_Cancelled = False
 
 	def on_download_voice(self):
 		selected_lang_index = self.lang_choice.GetSelection()
@@ -189,24 +244,29 @@ class VoiceDownloader(wx.Frame):
 		if not self.installed:
 			self.download_button.SetLabel(_("Cancel"))
 			# Lang Pack:
+			ui.message(_("Downloading {lng} language package...").format(lng=self.selected_lang['name']))
 			try:
-				response = requests.get(lang_url)
-				with open(self.lang_save_path, "wb") as f:
-					f.write(response.content)
-				if self.pseudo_english:
-					response = requests.get(english_lang_url)
-					with open(self.english_save_path, "wb") as f:
-						f.write(response.content)
-			except Exception as e:
+				self.download_function("language", lang_url, self.lang_save_path)
+				if self.pseudo_english and not self.download_Cancelled:
+					ui.message(_("Downloading second language package..."))
+					self.download_function("second_language", english_lang_url, self.english_save_path)
+			except LangDownloadError:
 				gui.messageBox(
 					_("Failed to download {language} language pack, which is required to run the voice(s) propperly.").format(language=self.selected_lang['name']),
 					_("Error"), wx.OK | wx.ICON_ERROR
 				)
 			# Voice:
-			try:
-				response = requests.get(voice_url)
-				with open(self.save_path, "wb") as f:
-					f.write(response.content)
+			if not self.download_Cancelled:
+				ui.message(_("Downloading voice {voice}...").format(voice=self.voice_name))
+				try:
+					self.download_function("voice", voice_url, self.save_path)
+				except VoiceDownloadError as e:
+					gui.messageBox(
+						_("Failed to download {voice}. Error message: {err}").format(voice=self.voice_name, err=e), 
+						_("Error"), wx.OK | wx.ICON_ERROR
+					)
+					self.download_button.SetLabel(_("Install"))
+					return
 				self.unzip_and_install()
 				self.generate_manifest()
 				self.download_button.SetLabel(_("Uninstall"))
@@ -219,20 +279,14 @@ class VoiceDownloader(wx.Frame):
 				)
 				if restart == wx.YES:
 					core.restart()
-			except Exception as e:
-				gui.messageBox(
-					_("Failed to download {voice}. Error message: {err}").format(voice=self.voice_name, err=e), 
-					_("Error"), wx.OK | wx.ICON_ERROR
-				)
-				self.download_button.SetLabel(_("Install"))
 		else:
 			confirm = gui.messageBox(
 				_("Are you sure you want to remove {voice}'s voice?").format(voice=self.voice_name),
-				"Confirm", wx.YES_NO | wx.ICON_INFORMATION
+				_("Confirm"), wx.YES_NO | wx.ICON_INFORMATION
 			)
 			if confirm == wx.YES:
-				self.synth = synthDriverHandler.getSynth()
-				if self.synth.voice != self.voice_name:
+				synth = synthDriverHandler.getSynth()
+				if synth.voice != self.voice_name:
 					try:
 						shutil.rmtree(f"{self.addons_dir}/RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}")
 					except:
@@ -259,7 +313,7 @@ class VoiceDownloader(wx.Frame):
 			f"{self.addons_dir}/RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}/langdata"
 		)
 		if self.pseudo_english:
-			# Seccond lang pack:
+			# Second lang pack:
 			extract_package.extract_zip(
 				self.english_save_path,
 				f"{self.addons_dir}/RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}/lang2data"
