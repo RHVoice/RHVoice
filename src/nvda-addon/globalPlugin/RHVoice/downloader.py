@@ -20,7 +20,7 @@ from .download import get_packages, capitalize_dash
 from .constants import addon_ver
 import requests
 from requests.exceptions import ConnectionError
-import threading 
+import threading
 import shutil
 import os
 from .sound_lib import stream
@@ -29,6 +29,7 @@ from synthDrivers import RHVoice
 import globalVars
 from . import extract_package
 import core
+import ui
 
 class VoiceDownloader(wx.Frame):
 	def __init__(self, *args, **kw):
@@ -36,14 +37,9 @@ class VoiceDownloader(wx.Frame):
 		self.voices = None
 		self.installed_voices = []
 		self.have_voices = RHVoice.SynthDriver.check()
+		pkg_dir_downloader = threading.Thread(target=self._get_packages_worker).start()
 		if self.have_voices:
 			self.synth = RHVoice.SynthDriver()
-		try:
-			self.package_dir = get_packages()
-		except ConnectionError:
-			gui.messageBox("You will need to be connected to internet to use the downloader.", "Error", wx.OK | wx.ICON_ERROR)
-			return
-		if self.have_voices:
 			self.voices = self.synth._get_availableVoices()
 		self.o = output.Output(device=-1)
 		self.audio_stream=None
@@ -52,10 +48,14 @@ class VoiceDownloader(wx.Frame):
 		os.makedirs(self.download_working_folder, exist_ok=True)
 		self.addons_dir = os.path.join(globalVars.appArgs.configPath, "addons")
 		self.save_path = None
+		self.english_save_path = None
 		self.lang_save_path = None
 		self.voice_name = None
 		self.selected_lang = None
+		self.pseudo_english = None
+		self.english_language = None
 		self.voice_ver = None
+		self.english_lang_ver = None
 		self.lang_ver = None
 		self.nvda_lang_ver = None
 		self.addon_ver = addon_ver # this is the addon build number.
@@ -63,13 +63,7 @@ class VoiceDownloader(wx.Frame):
 		vbox = wx.BoxSizer(wx.VERTICAL)
 		lang_label = wx.StaticText(panel, label="Language")
 		vbox.Add(lang_label, flag=wx.LEFT | wx.TOP, border=10)
-		self.lang_choice = wx.Choice(
-			panel, 
-			choices=[
-				getLanguageDescription(lang["lang2code"]) if getLanguageDescription(lang["lang2code"]) is not None else lang["name"]
-				for lang in self.package_dir["languages"]
-			]
-		)
+		self.lang_choice = wx.Choice(panel, choices=["obtaining languages and voices from the server..."])
 		vbox.Add(self.lang_choice, flag=wx.LEFT | wx.EXPAND, border=10)
 		self.lang_choice.Bind(wx.EVT_CHOICE, self.on_language_select)
 		self.lang_choice.SetSelection(0)
@@ -89,6 +83,22 @@ class VoiceDownloader(wx.Frame):
 		self.SetTitle("Voice downloader")
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.close_resources)
+
+	def _get_packages_worker(self):
+		try:
+			self.package_dir = get_packages()
+		except ConnectionError:
+			gui.messageBox("You will need to be connected to internet to use the downloader.", "Error", wx.OK | wx.ICON_ERROR)
+			return
+		self.update_languages()
+		ui.message("Ready")
+
+	def update_languages(self):
+		languages_for_UI = [
+			getLanguageDescription(lang["lang2code"]) if getLanguageDescription(lang["lang2code"]) is not None else lang["name"]
+			for lang in self.package_dir["languages"]
+		]
+		self.lang_choice.Set(languages_for_UI)
 
 	def on_language_select(self, event):
 		selected_lang_index = self.lang_choice.GetSelection()
@@ -142,6 +152,19 @@ class VoiceDownloader(wx.Frame):
 	def on_download_voice(self):
 		selected_lang_index = self.lang_choice.GetSelection()
 		self.selected_lang = self.package_dir["languages"][selected_lang_index]
+		self.pseudo_english = self.selected_lang.get("pseudoEnglish", False)
+		if self.pseudo_english:
+			english_lookup = next(
+				(lang for lang in self.package_dir["languages"] if lang["name"] == "English"),
+				None
+			)
+			if english_lookup:
+				self.english_language = english_lookup
+			english_lang_url = self.english_language["dataUrl"]
+			self.english_lang_ver = f'{self.english_language["version"]["major"]}.{self.english_language["version"]["minor"]}'
+			self.english_save_path = os.path.join(
+				self.download_working_folder, f"RHVoice-language-{self.english_language['name']}-v{self.english_lang_ver}.zip"
+			)
 		lang_url = self.selected_lang["dataUrl"]
 		self.lang_ver = f'{self.selected_lang["version"]["major"]}.{self.selected_lang["version"]["minor"]}'
 		self.nvda_lang_ver = str(1000*int(self.selected_lang["version"]["major"]) + int(self.selected_lang["version"]["minor"]))
@@ -164,6 +187,10 @@ class VoiceDownloader(wx.Frame):
 				response = requests.get(lang_url)
 				with open(self.lang_save_path, "wb") as f:
 					f.write(response.content)
+				if self.pseudo_english:
+					response = requests.get(english_lang_url)
+					with open(self.english_save_path, "wb") as f:
+						f.write(response.content)
 			except Exception as e:
 				gui.messageBox(
 					f"Failed to download {self.selected_lang['name']} language pack, which is required to run the voice(s) propperly.",
@@ -220,11 +247,16 @@ class VoiceDownloader(wx.Frame):
 
 	def unzip_and_install(self):
 		# Lang pack:
-		# Todo: handle cases of multilingual voices, for example Vietnamese and English.
 		extract_package.extract_zip(
 			self.lang_save_path,
 			f"{self.addons_dir}/RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}/langdata"
 		)
+		if self.pseudo_english:
+			# Seccond lang pack:
+			extract_package.extract_zip(
+				self.english_save_path,
+				f"{self.addons_dir}/RHVoice-voice-{self.selected_lang['name']}-{self.voice_name}/lang2data"
+			)
 		# Voice:
 		extract_package.extract_zip(
 			self.save_path,
