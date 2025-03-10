@@ -542,7 +542,6 @@ struct result_t
       std::istreambuf_iterator<char> start_of_file(strm);
       std::istreambuf_iterator<char> end_of_file;
       std::string text(start_of_file,end_of_file);
-      std::string::const_iterator start_of_text=utf8::starts_with_bom(text.begin(),text.end())?(text.begin()+3):text.begin();
       utf8::utf8to32(text.begin(),text.end(),std::back_inserter(source));
     }
 

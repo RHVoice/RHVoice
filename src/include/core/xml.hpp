@@ -324,11 +324,7 @@ namespace RHVoice
 
       void add_element_handler(element_handler<ch>& handler)
       {
-        #ifdef _MSC_VER
-        element_handlers.insert(element_handler_table::value_type(handler.get_name(),&handler));
-        #else
-        element_handlers.insert(typename element_handler_table::value_type(handler.get_name(),&handler));
-        #endif
+        element_handlers.emplace(handler.get_name(),&handler);
       }
 
       void set_text_handler(text_handler<ch>& handler)

@@ -649,7 +649,10 @@ static HTS_Boolean HTS_Model_load_tree(HTS_Model * model, HTS_File * fp)
    last_question = NULL;
    last_tree = NULL;
    while (!HTS_feof(fp)) {
-      HTS_get_pattern_token(fp, buff);
+      if (HTS_get_pattern_token(fp, buff) == FALSE) {
+          HTS_Model_clear(model);
+          return FALSE;
+      }
       /* parse questions */
       if (strcmp(buff, "QS") == 0) {
          question = (HTS_Question *) HTS_calloc(1, sizeof(HTS_Question));
@@ -1202,7 +1205,7 @@ HTS_Boolean HTS_ModelSet_load(HTS_ModelSet * ms, char **voices, size_t num_voice
             if (vector_length[j] != temp_vector_length[j])
                error = TRUE;
          for (j = 0; j < ms->num_streams; j++)
-            if (is_msd[j] != is_msd[j])
+            if (is_msd[j] != temp_is_msd[j])
                error = TRUE;
          for (j = 0; j < ms->num_streams; j++)
             if (num_windows[j] != temp_num_windows[j])
