@@ -357,10 +357,10 @@
 	url = https://github.com/RHVoice/seva-rus.git
 [submodule "data/languages/Spanish"]
 	path = data/languages/Spanish
-	url = https://github.com/rmcpantoja/Spanish-Base
+	url = https://github.com/rhvoice/spanish-bin
 [submodule "src/scripts/Spanish"]
 	path = src/scripts/Spanish
-	url = https://github.com/rmcpantoja/Spanish-src
+	url = https://github.com/RHVoice/spanish-src
 [submodule "data/voices/Mateo"]
 	path = data/voices/Mateo
-	url = https://github.com/rmcpantoja/mateo-spa
+	url = https://github.com/RHVoice/mateo-spa
