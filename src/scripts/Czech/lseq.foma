@@ -42,6 +42,7 @@ m:[e m] |
 n:[e n] |
 ň:[e nj] |
 o:o |
+ö:o |
 ó:[oo] |
 ô:o |
 p:[p ee] |
@@ -54,6 +55,7 @@ s:[e s] |
 t:[t ee] |
 ť:[tj ee] |
 u:u |
+ü:u |
 ú:[uu] |
 ů:[uu ] |
 v:[v ee] |
@@ -69,5 +71,10 @@ source unicodechars.foma
 
 define TranscribeLetterSequence LetterLseq|UnicodeLseq -> || _ ;
 
-regex TranscribeLetterSequence .o.
+define FixWww 
+[d v o j i t ee v ee d v o j i t ee v ee d v o j i t ee v ee]:[v ee1 v ee1 v ee1] -> || .#. _ .#. ; 
+
+regex 
+TranscribeLetterSequence .o.
+FixWww .o. 
 procStressLseq .o. procStress2; 

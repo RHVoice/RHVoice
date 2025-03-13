@@ -34,13 +34,13 @@ define InsertMillions
 [..] -> miliónů || Digit _ Digit^3 tisíc;
 
 define InsertBillions 
-[..] -> miliárd || Digit _ Digit^3 miliónů;
+[..] -> miliard || Digit _ Digit^3 miliónů;
 
 define InsertTrillions 
-[..] -> biliónů || Digit _ Digit^3 miliárd;
+[..] -> biliónů || Digit _ Digit^3 miliard;
 
 define RemoveSkippedParts 
-%0 %0 %0 [tisíc|miliónů|miliárd|biliónů] -> 0 ;
+%0 %0 %0 [tisíc|miliónů|miliard|biliónů] -> 0 ;
 
 define Units %0:0|1:jedna|2:dva|3:tři|4:čtyři|5:pět|6:šest|7:sedum|8:osum|9:devět;
 
@@ -56,11 +56,11 @@ define DigitsToWords
 UpToThousand @->;
 
 define FixCase 
-tisíc:tisíc|miliónů:milión|miliárd:miliárda|biliónů:bilión -> || jedna _ ,, 
-tisíc:tisíce|miliónů:milióny|miliárd:miliárdy|bilión:bilióny -> || dva|tři|čtyři _  ;
+tisíc:tisíc|miliónů:milión|miliard:miliarda|biliónů:bilión -> || jedna _ ,, 
+tisíc:tisíce|miliónů:milióny|miliard:miliardy|bilión:bilióny -> || dva|tři|čtyři _  ;
 
 define ReplaceDva 
-dva -> dvě || ^ _ miliárdy ;
+dva -> dvě || ^ _ miliardy ;
 
 define ReplaceJedna 
 jedna -> jeden || ^ _ bilión ,, 
@@ -70,7 +70,7 @@ jedna -> jeden || ^ _ milión ;
 define Fix31Tys 
 tisíc:tisíc|
 miliónů:miliónů|
-miliárd:miliárd|
+miliard:miliard|
 biliónů:biliónů -> || 
 [dvacet|třicet|čtyřicet|padesát|
 šedesát|sedmdesát|osmdesát|devadesát|
@@ -80,7 +80,7 @@ sedmset|osmset|devětset] jedna _ ;
 define Fix32Tys 
 tisíce:tisíc|
 milióny:miliónů|
-miliárdy:miliárd|
+miliardy:miliard|
 bilióny:biliónů -> || 
 [dvacet|třicet|čtyřicet|padesát|
 šedesát|sedmdesát|osmdesát|devadesát|
@@ -90,7 +90,7 @@ sedmset|osmset|devětset] dva _ ;
 define Fix33Tys 
 tisíce:tisíc|
 milióny:miliónů|
-miliárdy:miliárd|
+miliardy:miliard|
 bilióny:biliónů -> || 
 [dvacet|třicet|čtyřicet|padesát|
 šedesát|sedmdesát|osmdesát|devadesát|
@@ -100,7 +100,7 @@ sedmset|osmset|devětset] tři _ ;
 define Fix34Tys 
 tisíce:tisíc|
 milióny:miliónů|
-miliárdy:miliárd|
+miliardy:miliard|
 bilióny:biliónů -> || 
 [dvacet|třicet|čtyřicet|padesát|
 šedesát|sedmdesát|osmdesát|devadesát|
@@ -110,7 +110,7 @@ sedmset|osmset|devětset] čtyři _ ;
 define RemoveOne 
 jedna -> 0 || .#. | GroupName _ tisíc,, 
 jeden -> 0 || .#. | GroupName _ milión,, 
-jedna -> 0 || .#.  | GroupName _ miliárda,, 
+jedna -> 0 || .#.  | GroupName _ miliarda,, 
 jeden -> 0 || .#. | GroupName _ bilión ; 
 
 define ProcNumber Number .o. 

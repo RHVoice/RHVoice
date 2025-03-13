@@ -26,6 +26,7 @@ define WB %# | PB ;
 define czechPrep [
 [a0]: [aa1] | 
 [aa0]: [d iil1 l h ee0 aa1] | 
+[ae]: [p r e0 h l a0 s o v a0 n ee1 aa0] | 
 [e0]: [ee1] | 
 [ee0]: [d iil1 l h ee0 ee1] | 
 [i0]: [ii1] | 
@@ -68,5 +69,7 @@ pvlb @-> b || \WB _ WB VoicedConsonantPhonem ,, pvld @-> d || \WB _ WB VoicedCon
 define AssimilationEnd pvlb @-> p || _ ,, pvld @-> t || _ ,, pvldj @-> tj || _ ,, pvldz @-> c || _ ,, pvldzh @-> ts || _ ,, pvlg @-> k || _ ,, pvlh @-> hh || _ ,, pvlz @-> s || _ ,, pvlzh @-> sh || _ ,, pvlv @-> f || _ ; 
 
 define FixForeign kv @-> [k v] ,, ks @-> [k s] ;
+
+source unicodechars.foma
 
 regex czechPrep .o. spellLetters .o. vzAssimilation .o. sExceptions .o. sAssimilation .o. VoicelessAssimilationPause .o. VoicelessAssimilation .o. AssimilationEnd .o. FixForeign ;
