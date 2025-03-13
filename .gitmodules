@@ -355,3 +355,12 @@
 [submodule "data/voices/seva"]
 	path = data/voices/seva
 	url = https://github.com/RHVoice/seva-rus.git
+[submodule "data/languages/Spanish"]
+	path = data/languages/Spanish
+	url = https://github.com/rhvoice/spanish-bin
+[submodule "src/scripts/Spanish"]
+	path = src/scripts/Spanish
+	url = https://github.com/RHVoice/spanish-src
+[submodule "data/voices/Mateo"]
+	path = data/voices/Mateo
+	url = https://github.com/RHVoice/mateo-spa
