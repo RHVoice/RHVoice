@@ -59,7 +59,7 @@ namespace RHVoice
 
   public:
     value():
-      object_container(0)
+      object_container(nullptr)
     {
     }
 
@@ -75,13 +75,13 @@ namespace RHVoice
     }
 
     value(const value& other):
-    object_container((other.object_container)?(other.object_container->clone()):0)
+    object_container((other.object_container)?(other.object_container->clone()):nullptr)
     {
     }
 
     value& operator=(const value& other)
     {
-      container* tmp=(other.object_container)?(other.object_container->clone()):0;
+      container* tmp=(other.object_container)?(other.object_container->clone()):nullptr;
       delete object_container;
       object_container=tmp;
       return *this;
@@ -89,7 +89,7 @@ namespace RHVoice
 
     bool empty() const
     {
-      return (object_container==0);
+      return (object_container==nullptr);
     }
 
     template<typename T>
