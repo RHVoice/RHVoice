@@ -181,7 +181,6 @@ define vowelizeLl  ll -> [iil0 ll]  || pc _ pcx ,,
 ax0 -> iil0 || _ ll ; 
 
 source stress.foma
-source unicodechars.foma
 
 regex Stage1 .o.
 Stage2 .o.

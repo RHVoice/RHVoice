@@ -72,4 +72,4 @@ define FixForeign kv @-> [k v] ,, ks @-> [k s] ;
 
 source unicodechars.foma
 
-regex czechPrep .o. spellLetters .o. vzAssimilation .o. sExceptions .o. sAssimilation .o. VoicelessAssimilationPause .o. VoicelessAssimilation .o. AssimilationEnd .o. FixForeign ;
+regex czechPrep .o. spellLetters .o. vzAssimilation .o. sExceptions .o. sAssimilation .o. VoicelessAssimilationPause .o. VoicelessAssimilation .o. AssimilationEnd .o. FixForeign .o. NormalizeCharactersBase ;
