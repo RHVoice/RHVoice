@@ -15,7 +15,7 @@
 
 define Letter 
 [[a|A]:a] | 
-[[ä|Ä]:a] | 
+[[ä|Ä]:[přehlasované a]] | 
 [[á|Á]:[á dlouhé]] | 
 [[b|B]:bé] | 
 [[c|C]:cé] | 
@@ -39,7 +39,7 @@ define Letter
 [[n|N]:en] | 
 [[ň|Ň]:eň] | 
 [[o|O]:o] | 
-[[ö|Ö]:e] | 
+[[ö|Ö]:[přehlasované o]] | 
 [[ó|Ó]:[ó dlouhé]] | 
 [[ô|Ô]:o] | 
 [[p|P]:pé] | 
@@ -52,7 +52,7 @@ define Letter
 [[t|T]:té] | 
 [[ť|Ť]:ťé] | 
 [[u|U]:u] | 
-[[ü|Ü]:u] | 
+[[ü|Ü]:[přehlasované u]] | 
 [[ú|Ú]:[ú s čárkou]] | 
 [[ů|Ů]:[ů s kroužkem]] | 
 [[v|V]:vé] | 

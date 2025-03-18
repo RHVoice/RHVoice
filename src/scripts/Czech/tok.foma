@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 define SmallLetter a|ä|á|b|c|č|d|ď|e|é|ě|f|g|h|i|í|j|k|l|ľ|ĺ|m|n|ň|o|ö|ó|ô|p|q|r|ř|ŕ|s|š|t|ť|u|ü|ú|ů|v|w|x|y|ý|z|ž ; 
-define CapitalLetter A|Ä|Á|B|C|Č|D|ď|E|É|Ě|F|G|H|I|Í|J|K|L|Ľ|Ĺ|M|N|Ň|O|Ó|Ô|Ö|P|Q|R|Ř|Ŕ|S|Š|T|Ť|U|Ú|Ů|Ü|V|W|X|Y|Ý|Z|Ž ; 
+define CapitalLetter A|Ä|Á|B|C|Č|D|Ď|E|É|Ě|F|G|H|I|Í|J|K|L|Ľ|Ĺ|M|N|Ň|O|Ó|Ô|Ö|P|Q|R|Ř|Ŕ|S|Š|T|Ť|U|Ú|Ů|Ü|V|W|X|Y|Ý|Z|Ž ; 
 define Letter SmallLetter | CapitalLetter ; 
 
 define CaseVariants 
