@@ -143,8 +143,12 @@ class VoiceDownloader(wx.Frame):
 		player_thread = threading.Thread(target=self.on_play).start()
 
 	def on_play(self):
+		# If the demo or the voice is speaking, stop playing.
 		if self.audio_stream is not None and self.audio_stream.is_playing:
 			self.audio_stream.stop()
+			return
+		if self.synth.isSpeaking():
+			self.synth.cancel()
 			return
 		selected_lang_index = self.lang_choice.GetSelection()
 		selected_lang = self.package_dir["languages"][selected_lang_index]
@@ -160,7 +164,6 @@ class VoiceDownloader(wx.Frame):
 				gui.messageBox(_("Failed to play demo")+": " +e, "Error", wx.OK | wx.ICON_ERROR)
 		else:
 			self.synth._set_voice(capitalize_dash(selected_voice["name"]))
-			# NVDA's synthDriverHandler doesn't provide a way to check if the voice is speaking, however, a possible check can be the synthDoneSpeaking notification.
 			self.synth.speak(installed_message)
 
 	def on_download_voice_hnd(self, event):
