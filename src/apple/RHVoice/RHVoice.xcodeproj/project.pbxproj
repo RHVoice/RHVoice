@@ -1,0 +1,686 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0109CC1628215510001CB7DE /* RHSpeechSynthesisVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC1728215510001CB7DE /* RHVoiceBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1328215510001CB7DE /* RHVoiceBridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC1828215510001CB7DE /* RHSpeechSynthesisVoice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */; };
+		0109CC1928215510001CB7DE /* RHVoiceBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1528215510001CB7DE /* RHVoiceBridge.mm */; };
+		0109CC1C282155B1001CB7DE /* RHSpeechUtterance.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC1D282155B1001CB7DE /* RHSpeechUtterance.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */; };
+		0109CC20282155EE001CB7DE /* RHSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		0109CC21282155EE001CB7DE /* RHSpeechSynthesizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */; };
+		0109CC2B2821C03D001CB7DE /* NSFileManager+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */; };
+		0109CC2C2821C03D001CB7DE /* NSFileManager+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */; };
+		01242E4A2829676B00BB4D71 /* RHVoiceBridgeParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01242E4B2829676B00BB4D71 /* RHVoiceBridgeParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */; };
+		015DD1FC282062C2008486B1 /* RHVoiceData in Resources */ = {isa = PBXBuildFile; fileRef = 015DD1FB282062C2008486B1 /* RHVoiceData */; };
+		015DD20B28206B55008486B1 /* RHVoiceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD20A28206B55008486B1 /* RHVoiceWrapper.h */; };
+		015DD21628206C05008486B1 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD21528206C05008486B1 /* AVFAudio.framework */; };
+		015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 015DD21828206C2F008486B1 /* NSString+Additions.m */; };
+		015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD21928206C30008486B1 /* NSString+Additions.h */; };
+		01879D2C2837BB9100EC1747 /* RHSpeechSynthesisVoice+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 01879D2A2837BB9100EC1747 /* RHSpeechSynthesisVoice+Private.h */; };
+		01879D2D2837BB9100EC1747 /* RHVoiceBridge+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 01879D2B2837BB9100EC1747 /* RHVoiceBridge+Private.h */; };
+		01879D32283832E100EC1747 /* RHVoiceBridgeParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D33283832E100EC1747 /* RHVoiceWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD20A28206B55008486B1 /* RHVoiceWrapper.h */; };
+		01879D34283832E100EC1747 /* RHVoiceLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FB282268930050EFCA /* RHVoiceLogger.h */; };
+		01879D35283832E100EC1747 /* RHSpeechSynthesisVoice+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 01879D2A2837BB9100EC1747 /* RHSpeechSynthesisVoice+Private.h */; };
+		01879D36283832E100EC1747 /* RHSpeechSynthesizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D37283832E100EC1747 /* RHSpeechSynthesisVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D38283832E100EC1747 /* RHVoiceBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1328215510001CB7DE /* RHVoiceBridge.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D39283832E100EC1747 /* NSFileManager+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */; };
+		01879D3A283832E100EC1747 /* RHVoiceBridge+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 01879D2B2837BB9100EC1747 /* RHVoiceBridge+Private.h */; };
+		01879D3B283832E100EC1747 /* NSString+Additions.h in Headers */ = {isa = PBXBuildFile; fileRef = 015DD21928206C30008486B1 /* NSString+Additions.h */; };
+		01879D3C283832E100EC1747 /* RHEventLoggerImpl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */; };
+		01879D3D283832E100EC1747 /* RHSpeechUtterance.h in Headers */ = {isa = PBXBuildFile; fileRef = 0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D3E283832E100EC1747 /* RHVoiceLoggerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D3F283832E100EC1747 /* RHVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 01C4A93828301830008679D4 /* RHVoice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01879D41283832E100EC1747 /* RHVoiceBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1528215510001CB7DE /* RHVoiceBridge.mm */; };
+		01879D42283832E100EC1747 /* RHVoiceLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 01FF73FC282268930050EFCA /* RHVoiceLogger.m */; };
+		01879D43283832E100EC1747 /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 015DD21828206C2F008486B1 /* NSString+Additions.m */; };
+		01879D44283832E100EC1747 /* RHVoiceBridgeParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */; };
+		01879D45283832E100EC1747 /* RHSpeechSynthesizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */; };
+		01879D46283832E100EC1747 /* RHEventLoggerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */; };
+		01879D47283832E100EC1747 /* RHSpeechSynthesisVoice.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */; };
+		01879D48283832E100EC1747 /* NSFileManager+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */; };
+		01879D49283832E100EC1747 /* RHSpeechUtterance.m in Sources */ = {isa = PBXBuildFile; fileRef = 0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */; };
+		01879D4B283832E100EC1747 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 015DD21528206C05008486B1 /* AVFAudio.framework */; };
+		01879D4F283832E100EC1747 /* RHVoiceData in Resources */ = {isa = PBXBuildFile; fileRef = 015DD1FB282062C2008486B1 /* RHVoiceData */; };
+		01879D552838368D00EC1747 /* RHVoiceCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01879D542838368D00EC1747 /* RHVoiceCore.xcframework */; };
+		01879D562838368D00EC1747 /* RHVoiceCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01879D542838368D00EC1747 /* RHVoiceCore.xcframework */; };
+		01C4A93928301834008679D4 /* RHVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 01C4A93828301830008679D4 /* RHVoice.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01FF73FD282268930050EFCA /* RHVoiceLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FB282268930050EFCA /* RHVoiceLogger.h */; };
+		01FF73FE282268930050EFCA /* RHVoiceLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 01FF73FC282268930050EFCA /* RHVoiceLogger.m */; };
+		01FF74002822691C0050EFCA /* RHVoiceLoggerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		01FF740628226C360050EFCA /* RHEventLoggerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */; };
+		01FF740728226C360050EFCA /* RHEventLoggerImpl.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHSpeechSynthesisVoice.h; sourceTree = "<group>"; };
+		0109CC1328215510001CB7DE /* RHVoiceBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceBridge.h; sourceTree = "<group>"; };
+		0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RHSpeechSynthesisVoice.mm; sourceTree = "<group>"; };
+		0109CC1528215510001CB7DE /* RHVoiceBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RHVoiceBridge.mm; sourceTree = "<group>"; };
+		0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHSpeechUtterance.h; sourceTree = "<group>"; };
+		0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RHSpeechUtterance.m; sourceTree = "<group>"; };
+		0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHSpeechSynthesizer.h; sourceTree = "<group>"; };
+		0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RHSpeechSynthesizer.mm; sourceTree = "<group>"; };
+		0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+Additions.h"; sourceTree = "<group>"; };
+		0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+Additions.m"; sourceTree = "<group>"; };
+		01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoiceBridgeParams.h; sourceTree = "<group>"; };
+		01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RHVoiceBridgeParams.m; sourceTree = "<group>"; };
+		015DD1EE28206207008486B1 /* RHVoice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RHVoice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		015DD1FB282062C2008486B1 /* RHVoiceData */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RHVoiceData; path = ../../../../../build/apple_output/RHVoiceData; sourceTree = "<group>"; };
+		015DD1FF28206360008486B1 /* common.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = common.xcconfig; sourceTree = "<group>"; };
+		015DD20228206400008486B1 /* build_core_lib.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = build_core_lib.sh; sourceTree = "<group>"; };
+		015DD20A28206B55008486B1 /* RHVoiceWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceWrapper.h; sourceTree = "<group>"; };
+		015DD21528206C05008486B1 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
+		015DD21828206C2F008486B1 /* NSString+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Additions.m"; sourceTree = "<group>"; };
+		015DD21928206C30008486B1 /* NSString+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Additions.h"; sourceTree = "<group>"; };
+		015DD21C28206CEF008486B1 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		01879D2A2837BB9100EC1747 /* RHSpeechSynthesisVoice+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RHSpeechSynthesisVoice+Private.h"; sourceTree = "<group>"; };
+		01879D2B2837BB9100EC1747 /* RHVoiceBridge+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RHVoiceBridge+Private.h"; sourceTree = "<group>"; };
+		01879D2E2837BBFC00EC1747 /* create_xcframework.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = create_xcframework.sh; sourceTree = "<group>"; };
+		01879D53283832E100EC1747 /* RHVoice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RHVoice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		01879D542838368D00EC1747 /* RHVoiceCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = RHVoiceCore.xcframework; path = ../../../../../build/apple_output/RHVoiceCore.xcframework; sourceTree = "<group>"; };
+		01879D5728383A9200EC1747 /* build_apple_core_lib.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = build_apple_core_lib.sh; path = ../../../../build_apple_core_lib.sh; sourceTree = "<group>"; };
+		01C4A93828301830008679D4 /* RHVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoice.h; sourceTree = "<group>"; };
+		01FF73FB282268930050EFCA /* RHVoiceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RHVoiceLogger.h; sourceTree = "<group>"; };
+		01FF73FC282268930050EFCA /* RHVoiceLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RHVoiceLogger.m; sourceTree = "<group>"; };
+		01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RHVoiceLoggerProtocol.h; sourceTree = "<group>"; };
+		01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RHEventLoggerImpl.mm; sourceTree = "<group>"; };
+		01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = RHEventLoggerImpl.hpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		015DD1EB28206207008486B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				015DD21628206C05008486B1 /* AVFAudio.framework in Frameworks */,
+				01879D552838368D00EC1747 /* RHVoiceCore.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01879D4A283832E100EC1747 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01879D4B283832E100EC1747 /* AVFAudio.framework in Frameworks */,
+				01879D562838368D00EC1747 /* RHVoiceCore.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0109CC1128215510001CB7DE /* RHVoice */ = {
+			isa = PBXGroup;
+			children = (
+				01C4A93828301830008679D4 /* RHVoice.h */,
+				01242E482829676B00BB4D71 /* RHVoiceBridgeParams.h */,
+				01242E492829676B00BB4D71 /* RHVoiceBridgeParams.m */,
+				0109CC1328215510001CB7DE /* RHVoiceBridge.h */,
+				0109CC1528215510001CB7DE /* RHVoiceBridge.mm */,
+				0109CC1228215510001CB7DE /* RHSpeechSynthesisVoice.h */,
+				0109CC1428215510001CB7DE /* RHSpeechSynthesisVoice.mm */,
+				0109CC1A282155B1001CB7DE /* RHSpeechUtterance.h */,
+				0109CC1B282155B1001CB7DE /* RHSpeechUtterance.m */,
+				0109CC1E282155EE001CB7DE /* RHSpeechSynthesizer.h */,
+				0109CC1F282155EE001CB7DE /* RHSpeechSynthesizer.mm */,
+				01879D292837BB9100EC1747 /* PrivateHeaders */,
+				01FF73FA282268930050EFCA /* Logger */,
+			);
+			path = RHVoice;
+			sourceTree = "<group>";
+		};
+		015DD1E428206207008486B1 = {
+			isa = PBXGroup;
+			children = (
+				015DD1F028206207008486B1 /* RHVoice */,
+				015DD1EF28206207008486B1 /* Products */,
+				015DD21428206C05008486B1 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		015DD1EF28206207008486B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1EE28206207008486B1 /* RHVoice.framework */,
+				01879D53283832E100EC1747 /* RHVoice.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		015DD1F028206207008486B1 /* RHVoice */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1FD28206360008486B1 /* BuildScripts */,
+				015DD1F828206290008486B1 /* CoreLib */,
+				015DD21728206C23008486B1 /* Utils */,
+				0109CC1128215510001CB7DE /* RHVoice */,
+			);
+			path = RHVoice;
+			sourceTree = "<group>";
+		};
+		015DD1F828206290008486B1 /* CoreLib */ = {
+			isa = PBXGroup;
+			children = (
+				015DD20A28206B55008486B1 /* RHVoiceWrapper.h */,
+				01879D542838368D00EC1747 /* RHVoiceCore.xcframework */,
+				015DD1FB282062C2008486B1 /* RHVoiceData */,
+			);
+			path = CoreLib;
+			sourceTree = "<group>";
+		};
+		015DD1FD28206360008486B1 /* BuildScripts */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1FE28206360008486B1 /* Configs */,
+				015DD20028206360008486B1 /* Scripts */,
+			);
+			path = BuildScripts;
+			sourceTree = "<group>";
+		};
+		015DD1FE28206360008486B1 /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				015DD1FF28206360008486B1 /* common.xcconfig */,
+			);
+			path = Configs;
+			sourceTree = "<group>";
+		};
+		015DD20028206360008486B1 /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				01879D5728383A9200EC1747 /* build_apple_core_lib.sh */,
+				015DD20228206400008486B1 /* build_core_lib.sh */,
+				01879D2E2837BBFC00EC1747 /* create_xcframework.sh */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
+		015DD21428206C05008486B1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				015DD21C28206CEF008486B1 /* AVFoundation.framework */,
+				015DD21528206C05008486B1 /* AVFAudio.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		015DD21728206C23008486B1 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				015DD21928206C30008486B1 /* NSString+Additions.h */,
+				015DD21828206C2F008486B1 /* NSString+Additions.m */,
+				0109CC292821C03D001CB7DE /* NSFileManager+Additions.h */,
+				0109CC2A2821C03D001CB7DE /* NSFileManager+Additions.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		01879D292837BB9100EC1747 /* PrivateHeaders */ = {
+			isa = PBXGroup;
+			children = (
+				01879D2A2837BB9100EC1747 /* RHSpeechSynthesisVoice+Private.h */,
+				01879D2B2837BB9100EC1747 /* RHVoiceBridge+Private.h */,
+			);
+			path = PrivateHeaders;
+			sourceTree = "<group>";
+		};
+		01FF73FA282268930050EFCA /* Logger */ = {
+			isa = PBXGroup;
+			children = (
+				01FF73FF282268F50050EFCA /* RHVoiceLoggerProtocol.h */,
+				01FF73FB282268930050EFCA /* RHVoiceLogger.h */,
+				01FF73FC282268930050EFCA /* RHVoiceLogger.m */,
+				01FF740528226C360050EFCA /* RHEventLoggerImpl.hpp */,
+				01FF740428226C360050EFCA /* RHEventLoggerImpl.mm */,
+			);
+			path = Logger;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		015DD1E928206207008486B1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01242E4A2829676B00BB4D71 /* RHVoiceBridgeParams.h in Headers */,
+				015DD20B28206B55008486B1 /* RHVoiceWrapper.h in Headers */,
+				01FF73FD282268930050EFCA /* RHVoiceLogger.h in Headers */,
+				01879D2C2837BB9100EC1747 /* RHSpeechSynthesisVoice+Private.h in Headers */,
+				0109CC20282155EE001CB7DE /* RHSpeechSynthesizer.h in Headers */,
+				0109CC1628215510001CB7DE /* RHSpeechSynthesisVoice.h in Headers */,
+				0109CC1728215510001CB7DE /* RHVoiceBridge.h in Headers */,
+				0109CC2B2821C03D001CB7DE /* NSFileManager+Additions.h in Headers */,
+				01879D2D2837BB9100EC1747 /* RHVoiceBridge+Private.h in Headers */,
+				015DD21B28206C30008486B1 /* NSString+Additions.h in Headers */,
+				01FF740728226C360050EFCA /* RHEventLoggerImpl.hpp in Headers */,
+				0109CC1C282155B1001CB7DE /* RHSpeechUtterance.h in Headers */,
+				01FF74002822691C0050EFCA /* RHVoiceLoggerProtocol.h in Headers */,
+				01C4A93928301834008679D4 /* RHVoice.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01879D31283832E100EC1747 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01879D32283832E100EC1747 /* RHVoiceBridgeParams.h in Headers */,
+				01879D33283832E100EC1747 /* RHVoiceWrapper.h in Headers */,
+				01879D34283832E100EC1747 /* RHVoiceLogger.h in Headers */,
+				01879D35283832E100EC1747 /* RHSpeechSynthesisVoice+Private.h in Headers */,
+				01879D36283832E100EC1747 /* RHSpeechSynthesizer.h in Headers */,
+				01879D37283832E100EC1747 /* RHSpeechSynthesisVoice.h in Headers */,
+				01879D38283832E100EC1747 /* RHVoiceBridge.h in Headers */,
+				01879D39283832E100EC1747 /* NSFileManager+Additions.h in Headers */,
+				01879D3A283832E100EC1747 /* RHVoiceBridge+Private.h in Headers */,
+				01879D3B283832E100EC1747 /* NSString+Additions.h in Headers */,
+				01879D3C283832E100EC1747 /* RHEventLoggerImpl.hpp in Headers */,
+				01879D3D283832E100EC1747 /* RHSpeechUtterance.h in Headers */,
+				01879D3E283832E100EC1747 /* RHVoiceLoggerProtocol.h in Headers */,
+				01879D3F283832E100EC1747 /* RHVoice.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		015DD1ED28206207008486B1 /* RHVoiceiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 015DD1F528206207008486B1 /* Build configuration list for PBXNativeTarget "RHVoiceiOS" */;
+			buildPhases = (
+				015DD1E928206207008486B1 /* Headers */,
+				015DD1EA28206207008486B1 /* Sources */,
+				015DD1EB28206207008486B1 /* Frameworks */,
+				015DD1EC28206207008486B1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RHVoiceiOS;
+			productName = RHVoice;
+			productReference = 015DD1EE28206207008486B1 /* RHVoice.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		01879D30283832E100EC1747 /* RHVoiceMacOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01879D50283832E100EC1747 /* Build configuration list for PBXNativeTarget "RHVoiceMacOS" */;
+			buildPhases = (
+				01879D31283832E100EC1747 /* Headers */,
+				01879D40283832E100EC1747 /* Sources */,
+				01879D4A283832E100EC1747 /* Frameworks */,
+				01879D4D283832E100EC1747 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RHVoiceMacOS;
+			productName = RHVoice;
+			productReference = 01879D53283832E100EC1747 /* RHVoice.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		015DD1E528206207008486B1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					015DD1ED28206207008486B1 = {
+						CreatedOnToolsVersion = 13.3;
+					};
+				};
+			};
+			buildConfigurationList = 015DD1E828206207008486B1 /* Build configuration list for PBXProject "RHVoice" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 015DD1E428206207008486B1;
+			productRefGroup = 015DD1EF28206207008486B1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				015DD1ED28206207008486B1 /* RHVoiceiOS */,
+				01879D30283832E100EC1747 /* RHVoiceMacOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		015DD1EC28206207008486B1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				015DD1FC282062C2008486B1 /* RHVoiceData in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01879D4D283832E100EC1747 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01879D4F283832E100EC1747 /* RHVoiceData in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		015DD1EA28206207008486B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0109CC1928215510001CB7DE /* RHVoiceBridge.mm in Sources */,
+				01FF73FE282268930050EFCA /* RHVoiceLogger.m in Sources */,
+				015DD21A28206C30008486B1 /* NSString+Additions.m in Sources */,
+				01242E4B2829676B00BB4D71 /* RHVoiceBridgeParams.m in Sources */,
+				0109CC21282155EE001CB7DE /* RHSpeechSynthesizer.mm in Sources */,
+				01FF740628226C360050EFCA /* RHEventLoggerImpl.mm in Sources */,
+				0109CC1828215510001CB7DE /* RHSpeechSynthesisVoice.mm in Sources */,
+				0109CC2C2821C03D001CB7DE /* NSFileManager+Additions.m in Sources */,
+				0109CC1D282155B1001CB7DE /* RHSpeechUtterance.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		01879D40283832E100EC1747 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01879D41283832E100EC1747 /* RHVoiceBridge.mm in Sources */,
+				01879D42283832E100EC1747 /* RHVoiceLogger.m in Sources */,
+				01879D43283832E100EC1747 /* NSString+Additions.m in Sources */,
+				01879D44283832E100EC1747 /* RHVoiceBridgeParams.m in Sources */,
+				01879D45283832E100EC1747 /* RHSpeechSynthesizer.mm in Sources */,
+				01879D46283832E100EC1747 /* RHEventLoggerImpl.mm in Sources */,
+				01879D47283832E100EC1747 /* RHSpeechSynthesisVoice.mm in Sources */,
+				01879D48283832E100EC1747 /* NSFileManager+Additions.m in Sources */,
+				01879D49283832E100EC1747 /* RHSpeechUtterance.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		015DD1F328206207008486B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../../build/ios_output/RHVoice.xcframework/**";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		015DD1F428206207008486B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "${PROJECT_DIR}/../../../build/ios_output/RHVoice.xcframework/**";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		015DD1F628206207008486B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoice;
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		015DD1F728206207008486B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoice;
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		01879D51283832E100EC1747 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoice;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		01879D52283832E100EC1747 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 015DD1FF28206360008486B1 /* common.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.RHVoice;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		015DD1E828206207008486B1 /* Build configuration list for PBXProject "RHVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				015DD1F328206207008486B1 /* Debug */,
+				015DD1F428206207008486B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		015DD1F528206207008486B1 /* Build configuration list for PBXNativeTarget "RHVoiceiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				015DD1F628206207008486B1 /* Debug */,
+				015DD1F728206207008486B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01879D50283832E100EC1747 /* Build configuration list for PBXNativeTarget "RHVoiceMacOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01879D51283832E100EC1747 /* Debug */,
+				01879D52283832E100EC1747 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 015DD1E528206207008486B1 /* Project object */;
+}
