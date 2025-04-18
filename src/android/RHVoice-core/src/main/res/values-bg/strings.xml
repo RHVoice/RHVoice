@@ -1,2 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="default_voice_title">Предпочитан глас</string>
+    <string name="default_voice_dialog_title">Изберете глас</string>
+    <string name="detect_language_title">Разпознаване на езика</string>
+    <string name="detect_language_desc">Автоматично превключване на езика</string>
+    <string name="speech_volume">Гръмкост на реч</string>
+    <string name="speech_rate">Говореща скорост</string>
+    <string name="pseudo_english_title">Английски думи</string>
+    <string name="pseudo_english_desc">Опитайте се да прочетете правилно английски думи</string>
+    <string name="settings">Настройки</string>
+    <string name="wifi_only_title">Само чрез Wi-Fi</string>
+    <string name="wifi_only_desc">Изтеглете гласовете само чрез Wi-Fi</string>
+    <string name="speech_quality">Качество на говоренето</string>
+    <string name="languages">Езици</string>
+    <string name="voice_remove_question">Сигурни ли сте, че искате да деинсталирате този глас?</string>
+    <string name="install">Инсталиране</string>
+    <string name="uninstall">Деинсталирай</string>
+    <string name="play">Играй</string>
+    <string name="stop">Спри</string>
+    <string name="increase">Увеличаване</string>
+    <string name="decrease">Намаляване</string>
+    <string name="reset">Нулиране</string>
+    <string name="version">Версия</string>
+    <string name="user_dicts">Потребителски речници</string>
+    <string name="add">Добави</string>
+    <string name="remove">Премахни</string>
+    <string name="config_file">Конфигурационен файл</string>
+</resources>
