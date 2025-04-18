@@ -1,1 +1,1 @@
-RHVoice – otwartoźródłowy syntezator mowy
+RHVoice – syntezator mowy
