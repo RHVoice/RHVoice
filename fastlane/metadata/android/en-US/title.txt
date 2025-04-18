@@ -1,1 +1,1 @@
-RHVoice - a free and open source speech synthesizer
+RHVoice - a speech synthesizer
