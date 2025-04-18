@@ -1,1 +1,1 @@
-TTS engine with extended languages support (incl. Russian)
+TTS for languages of Eastern Europe, Russian Federation, Central Asia and others
