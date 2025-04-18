@@ -3,4 +3,26 @@ Voices are built from recordings of natural speech. They have small footprints, 
 Although the voices lack the naturalness, which is typical for synthesizers which generates speech by combining segments of the recordings themselves. But they are still very intelligible and resemble the speakers whose voices were recorded.
 
 <b>Supported languages:</b>
-Initially, RHVoice could speak only Russian. Now it also supports American English, Brazilian Portuguese, Esperanto, Georgian, Ukrainian, Kyrgyz and Tatar.
+<ul>
+<li>Albanian (gjuha shqipe)</li>
+<li>Croatian (hrvatski jezik)</li>
+<li>Czech (český jazyk, čeština)</li>
+<li>English</li>
+<li>Esperanto</li>
+<li>Georgian (ქართულიо)</li>
+<li>Kyrgyz (кыргыз тили, кыргызча)</li>
+<li>Macedonian (македонски јазик)</li>
+<li>Nepali (नेपाली)</li>
+<li>Polish (język polski, polszczyzna)</li>
+<li>Portuguese Brazil (português do Brasil, brasileiro)</li>
+<li>Russian (русский)</li>
+<li>Serbian (српски језик, srpski jezik)</li>
+<li>Setswana</li>
+<li>Slovak (slovenský jazyk, slovenčina, slovenská reč)</li>
+<li>Southern Vietnamese (tiếng Việt)</li>
+<li>Spanish (español)</li>
+<li>Tatar (татар теле, татарча)</li>
+<li>Turkmen (türkmen dili, türkmençe)</li>
+<li>Ukrainian (українська мова)</li>
+<li>Uzbek (Оʻzbek tili, oʻzbekcha, Ўзбек тили, ўзбекча)</li>
+</ul>
