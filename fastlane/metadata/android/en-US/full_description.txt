@@ -1,4 +1,6 @@
-<p>RHVoice is a free and open source speech synthesizer.</p>
-<p>Voices are built from recordings of natural speech. They have small footprints, because only statistical models are stored on users' computers. And though the voices lack the naturalness of the synthesizers which generate speech by combining segments of the recordings themselves, they are still very intelligible and resemble the speakers who recorded the source material.</p>
-<p><br><b>Supported languages:</b></p>
-<p>Initially, RHVoice could speak only Russian. Now it also supports American English, Brazilian Portuguese, Esperanto, Georgian, Ukrainian, Kyrgyz and Tatar. In theory, it is possible to implement support for other languages, if all the necessary resources can be found or created.</p>
+RHVoice is a free and open source speech synthesizer.
+Voices are built from recordings of natural speech. They have small footprints, because only statistical models are stored on users' computers.
+And though the voices lack the naturalness of the synthesizers which generate speech by combining segments of the recordings themselves, they are still very intelligible and resemble the speakers who recorded the source material.
+
+<b>Supported languages:</b>
+Initially, RHVoice could speak only Russian. Now it also supports American English, Brazilian Portuguese, Esperanto, Georgian, Ukrainian, Kyrgyz and Tatar. In theory, it is possible to implement support for other languages, if all the necessary resources can be found or created.
