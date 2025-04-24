@@ -1,4 +1,4 @@
-/* Copyright (C) 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2021 - 2025  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -66,6 +66,7 @@ struct locale_info
   private:
 
     void before_g2p(utterance& u) const;
+    bool try_compound(const std::vector<std::string>& input, std::vector<std::string>& output) const;
 
     const data_only_language_info& info;
     const fst g2p_fst;
@@ -73,6 +74,8 @@ struct locale_info
 std::unique_ptr<fst> g2g_fst;
 std::unique_ptr<fst> lex_fst;
 std::unique_ptr<fst> gg2g_fst;
+std::unique_ptr<fst> c_split_fst;
+std::unique_ptr<fst> c_g2p_fst;
   };
 }
 #endif
