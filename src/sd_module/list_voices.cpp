@@ -21,11 +21,11 @@
 
 namespace
 {
-#if ((SPD_MAJOR==0) && (SPD_MINOR<9))
+#if defined(SPD_MAJOR) && defined(SPD_MINOR) && SPD_MAJOR == 0 && SPD_MINOR < 9
   const char sep=' ';
 #else
   const char sep='\t';
-  #endif
+#endif
 }
 
 namespace RHVoice
