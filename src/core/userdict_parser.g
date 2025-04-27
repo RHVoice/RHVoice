@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2024  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013, 2024, 2025  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -97,6 +97,8 @@
 %destructor foreign_flag {delete $$;}
 %type native_flag {RHVoice::userdict::ruleset*}
 %destructor native_flag {delete $$;}
+%type transcription {RHVoice::userdict::ruleset*}
+%destructor transcription {delete $$;}
 
 %extra_argument {RHVoice::userdict::parse_state* ps}
 
@@ -179,6 +181,13 @@ token(X) ::= words(Y).
 }
 
 token(X) ::= deletion(Y) EQUALS token_pron(Z).
+{
+  X=Y;
+  X->append(Z);
+  delete Z;
+}
+
+token(X) ::= substring(Y) EQUALS transcription(Z).
 {
   X=Y;
   X->append(Z);
@@ -503,6 +512,12 @@ foreign_flag(X) ::= FOREIGN.
 native_flag(X) ::= NATIVE.
 {
   X=RHVoice::userdict::ruleset::create<RHVoice::userdict::native_flag>();
+}
+
+transcription(X) ::= X_SAMPA(Y).
+{
+  X=RHVoice::userdict::ruleset::create<RHVoice::userdict::word_transcription>(Y);
+  delete Y;
 }
 
 space ::= . space ::= SPACE.

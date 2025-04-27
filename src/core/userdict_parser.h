@@ -17,3 +17,4 @@
 #define UDTK_INITIALISM                      17
 #define UDTK_FOREIGN                         18
 #define UDTK_NATIVE                          19
+#define UDTK_X_SAMPA                             20

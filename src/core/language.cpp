@@ -711,6 +711,15 @@ cfg.register_setting(lcfg.tok_sent);
     catch(const io::open_error& e)
       {
       }
+
+    try
+      {
+        x_sampa_fst.reset(new fst(path::join(info_.get_data_path(), "x-sampa.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -1734,10 +1743,24 @@ void language::on_token_break(utterance& u) const
     return native_trans;
 }
 
+std::vector<std::string> language::get_userdict_word_transcription(const item& word) const
+{
+  if(x_sampa_fst==nullptr)
+    return {};
+  if(!word.has_feature("userdict_transcription"))
+    return {};
+  const std::string x_sampa=word.get("userdict_transcription").as<std::string>();
+  std::vector<std::string> transcription;
+  if(x_sampa_fst->translate(x_sampa.begin(), x_sampa.end(), std::back_inserter(transcription)))
+    return transcription;
+  else
+    return {};
+}
+
   void language::assign_pronunciation(item& word) const
   {
-    std::vector<std::string> transcription=get_foreign_word_transcription(word);
-      if(word.has_feature("foreign"))
+    std::vector<std::string> transcription=get_userdict_word_transcription(word);
+    if(transcription.empty())
       transcription=get_foreign_word_transcription(word);
       if(transcription.empty())
 	{

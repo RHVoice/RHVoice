@@ -344,6 +344,7 @@ namespace RHVoice
     bool decode_as_english(item& tok) const;
     std::vector<std::string> get_english_word_transcription(const item& word) const;
     std::vector<std::string> get_foreign_word_transcription(const item& word) const;
+    std::vector<std::string> get_userdict_word_transcription(const item& word) const;
 
     virtual void before_g2p(utterance& u) const {}
     virtual void before_g2p(item& word) const
@@ -405,6 +406,7 @@ std::unique_ptr<fst> qst_fst;
     std::unique_ptr<fst> vocab_fst;
     std::unique_ptr<fst> foreign_phone_mapping_fst;
     std::unique_ptr<fst> en_words_fst;
+    std::unique_ptr<fst> x_sampa_fst;
     lang_config lcfg;
   };
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013 - 2025  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -96,12 +96,15 @@ namespace RHVoice
           lang.decode_as_word(token,name);
           if(stress.get_state()!=stress_pattern::undefined)
             token.last_child().set("stress_pattern",stress);
+	  if(!transcription.empty())
+	    token.last_child().set("userdict_transcription", transcription);
         }
     }
 
     void word_editor::new_word()
     {
       text.clear();
+      transcription.clear();
       stress.reset();
       initialism=false;
       foreign=false;
@@ -364,6 +367,27 @@ namespace RHVoice
             }
         }
 
+        bool match_x_sampa()
+        {
+	  if(*pos!='[')
+	    return false;
+	  chars32::const_iterator new_pos=pos+1;
+          for(;(new_pos!=input.end())&&(*new_pos>='!')&&(*new_pos<='~')&&(*new_pos!=']');++new_pos)
+            {
+              next_token->append(*new_pos);
+            }
+          if(new_pos==(pos+1))
+            return false;
+          else
+            {
+	      pos=new_pos;
+	      if(pos!=input.end() && *pos==']')
+		++pos;
+              next_token->set_type(UDTK_X_SAMPA);
+              return true;
+            }
+        }
+
         bool match_comment()
         {
           if(*pos!=';')
@@ -441,6 +465,7 @@ struct result_t
         if(pos==input.end())
           return std::unique_ptr<token>();
         next_token.reset(new token);
+	match_x_sampa()||
         match_native_letters()||
 	  match_section() ||
           match_english_letters()||
