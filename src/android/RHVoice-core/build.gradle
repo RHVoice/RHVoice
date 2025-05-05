@@ -128,6 +128,8 @@ dependencies {
     implementation 'io.github.vvb2060.ndk:curl:8.1.1'
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+
+    implementation 'com.google.android.material:material:1.12.0'
 }
 
 preBuild.dependsOn BoostIncludes

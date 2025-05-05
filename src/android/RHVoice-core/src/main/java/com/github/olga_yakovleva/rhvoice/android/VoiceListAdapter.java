@@ -146,15 +146,15 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
                 vh.progressBar.setVisibility(View.GONE);
             if (enabled) {
                 if (installed) {
-                    vh.actionButton.setImageResource(R.drawable.ic_delete);
+                    vh.actionButton.setIconResource(R.drawable.ic_delete);
                     vh.actionButton.setContentDescription(activity.getString(R.string.uninstall));
                 } else {
-                    vh.actionButton.setImageResource(R.drawable.ic_cancel);
+                    vh.actionButton.setIconResource(R.drawable.ic_cancel);
                     vh.actionButton.setContentDescription(activity.getString(android.R.string.cancel));
                 }
                 vh.actionButton.setOnClickListener(this.new ActionButtonListener(voice, false));
             } else {
-                vh.actionButton.setImageResource(R.drawable.ic_download);
+                vh.actionButton.setIconResource(R.drawable.ic_download);
                 vh.actionButton.setContentDescription(activity.getString(R.string.install));
                 vh.actionButton.setOnClickListener(this.new ActionButtonListener(voice, true));
             }
@@ -163,10 +163,10 @@ public final class VoiceListAdapter extends RecyclerView.Adapter<VoiceViewHolder
             PlayerFragment pf = findPlayerFragment();
             if (pf != null && pf.canPlay(voice)) {
                 if (pf.isPlaying(voice)) {
-                    vh.playButton.setImageResource(R.drawable.ic_stop);
+                    vh.playButton.setIconResource(R.drawable.ic_stop);
                     vh.playButton.setContentDescription(activity.getString(R.string.stop));
                 } else {
-                    vh.playButton.setImageResource(R.drawable.ic_play);
+                    vh.playButton.setIconResource(R.drawable.ic_play);
                     vh.playButton.setContentDescription(activity.getString(R.string.play));
                 }
                 vh.playButton.setVisibility(View.VISIBLE);
