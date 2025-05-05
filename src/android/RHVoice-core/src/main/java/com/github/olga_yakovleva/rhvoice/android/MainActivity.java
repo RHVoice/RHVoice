@@ -15,18 +15,18 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
-import android.view.MenuItem;
 
 public final class MainActivity extends AppCompatActivity implements AvailableLanguagesFragment.Listener, AvailableVoicesFragment.Listener, ConfirmVoiceRemovalDialogFragment.Listener {
     private DataManager dm;
 
     @Override
     protected void onCreate(Bundle state) {
+        EdgeToEdge.enable(this);
         super.onCreate(state);
         dm = new DataManager();
         setContentView(R.layout.frame);
@@ -74,22 +74,6 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    private void showSettings() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                showSettings();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override

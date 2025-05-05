@@ -23,6 +23,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFragment {
     public interface Listener {
         public void onConfirmVoiceRemovalResponse(VoicePack voice, boolean response);
@@ -65,7 +67,7 @@ public final class ConfirmVoiceRemovalDialogFragment extends AppCompatDialogFrag
 
     @Override
     public Dialog onCreateDialog(Bundle state) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         if (voice != null)
             builder.setTitle(voice.getName());
         builder.setMessage(R.string.voice_remove_question);

@@ -17,19 +17,20 @@ package com.github.olga_yakovleva.rhvoice.android;
 
 import android.text.method.LinkMovementMethod;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
 
 public final class VoiceViewHolder extends RecyclerView.ViewHolder {
     public final TextView nameView;
     public final TextView versionView;
     public final TextView attribView;
     public final ProgressBar progressBar;
-    public final ImageButton actionButton;
-    public final ImageButton playButton;
+    public final MaterialButton actionButton;
+    public final MaterialButton playButton;
 
     public VoiceViewHolder(View v) {
         super(v);
