@@ -76,6 +76,7 @@ std::unique_ptr<fst> lex_fst;
 std::unique_ptr<fst> gg2g_fst;
 std::unique_ptr<fst> c_split_fst;
 std::unique_ptr<fst> c_g2p_fst;
+std::unique_ptr<fst> sl_lex_fst;
   };
 }
 #endif

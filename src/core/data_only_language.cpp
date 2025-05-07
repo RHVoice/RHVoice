@@ -164,6 +164,8 @@ namespace RHVoice
 	    return tmp;
 	  }
 }
+	if(sl_lex_fst!=nullptr && sl_lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+	  return tmp;
 	g2p_fst.translate(g2p_input.begin(),g2p_input.end(),std::back_inserter(transcription));
     return transcription;
   }
