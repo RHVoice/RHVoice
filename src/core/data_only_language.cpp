@@ -111,6 +111,13 @@ namespace RHVoice
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        sl_lex_fst.reset(new fst(path::join(info_.get_data_path(),"sl_lex.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
   }
 
   bool data_only_language::try_compound(const std::vector<std::string>& input, std::vector<std::string>& output) const
@@ -145,8 +152,10 @@ namespace RHVoice
 	    const item& tok=word.as("TokStructure").parent();
 	    const std::string& pos=tok.get("pos").as<std::string>();
 	    if(pos=="word" && !tok.has_feature("userdict"))
-	      if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+	      if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp))) {
 		g2p_input=tmp;
+		tmp.clear();
+		}
 	  }
 	if(lex_fst!=nullptr) {
 	  if(lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
