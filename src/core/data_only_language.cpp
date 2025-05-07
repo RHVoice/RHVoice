@@ -161,7 +161,6 @@ namespace RHVoice
 	  if(lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
 	    return tmp;
 	  if(try_compound(g2p_input, tmp)) {
-	    std::cout << "Compound!\n";
 	    return tmp;
 	  }
 }
