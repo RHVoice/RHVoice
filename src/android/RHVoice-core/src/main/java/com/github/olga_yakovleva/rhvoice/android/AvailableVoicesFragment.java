@@ -21,20 +21,15 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 
-import androidx.fragment.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import java.util.ArrayList;
-
-public final class AvailableVoicesFragment extends Fragment {
+public final class AvailableVoicesFragment extends ToolbarFragment {
     public interface Listener {
         public void onVoiceSelected(VoicePack voice, boolean state);
     }
@@ -66,19 +61,18 @@ public final class AvailableVoicesFragment extends Fragment {
     };
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
-        return inflater.inflate(R.layout.voice_list, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle state) {
-        super.onViewCreated(view, state);
+    public void onViewReady(@NonNull View view, @Nullable Bundle state) {
         dm = new DataManager();
-        adapter = new VoiceListAdapter(getActivity());
-        RecyclerView listView = view.findViewById(R.id.voice_list);
-        listView.setHasFixedSize(true);
-        listView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        listView.setAdapter(adapter);
+        RecyclerView recyclerView = (RecyclerView) replaceFrame(view, R.layout.list);
+        if (recyclerView == null) {
+            return;
+        }
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new VoiceListAdapter(requireActivity());
+        recyclerView.setAdapter(adapter);
+        InsetUtil.setInsets(recyclerView, (left, top, right, bottom) -> recyclerView.setPadding(left, 0, right, bottom));
         Repository.get().getPackageDirectoryLiveData().observe(getViewLifecycleOwner(), this::onPackageDirectory);
     }
 
@@ -87,9 +81,7 @@ public final class AvailableVoicesFragment extends Fragment {
         final Bundle args = getArguments();
         LanguagePack language = dm.getLanguageById(args.getString(ARG_LANGUAGE));
         accent = language.getAccent(args.getString(ARG_COUNTRY), args.getString(ARG_VARIANT));
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setSubtitle(accent.getDisplayName());
+        toolbar.setSubtitle(accent.getDisplayName());
         adapter.setAccent(accent);
     }
 

@@ -36,3 +36,30 @@
 <methods>;
 <fields>;
 }
+-keep class com.github.olga_yakovleva.rhvoice.android.TtsResource
+{
+<methods>;
+<fields>;
+}
+-keep class com.github.olga_yakovleva.rhvoice.android.LanguageResource
+{
+<methods>;
+<fields>;
+}
+-keep class com.github.olga_yakovleva.rhvoice.android.VoiceResource
+{
+<init>(...);
+<fields>;
+}
+-keep class com.github.olga_yakovleva.rhvoice.android.PackageDirectory
+{
+<methods>;
+<fields>;
+}
+-keep class com.github.olga_yakovleva.rhvoice.android.VoiceAccent
+{
+<methods>;
+<fields>;
+}
+-dontwarn com.android.org.conscrypt.SSLParametersImpl
+-dontwarn org.apache.harmony.xnet.provider.jsse.SSLParametersImpl

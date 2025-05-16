@@ -15,23 +15,20 @@
 
 package com.github.olga_yakovleva.rhvoice.android;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.ListFragment;
-import androidx.appcompat.app.ActionBar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import java.util.ArrayList;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 
-import com.google.common.collect.Ordering;
-
-public final class AvailableLanguagesFragment extends ListFragment {
-    private ArrayAdapter<VoiceAccent> accents;
+public final class AvailableLanguagesFragment extends ToolbarFragment {
+    private LanguageListAdapter adapter;
     private DataManager dm;
 
     public interface Listener {
@@ -39,34 +36,31 @@ public final class AvailableLanguagesFragment extends ListFragment {
     }
 
     @Override
+    public void onViewReady(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        RecyclerView recyclerView = (RecyclerView) replaceFrame(view, R.layout.list);
+        if (recyclerView == null) {
+            return;
+        }
+
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireActivity()));
+        recyclerView.addItemDecoration(new MaterialDividerItemDecoration(requireContext(), MaterialDividerItemDecoration.VERTICAL));
+        adapter = new LanguageListAdapter((MainActivity) requireActivity());
+        recyclerView.setAdapter(adapter);
+        InsetUtil.setInsets(recyclerView, (left, top, right, bottom) -> recyclerView.setPadding(left, 0, right, bottom));
+
+        toolbar.setSubtitle(R.string.languages);
+    }
+
+    @Override
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
-        accents = new ArrayAdapter<VoiceAccent>(getActivity(), android.R.layout.simple_list_item_1);
-        setListAdapter(accents);
         dm = new DataManager();
         Repository.get().getPackageDirectoryLiveData().observe(getViewLifecycleOwner(), this::onPackageDirectory);
     }
 
-    @Override
-    public void onListItemClick(ListView lv, View v, int pos, long id) {
-        VoiceAccent accent = (VoiceAccent) lv.getItemAtPosition(pos);
-        ((Listener) getActivity()).onAccentSelected(accent);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (actionBar != null)
-            actionBar.setSubtitle(R.string.languages);
-    }
-
     private void onPackageDirectory(PackageDirectory dir) {
         dm.setPackageDirectory(dir);
-        accents.setNotifyOnChange(false);
-        accents.clear();
-        accents.addAll(dm.getAccents());
-        accents.sort(Ordering.usingToString());
-        accents.notifyDataSetChanged();
+        adapter.setItems(dm.getAccents());
     }
 }

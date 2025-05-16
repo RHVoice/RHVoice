@@ -19,6 +19,8 @@ import androidx.multidex.MultiDexApplication;
 
 import android.util.Log;
 
+import com.google.android.material.color.DynamicColors;
+
 import java.security.Provider;
 import java.security.Security;
 
@@ -33,6 +35,7 @@ public final class MyApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        DynamicColors.applyToActivitiesIfAvailable(this);
         try {
             Provider provider = Conscrypt.newProvider();
             Security.insertProviderAt(provider, 1);
