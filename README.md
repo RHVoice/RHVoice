@@ -46,7 +46,7 @@ RHVoice supports the following platforms:
 
 * Windows (prebuilt binaries is available in documentation)
 * GNU/Linux (building instructions and packaging status
-  can be found in "[Compiling instructions](https://github.com/RHVoice/RHVoice/blob/master/doc/en/Compiling-on-Linux.md)" section of documentation.
+  can be found in "[Compiling instructions](doc/en/Compiling-on-Linux.md)" section of documentation.
 * Android (can be installed thru
   [F-Droid](https://f-droid.org/packages/com.github.olga_yakovleva.rhvoice.android/)
   or [Google Play](https://play.google.com/store/apps/details?id=com.github.olga_yakovleva.rhvoice.android)
