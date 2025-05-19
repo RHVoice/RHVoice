@@ -6,4 +6,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="?attr/selectableItemBackground"
     android:padding="16dp"
+    android:textSize="18sp"
     tools:text="Language" />

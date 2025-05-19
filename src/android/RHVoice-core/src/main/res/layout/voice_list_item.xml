@@ -51,6 +51,7 @@
       android:layout_height="wrap_content"
       android:focusable="true"
       android:contentDescription="@string/play"
+      app:iconSize="48dp"
       app:icon="@drawable/ic_play"/>
   <com.google.android.material.button.MaterialButton
       style="?attr/materialIconButtonStyle"
@@ -59,5 +60,6 @@
       android:layout_height="wrap_content"
       android:focusable="true"
       android:contentDescription="@string/install"
+      app:iconSize="48dp"
       app:icon="@drawable/ic_download"/>
 </LinearLayout>
