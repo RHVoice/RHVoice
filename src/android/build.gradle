@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.9.2'
     }
 }
 
@@ -16,8 +16,8 @@ allprojects {
     }
 
     ext.myMinSdkVersion = 19
-    ext.myCompileSdkVersion = 33
-    ext.myBuildToolsVersion = '33.0.0'
+    ext.myCompileSdkVersion = 35
+    ext.myBuildToolsVersion = '35.0.0'
     ext.myNdkVersion = '25.1.8937393'
     ext.myTargetSdkVersion = 33
 }
