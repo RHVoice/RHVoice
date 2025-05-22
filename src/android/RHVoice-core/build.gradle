@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 ext.major_version = 1
 ext.minor_version = 16
-ext.revision_number = 4
+ext.revision_number = 5
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 
 ext.base_pkg_dir_url = 'https://rhvoice.org/download/packages-%s.json'
@@ -27,6 +27,7 @@ android {
 
     buildFeatures {
         prefab true
+        buildConfig true
     }
 
     defaultConfig {
@@ -127,6 +128,10 @@ dependencies {
     implementation 'io.github.vvb2060.ndk:curl:8.1.1'
     implementation 'org.conscrypt:conscrypt-android:2.5.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+
+    implementation 'com.google.android.material:material:1.12.0'
 }
 
 preBuild.dependsOn BoostIncludes
