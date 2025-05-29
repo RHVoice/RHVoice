@@ -1,4 +1,28 @@
-<p>RHVoice is a free and open source speech synthesizer.</p>
-<p>Voices are built from recordings of natural speech. They have small footprints, because only statistical models are stored on users' computers. And though the voices lack the naturalness of the synthesizers which generate speech by combining segments of the recordings themselves, they are still very intelligible and resemble the speakers who recorded the source material.</p>
-<p><br><b>Supported languages:</b></p>
-<p>Initially, RHVoice could speak only Russian. Now it also supports American English, Brazilian Portuguese, Esperanto, Georgian, Ukrainian, Kyrgyz and Tatar. In theory, it is possible to implement support for other languages, if all the necessary resources can be found or created.</p>
+RHVoice is a free and open source speech synthesizer.
+Voices are built from recordings of natural speech. They have small footprints, because it's only statistical models.
+Although the voices lack the naturalness, which is typical for synthesizers which generates speech by combining segments of the recordings themselves. But they are still very intelligible and resemble the speakers whose voices were recorded.
+
+<b>Supported languages:</b>
+<ul>
+<li>Albanian (gjuha shqipe)</li>
+<li>Croatian (hrvatski jezik)</li>
+<li>Czech (český jazyk, čeština)</li>
+<li>English</li>
+<li>Esperanto</li>
+<li>Georgian (ქართულიо)</li>
+<li>Kyrgyz (кыргыз тили, кыргызча)</li>
+<li>Macedonian (македонски јазик)</li>
+<li>Nepali (नेपाली)</li>
+<li>Polish (język polski, polszczyzna)</li>
+<li>Portuguese Brazil (português do Brasil, brasileiro)</li>
+<li>Russian (русский)</li>
+<li>Serbian (српски језик, srpski jezik)</li>
+<li>Setswana</li>
+<li>Slovak (slovenský jazyk, slovenčina, slovenská reč)</li>
+<li>Southern Vietnamese (tiếng Việt)</li>
+<li>Spanish (español)</li>
+<li>Tatar (татар теле, татарча)</li>
+<li>Turkmen (türkmen dili, türkmençe)</li>
+<li>Ukrainian (українська мова)</li>
+<li>Uzbek (Оʻzbek tili, oʻzbekcha, Ўзбек тили, ўзбекча)</li>
+</ul>
