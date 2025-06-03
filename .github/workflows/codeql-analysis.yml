@@ -37,7 +37,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.12'
 
     - if: ${{ matrix.language == 'java' }}
       name: Set up JDK 1.11
