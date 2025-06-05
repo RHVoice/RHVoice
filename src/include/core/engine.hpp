@@ -124,7 +124,7 @@ namespace RHVoice
 
     static std::shared_ptr<engine> create(const init_params& p=init_params())
     {
-      return std::shared_ptr<engine>(new engine(p));
+      return std::make_shared<engine>(p);
     }
 
     voice_profile create_voice_profile(const std::string& spec) const;
