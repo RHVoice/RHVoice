@@ -52,6 +52,7 @@ by RHVoice itself).
 ## Compiling instructions
 
 * [Compiling on linux](Compiling-on-Linux.md)
+* [Compiling for Apple platforms](Compiling-on-macOS.md)
 * [Packaging status](Packaging-status.md)
 
 ## Legal information

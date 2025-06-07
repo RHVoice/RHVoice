@@ -5,3 +5,16 @@ local/
 /CMakeLists.txt.user
 external/libs/boost/include/boost/
 
+# Apple platform
+src/apple/RHVoice/prebuild.log
+src/apple/RHVoice/RHVoice.xcodeproj/project.xcworkspace/xcuserdata
+src/apple/RHVoice/RHVoice.xcodeproj/xcuserdata
+src/apple/RHVoice/build_iphoneos
+src/apple/RHVoice/build_iphonesimulator
+src/apple/RHVoice/build_iphoneos.xcarchive
+src/apple/RHVoice/build_iphonesimulator.xcarchive
+src/apple/RHVoice/build_output
+src/apple/iOS/Sample/iOSSample/iOSSample.xcodeproj/project.xcworkspace/xcuserdata
+src/apple/iOS/Sample/iOSSample/iOSSample.xcodeproj/xcuserdata
+src/apple/macOS/Sample/macOSSample/macOSSample.xcodeproj/project.xcworkspace/xcuserdata
+src/apple/macOS/Sample/macOSSample/macOSSample.xcodeproj/xcuserdata
