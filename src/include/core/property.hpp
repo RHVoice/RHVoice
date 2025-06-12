@@ -252,11 +252,7 @@ namespace RHVoice
 
     void define(const std::string& name,T val)
     {
-      #ifdef _MSC_VER
-      names_to_values.insert(name_map::value_type(name,val));
-      #else
-      names_to_values.insert(typename name_map::value_type(name,val));
-      #endif
+      names_to_values.emplace(name,val);
     }
 
   private:
