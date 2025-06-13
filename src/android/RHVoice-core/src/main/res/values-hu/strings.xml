@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright 2025 by Till Nikolett-->
+<resources>
+  <string name="default_voice_title">Alapértelmezett hang</string>
+  <string name="default_voice_dialog_title">Válassz egy hangot</string>
+  <string name="detect_language_title">Nyelvfelismerés</string>
+  <string name="detect_language_desc">Automatikus nyelvváltás</string>
+  <string name="speech_volume">Hangerő</string>
+  <string name="speech_rate">Beszédsebesség</string>
+  <string name="pseudo_english_title">Angol szavak</string>
+  <string name="pseudo_english_desc">Az angol szavak helyes kiejtésének megkísérlése</string>
+  <string name="settings">Beállítások</string>
+  <string name="wifi_only_title">Csak Wi-Fi</string>
+  <string name="wifi_only_desc">Hangok letöltése kizárólag Wi-Fi használatával</string>
+  <string name="speech_quality">Hangminőség</string>
+  <string-array name="quality_labels">
+    <item>Lehető legjobb teljesítmény</item>
+    <item>Alapértelmezett minőség</item>
+    <item>Lehető legjobb minőség</item>
+  </string-array>
+  <string name="languages">Nyelvek</string>
+  <string name="voice_remove_question">Biztosan eltávolítod a kijelölt hangot?</string>
+  <string name="install">Telepítés</string>
+  <string name="uninstall">Eltávolítás</string>
+  <string name="play">Lejátszás</string>
+  <string name="stop">Leállítás</string>
+  <string name="increase">Növelés</string>
+  <string name="decrease">Csökkentés</string>
+  <string name="reset">Visszaállítás</string>
+  <string name="version">Verzió</string>
+  <string name="user_dicts">Felhasználói szótárak</string>
+  <string name="add">Hozzáadás</string>
+  <string name="remove">Törlés</string>
+  <string name="config_file">Konfigurációs fájl</string>
+</resources>
