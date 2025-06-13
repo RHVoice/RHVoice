@@ -2,6 +2,7 @@
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t -*-
 
 # Copyright (C) 2012, 2013, 2017, 2021 - 2024 Olga Yakovleva <olga@rhvoice.org>
+# Copyright (C) 2024  Mateo Cedillo <angelitomateocedillo@gmail.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,8 +37,9 @@ import uuid
 from scipy.signal import firwin,lfilter,kaiserord
 from scipy.io import wavfile
 import pathlib
-
+from tqdm import tqdm
 import pyworld
+import multiprocessing
 
 version_pattern=re.compile(r"(?m)^\s*\$ver\s*=\s*'(\d+)'\s*;\s*$")
 scriptdir=os.path.abspath(os.path.dirname(__file__))
@@ -227,7 +229,6 @@ class recordings_importer(task):
 		return files
 
 	def process(self,inpath,inname,outname):
-		print("Processing {}".format(inname))
 		cmd=[self.settings.get("praat_path","praat"),"--run",
 			 os.path.join(scriptdir,"import.praat"),
 			 inpath,
@@ -248,11 +249,15 @@ class recordings_importer(task):
 		files=self.get_file_list()
 		mapping=collections.OrderedDict()
 		times=collections.OrderedDict()
+		pbar = tqdm(total=len(files), desc="Processing")
 		for inpath,inname,outname in files:
 			inbase=os.path.splitext(inname)[0]
+			pbar.set_description("Processing {}".format(inname))
 			t1,t2=self.process(inpath,inname,outname)
 			mapping[outname]=inbase
 			times[inbase]=[t1,t2]
+			pbar.update(1)
+		pbar.close()
 		with open("file_name_mapping.json","w") as f:
 			json.dump(mapping,f,indent=0)
 		with open("trim.json","w") as f:
@@ -669,7 +674,6 @@ class htk_segmenter(task):
 			pvf=vf
 
 	def vad_file(self, name):
-		print("Vad for", name)
 		sr, samples=wavfile.read(os.path.join(self.wavdir, name+".wav"))
 		assert(sr==16000)
 		assert(samples.dtype==numpy.int16)
@@ -682,6 +686,7 @@ class htk_segmenter(task):
 	def do_vad(self):
 		if not self.init_sil_flag:
 			return
+		print("Aplying Voice Activity Detection")
 		with open(self.vad_mlf_path, "wt") as f:
 			f.write("#!MLF!#\n")
 			for file_name in self.recordings:
@@ -689,6 +694,7 @@ class htk_segmenter(task):
 				for name, start, end in self.vad_file(file_name):
 					f.write("{} {} {}\n".format(start, end, name))
 				f.write(".\n")
+		print("Done")
 
 	def __call__(self,args):
 		self.setup()
@@ -745,6 +751,7 @@ class labeller(task):
 class f0_extracter(task):
 	def register(self):
 		subparser=subparsers.add_parser("extract-f0")
+		subparser.add_argument("--cores",type=int,default=1,help="Number of CPU cores to use for parallel extraction.")
 		subparser.set_defaults(func=self)
 
 	def extract_with_praat(self,filepath,method,min_f0,max_f0):
@@ -913,7 +920,6 @@ class f0_extracter(task):
 	def process(self,name):
 		raw_dir=os.path.join("data","raw")
 		base,ext=os.path.splitext(name)
-		print("Processing {}".format(base))
 		raw_path=os.path.join(raw_dir,name)
 		min_f0=self.settings["lower_f0"]
 		max_f0=self.settings["upper_f0"]
@@ -924,30 +930,43 @@ class f0_extracter(task):
 			samples=numpy.fromfile(fp,numpy.int32)
 		return int(numpy.ceil(samples.size/float(self.shift)))
 
+	def _worker_f0(self, name):
+		f0_dir=os.path.join("data","lf0")
+		base,ext=os.path.splitext(name)
+		values=self.process(name)
+		nzvalues=[v for v in values if v!=0]
+		if not nzvalues:
+			print(f"\nWarning: No voiced frames found for {name}. Skipping file.", file=sys.stderr)
+			return
+		nframes=self.get_number_of_frames(name)
+		if nframes>len(values):
+			values.extend((nframes-len(values))*[0])
+		with open(os.path.join(f0_dir,base+".lf0"),"wb") as f:
+			for f0 in values:
+				if f0==0:
+					lf0=-10000000000.0
+				else:
+					lf0=math.log(f0)
+				f.write(struct.pack("=f",lf0))
+
 	def __call__(self,args):
 		self.shift=self.get_analysis_params()["FRAMESHIFT"]
 		raw_dir=os.path.join("data","raw")
 		f0_dir=os.path.join("data","lf0")
 		if not os.path.isdir(f0_dir):
 			os.mkdir(f0_dir)
-		print("Extracting f0")
-		for name in sorted(os.listdir(raw_dir)):
-			base,ext=os.path.splitext(name)
-			if os.path.exists(os.path.join(f0_dir,base+".lf0")):
-				continue
-			values=self.process(name)
-			nzvalues=[v for v in values if v!=0]
-			assert(len(nzvalues)>0)
-			nframes=self.get_number_of_frames(name)
-			if nframes>len(values):
-				values.extend((nframes-len(values))*[0])
-			with open(os.path.join(f0_dir,base+".lf0"),"wb") as f:
-				for f0 in values:
-					if f0==0:
-						lf0=-10000000000.0
-					else:
-						lf0=math.log(f0)
-					f.write(struct.pack("=f",lf0))
+		filelist = os.listdir(raw_dir)
+		tasks = [name for name in filelist if not os.path.exists(os.path.join(f0_dir, os.path.splitext(name)[0] + ".lf0"))]
+		if not tasks:
+			print("Extracting f0: All files are already processed.")
+			return
+		print(f"Extracting f0 using {args.cores} core(s).")
+		if args.cores > 1:
+			with multiprocessing.Pool(processes=args.cores) as pool:
+				list(tqdm(pool.imap_unordered(self._worker_f0, tasks), total=len(tasks), desc="processing"))
+		else:
+			for name in tqdm(tasks, desc="Processing"):
+				self._worker_f0(name)
 
 class f0_range_computer(f0_extracter):
 	def register(self):
@@ -956,6 +975,7 @@ class f0_range_computer(f0_extracter):
 
 	def __call__(self,args):
 		raw_dir=os.path.join("data","raw")
+		filelist = os.listdir(raw_dir)
 		data=list()
 		if "guess_f0_method" in self.settings:
 			method=self.settings["guess_f0_method"]
@@ -963,11 +983,14 @@ class f0_range_computer(f0_extracter):
 			method=None
 		if (not isinstance(method,str)) or len(method)==0:
 			method="sptk_rapt"
-		for name in sorted(os.listdir(raw_dir)):
-			print("Processing {}".format(name))
+		pbar = tqdm(total=len(filelist), desc="Processing")
+		for name in sorted(filelist):
+			pbar.set_description("Processing {}".format(name))
 			values=self.extract_with(os.path.join(raw_dir,name),method,40,700)
 			values=[v for v in values if v!=0]
 			data.extend(numpy.log(values))
+			pbar.update(1)
+		pbar.close()
 		data=numpy.array(data)
 		m=numpy.mean(data)
 		d=3.0*numpy.std(data)
@@ -1009,7 +1032,6 @@ class synthesizer(task):
 		return outpath
 
 	def process(self,name):
-		print("Processing {}".format(name))
 		params=self.get_analysis_params()
 		bindir=self.settings["bindir"]
 		excite=os.path.join(bindir,"excite")
@@ -1030,9 +1052,14 @@ class synthesizer(task):
 		if not os.path.isdir(synth_dir):
 			os.mkdir(synth_dir)
 		raw_dir=os.path.join("data","raw")
-		for name in sorted(os.listdir(raw_dir)):
+		filelist = os.listdir(raw_dir)
+		pbar = tqdm(total=len(filelist), desc="Processing")
+		for name in sorted(filelist):
 			base,ext=os.path.splitext(name)
+			pbar.set_description("Processing {}".format(base))
 			self.process(base)
+			pbar.update(1)
+		pbar.close()
 
 class phonetic_feature_table(object):
 	def __init__(self):
@@ -1684,6 +1711,8 @@ class nccf(object):
 class bap_extractor(task):
 	def register(self):
 		subparser=subparsers.add_parser("extract-bap")
+		subparser.add_argument("--skip",type=bool,default=False,help="Skip already extracted data.")
+		subparser.add_argument("--cores", type=int, default=1, help="Number of CPU cores to use for parallel extraction.")
 		subparser.set_defaults(func=self)
 
 	def make_filters(self):
@@ -1728,7 +1757,6 @@ class bap_extractor(task):
 		return cc
 
 	def process(self,name):
-		print("Processing {}".format(name))
 		speech=self.load_speech(name)
 		f0=self.load_f0(name)
 		bands=self.split_into_bands(speech)
@@ -1746,18 +1774,31 @@ class bap_extractor(task):
 		self.bap_dir=os.path.join("data","bap")
 		if not os.path.isdir(self.bap_dir):
 			os.mkdir(self.bap_dir)
-		results = []
-		for name in sorted(os.listdir(os.path.join("data","raw"))):
+		filelist = os.listdir(os.path.join("data","raw"))
+		tasks = []
+		for name in filelist:
 			base,ext=os.path.splitext(name)
-			self.process(base)
+			if not (args.skip and os.path.exists(os.path.join(self.bap_dir,f"{base}.bap"))):
+				tasks.append(base)
+		if not tasks:
+			print("Extracting BAP: all files are already processed.")
+			return
+		print(f"Extracting BAP using {args.cores} core(s).")
+		if args.cores > 1:
+			with multiprocessing.Pool(processes=args.cores) as pool:
+				list(tqdm(pool.imap_unordered(self.process, tasks), total=len(tasks), desc="Processing"))
+		else:
+			for name in tqdm(tasks, desc="Processing"):
+				self.process(name)
 
 class mgc_extractor(task):
 	def register(self):
 		subparser=subparsers.add_parser("extract-mgc")
+		subparser.add_argument("--skip",type=bool,default=False,help="Skip already extracted data.")
+		subparser.add_argument("--cores", type=int, default=1, help="Number of CPU cores to use for parallel extraction.")
 		subparser.set_defaults(func=self)
 
 	def process(self,name):
-		print("Processing {}".format(name))
 		sample_rate=self.settings["sample_rate"]
 		speech=self.load_speech(name)
 		if self.settings.get("audio_normalization",True):
@@ -1783,12 +1824,24 @@ class mgc_extractor(task):
 		self.aparams=self.get_analysis_params()
 		self.mgc_dir=os.path.join("data","mgc")
 		self.raw_dir=os.path.join("data", "raw")
+		self.filelist = os.listdir(self.raw_dir)
 		if not os.path.isdir(self.mgc_dir):
 			os.mkdir(self.mgc_dir)
-		print("Extracting MGC")
-		for name in sorted(os.listdir(self.raw_dir)):
+		tasks = []
+		for name in self.filelist:
 			base,ext=os.path.splitext(name)
-			self.process(base)
+			if not (args.skip and os.path.exists(os.path.join(self.mgc_dir,f"{base}.mgc"))):
+				tasks.append(base)
+		if not tasks:
+			print("Extracting MGC: All files are already processed or skip is not enabled.")
+			return
+		print(f"Extracting MGC using {args.cores} core(s).")
+		if args.cores > 1:
+			with multiprocessing.Pool(processes=args.cores) as pool:
+				list(tqdm(pool.imap_unordered(self.process, tasks), total=len(tasks), desc="Processing"))
+		else:
+			for name in tqdm(tasks, desc="Processing"):
+				self.process(name)
 
 
 if __name__=="__main__":
