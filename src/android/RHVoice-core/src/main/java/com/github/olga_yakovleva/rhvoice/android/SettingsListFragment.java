@@ -1,3 +1,5 @@
+/* Copyright (C) 2025  Darko Milosevic <daremc86@gmail.com> */
+
 /* Copyright (C) 2013, 2014, 2016, 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
@@ -47,6 +49,7 @@ import java.util.regex.Pattern;
 
 public final class SettingsListFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "RHVoiceSettingsActivity";
+    private static Context storageContext;
     public static final String NAME = "settingslist";
     public static final String ARG_LANGUAGE_KEY = "language_key";
     private static final Pattern RE_LANG_KEY = Pattern.compile("^language\\.([a-z]{3})$");
@@ -123,6 +126,10 @@ public final class SettingsListFragment extends PreferenceFragmentCompat impleme
 
     @Override
     public void onCreatePreferences(Bundle state, String rootKey) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            getPreferenceManager().setStorageDeviceProtected();
+        }
+        storageContext = MyApplication.getStorageContext();
         setPreferencesFromResource(R.xml.settings, null);
         findPreference("version").setSummary(BuildConfig.VERSION_NAME);
         if (openConfigFile != null) {
@@ -134,7 +141,7 @@ public final class SettingsListFragment extends PreferenceFragmentCompat impleme
         PreferenceCategory cat = null;
         final DataManager dm = Repository.get().createDataManager();
         for (LanguagePack lp : dm.iterLanguages()) {
-            final List<VoicePack> voices = lp.iterVoices().filter(v -> v.getEnabled(requireContext()) && v.isInstalled(requireContext())).toList();
+            final List<VoicePack> voices = lp.iterVoices().filter(v -> v.getEnabled(storageContext) && v.isInstalled(storageContext)).toList();
             if (voices.isEmpty())
                 continue;
             if (cat == null) {

@@ -1,3 +1,5 @@
+/* Copyright (C) 2025  Darko Milosevic <daremc86@gmail.com> */
+
 /* Copyright (C) 2018, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
@@ -16,6 +18,9 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import androidx.multidex.MultiDexApplication;
+import android.content.Context;
+import android.os.Build;
+
 
 import android.util.Log;
 
@@ -31,10 +36,18 @@ import org.conscrypt.Conscrypt;
 
 public final class MyApplication extends MultiDexApplication {
     private static final String TAG = "RHVoice.MyApplication";
+    private static Context storageContext;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Context appContext = getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            MyApplication.storageContext = appContext.createDeviceProtectedStorageContext();
+        }
+        else {
+            MyApplication.storageContext = appContext;
+        }
         DynamicColors.applyToActivitiesIfAvailable(this);
         try {
             Provider provider = Conscrypt.newProvider();
@@ -49,5 +62,8 @@ public final class MyApplication extends MultiDexApplication {
                 Log.e(TAG, "Error", e);
         }
         Repository.initialize(this);
+    }
+    public static Context getStorageContext() {
+        return MyApplication.storageContext;
     }
 }

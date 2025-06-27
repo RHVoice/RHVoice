@@ -1,3 +1,5 @@
+/* Copyright (C) 2025  Darko Milosevic <daremc86@gmail.com> */
+
 /* Copyright (C) 2017, 2018, 2019, 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
@@ -65,6 +67,7 @@ import java.util.zip.ZipInputStream;
 
 public abstract class DataPack {
     private static final String TAG = "RHVoiceDataPack";
+    private static Context storageContext = MyApplication.getStorageContext();
 
     private String getWorkName() {
         StringBuilder b = new StringBuilder();
@@ -144,6 +147,7 @@ public abstract class DataPack {
     }
 
     public final PackageInfo getPackageInfo(Context context) {
+        context = storageContext;
         PackageManager pm = context.getPackageManager();
         try {
             PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
@@ -156,6 +160,7 @@ public abstract class DataPack {
     }
 
     public final String getLink(Context context) {
+        context = storageContext;
         return getRes().dataUrl;
     }
 
@@ -164,22 +169,27 @@ public abstract class DataPack {
     }
 
     protected final File getDataDir(Context context) {
+        context = storageContext;
         return context.getDir("data", 0).getAbsoluteFile();
     }
 
     protected final File getTempDir(Context context) {
+        context = storageContext;
         return context.getDir("tmp-" + getType() + "-" + getId(), 0);
     }
 
     private File getDownloadsDir(Context context) {
+        context = storageContext;
         return context.getDir("downloads-" + getType() + "-" + getId(), 0);
     }
 
     private File getDownloadFile(Context context) {
+        context = storageContext;
         return new File(getDownloadsDir(context), getDownloadFileName());
     }
 
     private File getTempDownloadFile(Context context) {
+        context = storageContext;
         return new File(getDownloadsDir(context), getDownloadFileName() + ".tmp");
     }
 
@@ -210,6 +220,7 @@ public abstract class DataPack {
     }
 
     protected final boolean safeDelete(Context context, File file) {
+        context = storageContext;
         if (!file.exists())
             return true;
         if (!file.isDirectory())
@@ -246,11 +257,13 @@ public abstract class DataPack {
     }
 
     public final File getInstallationDir(Context context, int versionCode) {
+        context = storageContext;
         File dataDir = getDataDir(context);
         return new File(dataDir, String.format("%s.%d", getPackageName(), versionCode));
     }
 
     public final boolean isUpToDate(Context context) {
+        context = storageContext;
         return getInstallationDir(context, getVersionCode()).exists();
     }
 
@@ -271,6 +284,7 @@ public abstract class DataPack {
     }
 
     private InputStream openResource(Context context) throws IOException {
+        context = storageContext;
         if (BuildConfig.DEBUG)
             Log.v(TAG, "Trying to open resources in a package");
         PackageInfo pi = getPackageInfo(context);
@@ -354,6 +368,7 @@ public abstract class DataPack {
     }
 
     private InputStream openLink(Context context, IDataSyncCallback callback) throws IOException {
+        context = storageContext;
         if (BuildConfig.DEBUG)
             Log.v(TAG, "Trying to open the link");
         File file = getDownloadFile(context);
@@ -365,6 +380,7 @@ public abstract class DataPack {
     }
 
     private void downloadFile(Context context, IDataSyncCallback callback) throws IOException {
+        context = storageContext;
         checkIfStopped(callback);
         String link = getLink(context);
         if (BuildConfig.DEBUG)
@@ -444,6 +460,7 @@ public abstract class DataPack {
     }
 
     private InputStream open(Context context, IDataSyncCallback callback) throws IOException {
+        context = storageContext;
         if (BuildConfig.DEBUG)
             Log.v(TAG, "Opening");
         try {
@@ -472,6 +489,7 @@ public abstract class DataPack {
     }
 
     public boolean install(Context context, IDataSyncCallback callback) {
+        context = storageContext;
         if (isUpToDate(context))
             return true;
         if (BuildConfig.DEBUG)
@@ -555,6 +573,7 @@ public abstract class DataPack {
     }
 
     private void cleanup(Context context, int versionCode) {
+        context = storageContext;
         delete(getDownloadsDir(context));
         String pkgName = getPackageName();
         File instDir = (versionCode > 0) ? getInstallationDir(context, versionCode) : null;
@@ -572,6 +591,7 @@ public abstract class DataPack {
     }
 
     protected static final SharedPreferences getPrefs(Context context) {
+        context = storageContext;
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -580,6 +600,7 @@ public abstract class DataPack {
     }
 
     public final String getPath(Context context) {
+        context = storageContext;
         File dir = getInstallationDir(context, getVersionCode());
         if (dir.exists())
             return dir.getPath();
@@ -601,6 +622,7 @@ public abstract class DataPack {
     }
 
     public final boolean isInstalled(Context context) {
+        context = storageContext;
         return (getPath(context) != null);
     }
 
@@ -610,6 +632,7 @@ public abstract class DataPack {
     }
 
     public void uninstall(Context context, IDataSyncCallback callback) {
+        context = storageContext;
         if (BuildConfig.DEBUG)
             Log.v(TAG, "Removing " + getType() + " " + getName());
         cleanup(context, 0);
@@ -621,6 +644,7 @@ public abstract class DataPack {
     public abstract boolean getEnabled(Context context);
 
     public boolean sync(Context context, IDataSyncCallback callback) {
+        context = storageContext;
         if (getEnabled(context)) {
             if (!isUpToDate(context)) {
                 boolean installed = install(context, callback);
@@ -645,10 +669,12 @@ public abstract class DataPack {
     }
 
     public long getSyncFlag(Context context) {
+        context = storageContext;
         return getSyncFlag(context, false);
     }
 
     public long getSyncFlag(Context context, boolean checkPkg) {
+        context = storageContext;
         if (!getEnabled(context)) {
             if (isInstalled(context))
                 return SyncFlags.LOCAL;
@@ -663,6 +689,7 @@ public abstract class DataPack {
     }
 
     public boolean canBeInstalledFromPackage(Context context) {
+        context = storageContext;
         PackageInfo pi = getPackageInfo(context);
         if (pi != null && pi.versionCode == getVersionCode())
             return true;
@@ -687,6 +714,7 @@ public abstract class DataPack {
     }
 
     public static NetworkType getNetworkTypeSetting(Context context) {
+        context = storageContext;
         boolean wifiOnly = getPrefs(context).getBoolean("wifi_only", false);
         return wifiOnly ? NetworkType.UNMETERED : NetworkType.CONNECTED;
     }
@@ -698,6 +726,7 @@ public abstract class DataPack {
 
     @MainThread
     public final void scheduleSync(Context context, boolean replace) {
+        context = storageContext;
         long flag = getSyncFlag(context);
         if (flag == 0)
             return;
@@ -714,6 +743,7 @@ public abstract class DataPack {
     }
 
     protected String readTextFile(Context context, String fileName) {
+        context = storageContext;
         String dirPath = getPath(context);
         if (dirPath == null) {
             return null;
@@ -738,6 +768,7 @@ public abstract class DataPack {
     }
 
     public Spanned getAttribution(Context context) {
+        context = storageContext;
         String html = readTextFile(context, "attrib.html");
         if (html == null) {
             return null;
@@ -748,6 +779,7 @@ public abstract class DataPack {
     public abstract String getTestMessage();
 
     public final Version getInstalledVersion(Context ctx) {
+        ctx = storageContext;
         final String path = getPath(ctx);
         if (path == null)
             return null;

@@ -1,3 +1,5 @@
+/* Copyright (C) 2025  Darko Milosevic <daremc86@gmail.com> */
+
 /* Copyright (C) 2021, 2022  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
@@ -70,6 +72,7 @@ final class Repository {
 
     @MainThread
     private Repository(Context context) {
+        context = MyApplication.getStorageContext();
         this.context = context.getApplicationContext();
         try {
             {
@@ -92,6 +95,7 @@ final class Repository {
 
     @MainThread
     public static void initialize(Context context) {
+        context = MyApplication.getStorageContext();
         if (instance != null)
             throw new IllegalStateException();
         instance = new Repository(context);

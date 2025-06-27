@@ -1,3 +1,5 @@
+/* Copyright (C) 2025  Darko Milosevic <daremc86@gmail.com> */
+
 /* Copyright (C) 2021  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
@@ -21,7 +23,9 @@ import android.content.Context;
 import java.io.File;
 
 final class PackageClient {
+    private static Context storageContext = MyApplication.getStorageContext();
     public static final String getPath(Context context) {
+        context = storageContext;
         File dir = context.getDir("packages", 0);
         if (!dir.isDirectory()) {
             dir.mkdirs();

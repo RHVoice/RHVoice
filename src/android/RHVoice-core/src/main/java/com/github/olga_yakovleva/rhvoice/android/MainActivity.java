@@ -1,3 +1,5 @@
+/* Copyright (C) 2025  Darko Milosevic <daremc86@gmail.com> */
+
 /* Copyright (C) 2017, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
 
 /* This program is free software: you can redistribute it and/or modify */
@@ -16,16 +18,33 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import androidx.activity.EdgeToEdge;
+import android.content.Context;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 
 import android.os.Bundle;
 import android.view.Menu;
 
+import androidx.work.WorkManager;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.ExistingWorkPolicy;
+
+
 public final class MainActivity extends AppCompatActivity implements AvailableLanguagesFragment.Listener, AvailableVoicesFragment.Listener, ConfirmVoiceRemovalDialogFragment.Listener {
     private DataManager dm;
+    private Context storageContext;
 
     @Override
     protected void onCreate(Bundle state) {
+        storageContext = MyApplication.getStorageContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            WorkManager.getInstance(this).enqueueUniqueWork(
+                "migrate_to_device_protected",
+                ExistingWorkPolicy.KEEP,
+                new OneTimeWorkRequest.Builder(MigrationWorker.class).build()
+            );
+        }
         EdgeToEdge.enable(this);
         super.onCreate(state);
         dm = new DataManager();
@@ -37,7 +56,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
 
     private void onPackageDirectory(PackageDirectory dir) {
         dm.setPackageDirectory(dir);
-        dm.scheduleSync(this, false);
+        dm.scheduleSync(storageContext, false);
     }
 
     public void onAccentSelected(VoiceAccent accent) {
@@ -51,7 +70,7 @@ public final class MainActivity extends AppCompatActivity implements AvailableLa
     }
 
     public void onVoiceSelected(VoicePack voice, boolean state) {
-        if (state || !voice.isInstalled(this)) {
+        if (state || !voice.isInstalled(storageContext)) {
             voice.setEnabled(this, state);
             AvailableVoicesFragment frag = (AvailableVoicesFragment) (getSupportFragmentManager().findFragmentByTag("voices"));
             if (frag != null)
