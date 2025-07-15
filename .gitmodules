@@ -364,3 +364,33 @@
 [submodule "data/voices/Mateo"]
 	path = data/voices/Mateo
 	url = https://github.com/RHVoice/mateo-spa
+[submodule "data/languages/Belarusian"]
+	path = data/languages/Belarusian
+	url = https://github.com/RHVoice/bel-bin.git
+[submodule "src/scripts/Belarusian"]
+	path = src/scripts/Belarusian
+	url = https://github.com/RHVoice/bel-src.git
+[submodule "data/voices/dasha-blr"]
+	path = data/voices/dasha-blr
+	url = https://github.com/RHVoice/dasha-blr.git
+[submodule "data/voices/dasha-rus"]
+	path = data/voices/dasha-rus
+	url = https://github.com/RHVoice/dasha-rus.git
+[submodule "data/voices/lyudmila-rus"]
+	path = data/voices/lyudmila-rus
+	url = https://github.com/RHVoice/lyudmila-rus.git
+[submodule "data/voices/lyudmila-blr"]
+	path = data/voices/lyudmila-blr
+	url = https://github.com/RHVoice/lyudmila-blr.git
+[submodule "data/voices/michal-blr"]
+	path = data/voices/michal-blr
+	url = https://github.com/RHVoice/michal-blr.git
+[submodule "data/voices/michal-rus"]
+	path = data/voices/michal-rus
+	url = https://github.com/RHVoice/michal-rus.git
+[submodule "data/voices/ryhor-blr"]
+	path = data/voices/ryhor-blr
+	url = https://github.com/RHVoice/ryhor-blr.git
+[submodule "data/voices/alena-blr"]
+	path = data/voices/alena-blr
+	url = https://github.com/RHVoice/alena-blr.git
