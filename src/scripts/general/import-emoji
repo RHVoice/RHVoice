@@ -83,15 +83,19 @@ languages={
 	{
 		"ids":["sk"]
 	 },
-	 "Serbian":
+	"Serbian":
 	{
 		"ids":["sr"]
 	 },
 	"Croatian":
 	{
-	 "ids":["hr"]
+		"ids":["hr"]
 	 },
-	   }
+	"Belarusian":
+	{
+		"ids":["be"]
+	 },
+	}
 
 sets=defaultdict(set)
 annotations=None
