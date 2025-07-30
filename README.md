@@ -1,4 +1,4 @@
-# RHVoice
+Afaan oromoo # RHVoice
 
 RHVoice is a free and open-source speech synthesizer.
 
