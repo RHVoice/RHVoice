@@ -18,6 +18,8 @@
 
 #include "audio.hpp"
 
+#include <stdint.h>
+
 namespace RHVoice
 {
   namespace audio
