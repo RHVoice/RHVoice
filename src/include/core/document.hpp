@@ -228,7 +228,14 @@ namespace RHVoice
     {
     public:
       explicit append_break(break_strength strength_):
-        strength(strength_)
+        strength(strength_),
+        time_ms(0)
+      {
+      }
+
+      explicit append_break(break_strength strength_, int time_ms_):
+        strength(strength_),
+        time_ms(time_ms_)
       {
       }
 
@@ -237,6 +244,8 @@ namespace RHVoice
         if(u.has_relation("TokStructure"))
           {
             u.get_relation("TokStructure").last().set("break_strength",strength);
+            if(time_ms>0)
+              u.get_relation("TokStructure").last().set("break_time",time_ms);
             if(strength>=break_phrase)
               u.get_language().on_token_break(u);
           }
@@ -244,6 +253,7 @@ namespace RHVoice
 
     private:
       break_strength strength;
+      int time_ms;
     };
 
     class append_phones: public append_token
@@ -296,6 +306,11 @@ namespace RHVoice
     void add_break(break_strength strength)
     {
       commands.push_back(command_ptr(new append_break(strength)));
+    }
+
+    void add_break(break_strength strength, int time_ms)
+    {
+      commands.push_back(command_ptr(new append_break(strength, time_ms)));
     }
 
     bool has_text() const;
@@ -437,6 +452,14 @@ namespace RHVoice
         finish_sentence();
       else
         get_current_sentence().add_break(strength);
+    }
+
+    void add_break(break_strength strength, int time_ms)
+    {
+      if(strength==break_sentence)
+        finish_sentence();
+      else
+        get_current_sentence().add_break(strength, time_ms);
     }
 
     void finish_sentence()

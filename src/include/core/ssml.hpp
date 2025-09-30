@@ -359,8 +359,40 @@ namespace RHVoice
             else if(str_strength=="x-strong")
               strength=break_sentence;
           }
+        std::string str_time=xml::get_attribute_value(args.node,"time");
+        if(!str_time.empty())
+          {
+            int time_ms=parse_time_value(str_time);
+            if(time_ms>0)
+              {
+                args.target_document.add_break(strength,time_ms);
+                return false;
+              }
+          }
           args.target_document.add_break(strength);
         return false;
+      }
+
+    private:
+      int parse_time_value(const std::string& str_time) const
+      {
+        if(str_time.empty())
+          return 0;
+        std::istringstream instream(str_time);
+        instream.imbue(std::locale::classic());
+        double number=0;
+        if(!(instream >> number))
+          return 0;
+        if(number<=0)
+          return 0;
+        std::string unit;
+        instream >> unit;
+        if(unit.empty()||unit=="ms")
+          return static_cast<int>(number);
+        else if(unit=="s")
+          return static_cast<int>(number*1000);
+        else
+          return 0;
       }
     };
 

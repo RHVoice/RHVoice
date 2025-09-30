@@ -144,6 +144,7 @@ namespace RHVoice
       throw synthesis_error();
 if(output->is_stopped())
       return;
+        apply_break_times();
  if(units_flag)
    copy_units();
     restore_params();
@@ -245,6 +246,41 @@ if(output->is_stopped())
 	      return;
 }
     units_flag=true;
+  }
+
+  void str_hts_engine_impl::apply_break_times()
+  {
+    const auto ns=HTS_Engine_get_nstate(engine.get());
+    const auto fp=HTS_Engine_get_fperiod(engine.get());
+    const auto sampling_rate=HTS_Engine_get_sampling_frequency(engine.get());
+    const double frame_duration_ms=(fp*1000.0)/sampling_rate;
+
+    auto it=input->lbegin();
+    std::advance(it, engine->extra.view_pos_in_utt);
+
+    std::size_t i=0;
+    for(auto lab=engine->label.head;lab!=nullptr && it!=input->lend();lab=lab->next, ++it, ++i)
+      {
+        const auto& seg=it->get_segment();
+        if(!seg.has_feature("break_time"))
+          continue;
+        const int time_ms=seg.get("break_time").as<int>();
+        if(time_ms<=0)
+          continue;
+        const std::size_t target_frames=static_cast<std::size_t>(time_ms/frame_duration_ms+0.5);
+        if(target_frames==0)
+          continue;
+
+        const std::size_t state_offset=i*ns;
+        engine->sss.total_frame-=engine->sss.duration[state_offset];
+        engine->sss.duration[state_offset]=target_frames;
+        engine->sss.total_frame+=target_frames;
+        for(auto s=1;s<ns;++s)
+          {
+            engine->sss.total_frame-=engine->sss.duration[state_offset+s];
+            engine->sss.duration[state_offset+s]=0;
+          }
+      }
   }
 
   void str_hts_engine_impl::copy_units()
