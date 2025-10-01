@@ -241,7 +241,7 @@ namespace RHVoice
 
       void execute(utterance& u) const
       {
-        if(u.has_relation("TokStructure"))
+        if(u.has_relation("TokStructure")&&!u.get_relation("TokStructure").empty())
           {
             u.get_relation("TokStructure").last().set("break_strength",strength);
             if(time_ms>0)
@@ -249,6 +249,21 @@ namespace RHVoice
             if(strength>=break_phrase)
               u.get_language().on_token_break(u);
           }
+      }
+
+      bool has_text() const
+      {
+        return false;
+      }
+
+      break_strength get_strength() const
+      {
+        return strength;
+      }
+
+      int get_time_ms() const
+      {
+        return time_ms;
       }
 
     private:
@@ -275,6 +290,7 @@ namespace RHVoice
     language_voice_pair language_and_voice;
     std::size_t length,num_tokens;
     english_id en_id;
+    int initial_break_time_ms;
 
     static const std::size_t max_token_length=200;
     static const std::size_t max_sentence_length=1000;
@@ -305,12 +321,21 @@ namespace RHVoice
 
     void add_break(break_strength strength)
     {
+      if(commands.empty()&&initial_break_time_ms==0)
+        initial_break_time_ms=-1;
       commands.push_back(command_ptr(new append_break(strength)));
     }
 
     void add_break(break_strength strength, int time_ms)
     {
+      if(commands.empty())
+        initial_break_time_ms=time_ms;
       commands.push_back(command_ptr(new append_break(strength, time_ms)));
+    }
+
+    int get_initial_break_time() const
+    {
+      return (initial_break_time_ms>0)?initial_break_time_ms:0;
     }
 
     bool has_text() const;

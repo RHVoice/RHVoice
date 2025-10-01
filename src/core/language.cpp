@@ -1840,7 +1840,22 @@ word_with_syls.last_child().set<std::string>("lex_tone","0");
     if(seg_rel.empty())
       return;
     std::string name("pau");
-    seg_rel.prepend().set("name",name);
+    item& initial_pau=seg_rel.prepend();
+    initial_pau.set("name",name);
+    if(u.has_relation("Meta"))
+      {
+        const relation& meta_rel=u.get_relation("Meta");
+        if(!meta_rel.empty())
+          {
+            const value& initial_time_val=meta_rel.first().get("initial_break_time",true);
+            if(!initial_time_val.empty())
+              {
+                int time_ms=initial_time_val.as<int>();
+                if(time_ms>0)
+                  initial_pau.set("break_time",time_ms);
+              }
+          }
+      }
     relation& phrase_rel=u.get_relation("Phrase");
     for(relation::iterator phrase_iter=phrase_rel.begin();phrase_iter!=phrase_rel.end();++phrase_iter)
       {
