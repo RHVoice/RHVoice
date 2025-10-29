@@ -29,31 +29,31 @@
 #line 16 "userdict_parser.g"
 #include "core/userdict.hpp"
 #line 32 "userdict_parser.c"
-#include "userdict_parser.h"
 /**************** End of %include directives **********************************/
 /* These constants specify the various numeric values for terminal symbols.
 ***************** Begin token definitions *************************************/
-#if INTERFACE
+#ifndef UDTK_NEWLINE
 #define UDTK_NEWLINE                         1
 #define UDTK_EQUALS                          2
 #define UDTK_SPACE                           3
 #define UDTK_STAR                            4
-#define UDTK_AND                             5
-#define UDTK_LPAREN                          6
-#define UDTK_RPAREN                          7
-#define UDTK_LBRACE                          8
-#define UDTK_RBRACE                          9
-#define UDTK_COMMA                          10
-#define UDTK_NATIVE_LETTERS                 11
-#define UDTK_ENGLISH_LETTERS                12
-#define UDTK_SYM                            13
-#define UDTK_PLUS                           14
-#define UDTK_STRESSED_SYL_NUMBER            15
-#define UDTK_UNSTRESSED                     16
-#define UDTK_INITIALISM                     17
-#define UDTK_FOREIGN                        18
-#define UDTK_NATIVE                         19
-#define UDTK_X_SAMPA                        20
+#define UDTK_COLON                           5
+#define UDTK_AND                             6
+#define UDTK_LPAREN                          7
+#define UDTK_RPAREN                          8
+#define UDTK_LBRACE                          9
+#define UDTK_RBRACE                         10
+#define UDTK_COMMA                          11
+#define UDTK_NATIVE_LETTERS                 12
+#define UDTK_ENGLISH_LETTERS                13
+#define UDTK_SYM                            14
+#define UDTK_PLUS                           15
+#define UDTK_STRESSED_SYL_NUMBER            16
+#define UDTK_UNSTRESSED                     17
+#define UDTK_INITIALISM                     18
+#define UDTK_FOREIGN                        19
+#define UDTK_NATIVE                         20
+#define UDTK_X_SAMPA                        21
 #endif
 /**************** End token definitions ***************************************/
 
@@ -118,20 +118,17 @@
 #endif
 /************* Begin control #defines *****************************************/
 #define YYCODETYPE unsigned char
-#define YYNOCODE 61
+#define YYNOCODE 62
 #define YYACTIONTYPE unsigned char
-#if INTERFACE
 #define userdictParseTOKENTYPE RHVoice::userdict::token*
-#endif
 typedef union {
   int yyinit;
   userdictParseTOKENTYPE yy0;
-  RHVoice::userdict::ruleset* yy34;
+  RHVoice::userdict::ruleset* yy78;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
 #endif
-#if INTERFACE
 #define userdictParseARG_SDECL RHVoice::userdict::parse_state* ps;
 #define userdictParseARG_PDECL ,RHVoice::userdict::parse_state* ps
 #define userdictParseARG_PARAM ,ps
@@ -145,12 +142,11 @@ typedef union {
 #define userdictParseCTX_PARAM
 #define userdictParseCTX_FETCH
 #define userdictParseCTX_STORE
-#endif
-#define YYNSTATE             39
+#define YYNSTATE             41
 #define YYNRULE              74
 #define YYNRULE_WITH_ACTION  71
-#define YYNTOKEN             21
-#define YY_MAX_SHIFT         38
+#define YYNTOKEN             22
+#define YY_MAX_SHIFT         40
 #define YY_MIN_SHIFTREDUCE   97
 #define YY_MAX_SHIFTREDUCE   170
 #define YY_ERROR_ACTION      171
@@ -159,7 +155,7 @@ typedef union {
 #define YY_MIN_REDUCE        174
 #define YY_MAX_REDUCE        247
 #define YY_MIN_DSTRCTR       0
-#define YY_MAX_DSTRCTR       58
+#define YY_MAX_DSTRCTR       59
 /************* End control #defines *******************************************/
 #define YY_NLOOKAHEAD ((int)(sizeof(yy_lookahead)/sizeof(yy_lookahead[0])))
 
@@ -242,71 +238,74 @@ typedef union {
 **  yy_default[]       Default action for each state.
 **
 *********** Begin parsing tables **********************************************/
-#define YY_ACTTAB_COUNT (177)
+#define YY_ACTTAB_COUNT (180)
 static const YYACTIONTYPE yy_action[] = {
  /*     0 */   191,  193,  190,  213,   26,  207,   14,  211,  212,    7,
- /*    10 */    34,  213,  153,  154,  213,  194,  212,  177,  210,  212,
- /*    20 */   195,  238,   25,  199,   24,   23,  204,   18,    3,  106,
- /*    30 */   180,   35,  189,    1,  192,  193,   15,  227,   38,  175,
- /*    40 */   176,  170,    2,  156,  157,  213,  228,    4,  229,  194,
- /*    50 */    31,  167,   30,   33,  195,  179,   35,  189,    1,  192,
- /*    60 */   193,   17,  187,    7,  162,   20,  153,  154,   36,  159,
- /*    70 */   213,  104,  237,  226,  194,   31,  172,  164,   33,  195,
- /*    80 */   155,   17,  228,    7,  229,  158,  153,  154,  159,  159,
- /*    90 */   162,  163,  164,  165,  166,   28,  178,   29,   27,   11,
- /*   100 */    16,  227,  128,   12,  165,  188,    1,  192,  193,  203,
- /*   110 */   228,   10,  229,  162,  163,  202,  165,    8,  213,    9,
- /*   120 */    19,  245,  194,  212,   37,   32,   21,  195,  217,   11,
- /*   130 */    16,  227,  219,   11,   16,  227,  218,   11,   16,  227,
- /*   140 */   228,    6,  229,   13,  228,  174,  229,  119,  228,  220,
- /*   150 */   229,  158,    5,  173,  159,  173,  216,   11,   16,  227,
- /*   160 */   238,   22,  224,  173,  225,  173,  173,  173,  228,  173,
- /*   170 */   229,  213,  173,  206,   14,  211,  212,
+ /*    10 */    36,  213,  153,  154,  213,  194,  212,  177,  210,  212,
+ /*    20 */   195,  238,   25,  199,   24,   23,  204,   18,  226,  170,
+ /*    30 */   180,   37,  189,    1,  192,  193,    4,  228,   17,  229,
+ /*    40 */     7,  156,  157,   32,   31,  213,  159,   30,  158,  194,
+ /*    50 */    33,  159,  187,   35,  195,  179,   37,  189,    1,  192,
+ /*    60 */   193,   15,  227,  188,    1,  192,  193,    3,  106,  167,
+ /*    70 */   213,  228,  162,  229,  194,   33,  213,  237,   35,  195,
+ /*    80 */   194,  212,   17,  164,    7,  195,  203,  153,  154,  165,
+ /*    90 */   159,  162,  163,  164,  165,  166,   28,  178,   29,   27,
+ /*   100 */    11,   16,  227,   40,  175,  176,   38,    2,  202,  104,
+ /*   110 */     8,  228,   34,  229,   10,  217,   11,   16,  227,  155,
+ /*   120 */   219,   11,   16,  227,  119,    9,   19,  228,  158,  229,
+ /*   130 */    20,  159,  228,  234,  229,  218,   11,   16,  227,  128,
+ /*   140 */    12,  172,  216,   11,   16,  227,  233,  228,   21,  229,
+ /*   150 */     6,   13,  245,   17,  228,    7,  229,    5,  153,  154,
+ /*   160 */   220,  159,  213,  174,  206,   14,  211,  212,   39,  173,
+ /*   170 */   173,  238,   22,  224,  173,  225,  162,  163,  173,  165,
 };
 static const YYCODETYPE yy_lookahead[] = {
- /*     0 */    31,   32,   33,   42,   43,   44,   45,   46,   47,    8,
- /*    10 */    50,   42,   11,   12,   42,   46,   47,   26,   46,   47,
- /*    20 */    51,   52,   53,   54,   55,   56,   57,   24,    3,    4,
- /*    30 */    27,   28,   29,   30,   31,   32,   39,   40,   21,   22,
- /*    40 */    23,    3,   25,   11,   12,   42,   49,   60,   51,   46,
- /*    50 */    47,   20,   60,   50,   51,   27,   28,   29,   30,   31,
- /*    60 */    32,    6,   58,    8,   15,   48,   11,   12,    1,   14,
- /*    70 */    42,    4,   52,   40,   46,   47,   59,   17,   50,   51,
- /*    80 */    13,    6,   49,    8,   51,   11,   11,   12,   14,   14,
- /*    90 */    15,   16,   17,   18,   19,   34,   35,   36,   37,   38,
- /*   100 */    39,   40,    9,   10,   18,   29,   30,   31,   32,   55,
- /*   110 */    49,    5,   51,   15,   16,   56,   18,    3,   42,    3,
- /*   120 */     2,    0,   46,   47,    1,   34,    2,   51,   37,   38,
- /*   130 */    39,   40,   37,   38,   39,   40,   37,   38,   39,   40,
- /*   140 */    49,    2,   51,    2,   49,    0,   51,    7,   49,   41,
- /*   150 */    51,   11,    5,   61,   14,   61,   37,   38,   39,   40,
- /*   160 */    52,   53,   54,   61,   56,   61,   61,   61,   49,   61,
- /*   170 */    51,   42,   61,   44,   45,   46,   47,   21,   21,   21,
- /*   180 */    21,   21,   21,   21,   21,   21,   21,   21,   21,   21,
- /*   190 */    21,   21,   21,   21,   21,   21,   21,   21,
+ /*     0 */    32,   33,   34,   43,   44,   45,   46,   47,   48,    9,
+ /*    10 */    51,   43,   12,   13,   43,   47,   48,   27,   47,   48,
+ /*    20 */    52,   53,   54,   55,   56,   57,   58,   25,   41,    3,
+ /*    30 */    28,   29,   30,   31,   32,   33,   61,   50,    7,   52,
+ /*    40 */     9,   12,   13,   12,   13,   43,   15,   61,   12,   47,
+ /*    50 */    48,   15,   59,   51,   52,   28,   29,   30,   31,   32,
+ /*    60 */    33,   40,   41,   30,   31,   32,   33,    3,    4,   21,
+ /*    70 */    43,   50,   16,   52,   47,   48,   43,   53,   51,   52,
+ /*    80 */    47,   48,    7,   18,    9,   52,   56,   12,   13,   19,
+ /*    90 */    15,   16,   17,   18,   19,   20,   35,   36,   37,   38,
+ /*   100 */    39,   40,   41,   22,   23,   24,    1,   26,   57,    4,
+ /*   110 */     3,   50,   35,   52,    6,   38,   39,   40,   41,   14,
+ /*   120 */    38,   39,   40,   41,    8,    3,    2,   50,   12,   52,
+ /*   130 */    49,   15,   50,    2,   52,   38,   39,   40,   41,   10,
+ /*   140 */    11,   60,   38,   39,   40,   41,    2,   50,    5,   52,
+ /*   150 */     2,    2,    0,    7,   50,    9,   52,    6,   12,   13,
+ /*   160 */    42,   15,   43,    0,   45,   46,   47,   48,    1,   62,
+ /*   170 */    62,   53,   54,   55,   62,   57,   16,   17,   62,   19,
+ /*   180 */    62,   62,   62,   62,   62,   62,   62,   62,   62,   62,
+ /*   190 */    62,   62,   62,   62,   62,   62,   62,   62,   62,   22,
+ /*   200 */    22,   22,
 };
-#define YY_SHIFT_COUNT    (38)
+#define YY_SHIFT_COUNT    (40)
 #define YY_SHIFT_MIN      (0)
-#define YY_SHIFT_MAX      (147)
+#define YY_SHIFT_MAX      (167)
 static const unsigned char yy_shift_ofst[] = {
- /*     0 */    67,   75,   55,   55,   74,   55,   74,    1,   74,   74,
- /*    10 */    74,   98,    1,   74,    1,  140,   74,   32,   25,   38,
- /*    20 */    38,   31,   49,   60,   86,   49,   93,  114,  106,  116,
- /*    30 */   118,  124,  106,  139,  141,  147,  121,  145,  123,
+ /*     0 */   105,   75,   31,   31,   36,  146,   36,    0,   36,   36,
+ /*    10 */    36,  160,    0,   36,    0,  116,   36,   29,   64,   26,
+ /*    20 */    26,   48,   56,   65,   70,   56,  129,  107,  108,  122,
+ /*    30 */   124,  131,  144,  143,  108,  148,  149,  151,  152,  163,
+ /*    40 */   167,
 };
 #define YY_REDUCE_COUNT (25)
-#define YY_REDUCE_MIN   (-40)
-#define YY_REDUCE_MAX   (129)
-static const short yy_reduce_ofst[] = {
- /*     0 */    17,  -31,    3,   28,   61,   76,   91,  -39,   95,   99,
- /*    10 */   119,  108,  129,   -3,  -28,   33,   33,  -40,   -9,  -13,
- /*    20 */    -8,    4,   20,   54,   59,   20,
+#define YY_REDUCE_MIN   (-41)
+#define YY_REDUCE_MAX   (119)
+static const signed char yy_reduce_ofst[] = {
+ /*     0 */    81,  -32,    2,   27,   61,   33,   77,  -40,   82,   97,
+ /*    10 */   104,  118,  119,   21,  -29,  -13,  -13,  -41,  -10,  -25,
+ /*    20 */   -14,   -7,   24,   30,   51,   24,
 };
 static const YYACTIONTYPE yy_default[] = {
  /*     0 */   182,  197,  171,  171,  171,  171,  171,  209,  171,  171,
  /*    10 */   171,  222,  209,  171,  208,  171,  221,  171,  184,  246,
  /*    20 */   246,  171,  223,  201,  200,  198,  171,  217,  215,  214,
- /*    30 */   171,  212,  186,  171,  171,  185,  171,  171,  171,
+ /*    30 */   171,  231,  230,  212,  186,  171,  171,  185,  171,  171,
+ /*    40 */   171,
 };
 /********** End of lemon-generated parsing tables *****************************/
 
@@ -414,62 +413,63 @@ static const char *const yyTokenName[] = {
   /*    2 */ "EQUALS",
   /*    3 */ "SPACE",
   /*    4 */ "STAR",
-  /*    5 */ "AND",
-  /*    6 */ "LPAREN",
-  /*    7 */ "RPAREN",
-  /*    8 */ "LBRACE",
-  /*    9 */ "RBRACE",
-  /*   10 */ "COMMA",
-  /*   11 */ "NATIVE_LETTERS",
-  /*   12 */ "ENGLISH_LETTERS",
-  /*   13 */ "SYM",
-  /*   14 */ "PLUS",
-  /*   15 */ "STRESSED_SYL_NUMBER",
-  /*   16 */ "UNSTRESSED",
-  /*   17 */ "INITIALISM",
-  /*   18 */ "FOREIGN",
-  /*   19 */ "NATIVE",
-  /*   20 */ "X_SAMPA",
-  /*   21 */ "rule",
-  /*   22 */ "collocation_rule",
-  /*   23 */ "symbol_rule",
-  /*   24 */ "tokens",
-  /*   25 */ "prefix",
-  /*   26 */ "suffix",
-  /*   27 */ "token",
-  /*   28 */ "words",
-  /*   29 */ "word",
-  /*   30 */ "inline_rewrites",
-  /*   31 */ "inline_rewrite",
-  /*   32 */ "inline_replacement",
-  /*   33 */ "word_flags",
-  /*   34 */ "token_pron",
-  /*   35 */ "symbol_pron",
-  /*   36 */ "spaced_symbol_pron",
-  /*   37 */ "word_pron",
-  /*   38 */ "pron_repr",
-  /*   39 */ "text_pron_repr",
-  /*   40 */ "text_pron_repr_atom",
-  /*   41 */ "word_pron_flags",
-  /*   42 */ "set",
-  /*   43 */ "set_elements",
-  /*   44 */ "set_element",
-  /*   45 */ "pattern",
-  /*   46 */ "subpattern",
-  /*   47 */ "substring",
-  /*   48 */ "symbol",
-  /*   49 */ "insertion",
-  /*   50 */ "deletion",
-  /*   51 */ "stress_mark",
-  /*   52 */ "stressed_syl_number",
-  /*   53 */ "stressed_syl_numbers",
-  /*   54 */ "unstressed_flag",
-  /*   55 */ "initialism_flag",
-  /*   56 */ "foreign_flag",
-  /*   57 */ "native_flag",
-  /*   58 */ "transcription",
-  /*   59 */ "line",
-  /*   60 */ "space",
+  /*    5 */ "COLON",
+  /*    6 */ "AND",
+  /*    7 */ "LPAREN",
+  /*    8 */ "RPAREN",
+  /*    9 */ "LBRACE",
+  /*   10 */ "RBRACE",
+  /*   11 */ "COMMA",
+  /*   12 */ "NATIVE_LETTERS",
+  /*   13 */ "ENGLISH_LETTERS",
+  /*   14 */ "SYM",
+  /*   15 */ "PLUS",
+  /*   16 */ "STRESSED_SYL_NUMBER",
+  /*   17 */ "UNSTRESSED",
+  /*   18 */ "INITIALISM",
+  /*   19 */ "FOREIGN",
+  /*   20 */ "NATIVE",
+  /*   21 */ "X_SAMPA",
+  /*   22 */ "rule",
+  /*   23 */ "collocation_rule",
+  /*   24 */ "symbol_rule",
+  /*   25 */ "tokens",
+  /*   26 */ "prefix",
+  /*   27 */ "suffix",
+  /*   28 */ "token",
+  /*   29 */ "words",
+  /*   30 */ "word",
+  /*   31 */ "inline_rewrites",
+  /*   32 */ "inline_rewrite",
+  /*   33 */ "inline_replacement",
+  /*   34 */ "word_flags",
+  /*   35 */ "token_pron",
+  /*   36 */ "symbol_pron",
+  /*   37 */ "spaced_symbol_pron",
+  /*   38 */ "word_pron",
+  /*   39 */ "pron_repr",
+  /*   40 */ "text_pron_repr",
+  /*   41 */ "text_pron_repr_atom",
+  /*   42 */ "word_pron_flags",
+  /*   43 */ "set",
+  /*   44 */ "set_elements",
+  /*   45 */ "set_element",
+  /*   46 */ "pattern",
+  /*   47 */ "subpattern",
+  /*   48 */ "substring",
+  /*   49 */ "symbol",
+  /*   50 */ "insertion",
+  /*   51 */ "deletion",
+  /*   52 */ "stress_mark",
+  /*   53 */ "stressed_syl_number",
+  /*   54 */ "stressed_syl_numbers",
+  /*   55 */ "unstressed_flag",
+  /*   56 */ "initialism_flag",
+  /*   57 */ "foreign_flag",
+  /*   58 */ "native_flag",
+  /*   59 */ "transcription",
+  /*   60 */ "line",
+  /*   61 */ "space",
 };
 #endif /* defined(YYCOVERAGE) || !defined(NDEBUG) */
 
@@ -490,7 +490,7 @@ static const char *const yyRuleName[] = {
  /*  10 */ "suffix ::=",
  /*  11 */ "token ::= words",
  /*  12 */ "token ::= deletion EQUALS token_pron",
- /*  13 */ "token ::= substring EQUALS transcription",
+ /*  13 */ "token ::= substring COLON transcription",
  /*  14 */ "words ::= words AND word",
  /*  15 */ "words ::= word",
  /*  16 */ "word ::= inline_rewrites word_flags",
@@ -679,69 +679,70 @@ static void yy_destructor(
     case 2: /* EQUALS */
     case 3: /* SPACE */
     case 4: /* STAR */
-    case 5: /* AND */
-    case 6: /* LPAREN */
-    case 7: /* RPAREN */
-    case 8: /* LBRACE */
-    case 9: /* RBRACE */
-    case 10: /* COMMA */
-    case 11: /* NATIVE_LETTERS */
-    case 12: /* ENGLISH_LETTERS */
-    case 13: /* SYM */
-    case 14: /* PLUS */
-    case 15: /* STRESSED_SYL_NUMBER */
-    case 16: /* UNSTRESSED */
-    case 17: /* INITIALISM */
-    case 18: /* FOREIGN */
-    case 19: /* NATIVE */
-    case 20: /* X_SAMPA */
+    case 5: /* COLON */
+    case 6: /* AND */
+    case 7: /* LPAREN */
+    case 8: /* RPAREN */
+    case 9: /* LBRACE */
+    case 10: /* RBRACE */
+    case 11: /* COMMA */
+    case 12: /* NATIVE_LETTERS */
+    case 13: /* ENGLISH_LETTERS */
+    case 14: /* SYM */
+    case 15: /* PLUS */
+    case 16: /* STRESSED_SYL_NUMBER */
+    case 17: /* UNSTRESSED */
+    case 18: /* INITIALISM */
+    case 19: /* FOREIGN */
+    case 20: /* NATIVE */
+    case 21: /* X_SAMPA */
 {
 #line 24 "userdict_parser.g"
 delete (yypminor->yy0);
 #line 702 "userdict_parser.c"
 }
       break;
-    case 21: /* rule */
-    case 22: /* collocation_rule */
-    case 23: /* symbol_rule */
-    case 24: /* tokens */
-    case 25: /* prefix */
-    case 26: /* suffix */
-    case 27: /* token */
-    case 28: /* words */
-    case 29: /* word */
-    case 30: /* inline_rewrites */
-    case 31: /* inline_rewrite */
-    case 32: /* inline_replacement */
-    case 33: /* word_flags */
-    case 34: /* token_pron */
-    case 35: /* symbol_pron */
-    case 36: /* spaced_symbol_pron */
-    case 37: /* word_pron */
-    case 38: /* pron_repr */
-    case 39: /* text_pron_repr */
-    case 40: /* text_pron_repr_atom */
-    case 41: /* word_pron_flags */
-    case 42: /* set */
-    case 43: /* set_elements */
-    case 44: /* set_element */
-    case 45: /* pattern */
-    case 46: /* subpattern */
-    case 47: /* substring */
-    case 48: /* symbol */
-    case 49: /* insertion */
-    case 50: /* deletion */
-    case 51: /* stress_mark */
-    case 52: /* stressed_syl_number */
-    case 53: /* stressed_syl_numbers */
-    case 54: /* unstressed_flag */
-    case 55: /* initialism_flag */
-    case 56: /* foreign_flag */
-    case 57: /* native_flag */
-    case 58: /* transcription */
+    case 22: /* rule */
+    case 23: /* collocation_rule */
+    case 24: /* symbol_rule */
+    case 25: /* tokens */
+    case 26: /* prefix */
+    case 27: /* suffix */
+    case 28: /* token */
+    case 29: /* words */
+    case 30: /* word */
+    case 31: /* inline_rewrites */
+    case 32: /* inline_rewrite */
+    case 33: /* inline_replacement */
+    case 34: /* word_flags */
+    case 35: /* token_pron */
+    case 36: /* symbol_pron */
+    case 37: /* spaced_symbol_pron */
+    case 38: /* word_pron */
+    case 39: /* pron_repr */
+    case 40: /* text_pron_repr */
+    case 41: /* text_pron_repr_atom */
+    case 42: /* word_pron_flags */
+    case 43: /* set */
+    case 44: /* set_elements */
+    case 45: /* set_element */
+    case 46: /* pattern */
+    case 47: /* subpattern */
+    case 48: /* substring */
+    case 49: /* symbol */
+    case 50: /* insertion */
+    case 51: /* deletion */
+    case 52: /* stress_mark */
+    case 53: /* stressed_syl_number */
+    case 54: /* stressed_syl_numbers */
+    case 55: /* unstressed_flag */
+    case 56: /* initialism_flag */
+    case 57: /* foreign_flag */
+    case 58: /* native_flag */
+    case 59: /* transcription */
 {
 #line 27 "userdict_parser.g"
-delete (yypminor->yy34);
+delete (yypminor->yy78);
 #line 746 "userdict_parser.c"
 }
       break;
@@ -1042,80 +1043,80 @@ static void yy_shift(
 /* For rule J, yyRuleInfoLhs[J] contains the symbol on the left-hand side
 ** of that rule */
 static const YYCODETYPE yyRuleInfoLhs[] = {
-    59,  /* (0) line ::= rule NEWLINE */
-    21,  /* (1) rule ::= collocation_rule */
-    21,  /* (2) rule ::= symbol_rule */
-    22,  /* (3) collocation_rule ::= prefix tokens suffix */
-    23,  /* (4) symbol_rule ::= symbol space EQUALS space symbol_pron */
-    24,  /* (5) tokens ::= tokens SPACE token */
-    24,  /* (6) tokens ::= token */
-    25,  /* (7) prefix ::= STAR */
-    25,  /* (8) prefix ::= */
-    26,  /* (9) suffix ::= STAR */
-    26,  /* (10) suffix ::= */
-    27,  /* (11) token ::= words */
-    27,  /* (12) token ::= deletion EQUALS token_pron */
-    27,  /* (13) token ::= substring EQUALS transcription */
-    28,  /* (14) words ::= words AND word */
-    28,  /* (15) words ::= word */
-    29,  /* (16) word ::= inline_rewrites word_flags */
-    30,  /* (17) inline_rewrites ::= inline_rewrites inline_rewrite */
-    30,  /* (18) inline_rewrites ::= inline_rewrite */
-    31,  /* (19) inline_rewrite ::= inline_replacement */
-    31,  /* (20) inline_rewrite ::= subpattern */
-    31,  /* (21) inline_rewrite ::= stress_mark */
-    32,  /* (22) inline_replacement ::= LPAREN deletion EQUALS text_pron_repr RPAREN */
-    33,  /* (23) word_flags ::= */
-    33,  /* (24) word_flags ::= stressed_syl_numbers */
-    33,  /* (25) word_flags ::= unstressed_flag */
-    33,  /* (26) word_flags ::= initialism_flag */
-    33,  /* (27) word_flags ::= foreign_flag */
-    33,  /* (28) word_flags ::= initialism_flag foreign_flag */
-    33,  /* (29) word_flags ::= foreign_flag initialism_flag */
-    33,  /* (30) word_flags ::= native_flag */
-    42,  /* (31) set ::= LBRACE set_elements RBRACE */
-    43,  /* (32) set_elements ::= set_elements COMMA set_element */
-    43,  /* (33) set_elements ::= set_element */
-    44,  /* (34) set_element ::= pattern */
-    44,  /* (35) set_element ::= */
-    45,  /* (36) pattern ::= pattern subpattern */
-    45,  /* (37) pattern ::= subpattern */
-    46,  /* (38) subpattern ::= substring */
-    46,  /* (39) subpattern ::= set */
-    35,  /* (40) symbol_pron ::= spaced_symbol_pron */
-    35,  /* (41) symbol_pron ::= token_pron */
-    34,  /* (42) token_pron ::= token_pron AND word_pron */
-    34,  /* (43) token_pron ::= word_pron */
-    36,  /* (44) spaced_symbol_pron ::= spaced_symbol_pron SPACE word_pron */
-    36,  /* (45) spaced_symbol_pron ::= word_pron SPACE word_pron */
-    37,  /* (46) word_pron ::= pron_repr word_pron_flags */
-    38,  /* (47) pron_repr ::= text_pron_repr */
-    41,  /* (48) word_pron_flags ::= */
-    41,  /* (49) word_pron_flags ::= stressed_syl_numbers */
-    41,  /* (50) word_pron_flags ::= unstressed_flag */
-    41,  /* (51) word_pron_flags ::= foreign_flag */
-    39,  /* (52) text_pron_repr ::= text_pron_repr text_pron_repr_atom */
-    39,  /* (53) text_pron_repr ::= text_pron_repr_atom */
-    40,  /* (54) text_pron_repr_atom ::= insertion */
-    40,  /* (55) text_pron_repr_atom ::= stress_mark */
-    47,  /* (56) substring ::= NATIVE_LETTERS */
-    47,  /* (57) substring ::= ENGLISH_LETTERS */
-    48,  /* (58) symbol ::= SYM */
-    50,  /* (59) deletion ::= NATIVE_LETTERS */
-    50,  /* (60) deletion ::= ENGLISH_LETTERS */
-    49,  /* (61) insertion ::= NATIVE_LETTERS */
-    51,  /* (62) stress_mark ::= PLUS */
-    53,  /* (63) stressed_syl_numbers ::= stressed_syl_numbers stressed_syl_number */
-    53,  /* (64) stressed_syl_numbers ::= stressed_syl_number */
-    52,  /* (65) stressed_syl_number ::= STRESSED_SYL_NUMBER */
-    54,  /* (66) unstressed_flag ::= UNSTRESSED */
-    55,  /* (67) initialism_flag ::= INITIALISM */
-    56,  /* (68) foreign_flag ::= FOREIGN */
-    57,  /* (69) native_flag ::= NATIVE */
-    58,  /* (70) transcription ::= X_SAMPA */
-    59,  /* (71) line ::= NEWLINE */
-    60,  /* (72) space ::= */
-    60,  /* (73) space ::= SPACE */
+    60,  /* (0) line ::= rule NEWLINE */
+    22,  /* (1) rule ::= collocation_rule */
+    22,  /* (2) rule ::= symbol_rule */
+    23,  /* (3) collocation_rule ::= prefix tokens suffix */
+    24,  /* (4) symbol_rule ::= symbol space EQUALS space symbol_pron */
+    25,  /* (5) tokens ::= tokens SPACE token */
+    25,  /* (6) tokens ::= token */
+    26,  /* (7) prefix ::= STAR */
+    26,  /* (8) prefix ::= */
+    27,  /* (9) suffix ::= STAR */
+    27,  /* (10) suffix ::= */
+    28,  /* (11) token ::= words */
+    28,  /* (12) token ::= deletion EQUALS token_pron */
+    28,  /* (13) token ::= substring COLON transcription */
+    29,  /* (14) words ::= words AND word */
+    29,  /* (15) words ::= word */
+    30,  /* (16) word ::= inline_rewrites word_flags */
+    31,  /* (17) inline_rewrites ::= inline_rewrites inline_rewrite */
+    31,  /* (18) inline_rewrites ::= inline_rewrite */
+    32,  /* (19) inline_rewrite ::= inline_replacement */
+    32,  /* (20) inline_rewrite ::= subpattern */
+    32,  /* (21) inline_rewrite ::= stress_mark */
+    33,  /* (22) inline_replacement ::= LPAREN deletion EQUALS text_pron_repr RPAREN */
+    34,  /* (23) word_flags ::= */
+    34,  /* (24) word_flags ::= stressed_syl_numbers */
+    34,  /* (25) word_flags ::= unstressed_flag */
+    34,  /* (26) word_flags ::= initialism_flag */
+    34,  /* (27) word_flags ::= foreign_flag */
+    34,  /* (28) word_flags ::= initialism_flag foreign_flag */
+    34,  /* (29) word_flags ::= foreign_flag initialism_flag */
+    34,  /* (30) word_flags ::= native_flag */
+    43,  /* (31) set ::= LBRACE set_elements RBRACE */
+    44,  /* (32) set_elements ::= set_elements COMMA set_element */
+    44,  /* (33) set_elements ::= set_element */
+    45,  /* (34) set_element ::= pattern */
+    45,  /* (35) set_element ::= */
+    46,  /* (36) pattern ::= pattern subpattern */
+    46,  /* (37) pattern ::= subpattern */
+    47,  /* (38) subpattern ::= substring */
+    47,  /* (39) subpattern ::= set */
+    36,  /* (40) symbol_pron ::= spaced_symbol_pron */
+    36,  /* (41) symbol_pron ::= token_pron */
+    35,  /* (42) token_pron ::= token_pron AND word_pron */
+    35,  /* (43) token_pron ::= word_pron */
+    37,  /* (44) spaced_symbol_pron ::= spaced_symbol_pron SPACE word_pron */
+    37,  /* (45) spaced_symbol_pron ::= word_pron SPACE word_pron */
+    38,  /* (46) word_pron ::= pron_repr word_pron_flags */
+    39,  /* (47) pron_repr ::= text_pron_repr */
+    42,  /* (48) word_pron_flags ::= */
+    42,  /* (49) word_pron_flags ::= stressed_syl_numbers */
+    42,  /* (50) word_pron_flags ::= unstressed_flag */
+    42,  /* (51) word_pron_flags ::= foreign_flag */
+    40,  /* (52) text_pron_repr ::= text_pron_repr text_pron_repr_atom */
+    40,  /* (53) text_pron_repr ::= text_pron_repr_atom */
+    41,  /* (54) text_pron_repr_atom ::= insertion */
+    41,  /* (55) text_pron_repr_atom ::= stress_mark */
+    48,  /* (56) substring ::= NATIVE_LETTERS */
+    48,  /* (57) substring ::= ENGLISH_LETTERS */
+    49,  /* (58) symbol ::= SYM */
+    51,  /* (59) deletion ::= NATIVE_LETTERS */
+    51,  /* (60) deletion ::= ENGLISH_LETTERS */
+    50,  /* (61) insertion ::= NATIVE_LETTERS */
+    52,  /* (62) stress_mark ::= PLUS */
+    54,  /* (63) stressed_syl_numbers ::= stressed_syl_numbers stressed_syl_number */
+    54,  /* (64) stressed_syl_numbers ::= stressed_syl_number */
+    53,  /* (65) stressed_syl_number ::= STRESSED_SYL_NUMBER */
+    55,  /* (66) unstressed_flag ::= UNSTRESSED */
+    56,  /* (67) initialism_flag ::= INITIALISM */
+    57,  /* (68) foreign_flag ::= FOREIGN */
+    58,  /* (69) native_flag ::= NATIVE */
+    59,  /* (70) transcription ::= X_SAMPA */
+    60,  /* (71) line ::= NEWLINE */
+    61,  /* (72) space ::= */
+    61,  /* (73) space ::= SPACE */
 };
 
 /* For rule J, yyRuleInfoNRhs[J] contains the negative of the number
@@ -1134,7 +1135,7 @@ static const signed char yyRuleInfoNRhs[] = {
     0,  /* (10) suffix ::= */
    -1,  /* (11) token ::= words */
    -3,  /* (12) token ::= deletion EQUALS token_pron */
-   -3,  /* (13) token ::= substring EQUALS transcription */
+   -3,  /* (13) token ::= substring COLON transcription */
    -3,  /* (14) words ::= words AND word */
    -1,  /* (15) words ::= word */
    -2,  /* (16) word ::= inline_rewrites word_flags */
@@ -1239,8 +1240,8 @@ static YYACTIONTYPE yy_reduce(
       case 0: /* line ::= rule NEWLINE */
 #line 108 "userdict_parser.g"
 {
-  if(!ps->error) ps->result->extend(yymsp[-1].minor.yy34);
-  delete yymsp[-1].minor.yy34;
+  if(!ps->error) ps->result->extend(yymsp[-1].minor.yy78);
+  delete yymsp[-1].minor.yy78;
 }
 #line 1246 "userdict_parser.c"
   yy_destructor(yypParser,1,&yymsp[0].minor);
@@ -1277,56 +1278,56 @@ static YYACTIONTYPE yy_reduce(
       case 64: /* stressed_syl_numbers ::= stressed_syl_number */ yytestcase(yyruleno==64);
 #line 116 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[0].minor.yy78;
 }
 #line 1283 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 3: /* collocation_rule ::= prefix tokens suffix */
 #line 126 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-2].minor.yy34;
-  yylhsminor.yy34->append(yymsp[-1].minor.yy34);
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  delete yymsp[-1].minor.yy34;
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->append(yymsp[-1].minor.yy78);
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[-1].minor.yy78;
+  delete yymsp[0].minor.yy78;
 }
 #line 1295 "userdict_parser.c"
-  yymsp[-2].minor.yy34 = yylhsminor.yy34;
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
         break;
       case 4: /* symbol_rule ::= symbol space EQUALS space symbol_pron */
 #line 135 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::start_of_token>();
-  yylhsminor.yy34->append(yymsp[-4].minor.yy34);
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  yylhsminor.yy34->append<RHVoice::userdict::end_of_token>();
-  delete yymsp[-4].minor.yy34;
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::start_of_token>();
+  yylhsminor.yy78->append(yymsp[-4].minor.yy78);
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  yylhsminor.yy78->append<RHVoice::userdict::end_of_token>();
+  delete yymsp[-4].minor.yy78;
+  delete yymsp[0].minor.yy78;
 }
 #line 1308 "userdict_parser.c"
   yy_destructor(yypParser,2,&yymsp[-2].minor);
-  yymsp[-4].minor.yy34 = yylhsminor.yy34;
+  yymsp[-4].minor.yy78 = yylhsminor.yy78;
         break;
       case 5: /* tokens ::= tokens SPACE token */
 #line 145 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-2].minor.yy34;
-  yylhsminor.yy34->append<RHVoice::userdict::end_of_token>();
-  yylhsminor.yy34->append<RHVoice::userdict::start_of_token>();
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->append<RHVoice::userdict::end_of_token>();
+  yylhsminor.yy78->append<RHVoice::userdict::start_of_token>();
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
 }
 #line 1321 "userdict_parser.c"
   yy_destructor(yypParser,3,&yymsp[-1].minor);
-  yymsp[-2].minor.yy34 = yylhsminor.yy34;
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
         break;
       case 7: /* prefix ::= STAR */
       case 9: /* suffix ::= STAR */ yytestcase(yyruleno==9);
 {  yy_destructor(yypParser,4,&yymsp[0].minor);
 #line 159 "userdict_parser.g"
 {
-  yymsp[0].minor.yy34=new RHVoice::userdict::ruleset;
+  yymsp[0].minor.yy78=new RHVoice::userdict::ruleset;
 }
 #line 1332 "userdict_parser.c"
 }
@@ -1334,41 +1335,51 @@ static YYACTIONTYPE yy_reduce(
       case 8: /* prefix ::= */
 #line 164 "userdict_parser.g"
 {
-  yymsp[1].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::start_of_token>();
+  yymsp[1].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::start_of_token>();
 }
 #line 1340 "userdict_parser.c"
         break;
       case 10: /* suffix ::= */
 #line 174 "userdict_parser.g"
 {
-  yymsp[1].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::end_of_token>();
+  yymsp[1].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::end_of_token>();
 }
 #line 1347 "userdict_parser.c"
         break;
       case 12: /* token ::= deletion EQUALS token_pron */
-      case 13: /* token ::= substring EQUALS transcription */ yytestcase(yyruleno==13);
 #line 184 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-2].minor.yy34;
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
 }
-#line 1357 "userdict_parser.c"
+#line 1356 "userdict_parser.c"
   yy_destructor(yypParser,2,&yymsp[-1].minor);
-  yymsp[-2].minor.yy34 = yylhsminor.yy34;
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
+        break;
+      case 13: /* token ::= substring COLON transcription */
+#line 191 "userdict_parser.g"
+{
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
+}
+#line 1367 "userdict_parser.c"
+  yy_destructor(yypParser,5,&yymsp[-1].minor);
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
         break;
       case 14: /* words ::= words AND word */
       case 42: /* token_pron ::= token_pron AND word_pron */ yytestcase(yyruleno==42);
 #line 198 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-2].minor.yy34;
-  yylhsminor.yy34->append<RHVoice::userdict::word_break>();
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->append<RHVoice::userdict::word_break>();
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
 }
-#line 1370 "userdict_parser.c"
-  yy_destructor(yypParser,5,&yymsp[-1].minor);
-  yymsp[-2].minor.yy34 = yylhsminor.yy34;
+#line 1380 "userdict_parser.c"
+  yy_destructor(yypParser,6,&yymsp[-1].minor);
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
         break;
       case 16: /* word ::= inline_rewrites word_flags */
       case 17: /* inline_rewrites ::= inline_rewrites inline_rewrite */ yytestcase(yyruleno==17);
@@ -1380,188 +1391,188 @@ static YYACTIONTYPE yy_reduce(
       case 63: /* stressed_syl_numbers ::= stressed_syl_numbers stressed_syl_number */ yytestcase(yyruleno==63);
 #line 211 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-1].minor.yy34;
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-1].minor.yy78;
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
 }
-#line 1388 "userdict_parser.c"
-  yymsp[-1].minor.yy34 = yylhsminor.yy34;
+#line 1398 "userdict_parser.c"
+  yymsp[-1].minor.yy78 = yylhsminor.yy78;
         break;
       case 22: /* inline_replacement ::= LPAREN deletion EQUALS text_pron_repr RPAREN */
-{  yy_destructor(yypParser,6,&yymsp[-4].minor);
+{  yy_destructor(yypParser,7,&yymsp[-4].minor);
 #line 245 "userdict_parser.g"
 {
-  yymsp[-4].minor.yy34=yymsp[-3].minor.yy34;
-  yymsp[-4].minor.yy34->append(yymsp[-1].minor.yy34);
-  delete yymsp[-1].minor.yy34;
+  yymsp[-4].minor.yy78=yymsp[-3].minor.yy78;
+  yymsp[-4].minor.yy78->append(yymsp[-1].minor.yy78);
+  delete yymsp[-1].minor.yy78;
 }
-#line 1399 "userdict_parser.c"
+#line 1409 "userdict_parser.c"
   yy_destructor(yypParser,2,&yymsp[-2].minor);
-  yy_destructor(yypParser,7,&yymsp[0].minor);
+  yy_destructor(yypParser,8,&yymsp[0].minor);
 }
         break;
       case 23: /* word_flags ::= */
 #line 252 "userdict_parser.g"
 {
-  yymsp[1].minor.yy34=new RHVoice::userdict::ruleset;
+  yymsp[1].minor.yy78=new RHVoice::userdict::ruleset;
 }
-#line 1409 "userdict_parser.c"
+#line 1419 "userdict_parser.c"
         break;
       case 31: /* set ::= LBRACE set_elements RBRACE */
-{  yy_destructor(yypParser,8,&yymsp[-2].minor);
+{  yy_destructor(yypParser,9,&yymsp[-2].minor);
 #line 296 "userdict_parser.g"
 {
-  yymsp[-2].minor.yy34=yymsp[-1].minor.yy34;
+  yymsp[-2].minor.yy78=yymsp[-1].minor.yy78;
 }
-#line 1417 "userdict_parser.c"
-  yy_destructor(yypParser,9,&yymsp[0].minor);
+#line 1427 "userdict_parser.c"
+  yy_destructor(yypParser,10,&yymsp[0].minor);
 }
         break;
       case 32: /* set_elements ::= set_elements COMMA set_element */
 #line 301 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-2].minor.yy34;
-  yylhsminor.yy34->extend(yymsp[0].minor.yy34);
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->extend(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
 }
-#line 1428 "userdict_parser.c"
-  yy_destructor(yypParser,10,&yymsp[-1].minor);
-  yymsp[-2].minor.yy34 = yylhsminor.yy34;
+#line 1438 "userdict_parser.c"
+  yy_destructor(yypParser,11,&yymsp[-1].minor);
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
         break;
       case 35: /* set_element ::= */
 #line 318 "userdict_parser.g"
 {
-  yymsp[1].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::empty_string>();
+  yymsp[1].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::empty_string>();
 }
-#line 1437 "userdict_parser.c"
+#line 1447 "userdict_parser.c"
         break;
       case 44: /* spaced_symbol_pron ::= spaced_symbol_pron SPACE word_pron */
       case 45: /* spaced_symbol_pron ::= word_pron SPACE word_pron */ yytestcase(yyruleno==45);
 #line 368 "userdict_parser.g"
 {
-  yylhsminor.yy34=yymsp[-2].minor.yy34;
-  yylhsminor.yy34->append<RHVoice::userdict::word_break>();
-  yylhsminor.yy34->append(yymsp[0].minor.yy34);
-  delete yymsp[0].minor.yy34;
+  yylhsminor.yy78=yymsp[-2].minor.yy78;
+  yylhsminor.yy78->append<RHVoice::userdict::word_break>();
+  yylhsminor.yy78->append(yymsp[0].minor.yy78);
+  delete yymsp[0].minor.yy78;
 }
-#line 1448 "userdict_parser.c"
+#line 1458 "userdict_parser.c"
   yy_destructor(yypParser,3,&yymsp[-1].minor);
-  yymsp[-2].minor.yy34 = yylhsminor.yy34;
+  yymsp[-2].minor.yy78 = yylhsminor.yy78;
         break;
       case 48: /* word_pron_flags ::= */
 #line 396 "userdict_parser.g"
 {
-  yymsp[1].minor.yy34= new RHVoice::userdict::ruleset;
+  yymsp[1].minor.yy78= new RHVoice::userdict::ruleset;
 }
-#line 1457 "userdict_parser.c"
+#line 1467 "userdict_parser.c"
         break;
       case 56: /* substring ::= NATIVE_LETTERS */
       case 57: /* substring ::= ENGLISH_LETTERS */ yytestcase(yyruleno==57);
 #line 439 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::substring>(yymsp[0].minor.yy0);
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::substring>(yymsp[0].minor.yy0);
   delete yymsp[0].minor.yy0;
 }
-#line 1466 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+#line 1476 "userdict_parser.c"
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 58: /* symbol ::= SYM */
 #line 451 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::symbol>(yymsp[0].minor.yy0);
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::symbol>(yymsp[0].minor.yy0);
   delete yymsp[0].minor.yy0;
 }
-#line 1475 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+#line 1485 "userdict_parser.c"
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 59: /* deletion ::= NATIVE_LETTERS */
       case 60: /* deletion ::= ENGLISH_LETTERS */ yytestcase(yyruleno==60);
 #line 457 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::deletion>(yymsp[0].minor.yy0);
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::deletion>(yymsp[0].minor.yy0);
   delete yymsp[0].minor.yy0;
 }
-#line 1485 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+#line 1495 "userdict_parser.c"
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 61: /* insertion ::= NATIVE_LETTERS */
 #line 469 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::insertion>(yymsp[0].minor.yy0);
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::insertion>(yymsp[0].minor.yy0);
   delete yymsp[0].minor.yy0;
 }
-#line 1494 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+#line 1504 "userdict_parser.c"
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 62: /* stress_mark ::= PLUS */
-{  yy_destructor(yypParser,14,&yymsp[0].minor);
+{  yy_destructor(yypParser,15,&yymsp[0].minor);
 #line 475 "userdict_parser.g"
 {
-  yymsp[0].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::stress_mark>();
+  yymsp[0].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::stress_mark>();
 }
-#line 1503 "userdict_parser.c"
+#line 1513 "userdict_parser.c"
 }
         break;
       case 65: /* stressed_syl_number ::= STRESSED_SYL_NUMBER */
 #line 492 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::stressed_syl_number>(yymsp[0].minor.yy0);
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::stressed_syl_number>(yymsp[0].minor.yy0);
   delete yymsp[0].minor.yy0;
 }
-#line 1512 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+#line 1522 "userdict_parser.c"
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 66: /* unstressed_flag ::= UNSTRESSED */
-{  yy_destructor(yypParser,16,&yymsp[0].minor);
+{  yy_destructor(yypParser,17,&yymsp[0].minor);
 #line 498 "userdict_parser.g"
 {
-  yymsp[0].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::unstressed_flag>();
+  yymsp[0].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::unstressed_flag>();
 }
-#line 1521 "userdict_parser.c"
+#line 1531 "userdict_parser.c"
 }
         break;
       case 67: /* initialism_flag ::= INITIALISM */
-{  yy_destructor(yypParser,17,&yymsp[0].minor);
+{  yy_destructor(yypParser,18,&yymsp[0].minor);
 #line 503 "userdict_parser.g"
 {
-  yymsp[0].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::initialism_flag>();
+  yymsp[0].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::initialism_flag>();
 }
-#line 1530 "userdict_parser.c"
+#line 1540 "userdict_parser.c"
 }
         break;
       case 68: /* foreign_flag ::= FOREIGN */
-{  yy_destructor(yypParser,18,&yymsp[0].minor);
+{  yy_destructor(yypParser,19,&yymsp[0].minor);
 #line 508 "userdict_parser.g"
 {
-  yymsp[0].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::foreign_flag>();
+  yymsp[0].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::foreign_flag>();
 }
-#line 1539 "userdict_parser.c"
+#line 1549 "userdict_parser.c"
 }
         break;
       case 69: /* native_flag ::= NATIVE */
-{  yy_destructor(yypParser,19,&yymsp[0].minor);
+{  yy_destructor(yypParser,20,&yymsp[0].minor);
 #line 513 "userdict_parser.g"
 {
-  yymsp[0].minor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::native_flag>();
+  yymsp[0].minor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::native_flag>();
 }
-#line 1548 "userdict_parser.c"
+#line 1558 "userdict_parser.c"
 }
         break;
       case 70: /* transcription ::= X_SAMPA */
 #line 518 "userdict_parser.g"
 {
-  yylhsminor.yy34=RHVoice::userdict::ruleset::create<RHVoice::userdict::word_transcription>(yymsp[0].minor.yy0);
+  yylhsminor.yy78=RHVoice::userdict::ruleset::create<RHVoice::userdict::word_transcription>(yymsp[0].minor.yy0);
   delete yymsp[0].minor.yy0;
 }
-#line 1557 "userdict_parser.c"
-  yymsp[0].minor.yy34 = yylhsminor.yy34;
+#line 1567 "userdict_parser.c"
+  yymsp[0].minor.yy78 = yylhsminor.yy78;
         break;
       case 71: /* line ::= NEWLINE */
 {  yy_destructor(yypParser,1,&yymsp[0].minor);
 #line 113 "userdict_parser.g"
 {
 }
-#line 1565 "userdict_parser.c"
+#line 1575 "userdict_parser.c"
 }
         break;
       case 73: /* space ::= SPACE */
@@ -1569,7 +1580,7 @@ static YYACTIONTYPE yy_reduce(
 #line 523 "userdict_parser.g"
 {
 }
-#line 1573 "userdict_parser.c"
+#line 1583 "userdict_parser.c"
 }
         break;
       default:
@@ -1635,7 +1646,7 @@ static void yy_syntax_error(
 /************ Begin %syntax_error code ****************************************/
 #line 105 "userdict_parser.g"
 ps->error=true;
-#line 1639 "userdict_parser.c"
+#line 1649 "userdict_parser.c"
 /************ End %syntax_error code ******************************************/
   userdictParseARG_STORE /* Suppress warning about unused %extra_argument variable */
   userdictParseCTX_STORE

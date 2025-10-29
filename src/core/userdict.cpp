@@ -472,6 +472,7 @@ struct result_t
         match_reserved_symbol('(',UDTK_LPAREN)||
           match_reserved_symbol(')',UDTK_RPAREN)||
           match_reserved_symbol('=',UDTK_EQUALS)||
+          match_reserved_symbol(':',UDTK_COLON)||
           match_reserved_symbol('+',UDTK_PLUS)||
           match_reserved_symbol('*',UDTK_STAR)||
           match_reserved_symbol('{',UDTK_LBRACE)||

@@ -187,7 +187,7 @@ token(X) ::= deletion(Y) EQUALS token_pron(Z).
   delete Z;
 }
 
-token(X) ::= substring(Y) EQUALS transcription(Z).
+token(X) ::= substring(Y) COLON transcription(Z).
 {
   X=Y;
   X->append(Z);
