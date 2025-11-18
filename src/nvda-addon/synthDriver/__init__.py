@@ -1,5 +1,5 @@
 # Copyright (C) 2010, 2011, 2012, 2013, 2018, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com>
-# Copyright (C) 2019, 2023  Beka Gozalishvili <beqaprogger@gmail.com>
+# Copyright (C) 2019, 2023, 2025  Beka Gozalishvili <beqaprogger@gmail.com>
 # Copyright (C) 2022 Alexander Linkov <kvark128@yandex.ru>
 
 # This program is free software: you can redistribute it and/or modify
@@ -54,7 +54,6 @@ api_version = addonAPIVersion.CURRENT
 import buildVersion
 
 module_dir = os.path.dirname(__file__)
-lib_path = os.path.join(module_dir, "RHVoice.dll")
 config_path = os.path.join(globalVars.appArgs.configPath, "RHVoice-config")
 
 
@@ -148,8 +147,12 @@ class RHVoice_synth_params(Structure):
               ("capitals_mode", c_int),
               ("flags", c_int)]
 
+def getLibraryPath():
+    arch = "x64" if sys.maxsize > 2**32 else "x86"
+    return os.path.join(module_dir, "lib", arch, "RHVoice.dll")
+
 def load_tts_library():
-    lib = ctypes.CDLL(lib_path)
+    lib = ctypes.CDLL(getLibraryPath())
     lib.RHVoice_get_version.restype = c_char_p
     lib.RHVoice_new_tts_engine.argtypes = (POINTER(RHVoice_init_params),)
     lib.RHVoice_new_tts_engine.restype = RHVoice_tts_engine
