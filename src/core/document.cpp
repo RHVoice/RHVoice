@@ -115,7 +115,8 @@ namespace RHVoice
     language_and_voice(parent->get_engine().get_languages().end(),parent->get_engine().get_voices().end()),
     length(0),
     num_tokens(0),
-    en_id(parent->get_voice_profile())
+    en_id(parent->get_voice_profile()),
+    initial_break_time_ms(0)
     {
     }
 
@@ -307,6 +308,13 @@ namespace RHVoice
             (*it)->set_eos();
             break;
           }
+      }
+    if(initial_break_time_ms>0)
+      {
+        relation& meta_rel=u.get_relation("Meta",true);
+        if(meta_rel.empty())
+          meta_rel.append();
+        meta_rel.first().set("initial_break_time",initial_break_time_ms);
       }
     for(std::list<command_ptr>::const_iterator it(commands.begin());it!=commands.end();++it)
       {

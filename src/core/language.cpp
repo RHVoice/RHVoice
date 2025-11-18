@@ -1435,6 +1435,16 @@ void language::on_token_break(utterance& u) const
           {
             phrase_rel.last().append_child(*word_iter);
             break_strength strength=get_word_break(*word_iter);
+            if(!word_iter->as("Token").has_next())
+              {
+                const value& time_val=word_iter->as("Token").parent().get("break_time",true);
+                if(!time_val.empty())
+                  {
+                    int time_ms=time_val.as<int>();
+                    if(time_ms>0)
+                      phrase_rel.last().set("break_time",time_ms);
+                  }
+              }
             ++word_iter;
             if((strength!=break_none)&&(word_iter!=word_rel.end())) {
 	      phrase_rel.last().set<std::string>("minor_break", strength==break_minor?"1":"0");
@@ -1830,11 +1840,34 @@ word_with_syls.last_child().set<std::string>("lex_tone","0");
     if(seg_rel.empty())
       return;
     std::string name("pau");
-    seg_rel.prepend().set("name",name);
+    item& initial_pau=seg_rel.prepend();
+    initial_pau.set("name",name);
+    if(u.has_relation("Meta"))
+      {
+        const relation& meta_rel=u.get_relation("Meta");
+        if(!meta_rel.empty())
+          {
+            const value& initial_time_val=meta_rel.first().get("initial_break_time",true);
+            if(!initial_time_val.empty())
+              {
+                int time_ms=initial_time_val.as<int>();
+                if(time_ms>0)
+                  initial_pau.set("break_time",time_ms);
+              }
+          }
+      }
     relation& phrase_rel=u.get_relation("Phrase");
     for(relation::iterator phrase_iter=phrase_rel.begin();phrase_iter!=phrase_rel.end();++phrase_iter)
       {
-        phrase_iter->last_child().as("Transcription").last_child().as("Segment").append().set("name",name);
+        item& pau_seg=phrase_iter->last_child().as("Transcription").last_child().as("Segment").append();
+        pau_seg.set("name",name);
+        const value& time_val=phrase_iter->get("break_time",true);
+        if(!time_val.empty())
+          {
+            int time_ms=time_val.as<int>();
+            if(time_ms>0)
+              pau_seg.set("break_time",time_ms);
+          }
       }
   }
 

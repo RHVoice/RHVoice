@@ -66,6 +66,7 @@ struct par_mat_mem_t
     void restore_params();
     void check_units();
     void copy_units();
+    void apply_break_times();
     void maybe_patch_model(_HTS_Model* mod, const std::string& patch_path);
 
     std::unique_ptr<_HTS_Engine> engine;
