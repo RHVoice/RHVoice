@@ -272,5 +272,5 @@ function(harden target)
 	
 	#list(JOIN HARDENING_MACRODEFS " " HARDENING_MACRODEFS) # unneeded, list is needed, not string
 	set(HARDENING_MACRODEFS "${HARDENING_MACRODEFS}" CACHE STRING "Hardening flags CMake list (not string!)")
-	target_compile_definitions(${target} PRIVATE ${HARDENING_MACRODEFS})
+	target_compile_definitions(${target} PRIVATE $CACHE{HARDENING_MACRODEFS})
 endfunction(harden)
