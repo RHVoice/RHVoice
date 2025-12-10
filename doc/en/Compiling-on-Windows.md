@@ -1,6 +1,6 @@
 # Compiling on Windows
 
-## required tools
+## Required tools
 
 To compile RHVoice on Windows, the following tools are required:
 
@@ -9,24 +9,24 @@ To compile RHVoice on Windows, the following tools are required:
 
 * [Nsis](https://nsis.sourceforge.io/Download)
 
-Additional dependencies sshould be installed using the following command:
+Additional dependencies should be installed using the following command:
 
 ```bash
 pip install scons lxml
 ```
 
-### Compiling
+## Compilation
 
 After installing the dependencies, we can proceed to compiling.
 
 To clone the source, we can go in two possible ways:
 
-a) One liner
+1. One liner
     ```bash
     git clone --recursive https://github.com/RHVoice/RHVoice.git
     ```
 
-b) in steps:
+2. in steps:
     ```bash
     git clone https://github.com/RHVoice/RHVoice.git
     cd RHVoice
