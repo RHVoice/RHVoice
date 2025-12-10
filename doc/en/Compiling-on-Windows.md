@@ -46,3 +46,7 @@ scons -h
 ```
 
 The compiled packages are located in `RHVoice\build\packages\windows` directory.
+
+# Further reading for language maintainers
+
+[Understanding about MSI package versioning](https://github.com/rhvoice/msi)
