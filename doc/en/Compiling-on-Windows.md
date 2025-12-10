@@ -15,23 +15,25 @@ Additional dependencies should be installed using the following command:
 pip install scons lxml
 ```
 
-## Compilation
+## Getting the source code
 
 After installing the dependencies, we can proceed to compiling.
 
 To clone the source, we can go in two possible ways:
 
-1. One liner
+1. One line
     ```bash
     git clone --recursive https://github.com/RHVoice/RHVoice.git
     ```
 
-2. in steps:
+2. Step by step:
     ```bash
     git clone https://github.com/RHVoice/RHVoice.git
     cd RHVoice
     git submodule update --init
     ```
+
+## Compilation
 
 To start compilation, execute the command:
 
@@ -47,6 +49,6 @@ scons -h
 
 The compiled packages are located in `RHVoice\build\packages\windows` directory.
 
-# Further reading for language maintainers
+## Further reading for language maintainers
 
 [Understanding about MSI package versioning](https://github.com/rhvoice/msi)
