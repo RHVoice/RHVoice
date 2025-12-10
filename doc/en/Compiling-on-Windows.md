@@ -5,7 +5,8 @@
 To compile RHVoice on Windows, the following tools are required:
 
 * [Python](https://www.python.org)
-* [Wix toolset (3.14 preferred)](https://github.com/wixtoolset/wix3/releases)
+* [Wix toolset (3.14, strongly required)](https://github.com/wixtoolset/wix3/releases)
+
 * [Nsis](https://nsis.sourceforge.io/Download)
 
 Additional dependencies sshould be installed using the following command:
