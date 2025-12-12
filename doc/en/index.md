@@ -52,6 +52,7 @@ by RHVoice itself).
 ## Compiling instructions
 
 * [Compiling on linux](Compiling-on-Linux.md)
+* [Compiling on Windows](Compiling-on-Windows.md)
 * [Packaging status](Packaging-status.md)
 
 ## Legal information
