@@ -48,9 +48,9 @@ namespace RHVoice
 
   void config::reset()
   {
-    for(registration_map::iterator it=registered_settings.begin();it!=registered_settings.end();++it)
+    for(const auto& [key, value] : registered_settings)
       {
-        it->second->reset();
+        value->reset();
       }
   }
 

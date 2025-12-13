@@ -857,7 +857,7 @@ cfg.register_setting(lcfg.tok_sent);
         else
           {
             chars.push_back(cp);
-            syms.push_back(std::string(pit, it));
+            syms.emplace_back(pit, it);
             stress_mask.push_back(false);
           }
         pit=it;

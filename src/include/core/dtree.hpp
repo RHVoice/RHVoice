@@ -252,13 +252,13 @@ namespace RHVoice
 
     const value& predict(const item& i) const
     {
-      std::unique_ptr<item_features> f(new item_features(i));
+      auto f = std::make_unique<item_features>(i);
       return predict(*f);
     }
 
     const value& predict(const std::map<std::string,value>& m) const
     {
-      std::unique_ptr<explicit_features> f(new explicit_features(m));
+      auto f = std::make_unique<explicit_features>(m);
       return predict(*f);
     }
   };

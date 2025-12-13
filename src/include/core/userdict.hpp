@@ -49,7 +49,7 @@ namespace RHVoice
     {
     public:
       position():
-        token(0),
+        token(nullptr),
         text(0),
         character(token_start)
       {
@@ -71,7 +71,7 @@ namespace RHVoice
       {
         if(token!=other.token)
           return false;
-        if(token==0)
+        if(token==nullptr)
           return true;
         if(pos!=other.pos)
           return false;
@@ -85,7 +85,7 @@ namespace RHVoice
 
       position& operator++()
       {
-        if(token==0)
+        if(token==nullptr)
           return *this;
         if(character==token_end)
           forward_token();
@@ -125,7 +125,7 @@ namespace RHVoice
     private:
       void clear()
       {
-        token=0;
+        token=nullptr;
         text=0;
         pos=std::string::const_iterator();
         character=token_start;

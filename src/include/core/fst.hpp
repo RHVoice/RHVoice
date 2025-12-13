@@ -168,7 +168,7 @@ namespace RHVoice
     template<class output_iterator> bool do_translate(const input_symbols& input,output_iterator output) const;
     void append_input_symbol(const std::string& name,input_symbols& dest) const
     {
-      dest.push_back(input_symbols::value_type(name,symbols.id(name,1)));
+      dest.emplace_back(name,symbols.id(name,1));
     }
 
     void append_input_symbol(utf8::uint32_t chr,input_symbols& dest) const

@@ -513,7 +513,7 @@ namespace RHVoice
       std::vector<char_type> tmp_buf(text_start,text_end);
       tts_markup m;
       m.say_as=say_as;
-      std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
+      auto doc_ptr = std::make_unique<document>(engine_ptr,profile);
       #ifdef _MSC_VER
       typedef utf::text_iterator<std::vector<char_type>::const_iterator> char_iterator;
       #else
@@ -526,7 +526,7 @@ namespace RHVoice
     template<typename forward_iterator>
     static std::unique_ptr<document> create_from_plain_text(const std::shared_ptr<engine>& engine_ptr,const forward_iterator& text_start,const forward_iterator& text_end,content_type say_as,const voice_profile& profile,std::forward_iterator_tag)
     {
-      std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
+      auto doc_ptr = std::make_unique<document>(engine_ptr,profile);
       typedef utf::text_iterator<forward_iterator> text_iterator;
       tts_markup m;
       m.say_as=say_as;
@@ -684,7 +684,7 @@ namespace RHVoice
   template<typename input_iterator>
   std::unique_ptr<document> document::create_from_ssml(const std::shared_ptr<engine>& engine_ptr,const input_iterator& text_start,const input_iterator& text_end,const voice_profile& profile)
   {
-    std::unique_ptr<document> doc_ptr(new document(engine_ptr,profile));
+    auto doc_ptr = std::make_unique<document>(engine_ptr,profile);
     #ifdef _MSC_VER
     typedef std::iterator_traits<input_iterator>::value_type char_type;
     #else
