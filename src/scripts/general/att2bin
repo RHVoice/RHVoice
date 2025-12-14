@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
 # Copyright (C) 2012  Olga Yakovleva <yakovleva.o.v@gmail.com>
@@ -21,6 +21,7 @@ import sys
 import codecs
 import struct
 import re
+from sys import argv
 
 class arc(object):
 	__slots__=["dest","isym","osym"]
@@ -75,19 +76,33 @@ class fst(object):
 			self.symbols[name]=next_id
 		return self.symbols[name]
 
-	def save(self,file_path):
+	def save(self,f):
+		self.write_symbols(f)
+		f.write(struct.pack(">I",len(self.states)))
+		for s in self.states:
+			f.write(struct.pack(">BI",s.final,len(s.arcs)))
+			for a in s.arcs:
+				f.write(struct.pack(">IHH",a.dest,a.isym,a.osym))
+
+	def write_symbols(self, f):
 		symbols=sorted((p for p in self.symbols.items() if p[1]>1),key=lambda p: p[1])
-		with open(file_path,"wb") as f:
-			f.write(struct.pack(">H",len(symbols)))
-			for name,id in symbols:
-				utf8_name=name.encode("utf-8")
-				n=len(utf8_name)
-				f.write(struct.pack(">B{}s".format(n),n,utf8_name))
-			f.write(struct.pack(">I",len(self.states)))
-			for s in self.states:
-				f.write(struct.pack(">BI",s.final,len(s.arcs)))
-				for a in s.arcs:
-					f.write(struct.pack(">IHH",a.dest,a.isym,a.osym))
+		f.write(struct.pack(">H",len(symbols)))
+		for name,id in symbols:
+			utf8_name=name.encode("utf-8")
+			n=len(utf8_name)
+			f.write(struct.pack(">B{}s".format(n),n,utf8_name))
 
 if __name__=="__main__":
-	fst(sys.argv[1]).save(sys.argv[2])
+	assert(len(argv)>1)
+	fsts=[]
+	for i, p in enumerate(argv[1:-1]):
+		fsts.append(fst(p))
+
+	n=len(fsts)
+	print("Saving {} fsts".format(n))
+	with open(argv[-1], "wb") as f:
+		fsts[0].save(f)
+		if n>1:
+			f.write(struct.pack(">B", n-1))
+			for fst in fsts[1:]:
+				fst.save(f)

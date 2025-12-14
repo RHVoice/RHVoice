@@ -1,4 +1,4 @@
-/* Copyright (C) 2013, 2019  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2013 - 2025  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -248,6 +248,12 @@ namespace RHVoice
         cursor.forward_token();
       }
 
+      void set_transcription(const std::string& t)
+      {
+	changed=true;
+	transcription=t;
+      }
+
     private:
       word_editor(const word_editor&);
       word_editor& operator=(const word_editor&);
@@ -262,6 +268,7 @@ namespace RHVoice
       stress_pattern stress;
       bool initialism;
       bool foreign;
+      std::string transcription;
     };
 
     class token
@@ -627,6 +634,30 @@ namespace RHVoice
       {
         return "WordBreak";
       }
+    };
+
+    class word_transcription: public correction
+    {
+    public:
+      explicit word_transcription(const token* t):
+        transcription(t->as_string())
+      {
+      }
+
+      void apply(word_editor& ed) const
+      {
+	ed.set_transcription(transcription);
+      }
+
+      std::string describe() const
+      {
+        std::string desc("(Transcription ");
+	desc+=transcription;
+        return desc;
+      }
+
+    private:
+      std::string transcription;
     };
 
     class rule

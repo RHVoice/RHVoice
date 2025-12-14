@@ -19,6 +19,7 @@
 #include <iterator>
 #include <sstream>
 #include <queue>
+#include <deque>
 #include "core/str.hpp"
 #include "core/engine.hpp"
 #include "core/item.hpp"
@@ -630,6 +631,8 @@ cfg.register_setting(lcfg.tok_sent);
     cfg.register_setting(lcfg.punct_eos);
     cfg.register_setting(lcfg.bilingual);
     cfg.register_setting(lcfg.default_language);
+    cfg.register_setting(lcfg.spell_tags);
+    cfg.register_setting(lcfg.prosody_tags);
     cfg.load(path::join(info_.get_data_path(),"language.conf"));
     try
       {
@@ -708,6 +711,15 @@ cfg.register_setting(lcfg.tok_sent);
     catch(const io::open_error& e)
       {
       }
+
+    try
+      {
+        x_sampa_fst.reset(new fst(path::join(info_.get_data_path(), "x-sampa.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+
     fst msg_fst(path::join(info_.get_data_path(),"msg.fst"));
     std::vector<std::string> src;
     src.push_back("capital");
@@ -778,9 +790,19 @@ cfg.register_setting(lcfg.tok_sent);
     return (std::find(start, end, c)!=end);
   }
 
-  item& language::append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const
+  item& language::append_subtoken(item& parent_token, const std::string& name, const std::string& tag) const
   {
     item& token=parent_token.as("TokStructure").append_child();
+    std::string pos;
+    str::tokenizer<str::is_equal_to> splitter("",str::is_equal_to('+'));
+    splitter.assign(tag);
+    for(const auto& s: splitter)
+	      {
+		if(pos.empty())
+		  pos=s;
+		else
+		  token.set<std::string>("tag_"+s, "1");
+	      }
     token.set("name",name);
             token.set("pos",pos);
             if(((++str::utf8_string_begin(name))==str::utf8_string_end(name))&&(pos=="word"||pos=="lseq"))
@@ -841,6 +863,9 @@ cfg.register_setting(lcfg.tok_sent);
     std::vector<bool> stress_mask;
     utf8::uint32_t cp;
     std::string::const_iterator it(text.begin());
+    const std::string sb{"sb"}, eb{"eb"};
+    if(lcfg.tok_sent)
+      syms.push_back(sb);
     auto pit=it;
     while(it!=text.end())
       {
@@ -866,28 +891,38 @@ cfg.register_setting(lcfg.tok_sent);
       {
         syms.push_back("eos");
       }
-    std::vector<std::string> tokens;
+    if(lcfg.tok_sent)
+      syms.push_back(eb);
+    std::deque<std::string> tokens;
     if(!tok_fst.translate(syms.begin(),syms.end(),std::back_inserter(tokens)))
       throw tokenization_error(text);
+    if(lcfg.tok_sent)
+      {
+	if(!tokens.empty()&&tokens.front()==sb)
+	  tokens.pop_front();
+	if(!tokens.empty()&&tokens.back()==eb)
+	  tokens.pop_back();
+      }
     if(eos && lcfg.tok_eos && !tokens.empty() && tokens.back()=="eos")
       {
         tokens.pop_back();
       }
-    std::string name,pos;
+    std::string name, tag, pos;
     std::vector<utf8::uint32_t>::const_iterator token_start=chars.begin();
     std::vector<utf8::uint32_t>::const_iterator token_end=token_start;
     stress_pattern stress;
-    for(std::vector<std::string>::const_iterator it(tokens.begin());it!=tokens.end();++it)
+    for(std::deque<std::string>::const_iterator it(tokens.begin());it!=tokens.end();++it)
       {
         if(utf8::distance(it->begin(),it->end())>1)
           {
             if(token_start==token_end)
               throw tokenization_error(text);
-            pos=*it;
-	    if(pos=="word" && try_as_foreign_subtoken(u, parent_token, name))
+            tag=*it;
+	    if(str::startswith(tag, "word") && try_as_foreign_subtoken(u, parent_token, name))
 	      ;
 	    else {
-            item& token=append_subtoken(parent_token, name, pos);
+            item& token=append_subtoken(parent_token, name, tag);
+	    pos=token.get("pos").as<std::string>();
             if((pos=="word")&&(stress.get_state()!=stress_pattern::undefined))
               token.set("stress_pattern",stress);
 	    }
@@ -915,15 +950,59 @@ cfg.register_setting(lcfg.tok_sent);
     std::vector<std::string> annotation;
     if(!emoji_fst->translate(start,end,std::back_inserter(annotation)))
       return false;
+    std::queue<std::vector<std::string>> q;
+    if(lcfg.tok_sent)
+      {
+	const std::string sb{"sb"};
+	const std::string eb{"eb"};
+	std::vector<std::string> input, out;
+	bool first{true};
+	for(const auto& w: annotation)
+	  {
+	    if(first)
+	      first=false;
+	    else
+	      input.push_back(" ");
+	    input.push_back(sb);
+	    str::utf8explode(w, std::back_inserter(input));
+	    input.push_back(eb);
+	  }
+	if(!tok_fst.translate(input.begin(), input.end(), std::back_inserter(out)))
+	  return false;
+	std::vector<std::string> w;
+	bool in_w{false};
+	for(const auto& s: out)
+	  {
+	    if(s==sb)
+	      in_w=true;
+	    else if(s==eb)
+	      {
+		in_w=false;
+		if(!w.empty())
+		  q.push(w);
+		w.clear();
+	      }
+	    else if(in_w)
+	      w.push_back(s);
+	  }
+      }
     std::vector<std::string> tok_result;
-    std::string name,pos;
+    std::string name,pos, tag;
     verbosity_t v=verbosity_name;
     item* word=0;
     for(std::vector<std::string>::const_iterator it1=annotation.begin();it1!=annotation.end();++it1)
       {
-        tok_result.clear();
-        if(!tok_fst.translate(str::utf8_string_begin(*it1),str::utf8_string_end(*it1),std::back_inserter(tok_result)))
-          continue;
+	if(lcfg.tok_sent)
+	  {
+	    if(q.empty())
+	      throw tokenization_error("");
+	    tok_result=q.front();
+	    q.pop();
+	  } else {
+	  tok_result.clear();
+	  if(!tok_fst.translate(str::utf8_string_begin(*it1),str::utf8_string_end(*it1),std::back_inserter(tok_result)))
+	    continue;
+	}
         name.clear();
         for(std::vector<std::string>::const_iterator it2=tok_result.begin();it2!=tok_result.end();++it2)
           {
@@ -932,10 +1011,11 @@ cfg.register_setting(lcfg.tok_sent);
                 name.append(*it2);
                 continue;
 }
-            pos=*it2;
-            item& token=parent_token.append_child();
-            token.set("name",name);
-            token.set("pos",pos);
+	    if(name.empty())
+	      throw tokenization_error("");
+            tag=*it2;
+            item& token=append_subtoken(parent_token, name, tag);
+	    pos=token.get("pos").as<std::string>();
             v=verbosity_name;
             if(pos=="sym"&&name!="*"&&name!="#")
               {
@@ -1208,6 +1288,12 @@ else
     utf8::uint32_t c=utf8::peek_next(token_name.begin(),token_name.end());
     std::map<utf8::uint32_t,std::string>::const_iterator it=whitespace_symbols.find(c);
     input.push_back((it==whitespace_symbols.end())?token_name:(it->second));
+    for(const auto& tag: lcfg.spell_tags.get())
+      {
+	if(token.has_feature("tag_"+tag)) {
+	  input.push_back(tag);
+	}
+      }
     return spell_fst.translate(input.begin(),input.end(),token.back_inserter());
   }
 
@@ -1303,16 +1389,25 @@ else
     std::string name;
     bool in_whitespace=false;
     bool first_sb=true;
+    item* last_subtok{nullptr};
     for(const auto& out_sym: output)
       {
         if(in_it==input.end() || out_sym!=*in_it)
           {
-            if(name.empty())
-              throw tokenization_error("");
+	    if(out_sym.size()>1 && out_sym[0]=='+' && last_subtok)
+	      {
+		const std::string subtag=out_sym.substr(1);
+		last_subtok->as("TokStructure").set<std::string>("tag_"+subtag, "1");
+		continue;
+	      }
             if(out_tok_it==in_rel.end())
               throw tokenization_error(name);
-            append_subtoken(*out_tok_it, name, out_sym);
+            if(name.empty())
+              throw tokenization_error("");
+	    auto tag=out_sym;
+            append_subtoken(*out_tok_it, name, tag);
             name.clear();
+	    last_subtok=out_tok_it->as("TokStructure").last_child_ptr();
             out_tok_it=in_tok_it;
             continue;
           }
@@ -1398,6 +1493,9 @@ else
 
   break_strength language::get_word_break(const item& word) const
   {
+    if(word.has_feature("break_flag")) {
+      return break_phrase;
+    }
     if(should_break_emoji(word))
       return break_phrase;
     if(!word.as("Token").has_next())
@@ -1425,6 +1523,28 @@ void language::on_token_break(utterance& u) const
 
   void language::phrasify(utterance& u) const
   {
+    relation& tokstruct_rel=u.get_relation("TokStructure");
+    item* w{nullptr};
+    for(item& tok: tokstruct_rel)
+      {
+	for(item& subtok: tok)
+	  {
+	    if(w && subtok.has_feature("tag_prebreak"))
+	      w->set("break_flag", true);
+	    if(subtok.has_children())
+	      w=subtok.last_child_ptr();
+	    if(w && subtok.has_feature("tag_postbreak"))
+	      w->set("break_flag", true);
+	    if(w)
+	      {
+		for(const auto& tag: lcfg.prosody_tags.get())
+		  {
+		    if(subtok.has_feature("tag_"+tag))
+		      w->set("prosody_tag", tag);
+		  }
+	      }
+	  }
+      }
     relation& word_rel=u.get_relation("Word");
     relation& phrase_rel=u.add_relation("Phrase");
     relation::iterator word_iter=word_rel.begin();
@@ -1466,16 +1586,13 @@ void language::on_token_break(utterance& u) const
           {
             for(item::const_reverse_iterator it2=it1->rbegin();it2!=it1->rend();++it2)
               {
-                if(it2->has_children())
+		const std::string& name=it2->get("name").as<std::string>();
+		if(name=="?")
+		  utt_type="q";
+		else if(name=="!")
+		  utt_type="e";
+		else                 if(it2->has_children())
                   utt_type="s";
-                else
-                  {
-                    const std::string& name=it2->get("name").as<std::string>();
-                    if(name=="?")
-                      utt_type="q";
-                    else if(name=="!")
-                      utt_type="e";
-                  }
                 if(!utt_type.empty())
                   break;
 }
@@ -1626,10 +1743,24 @@ void language::on_token_break(utterance& u) const
     return native_trans;
 }
 
+std::vector<std::string> language::get_userdict_word_transcription(const item& word) const
+{
+  if(x_sampa_fst==nullptr)
+    return {};
+  if(!word.has_feature("userdict_transcription"))
+    return {};
+  const std::string x_sampa=word.get("userdict_transcription").as<std::string>();
+  std::vector<std::string> transcription;
+  if(x_sampa_fst->translate(x_sampa.begin(), x_sampa.end(), std::back_inserter(transcription)))
+    return transcription;
+  else
+    return {};
+}
+
   void language::assign_pronunciation(item& word) const
   {
-    std::vector<std::string> transcription=get_foreign_word_transcription(word);
-      if(word.has_feature("foreign"))
+    std::vector<std::string> transcription=get_userdict_word_transcription(word);
+    if(transcription.empty())
       transcription=get_foreign_word_transcription(word);
       if(transcription.empty())
 	{

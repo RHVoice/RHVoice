@@ -1,4 +1,4 @@
-/* Copyright (C) 2021  Olga Yakovleva <yakovleva.o.v@gmail.com> */
+/* Copyright (C) 2021 - 2025  Olga Yakovleva <olga@rhvoice.org> */
 
 /* This program is free software: you can redistribute it and/or modify */
 /* it under the terms of the GNU Lesser General Public License as published by */
@@ -103,6 +103,34 @@ namespace RHVoice
     catch(const io::open_error& e)
       {
       }
+    try
+      {
+        c_split_fst.reset(new fst(path::join(info_.get_data_path(),"csplit.fst")));
+	c_g2p_fst.reset(new fst(path::join(info_.get_data_path(),"cg2p.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+    try
+      {
+        sl_lex_fst.reset(new fst(path::join(info_.get_data_path(),"sl_lex.fst")));
+      }
+    catch(const io::open_error& e)
+      {
+      }
+  }
+
+  bool data_only_language::try_compound(const std::vector<std::string>& input, std::vector<std::string>& output) const
+  {
+    if(c_split_fst==nullptr)
+      return false;
+    if(c_g2p_fst==nullptr)
+      return false;
+    std::vector<std::string> split_result;
+    if(!c_split_fst->translate(input.begin(), input.end(), std::back_inserter(split_result)))
+      return false;
+    output.clear();
+    return c_g2p_fst->translate(split_result.begin(), split_result.end(), std::back_inserter(output));
   }
 
   std::vector<std::string> data_only_language::get_word_transcription(const item& word) const
@@ -124,13 +152,20 @@ namespace RHVoice
 	    const item& tok=word.as("TokStructure").parent();
 	    const std::string& pos=tok.get("pos").as<std::string>();
 	    if(pos=="word" && !tok.has_feature("userdict"))
-	      if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+	      if(g2g_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp))) {
 		g2p_input=tmp;
+		tmp.clear();
+		}
 	  }
 	if(lex_fst!=nullptr) {
 	  if(lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
 	    return tmp;
+	  if(try_compound(g2p_input, tmp)) {
+	    return tmp;
+	  }
 }
+	if(sl_lex_fst!=nullptr && sl_lex_fst->translate(g2p_input.begin(), g2p_input.end(), std::back_inserter(tmp)))
+	  return tmp;
 	g2p_fst.translate(g2p_input.begin(),g2p_input.end(),std::back_inserter(transcription));
     return transcription;
   }
