@@ -1040,6 +1040,7 @@ const emoji_char_t emoji_chars[]={
 {0x1f6d5, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1f6d6, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1f6d7, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1f6d8, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1f6dc, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1f6dd, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1f6de, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
@@ -1342,6 +1343,8 @@ const emoji_char_t emoji_chars[]={
 {0x1fa87, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fa88, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fa89, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1fa8a, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1fa8e, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fa8f, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fa90, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fa91, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
@@ -1398,6 +1401,8 @@ const emoji_char_t emoji_chars[]={
 {0x1fac4, emoji_property_emoji|emoji_property_emoji_modifier_base|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fac5, emoji_property_emoji|emoji_property_emoji_modifier_base|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fac6, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1fac8, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1facd, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1face, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1facf, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fad0, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
@@ -1424,6 +1429,8 @@ const emoji_char_t emoji_chars[]={
 {0x1fae7, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fae8, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1fae9, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1faea, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
+{0x1faef, emoji_property_emoji|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1faf0, emoji_property_emoji|emoji_property_emoji_modifier_base|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1faf1, emoji_property_emoji|emoji_property_emoji_modifier_base|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
 {0x1faf2, emoji_property_emoji|emoji_property_emoji_modifier_base|emoji_property_emoji_presentation|emoji_property_extended_pictographic},
@@ -1530,4 +1537,4 @@ const emoji_char_t emoji_chars[]={
 {0xe007e, emoji_property_emoji_component},
 {0xe007f, emoji_property_emoji_component}};
 
-const unsigned int num_emoji_chars=1530;
+const unsigned int num_emoji_chars=1537;
