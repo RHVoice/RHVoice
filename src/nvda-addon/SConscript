@@ -22,7 +22,7 @@ Import(["env"])
 
 from RHVoicePackaging.nvda import addon_packager
 
-addon_version="1.16.402"
+addon_version="1.18.100"
 
 synthDriver_dir=os.path.join("synthDrivers","RHVoice")
 curdir=Dir(".").srcnode()
