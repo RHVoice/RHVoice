@@ -3,7 +3,7 @@ title: RHVoice
 
 base: core22
 
-version: '1.16.0-1'
+version: '1.18.0-1'
 
 summary: Multilingual text-to-speech engine
 description: |
