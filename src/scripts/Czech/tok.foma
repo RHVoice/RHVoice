@@ -83,6 +83,7 @@ define Number  UnformattedNumber;
 define DecimalSeparator %.|%,;
 
 define Word Letter+ ;
+define ExceptionalWord2 [[P h o n e]|[P [a|o] d]] ; 
 
 define Stage1 
 Number @-> ... num || _ ,, 
@@ -105,10 +106,18 @@ num -> sym || DecimalSeparator _ Digit+ num DecimalSeparator num,
 define CamelCase 
 [..] -> word || SmallLetter _ CapitalLetter , CapitalLetter _ CapitalLetter SmallLetter ; 
 
+define NoSplit 
+word -> 0 || 
+# Apple product names.
+{i} _ ExceptionalWord2 word , 
+# Miscellaneous: YouTube and others.
+[[y|Y] o u] _ [[t|T] u b e] ;
+
 source unicodechars.foma
 
 regex UnicodeToNativeTranslitTok .o. 
 Stage1 .o.
 CamelCase .o.
+NoSplit .o.
 Stage2 .o. 
 Stage3 ; 
