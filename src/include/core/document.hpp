@@ -713,6 +713,8 @@ namespace RHVoice
     parser.add_element_handler(break_handler);
     ssml::phoneme_handler<char_type> phoneme_handler;
     parser.add_element_handler(phoneme_handler);
+    ssml::lang_handler<char_type> lang_handler;
+    parser.add_element_handler(lang_handler);
     parser.parse(text_start,text_end,*doc_ptr);
     return doc_ptr;
   }

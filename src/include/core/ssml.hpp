@@ -87,6 +87,22 @@ namespace RHVoice
     };
 
     template<typename ch>
+    class lang_handler: public language_tracking_element_handler<ch>
+    {
+    public:
+      lang_handler():
+      language_tracking_element_handler<ch>("lang")
+    {
+    }
+
+    private:
+      bool do_enter(xml::handler_args<ch>& args)
+      {
+        return ((args.node->parent())&&(args.node->parent()->type()==rapidxml::node_element));
+      }
+    };
+
+    template<typename ch>
     class s_handler: public language_tracking_element_handler<ch>
     {
     public:
