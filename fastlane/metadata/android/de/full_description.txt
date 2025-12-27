@@ -1,0 +1,4 @@
+<p>RHVoice ist ein freier und quelloffener Sprachsynthesizer.</p>
+<p>Die Stimmen werden aus Aufnahmen natürlicher Sprache erstellt. Sie benötigen nur wenig Speicherplatz, da nur statistische Modelle auf den Computern der Benutzer gespeichert werden. Und obwohl den Stimmen die Natürlichkeit der Synthesizer fehlt, die Sprache durch die Kombination von Segmenten der Aufnahmen selbst erzeugen, sind sie dennoch sehr gut verständlich und ähneln den Sprechern, die das Ausgangsmaterial aufgenommen haben.</p>
+<p><br><b>Unterstützte Sprachen:</b></p>
+<p>Anfangs konnte RHVoice nur Russisch sprechen. Mittlerweile unterstützt es auch amerikanisches Englisch, brasilianisches Portugiesisch, Esperanto, Georgisch, Ukrainisch, Kirgisisch und Tatarisch. Theoretisch ist es möglich, Unterstützung für weitere Sprachen zu implementieren, wenn alle erforderlichen Ressourcen gefunden oder erstellt werden können.</p>
