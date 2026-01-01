@@ -12,7 +12,7 @@ import RHVoiceInfoParser
 Import("env")
 local_env=env.Clone()
 
-nvda_addon_build_number=".11"
+nvda_addon_build_number=".12"
 
 def list_files(dir):
 	files=[]
@@ -33,7 +33,7 @@ lang_files=dict()
 lang_ver_ids=dict()
 
 msi_build_number=".2"
-exe_build_number=".21"
+exe_build_number=".22"
 
 for dir_name in ["languages","voices"]:
 	type=dir_name[:-1]
