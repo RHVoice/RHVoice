@@ -1,0 +1,4 @@
+<p>RHVoice je svobodný syntetizátor řeči s otevřeným zdrojovým kódem.</p>
+<p>Hlasy jsou vytvořeny z nahrávek přirozené řeči. Zabírají málo místa, protože v počítačích uživatelů jsou uloženy pouze statistické modely. A přestože hlasy postrádají přirozenost syntetizátorů, které generují řeč spojováním segmentů samotných nahrávek, jsou stále velmi srozumitelné a podobají se mluvčím, kteří zdrojový materiál nahráli.</p>
+<p><br><b>Podporované jazyky:</b></p>
+<p>Zpočátku uměl RHVoice mluvit pouze rusky. Nyní podporuje také americkou angličtinu, brazilskou portugalštinu, češtinu, esperanto, gruzínštinu, ukrajinštinu, kyrgyzštinu a tatarštinu. Teoreticky je možné implementovat podporu dalších jazyků, pokud se podaří najít nebo vytvořit všechny potřebné zdroje.</p>
