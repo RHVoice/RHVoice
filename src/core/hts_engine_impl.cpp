@@ -137,6 +137,14 @@ namespace RHVoice
     if(info.get_format()==3)
       model_path=data_path;
     else
-      model_path=path::join(data_path,str::to_string(get_sample_rate_for_quality(q)));
+      {
+        auto sr=get_sample_rate_for_quality(q);
+        model_path=path::join(data_path,str::to_string(sr));
+        if(!path::isdir(model_path))
+          {
+            sr=(sr==sample_rate_16k)?sample_rate_24k:sample_rate_16k;
+            model_path=path::join(data_path,str::to_string(sr));            
+          }
+      }
 }
 }
