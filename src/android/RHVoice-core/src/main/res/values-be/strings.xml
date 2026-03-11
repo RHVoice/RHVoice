@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">галас па змоўчанні</string>
+  <string name="default_voice_dialog_title">Выберыце голас</string>
+  <string name="detect_language_title">Выяўленне мовы</string>
+  <string name="detect_language_desc">Аўтаматычнае пераключэнне мовы</string>
+  <string name="speech_volume">Гучнасць маўлення</string>
+  <string name="speech_rate">Хуткасць маўлення</string>
+  <string name="pseudo_english_title">Англійскія словы</string>
+  <string name="pseudo_english_desc">Спрабаваць чытаць англійскія словы правільна</string>
+  <string name="settings">Налады</string>
+  <string name="wifi_only_title">Толькі праз Wi-Fi</string>
+  <string name="wifi_only_desc">Спампоўваць галасы толькі праз Wi-Fi</string>
+  <string name="speech_quality">Якасць маўлення</string>
+  <string-array name="quality_labels">
+    <item>Найлепшая прадукцыйнасць</item>
+    <item>Стандартная якасць</item>
+    <item>Найлепшая якасць</item>
+  </string-array>
+  <string name="languages">Мовы</string>
+  <string name="voice_remove_question">Вы сапраўды жадаеце выдаліць гэты голас?</string>
+  <string name="install">Усталяваць</string>
+  <string name="uninstall">Выдаліць</string>
+  <string name="play">Праслухаць прыклад</string>
+  <string name="stop">Спыніць</string>
+  <string name="increase">Павялічыць</string>
+  <string name="decrease">Паменшыць</string>
+  <string name="reset">Вярнуць да зыходных наладаў</string>
+  <string name="version">Версія</string>
+  <string name="user_dicts">Карыстальніцкія слоўнікі</string>
+  <string name="add">Дадаць</string>
+  <string name="remove">Выдаліць</string>
+  <string name="config_file">Канфігурацыйны файл</string>
+</resources>

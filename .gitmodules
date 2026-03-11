@@ -394,3 +394,21 @@
 [submodule "data/voices/alena-blr"]
 	path = data/voices/alena-blr
 	url = https://github.com/RHVoice/alena-blr.git
+[submodule "src/scripts/Slovak"]
+	path = src/scripts/Slovak
+	url = https://github.com/RHVoice/Slovak-src.git
+[submodule "src/scripts/Czech"]
+	path = src/scripts/Czech
+	url = https://github.com/RHVoice/czech-src.git
+[submodule "data/voices/marija"]
+	path = data/voices/marija
+	url = https://github.com/RHVoice/marija-hrv.git
+[submodule "data/voices/dasha-eng"]
+	path = data/voices/dasha-eng
+	url = https://github.com/RHVoice/dasha-eng.git
+[submodule "data/voices/ryhor-rus"]
+	path = data/voices/ryhor-rus
+	url = https://github.com/RHVoice/ryhor-rus.git
+[submodule "src/scripts/Polish"]
+	path = src/scripts/Polish
+	url = https://github.com/RHVoice/polish-src.git
