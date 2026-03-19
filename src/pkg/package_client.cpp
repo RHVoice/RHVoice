@@ -27,7 +27,7 @@
 #include "url_builder.hpp"
 
 #ifndef PKG_DIR_URL
-#define PKG_DIR_URL "https://rhvoice.org/download/packages-1.18.json"
+#define PKG_DIR_URL "https://github.com/RHVoice/packages/releases/download/1.18/packages-1.18.json"
 #endif
 
 namespace RHVoice
