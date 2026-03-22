@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="default_voice_title">Voce implicită</string>
+  <string name="default_voice_dialog_title">Selectați o voce</string>
+  <string name="detect_language_title">Detectarea limbii</string>
+  <string name="detect_language_desc">Comutare automată a limbii</string>
+  <string name="speech_volume">Volum voce</string>
+  <string name="speech_rate">Viteză voce</string>
+  <string name="pseudo_english_title">Cuvinte în engleză</string>
+  <string name="pseudo_english_desc">Încearcă să citească corect cuvintele în engleză</string>
+  <string name="settings">Setări</string>
+  <string name="wifi_only_title">Doar prin Wi-Fi</string>
+  <string name="wifi_only_desc">Descarcă vocile doar prin Wi-Fi</string>
+  <string name="speech_quality">Calitate voce</string>
+  <string-array name="quality_labels">
+    <item>Cea mai bună performanță posibilă</item>
+    <item>Calitate standard</item>
+    <item>Cea mai bună calitate posibilă</item>
+  </string-array>
+  <string name="languages">Limbi</string>
+  <string name="voice_remove_question">Sigur doriți să dezinstalați această voce?</string>
+  <string name="install">Instalare</string>
+  <string name="uninstall">Dezinstalare</string>
+  <string name="play">Redare</string>
+  <string name="stop">Oprire</string>
+  <string name="increase">Crește</string>
+  <string name="decrease">Scade</string>
+  <string name="reset">Resetează</string>
+  <string name="version">Versiune</string>
+  <string name="user_dicts">Dicționare utilizator</string>
+  <string name="add">Adăugare</string>
+  <string name="remove">Eliminare</string>
+  <string name="config_file">Fișier de configurare</string>
+</resources>

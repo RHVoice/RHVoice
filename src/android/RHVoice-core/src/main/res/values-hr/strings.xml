@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="default_voice_title">Podrazumijevani glas</string>
+  <string name="default_voice_dialog_title">Odaberi glas</string>
+  <string name="detect_language_title">Otkrivanje jezika</string>
+  <string name="detect_language_desc">Automatsko prebacivanje jezika</string>
+  <string name="speech_volume">Glasnoća govora</string>
+  <string name="speech_rate">Brzina govora</string>
+  <string name="pseudo_english_title">Engleske riječi</string>
+  <string name="pseudo_english_desc">Pokušaj ispravno čitati engleske riječi</string>
+  <string name="settings">Postavke</string>
+  <string name="wifi_only_title">Samo Wi-Fi</string>
+  <string name="wifi_only_desc">Preuzimaj glasove samo putem Wi-Fija</string>
+  <string name="speech_quality">Kvaliteta govora</string>
+  <string-array name="quality_labels">
+    <item>Najbolje moguće performanse</item>
+    <item>Standardna kvaliteta</item>
+    <item>Najbolja moguća kvaliteta</item>
+  </string-array>
+  <string name="languages">Jezici</string>
+  <string name="voice_remove_question">Jeste li sigurni da želite ukloniti ovaj glas?</string>
+  <string name="install">Instaliraj</string>
+  <string name="uninstall">Ukloni</string>
+  <string name="play">Reproduciraj</string>
+  <string name="stop">Zaustavi</string>
+  <string name="increase">Povećaj</string>
+  <string name="decrease">Smanji</string>
+  <string name="reset">Vrati zadano</string>
+  <string name="version">Verzija</string>
+  <string name="user_dicts">Korisnički rječnici</string>
+  <string name="add">Dodaj</string>
+  <string name="remove">Ukloni</string>
+  <string name="config_file">Konfiguracijska datoteka</string>
+</resources>
