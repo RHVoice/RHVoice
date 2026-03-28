@@ -418,3 +418,6 @@
 [submodule "data/voices/paul"]
 	path = data/voices/paul
 	url = https://github.com/RHVoice/paul-ron.git
+[submodule "src/scripts/Romanian"]
+	path = src/scripts/Romanian
+	url = https://github.com/RHVoice/romanian-src.git
