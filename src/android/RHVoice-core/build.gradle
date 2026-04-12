@@ -6,7 +6,6 @@ ext.revision_number = 4
 ext.baseVersionCode = 100000 * major_version + 1000 * minor_version + 10 * revision_number
 
 ext.base_pkg_dir_url = 'https://rhvoice.org/download/packages-%s.json'
-ext.pkg_dir_url_def_fmt = /-DPKG_DIR_URL="\"%s\""/
 
 task BoostIncludes(type: Exec) {
     workingDir '../../..'
@@ -87,22 +86,14 @@ android {
             dimension 'dir'
             versionCode = baseVersionCode + 5
             versionNameSuffix '-alpha'
-            externalNativeBuild {
-                ndkBuild {
-                    cppFlags += [sprintf(pkg_dir_url_def_fmt, sprintf(base_pkg_dir_url, "latest"))]
-                }
-            }
+            ext.pkgDirUrl = sprintf(base_pkg_dir_url, "latest")
         }
 
         dev {
             dimension 'dir'
             versionCode = baseVersionCode + 9
             versionNameSuffix '-dev'
-            externalNativeBuild {
-                ndkBuild {
-                    cppFlags += [sprintf(pkg_dir_url_def_fmt, findProperty('RHVoice.devPkgDirUrl') ?: sprintf(base_pkg_dir_url, "dev"))]
-                }
-            }
+            ext.pkgDirUrl = findProperty('RHVoice.devPkgDirUrl') ?: sprintf(base_pkg_dir_url, "dev")
         }
     }
 }
@@ -135,3 +126,20 @@ dependencies {
 }
 
 preBuild.dependsOn BoostIncludes
+
+afterEvaluate {
+    def header = file("src/main/jni/generated/pkg_config.h")
+    android.applicationVariants.each { variant ->
+        def flavor = variant.productFlavors[0]
+        if (!flavor.ext.has('pkgDirUrl')) return
+        def url = flavor.ext.pkgDirUrl
+        def genTask = tasks.register("generatePkgConfig${variant.name.capitalize()}") {
+            outputs.file(header)
+            doLast {
+                header.parentFile.mkdirs()
+                header.text = "#pragma once\n#define PKG_DIR_URL \"${url}\"\n"
+            }
+        }
+        tasks.named("pre${variant.name.capitalize()}Build") { dependsOn genTask }
+    }
+}

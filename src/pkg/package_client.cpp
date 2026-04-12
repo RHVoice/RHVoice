@@ -26,6 +26,10 @@
 #include "curl.hpp"
 #include "url_builder.hpp"
 
+#ifdef ANDROID
+#include "pkg_config.h"
+#endif
+
 #ifndef PKG_DIR_URL
 #define PKG_DIR_URL "https://github.com/RHVoice/packages/releases/download/1.18/packages-1.18.json"
 #endif
