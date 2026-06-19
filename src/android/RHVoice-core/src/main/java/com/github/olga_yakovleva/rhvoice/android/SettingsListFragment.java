@@ -34,7 +34,6 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 import androidx.preference.TwoStatePreference;
 import androidx.recyclerview.widget.RecyclerView;
@@ -123,12 +122,13 @@ public final class SettingsListFragment extends PreferenceFragmentCompat impleme
 
     @Override
     public void onCreatePreferences(Bundle state, String rootKey) {
+        getPreferenceManager().setStorageDeviceProtected();
         setPreferencesFromResource(R.xml.settings, null);
         findPreference("version").setSummary(BuildConfig.VERSION_NAME);
         if (openConfigFile != null) {
             final TwoStatePreference configFilePref = findPreference("config_file");
             configFilePref.setOnPreferenceChangeListener(this::onConfigFilePrefChange);
-            configFilePref.setChecked(Config.getConfigFile(requireActivity()).exists());
+            configFilePref.setChecked(Config.hasConfigFile(requireActivity()));
             configFilePref.setVisible(true);
         }
         PreferenceCategory cat = null;
@@ -173,13 +173,13 @@ public final class SettingsListFragment extends PreferenceFragmentCompat impleme
     @Override
     public void onResume() {
         super.onResume();
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+        getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+        getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     private void onUserDictSelected(Uri uri) {
@@ -234,7 +234,7 @@ public final class SettingsListFragment extends PreferenceFragmentCompat impleme
             openConfigFile.launch(new String[]{"*/*"});
             return false;
         } else {
-            Config.getConfigFile(requireActivity()).delete();
+            Config.deleteConfigFile(requireActivity());
             LocalBroadcastManager.getInstance(requireActivity()).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
             return true;
         }

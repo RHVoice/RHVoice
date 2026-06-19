@@ -38,37 +38,59 @@ public final class ImportConfigService extends IntentService {
     }
 
     private void importUserDict(Intent intent) {
+        if (intent.getData() == null)
+            return;
         final DocumentFile inFile = DocumentFile.fromSingleUri(this, intent.getData());
+        if (inFile == null || inFile.getName() == null)
+            return;
         final String lang = intent.getStringExtra(EXTRA_LANGUAGE);
+        if (lang == null)
+            return;
         final File outDir = Config.getLangDictsDir(this, lang);
         outDir.mkdirs();
         final File outFile = new File(outDir, inFile.getName());
         try (InputStream in = getContentResolver().openInputStream(intent.getData());
              FileOutputStream out = new FileOutputStream(outFile)) {
+            if (in == null) {
+                outFile.delete();
+                return;
+            }
             DataPack.copyBytes(in, out, null);
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             outFile.delete();
             return;
         }
+        Config.syncToDirectBootStorage(this);
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
     }
 
     private void importConfigFile(Intent intent) {
+        if (intent.getData() == null)
+            return;
         final DocumentFile inFile = DocumentFile.fromSingleUri(this, intent.getData());
+        if (inFile == null)
+            return;
         final File outFile = Config.getConfigFile(this);
         outFile.getParentFile().mkdirs();
         try (InputStream in = getContentResolver().openInputStream(intent.getData());
              FileOutputStream out = new FileOutputStream(outFile)) {
+            if (in == null) {
+                outFile.delete();
+                return;
+            }
             DataPack.copyBytes(in, out, null);
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             outFile.delete();
             return;
         }
+        Config.syncToDirectBootStorage(this);
         LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if (intent == null || intent.getAction() == null)
+            return;
         switch (intent.getAction()) {
             case ACTION_IMPORT_USER_DICT:
                 importUserDict(intent);

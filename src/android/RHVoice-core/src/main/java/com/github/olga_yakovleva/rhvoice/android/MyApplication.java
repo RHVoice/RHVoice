@@ -48,6 +48,7 @@ public final class MyApplication extends MultiDexApplication {
             if (BuildConfig.DEBUG)
                 Log.e(TAG, "Error", e);
         }
+        DirectBoot.migrate(this);
         Repository.initialize(this);
     }
 }

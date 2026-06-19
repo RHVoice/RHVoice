@@ -105,7 +105,7 @@ public final class DataManager {
     public List<VoiceInfo> getVoices(Context context) {
         TTSEngine engine = null;
         try {
-            engine = new TTSEngine("", Config.getDir(context).getAbsolutePath(), getPaths(context), PackageClient.getPath(context), CoreLogger.instance);
+            engine = new TTSEngine("", Config.getEngineDir(context).getAbsolutePath(), getPaths(context), PackageClient.getPath(context), CoreLogger.instance);
             return engine.getVoices();
         } catch (RHVoiceException e) {
             if (BuildConfig.DEBUG)

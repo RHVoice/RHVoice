@@ -27,6 +27,9 @@ public final class OnMyPackageReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (BuildConfig.DEBUG)
             Log.i(TAG, "My package has been updated");
+        DirectBoot.migrate(context);
+        if (DirectBoot.isInDirectBoot(context))
+            return;
         Repository.get().createDataManager().scheduleSync(context, true);
     }
 }

@@ -17,10 +17,6 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import android.content.Context;
 import android.util.Log;
@@ -43,6 +39,12 @@ public final class Config {
         return dir;
     }
 
+    public static File getEngineDir(Context context) {
+        if (!DirectBoot.isSupported())
+            return getDir(context);
+        return DirectBoot.getDir(context, "config");
+    }
+
     public static File getDictsRootDir(Context ctx) {
         return new File(getDir(ctx), "dicts");
     }
@@ -53,5 +55,72 @@ public final class Config {
 
     public static File getConfigFile(Context ctx) {
         return new File(getDir(ctx), CONFIG_FILE_NAME);
+    }
+
+    public static File getDirectBootDictsRootDir(Context ctx) {
+        return new File(getEngineDir(ctx), "dicts");
+    }
+
+    public static File getDirectBootLangDictsDir(Context ctx, String langName) {
+        return new File(getDirectBootDictsRootDir(ctx), langName);
+    }
+
+    public static File getDirectBootConfigFile(Context ctx) {
+        return new File(getEngineDir(ctx), CONFIG_FILE_NAME);
+    }
+
+    public static boolean hasConfigFile(Context ctx) {
+        return getConfigFile(ctx).exists() || getDirectBootConfigFile(ctx).exists();
+    }
+
+    public static void deleteConfigFile(Context ctx) {
+        getConfigFile(ctx).delete();
+        getDirectBootConfigFile(ctx).delete();
+    }
+
+    public static void deleteUserDict(Context ctx, String langName, String fileName) {
+        new File(getLangDictsDir(ctx, langName), fileName).delete();
+        new File(getDirectBootLangDictsDir(ctx, langName), fileName).delete();
+    }
+
+    public static void syncToDirectBootStorage(Context ctx) {
+        if (!DirectBoot.isSupported() || !DirectBoot.isUserUnlocked(ctx))
+            return;
+        final File sourceDir = getDir(ctx);
+        final File destinationDir = getEngineDir(ctx);
+        if (sourceDir.equals(destinationDir))
+            return;
+        syncFile(getConfigFile(ctx), getDirectBootConfigFile(ctx));
+        syncDirectory(getDictsRootDir(ctx), getDirectBootDictsRootDir(ctx));
+    }
+
+    private static void syncFile(File source, File destination) {
+        if (source.exists())
+            DirectBoot.copyDirectory(source, destination);
+        else
+            destination.delete();
+    }
+
+    private static void syncDirectory(File source, File destination) {
+        if (source.exists()) {
+            DirectBoot.copyDirectory(source, destination);
+            deleteMissingChildren(source, destination);
+        } else {
+            DirectBoot.delete(destination);
+        }
+    }
+
+    private static void deleteMissingChildren(File source, File destination) {
+        File[] children = destination.listFiles();
+        if (children == null)
+            return;
+        for (File child : children) {
+            File sourceChild = new File(source, child.getName());
+            if (!sourceChild.exists()) {
+                DirectBoot.delete(child);
+            } else if (child.isDirectory()) {
+                deleteMissingChildren(sourceChild, child);
+            }
+        }
     }
 }

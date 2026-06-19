@@ -38,25 +38,20 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ServiceLifecycleDispatcher;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.preference.PreferenceManager;
 
 import com.github.olga_yakovleva.rhvoice.*;
 import com.github.olga_yakovleva.rhvoice.LanguageInfo;
 import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Ordering;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,11 +65,14 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
 
     public static final String ACTION_CHECK_DATA = "com.github.olga_yakovleva.rhvoice.android.action.service_check_data";
     public static final String ACTION_CONFIG_CHANGE = "org.rhvoice.action.CONFIG_CHANGE";
+    private boolean userUnlockedReceiverRegistered = false;
     private final BroadcastReceiver dataStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (BuildConfig.DEBUG)
                 Log.v(TAG, "Checking data");
+            if (ACTION_CONFIG_CHANGE.equals(intent.getAction()))
+                Config.syncToDirectBootStorage(context);
             List<String> oldPaths = paths;
             paths = dataManager.getPaths(context);
             boolean changed = !paths.equals(oldPaths);
@@ -82,6 +80,14 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
                 Log.v(TAG, "Paths changed: " + changed);
             if (changed || ACTION_CONFIG_CHANGE.equals(intent.getAction()))
                 initialize();
+        }
+    };
+
+    private final BroadcastReceiver userUnlockedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction()))
+                onUserUnlocked();
         }
     };
 
@@ -298,7 +304,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
 
     private Map<String, LanguageSettings> getLanguageSettings(Tts tts) {
         Map<String, LanguageSettings> result = new HashMap<String, LanguageSettings>();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = DirectBoot.getDefaultSharedPreferences(this);
         for (String language : tts.languageIndex.keySet()) {
             LanguageSettings settings = new LanguageSettings();
             String prefVoice = prefs.getString("language." + language + ".voice", null);
@@ -368,7 +374,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         }
         Tts tts = new Tts();
         try {
-            File configDir = Config.getDir(this);
+            File configDir = Config.getEngineDir(this);
             tts.engine = new TTSEngine("", configDir.getAbsolutePath(), paths, PackageClient.getPath(this), CoreLogger.instance);
         } catch (Exception e) {
             if (BuildConfig.DEBUG)
@@ -405,6 +411,22 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         filter.addAction(Intent.ACTION_PACKAGE_FULLY_REMOVED);
         filter.addDataScheme("package");
         registerReceiver(packageReceiver, filter);
+    }
+
+    private void registerUserUnlockedReceiver() {
+        if (!DirectBoot.isInDirectBoot(this))
+            return;
+        registerReceiver(userUnlockedReceiver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
+        userUnlockedReceiverRegistered = true;
+    }
+
+    private void onUserUnlocked() {
+        DirectBoot.migrate(this, () -> handler.post(() -> {
+            Repository.get().onUserUnlocked();
+            dataManager.setPackageDirectory(Repository.get().getPackageDirectory());
+            paths = dataManager.getPaths(this);
+            initialize();
+        }));
     }
 
     private class VoiceInstaller implements Runnable, Observer<PackageDirectory> {
@@ -458,9 +480,14 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         filter.addAction(ACTION_CONFIG_CHANGE);
         LocalBroadcastManager.getInstance(this).registerReceiver(dataStateReceiver, filter);
         registerPackageReceiver();
+        registerUserUnlockedReceiver();
         dataManager.setPackageDirectory(Repository.get().getPackageDirectory());
         paths = dataManager.getPaths(this);
         initialize();
+        DirectBoot.migrate(this, () -> handler.post(() -> {
+            paths = dataManager.getPaths(this);
+            initialize();
+        }));
         Repository.get().getPackageDirectoryLiveData().observe(this, this::onPackageDirectory);
         Repository.get().check();
         super.onCreate();
@@ -482,6 +509,8 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     public void onDestroy() {
         handler.removeCallbacksAndMessages(null);
         unregisterReceiver(packageReceiver);
+        if (userUnlockedReceiverRegistered)
+            unregisterReceiver(userUnlockedReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(dataStateReceiver);
         ttsManager.destroy();
         lifecycleDispatcher.onServicePreSuperOnDestroy();
@@ -551,7 +580,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     }
 
     private void applyMappedSettings(Tts tts) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = DirectBoot.getDefaultSharedPreferences(this);
         Object oldPrefValue;
         String nativeValue;
         for (MappedSetting setting : tts.mappedSettings) {

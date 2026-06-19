@@ -31,6 +31,8 @@ public final class OnPackageReceiver extends BroadcastReceiver {
         String packageName = intent.getData().getSchemeSpecificPart();
         if (BuildConfig.DEBUG)
             Log.i(TAG, "Package " + packageName + " has been installed/updated/removed");
+        if (DirectBoot.isInDirectBoot(context))
+            return;
         Repository.get().createDataManager().scheduleSync(context, true);
     }
 }
