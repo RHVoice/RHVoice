@@ -122,13 +122,21 @@ final class Repository {
         }
     }
 
+    private boolean parseCachedPackageDir() {
+        try {
+            return parse(engine.getCachedPackageDir());
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG)
+                Log.e(TAG, "Error while loading cached package directory", e);
+            return false;
+        }
+    }
+
     private void initialLoad() {
         try {
             {
-                String str = engine.getCachedPackageDir();
-                if (str == null)
-                    str = getPackageDirFromResources();
-                parse(str);
+                if (!parseCachedPackageDir())
+                    parse(getPackageDirFromResources());
                 if (DirectBoot.isUserUnlocked(context))
                     scheduleUpdates();
             }
@@ -149,7 +157,7 @@ final class Repository {
                 Log.v(TAG, "Response:\n" + str);
             final PackageDirectory oldDir = getPackageDirectory();
             final boolean res = parse(str);
-            if (res && oldDir != null && oldDir.ttl != getPackageDirectory().ttl)
+            if (res && (oldDir == null || oldDir.ttl != getPackageDirectory().ttl))
                 ContextCompat.getMainExecutor(context).execute(this::scheduleUpdates);
             return res;
         } catch (Exception e) {
@@ -216,7 +224,7 @@ final class Repository {
     public void onUserUnlocked() {
         exec.submit(this::initCerts);
         scheduleUpdates();
-        check();
+        refresh();
     }
 
 }

@@ -35,7 +35,8 @@ import java.util.concurrent.Executors;
 
 final class DirectBoot {
     private static final String TAG = "RHVoice.DirectBoot";
-    private static final String[] PRIVATE_DIRS = {"data", "packages"};
+    private static final String[] BACKGROUND_PRIVATE_DIRS = {"data"};
+    private static final String PACKAGE_DIR = "packages";
     private static final ExecutorService migrationExecutor = Executors.newSingleThreadExecutor();
 
     private DirectBoot() {
@@ -83,11 +84,13 @@ final class DirectBoot {
     }
 
     public static void migrate(Context context, Runnable onComplete) {
-        if (!isSupported() || !isUserUnlocked(context)) {
+        if (!isSupported()) {
             if (onComplete != null)
                 onComplete.run();
             return;
         }
+        if (!isUserUnlocked(context))
+            return;
         Context appContext = context.getApplicationContext();
         Context directContext = getDeviceProtectedContext(appContext);
         if (appContext == directContext) {
@@ -96,6 +99,7 @@ final class DirectBoot {
             return;
         }
         migrateSharedPreferences(appContext, directContext);
+        migratePrivateDir(appContext, directContext, PACKAGE_DIR);
         migrationExecutor.execute(() -> {
             migratePrivateDirs(appContext, directContext);
             Config.syncToDirectBootStorage(appContext);
@@ -114,6 +118,8 @@ final class DirectBoot {
     }
 
     private static void moveSharedPreferences(Context sourceContext, Context directContext, String name) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+            return;
         try {
             directContext.moveSharedPreferencesFrom(sourceContext, name);
         } catch (RuntimeException e) {
@@ -123,7 +129,7 @@ final class DirectBoot {
     }
 
     private static void migratePrivateDirs(Context sourceContext, Context directContext) {
-        for (String name : PRIVATE_DIRS)
+        for (String name : BACKGROUND_PRIVATE_DIRS)
             migratePrivateDir(sourceContext, directContext, name);
     }
 
@@ -161,6 +167,8 @@ final class DirectBoot {
         if (!source.exists())
             return true;
         if (source.isDirectory()) {
+            if (destination.exists() && !destination.isDirectory() && !delete(destination))
+                return false;
             if (!destination.isDirectory() && !destination.mkdirs())
                 return false;
             File[] children = source.listFiles();
@@ -178,21 +186,33 @@ final class DirectBoot {
     }
 
     private static boolean copyFile(File source, File destination) {
-        if (destination.exists() && destination.lastModified() >= source.lastModified())
+        if (destination.exists() && destination.lastModified() >= source.lastModified() && destination.length() == source.length())
             return true;
         File parent = destination.getParentFile();
         if (parent == null || (!parent.isDirectory() && !parent.mkdirs()))
             return false;
+        File tmp = new File(destination.getPath() + ".tmp");
+        delete(tmp);
         try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(source));
-             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destination))) {
+             BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tmp))) {
             DataPack.copyBytes(in, out, null);
-            destination.setLastModified(source.lastModified());
-            return true;
         } catch (IOException e) {
             if (BuildConfig.DEBUG)
                 Log.w(TAG, "Unable to copy " + source.getAbsolutePath(), e);
+            delete(tmp);
             return false;
         }
+        tmp.setLastModified(source.lastModified());
+        if (destination.exists() && !delete(destination)) {
+            delete(tmp);
+            return false;
+        }
+        if (!tmp.renameTo(destination)) {
+            delete(tmp);
+            return false;
+        }
+        destination.setLastModified(source.lastModified());
+        return true;
     }
 
     static boolean delete(File obj) {

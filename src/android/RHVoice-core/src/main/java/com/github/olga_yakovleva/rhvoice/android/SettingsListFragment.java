@@ -122,7 +122,8 @@ public final class SettingsListFragment extends PreferenceFragmentCompat impleme
 
     @Override
     public void onCreatePreferences(Bundle state, String rootKey) {
-        getPreferenceManager().setStorageDeviceProtected();
+        if (DirectBoot.isSupported())
+            getPreferenceManager().setStorageDeviceProtected();
         setPreferencesFromResource(R.xml.settings, null);
         findPreference("version").setSummary(BuildConfig.VERSION_NAME);
         if (openConfigFile != null) {

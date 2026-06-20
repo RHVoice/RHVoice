@@ -414,7 +414,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     }
 
     private void registerUserUnlockedReceiver() {
-        if (!DirectBoot.isInDirectBoot(this))
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || DirectBoot.isUserUnlocked(this))
             return;
         registerReceiver(userUnlockedReceiver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
         userUnlockedReceiverRegistered = true;
