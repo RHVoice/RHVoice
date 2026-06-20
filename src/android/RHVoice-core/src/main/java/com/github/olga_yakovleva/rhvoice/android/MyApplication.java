@@ -16,6 +16,7 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import androidx.multidex.MultiDexApplication;
+import androidx.work.Configuration;
 
 import android.util.Log;
 
@@ -29,8 +30,13 @@ import javax.net.ssl.SSLContext;
 
 import org.conscrypt.Conscrypt;
 
-public final class MyApplication extends MultiDexApplication {
+public final class MyApplication extends MultiDexApplication implements Configuration.Provider {
     private static final String TAG = "RHVoice.MyApplication";
+
+    @Override
+    public Configuration getWorkManagerConfiguration() {
+        return new Configuration.Builder().build();
+    }
 
     @Override
     public void onCreate() {

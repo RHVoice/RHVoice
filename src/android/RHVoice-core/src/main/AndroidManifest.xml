@@ -70,11 +70,22 @@
     </activity>
     <service android:name=".ImportConfigService"
              android:exported="false"/>
+    <provider
+        android:name="androidx.startup.InitializationProvider"
+        android:authorities="${applicationId}.androidx-startup"
+        android:exported="false"
+        tools:node="merge">
+      <meta-data
+          android:name="androidx.work.WorkManagerInitializer"
+          android:value="androidx.startup"
+          tools:node="remove"/>
+    </provider>
     <service
         android:name="androidx.room.MultiInstanceInvalidationService"
         android:directBootAware="false"
         android:exported="false"
         tools:ignore="MissingClass"
+        tools:targetApi="n"
         tools:replace="android:directBootAware"/>
   </application>
 </manifest>

@@ -90,23 +90,28 @@ public final class Config {
         final File destinationDir = getEngineDir(ctx);
         if (sourceDir.equals(destinationDir))
             return;
-        syncFile(getConfigFile(ctx), getDirectBootConfigFile(ctx));
-        syncDirectory(getDictsRootDir(ctx), getDirectBootDictsRootDir(ctx));
+        boolean configSynced = syncFile(getConfigFile(ctx), getDirectBootConfigFile(ctx));
+        boolean dictsSynced = syncDirectory(getDictsRootDir(ctx), getDirectBootDictsRootDir(ctx));
+        if (BuildConfig.DEBUG && !configSynced)
+            Log.w(TAG, "Unable to synchronize configuration file to direct boot storage");
+        if (BuildConfig.DEBUG && !dictsSynced)
+            Log.w(TAG, "Unable to synchronize dictionaries to direct boot storage");
     }
 
-    private static void syncFile(File source, File destination) {
+    private static boolean syncFile(File source, File destination) {
         if (source.exists())
-            DirectBoot.copyDirectory(source, destination);
-        else
-            destination.delete();
+            return DirectBoot.copyDirectory(source, destination);
+        return destination.delete() || !destination.exists();
     }
 
-    private static void syncDirectory(File source, File destination) {
+    private static boolean syncDirectory(File source, File destination) {
         if (source.exists()) {
-            DirectBoot.copyDirectory(source, destination);
+            if (!DirectBoot.copyDirectory(source, destination))
+                return false;
             deleteMissingChildren(source, destination);
+            return true;
         } else {
-            DirectBoot.delete(destination);
+            return DirectBoot.delete(destination);
         }
     }
 

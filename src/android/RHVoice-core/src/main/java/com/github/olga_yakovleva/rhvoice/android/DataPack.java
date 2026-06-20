@@ -710,7 +710,7 @@ public abstract class DataPack {
             Log.v(TAG, "Scheduling " + getWorkName() + ", replace=" + replace);
         ExistingWorkPolicy policy = replace ? ExistingWorkPolicy.REPLACE : ExistingWorkPolicy.KEEP;
         OneTimeWorkRequest localRequest = (new OneTimeWorkRequest.Builder(DataSyncWorker.class)).addTag(DataManager.WORK_TAG).setInputData(setWorkInput(new androidx.work.Data.Builder()).build()).build();
-        WorkContinuation cont = WorkManager.getInstance().beginUniqueWork(getWorkName(), policy, localRequest);
+        WorkContinuation cont = WorkManager.getInstance(context).beginUniqueWork(getWorkName(), policy, localRequest);
         if (flag == SyncFlags.NETWORK) {
             cont = cont.then((new OneTimeWorkRequest.Builder(ConfirmNetworkDataWorker.class)).addTag(DataManager.WORK_TAG).build());
             cont = cont.then((new OneTimeWorkRequest.Builder(NetworkDataSyncWorker.class)).addTag(DataManager.WORK_TAG).setConstraints((new Constraints.Builder()).setRequiredNetworkType(getNetworkTypeSetting(context)).build()).build());

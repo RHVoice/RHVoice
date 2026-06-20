@@ -25,8 +25,12 @@ public final class OnPackageReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent == null)
+            return;
         int uid = context.getApplicationInfo().uid;
         if (intent.getIntExtra(Intent.EXTRA_UID, uid) != uid)
+            return;
+        if (intent.getData() == null)
             return;
         String packageName = intent.getData().getSchemeSpecificPart();
         if (BuildConfig.DEBUG)
