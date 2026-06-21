@@ -31,6 +31,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
+import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
@@ -703,6 +704,11 @@ public abstract class DataPack {
     public final void scheduleSync(Context context, boolean replace) {
         if (!DirectBoot.isUserUnlocked(context))
             return;
+        if (DirectBoot.isMigrationInProgress()) {
+            final Context appContext = context.getApplicationContext();
+            DirectBoot.migrate(appContext, () -> ContextCompat.getMainExecutor(appContext).execute(() -> scheduleSync(appContext, replace)));
+            return;
+        }
         long flag = getSyncFlag(context);
         if (flag == 0)
             return;

@@ -721,6 +721,8 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         if (BuildConfig.DEBUG)
             Log.v(TAG, "onGetVoices called");
         List<Voice> result = new ArrayList<Voice>();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            return result;
         Voice v = null;
         final DataManager dm = Repository.get().createDataManager();
         for (LanguagePack lp : dm.iterLanguages()) {

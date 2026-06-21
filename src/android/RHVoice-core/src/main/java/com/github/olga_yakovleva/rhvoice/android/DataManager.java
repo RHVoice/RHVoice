@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
+import androidx.core.content.ContextCompat;
 
 import com.github.olga_yakovleva.rhvoice.RHVoiceException;
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
@@ -120,6 +121,13 @@ public final class DataManager {
 
     @MainThread
     public void scheduleSync(Context context, boolean replace) {
+        if (!DirectBoot.isUserUnlocked(context))
+            return;
+        if (DirectBoot.isMigrationInProgress()) {
+            final Context appContext = context.getApplicationContext();
+            DirectBoot.migrate(appContext, () -> ContextCompat.getMainExecutor(appContext).execute(() -> scheduleSync(appContext, replace)));
+            return;
+        }
         for (LanguagePack lang : getLanguages()) {
             lang.scheduleSync(context, replace);
             for (VoicePack voice : lang.getVoices())

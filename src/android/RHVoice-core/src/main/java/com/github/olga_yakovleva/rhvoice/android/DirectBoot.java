@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,6 +43,8 @@ final class DirectBoot {
     private static final String MIGRATED_PREF_PREFIX = "migrated.preferences.";
     private static final String MIGRATED_DIR_PREFIX = "migrated.dir.";
     private static final ExecutorService migrationExecutor = Executors.newSingleThreadExecutor();
+    private static final List<Runnable> migrationCallbacks = new ArrayList<>();
+    private static boolean migrationInProgress = false;
 
     private DirectBoot() {
     }
@@ -58,6 +62,12 @@ final class DirectBoot {
 
     public static boolean isInDirectBoot(Context context) {
         return isSupported() && !isUserUnlocked(context);
+    }
+
+    public static boolean isMigrationInProgress() {
+        synchronized (DirectBoot.class) {
+            return migrationInProgress;
+        }
     }
 
     public static Context getDeviceProtectedContext(Context context) {
@@ -102,16 +112,47 @@ final class DirectBoot {
             return;
         }
         SharedPreferences state = getMigrationState(directContext);
+        boolean startMigration = false;
         synchronized (DirectBoot.class) {
             migrateSharedPreferences(appContext, directContext, state);
             migratePrivateDir(appContext, directContext, state, PACKAGE_DIR);
-        }
-        migrationExecutor.execute(() -> {
-            Config.syncToDirectBootStorage(appContext);
-            migratePrivateDirs(appContext, directContext, state);
             if (onComplete != null)
-                onComplete.run();
+                migrationCallbacks.add(onComplete);
+            if (!migrationInProgress) {
+                migrationInProgress = true;
+                startMigration = true;
+            }
+        }
+        if (!startMigration)
+            return;
+        migrationExecutor.execute(() -> {
+            try {
+                Config.syncToDirectBootStorage(appContext);
+                migratePrivateDirs(appContext, directContext, state);
+            } catch (RuntimeException e) {
+                if (BuildConfig.DEBUG)
+                    Log.w(TAG, "Direct boot migration failed", e);
+            } finally {
+                finishMigration();
+            }
         });
+    }
+
+    private static void finishMigration() {
+        List<Runnable> callbacks;
+        synchronized (DirectBoot.class) {
+            migrationInProgress = false;
+            callbacks = new ArrayList<>(migrationCallbacks);
+            migrationCallbacks.clear();
+        }
+        for (Runnable callback : callbacks) {
+            try {
+                callback.run();
+            } catch (RuntimeException e) {
+                if (BuildConfig.DEBUG)
+                    Log.w(TAG, "Direct boot migration callback failed", e);
+            }
+        }
     }
 
     private static SharedPreferences getMigrationState(Context directContext) {
