@@ -421,7 +421,15 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         userUnlockedReceiverRegistered = true;
     }
 
+    private void unregisterUserUnlockedReceiver() {
+        if (!userUnlockedReceiverRegistered)
+            return;
+        unregisterReceiver(userUnlockedReceiver);
+        userUnlockedReceiverRegistered = false;
+    }
+
     private void onUserUnlocked() {
+        unregisterUserUnlockedReceiver();
         DirectBoot.migrate(this, () -> postIfAlive(() -> {
             Repository.get().onUserUnlocked();
             dataManager.setPackageDirectory(Repository.get().getPackageDirectory());
@@ -519,8 +527,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         destroyed = true;
         handler.removeCallbacksAndMessages(null);
         unregisterReceiver(packageReceiver);
-        if (userUnlockedReceiverRegistered)
-            unregisterReceiver(userUnlockedReceiver);
+        unregisterUserUnlockedReceiver();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(dataStateReceiver);
         ttsManager.destroy();
         lifecycleDispatcher.onServicePreSuperOnDestroy();
