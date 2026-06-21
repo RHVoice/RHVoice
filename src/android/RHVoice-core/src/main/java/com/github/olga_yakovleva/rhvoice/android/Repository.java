@@ -222,9 +222,12 @@ final class Repository {
     }
 
     public void onUserUnlocked() {
-        exec.submit(this::initCerts);
-        scheduleUpdates();
-        refresh();
+        exec.execute(() -> {
+            initCerts();
+            parseCachedPackageDir();
+            scheduleUpdates();
+            updateFromServer();
+        });
     }
 
 }

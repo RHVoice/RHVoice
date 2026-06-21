@@ -107,7 +107,7 @@ public final class Config {
     private static boolean syncFile(File source, File destination) {
         if (source.exists())
             return DirectBoot.copyDirectory(source, destination);
-        return destination.delete() || !destination.exists();
+        return DirectBoot.delete(destination);
     }
 
     private static boolean syncDirectory(File source, File destination) {
@@ -128,6 +128,8 @@ public final class Config {
         for (File child : children) {
             File sourceChild = new File(source, child.getName());
             if (!sourceChild.exists()) {
+                DirectBoot.delete(child);
+            } else if (sourceChild.isDirectory() != child.isDirectory()) {
                 DirectBoot.delete(child);
             } else if (child.isDirectory()) {
                 deleteMissingChildren(sourceChild, child);

@@ -101,8 +101,8 @@ final class DirectBoot {
         migrateSharedPreferences(appContext, directContext);
         migratePrivateDir(appContext, directContext, PACKAGE_DIR);
         migrationExecutor.execute(() -> {
-            migratePrivateDirs(appContext, directContext);
             Config.syncToDirectBootStorage(appContext);
+            migratePrivateDirs(appContext, directContext);
             if (onComplete != null)
                 onComplete.run();
         });
