@@ -25,6 +25,8 @@ public final class OnMyPackageReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent == null || !Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()))
+            return;
         if (BuildConfig.DEBUG)
             Log.i(TAG, "My package has been updated");
         DirectBoot.migrate(context);
