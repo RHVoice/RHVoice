@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
 # Copyright (C) 2012, 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
@@ -93,7 +93,7 @@ class sentence_list_iterator(object):
 	def __iter__(self):
 		return self
 
-	def next(self):
+	def __next__(self):
 		if self.item is None:
 			raise StopIteration
 		result=self.item
@@ -147,7 +147,7 @@ class prompt_selector(object):
 		for u in sent.units:
 			i=self.unit_idx.add(u)
 			counter[i]+=1
-		sent.instances=list(counter.iteritems())
+		sent.instances=list(counter.items())
 		sent.units=[i for i,n in sent.instances]
 		sent.units.sort()
 
@@ -159,7 +159,7 @@ class prompt_selector(object):
 	def find_rarest_unit(self,total_state,state,target_state):
 		min_count=0
 		unit=None
-		for i in xrange(len(state)):
+		for i in range(len(state)):
 			if state[i]>=target_state[i]:
 				continue
 			if min_count==0 or total_state[i]<min_count:
@@ -206,7 +206,7 @@ class prompt_selector(object):
 		it=0
 		while True:
 			it+=1
-			print("Iteration {}".format(it))
+			print(("Iteration {}".format(it)))
 			sent=self.find_most_useful_sentence(sentences,total_state,state,target_state)
 			if sent is None:
 				break
@@ -224,7 +224,7 @@ class prompt_selector(object):
 
 	def get_target_state(self,total_state,target_coverage):
 		state=list(total_state)
-		for i in xrange(len(state)):
+		for i in range(len(state)):
 			if state[i]>target_coverage:
 				state[i]=target_coverage
 		return state
@@ -256,7 +256,7 @@ class prompt_selector(object):
 		it=0
 		while True:
 			it+=1
-			print("Iteration {}".format(it))
+			print(("Iteration {}".format(it)))
 			sent=self.find_least_useful_sentence(sentences,state,target_state)
 			if sent is None:
 				return
@@ -285,10 +285,10 @@ class prompt_selector(object):
 
 	def get_word(self,token):
 		ltoken=token.lower()
-		first=next((i for i in xrange(len(ltoken)) if ltoken[i] in self.alphabet),None)
+		first=next((i for i in range(len(ltoken)) if ltoken[i] in self.alphabet),None)
 		if first is None:
-			return u""
-		last=next((i for i in xrange(len(ltoken)-1,-1,-1) if ltoken[i] in self.alphabet))
+			return ""
+		last=next((i for i in range(len(ltoken)-1,-1,-1) if ltoken[i] in self.alphabet))
 		return ltoken[first:last+1]
 
 class bigram_prompt_selector(prompt_selector):
@@ -350,8 +350,8 @@ class bigram_prompt_selector(prompt_selector):
 		if len(symbols)<n:
 			return []
 		n_grams=[]
-		for i in xrange(len(symbols)-n+1):
-				n_grams.append(u"".join(symbols[i:i+n]))
+		for i in range(len(symbols)-n+1):
+				n_grams.append("".join(symbols[i:i+n]))
 		return n_grams
 
 	def get_sentence_units(self,sentence):
@@ -371,19 +371,19 @@ class diphone_prompt_selector(prompt_selector):
 		with codecs.open("ssml","w","utf-8") as f_out:
 			f_out.write('<speak xml:lang="{}">\n'.format(self.language))
 			for sent in sentences:
-				f_out.write(u"<s>{}</s>\n".format(sent))
+				f_out.write("<s>{}</s>\n".format(sent.text))
 			f_out.write("</speak>\n")
-		subprocess.check_call(["RHVoice-transcribe-sentences","ssml","transcription"])
+		subprocess.check_call(["local/bin/RHVoice-transcribe-sentences","ssml","transcription"])
 		with codecs.open("transcription","r","utf-8") as f_in:
 			for s,l in zip(sentences,f_in):
 				phones=l.split()
-				s.extend(phones[i-1]+"+"+phones[i] for i in xrange(1,len(phones)))
+				s.units.extend(phones[i-1]+"+"+phones[i] for i in range(1,len(phones)))
 
 def select_prompts(conf):
 	sel=diphone_prompt_selector(conf) if conf["language"] else bigram_prompt_selector(conf)
 	prompts=sel()
 	with codecs.open("script.txt","w","utf-8") as f:
-		f.write(u"\ufeff")
+		f.write("\ufeff")
 		for prompt in prompts:
 			f.write(prompt.text)
 			f.write("\r\n\r\n")
