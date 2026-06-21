@@ -18,6 +18,11 @@ package com.github.olga_yakovleva.rhvoice.android;
 import androidx.multidex.MultiDexApplication;
 import androidx.work.Configuration;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.android.material.color.DynamicColors;
@@ -32,10 +37,36 @@ import org.conscrypt.Conscrypt;
 
 public final class MyApplication extends MultiDexApplication implements Configuration.Provider {
     private static final String TAG = "RHVoice.MyApplication";
+    private BroadcastReceiver userUnlockedReceiver;
 
     @Override
     public Configuration getWorkManagerConfiguration() {
         return new Configuration.Builder().build();
+    }
+
+    private void registerUserUnlockedReceiver() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || !DirectBoot.isInDirectBoot(this))
+            return;
+        userUnlockedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (Intent.ACTION_USER_UNLOCKED.equals(intent.getAction()))
+                    onUserUnlocked();
+            }
+        };
+        registerReceiver(userUnlockedReceiver, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
+    }
+
+    private void unregisterUserUnlockedReceiver() {
+        if (userUnlockedReceiver == null)
+            return;
+        unregisterReceiver(userUnlockedReceiver);
+        userUnlockedReceiver = null;
+    }
+
+    private void onUserUnlocked() {
+        unregisterUserUnlockedReceiver();
+        DirectBoot.migrate(this, () -> Repository.get().onUserUnlocked());
     }
 
     @Override
@@ -54,7 +85,14 @@ public final class MyApplication extends MultiDexApplication implements Configur
             if (BuildConfig.DEBUG)
                 Log.e(TAG, "Error", e);
         }
+        boolean wasInDirectBoot = DirectBoot.isInDirectBoot(this);
         DirectBoot.migrate(this);
         Repository.initialize(this);
+        if (wasInDirectBoot) {
+            if (DirectBoot.isInDirectBoot(this))
+                registerUserUnlockedReceiver();
+            else
+                onUserUnlocked();
+        }
     }
 }

@@ -227,6 +227,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     private final DataManager dataManager = new DataManager();
     private volatile AndroidVoiceInfo currentVoice;
     private volatile boolean speaking = false;
+    private boolean destroyed = false;
     private List<String> paths = new ArrayList<String>();
     private Handler handler;
 
@@ -421,12 +422,19 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     }
 
     private void onUserUnlocked() {
-        DirectBoot.migrate(this, () -> handler.post(() -> {
+        DirectBoot.migrate(this, () -> postIfAlive(() -> {
             Repository.get().onUserUnlocked();
             dataManager.setPackageDirectory(Repository.get().getPackageDirectory());
             paths = dataManager.getPaths(this);
             initialize();
         }));
+    }
+
+    private void postIfAlive(Runnable task) {
+        handler.post(() -> {
+            if (!destroyed)
+                task.run();
+        });
     }
 
     private class VoiceInstaller implements Runnable, Observer<PackageDirectory> {
@@ -474,6 +482,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     public void onCreate() {
         if (BuildConfig.DEBUG)
             Log.i(TAG, "Creating the service");
+        destroyed = false;
         handler = new Handler();
         lifecycleDispatcher.onServicePreSuperOnCreate();
         IntentFilter filter = new IntentFilter(ACTION_CHECK_DATA);
@@ -484,7 +493,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
         dataManager.setPackageDirectory(Repository.get().getPackageDirectory());
         paths = dataManager.getPaths(this);
         initialize();
-        DirectBoot.migrate(this, () -> handler.post(() -> {
+        DirectBoot.migrate(this, () -> postIfAlive(() -> {
             paths = dataManager.getPaths(this);
             initialize();
         }));
@@ -507,6 +516,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
 
     @Override
     public void onDestroy() {
+        destroyed = true;
         handler.removeCallbacksAndMessages(null);
         unregisterReceiver(packageReceiver);
         if (userUnlockedReceiverRegistered)
