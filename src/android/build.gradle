@@ -15,11 +15,11 @@ allprojects {
         mavenCentral()
     }
 
-    ext.myMinSdkVersion = 19
+    ext.myMinSdkVersion = 23
     ext.myCompileSdkVersion = 35
     ext.myBuildToolsVersion = '35.0.0'
     ext.myNdkVersion = '25.1.8937393'
-    ext.myTargetSdkVersion = 33
+    ext.myTargetSdkVersion = 35
 }
 
 if (hasProperty("RHVoice.signRelease")) {
