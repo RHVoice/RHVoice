@@ -22,7 +22,7 @@ import java.io.File;
 
 final class PackageClient {
     public static final String getPath(Context context) {
-        File dir = context.getDir("packages", 0);
+        File dir = DirectBoot.getDir(context, "packages");
         if (!dir.isDirectory()) {
             dir.mkdirs();
         }
