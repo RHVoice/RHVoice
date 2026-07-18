@@ -227,6 +227,7 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
     private class Player implements TTSClient {
         private SynthesisCallback callback;
         private int sampleRate;
+        private int framesServed;
 
         public Player(SynthesisCallback callback) {
             this.callback = callback;
@@ -259,8 +260,17 @@ public final class RHVoiceService extends TextToSpeechService implements Lifecyc
                 if (callback.audioAvailable(bytes, offset, count) != TextToSpeech.SUCCESS)
                     return false;
                 offset += count;
+                framesServed += count / 2;
             }
             return true;
+        }
+
+        public boolean rangeStart(int start, int end) {
+            if (!speaking)
+                return false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                callback.rangeStart(framesServed, start, end);
+            return speaking;
         }
     }
 
