@@ -19,4 +19,6 @@ public interface TTSClient {
     boolean playSpeech(short[] samples);
 
     boolean setSampleRate(int sampleRate);
+
+    boolean rangeStart(int start, int end);
 }

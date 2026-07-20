@@ -283,6 +283,8 @@ namespace
 
     bool play_speech(const short*,std::size_t);
     bool set_sample_rate(int);
+    event_mask get_supported_events() const;
+    bool word_starts(std::size_t position,std::size_t length);
 
   private:
     JNIEnv* env;
@@ -292,6 +294,11 @@ namespace
     jobject client_object;
     jmethodID client_playSpeech_method;
     jmethodID client_setSampleRate_method;
+    jmethodID client_rangeStart_method;
+    std::vector<jint> byte_to_utf16;
+
+    void build_offset_map(const std::string& text);
+    jint utf16_offset(std::size_t byte_pos) const;
 
     speak_impl(const speak_impl&);
     speak_impl& operator=(const speak_impl&);
@@ -307,6 +314,31 @@ namespace
     jclass client_class=check(env,env->GetObjectClass(client_object));
     client_playSpeech_method=get_method(env,client_class,"playSpeech","([S)Z");
     client_setSampleRate_method=get_method(env,client_class,"setSampleRate","(I)Z");
+    client_rangeStart_method=get_method(env,client_class,"rangeStart","(II)Z");
+  }
+
+  void speak_impl::build_offset_map(const std::string& text)
+  {
+    byte_to_utf16.assign(text.size()+1,0);
+    std::size_t u16=0;
+    std::string::const_iterator it=text.begin();
+    while(it!=text.end())
+      {
+        const std::size_t byte_pos=it-text.begin();
+        const utf8::uint32_t cp=utf8::next(it,text.end());
+        const jint u16_index=static_cast<jint>(u16);
+        for(std::size_t b=byte_pos,e=it-text.begin();b<e;++b)
+          byte_to_utf16[b]=u16_index;
+        u16+=(cp>=0x10000)?2:1;
+      }
+    byte_to_utf16[text.size()]=static_cast<jint>(u16);
+  }
+
+  jint speak_impl::utf16_offset(std::size_t byte_pos) const
+  {
+    if(byte_pos>=byte_to_utf16.size())
+      return byte_to_utf16.empty()?0:byte_to_utf16.back();
+    return byte_to_utf16[byte_pos];
   }
 
   void speak_impl::operator()()
@@ -316,6 +348,7 @@ namespace
     if(profile.empty())
       throw voice_not_found();
     std::string text=jstring_to_string(env,input);
+    build_offset_map(text);
     std::unique_ptr<document> doc;
     if(check(env,env->CallBooleanMethod(params,SynthesisParameters_getSSMLMode_method)))
       doc=document::create_from_ssml(data->engine_ptr,text.begin(),text.end(),profile);
@@ -342,6 +375,18 @@ namespace
   {
     return check(env,env->CallBooleanMethod(client_object,client_setSampleRate_method,sr));
 }
+
+  event_mask speak_impl::get_supported_events() const
+  {
+    return event_word_starts;
+  }
+
+  bool speak_impl::word_starts(std::size_t position,std::size_t length)
+  {
+    const jint start=utf16_offset(position);
+    const jint end=utf16_offset(position+length);
+    return check(env,env->CallBooleanMethod(client_object,client_rangeStart_method,start,end));
+  }
 
   class java_logger_wrapper: public event_logger
   {
