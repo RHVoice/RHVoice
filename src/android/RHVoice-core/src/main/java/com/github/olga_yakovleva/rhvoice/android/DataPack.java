@@ -24,14 +24,15 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.text.Spanned;
 import android.util.Base64;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
+import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
-import androidx.preference.PreferenceManager;
 import androidx.work.Constraints;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
@@ -145,9 +146,12 @@ public abstract class DataPack {
 
     public final PackageInfo getPackageInfo(Context context) {
         PackageManager pm = context.getPackageManager();
+        int flags = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            flags |= PackageManager.MATCH_DIRECT_BOOT_AWARE | PackageManager.MATCH_DIRECT_BOOT_UNAWARE;
         try {
-            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);
-            if (context.getApplicationInfo().uid != pi.applicationInfo.uid)
+            PackageInfo pi = pm.getPackageInfo(getPackageName(), flags);
+            if (pi.applicationInfo == null || context.getApplicationInfo().uid != pi.applicationInfo.uid)
                 return null;
             return pi;
         } catch (PackageManager.NameNotFoundException e) {
@@ -164,15 +168,15 @@ public abstract class DataPack {
     }
 
     protected final File getDataDir(Context context) {
-        return context.getDir("data", 0).getAbsoluteFile();
+        return DirectBoot.getDir(context, "data").getAbsoluteFile();
     }
 
     protected final File getTempDir(Context context) {
-        return context.getDir("tmp-" + getType() + "-" + getId(), 0);
+        return DirectBoot.getDir(context, "tmp-" + getType() + "-" + getId());
     }
 
     private File getDownloadsDir(Context context) {
-        return context.getDir("downloads-" + getType() + "-" + getId(), 0);
+        return DirectBoot.getDir(context, "downloads-" + getType() + "-" + getId());
     }
 
     private File getDownloadFile(Context context) {
@@ -184,50 +188,78 @@ public abstract class DataPack {
     }
 
     protected final boolean delete(File obj) {
-        if (!obj.exists())
-            return true;
-        if (obj.isDirectory()) {
-            File[] children = obj.listFiles();
-            for (File child : children) {
-                if (!delete(child))
+        try {
+            if (!obj.exists())
+                return true;
+            if (obj.isDirectory()) {
+                File[] children = obj.listFiles();
+                if (children == null)
                     return false;
+                for (File child : children) {
+                    if (!delete(child))
+                        return false;
+                }
             }
+            boolean result = obj.delete();
+            return result;
+        } catch (SecurityException e) {
+            if (BuildConfig.DEBUG)
+                Log.w(TAG, "Unable to delete " + obj.getAbsolutePath(), e);
+            return false;
         }
-        boolean result = obj.delete();
-        return result;
     }
 
     protected final boolean clean(File dir) {
-        if (dir.isDirectory()) {
-            File[] children = dir.listFiles();
-            for (File child : children) {
-                if (!delete(child))
+        try {
+            if (dir.isDirectory()) {
+                File[] children = dir.listFiles();
+                if (children == null)
                     return false;
-            }
-            return true;
-        } else
+                for (File child : children) {
+                    if (!delete(child))
+                        return false;
+                }
+                return true;
+            } else
+                return false;
+        } catch (SecurityException e) {
+            if (BuildConfig.DEBUG)
+                Log.w(TAG, "Unable to clean " + dir.getAbsolutePath(), e);
             return false;
+        }
     }
 
     protected final boolean safeDelete(Context context, File file) {
-        if (!file.exists())
-            return true;
-        if (!file.isDirectory())
-            return delete(file);
-        File tempDir = getTempDir(context);
-        if (!delete(tempDir))
+        try {
+            if (!file.exists())
+                return true;
+            if (!file.isDirectory())
+                return delete(file);
+            File tempDir = getTempDir(context);
+            if (!delete(tempDir))
+                return false;
+            if (!file.renameTo(tempDir))
+                return false;
+            return delete(tempDir);
+        } catch (SecurityException e) {
+            if (BuildConfig.DEBUG)
+                Log.w(TAG, "Unable to delete " + file.getAbsolutePath(), e);
             return false;
-        if (!file.renameTo(tempDir))
-            return false;
-        return delete(tempDir);
+        }
     }
 
     protected final Boolean mkdir(File dir) {
-        if (dir.isDirectory())
-            return true;
-        else {
-            boolean result = dir.mkdirs();
-            return result;
+        try {
+            if (dir.isDirectory())
+                return true;
+            else {
+                boolean result = dir.mkdirs();
+                return result;
+            }
+        } catch (SecurityException e) {
+            if (BuildConfig.DEBUG)
+                Log.w(TAG, "Unable to create " + dir.getAbsolutePath(), e);
+            return false;
         }
     }
 
@@ -572,7 +604,7 @@ public abstract class DataPack {
     }
 
     protected static final SharedPreferences getPrefs(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
+        return DirectBoot.getDefaultSharedPreferences(context);
     }
 
     protected final String getVersionKey() {
@@ -698,6 +730,13 @@ public abstract class DataPack {
 
     @MainThread
     public final void scheduleSync(Context context, boolean replace) {
+        if (!DirectBoot.isUserUnlocked(context))
+            return;
+        if (DirectBoot.isMigrationInProgress()) {
+            final Context appContext = context.getApplicationContext();
+            DirectBoot.migrate(appContext, () -> ContextCompat.getMainExecutor(appContext).execute(() -> scheduleSync(appContext, replace)));
+            return;
+        }
         long flag = getSyncFlag(context);
         if (flag == 0)
             return;
@@ -705,7 +744,7 @@ public abstract class DataPack {
             Log.v(TAG, "Scheduling " + getWorkName() + ", replace=" + replace);
         ExistingWorkPolicy policy = replace ? ExistingWorkPolicy.REPLACE : ExistingWorkPolicy.KEEP;
         OneTimeWorkRequest localRequest = (new OneTimeWorkRequest.Builder(DataSyncWorker.class)).addTag(DataManager.WORK_TAG).setInputData(setWorkInput(new androidx.work.Data.Builder()).build()).build();
-        WorkContinuation cont = WorkManager.getInstance().beginUniqueWork(getWorkName(), policy, localRequest);
+        WorkContinuation cont = WorkManager.getInstance(context).beginUniqueWork(getWorkName(), policy, localRequest);
         if (flag == SyncFlags.NETWORK) {
             cont = cont.then((new OneTimeWorkRequest.Builder(ConfirmNetworkDataWorker.class)).addTag(DataManager.WORK_TAG).build());
             cont = cont.then((new OneTimeWorkRequest.Builder(NetworkDataSyncWorker.class)).addTag(DataManager.WORK_TAG).setConstraints((new Constraints.Builder()).setRequiredNetworkType(getNetworkTypeSetting(context)).build()).build());

@@ -57,8 +57,7 @@ public final class RemoveUserDictDialogFragment extends AppCompatDialogFragment 
     }
 
     private void onDictSelected(DialogInterface dialog, int index) {
-        final File dictFile = new File(Config.getLangDictsDir(getActivity(), languageName), userDicts[index]);
-        dictFile.delete();
+        Config.deleteUserDict(getActivity(), languageName, userDicts[index]);
         LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(new Intent(RHVoiceService.ACTION_CONFIG_CHANGE));
     }
 

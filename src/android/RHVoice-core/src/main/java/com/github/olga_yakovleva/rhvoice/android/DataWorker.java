@@ -54,6 +54,8 @@ abstract class DataWorker extends Worker {
 
     @Override
     public final Result doWork() {
+        if (!DirectBoot.isUserUnlocked(getApplicationContext()) || DirectBoot.isMigrationInProgress())
+            return Result.retry();
         final PackageDirectory dir = Repository.get().getPackageDirectory();
         if (dir == null)
             return Result.retry();

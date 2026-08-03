@@ -21,12 +21,17 @@ import android.content.Intent;
 import android.util.Log;
 
 public final class OnMyPackageReceiver extends BroadcastReceiver {
-    private static final String TAG = "RHVoiceOnMyPackageReceiver";
+    private static final String TAG = "RHVoice.MyPkgReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent == null || !Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction()))
+            return;
         if (BuildConfig.DEBUG)
             Log.i(TAG, "My package has been updated");
+        DirectBoot.migrate(context);
+        if (DirectBoot.isInDirectBoot(context))
+            return;
         Repository.get().createDataManager().scheduleSync(context, true);
     }
 }

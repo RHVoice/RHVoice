@@ -16,7 +16,6 @@
 package com.github.olga_yakovleva.rhvoice.android;
 
 import android.content.Context;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
@@ -29,7 +28,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.github.olga_yakovleva.rhvoice.TTSEngine;
-import com.google.common.base.MoreObjects;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -37,17 +36,12 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import okio.BufferedSource;
-import okio.Okio;
 
 import java.io.InputStreamReader;
 
@@ -70,10 +64,10 @@ final class Repository {
 
     @MainThread
     private Repository(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = DirectBoot.getDeviceProtectedContext(context);
         try {
             {
-                engine = new TTSEngine("", Config.getDir(this.context).getAbsolutePath(), new String[0], PackageClient.getPath(this.context), CoreLogger.instance);
+                engine = new TTSEngine("", Config.getEngineDir(this.context).getAbsolutePath(), new String[0], PackageClient.getPath(this.context), CoreLogger.instance);
             }
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -82,7 +76,7 @@ final class Repository {
         moshi = new Moshi.Builder().build();
         jsonAdapter = moshi.adapter(PackageDirectory.class).nonNull();
         exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
-	exec.submit(this::initCerts);
+        exec.submit(this::initCerts);
         initialLoad();
     }
 
@@ -128,14 +122,23 @@ final class Repository {
         }
     }
 
+    private boolean parseCachedPackageDir() {
+        try {
+            return parse(engine.getCachedPackageDir());
+        } catch (Exception e) {
+            if (BuildConfig.DEBUG)
+                Log.e(TAG, "Error while loading cached package directory", e);
+            return false;
+        }
+    }
+
     private void initialLoad() {
         try {
             {
-                String str = engine.getCachedPackageDir();
-                if (str == null)
-                    str = getPackageDirFromResources();
-                parse(str);
-                scheduleUpdates();
+                if (!parseCachedPackageDir())
+                    parse(getPackageDirFromResources());
+                if (DirectBoot.isUserUnlocked(context))
+                    scheduleUpdates();
             }
         } catch (Exception e) {
             if (BuildConfig.DEBUG)
@@ -144,6 +147,8 @@ final class Repository {
     }
 
     private boolean updateFromServer() {
+        if (!DirectBoot.isUserUnlocked(context))
+            return false;
         if (BuildConfig.DEBUG)
             Log.v(TAG, "Updating from server");
         try {
@@ -152,7 +157,7 @@ final class Repository {
                 Log.v(TAG, "Response:\n" + str);
             final PackageDirectory oldDir = getPackageDirectory();
             final boolean res = parse(str);
-            if (res && oldDir != null && oldDir.ttl != getPackageDirectory().ttl)
+            if (res && (oldDir == null || oldDir.ttl != getPackageDirectory().ttl))
                 ContextCompat.getMainExecutor(context).execute(this::scheduleUpdates);
             return res;
         } catch (Exception e) {
@@ -170,16 +175,24 @@ final class Repository {
     }
 
     public ListenableFuture<Boolean> refresh() {
+        if (!DirectBoot.isUserUnlocked(context))
+            return Futures.immediateFuture(false);
         return exec.submit(this::updateFromServer);
     }
 
     public ListenableFuture<Boolean> check() {
+        if (!DirectBoot.isUserUnlocked(context))
+            return Futures.immediateFuture(true);
         return exec.submit(this::doCheck);
     }
 
     private void scheduleUpdates() {
+        if (!DirectBoot.isUserUnlocked(context))
+            return;
         final PackageDirectory dir = getPackageDirectory();
-        final SharedPreferences prefs = context.getSharedPreferences("dir", 0);
+        if (dir == null)
+            return;
+        final SharedPreferences prefs = DirectBoot.getSharedPreferences(context, "dir");
         final long newTtl = dir.ttl;
         final long oldTtl = prefs.getLong("ttl", 0);
         Constraints constraints = new Constraints.Builder()
@@ -196,20 +209,25 @@ final class Repository {
     }
 
     private void initCerts() {
-	final File file_path=new File(new File(PackageClient.getPath(context)), "cacert.pem");
-	final File tmp_path=new File(file_path.getPath()+".tmp");
-        try(InputStream is=context.getResources().openRawResource(R.raw.cacert))
-            {
-                try(FileOutputStream os=new FileOutputStream(tmp_path))
-                    {
-                        DataPack.copyBytes(is, os, null);
-		    }
-		    }
-        catch(IOException e)
-            {
-		return;
+        final File file_path = new File(new File(PackageClient.getPath(context)), "cacert.pem");
+        final File tmp_path = new File(file_path.getPath() + ".tmp");
+        try (InputStream is = context.getResources().openRawResource(R.raw.cacert)) {
+            try (FileOutputStream os = new FileOutputStream(tmp_path)) {
+                DataPack.copyBytes(is, os, null);
             }
-		tmp_path.renameTo(file_path);
-	    }
-
+        } catch (IOException e) {
+            return;
+        }
+        tmp_path.renameTo(file_path);
     }
+
+    public void onUserUnlocked() {
+        exec.execute(() -> {
+            initCerts();
+            parseCachedPackageDir();
+            scheduleUpdates();
+            updateFromServer();
+        });
+    }
+
+}
