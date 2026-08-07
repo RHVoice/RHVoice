@@ -184,6 +184,7 @@ class AudioPlayer:
         self.__sample_rate = 0
         self.__players = {}
         self.__lock = threading.Lock()
+        self.isSpeaking = False
         self.__closed = False
 
     def do_get_player(self):
@@ -226,12 +227,14 @@ class AudioPlayer:
     def do_play(self, data, index=None):
         player = self.get_player()
         if player is not None and not self.__cancel_flag.is_set():
+            self.isSpeaking = True
             if index is None:
                 player.feed(data)
             else:
                 player.feed(data, onDone=lambda next_index=index: synthIndexReached.notify(synth=self.__synth, index=next_index))
             if self.__cancel_flag.is_set():
                 player.stop()
+                self.isSpeaking = False
 
     def play(self, data):
         if self.__prev_data is None:
@@ -263,6 +266,7 @@ class AudioPlayer:
             return
         self.do_play(self.__prev_data)
         self.__prev_data = None
+        self.isSpeaking = False
 
     def on_index(self, index):
         data = self.__prev_data
@@ -598,6 +602,9 @@ class SynthDriver(SynthDriver):
             self.__cancel_flag.set()
             self.__tts_queue.put(self.__cancel_flag.clear)
             self.__player.stop()
+
+    def isSpeaking(self):
+        return self.__player.isSpeaking
 
     def clamp(self, value, minValue=0, maxValue=100):
         return max(minValue, min(maxValue, value))

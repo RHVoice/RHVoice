@@ -33,8 +33,17 @@ packager.add(os.path.join("..", "x86", "lib", "RHVoice.dll"), os.path.join(synth
 packager.add(os.path.join("..", "x86_64", "lib", "RHVoice.dll"), os.path.join(synthDriver_dir, "lib", "x64"))
 packager.add(os.path.join("..","licenses","gpl-3.0.txt"),synthDriver_dir)
 packager.add(os.path.join("..","RHVoice.ini"),os.path.join(synthDriver_dir,"config"))
-packager.add(curdir.Dir("globalPlugin").File("RHVoice_globalPlugin.py"), "globalPlugins")
-
+addon_files = env.Glob("globalPlugin/RHVoice/*.py")
+addon_files += env.Glob("globalPlugin/RHVoice/sound_lib/*.py")
+addon_files += env.Glob("globalPlugin/RHVoice/sound_lib/lib/*/*")
+addon_files += env.Glob("globalPlugin/RHVoice/sound_lib/external/*.py")
+addon_files += env.Glob("globalPlugin/RHVoice/sound_lib/external/*/*.py")
+addon_files += env.Glob("globalPlugin/RHVoice/sound_lib/external/platform_utils/shell_integration/*")
+addon_files += env.Glob("globalPlugin/RHVoice/sound_lib/effects/*")
+for file in addon_files:
+	outdir = os.path.dirname(file.rstr())
+	relative_path = outdir .split("nvda-addon", 1)[-1].replace("globalPlugin","globalPlugins")
+	packager.add(file,relative_path)
 moFiles=env.MOFiles(env.Glob("locale/*/LC_MESSAGES/nvda.po"))
 for mo in moFiles:
 	outdir=os.path.dirname(mo.rstr())
