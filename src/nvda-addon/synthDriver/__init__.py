@@ -147,12 +147,41 @@ class RHVoice_synth_params(Structure):
               ("capitals_mode", c_int),
               ("flags", c_int)]
 
-def getLibraryPath():
-    arch = "x64" if sys.maxsize > 2**32 else "x86"
-    return os.path.join(module_dir, "lib", arch, "RHVoice.dll")
+IMAGE_FILE_MACHINE_ARM64 = 0xAA64
+
+def runningOnArm64():
+    """Whether the host machine is ARM64, no matter what the current process is."""
+    try:
+        processMachine = ctypes.c_ushort()
+        nativeMachine = ctypes.c_ushort()
+        if not ctypes.windll.kernel32.IsWow64Process2(ctypes.windll.kernel32.GetCurrentProcess(), byref(processMachine), byref(nativeMachine)):
+            return False
+        return nativeMachine.value == IMAGE_FILE_MACHINE_ARM64
+    except Exception:
+        # IsWow64Process2 requires Windows 10 1709 or later.
+        return False
+
+def getLibraryPaths():
+    """The libraries we can use, the most preferable one first."""
+    if sys.maxsize > 2**32:
+        # An ARM64EC library uses the x64 ABI, so a 64 bit process can load it,
+        # but unlike the x64 one it is not emulated.
+        archs = ["arm64ec", "x64"] if runningOnArm64() else ["x64"]
+    else:
+        archs = ["x86"]
+    paths = [os.path.join(module_dir, "lib", arch, "RHVoice.dll") for arch in archs]
+    return [path for path in paths if os.path.isfile(path)]
 
 def load_tts_library():
-    lib = ctypes.CDLL(getLibraryPath())
+    lib = None
+    for path in getLibraryPaths():
+        try:
+            lib = ctypes.CDLL(path)
+            break
+        except OSError:
+            log.warning("Unable to load {}, trying the next library".format(path), exc_info=True)
+    if lib is None:
+        raise RuntimeError("No usable RHVoice library")
     lib.RHVoice_get_version.restype = c_char_p
     lib.RHVoice_new_tts_engine.argtypes = (POINTER(RHVoice_init_params),)
     lib.RHVoice_new_tts_engine.restype = RHVoice_tts_engine
