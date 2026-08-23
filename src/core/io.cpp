@@ -16,6 +16,7 @@
 #ifdef WIN32
 #include <wchar.h>
 #endif
+#include <locale>
 #include "core/io.hpp"
 #include "utf8.h"
 
@@ -69,7 +70,6 @@ namespace RHVoice
       #endif
       if(!stream.is_open())
         throw open_error(path);
-      stream.imbue(std::locale::classic());
     }
   }
 }
