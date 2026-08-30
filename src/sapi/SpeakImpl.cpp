@@ -58,6 +58,10 @@ namespace RHVoice
             case SPVA_Bookmark:
               doc.add_mark(utils::wstring_to_string(frag->pTextStart,frag->ulTextLen));
               break;
+            case SPVA_Silence:
+              // SAPI converts SSML break elements to timed silence fragments.
+              doc.add_break(break_phrase,frag->State.SilenceMSecs);
+              break;
             default:
               break;
             }
