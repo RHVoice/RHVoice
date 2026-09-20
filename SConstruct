@@ -168,7 +168,10 @@ def create_user_vars():
     vars.Add(BoolVariable("release","Whether we are building a release",True))
     if sys.platform=="win32":
         vars.Add(BoolVariable("sapi_dev_core", "Use the development version of the core in SAPI5 voice installers", False))
+        vars.Add(BoolVariable("enable_x86","Build 32-bit x86 versions of all the libraries",True))
         vars.Add(BoolVariable("enable_x64","Additionally build 64-bit versions of all the libraries",True))
+        vars.Add(BoolVariable("enable_arm64","Additionally build native ARM64 versions of all the libraries",False))
+        vars.Add(BoolVariable("enable_arm64ec","Additionally build ARM64EC versions of all the libraries: they use the x64-compatible ABI, but run natively on ARM64",False))
         vars.Add(BoolVariable("enable_xp_compat","Target Windows XP",False))
     else:
         vars.Add(PathVariable("spd_module_dir", "Speech dispatcher module directory", get_spd_module_dir(),  PathVariable.PathAccept))
@@ -228,11 +231,18 @@ def display_help(env,vars):
     Help("You may use the following configuration variables:\n")
     Help(vars.GenerateHelpText(env))
 
+def get_msvc_target_arch(arch):
+    # ARM64EC is produced by the ARM64 toolchain, it just needs extra switches.
+    return "arm64" if arch=="arm64ec" else arch
+
+def is_32_bit_arch(arch):
+    return arch=="x86"
+
 def clone_base_env(base_env,user_vars,arch=None):
     args={}
     if sys.platform=="win32":
         if arch is not None:
-            args["TARGET_ARCH"]=arch
+            args["TARGET_ARCH"]=get_msvc_target_arch(arch)
         args["tools"]=["msvc","mslink","mslib"]
     env=base_env.Clone(**args)
     user_vars.Update(env)
@@ -240,6 +250,12 @@ def clone_base_env(base_env,user_vars,arch=None):
         env.AppendUnique(CCFLAGS=["/nologo","/MT"])
         env.AppendUnique(LINKFLAGS=["/nologo"])
         env.AppendUnique(CXXFLAGS=["/EHsc"])
+        if arch=="arm64ec":
+            # The librarian has to be told about the machine type as well,
+            # otherwise it does not recognise the objects and reports an empty library.
+            env.AppendUnique(CCFLAGS=["/arm64EC"])
+            env.AppendUnique(LINKFLAGS=["/MACHINE:ARM64EC"])
+            env.AppendUnique(ARFLAGS=["/MACHINE:ARM64EC"])
         if env["enable_xp_compat"]:
             env.Tool("xp_compat")
     if "gcc" in env["TOOLS"]:
@@ -249,7 +265,7 @@ def clone_base_env(base_env,user_vars,arch=None):
         if 'SOURCE_DATE_EPOCH' in os.environ:
             env['ENV']['SOURCE_DATE_EPOCH'] = os.environ['SOURCE_DATE_EPOCH']
     if sys.platform=="win32":
-        bits="64" if arch.endswith("64") else "32"
+        bits="32" if is_32_bit_arch(arch) else "64"
         env["BUILDDIR"]=os.path.join(BUILDDIR,arch)
         env["CPPPATH"]=env["CPPPATH"+bits]
         env["LIBPATH"]=env["LIBPATH"+bits]
@@ -355,9 +371,14 @@ def preconfigure_for_windows(env):
 
 def build_for_windows(base_env,user_vars):
     preconfigure_for_windows(base_env)
-    build_binaries(base_env,user_vars,"x86")
+    if base_env["enable_x86"]:
+        build_binaries(base_env,user_vars,"x86")
     if base_env["enable_x64"]:
         build_binaries(base_env,user_vars,"x86_64")
+    if base_env["enable_arm64"]:
+        build_binaries(base_env,user_vars,"arm64")
+    if base_env["enable_arm64ec"]:
+        build_binaries(base_env,user_vars,"arm64ec")
     if "WIX" in base_env:
         SConscript(os.path.join("src","wininst","SConscript"),
                    variant_dir=os.path.join(BUILDDIR,"wininst"),
