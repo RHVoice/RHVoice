@@ -26,7 +26,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
 public final class PackageDirectoryWorker extends ListenableWorker {
-    private static final String TAG = "RHVoicePackageDirectoryWorker";
+    private static final String TAG = "RHVoice.PkgDirWorker";
 
     public PackageDirectoryWorker(Context context, WorkerParameters params) {
         super(context, params);
@@ -35,6 +35,8 @@ public final class PackageDirectoryWorker extends ListenableWorker {
     public ListenableFuture<ListenableWorker.Result> startWork() {
         if (BuildConfig.DEBUG)
             Log.v(TAG, "startWork()");
+        if (!DirectBoot.isUserUnlocked(getApplicationContext()) || DirectBoot.isMigrationInProgress())
+            return Futures.immediateFuture(Result.retry());
         if (!Repository.get().getPackageDirectoryLiveData().hasActiveObservers()) {
             if (BuildConfig.DEBUG)
                 Log.v(TAG, "Probably idle, don't check now");
