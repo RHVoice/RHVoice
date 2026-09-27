@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # -*- coding: utf-8; mode: Python; indent-tabs-mode: t; tab-width: 4; python-indent: 4 -*-
 
 # Copyright (C) 2012, 2014, 2015  Olga Yakovleva <yakovleva.o.v@gmail.com>
@@ -33,7 +33,7 @@ class base(object):
 
 	def replace(self,text):
 		res=text
-		for k,v in self.replacements.iteritems():
+		for k,v in self.replacements.items():
 			res=res.replace(k,v)
 		return res
 
@@ -41,7 +41,7 @@ class word_extractor(base):
 	def __init__(self,conf):
 		base.__init__(self,conf)
 		alphabet_string=u"".join(sorted(self.alphabet))
-		self.word_regex=re.compile(ur"(?ui)\b[{a}]+(-[{a}]+)*\b".format(a=alphabet_string))
+		self.word_regex=re.compile(r"(?ui)\b[{a}]+(-[{a}]+)*\b".format(a=alphabet_string))
 		self.words=collections.Counter()
 
 	def __call__(self,arg,dirname,filenames):
@@ -56,7 +56,8 @@ class word_extractor(base):
 
 def words(conf):
 	ext=word_extractor(conf)
-	os.path.walk(conf["source"],ext,None)
+	for dirname, _, filenames in os.walk(conf["source"]):
+		ext(None, dirname, filenames)
 	with codecs.open("words","w","utf-8") as f:
 		for w,c in ext.words.most_common():
 			f.write(u"{} {}\n".format(w,c))
@@ -185,9 +186,10 @@ class sentence_selector(base):
 
 def sentences(conf):
 	sel=sentence_selector(conf)
-	os.path.walk(conf["source"],sel,None)
+	for dirname, _, filenames in os.walk(conf["source"]):
+		sel(None, dirname, filenames)
 	with codecs.open("sentences","w","utf-8") as f:
-		for sentence,id in sorted(sel.sentences.iteritems(),key=lambda p: p[1]):
+		for sentence,id in sorted(sel.sentences.items(),key=lambda p: p[1]):
 			f.write(sentence)
 			f.write("\n")
 
