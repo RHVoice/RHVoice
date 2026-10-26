@@ -66,7 +66,10 @@ function(getVersionFromGit variablesPrefix defaultVersion)
 		set(VERSION_TIME "0000000000")
 	endif()
 
-	string(REGEX MATCH "^v?[0-9]+(\\.[0-9]+)+" VERSION ${VERSION_FROM_GIT})
+	string(REGEX MATCH "^v?[0-9]+(\\.[0-9]+)+" VERSION "${VERSION_FROM_GIT}")
+	if(NOT VERSION)
+		set(VERSION "${defaultVersion}")
+	endif()
 	set(${variablesPrefix}_VERSION "${VERSION}" PARENT_SCOPE)
 	message(STATUS "${variablesPrefix} version: ${VERSION}")
 
