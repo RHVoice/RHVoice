@@ -20,6 +20,7 @@ Import("env")
 if env["PLATFORM"]!="win32":
     client_env = env.Clone()
     client_env["LIBS"] = []
+    client_env.Append(CPPDEFINES=("VERSION", client_env.subst(r'\"$package_version\"')))
     client = client_env.Program("RHVoice-client", ["rhvoice-client.c"])
     client_env.InstallProgram(client)
 

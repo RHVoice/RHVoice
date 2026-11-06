@@ -124,7 +124,12 @@ namespace
 int main(int argc,const char* argv[])
 {
   try{
+#ifdef WITH_CLI11
       AppT cmd("Simple test of the synthesizer");
+      cmd.set_version_flag("--version", VERSION);
+#else
+      AppT cmd("Simple test of the synthesizer",' ',VERSION);
+#endif
 
 #ifdef WITH_CLI11
       std::string inpath_argStor {"-"};

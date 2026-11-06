@@ -19,6 +19,7 @@
 #include <iterator>
 #include <giomm.h>
 #include "common.hpp"
+#include "core/config.h"
 #include "tclap/CmdLine.h"
 
 namespace
@@ -84,7 +85,7 @@ namespace
 
   params::params(int argc,const char* argv[])
   {
-    TCLAP::CmdLine cmd("RHVoice client");
+    TCLAP::CmdLine cmd("RHVoice client",' ',VERSION);
     TCLAP::ValueArg<double> pitch_arg("p","pitch","Speech pitch",false,0,&speech_param_range,cmd);
     TCLAP::ValueArg<double> rate_arg("r","rate","Speech rate",false,0,&speech_param_range,cmd);
     TCLAP::ValueArg<double> volume_arg("v","volume","Speech volume",false,0,&speech_param_range,cmd);
