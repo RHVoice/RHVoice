@@ -27,6 +27,15 @@ namespace RHVoice
   {
     char english_vowel_letters[10]={'a','A','e','E','i','I','o','O','u','U'};
 
+    // The lexicon expands these words as if they were abbreviations
+    // (e.g. "se" as "southeast"), so the letter-to-sound rules are used instead
+    const char* words_with_bad_lexicon_entries[]={"se"};
+
+    bool has_bad_lexicon_entry(const std::string& name)
+    {
+      return (std::find(std::begin(words_with_bad_lexicon_entries),std::end(words_with_bad_lexicon_entries),name)!=std::end(words_with_bad_lexicon_entries));
+    }
+
     struct feat_syl_in_question: public feature_function
     {
       feat_syl_in_question():
@@ -116,7 +125,7 @@ namespace RHVoice
       lseq_fst.translate(chars.begin(),chars.end(),std::back_inserter(transcription));
     else
       {
-        if(!cmulex_fst.translate(chars.begin(),chars.end(),std::back_inserter(transcription)))
+        if(has_bad_lexicon_entry(name)||!cmulex_fst.translate(chars.begin(),chars.end(),std::back_inserter(transcription)))
           cmulex_lts.apply(chars.begin(),chars.end(),std::back_inserter(transcription));
       }
     return transcription;
