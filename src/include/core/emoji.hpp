@@ -33,7 +33,7 @@ emoji_property_extended_pictographic=32
 
   struct emoji_char_t
   {
-    utf8::uint32_t cp;
+    utf8::utfchar32_t cp;
     unsigned int p;
 
     bool valid()
@@ -47,10 +47,10 @@ emoji_property_extended_pictographic=32
 }
   };
 
-  emoji_char_t find_emoji_char(utf8::uint32_t c);
+  emoji_char_t find_emoji_char(utf8::utfchar32_t c);
 
-  const utf8::uint32_t emoji_presentation_selector=0xfe0f;
-  const utf8::uint32_t zwj=0x200d;
+  const utf8::utfchar32_t emoji_presentation_selector=0xfe0f;
+  const utf8::utfchar32_t zwj=0x200d;
 
   class emoji_scanner_state
   {
@@ -94,7 +94,7 @@ emoji_property_extended_pictographic=32
       return (length==0);
 }
 
-    bool process(utf8::uint32_t c);
+    bool process(utf8::utfchar32_t c);
 
   private:
     std::unique_ptr<emoji_scanner_state> state;

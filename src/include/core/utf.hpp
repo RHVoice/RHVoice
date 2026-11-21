@@ -23,7 +23,7 @@ namespace RHVoice
 {
   namespace utf
   {
-    inline bool is_valid(utf8::uint32_t cp)
+    inline bool is_valid(utf8::utfchar32_t cp)
     {
       return ((cp<=0x10ffff)&&((cp<=0xd7ff)||(cp>=0xe000)));
     }
@@ -34,7 +34,7 @@ namespace RHVoice
     template<>
     struct next_impl<1>
     {
-      template<typename iterator> utf8::uint32_t operator()(iterator& it,iterator end) const
+      template<typename iterator> utf8::utfchar32_t operator()(iterator& it,iterator end) const
       {
         return utf8::next(it,end);
       }
@@ -43,9 +43,9 @@ namespace RHVoice
     template<>
     struct next_impl<4>
     {
-      template<typename iterator> utf8::uint32_t operator()(iterator& it,iterator end) const
+      template<typename iterator> utf8::utfchar32_t operator()(iterator& it,iterator end) const
       {
-        utf8::uint32_t cp=*it;
+        utf8::utfchar32_t cp=*it;
         if(!is_valid(cp))
           throw utf8::invalid_code_point(cp);
         ++it;
@@ -56,13 +56,13 @@ namespace RHVoice
     template<>
     struct next_impl<2>
     {
-      template<typename iterator> utf8::uint32_t operator()(iterator& it,iterator end) const;
+      template<typename iterator> utf8::utfchar32_t operator()(iterator& it,iterator end) const;
     };
 
-    template<typename iterator> utf8::uint32_t next_impl<2>::operator()(iterator& it,iterator end) const
+    template<typename iterator> utf8::utfchar32_t next_impl<2>::operator()(iterator& it,iterator end) const
     {
-      const utf8::uint32_t rc{0xfffd};
-      utf8::uint32_t c1=*it;
+      const utf8::utfchar32_t rc{0xfffd};
+      utf8::utfchar32_t c1=*it;
       ++it;
       if((c1<0xd800)||(c1>0xdfff))
         {
@@ -74,7 +74,7 @@ namespace RHVoice
             {
               if(it!=end)
                 {
-                  utf8::uint32_t c2=*it;
+                  utf8::utfchar32_t c2=*it;
                   if((c2>0xdbff)&&(c2<0xe000))
                     {
                       ++it;
@@ -91,7 +91,7 @@ namespace RHVoice
         }
     }
 
-    template<typename iterator> inline utf8::uint32_t next(iterator& it,iterator end)
+    template<typename iterator> inline utf8::utfchar32_t next(iterator& it,iterator end)
     {
       if(it==end)
         throw utf8::not_enough_room();
@@ -108,7 +108,7 @@ namespace RHVoice
     template<>
     struct prev_impl<1>
     {
-      template<typename iterator> utf8::uint32_t operator()(iterator& it,iterator start) const
+      template<typename iterator> utf8::utfchar32_t operator()(iterator& it,iterator start) const
       {
         return utf8::prior(it,start);
       }
@@ -117,11 +117,11 @@ namespace RHVoice
     template<>
     struct prev_impl<4>
     {
-      template<typename iterator> utf8::uint32_t operator()(iterator& it,iterator start) const
+      template<typename iterator> utf8::utfchar32_t operator()(iterator& it,iterator start) const
       {
         iterator tmp=it;
         --tmp;
-        utf8::uint32_t cp=*tmp;
+        utf8::utfchar32_t cp=*tmp;
         if((cp>0x10ffff)||((cp>0xd7ff)&&(cp<0xe000)))
           throw utf8::invalid_code_point(cp);
         it=tmp;
@@ -132,14 +132,14 @@ namespace RHVoice
     template<>
     struct prev_impl<2>
     {
-      template<typename iterator> utf8::uint32_t operator()(iterator& it,iterator start) const;
+      template<typename iterator> utf8::utfchar32_t operator()(iterator& it,iterator start) const;
     };
 
-    template<typename iterator> utf8::uint32_t prev_impl<2>::operator()(iterator& it,iterator start) const
+    template<typename iterator> utf8::utfchar32_t prev_impl<2>::operator()(iterator& it,iterator start) const
     {
       iterator tmp=it;
       --tmp;
-      utf8::uint32_t c2=*tmp;
+      utf8::utfchar32_t c2=*tmp;
       if((c2<0xd800)||(c2>0xdfff))
         {
           it=tmp;
@@ -154,7 +154,7 @@ namespace RHVoice
               else
                 {
                   --tmp;
-                  utf8::uint32_t c1=*tmp;
+                  utf8::utfchar32_t c1=*tmp;
                   if((c1>0xd7ff)&&(c1<0xdc00))
                     {
                       it=tmp;
@@ -168,7 +168,7 @@ namespace RHVoice
         }
     }
 
-    template<typename iterator> inline utf8::uint32_t prev(iterator& it,iterator start)
+    template<typename iterator> inline utf8::utfchar32_t prev(iterator& it,iterator start)
     {
       if(it==start)
         throw utf8::not_enough_room();
@@ -180,7 +180,7 @@ namespace RHVoice
     }
 
     template<typename forward_iterator>
-    class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::uint32_t>
+    class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::utfchar32_t>
     {
     public:
       text_iterator():
@@ -198,7 +198,7 @@ namespace RHVoice
         ++(*this);
       }
 
-      const utf8::uint32_t& operator*() const
+      const utf8::utfchar32_t& operator*() const
       {
         return code_point;
       }
@@ -245,7 +245,7 @@ namespace RHVoice
       }
 
     private:
-      utf8::uint32_t code_point;
+      utf8::utfchar32_t code_point;
       forward_iterator start,end,range_start,range_end;
     };
   }

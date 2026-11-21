@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <cstdint>
 #include <cstdlib>
 #include <fstream>
 #include "core/path.hpp"
@@ -212,7 +213,7 @@ namespace RHVoice
                   match_section_end());
         }
 
-        bool match_reserved_symbol(utf8::uint32_t chr,int type)
+        bool match_reserved_symbol(utf8::utfchar32_t chr,int type)
         {
           if(*pos==chr)
             {
@@ -400,7 +401,7 @@ namespace RHVoice
         bool match_symbol()
         {
           chars32::const_iterator end=pos+1;
-          utf8::uint32_t sym=*pos;
+          utf8::utfchar32_t sym=*pos;
           if(sym=='#')
             {
               chars32::const_iterator start=pos+1;
@@ -415,7 +416,7 @@ namespace RHVoice
                       std::string s;
                       utf8::utf32to8(start,end,std::back_inserter(s));
                       std::istringstream strm(s);
-                      utf8::uint32_t c;
+                      uint32_t c;
                       if(strm>>c)
                         if(utf::is_valid(c))
                           sym=c;
@@ -431,7 +432,7 @@ namespace RHVoice
         const chars32& input;
         std::unique_ptr<token> next_token;
         chars32::const_iterator pos;
-	std::set<utf8::uint32_t> special_chars;
+	std::set<utf8::utfchar32_t> special_chars;
       };
 
       class compiler

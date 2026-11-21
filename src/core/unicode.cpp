@@ -24,9 +24,9 @@ namespace RHVoice
     {
       struct record
       {
-        utf8::uint32_t code;
+        utf8::utfchar32_t code;
         category_t category;
-        utf8::uint32_t upper,lower;
+        utf8::utfchar32_t upper,lower;
         unsigned int properties;
       };
 
@@ -42,7 +42,7 @@ namespace RHVoice
         return (r1.code<r2.code);
       }
 
-      const record* find(utf8::uint32_t c)
+      const record* find(utf8::utfchar32_t c)
       {
         record r=empty_record;
         r.code=c;
@@ -81,25 +81,25 @@ namespace RHVoice
     extern const category_t category_Zp={'Z','p'};
     extern const category_t category_Zs={'Z','s'};
 
-    category_t category(utf8::uint32_t c)
+    category_t category(utf8::utfchar32_t c)
     {
       const record* r=find(c);
       return (r?(r->category):empty_category);
     }
 
-    utf8::uint32_t toupper(utf8::uint32_t c)
+    utf8::utfchar32_t toupper(utf8::utfchar32_t c)
     {
       const record* r=find(c);
       return (r?(r->upper):c);
     }
 
-    utf8::uint32_t tolower(utf8::uint32_t c)
+    utf8::utfchar32_t tolower(utf8::utfchar32_t c)
     {
       const record* r=find(c);
       return (r?(r->lower):c);
     }
 
-    unsigned int properties(utf8::uint32_t c)
+    unsigned int properties(utf8::utfchar32_t c)
     {
       const record* r=find(c);
       return (r?(r->properties):0);

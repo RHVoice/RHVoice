@@ -26,7 +26,7 @@ namespace RHVoice
 {
   namespace sapi
   {
-    class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::uint32_t>
+    class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::utfchar32_t>
     {
     public:
       text_iterator():
@@ -48,7 +48,7 @@ namespace RHVoice
         ++(*this);
       }
 
-      const utf8::uint32_t& operator*() const
+      const utf8::utfchar32_t& operator*() const
       {
         return code_point;
       }
@@ -92,7 +92,7 @@ namespace RHVoice
     private:
       const SPVTEXTFRAG* text_frag;
       const wchar_t *range_end,*start,*end;
-      utf8::uint32_t code_point;
+      utf8::utfchar32_t code_point;
     };
   }
 }

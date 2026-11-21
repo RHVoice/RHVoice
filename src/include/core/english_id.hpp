@@ -80,7 +80,7 @@ private:
   {
     if(!enabled)
       return;
-    std::vector<utf8::uint32_t> word(first, last);
+    std::vector<utf8::utfchar32_t> word(first, last);
     for(auto c: word)
       {
 	if(lang->is_letter(c) && !eng->is_letter(c))
@@ -90,7 +90,7 @@ private:
 	    return;
 	  }
       }
-    auto not_punct=[](utf8::uint32_t c)-> bool {return !str::ispunct(c);};
+    auto not_punct=[](utf8::utfchar32_t c)-> bool {return !str::ispunct(c);};
     auto start=std::find_if(word.begin(), word.end(), not_punct);
     if(start==word.end())
       return;
@@ -99,7 +99,7 @@ private:
     else
       return;
     auto end=std::find_if(word.rbegin(), word.rend(), not_punct).base();
-    std::vector<utf8::uint32_t> lword;
+    std::vector<utf8::utfchar32_t> lword;
     std::transform(start, end, std::back_inserter(lword), str::to_lower());
     if(lang->get_instance().is_common_with_english(lword.begin(), lword.end()))
       {

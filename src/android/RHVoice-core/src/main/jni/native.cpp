@@ -325,7 +325,7 @@ namespace
     while(it!=text.end())
       {
         const std::size_t byte_pos=it-text.begin();
-        const utf8::uint32_t cp=utf8::next(it,text.end());
+        const utf8::utfchar32_t cp=utf8::next(it,text.end());
         const jint u16_index=static_cast<jint>(u16);
         for(std::size_t b=byte_pos,e=it-text.begin();b<e;++b)
           byte_to_utf16[b]=u16_index;

@@ -37,7 +37,7 @@ namespace RHVoice
     };
 
 
-    utf8::uint32_t russian_vowel_letters[20]={1025,1040,1045,1048,1054,1059,1067,1069,1070,1071,1072,1077,1080,1086,1091,1099,1101,1102,1103,1105};
+    utf8::utfchar32_t russian_vowel_letters[20]={1025,1040,1045,1048,1054,1059,1067,1069,1070,1071,1072,1077,1080,1086,1091,1099,1101,1102,1103,1105};
   }
 
   russian_info::russian_info(const std::string& data_path,const std::string& userdict_path):
@@ -238,8 +238,8 @@ namespace RHVoice
     ++next_pos;
     if(std::find_if(next_pos,end,is_vowel_letter(info))!=end)
       return false;
-    std::vector<utf8::uint32_t> letters(start,first_vowel_pos);
-    utf8::uint32_t cp=*first_vowel_pos;
+    std::vector<utf8::utfchar32_t> letters(start,first_vowel_pos);
+    utf8::utfchar32_t cp=*first_vowel_pos;
     letters.push_back((cp==1105)?cp:str::toupper(cp));
     letters.insert(letters.end(),next_pos,end);
     g2p_fst.translate(letters.begin(),letters.end(),std::back_inserter(transcription));
@@ -262,7 +262,7 @@ namespace RHVoice
   bool russian::transcribe_word_applying_stress_rules(const item& word,std::vector<std::string>& transcription) const
   {
     const std::string& name=word.get("name").as<std::string>();
-    std::vector<utf8::uint32_t> letters;
+    std::vector<utf8::utfchar32_t> letters;
     letters.push_back('#');
     letters.insert(letters.end(),str::utf8_string_begin(name),str::utf8_string_end(name));
     letters.push_back('#');

@@ -67,10 +67,10 @@ namespace RHVoice
     extern const category_t category_Zp;
     extern const category_t category_Zs;
 
-    category_t category(utf8::uint32_t c);
+    category_t category(utf8::utfchar32_t c);
 
-    utf8::uint32_t toupper(utf8::uint32_t c);
-    utf8::uint32_t tolower(utf8::uint32_t c);
+    utf8::utfchar32_t toupper(utf8::utfchar32_t c);
+    utf8::utfchar32_t tolower(utf8::utfchar32_t c);
 
     enum property_t
       {
@@ -84,7 +84,7 @@ namespace RHVoice
         property_sterm=128
       };
 
-    unsigned int properties(utf8::uint32_t c);
+    unsigned int properties(utf8::utfchar32_t c);
   }
 }
 #endif

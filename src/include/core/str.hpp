@@ -70,7 +70,7 @@ namespace RHVoice
         return *this;
       }
 
-      utf8_insert_iterator& operator=(utf8::uint32_t c)
+      utf8_insert_iterator& operator=(utf8::utfchar32_t c)
       {
         utf8::append(c,pos);
         return *this;
@@ -160,168 +160,168 @@ namespace RHVoice
       return (s1.size()<s2.size())?false:(s1.substr(s1.size()-s2.size(),s2.size())==s2);
     }
 
-    inline bool isspace(utf8::uint32_t c)
+    inline bool isspace(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_white_space);
     }
 
-    inline bool isupper(utf8::uint32_t c)
+    inline bool isupper(utf8::utfchar32_t c)
     {
       return ((unicode::properties(c)&unicode::property_uppercase)||(unicode::category(c)==unicode::category_Lt));
     }
 
-    inline bool islower(utf8::uint32_t c)
+    inline bool islower(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_lowercase);
     }
 
-    inline bool isalpha(utf8::uint32_t c)
+    inline bool isalpha(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_alphabetic);
     }
 
-    inline bool isquote(utf8::uint32_t c)
+    inline bool isquote(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_quotation_mark);
     }
 
-    inline bool isdash(utf8::uint32_t c)
+    inline bool isdash(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_dash);
     }
 
-    inline bool ispunct(utf8::uint32_t c)
+    inline bool ispunct(utf8::utfchar32_t c)
     {
       return (unicode::category(c).major_class=='P');
     }
 
-    inline bool istermpunct(utf8::uint32_t c)
+    inline bool istermpunct(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_terminal_punctuation);
     }
 
-    inline bool issterm(utf8::uint32_t c)
+    inline bool issterm(utf8::utfchar32_t c)
     {
       return (unicode::properties(c)&unicode::property_sterm);
     }
 
-    inline bool isdigit(utf8::uint32_t c)
+    inline bool isdigit(utf8::utfchar32_t c)
     {
       return (unicode::category(c)==unicode::category_Nd);
     }
 
-    inline bool isadigit(utf8::uint32_t c)
+    inline bool isadigit(utf8::utfchar32_t c)
     {
       return ((c>='0')&&(c<='9'));
     }
 
-    inline bool issym(utf8::uint32_t c)
+    inline bool issym(utf8::utfchar32_t c)
     {
       return (unicode::category(c).major_class=='S');
     }
 
-    struct is_space: public std::unary_function<utf8::uint32_t,bool>
+    struct is_space: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isspace(c);
       }
     };
 
-    struct is_upper: public std::unary_function<utf8::uint32_t,bool>
+    struct is_upper: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isupper(c);
       }
     };
 
-    struct is_lower: public std::unary_function<utf8::uint32_t,bool>
+    struct is_lower: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return islower(c);
       }
     };
 
-    struct is_alpha: public std::unary_function<utf8::uint32_t,bool>
+    struct is_alpha: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isalpha(c);
       }
     };
 
-    struct is_quote: public std::unary_function<utf8::uint32_t,bool>
+    struct is_quote: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isquote(c);
       }
     };
 
-    struct is_dash: public std::unary_function<utf8::uint32_t,bool>
+    struct is_dash: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isdash(c);
       }
     };
 
-    struct is_punct: public std::unary_function<utf8::uint32_t,bool>
+    struct is_punct: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return ispunct(c);
       }
     };
 
-    struct is_termpunct: public std::unary_function<utf8::uint32_t,bool>
+    struct is_termpunct: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return istermpunct(c);
       }
     };
 
-    struct is_sterm: public std::unary_function<utf8::uint32_t,bool>
+    struct is_sterm: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return issterm(c);
       }
     };
 
-    struct is_digit: public std::unary_function<utf8::uint32_t,bool>
+    struct is_digit: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isdigit(c);
       }
     };
 
-    struct is_adigit: public std::unary_function<utf8::uint32_t,bool>
+    struct is_adigit: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return isadigit(c);
       }
     };
 
-    struct is_equal_to: public std::unary_function<utf8::uint32_t,bool>
+    struct is_equal_to: public std::unary_function<utf8::utfchar32_t,bool>
     {
-      explicit is_equal_to(utf8::uint32_t c):
+      explicit is_equal_to(utf8::utfchar32_t c):
       chr(c)
       {
       }
 
-      bool operator()(utf8::uint32_t c) const
+      bool operator()(utf8::utfchar32_t c) const
       {
         return (c==chr);
       }
 
     private:
-      utf8::uint32_t chr;
+      utf8::utfchar32_t chr;
     };
 
     inline std::string trim(const std::string& s)
@@ -366,7 +366,7 @@ namespace RHVoice
       {
         std::string::const_iterator pos1=s1.begin();
         std::string::const_iterator pos2=s2.begin();
-        utf8::uint32_t cp1,cp2;
+        utf8::utfchar32_t cp1,cp2;
         while((pos1!=s1.end())&&(pos2!=s2.end()))
           {
             cp1=tolower(utf8::next(pos1,s1.end()));
@@ -463,8 +463,8 @@ namespace RHVoice
 
     template<typename input_iterator> std::size_t count_newlines(input_iterator start,input_iterator end)
     {
-      utf8::uint32_t chr;
-      utf8::uint32_t prev_chr=0;
+      utf8::utfchar32_t chr;
+      utf8::utfchar32_t prev_chr=0;
       std::size_t n=0;
       for(input_iterator it=start;it!=end;++it)
         {
@@ -478,7 +478,7 @@ namespace RHVoice
 
     struct to_lower
     {
-      utf8::uint32_t operator()(utf8::uint32_t c) const
+      utf8::utfchar32_t operator()(utf8::utfchar32_t c) const
       {
         return tolower(c);
       }
@@ -521,7 +521,7 @@ namespace RHVoice
       return (it==utf8_string_end(s));
     }
 
-    inline std::string cp2str(utf8::uint32_t cp)
+    inline std::string cp2str(utf8::utfchar32_t cp)
     {
       std::string s;
       utf8::append(cp, std::back_inserter(s));
@@ -531,7 +531,7 @@ namespace RHVoice
     template<typename oit>
     oit utf8explode(const std::string& s, oit out)
     {
-      return std::transform(utf8_string_begin(s), utf8_string_end(s), out, [] (utf8::uint32_t cp)-> std::string {return cp2str(cp);});
+      return std::transform(utf8_string_begin(s), utf8_string_end(s), out, [] (utf8::utfchar32_t cp)-> std::string {return cp2str(cp);});
     }
   }
 }

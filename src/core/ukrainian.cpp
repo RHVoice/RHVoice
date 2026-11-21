@@ -103,7 +103,7 @@ namespace RHVoice
         g2p_fst.translate(stressed.begin(),stressed.end(),std::back_inserter(transcription));
         return transcription;
       }
-    std::vector<utf8::uint32_t> letters;
+    std::vector<utf8::utfchar32_t> letters;
     letters.push_back('#');
     letters.insert(letters.end(),str::utf8_string_begin(name),str::utf8_string_end(name));
     letters.push_back('#');

@@ -177,7 +177,7 @@ struct part
       dest.push_back(input_symbols::value_type(name,parts.at(0).symbols.id(name,1)));
     }
 
-    void append_input_symbol(utf8::uint32_t chr,input_symbols& dest) const
+    void append_input_symbol(utf8::utfchar32_t chr,input_symbols& dest) const
     {
       std::string name;
       utf8::append(chr,std::back_inserter(name));
