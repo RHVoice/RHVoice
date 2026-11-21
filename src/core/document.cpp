@@ -41,7 +41,7 @@ namespace RHVoice
     u.get_relation("Event",true).append(parent_token);
     std::string::const_iterator pos=name.begin();
     std::string::const_iterator prev_pos;
-    utf8::uint32_t c;
+    utf8::utfchar32_t c;
     while(pos!=name.end())
       {
         prev_pos=pos;
@@ -82,7 +82,7 @@ namespace RHVoice
         token.set<std::string>("pos","key");
         token.set<verbosity_t>("verbosity",verbosity_name);
         std::string::const_iterator pos=name.begin();
-        utf8::uint32_t cp=utf8::next(pos,name.end());
+        utf8::utfchar32_t cp=utf8::next(pos,name.end());
         if(pos==name.end())
           {
             token.set<std::string>("pos",lang_info.is_letter(cp)?"lseq":"char");
@@ -131,7 +131,7 @@ namespace RHVoice
       return true;
     if(prev_token.type==content_key)
       return false;
-    std::vector<utf8::uint32_t>::const_iterator final_punctuation_start=std::find_if(prev_token.text.rbegin(),prev_token.text.rend(),std::not1(str::is_punct())).base();
+    std::vector<utf8::utfchar32_t>::const_iterator final_punctuation_start=std::find_if(prev_token.text.rbegin(),prev_token.text.rend(),std::not1(str::is_punct())).base();
     if(final_punctuation_start==prev_token.text.end())
       return false;
     if(prev_token.text.back()=='.')
@@ -142,7 +142,7 @@ namespace RHVoice
               return true;
             else
               {
-                std::vector<utf8::uint32_t>::const_iterator last_char_pos=final_punctuation_start-1;
+                std::vector<utf8::utfchar32_t>::const_iterator last_char_pos=final_punctuation_start-1;
                 bool is_alpha=str::isalpha(*last_char_pos);
                 bool is_digit=str::isdigit(*last_char_pos);
                 if(is_alpha || is_digit)
@@ -166,8 +166,8 @@ namespace RHVoice
       }
     else
       {
-        utf8::uint32_t cp;
-        for(std::vector<utf8::uint32_t>::const_iterator it(final_punctuation_start);it!=prev_token.text.end();++it)
+        utf8::utfchar32_t cp;
+        for(std::vector<utf8::utfchar32_t>::const_iterator it(final_punctuation_start);it!=prev_token.text.end();++it)
           {
             cp=*it;
 	    if(language_and_voice.first!=parent->get_engine().get_languages().end())
@@ -352,7 +352,7 @@ namespace RHVoice
               {
                 const std::string& pos=token_iter->get("pos").as<std::string>();
                 const std::string& name=token_iter->get("name").as<std::string>();
-                utf8::uint32_t c=utf8::peek_next(name.begin(),name.end());
+                utf8::utfchar32_t c=utf8::peek_next(name.begin(),name.end());
                 if((pos=="sym")&&
                    (((parent->verbosity_settings.punctuation_mode==RHVoice_punctuation_all)&&
                      (str::ispunct(c)||str::issym(c)))||

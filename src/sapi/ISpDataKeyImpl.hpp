@@ -55,7 +55,7 @@ namespace RHVoice
         {
           std::wstring::const_iterator pos1=s1.begin();
           std::wstring::const_iterator pos2=s2.begin();
-          utf8::uint32_t cp1,cp2;
+          utf8::utfchar32_t cp1,cp2;
           while((pos1!=s1.end())&&(pos2!=s2.end()))
             {
               cp1=str::tolower(utf::next(pos1,s1.end()));

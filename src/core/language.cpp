@@ -14,6 +14,7 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <cstdint>
 #include <algorithm>
 #include <functional>
 #include <iterator>
@@ -782,7 +783,7 @@ cfg.register_setting(lcfg.tok_sent);
     register_feature(std::shared_ptr<feature_function>(new feat_utt_type));
   }
 
-  bool language::is_eos_punct(utf8::uint32_t c) const
+  bool language::is_eos_punct(utf8::utfchar32_t c) const
   {
     const auto ps=lcfg.punct_eos.get();
     const auto start=str::utf8_string_begin(ps);
@@ -827,7 +828,7 @@ cfg.register_setting(lcfg.tok_sent);
       return false;
     const utf8::iterator<std::string::const_iterator> token_start(text.begin(), text.begin(), text.end());
     decltype(token_start) token_end(text.end(), text.begin(), text.end());
-	std::vector<utf8::uint32_t> word;
+	std::vector<utf8::utfchar32_t> word;
 	std::transform(token_start, token_end, std::back_inserter(word), str::tolower);
 	if(is_in_vocabulary(word.begin(), word.end()))
 	  return false;
@@ -856,12 +857,12 @@ cfg.register_setting(lcfg.tok_sent);
     relation& token_rel=u.get_relation("Token",true);
     relation& tokstruct_rel=u.get_relation("TokStructure",true);
     const language_info& lang_info=get_info();
-    utf8::uint32_t stress_marker=lang_info.text_settings.stress_marker;
+    utf8::utfchar32_t stress_marker=lang_info.text_settings.stress_marker;
     bool process_stress_marks=lang_info.supports_stress_marks()&&lang_info.text_settings.stress_marker.is_set(true);
-    std::vector<utf8::uint32_t> chars;
+    std::vector<utf8::utfchar32_t> chars;
     std::vector<std::string> syms;
     std::vector<bool> stress_mask;
-    utf8::uint32_t cp;
+    utf8::utfchar32_t cp;
     std::string::const_iterator it(text.begin());
     const std::string sb{"sb"}, eb{"eb"};
     if(lcfg.tok_sent)
@@ -908,8 +909,8 @@ cfg.register_setting(lcfg.tok_sent);
         tokens.pop_back();
       }
     std::string name, tag, pos;
-    std::vector<utf8::uint32_t>::const_iterator token_start=chars.begin();
-    std::vector<utf8::uint32_t>::const_iterator token_end=token_start;
+    std::vector<utf8::utfchar32_t>::const_iterator token_start=chars.begin();
+    std::vector<utf8::utfchar32_t>::const_iterator token_end=token_start;
     stress_pattern stress;
     for(std::deque<std::string>::const_iterator it(tokens.begin());it!=tokens.end();++it)
       {
@@ -945,7 +946,7 @@ cfg.register_setting(lcfg.tok_sent);
     return parent_token.as("Token");
   }
 
-  bool language::translate_emoji(item& parent_token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const
+  bool language::translate_emoji(item& parent_token,std::vector<utf8::utfchar32_t>::const_iterator start,std::vector<utf8::utfchar32_t>::const_iterator end) const
   {
     std::vector<std::string> annotation;
     if(!emoji_fst->translate(start,end,std::back_inserter(annotation)))
@@ -1040,11 +1041,11 @@ cfg.register_setting(lcfg.tok_sent);
     return true;
 }
 
-  void language::translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const
+  void language::translate_emoji_element(item& token,std::vector<utf8::utfchar32_t>::const_iterator start,std::vector<utf8::utfchar32_t>::const_iterator end) const
   {
     if(translate_emoji(token,start,end))
       return;
-    std::vector<utf8::uint32_t>::const_iterator second=start+1;
+    std::vector<utf8::utfchar32_t>::const_iterator second=start+1;
     if(second==end)
       return;
     emoji_char_t c=find_emoji_char(*second);
@@ -1057,10 +1058,10 @@ cfg.register_setting(lcfg.tok_sent);
       translate_emoji(token,second,second+1);
 }
 
-  std::vector<utf8::uint32_t> language::remove_emoji_presentation_selectors(const std::string& text) const
+  std::vector<utf8::utfchar32_t> language::remove_emoji_presentation_selectors(const std::string& text) const
   {
-    std::vector<utf8::uint32_t> seq;
-    utf8::uint32_t cp;
+    std::vector<utf8::utfchar32_t> seq;
+    utf8::utfchar32_t cp;
     std::string::const_iterator it(text.begin());
     while(it!=text.end())
       {
@@ -1073,8 +1074,8 @@ cfg.register_setting(lcfg.tok_sent);
 
   void language::translate_emoji_sequence(item& token,const std::string& text) const
   {
-    const std::vector<utf8::uint32_t> seq(remove_emoji_presentation_selectors(text));
-    std::vector<utf8::uint32_t>::const_iterator end=std::find(seq.begin(),seq.end(),zwj);
+    const std::vector<utf8::utfchar32_t> seq(remove_emoji_presentation_selectors(text));
+    std::vector<utf8::utfchar32_t>::const_iterator end=std::find(seq.begin(),seq.end(),zwj);
     if(end==seq.end())
       {
         translate_emoji_element(token,seq.begin(),seq.end());
@@ -1082,7 +1083,7 @@ cfg.register_setting(lcfg.tok_sent);
 }
     if(translate_emoji(token,seq.begin(),seq.end()))
       return;
-    std::vector<utf8::uint32_t>::const_iterator start=seq.begin();
+    std::vector<utf8::utfchar32_t>::const_iterator start=seq.begin();
     translate_emoji_element(token,start,end);
     while(end!=seq.end())
       {
@@ -1274,7 +1275,7 @@ else
   {
     str::utf8_string_iterator start=str::utf8_string_begin(token_name);
     str::utf8_string_iterator end=str::utf8_string_end(token_name);
-    utf8::uint32_t cp;
+    utf8::utfchar32_t cp;
     for(str::utf8_string_iterator it=start;it!=end;++it)
       {
         cp=*it;
@@ -1285,8 +1286,8 @@ else
   bool language::decode_as_known_character(item& token,const std::string& token_name) const
   {
     std::vector<std::string> input;
-    utf8::uint32_t c=utf8::peek_next(token_name.begin(),token_name.end());
-    std::map<utf8::uint32_t,std::string>::const_iterator it=whitespace_symbols.find(c);
+    utf8::utfchar32_t c=utf8::peek_next(token_name.begin(),token_name.end());
+    std::map<utf8::utfchar32_t,std::string>::const_iterator it=whitespace_symbols.find(c);
     input.push_back((it==whitespace_symbols.end())?token_name:(it->second));
     for(const auto& tag: lcfg.spell_tags.get())
       {
@@ -1304,7 +1305,7 @@ else
         if(*pos=="%d")
           {
             std::ostringstream os;
-            os << utf8::peek_next(token_name.begin(),token_name.end());
+            os << (uint32_t) utf8::peek_next(token_name.begin(),token_name.end());
             std::string digits(os.str());
             numbers_fst.translate(str::utf8_string_begin(digits),str::utf8_string_end(digits),token.back_inserter());
           }
@@ -1324,7 +1325,7 @@ else
       return;
     const std::string& token_name=token.get("name").as<std::string>();
     std::string::const_iterator it=token_name.begin();
-    utf8::uint32_t c=utf8::next(it,token_name.end());
+    utf8::utfchar32_t c=utf8::next(it,token_name.end());
     if(!((it==token_name.end())&&str::isupper(c)))
       return;
     bool prefix=true;

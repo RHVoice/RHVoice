@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <cstdint>
 #include <sstream>
 #include <iterator>
 #include "core/io.hpp"
@@ -84,7 +85,7 @@ namespace RHVoice
     std::string result;
     result.reserve(s.size());
     std::istringstream strm;
-    utf8::uint32_t c;
+    uint32_t c;
     std::string::size_type pos=0;
     std::string::size_type next_pos;
     while((pos!=std::string::npos)&&(pos!=s.size()))

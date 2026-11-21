@@ -42,7 +42,7 @@ namespace RHVoice
     io::open_ifstream(gf, path::join(data_path, "graph.txt"));
     std::string gs;
     char t;
-    utf8::uint32_t gc;
+    utf8::utfchar32_t gc;
     while(gf >> gs)
       {
         auto it=gs.cbegin();

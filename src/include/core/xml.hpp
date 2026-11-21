@@ -13,6 +13,7 @@
 /* You should have received a copy of the GNU Lesser General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <cstdint>
 #include <string>
 #include <cstring>
 #include <sstream>
@@ -35,7 +36,7 @@ namespace RHVoice
   namespace xml
   {
     template<typename forward_iterator>
-    class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::uint32_t>
+    class text_iterator: public std::iterator<std::forward_iterator_tag,const utf8::utfchar32_t>
     {
     public:
       text_iterator():
@@ -53,7 +54,7 @@ namespace RHVoice
         ++(*this);
       }
 
-      const utf8::uint32_t& operator*() const
+      const utf8::utfchar32_t& operator*() const
       {
         return code_point;
       }
@@ -89,9 +90,9 @@ namespace RHVoice
 
     private:
       typedef typename std::iterator_traits<forward_iterator>::value_type char_type;
-      bool translate(const std::basic_string<char_type>& s,utf8::uint32_t& r);
+      bool translate(const std::basic_string<char_type>& s,utf8::utfchar32_t& r);
 
-      utf8::uint32_t code_point;
+      utf8::utfchar32_t code_point;
       forward_iterator start,end,range_start,range_end;
     };
 
@@ -126,11 +127,11 @@ namespace RHVoice
     }
 
     template<typename forward_iterator>
-    bool text_iterator<forward_iterator>::translate(const std::basic_string<char_type>& s,utf8::uint32_t& r)
+    bool text_iterator<forward_iterator>::translate(const std::basic_string<char_type>& s,utf8::utfchar32_t& r)
     {
       if(s.size()>1)
         {
-          utf8::uint32_t cp;
+          uint32_t cp;
           std::basic_istringstream<char_type> in;
           switch(s[0])
             {

@@ -37,7 +37,7 @@ namespace RHVoice
 
   namespace userdict
   {
-    typedef std::vector<utf8::uint32_t> chars32;
+    typedef std::vector<utf8::utfchar32_t> chars32;
 
     enum
       {
@@ -45,7 +45,7 @@ namespace RHVoice
         token_end
       };
 
-    class position: public std::iterator<std::forward_iterator_tag,utf8::uint32_t>
+    class position: public std::iterator<std::forward_iterator_tag,utf8::utfchar32_t>
     {
     public:
       position():
@@ -62,7 +62,7 @@ namespace RHVoice
 
       explicit position(utterance& utt);
 
-      utf8::uint32_t operator*() const
+      utf8::utfchar32_t operator*() const
       {
         return character;
       }
@@ -142,7 +142,7 @@ namespace RHVoice
       item* token;
       const std::string* text;
       std::string::const_iterator pos;
-      utf8::uint32_t character;
+      utf8::utfchar32_t character;
     };
 
     class word_editor
@@ -169,14 +169,14 @@ namespace RHVoice
 
       void delete_char()
       {
-        utf8::uint32_t c=*cursor;
+        utf8::utfchar32_t c=*cursor;
         if(c>=token_start)
           throw std::logic_error("Nothing to delete");
         ++cursor;
         changed=true;
       }
 
-      void insert_char(utf8::uint32_t c)
+      void insert_char(utf8::utfchar32_t c)
       {
         text.push_back(c);
         changed=true;
@@ -184,7 +184,7 @@ namespace RHVoice
 
       void forward_char()
       {
-        utf8::uint32_t c=*cursor;
+        utf8::utfchar32_t c=*cursor;
         switch(c)
           {
           case token_start:
@@ -279,7 +279,7 @@ namespace RHVoice
       {
       }
 
-      void append(utf8::uint32_t c)
+      void append(utf8::utfchar32_t c)
       {
         text.push_back(c);
       }
@@ -421,7 +421,7 @@ namespace RHVoice
       }
 
       private:
-            utf8::uint32_t chr;
+            utf8::utfchar32_t chr;
     };
 
     class deletion: public substring
@@ -855,7 +855,7 @@ namespace RHVoice
 
     struct to_lower
     {
-      utf8::uint32_t operator()(utf8::uint32_t c) const
+      utf8::utfchar32_t operator()(utf8::utfchar32_t c) const
       {
         if(c>=token_start)
           return c;
@@ -870,7 +870,7 @@ namespace RHVoice
     bool should_ignore_token(const position& pos) const;
 
     const language_info& lang;
-    trie<utf8::uint32_t,rule,to_lower> rules;
+    trie<utf8::utfchar32_t,rule,to_lower> rules;
     std::map<std::string, std::string> simple;
   };
   }

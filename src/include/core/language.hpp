@@ -217,7 +217,7 @@ namespace RHVoice
 
     const std::set<std::string> get_ph_flags() const {return lcfg.ph_flags.get();}
 
-    bool is_eos_punct(utf8::uint32_t c) const;
+    bool is_eos_punct(utf8::utfchar32_t c) const;
 
     item& append_token(utterance& u,const std::string& text, bool eos) const;
     item& append_token(utterance& u,item& parent_token,const std::string& text, bool eos) const;
@@ -355,9 +355,9 @@ namespace RHVoice
 
     bool check_for_f123(const item& tok,const std::string& name) const;
 
-    bool translate_emoji(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
-    std::vector<utf8::uint32_t> remove_emoji_presentation_selectors(const std::string& text) const;
-    void translate_emoji_element(item& token,std::vector<utf8::uint32_t>::const_iterator start,std::vector<utf8::uint32_t>::const_iterator end) const;
+    bool translate_emoji(item& token,std::vector<utf8::utfchar32_t>::const_iterator start,std::vector<utf8::utfchar32_t>::const_iterator end) const;
+    std::vector<utf8::utfchar32_t> remove_emoji_presentation_selectors(const std::string& text) const;
+    void translate_emoji_element(item& token,std::vector<utf8::utfchar32_t>::const_iterator start,std::vector<utf8::utfchar32_t>::const_iterator end) const;
     void translate_emoji_sequence(item& token,const std::string& text) const;
     void set_user_phones(item& word) const;
     item& append_subtoken(item& parent_token, const std::string& name, const std::string& pos) const;
@@ -375,7 +375,7 @@ namespace RHVoice
     const dtree phrasing_dtree;
     const fst syl_fst;
     std::vector<std::string> msg_cap_letter,msg_char_code;
-    std::map<utf8::uint32_t,std::string> whitespace_symbols;
+    std::map<utf8::utfchar32_t,std::string> whitespace_symbols;
     std::unique_ptr<fst> english_phone_mapping_fst;
     std::unique_ptr<fst> emoji_fst;
 std::unique_ptr<fst> qst_fst;
@@ -438,19 +438,19 @@ std::unique_ptr<fst> qst_fst;
       return enabled;
     }
 
-    bool is_letter(utf8::uint32_t cp) const
+    bool is_letter(utf8::utfchar32_t cp) const
     {
       return (letters.find(cp)!=letters.end());
     }
 
-    bool is_sign(utf8::uint32_t cp) const
+    bool is_sign(utf8::utfchar32_t cp) const
     {
       return (signs.find(cp)!=signs.end());
     }
 
     bool has_common_letters(const language_info& other) const
     {
-      for(std::set<utf8::uint32_t>::const_iterator iter=letters.begin();iter!=letters.end();++iter)
+      for(std::set<utf8::utfchar32_t>::const_iterator iter=letters.begin();iter!=letters.end();++iter)
         {
           if(other.is_letter(*iter))
             return true;
@@ -483,7 +483,7 @@ std::unique_ptr<fst> qst_fst;
       return true;
     }
 
-    bool is_vowel_letter(utf8::uint32_t cp) const
+    bool is_vowel_letter(utf8::utfchar32_t cp) const
     {
       return (vowel_letters.find(cp)!=vowel_letters.end());
     }
@@ -527,16 +527,16 @@ std::unique_ptr<fst> qst_fst;
 
   private:
     std::string alpha2_code,alpha3_code;
-    std::set<utf8::uint32_t> letters,vowel_letters,signs;
+    std::set<utf8::utfchar32_t> letters,vowel_letters,signs;
     bool_property enabled;
 
   protected:
-    void register_letter(utf8::uint32_t cp)
+    void register_letter(utf8::utfchar32_t cp)
     {
       letters.insert(cp);
     }
 
-    void register_letter_range(utf8::uint32_t cp,std::size_t n)
+    void register_letter_range(utf8::utfchar32_t cp,std::size_t n)
     {
       for(std::size_t i=0;i<n;++i)
         {
@@ -544,12 +544,12 @@ std::unique_ptr<fst> qst_fst;
         }
     }
 
-    void register_vowel_letter(utf8::uint32_t cp)
+    void register_vowel_letter(utf8::utfchar32_t cp)
     {
       vowel_letters.insert(cp);
     }
 
-    void register_sign(utf8::uint32_t cp)
+    void register_sign(utf8::utfchar32_t cp)
     {
       signs.insert(cp);
     }
@@ -647,14 +647,14 @@ std::unique_ptr<fst> qst_fst;
     std::string name,code;
   };
 
-  struct is_letter: std::unary_function<utf8::uint32_t,bool>
+  struct is_letter: std::unary_function<utf8::utfchar32_t,bool>
   {
     explicit is_letter(const language_info& lang_):
       lang(&lang_)
     {
     }
 
-    bool operator()(utf8::uint32_t cp) const
+    bool operator()(utf8::utfchar32_t cp) const
     {
       return lang->is_letter(cp);
     }
@@ -663,14 +663,14 @@ std::unique_ptr<fst> qst_fst;
     const language_info* lang;
   };
 
-  struct is_vowel_letter: std::unary_function<utf8::uint32_t,bool>
+  struct is_vowel_letter: std::unary_function<utf8::utfchar32_t,bool>
   {
     explicit is_vowel_letter(const language_info& lang_):
       lang(&lang_)
     {
     }
 
-    bool operator()(utf8::uint32_t cp) const
+    bool operator()(utf8::utfchar32_t cp) const
     {
       return lang->is_vowel_letter(cp);
     }

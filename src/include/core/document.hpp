@@ -46,7 +46,7 @@ namespace RHVoice
   struct text_token
   {
     content_type type;
-    std::vector<utf8::uint32_t> text,whitespace;
+    std::vector<utf8::utfchar32_t> text,whitespace;
     std::size_t position,length;
 
     text_token():

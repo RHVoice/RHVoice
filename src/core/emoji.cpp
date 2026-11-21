@@ -24,11 +24,11 @@ namespace RHVoice
 
     const emoji_char_t* end_emoji_char=&emoji_chars[0]+num_emoji_chars;
 
-    const utf8::uint32_t ri_a=0x1f1e6;
-    const utf8::uint32_t ri_z=0x1f1ff;
-    const utf8::uint32_t keycap=0x20e3;
-    const utf8::uint32_t tag_space=0xe0020;
-    const utf8::uint32_t cancel_tag=0xe007f;
+    const utf8::utfchar32_t ri_a=0x1f1e6;
+    const utf8::utfchar32_t ri_z=0x1f1ff;
+    const utf8::utfchar32_t keycap=0x20e3;
+    const utf8::utfchar32_t tag_space=0xe0020;
+    const utf8::utfchar32_t cancel_tag=0xe007f;
 
     inline bool is_regional_indicator(emoji_char_t c)
     {
@@ -247,7 +247,7 @@ namespace RHVoice
 
 }
 
-    emoji_char_t find_emoji_char(utf8::uint32_t c)
+    emoji_char_t find_emoji_char(utf8::utfchar32_t c)
     {
       emoji_char_t tmp={c,0};
       const emoji_char_t* ptr=std::lower_bound(&emoji_chars[0],end_emoji_char,tmp);
@@ -268,7 +268,7 @@ namespace RHVoice
     state.reset(new initial_scanner_state);
 }
 
-  bool emoji_scanner::process(utf8::uint32_t cp)
+  bool emoji_scanner::process(utf8::utfchar32_t cp)
   {
     emoji_char_t c=find_emoji_char(cp);
     if(!c.valid())

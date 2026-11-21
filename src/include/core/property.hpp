@@ -188,29 +188,29 @@ namespace RHVoice
     T min_value,max_value;
   };
 
-  class char_property: public property<utf8::uint32_t>
+  class char_property: public property<utf8::utfchar32_t>
   {
   public:
-    char_property(const std::string& name,utf8::uint32_t default_val):
-      property<utf8::uint32_t>(name,default_val)
+    char_property(const std::string& name,utf8::utfchar32_t default_val):
+      property<utf8::utfchar32_t>(name,default_val)
     {
     }
 
     bool set_from_string(const std::string& s)
     {
       std::string::const_iterator pos=s.begin();
-      utf8::uint32_t cp=utf8::next(pos,s.end());
+      utf8::utfchar32_t cp=utf8::next(pos,s.end());
       return ((pos==s.end())&&this->set_value(cp));
     }
 
-    char_property& operator=(utf8::uint32_t val)
+    char_property& operator=(utf8::utfchar32_t val)
     {
       this->set_value(val);
       return *this;
     }
 
   private:
-    bool check_value(const utf8::uint32_t& given_value,utf8::uint32_t& correct_value) const
+    bool check_value(const utf8::utfchar32_t& given_value,utf8::utfchar32_t& correct_value) const
     {
       if(utf::is_valid(given_value))
         {
@@ -343,10 +343,10 @@ namespace RHVoice
     }
   };
 
-  class charset_property: public property<std::set<utf8::uint32_t> >
+  class charset_property: public property<std::set<utf8::utfchar32_t> >
   {
   private:
-    typedef std::set<utf8::uint32_t> charset;
+    typedef std::set<utf8::utfchar32_t> charset;
 
   public:
     charset_property(const std::string& name,const std::string& chars):
@@ -360,7 +360,7 @@ namespace RHVoice
       return this->set_value(val);
     }
 
-    bool includes(utf8::uint32_t c) const
+    bool includes(utf8::utfchar32_t c) const
     {
       const charset& val=get_value();
       return (val.find(c)!=val.end());
