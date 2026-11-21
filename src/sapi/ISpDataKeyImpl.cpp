@@ -110,7 +110,7 @@ namespace RHVoice
         {
           value_map::const_iterator it(values.begin());
           std::advance(it,Index);
-          *ppszValueName=com::strdup(it->second);
+          *ppszValueName=com::strdup(it->first);
           return S_OK;
         }
       catch(const std::bad_alloc&)
